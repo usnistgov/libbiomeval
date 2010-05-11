@@ -117,7 +117,8 @@ namespace BiometricEvaluation {
 			 */	
 			virtual void replace(
 			    const string &key,
-			    void * data)
+			    void * data,
+			    const uint64_t size)
 			    throw (ParameterError, StrategyError) = 0;
 
 			/* Commit the record's data to storage */

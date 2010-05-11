@@ -44,7 +44,8 @@ BiometricEvaluation::DBRecordStore::read(
 void
 BiometricEvaluation::DBRecordStore::replace(
     const string &key,
-    void * data)
+    void * data,
+    const uint64_t size)
     throw (ParameterError, StrategyError)
 {
 }

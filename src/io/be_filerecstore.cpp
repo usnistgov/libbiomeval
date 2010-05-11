@@ -111,7 +111,8 @@ BiometricEvaluation::FileRecordStore::read(
 void
 BiometricEvaluation::FileRecordStore::replace(
     const string &key,
-    void * data)
+    void * data,
+    const uint64_t size)
     throw (ParameterError, StrategyError)
 {
 }
