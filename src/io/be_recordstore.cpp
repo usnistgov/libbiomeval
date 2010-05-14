@@ -51,6 +51,12 @@ BiometricEvaluation::RecordStore::RecordStore(
 }
 
 string
+BiometricEvaluation::RecordStore::getName()
+{
+	return _name;
+}
+
+string
 BiometricEvaluation::RecordStore::getDescription()
 {
 	return _description;

@@ -88,6 +88,9 @@ namespace BiometricEvaluation {
 			/* Return a textual description of the RecordStore */
 			string getDescription();
 
+			/* Return the name of the RecordStore */
+			string getName();
+
 			/* Return the number of items in the RecordStore */
 			unsigned int getCount();
 			
