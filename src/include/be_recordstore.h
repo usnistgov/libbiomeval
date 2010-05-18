@@ -112,22 +112,31 @@ namespace BiometricEvaluation {
 			 */	
 			virtual uint64_t read(
 			    const string &key,
-			    void * data)
-			    throw (ParameterError, StrategyError) = 0;
+			    void *data)
+			    throw (ObjectDoesNotExist, StrategyError) = 0;
 
 			/*
 			 * Replace a complete record in a store.
 			 */	
 			virtual void replace(
 			    const string &key,
-			    void * data,
+			    void *data,
 			    const uint64_t size)
-			    throw (ParameterError, StrategyError) = 0;
+			    throw (ObjectDoesNotExist, StrategyError) = 0;
 
-			/* Commit the record's data to storage */
+			/*
+			 * Return the length of a record.
+			 */
+			virtual uint64_t length(
+			    const string &key)
+			    throw (ObjectDoesNotExist, StrategyError) = 0;
+
+			/*
+			 * Commit the record's data to storage.
+			 */
 			virtual void flush(
 			    const string &key)
-			    throw (ParameterError, StrategyError) = 0;
+			    throw (ObjectDoesNotExist, StrategyError) = 0;
 
 		protected:
 			/*

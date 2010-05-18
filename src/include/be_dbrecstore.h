@@ -48,17 +48,21 @@ namespace BiometricEvaluation {
 			uint64_t read(
 			    const string &key,
 			    void * data)
-			    throw (ParameterError, StrategyError);
+			    throw (ObjectDoesNotExist, StrategyError);
 
 			virtual void replace(
 			    const string &key,
 			    void * data,
 			    const uint64_t size)
-			    throw (ParameterError, StrategyError);
+			    throw (ObjectDoesNotExist, StrategyError);
+
+			virtual uint64_t length(
+			    const string &key)
+			    throw (ObjectDoesNotExist, StrategyError);
 
 			void flush(
 			    const string &key)
-			    throw (ParameterError, StrategyError);
+			    throw (ObjectDoesNotExist, StrategyError);
 
 		protected:
 

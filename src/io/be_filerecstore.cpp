@@ -76,16 +76,14 @@ BiometricEvaluation::FileRecordStore::insert(
 	if (fileExists(pathname))
 		throw ObjectExists();
 
-	std::FILE *fp = std::fopen(pathname.c_str(), "wb");
-	if (fp == NULL)
-		throw StrategyError("Could not create " + pathname);
-
-	std::size_t sz = fwrite(data, 1, size, fp);
-	std::fclose(fp);
-	if (sz != size)
-		throw StrategyError("Could not write " + pathname);
+	try {
+		writeNewRecordFile(pathname, data, size);
+	} catch (StrategyError e) {
+		throw e;
+	}
 
 	_count++;
+	(void)writeControlFile();
 
 }
 
@@ -98,14 +96,34 @@ BiometricEvaluation::FileRecordStore::remove(
 	if (!fileExists(pathname))
 		throw ObjectDoesNotExist();
 
+	if (std::remove(pathname.c_str()) != 0)
+		throw StrategyError("Could not remove " + pathname);
+
+	_count--;
+	(void)writeControlFile();
 }
 
 uint64_t
 BiometricEvaluation::FileRecordStore::read(
     const string &key,
-    void * data)
-    throw (ParameterError, StrategyError)
+    void *data)
+    throw (ObjectDoesNotExist, StrategyError)
 {
+	string pathname = canonicalName(key);
+	if (!fileExists(pathname))
+		throw ObjectDoesNotExist();
+
+	/* Allow exceptions to propagate out of here */
+	uint64_t size = getFileSize(pathname);
+	std::FILE *fp = std::fopen(pathname.c_str(), "rb");
+	if (fp == NULL)
+		throw StrategyError("Could not open " + pathname);
+
+	std::size_t sz = fread(data, 1, size, fp);
+	std::fclose(fp);
+	if (sz != size)
+		throw StrategyError("Could not write " + pathname);
+
 }
 
 void
@@ -113,15 +131,40 @@ BiometricEvaluation::FileRecordStore::replace(
     const string &key,
     void * data,
     const uint64_t size)
-    throw (ParameterError, StrategyError)
+    throw (ObjectDoesNotExist, StrategyError)
 {
+	string pathname = canonicalName(key);
+	if (!fileExists(pathname))
+		throw ObjectDoesNotExist();
+
+	try {
+		writeNewRecordFile(pathname, data, size);
+	} catch (StrategyError e) {
+		throw e;
+	}
+}
+
+uint64_t
+BiometricEvaluation::FileRecordStore::length(
+    const string &key)
+    throw (ObjectDoesNotExist, StrategyError)
+{
+	string pathname = canonicalName(key);
+	if (!fileExists(pathname))
+		throw ObjectDoesNotExist();
+
+	return (getFileSize(pathname));
 }
 
 void
 BiometricEvaluation::FileRecordStore::flush(
     const string &key)
-    throw (ParameterError, StrategyError)
+    throw (ObjectDoesNotExist, StrategyError)
 {
+	string pathname = canonicalName(key);
+	if (!fileExists(pathname))
+		throw ObjectDoesNotExist();
+	//XXX Implement
 }
 
 /******************************************************************************/
@@ -156,6 +199,8 @@ void
 BiometricEvaluation::FileRecordStore::readControlFile()
     throw (StrategyError)
 {
+	string str;
+
 	/* Read the directory name and description from the control file */
 	std::ifstream ifs(canonicalName(controlFileName).c_str());
 	if (!ifs)
@@ -164,8 +209,12 @@ BiometricEvaluation::FileRecordStore::readControlFile()
 	std::getline(ifs, _directory);
 	if (ifs.eof())
 		throw StrategyError("Premature EOF on control file");
-		
+
 	std::getline(ifs, _description);
+	if (ifs.eof())
+		throw StrategyError("Premature EOF on control file");
+
+	ifs >> _count;
 	
 	ifs.close();
 }
@@ -181,6 +230,7 @@ BiometricEvaluation::FileRecordStore::writeControlFile()
 	/* Write the directory name and description into the control file */
 	ofs << _directory << '\n';
 	ofs << _description << '\n';
+	ofs << _count << '\n';
 	ofs.close();
 }
 
@@ -188,16 +238,33 @@ BiometricEvaluation::FileRecordStore::writeControlFile()
  * Get the size of an object managed by this class, a record.
  */
 uint64_t
-BiometricEvaluation::FileRecordStore::getObjSize(const string &name)
+BiometricEvaluation::FileRecordStore::getFileSize(const string &name)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	string pathname = canonicalName(name);
-	if (!fileExists(pathname))
-		throw ObjectDoesNotExist();
-
 	struct stat sb;
-	if (stat(pathname.c_str(), &sb) != 0)
+
+	if (stat(name.c_str(), &sb) != 0)
 		throw StrategyError("Getting stats on file");
 	return ((uint64_t)sb.st_size);
 
+}
+
+/*
+ * Writes a file, replacing any data that previously existed in the file.
+ */
+void
+BiometricEvaluation::FileRecordStore::writeNewRecordFile( 
+    const string &name,
+    const void *data,
+    const uint64_t size)
+    throw (StrategyError)
+{
+	std::FILE *fp = std::fopen(name.c_str(), "wb");
+	if (fp == NULL)
+		throw StrategyError("Could not open " + name);
+
+	std::size_t sz = fwrite(data, 1, size, fp);
+	std::fclose(fp);
+	if (sz != size)
+		throw StrategyError("Could not write " + name);
 }

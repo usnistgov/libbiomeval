@@ -52,7 +52,7 @@ int main (int argc, char* argv[]) {
 	 * Insert a record to the RecordStore so we can read/write it.
 	 */
 	string firstRec("firstRec");
-	char *wdata = "ABCDEFGHIJKLMNOPQWSTUVWXYZ";
+	char *wdata = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	uint64_t count = strlen(wdata);
 	try {
 		cout << "insert(" << firstRec << ")";
@@ -66,21 +66,63 @@ int main (int argc, char* argv[]) {
 		exit (EXIT_FAILURE);
 	}
 	cout << endl;
+	cout << "Count of records is " << rs->getCount() << endl;
 
 	char rdata[64];
 	bzero(rdata, 64);
 	try {
 		cout << "read(" << firstRec << ")";
 		count = rs->read(firstRec, rdata);
-	} catch (ParameterError e) {
-		cout << " failed: " << e.getInfo() << "." << endl;
+	} catch (ObjectDoesNotExist e) {
+		cout << " failed. " << endl;
 		exit (EXIT_FAILURE);
 	} catch (StrategyError e) {
 		cout << " failed: " << e.getInfo() << "." << endl;
 		exit (EXIT_FAILURE);
 	}
 	cout << " succeeded, read " << rdata << endl;
-	delete rs;
 
+	wdata = "ZYXWVUTSRQPONMLKJIHGFEDCBA";
+	count = strlen(wdata);
+	try {
+		cout << "replace(" << firstRec << ")";
+		rs->replace(firstRec, wdata, count);
+	} catch (ObjectDoesNotExist) {
+		cout << " does not exist!" << endl;
+		exit (EXIT_FAILURE);
+	} catch (StrategyError e) {
+		cout << " failed:" << e.getInfo() << "." << endl;
+		exit (EXIT_FAILURE);
+	}
+	cout << endl;
+	cout << "Count of records is " << rs->getCount() << endl;
+	bzero(rdata, 64);
+	count = rs->read(firstRec, rdata);
+	cout << "Second read yields " << rdata << endl;
+
+	cout << "Deleting record... ";
+	rs->remove(firstRec);
+	cout << "count is now " << rs->getCount() << endl;
+
+	/*
+	 * Try to read the record we just deleted.
+	 */
+	bzero(rdata, 64);
+	bool success;
+	try {
+		cout << "Non-existent read(" << firstRec << ")";
+		count = rs->read(firstRec, rdata);
+		success = false;
+	} catch (ObjectDoesNotExist e) {
+		cout << " succeeded." << endl;
+		success = true;
+	} catch (StrategyError e) {
+		cout << " failed: " << e.getInfo() << "." << endl;
+		exit (EXIT_FAILURE);
+	}
+	if (!success)
+		cout << " failed." << endl;
+
+	delete rs;
 	exit(EXIT_SUCCESS);
 }

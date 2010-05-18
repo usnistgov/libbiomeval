@@ -7,9 +7,7 @@
 # its use by other parties, and makes no guarantees, expressed or implied,
 # about its quality, reliability, or any other characteristic.
 #
-LOCALINC := ../include
-LOCALLIB := ../../lib
-include ../../common.mk
+include ../common.mk
 PROGS = test_be_netserver test_be_netclient test_be_filerecstore test_be_recordstore
 
 all: $(PROGS)

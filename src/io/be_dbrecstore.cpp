@@ -37,7 +37,7 @@ uint64_t
 BiometricEvaluation::DBRecordStore::read(
     const string &key,
     void * data)
-    throw (ParameterError, StrategyError)
+    throw (ObjectDoesNotExist, StrategyError)
 {
 }
 
@@ -46,13 +46,20 @@ BiometricEvaluation::DBRecordStore::replace(
     const string &key,
     void * data,
     const uint64_t size)
-    throw (ParameterError, StrategyError)
+    throw (ObjectDoesNotExist, StrategyError)
+{
+}
+
+uint64_t
+BiometricEvaluation::DBRecordStore::length(
+    const string &key)
+    throw (ObjectDoesNotExist, StrategyError)
 {
 }
 
 void
 BiometricEvaluation::DBRecordStore::flush(
     const string &key)
-    throw (ParameterError, StrategyError)
+    throw (ObjectDoesNotExist, StrategyError)
 {
 }
