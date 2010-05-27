@@ -11,9 +11,21 @@
 #include <iostream>
 
 #include <stdlib.h>
-#include <be_filerecstore.h>
 
+#ifdef FILERECORDSTORETEST
+#include <be_filerecstore.h>
 using namespace BiometricEvaluation;
+#define TESTDEFINED
+#endif
+
+#ifdef DBECORDSTORETEST
+#include <be_dbrecstore.h>
+#define TESTDEFINED
+#endif
+
+#ifdef TESTDEFINED
+using namespace BiometricEvaluation;
+#endif
 
 /*
  * Test the read and write operations of a Bitstore, hopefully stressing
@@ -27,21 +39,45 @@ int main (int argc, char* argv[]) {
 	 * Other types of Bitstore objects can be created here and
 	 * accessed via the Bitstore interface.
 	 */
+
+#ifdef FILERECORDSTORETEST
+
 	/* Call the constructor that will create a new FileRecordStore. */
-	string frstest("frs_test");
+	string rsname("frs_test");
 	RecordStore *rs;
 	try {
-		rs = new FileRecordStore(frstest, "RW Test Dir");
+		rs = new FileRecordStore(rsname, "RW Test Dir");
 	} catch (ObjectExists) {
 		cout << "The RecordStore already exists; using it." << endl;
 		try {
-			rs = new FileRecordStore(frstest);
+			rs = new FileRecordStore(rsname);
 		} catch (StrategyError e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}
 	} catch (StrategyError e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
+#endif
+
+#ifdef DBECORDSTORETEST
+	/* Call the constructor that will create a new DBRecordStore. */
+	string rsname("dbrs_test");
+	RecordStore *rs;
+	try {
+		rs = new DBRecordStore(rsname, "RW Test Dir");
+	} catch (ObjectExists) {
+		cout << "The DB RecordStore already exists; using it." << endl;
+		try {
+			rs = new DBRecordStore(rsname);
+		} catch (StrategyError e) {
+			cout << "A strategy error occurred: " << e.getInfo() << endl;
+		}
+	} catch (StrategyError e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+	}
+#endif
+
+#ifdef TESTDEFINED
 
 	/*
 	 * From this point forward, all access to the store object, no matter
@@ -125,4 +161,5 @@ int main (int argc, char* argv[]) {
 
 	delete rs;
 	exit(EXIT_SUCCESS);
+#endif
 }

@@ -8,7 +8,7 @@
 # about its quality, reliability, or any other characteristic.
 #
 include ../common.mk
-PROGS = test_be_netserver test_be_netclient test_be_filerecstore test_be_recordstore
+PROGS = test_be_netserver test_be_netclient test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore
 
 all: $(PROGS)
 
@@ -16,10 +16,12 @@ test_be_netserver: test_be_netserver.c
 	$(CC) $(CFLAGS) -lbiomeval $^ -o $@
 test_be_netclient: test_be_netclient.c
 	$(CC) $(CFLAGS) -lbiomeval $^ -o $@
-test_be_filerecstore: test_be_filerecstore.cpp
+test_construct_be_filerecstore: test_be_filerecstore.cpp
 	$(C++) $(C++FLAGS) -lbiomevalio $^ -o $@
-test_be_recordstore: test_be_recordstore.cpp
-	$(C++) $(C++FLAGS) -lbiomevalio $^ -o $@
+test_be_filerecordstore: test_be_recordstore.cpp
+	$(C++) $(C++FLAGS) -DFILERECORDSTORETEST -lbiomevalio $^ -o $@
+test_be_dbrecordstore: test_be_recordstore.cpp
+	$(C++) $(C++FLAGS) -DDBECORDSTORETEST -lbiomevalio $^ -o $@
 
 clean:
 	$(RM) $(DISPOSABLEFILES) $(PROGS)
