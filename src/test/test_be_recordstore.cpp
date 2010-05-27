@@ -44,7 +44,7 @@ int main (int argc, char* argv[]) {
 
 	/* Call the constructor that will create a new FileRecordStore. */
 	string rsname("frs_test");
-	RecordStore *rs;
+	FileRecordStore *rs;
 	try {
 		rs = new FileRecordStore(rsname, "RW Test Dir");
 	} catch (ObjectExists) {
@@ -62,7 +62,7 @@ int main (int argc, char* argv[]) {
 #ifdef DBECORDSTORETEST
 	/* Call the constructor that will create a new DBRecordStore. */
 	string rsname("dbrs_test");
-	RecordStore *rs;
+	DBRecordStore *rs;
 	try {
 		rs = new DBRecordStore(rsname, "RW Test Dir");
 	} catch (ObjectExists) {
