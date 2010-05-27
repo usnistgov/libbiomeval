@@ -11,9 +11,15 @@
 #include <be_dbrecstore.h>
 
 BiometricEvaluation::DBRecordStore::DBRecordStore(
-    const string &description,
+    const string &name,
+    const string &description)
+    throw (ObjectExists, StrategyError) : RecordStore(name, description)
+{
+}
+
+BiometricEvaluation::DBRecordStore::DBRecordStore(
     const string &name)
-    throw (ObjectExists, StrategyError) : RecordStore(description, name)
+    throw (ObjectDoesNotExist, StrategyError)
 {
 }
 

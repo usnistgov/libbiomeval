@@ -24,7 +24,7 @@ namespace BiometricEvaluation {
 	/*
 	 * Class to represent the data storage mechanism.
 	 */
-	class DBRecordStore : RecordStore {
+	class DBRecordStore : public RecordStore {
 		public:
 			
 			/*
@@ -34,7 +34,14 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &description)
 			    throw (ObjectExists, StrategyError);
-			
+
+			/*
+			 * Construct an existing DB record store.
+			 */
+			DBRecordStore(
+			    const string &name)
+			    throw (ObjectDoesNotExist, StrategyError);
+
 			void insert(
 			    const string &key,
 			    const void *data,
