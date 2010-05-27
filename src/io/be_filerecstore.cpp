@@ -37,7 +37,7 @@ BiometricEvaluation::FileRecordStore::FileRecordStore(
 		throw ObjectExists("Named object already exists");
 
 	/* Make the new directory, checking for errors */
-	if (mkdir(_directory.c_str(), 0700) != 0)
+	if (mkdir(_directory.c_str(), S_IRWXU) != 0)
 		throw StrategyError("Could not create directory");
 	try {
 		(void)writeControlFile();
