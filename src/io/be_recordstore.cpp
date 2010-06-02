@@ -143,12 +143,14 @@ BiometricEvaluation::RecordStore::readControlFile()
 {
 	string str;
 
-	/* Read the directory name and description from the control file */
+	/* Read the store name and description from the control file.
+	 * _directory must be set before calling this method.
+	 */
 	std::ifstream ifs(canonicalName(controlFileName).c_str());
 	if (!ifs)
 		throw StrategyError("Could not open control file");
 
-	std::getline(ifs, _directory);
+	std::getline(ifs, _name);
 	if (ifs.eof())
 		throw StrategyError("Premature EOF on control file");
 
@@ -169,8 +171,8 @@ BiometricEvaluation::RecordStore::writeControlFile()
 	if (!ofs)
 		throw StrategyError("Could not create control file");
 
-	/* Write the directory name and description into the control file */
-	ofs << _directory << '\n';
+	/* Write the store name and description into the control file */
+	ofs << _name << '\n';
 	ofs << _description << '\n';
 	ofs << _count << '\n';
 	ofs.close();
