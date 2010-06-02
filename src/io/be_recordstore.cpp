@@ -8,7 +8,15 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
+#include <sys/stat.h>
+#include <iostream>
+#include <fstream>
 #include <be_recordstore.h>
+
+/*
+ * The name of the control file use by all RecordStores.
+ */
+const string controlFileName(".rscontrol");
 
 BiometricEvaluation::ObjectExists::ObjectExists() :
     Exception() { }
@@ -35,6 +43,9 @@ BiometricEvaluation::StrategyError::StrategyError() :
 BiometricEvaluation::StrategyError::StrategyError(string info) :
 	Exception(info) { }
 
+/*
+ * Constructors
+ */
 BiometricEvaluation::RecordStore::RecordStore()
 {
 	_count = 0;
@@ -45,11 +56,55 @@ BiometricEvaluation::RecordStore::RecordStore(
     const string &description)
     throw (ObjectExists, StrategyError)
 {
+	struct stat sb;
+
 	_count = 0;
 	_name = name;
+	_directory = name;
 	_description = description;
+
+	/*
+	 * The RecordStore is implemented as a directory in the current
+	 * working directory. Subclasses of this class store all their
+	 * data in this directory.
+	 */
+	/* Check that the directory doesn't already exist */
+	if (stat(_directory.c_str(), &sb) == 0)
+		throw ObjectExists("Named object already exists");
+
+	/* Make the new directory, checking for errors */
+	if (mkdir(_directory.c_str(), S_IRWXU) != 0)
+		throw StrategyError("Could not create directory");
+	try {
+		(void)writeControlFile();
+	} catch (StrategyError e) {
+		throw e;
+	}
 }
 
+BiometricEvaluation::RecordStore::RecordStore(
+    const string &name)
+    throw (ObjectDoesNotExist, StrategyError)
+{
+	struct stat sb;
+
+	_directory = name;
+
+	/* Check that the directory exists, throwing an error if not */
+	if (stat(_directory.c_str(), &sb) != 0)
+		throw ObjectDoesNotExist();
+
+	try {
+		(void)readControlFile();
+	} catch (StrategyError e) {
+		throw e;
+	}
+}
+
+/*
+/******************************************************************************/
+/* Common public methods implementations.                                     */
+/******************************************************************************/
 string
 BiometricEvaluation::RecordStore::getName()
 {
@@ -66,4 +121,57 @@ unsigned int
 BiometricEvaluation::RecordStore::getCount()
 {
 	return _count;
+}
+
+/******************************************************************************/
+/* Common protected method implementations.                                   */
+/******************************************************************************/
+string
+BiometricEvaluation::RecordStore::canonicalName(
+    const string &name)
+{
+	return (_directory + '/' + name);
+}
+
+/*
+ * Read/Write the control file. Write always writes a new file, overwriting an
+ * existing file.
+ */
+void
+BiometricEvaluation::RecordStore::readControlFile()
+    throw (StrategyError)
+{
+	string str;
+
+	/* Read the directory name and description from the control file */
+	std::ifstream ifs(canonicalName(controlFileName).c_str());
+	if (!ifs)
+		throw StrategyError("Could not open control file");
+
+	std::getline(ifs, _directory);
+	if (ifs.eof())
+		throw StrategyError("Premature EOF on control file");
+
+	std::getline(ifs, _description);
+	if (ifs.eof())
+		throw StrategyError("Premature EOF on control file");
+
+	ifs >> _count;
+	
+	ifs.close();
+}
+
+void
+BiometricEvaluation::RecordStore::writeControlFile()
+    throw (StrategyError)
+{
+	std::ofstream ofs(canonicalName(controlFileName).c_str());
+	if (!ofs)
+		throw StrategyError("Could not create control file");
+
+	/* Write the directory name and description into the control file */
+	ofs << _directory << '\n';
+	ofs << _description << '\n';
+	ofs << _count << '\n';
+	ofs.close();
 }

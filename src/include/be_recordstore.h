@@ -80,7 +80,14 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &description)
 			    throw (ObjectExists, StrategyError);
-			
+
+			/*
+			 * Open an existing RecordStore.
+			 */
+			RecordStore(
+			    const string &name)
+			    throw (ObjectDoesNotExist, StrategyError);
+
 			RecordStore();
 
 			virtual ~RecordStore() {};
@@ -148,11 +155,29 @@ namespace BiometricEvaluation {
 			/* The name of the RecordStore */
 			string _name;
 
+			/* The name directory where the store is rooted */
+			string _directory;
+
 			/* A textual description of the store. */
 			string _description;
 
 			/* Number of items in the store */
 			unsigned int _count;
+
+			/* Return the full name of a file stored as part
+			 * of the RecordStore, typically _directory + name.
+			 */
+			string canonicalName(const string &name);
+
+			/* Read the contents of the common control file format
+			 * for all RecordStores.
+			 */
+			void readControlFile() throw (StrategyError);
+
+			/* Write the contents of the common control file format
+			 * for all RecordStores.
+			 */
+			void writeControlFile() throw (StrategyError);
 
 	};
 }

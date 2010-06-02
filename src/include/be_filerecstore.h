@@ -74,11 +74,7 @@ namespace BiometricEvaluation {
 		protected:
 
 		private:
-			string _directory;
-			string canonicalName(const string &name);
 			bool fileExists(const string &name);
-			void readControlFile() throw (StrategyError);
-			void writeControlFile() throw (StrategyError);
 			void writeNewRecordFile(
 			    const string &name, 
 			    const void *data,

@@ -8,61 +8,22 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
-#include <iostream>
-#include <fstream>
 #include <sys/stat.h>
 #include <be_filerecstore.h>
-
-const string controlFileName(".frscontrol");
 
 BiometricEvaluation::FileRecordStore::FileRecordStore(
     const string &name,
     const string &description)
     throw (ObjectExists, StrategyError) : RecordStore(name, description)
 {
-	struct stat sb;
-
-	/* The directory where the store is rooted is just the name of
-	 * the store, created in the current working directory of the
-	 * process.
-	 */
-	_directory = name;
-
-	/*
-	 * The RecordStore is implemented as a directory in the current
-	 * working directory.
-	 */
-	/* Check that the directory doesn't already exist */
-	if (stat(_directory.c_str(), &sb) == 0)
-		throw ObjectExists("Named object already exists");
-
-	/* Make the new directory, checking for errors */
-	if (mkdir(_directory.c_str(), S_IRWXU) != 0)
-		throw StrategyError("Could not create directory");
-	try {
-		(void)writeControlFile();
-	} catch (StrategyError e) {
-		throw e;
-	}
-	
+	return;		/* The parent does all the work */
 }
 
 BiometricEvaluation::FileRecordStore::FileRecordStore(
     const string &name)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (ObjectDoesNotExist, StrategyError) : RecordStore(name)
 {
-
-	_directory = name;
-
-	/* Check that the directory exists, throwing an error if not */
-	if (!fileExists(name))
-		throw ObjectDoesNotExist();
-
-	try {
-		(void)readControlFile();
-	} catch (StrategyError e) {
-		throw e;
-	}
+	return;		/* The parent does all the work */
 }
 
 void
@@ -170,16 +131,6 @@ BiometricEvaluation::FileRecordStore::flush(
 /******************************************************************************/
 /* Private method implementations.                                            */
 /******************************************************************************/
-/*
- * Turn a Bitstore object name into a complete pathname/filename.
- */
-string
-BiometricEvaluation::FileRecordStore::canonicalName(
-    const string &name)
-{
-	return (_directory + '/' + name);
-}
-
 bool
 BiometricEvaluation::FileRecordStore::fileExists(const string &pathname)
 {
@@ -192,50 +143,7 @@ BiometricEvaluation::FileRecordStore::fileExists(const string &pathname)
 }
 
 /*
- * Read/Write the control file. Write always writes a new file, overwriting an
- * existing file.
- */
-void
-BiometricEvaluation::FileRecordStore::readControlFile()
-    throw (StrategyError)
-{
-	string str;
-
-	/* Read the directory name and description from the control file */
-	std::ifstream ifs(canonicalName(controlFileName).c_str());
-	if (!ifs)
-		throw StrategyError("Could not open control file");
-
-	std::getline(ifs, _directory);
-	if (ifs.eof())
-		throw StrategyError("Premature EOF on control file");
-
-	std::getline(ifs, _description);
-	if (ifs.eof())
-		throw StrategyError("Premature EOF on control file");
-
-	ifs >> _count;
-	
-	ifs.close();
-}
-
-void
-BiometricEvaluation::FileRecordStore::writeControlFile()
-    throw (StrategyError)
-{
-	std::ofstream ofs(canonicalName(controlFileName).c_str());
-	if (!ofs)
-		throw StrategyError("Could not create control file");
-
-	/* Write the directory name and description into the control file */
-	ofs << _directory << '\n';
-	ofs << _description << '\n';
-	ofs << _count << '\n';
-	ofs.close();
-}
-
-/*
- * Get the size of an object managed by this class, a record.
+ * Get the size of a file managed by this class, a record.
  */
 uint64_t
 BiometricEvaluation::FileRecordStore::getFileSize(const string &name)
