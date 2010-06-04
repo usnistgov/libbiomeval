@@ -13,6 +13,9 @@
 #include <string>
 #include <vector>
 #include <be_recordstore.h>
+
+#include <db.h>
+
 using namespace std;
 
 /*
@@ -42,6 +45,11 @@ namespace BiometricEvaluation {
 			    const string &name)
 			    throw (ObjectDoesNotExist, StrategyError);
 
+			/*
+			 * Destructor.
+			 */
+			~DBRecordStore();
+
 			void insert(
 			    const string &key,
 			    const void *data,
@@ -54,12 +62,12 @@ namespace BiometricEvaluation {
 
 			uint64_t read(
 			    const string &key,
-			    void * data)
+			    void *data)
 			    throw (ObjectDoesNotExist, StrategyError);
 
 			virtual void replace(
 			    const string &key,
-			    void * data,
+			    void *data,
 			    const uint64_t size)
 			    throw (ObjectDoesNotExist, StrategyError);
 
@@ -74,6 +82,14 @@ namespace BiometricEvaluation {
 		protected:
 
 		private:
+			/* The handle to the underlying database */
+			DB *_db;
+			void internalRead(
+			    const string &key,
+			    DBT *dbtdata)
+			    throw (ObjectDoesNotExist, StrategyError);
+
+			bool fileExists(const string &pathname);
 
 	};
 }
