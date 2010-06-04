@@ -102,6 +102,13 @@ BiometricEvaluation::RecordStore::RecordStore(
 }
 
 /*
+ * Destructor for the abstract class; required NULL implementaton.
+ */
+BiometricEvaluation::RecordStore::~RecordStore()
+{
+}
+
+/*
 /******************************************************************************/
 /* Common public methods implementations.                                     */
 /******************************************************************************/

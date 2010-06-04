@@ -90,7 +90,7 @@ namespace BiometricEvaluation {
 
 			RecordStore();
 
-			virtual ~RecordStore() {};
+			virtual ~RecordStore() = 0;
 			
 			/* Return a textual description of the RecordStore */
 			string getDescription();
