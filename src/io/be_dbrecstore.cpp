@@ -48,6 +48,7 @@ BiometricEvaluation::DBRecordStore::~DBRecordStore()
 {
 	if (_db != NULL)
 		_db->close(_db);
+	writeControlFile();
 }
 
 void
@@ -68,6 +69,7 @@ BiometricEvaluation::DBRecordStore::insert(
 	switch (rc) {
 		case 0:
 			_count++;
+			writeControlFile();
 			break;
 		case 1:
 			throw ObjectExists("Key already in database");
@@ -96,6 +98,7 @@ BiometricEvaluation::DBRecordStore::remove(
 	switch (rc) {
 		case 0:
 			_count--;
+			writeControlFile();
 			break;
 		case 1:
 			throw ObjectDoesNotExist("Key not in database");
