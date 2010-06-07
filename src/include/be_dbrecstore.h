@@ -14,7 +14,11 @@
 #include <vector>
 #include <be_recordstore.h>
 
+#ifdef DB1X
+#include <db_185.h>
+#else
 #include <db.h>
+#endif
 
 using namespace std;
 

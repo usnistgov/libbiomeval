@@ -14,25 +14,32 @@ OBJECTS = $(SOURCES:%.cpp=%.o)
 
 all: $(OBJECTS)
 ifeq ($(OS), Darwin)
-	$(C++) $(C++FLAGS) $(LOCALINCOPT) -dynamiclib $(OBJECTS) $(LOCALLIBOPT) -o $(LIBRARY).dylib
+	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -o $(LIBRARY).dylib
 	$(CP) $(LIBRARY).dylib $(LOCALLIB)
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
-	$(C++) $(C++FLAGS) -c $(SOURCES)
 	ar rs $(LIBRARY).a $(OBJECTS)
 	ranlib $(LIBRARY).a
-	$(C++) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive
+	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive
 	$(CP) $(LIBRARY).a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(C++) $(C++FLAGS) $(LOCALINCOPT) -shared $(OBJECTS) $(LOCALLIBOPT) -o $(LIBRARY).so
+	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -o $(LIBRARY).so
 	$(CP) $(LIBRARY).so $(LOCALLIB)
 endif
 endif
 
-%.o: %.cpp
-	$(C++) -c $(LOCALINCOPT) $(C++FLAGS) $<
+be_dbrecstore.o: be_dbrecstore.cpp
+ifeq ($(OS), Darwin)
+	$(CXX) -c $(CXXFLAGS) $<
+else
+ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
+	$(CXX) -c -DDB1X $(CXXFLAGS) $<
+else
+	$(CXX) -c -DDB1X $(CXXFLAGS) $<
+endif
+endif
 
 clean:
 	$(RM) $(DISPOSABLEFILES) $(LIBRARY).*

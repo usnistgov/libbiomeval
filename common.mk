@@ -24,19 +24,24 @@ CP := cp -f
 RM := rm -f
 PWD := $(shell pwd)
 OS := $(shell uname -s)
+ARCH := $(shell arch)
 CC = gcc
-C++ = g++
+CXX = g++
 
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
         ROOT = Administrator
 else
         ROOT  = root
 endif
+ifeq ($(findstring x86_64,$(ARCH)), x86_64)
+        ARCHOPT = -fPIC
+endif
+
 
 #
 # If there are any 'non-standard' include or lib directories that need to
 # be searched prior to the 'standard' libraries, add the to the CFLAGS
 # variable.
 
-CFLAGS := -g -std=c99 $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH) $(COMMONLIBOPT) -L$(LOCALLIB) -L$(LIBPATH)
-C++FLAGS := -g $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH) $(COMMONLIBOPT) -L$(LOCALLIB) -L$(LIBPATH)
+CFLAGS := -g -std=c99 $(ARCHOPT) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH) $(COMMONLIBOPT) -L$(LOCALLIB) -L$(LIBPATH)
+CXXFLAGS := -g $(ARCHOPT) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH) $(COMMONLIBOPT) -L$(LOCALLIB) -L$(LIBPATH)
