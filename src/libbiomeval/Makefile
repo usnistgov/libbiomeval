@@ -28,7 +28,7 @@ ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(CC) $(CFLAGS) -shared $(SOURCES) -o $(LIB).so
+	$(CC) $(CFLAGS) -shared $(SOURCES) -o $(LIBRARY).so
 	$(CP) $(LIBRARY).so $(LOCALLIB)
 endif
 endif
