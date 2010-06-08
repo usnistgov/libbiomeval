@@ -84,7 +84,7 @@ BiometricEvaluation::FileRecordStore::read(
 	std::fclose(fp);
 	if (sz != size)
 		throw StrategyError("Could not write " + pathname);
-
+	return(size);
 }
 
 void
