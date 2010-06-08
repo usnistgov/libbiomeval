@@ -85,8 +85,7 @@ int main (int argc, char* argv[]) {
 	 * Insert a suite of records to the RecordStore in order to measure
 	 * performance in terms of speed and robustness.
 	 */
-	//XXX Add a timing 
-	const int RECCOUNT = 2063;		/* A prime number of records */
+	const int RECCOUNT = 110503;		/* A prime number of records */
 	const int RECSIZE = 1153;		/* of prime number size each */
 	const int KEYNAMESIZE = 32;
 	string *theKey;
