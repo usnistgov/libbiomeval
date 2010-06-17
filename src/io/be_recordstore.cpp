@@ -106,6 +106,7 @@ BiometricEvaluation::RecordStore::RecordStore(
  */
 BiometricEvaluation::RecordStore::~RecordStore()
 {
+	writeControlFile();
 }
 
 /*

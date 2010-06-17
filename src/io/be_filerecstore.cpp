@@ -44,7 +44,6 @@ BiometricEvaluation::FileRecordStore::insert(
 	}
 
 	_count++;
-	(void)writeControlFile();
 
 }
 
@@ -61,7 +60,6 @@ BiometricEvaluation::FileRecordStore::remove(
 		throw StrategyError("Could not remove " + pathname);
 
 	_count--;
-	(void)writeControlFile();
 }
 
 uint64_t
