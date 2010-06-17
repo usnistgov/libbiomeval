@@ -33,7 +33,7 @@ int main (int argc, char* argv[]) {
 		frs = new FileRecordStore(frtestdir, "Test FileRecordStore");
 	} catch (ObjectExists) {
 		cout << "The directory already exists; exiting." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (StrategyError e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
@@ -54,7 +54,7 @@ int main (int argc, char* argv[]) {
 	}
 	if (!cont) {
 		cout << "Test of opening non-existing bit store construction failed." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 
 	cont = false;
@@ -65,7 +65,7 @@ int main (int argc, char* argv[]) {
 		cout << "Failed test of opening existing bit store." << endl;
 	} catch (StrategyError e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	if (!cont) {
 		cout << "Test of opening existing store failed." << endl;
@@ -73,5 +73,5 @@ int main (int argc, char* argv[]) {
 	cout << "Passed test of opening existing bit store." << endl;
 	cout << "Description is \'" << frs->getDescription() << "\'" << endl;
 
-	exit(EXIT_SUCCESS);
+	return(EXIT_SUCCESS);
 }

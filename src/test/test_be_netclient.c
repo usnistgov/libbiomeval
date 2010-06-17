@@ -43,5 +43,5 @@ main(int argc, char *argv[])
 
 	beSocketWriteString(sockfd, BE_NETCMD_BYE);
 	beSocketClose(sockfd);
-	exit (EXIT_SUCCESS);
+	return (EXIT_SUCCESS);
 }

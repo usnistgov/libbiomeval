@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 		if (acceptfd < 0) {
 			printf("Error accepting on socket: %s.\n",
 			    strerror(errno));
-			exit (EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		}
 		cont = 1;
 		while (cont) {
@@ -49,7 +49,7 @@ main(int argc, char *argv[])
 			if (len < 0) {
 				printf("Error reading from socket.\n");
 				beSocketClose(acceptfd);
-				exit (EXIT_FAILURE);
+				return (EXIT_FAILURE);
 			}
 			printf("Read %d bytes, [%s]\n", len, buf);
 			if (len == 0) {
@@ -81,5 +81,5 @@ main(int argc, char *argv[])
 		}
 	}
 	beSocketClose(listenfd);
-	exit (EXIT_SUCCESS);
+	return (EXIT_SUCCESS);
 }
