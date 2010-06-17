@@ -36,7 +36,6 @@ using namespace BiometricEvaluation;
  * an object of the appropriate implementation class.
  */
 int main (int argc, char* argv[]) {
-
 	/*
 	 * Other types of Bitstore objects can be created here and
 	 * accessed via the Bitstore interface.
@@ -51,10 +50,11 @@ int main (int argc, char* argv[]) {
 		rs = new FileRecordStore(rsname, "RW Test Dir");
 	} catch (ObjectExists) {
 		cout << "The FileRecordStore already exists; exiting." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (StrategyError e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
+	auto_ptr<FileRecordStore> ars(rs);
 #endif
 
 #ifdef DBECORDSTORETEST
@@ -65,10 +65,11 @@ int main (int argc, char* argv[]) {
 		rs = new DBRecordStore(rsname, "RW Test Dir");
 	} catch (ObjectExists) {
 		cout << "The DBRecordStore already exists; exiting." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (StrategyError e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
+	auto_ptr<DBRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED
@@ -103,16 +104,14 @@ int main (int argc, char* argv[]) {
 		theKey = new string(keyName);
 		gettimeofday(&starttm, NULL);
 		try {
-			rs->insert(*theKey, theData, RECSIZE);
+			ars->insert(*theKey, theData, RECSIZE);
 		} catch (ObjectExists) {
 			cout << "Whoops! Record exists?. Insert ailed at record " << i << "." << endl;
-			delete rs;
-			exit (EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		} catch (StrategyError e) {
 			cout << "Could not insert record " << i << ": " <<
 			    e.getInfo() << "." << endl;
-			delete rs;
-			exit (EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		}
 		gettimeofday(&endtm, NULL);
 		totalTime += TIMEINTERVAL(starttm, endtm);
@@ -131,13 +130,11 @@ int main (int argc, char* argv[]) {
 		} catch (ObjectDoesNotExist) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
-			delete rs;
-			exit (EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		} catch (StrategyError e) {
 			cout << "Could not read record " << i << ": " <<
 			    e.getInfo() << "." << endl;
-			delete rs;
-			exit (EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		}
 		gettimeofday(&endtm, NULL);
 		totalTime += TIMEINTERVAL(starttm, endtm);
@@ -145,6 +142,5 @@ int main (int argc, char* argv[]) {
 	}
 	cout << "Read lapsed time: " << totalTime << endl;
 #endif
-	delete rs;
-	exit(EXIT_SUCCESS);
+	return(EXIT_SUCCESS);
 }

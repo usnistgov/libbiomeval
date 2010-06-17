@@ -57,6 +57,7 @@ int main (int argc, char* argv[]) {
 	} catch (StrategyError e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
+	auto_ptr<FileRecordStore> ars(rs);
 #endif
 
 #ifdef DBECORDSTORETEST
@@ -75,6 +76,7 @@ int main (int argc, char* argv[]) {
 	} catch (StrategyError e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
+	auto_ptr<DBRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED
@@ -93,35 +95,35 @@ int main (int argc, char* argv[]) {
 	uint64_t wlen = strlen(wdata);
 	try {
 		cout << "insert(" << firstRec << "): ";
-		rs->insert(firstRec, wdata, wlen);
+		ars->insert(firstRec, wdata, wlen);
 	} catch (ObjectExists) {
 		cout << "exists; deleting." << endl;
 		try {
-			rs->remove(firstRec);
-			rs->insert(firstRec, wdata, wlen);
+			ars->remove(firstRec);
+			ars->insert(firstRec, wdata, wlen);
 		} catch (StrategyError e) {
 			cout << "Could not remove, and should be able to: " <<
 			    e.getInfo() << "." << endl;
-			exit (EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		}
 	} catch (StrategyError e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	cout << endl;
-	cout << "Count of records is " << rs->getCount() << endl;
+	cout << "Count of records is " << ars->getCount() << endl;
 
 	char rdata[64];
 	bzero(rdata, 64);
 	try {
 		cout << "read(" << firstRec << "): ";
-		rlen = rs->read(firstRec, rdata);
+		rlen = ars->read(firstRec, rdata);
 	} catch (ObjectDoesNotExist e) {
 		cout << "failed: Does not exist. " << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (StrategyError e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	cout << "succeeded, read [" << rdata << "] ";
 	if (rlen != wlen)
@@ -133,41 +135,41 @@ int main (int argc, char* argv[]) {
 	wlen = strlen(wdata);
 	try {
 		cout << "replace(" << firstRec << "): ";
-		rs->replace(firstRec, wdata, wlen);
+		ars->replace(firstRec, wdata, wlen);
 	} catch (ObjectDoesNotExist) {
 		cout << "does not exist!" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (StrategyError e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	cout << endl;
-	cout << "Count of records is " << rs->getCount() << endl;
+	cout << "Count of records is " << ars->getCount() << endl;
 
 	bzero(rdata, 64);
-	rlen = rs->read(firstRec, rdata);
+	rlen = ars->read(firstRec, rdata);
 	cout << "Second read yields [" << rdata << "]" << endl;
 
 	try {
 		cout << "length(" << firstRec << "): ";
-		rlen = rs->length(firstRec);
+		rlen = ars->length(firstRec);
 	} catch (ObjectDoesNotExist) {
 		cout << "does not exist!" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (StrategyError e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	if (rlen != wlen) {
 		cout << "failed: length " << rlen << " is incorrect." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} else {
 		cout << rlen << " is correct." << endl;
 	}
 
 	cout << "Deleting record... ";
-	rs->remove(firstRec);
-	cout << "Record count is now " << rs->getCount() << endl;
+	ars->remove(firstRec);
+	cout << "Record count is now " << ars->getCount() << endl;
 
 	/*
 	 * Try to read the record we just deleted.
@@ -176,19 +178,18 @@ int main (int argc, char* argv[]) {
 	bool success;
 	try {
 		cout << "Non-existent read(" << firstRec << "): ";
-		rlen = rs->read(firstRec, rdata);
+		rlen = ars->read(firstRec, rdata);
 		success = false;
 	} catch (ObjectDoesNotExist e) {
 		cout << "succeeded." << endl;
 		success = true;
 	} catch (StrategyError e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	if (!success)
 		cout << "failed." << endl;
 
-	delete rs;
 #endif
-	exit(EXIT_SUCCESS);
+	return(EXIT_SUCCESS);
 }
