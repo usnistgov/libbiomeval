@@ -199,8 +199,6 @@ BiometricEvaluation::ArchiveRecordStore::insert(
 	} catch (StrategyError e) {
 		throw e;	
 	}
-
-	writeControlFile();
 }
 
 void
@@ -244,8 +242,6 @@ BiometricEvaluation::ArchiveRecordStore::remove(const string &key)
 	} catch (StrategyError e) {
 		throw e;
 	}
-
-	writeControlFile();
 }
 
 void
@@ -270,8 +266,6 @@ BiometricEvaluation::ArchiveRecordStore::replace(
 	} catch (StrategyError e) {
 		throw StrategyError(e.getInfo());
 	}
-
-	writeControlFile();
 }
 
 void
@@ -285,8 +279,6 @@ BiometricEvaluation::ArchiveRecordStore::flush(
 
 	if (_archivefp != NULL)
 		fflush(_archivefp);
-
-	writeControlFile();
 }
 
 BiometricEvaluation::ManifestMap::iterator 
@@ -316,7 +308,5 @@ BiometricEvaluation::ArchiveRecordStore::~ArchiveRecordStore()
 		fclose(_manifestfp);
 	if (_archivefp != NULL)
 		fclose(_archivefp);
-
-	writeControlFile();
 }
 
