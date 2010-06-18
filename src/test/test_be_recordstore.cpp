@@ -23,6 +23,11 @@ using namespace BiometricEvaluation;
 #define TESTDEFINED
 #endif
 
+#ifdef ARCHIVEECORDSTORETEST
+#include <be_archiverecstore.h>
+#define TESTDEFINED
+#endif
+
 #ifdef TESTDEFINED
 using namespace BiometricEvaluation;
 #endif
@@ -77,6 +82,25 @@ int main (int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<DBRecordStore> ars(rs);
+#endif
+
+#ifdef ARCHIVEECORDSTORETEST
+	/* Call the constructor that will create a new ArchiveRecordStore. */
+	string rsname("ars_test");
+	ArchiveRecordStore *rs;
+	try {
+		rs = new ArchiveRecordStore(rsname, "RW Test Dir");
+	} catch (ObjectExists) {
+		cout << "The RecordStore already exists; using it." << endl;
+		try {
+			rs = new ArchiveRecordStore(rsname);
+		} catch (StrategyError e) {
+			cout << "A strategy error occurred: " << e.getInfo() << endl;
+		}
+	} catch (StrategyError e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+	}
+	auto_ptr<ArchiveRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED

@@ -25,6 +25,11 @@ using namespace BiometricEvaluation;
 #define TESTDEFINED
 #endif
 
+#ifdef ARCHIVERECORDSTORETEST
+#include <be_archiverecstore.h>
+#define TESTDEFINED
+#endif
+
 #ifdef TESTDEFINED
 using namespace BiometricEvaluation;
 #endif
@@ -36,6 +41,7 @@ using namespace BiometricEvaluation;
  * an object of the appropriate implementation class.
  */
 int main (int argc, char* argv[]) {
+
 	/*
 	 * Other types of Bitstore objects can be created here and
 	 * accessed via the Bitstore interface.
@@ -70,6 +76,21 @@ int main (int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<DBRecordStore> ars(rs);
+#endif
+
+#ifdef ARCHIVERECORDSTORETEST
+	/* Call the constructor that will create a new ArchiveRecordStore. */
+	string rsname("ars_test");
+	ArchiveRecordStore *rs;
+	try {
+		rs = new ArchiveRecordStore(rsname, "RW Test Dir");
+	} catch (ObjectExists) {
+		cout << "The ArchiveRecordStore already exists; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (StrategyError e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+	}
+	auto_ptr<ArchiveRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED
@@ -119,14 +140,38 @@ int main (int argc, char* argv[]) {
 	}
 	cout << "Insert lapsed time: " << totalTime << endl;
 
-	/* Read test */
+	/* Random replace test */
+	srand(endtm.tv_sec);
+	totalTime = 0;
+	for (int i = 0; i < RECCOUNT; i++) {
+		snprintf(keyName, KEYNAMESIZE, "key%u", 
+		    (unsigned int)(rand() % RECCOUNT));
+		theKey = new string(keyName);
+		gettimeofday(&starttm, NULL);
+		try {
+			ars->replace(*theKey, theData, RECSIZE);
+		} catch (ObjectDoesNotExist e) {
+			cout << "Whoops! Record doesn't exists?. Insert ailed at record " << i << "." << endl;
+			return (EXIT_FAILURE);
+		} catch (StrategyError e) {
+			cout << "Could not replace record " << i << ": " <<
+			    e.getInfo() << "." << endl;
+			return (EXIT_FAILURE);
+		}
+		gettimeofday(&endtm, NULL);
+		totalTime += TIMEINTERVAL(starttm, endtm);
+		delete theKey;
+	}
+	cout << "Random replace lapsed time: " << totalTime << endl;
+
+	/* Sequential read test */
 	totalTime = 0;
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", i);
 		theKey = new string(keyName);
 		gettimeofday(&starttm, NULL);
 		try {
-			rs->read(*theKey, theData);
+			ars->read(*theKey, theData);
 		} catch (ObjectDoesNotExist) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
@@ -140,7 +185,31 @@ int main (int argc, char* argv[]) {
 		totalTime += TIMEINTERVAL(starttm, endtm);
 		delete theKey;
 	}
-	cout << "Read lapsed time: " << totalTime << endl;
+	cout << "Sequential read lapsed time: " << totalTime << endl;
+
+	/* Random read test */
+	totalTime = 0;
+	for (int i = 0; i < RECCOUNT; i++) {
+		snprintf(keyName, KEYNAMESIZE, "key%u", 
+		    (unsigned int)(rand() % RECCOUNT));
+		theKey = new string(keyName);
+		gettimeofday(&starttm, NULL);
+		try {
+			ars->read(*theKey, theData);
+		} catch (ObjectDoesNotExist) {
+			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
+			    i << "." << endl;
+			return (EXIT_FAILURE);
+		} catch (StrategyError e) {
+			cout << "Could not read record " << i << ": " <<
+			    e.getInfo() << "." << endl;
+			return (EXIT_FAILURE);
+		}
+		gettimeofday(&endtm, NULL);
+		totalTime += TIMEINTERVAL(starttm, endtm);
+		delete theKey;
+	}
+	cout << "Random read lapsed time: " << totalTime << endl;
 #endif
 	return(EXIT_SUCCESS);
 }

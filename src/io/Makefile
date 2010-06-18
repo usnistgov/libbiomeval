@@ -9,7 +9,7 @@
 #
 include ../common.mk
 LIBRARY = libbiomevalio
-SOURCES = be_exception.cpp be_recordstore.cpp be_dbrecstore.cpp be_filerecstore.cpp
+SOURCES = be_exception.cpp be_recordstore.cpp be_dbrecstore.cpp be_filerecstore.cpp be_archiverecstore.cpp
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
 all: $(OBJECTS)

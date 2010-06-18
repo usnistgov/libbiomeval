@@ -8,7 +8,7 @@
 # about its quality, reliability, or any other characteristic.
 #
 include ../common.mk
-PROGS = test_be_netserver test_be_netclient test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress
+PROGS = test_be_netserver test_be_netclient test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress test_be_archiverecordstore-stress test_construct_be_archiverecstore test_be_archiverecordstore
 
 all: $(PROGS)
 
@@ -26,7 +26,14 @@ test_be_filerecordstore-stress: test_be_recordstore-stress.cpp
 	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST -lbiomevalio $^ -o $@
 test_be_dbrecordstore-stress: test_be_recordstore-stress.cpp
 	$(CXX) $(CXXFLAGS) -DDBECORDSTORETEST -lbiomevalio $^ -o $@
+test_construct_be_archiverecstore: test_be_archiverecstore.cpp
+	$(CXX) $(CXXFLAGS) -lbiomevalio $^ -o $@
+test_be_archiverecordstore: test_be_recordstore.cpp
+	$(CXX) $(CXXFLAGS) -DARCHIVEECORDSTORETEST -lbiomevalio $^ -o $@
+test_be_archiverecordstore-stress: test_be_recordstore-stress.cpp
+	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST -lbiomevalio $^ -o $@
 
 clean:
 	$(RM) $(DISPOSABLEFILES) $(PROGS)
 	$(RM) -r $(DISPOSABLEDIRS)
+	$(RM) -rf *_test
