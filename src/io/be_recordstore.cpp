@@ -106,7 +106,12 @@ BiometricEvaluation::RecordStore::RecordStore(
  */
 BiometricEvaluation::RecordStore::~RecordStore()
 {
-	writeControlFile();
+	try {
+		writeControlFile();
+	} catch (StrategyError& e) {
+		if (!std::uncaught_exception())
+			cerr << "Failed to write control file." << endl;
+	}
 }
 
 /*
