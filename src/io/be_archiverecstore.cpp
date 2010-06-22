@@ -88,13 +88,16 @@ BiometricEvaluation::ArchiveRecordStore::sync()
     throw (StrategyError)
 {
 	/* Flush the streams, not necessarily for the key passed */
-	// XXX Check return value from fflush()?
 	RecordStore::sync();
-	if (_manifestfp != NULL)
-		fflush(_manifestfp);
+	if (_manifestfp != NULL) {
+		if (fflush(_manifestfp) == EOF)
+			throw StrategyError("Could not sync manifest file");
+	}
 
-	if (_archivefp != NULL)
-		fflush(_archivefp);
+	if (_archivefp != NULL) {
+		if (fflush(_archivefp))
+			throw StrategyError("Could not sync archive file");
+	}
 }
 
 uint64_t
@@ -288,11 +291,15 @@ BiometricEvaluation::ArchiveRecordStore::flush(
     throw (ObjectDoesNotExist, StrategyError)
 {
 	/* Flush the streams, not necessarily for the key passed */
-	if (_manifestfp != NULL)
-		fflush(_manifestfp);
+	if (_manifestfp != NULL) {
+		if (fflush(_manifestfp) == EOF) 
+			throw StrategyError("Could not flush manifest file");
+	}
 
-	if (_archivefp != NULL)
-		fflush(_archivefp);
+	if (_archivefp != NULL) {
+		if (fflush(_archivefp))
+			throw StrategyError("Could not flush archive file");
+	}
 }
 
 BiometricEvaluation::ManifestMap::iterator 
