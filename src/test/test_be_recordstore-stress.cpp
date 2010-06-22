@@ -54,10 +54,10 @@ int main (int argc, char* argv[]) {
 	FileRecordStore *rs;
 	try {
 		rs = new FileRecordStore(rsname, "RW Test Dir");
-	} catch (ObjectExists) {
+	} catch (ObjectExists& e) {
 		cout << "The FileRecordStore already exists; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<FileRecordStore> ars(rs);
@@ -69,10 +69,10 @@ int main (int argc, char* argv[]) {
 	DBRecordStore *rs;
 	try {
 		rs = new DBRecordStore(rsname, "RW Test Dir");
-	} catch (ObjectExists) {
+	} catch (ObjectExists& e) {
 		cout << "The DBRecordStore already exists; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<DBRecordStore> ars(rs);
@@ -84,10 +84,10 @@ int main (int argc, char* argv[]) {
 	ArchiveRecordStore *rs;
 	try {
 		rs = new ArchiveRecordStore(rsname, "RW Test Dir");
-	} catch (ObjectExists) {
+	} catch (ObjectExists& e) {
 		cout << "The ArchiveRecordStore already exists; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<ArchiveRecordStore> ars(rs);
@@ -126,10 +126,10 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, NULL);
 		try {
 			ars->insert(*theKey, theData, RECSIZE);
-		} catch (ObjectExists) {
-			cout << "Whoops! Record exists?. Insert ailed at record " << i << "." << endl;
+		} catch (ObjectExists& e) {
+			cout << "Whoops! Record exists?. Insert failed at record " << i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (StrategyError e) {
+		} catch (StrategyError& e) {
 			cout << "Could not insert record " << i << ": " <<
 			    e.getInfo() << "." << endl;
 			return (EXIT_FAILURE);
@@ -150,10 +150,10 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, NULL);
 		try {
 			ars->replace(*theKey, theData, RECSIZE);
-		} catch (ObjectDoesNotExist e) {
-			cout << "Whoops! Record doesn't exists?. Insert ailed at record " << i << "." << endl;
+		} catch (ObjectDoesNotExist& e) {
+			cout << "Whoops! Record doesn't exists?. Insert failed at record " << i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (StrategyError e) {
+		} catch (StrategyError& e) {
 			cout << "Could not replace record " << i << ": " <<
 			    e.getInfo() << "." << endl;
 			return (EXIT_FAILURE);
@@ -172,11 +172,11 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, NULL);
 		try {
 			ars->read(*theKey, theData);
-		} catch (ObjectDoesNotExist) {
+		} catch (ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (StrategyError e) {
+		} catch (StrategyError& e) {
 			cout << "Could not read record " << i << ": " <<
 			    e.getInfo() << "." << endl;
 			return (EXIT_FAILURE);
@@ -196,11 +196,11 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, NULL);
 		try {
 			ars->read(*theKey, theData);
-		} catch (ObjectDoesNotExist) {
+		} catch (ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (StrategyError e) {
+		} catch (StrategyError& e) {
 			cout << "Could not read record " << i << ": " <<
 			    e.getInfo() << "." << endl;
 			return (EXIT_FAILURE);
@@ -210,6 +210,31 @@ int main (int argc, char* argv[]) {
 		delete theKey;
 	}
 	cout << "Random read lapsed time: " << totalTime << endl;
+
+	/* Remove all test */
+	totalTime = 0;
+	for (int i = 0; i < RECCOUNT; i++) {
+		snprintf(keyName, KEYNAMESIZE, "key%u", i);
+		theKey = new string(keyName);
+		gettimeofday(&starttm, NULL);
+		try {
+			ars->remove(*theKey);
+		} catch (ObjectDoesNotExist& e) {
+			cout << "Whoops! Record doesn't exist?. Remove failed at record " <<
+			    i << "." << endl;
+			return (EXIT_FAILURE);
+		} catch (StrategyError& e) {
+			cout << "Could not remove record " << i << ": " <<
+			    e.getInfo() << "." << endl;
+			return (EXIT_FAILURE);
+		}
+		gettimeofday(&endtm, NULL);
+		totalTime += TIMEINTERVAL(starttm, endtm);
+		delete theKey;
+	}
+	cout << "Remove lapsed time: " << totalTime << endl;
+	ars->sync();
+	cout << "Count is now " << ars->getCount() << endl;
 #endif
 	return(EXIT_SUCCESS);
 }

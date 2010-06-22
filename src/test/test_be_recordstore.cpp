@@ -52,14 +52,14 @@ int main (int argc, char* argv[]) {
 	FileRecordStore *rs;
 	try {
 		rs = new FileRecordStore(rsname, "RW Test Dir");
-	} catch (ObjectExists) {
+	} catch (ObjectExists& e) {
 		cout << "The RecordStore already exists; using it." << endl;
 		try {
 			rs = new FileRecordStore(rsname);
-		} catch (StrategyError e) {
+		} catch (StrategyError& e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<FileRecordStore> ars(rs);
@@ -71,14 +71,14 @@ int main (int argc, char* argv[]) {
 	DBRecordStore *rs;
 	try {
 		rs = new DBRecordStore(rsname, "RW Test Dir");
-	} catch (ObjectExists) {
+	} catch (ObjectExists &e) {
 		cout << "The DB RecordStore already exists; using it." << endl;
 		try {
 			rs = new DBRecordStore(rsname);
-		} catch (StrategyError e) {
+		} catch (StrategyError& e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<DBRecordStore> ars(rs);
@@ -90,14 +90,14 @@ int main (int argc, char* argv[]) {
 	ArchiveRecordStore *rs;
 	try {
 		rs = new ArchiveRecordStore(rsname, "RW Test Dir");
-	} catch (ObjectExists) {
+	} catch (ObjectExists &e) {
 		cout << "The RecordStore already exists; using it." << endl;
 		try {
 			rs = new ArchiveRecordStore(rsname);
-		} catch (StrategyError e) {
+		} catch (StrategyError& e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<ArchiveRecordStore> ars(rs);
@@ -120,17 +120,17 @@ int main (int argc, char* argv[]) {
 	try {
 		cout << "insert(" << firstRec << "): ";
 		ars->insert(firstRec, wdata, wlen);
-	} catch (ObjectExists) {
+	} catch (ObjectExists& e) {
 		cout << "exists; deleting." << endl;
 		try {
 			ars->remove(firstRec);
 			ars->insert(firstRec, wdata, wlen);
-		} catch (StrategyError e) {
+		} catch (StrategyError& e) {
 			cout << "Could not remove, and should be able to: " <<
 			    e.getInfo() << "." << endl;
 			return (EXIT_FAILURE);
 		}
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 		return (EXIT_FAILURE);
 	}
@@ -142,10 +142,10 @@ int main (int argc, char* argv[]) {
 	try {
 		cout << "read(" << firstRec << "): ";
 		rlen = ars->read(firstRec, rdata);
-	} catch (ObjectDoesNotExist e) {
+	} catch (ObjectDoesNotExist& e) {
 		cout << "failed: Does not exist. " << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (EXIT_FAILURE);
 	}
@@ -160,10 +160,10 @@ int main (int argc, char* argv[]) {
 	try {
 		cout << "replace(" << firstRec << "): ";
 		ars->replace(firstRec, wdata, wlen);
-	} catch (ObjectDoesNotExist) {
+	} catch (ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 		return (EXIT_FAILURE);
 	}
@@ -177,10 +177,10 @@ int main (int argc, char* argv[]) {
 	try {
 		cout << "length(" << firstRec << "): ";
 		rlen = ars->length(firstRec);
-	} catch (ObjectDoesNotExist) {
+	} catch (ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 		return (EXIT_FAILURE);
 	}
@@ -204,16 +204,24 @@ int main (int argc, char* argv[]) {
 		cout << "Non-existent read(" << firstRec << "): ";
 		rlen = ars->read(firstRec, rdata);
 		success = false;
-	} catch (ObjectDoesNotExist e) {
+	} catch (ObjectDoesNotExist& e) {
 		cout << "succeeded." << endl;
 		success = true;
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (EXIT_FAILURE);
 	}
 	if (!success)
 		cout << "failed." << endl;
 
+	try {
+		cout << "sync(): ";
+		ars->sync();
+		cout << "succeeded." << endl;
+	} catch (StrategyError& e) {
+		cout << "failed: " << e.getInfo() << "." << endl;
+		return (EXIT_FAILURE);
+	}
 #endif
 	return(EXIT_SUCCESS);
 }
