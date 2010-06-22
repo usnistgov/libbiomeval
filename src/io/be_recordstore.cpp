@@ -77,7 +77,7 @@ BiometricEvaluation::RecordStore::RecordStore(
 		throw StrategyError("Could not create directory");
 	try {
 		(void)writeControlFile();
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		throw e;
 	}
 }
@@ -96,7 +96,7 @@ BiometricEvaluation::RecordStore::RecordStore(
 
 	try {
 		(void)readControlFile();
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		throw e;
 	}
 }
@@ -113,6 +113,17 @@ BiometricEvaluation::RecordStore::~RecordStore()
 /******************************************************************************/
 /* Common public methods implementations.                                     */
 /******************************************************************************/
+void
+BiometricEvaluation::RecordStore::sync()
+    throw (StrategyError)
+{
+	try {
+		(void)writeControlFile();
+	} catch (StrategyError& e) {
+		throw e;
+	}
+}
+
 string
 BiometricEvaluation::RecordStore::getName()
 {

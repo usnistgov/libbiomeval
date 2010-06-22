@@ -39,7 +39,7 @@ BiometricEvaluation::FileRecordStore::insert(
 
 	try {
 		writeNewRecordFile(pathname, data, size);
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		throw e;
 	}
 
@@ -98,7 +98,7 @@ BiometricEvaluation::FileRecordStore::replace(
 
 	try {
 		writeNewRecordFile(pathname, data, size);
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		throw e;
 	}
 }

@@ -51,6 +51,16 @@ BiometricEvaluation::DBRecordStore::~DBRecordStore()
 }
 
 void
+BiometricEvaluation::DBRecordStore::sync()
+    throw (StrategyError)
+{
+	RecordStore::sync();
+	int rc = _db->sync(_db, 0);
+	if (rc != 0)
+		throw StrategyError("Could not synchronize database");
+}
+
+void
 BiometricEvaluation::DBRecordStore::insert( 
     const string &key,
     const void *data,
@@ -191,7 +201,14 @@ BiometricEvaluation::DBRecordStore::flush(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	_db->sync(_db, 0);
+	/*
+	 * Because we sync the entire database, we really don't care
+	 * whether the key exists. If we do, then we'd have to attempt
+	 * a read of the record, and that's not really needed.
+	 */
+	int rc = _db->sync(_db, 0);
+	if (rc != 0)
+		throw StrategyError("Could not synchronize database");
 }
 
 /*
@@ -214,12 +231,11 @@ BiometricEvaluation::DBRecordStore::internalRead(
     DBT *dbtdata)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	int rc;
 	DBT dbtkey;
 
 	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
 	dbtkey.size = key.length();
-	rc = _db->get(_db, &dbtkey, dbtdata, 0);
+	int rc = _db->get(_db, &dbtkey, dbtdata, 0);
 	switch (rc) {
 		case 0:
 			return;

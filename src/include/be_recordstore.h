@@ -90,7 +90,7 @@ namespace BiometricEvaluation {
 
 			RecordStore();
 
-			virtual ~RecordStore() = 0;
+			virtual ~RecordStore();
 			
 			/* Return a textual description of the RecordStore */
 			string getDescription();
@@ -101,6 +101,13 @@ namespace BiometricEvaluation {
 			/* Return the number of items in the RecordStore */
 			unsigned int getCount();
 			
+			/* Synchronize the entire record store to persistent
+			 * storage. Subclasses can override, but this base
+			 * class will update the control file.
+			*/
+			virtual void sync()
+			    throw (StrategyError);
+
 			/* Insert a record into the store, with a key */
 			virtual void insert(
 			    const string &key,

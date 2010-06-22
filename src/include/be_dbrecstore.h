@@ -54,6 +54,9 @@ namespace BiometricEvaluation {
 			 */
 			~DBRecordStore();
 
+			void sync()
+			    throw (StrategyError);
+
 			void insert(
 			    const string &key,
 			    const void *data,

@@ -89,6 +89,11 @@ namespace BiometricEvaluation {
 		~ArchiveRecordStore();
 		
 		/*
+		 * Synchronize the entire store to persistent storage.
+		 */
+		void sync()
+		    throw (StrategyError);
+		/*
 		 * Get the size of the data chunk.
 		 *
 		 * Parameters:

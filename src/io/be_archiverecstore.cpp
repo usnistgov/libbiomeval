@@ -29,7 +29,7 @@ BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
 
 	try {
 		open_streams();
-	} catch (FileError e) {
+	} catch (FileError& e) {
 		throw StrategyError(e.getInfo());
 	}
 	
@@ -47,7 +47,7 @@ BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
 
 	try {
 		read_manifest();
-	} catch (FileError e) {
+	} catch (FileError& e) {
 		throw StrategyError(e.getInfo());
 	}
 }
@@ -83,6 +83,20 @@ BiometricEvaluation::ArchiveRecordStore::open_streams()
 	}
 }
 
+void
+BiometricEvaluation::ArchiveRecordStore::sync()
+    throw (StrategyError)
+{
+	/* Flush the streams, not necessarily for the key passed */
+	// XXX Check return value from fflush()?
+	RecordStore::sync();
+	if (_manifestfp != NULL)
+		fflush(_manifestfp);
+
+	if (_archivefp != NULL)
+		fflush(_archivefp);
+}
+
 uint64_t
 BiometricEvaluation::ArchiveRecordStore::length(
     const string &key) 
@@ -106,7 +120,7 @@ BiometricEvaluation::ArchiveRecordStore::read_manifest()
 	if (_manifestfp == NULL) {
 		try {
 			open_streams();
-		} catch (FileError e) {
+		} catch (FileError& e) {
 			throw e;
 		}
 	}
@@ -156,7 +170,7 @@ BiometricEvaluation::ArchiveRecordStore::read(
 	if (_archivefp == NULL) {
 		try {
 			open_streams();
-		} catch (FileError e) {
+		} catch (FileError& e) {
 			throw StrategyError(e.getInfo());
 		}
 	}
@@ -181,7 +195,7 @@ BiometricEvaluation::ArchiveRecordStore::insert(
 	if (_archivefp == NULL) {
 		try {
 			open_streams();
-		} catch (FileError e) {
+		} catch (FileError& e) {
 			throw StrategyError(e.getInfo());
 		}
 	}
@@ -196,7 +210,7 @@ BiometricEvaluation::ArchiveRecordStore::insert(
 	try { 
 		write_manifest_entry(key, entry);
 		_count++;
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		throw e;	
 	}
 }
@@ -212,7 +226,7 @@ BiometricEvaluation::ArchiveRecordStore::write_manifest_entry(
 	if (_manifestfp == NULL) {
 		try {
 			open_streams();
-		} catch (FileError e) {
+		} catch (FileError& e) {
 			throw StrategyError(e.getInfo());
 		}
 	}
@@ -239,7 +253,7 @@ BiometricEvaluation::ArchiveRecordStore::remove(const string &key)
 	try {
 		write_manifest_entry(key, entry);
 		_count--;
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		throw e;
 	}
 }
@@ -253,17 +267,17 @@ BiometricEvaluation::ArchiveRecordStore::replace(
 {
 	try {
 		remove(key);
-	} catch (ObjectDoesNotExist e) {
+	} catch (ObjectDoesNotExist& e) {
 		throw ObjectDoesNotExist(e.getInfo());
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		throw StrategyError(e.getInfo());
 	}
 
 	try {
 		insert(key, data, size);
-	} catch (ObjectExists e) {
+	} catch (ObjectExists& e) {
 		throw StrategyError(e.getInfo());
-	} catch (StrategyError e) {
+	} catch (StrategyError& e) {
 		throw StrategyError(e.getInfo());
 	}
 }
