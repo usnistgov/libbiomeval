@@ -42,6 +42,9 @@ namespace BiometricEvaluation {
 			    const string &name)
 			    throw (ObjectDoesNotExist, StrategyError);
 
+			uint64_t getSpaceUsed()
+			    throw (StrategyError);
+
 			void insert(
 			    const string &key,
 			    const void *data,

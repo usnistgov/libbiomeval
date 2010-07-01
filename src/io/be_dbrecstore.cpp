@@ -21,11 +21,11 @@ BiometricEvaluation::DBRecordStore::DBRecordStore(
     const string &description)
     throw (ObjectExists, StrategyError) : RecordStore(name, description)
 {
-	string dbname = _directory + '/' + _name;
-	if (fileExists(dbname))
+	_dbname = _directory + '/' + _name;
+	if (fileExists(_dbname))
 		throw ObjectExists("Database already exists");
 
-	_db = dbopen(dbname.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR,
+	_db = dbopen(_dbname.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR,
 	    DB_BTREE, NULL);
 	if (_db == NULL)
 		throw StrategyError("Could not create database");
@@ -35,11 +35,11 @@ BiometricEvaluation::DBRecordStore::DBRecordStore(
     const string &name)
     throw (ObjectDoesNotExist, StrategyError) : RecordStore(name)
 {
-	string dbname = _directory + '/' + _name;
-	if (!fileExists(dbname))
+	_dbname = _directory + '/' + _name;
+	if (!fileExists(_dbname))
 		throw ObjectDoesNotExist("Database does not exist");
 
-	_db = dbopen(dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, NULL);
+	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, NULL);
 	if (_db == NULL)
 		throw StrategyError("Could not open database");
 }
@@ -48,6 +48,19 @@ BiometricEvaluation::DBRecordStore::~DBRecordStore()
 {
 	if (_db != NULL)
 		_db->close(_db);
+}
+
+uint64_t
+BiometricEvaluation::DBRecordStore::getSpaceUsed()
+    throw (StrategyError)
+{
+	struct stat sb;
+
+	sync();
+	if (stat(_dbname.c_str(), &sb) != 0)
+		throw StrategyError("Could not find database file");
+	return (RecordStore::getSpaceUsed() + (sb.st_blocks * S_BLKSIZE));
+	
 }
 
 void

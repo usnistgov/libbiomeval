@@ -54,6 +54,9 @@ namespace BiometricEvaluation {
 			 */
 			~DBRecordStore();
 
+			uint64_t getSpaceUsed()
+			    throw (StrategyError);
+
 			void sync()
 			    throw (StrategyError);
 
@@ -89,6 +92,8 @@ namespace BiometricEvaluation {
 		protected:
 
 		private:
+			/* The file name of the underlying database */
+			string _dbname;
 			/* The handle to the underlying database */
 			DB *_db;
 			void internalRead(

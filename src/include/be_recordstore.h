@@ -64,10 +64,6 @@ namespace BiometricEvaluation {
 	
 	/*
 	 * Class to represent a data storage mechanism.
-	 * XXX After opening a stored object by name, all references
-	 * to the object are done via an integer handle in order
-	 * to increase efficiency by avoiding the copy of string
-	 * objects.
 	 */
 	class RecordStore {
 		public:
@@ -100,6 +96,15 @@ namespace BiometricEvaluation {
 
 			/* Return the number of items in the RecordStore */
 			unsigned int getCount();
+			
+			/* Return the amount of real storage utilization, the
+			 * amount of disk space used, for example. This is the
+			 * actual space allocated by the underlying storage
+			 * mechanism; in the case of files for example, the
+			 * value returned will be in block-size increments.
+			 */
+			virtual uint64_t getSpaceUsed()
+			    throw (StrategyError);
 			
 			/* Synchronize the entire record store to persistent
 			 * storage. Subclasses can override, but this base

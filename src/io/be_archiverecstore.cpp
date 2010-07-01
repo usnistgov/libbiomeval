@@ -83,6 +83,26 @@ BiometricEvaluation::ArchiveRecordStore::open_streams()
 	}
 }
 
+uint64_t
+BiometricEvaluation::ArchiveRecordStore::getSpaceUsed()
+    throw (StrategyError)
+{
+	struct stat sb;
+	uint64_t total;
+
+	total = RecordStore::getSpaceUsed();
+	sync();
+	if (stat(canonicalName(manifestFileName).c_str(), &sb) != 0)
+		throw StrategyError("Could not find manifest file");
+	total += sb.st_blocks * S_BLKSIZE;
+
+	if (stat(canonicalName(archiveFileName).c_str(), &sb) != 0)
+		throw StrategyError("Could not find archive file");
+	total += sb.st_blocks * S_BLKSIZE;
+	return (total);
+	
+}
+
 void
 BiometricEvaluation::ArchiveRecordStore::sync()
     throw (StrategyError)

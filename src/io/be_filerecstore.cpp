@@ -8,7 +8,9 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
+#include <sys/dir.h>
 #include <sys/stat.h>
+#include <iostream>
 #include <be_filerecstore.h>
 
 BiometricEvaluation::FileRecordStore::FileRecordStore(
@@ -24,6 +26,38 @@ BiometricEvaluation::FileRecordStore::FileRecordStore(
     throw (ObjectDoesNotExist, StrategyError) : RecordStore(name)
 {
 	return;		/* The parent does all the work */
+}
+
+uint64_t
+BiometricEvaluation::FileRecordStore::getSpaceUsed()
+    throw (StrategyError)
+{
+	DIR *dir;
+	dir = opendir(_name.c_str());
+	if (dir == NULL)
+		throw StrategyError("Cannot open store directory");
+
+	/*
+	 * We don't call on the parent class to return its space usage
+	 * because 1) we know it is a file allocation, and 2) it will
+	 * be counted below.
+	 */
+	uint64_t total = 0;
+	struct dirent *entry;
+	struct stat sb;
+	string cname;
+	while ((entry = readdir(dir)) != NULL) {
+		if (entry->d_ino == 0)
+			continue;
+		if (entry->d_type == DT_DIR)	/* skip '.' and '..' */
+			continue;
+		cname = entry->d_name;
+		cname = canonicalName(cname);
+		if (stat(cname.c_str(), &sb) != 0)	
+			throw StrategyError("Cannot stat store file");
+		total += sb.st_blocks * S_BLKSIZE;
+	}	
+	return (total);
 }
 
 void

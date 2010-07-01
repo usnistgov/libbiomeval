@@ -118,6 +118,18 @@ BiometricEvaluation::RecordStore::~RecordStore()
 /******************************************************************************/
 /* Common public methods implementations.                                     */
 /******************************************************************************/
+
+uint64_t
+BiometricEvaluation::RecordStore::getSpaceUsed()
+    throw (StrategyError)
+{
+	struct stat sb;
+
+	if (stat(canonicalName(controlFileName).c_str(), &sb) != 0)
+		throw StrategyError("Could not find control file");
+	return (sb.st_blocks * S_BLKSIZE);
+}
+
 void
 BiometricEvaluation::RecordStore::sync()
     throw (StrategyError)
