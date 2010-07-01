@@ -169,6 +169,12 @@ int main (int argc, char* argv[]) {
 	}
 	cout << endl;
 	cout << "Count of records is " << ars->getCount() << endl;
+	cout << "Space usage is ";
+	try {
+		cout << ars->getSpaceUsed() << endl;
+	} catch (StrategyError& e) {
+		cout << "failed:" << e.getInfo() << "." << endl;
+	}
 
 	bzero(rdata, 64);
 	rlen = ars->read(firstRec, rdata);
@@ -222,6 +228,7 @@ int main (int argc, char* argv[]) {
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (EXIT_FAILURE);
 	}
+	cout << "Space usage with no records is " << ars->getSpaceUsed() << endl;
 #endif
 	return(EXIT_SUCCESS);
 }
