@@ -32,13 +32,42 @@ using namespace BiometricEvaluation;
 using namespace BiometricEvaluation;
 #endif
 
+static const int SEQUENCECOUNT = 10;
+const int RDATASIZE = 64;
+
+static void
+testSequence(RecordStore *rs)
+{
+	char rdata[RDATASIZE];
+	string theKey;
+	uint64_t rlen;
+
+	try {
+		int i = 1;
+		while (true) {
+			try {
+				rlen = rs->sequence(theKey, rdata);
+				cout << "Record " << i << " key is " << theKey;
+				cout << "; record length is " << rlen << "; ";
+				printf("data is [%s]\n", rdata);
+			} catch (ObjectDoesNotExist &e) {
+				break;
+			}
+			i++;
+		}
+	} catch (StrategyError &e) {
+		cout << "Caught " << e.getInfo() << endl;
+	}
+}
+
 /*
  * Test the read and write operations of a Bitstore, hopefully stressing
  * it enough to gain confidence in its operation. This program should be
  * able to test any implementation of the abstract Bitstore by creating
  * an object of the appropriate implementation class.
  */
-int main (int argc, char* argv[]) {
+int
+main (int argc, char* argv[]) {
 
 	/*
 	 * Other types of Bitstore objects can be created here and
@@ -113,18 +142,18 @@ int main (int argc, char* argv[]) {
 	/*
 	 * Insert a record to the RecordStore so we can read/write it.
 	 */
-	string firstRec("firstRec");
+	string theKey("firstRec");
 	char *wdata = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	uint64_t rlen;
 	uint64_t wlen = strlen(wdata);
 	try {
-		cout << "insert(" << firstRec << "): ";
-		ars->insert(firstRec, wdata, wlen);
+		cout << "insert(" << theKey << "): ";
+		ars->insert(theKey, wdata, wlen);
 	} catch (ObjectExists& e) {
 		cout << "exists; deleting." << endl;
 		try {
-			ars->remove(firstRec);
-			ars->insert(firstRec, wdata, wlen);
+			ars->remove(theKey);
+			ars->insert(theKey, wdata, wlen);
 		} catch (StrategyError& e) {
 			cout << "Could not remove, and should be able to: " <<
 			    e.getInfo() << "." << endl;
@@ -137,11 +166,11 @@ int main (int argc, char* argv[]) {
 	cout << endl;
 	cout << "Count of records is " << ars->getCount() << endl;
 
-	char rdata[64];
-	bzero(rdata, 64);
+	char rdata[RDATASIZE];
+	bzero(rdata, RDATASIZE);
 	try {
-		cout << "read(" << firstRec << "): ";
-		rlen = ars->read(firstRec, rdata);
+		cout << "read(" << theKey << "): ";
+		rlen = ars->read(theKey, rdata);
 	} catch (ObjectDoesNotExist& e) {
 		cout << "failed: Does not exist. " << endl;
 		return (EXIT_FAILURE);
@@ -158,8 +187,8 @@ int main (int argc, char* argv[]) {
 	wdata = "ZYXWVUTSRQPONMLKJIHGFEDCBA0123456789";
 	wlen = strlen(wdata);
 	try {
-		cout << "replace(" << firstRec << "): ";
-		ars->replace(firstRec, wdata, wlen);
+		cout << "replace(" << theKey << "): ";
+		ars->replace(theKey, wdata, wlen);
 	} catch (ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
 		return (EXIT_FAILURE);
@@ -176,13 +205,13 @@ int main (int argc, char* argv[]) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 	}
 
-	bzero(rdata, 64);
-	rlen = ars->read(firstRec, rdata);
+	bzero(rdata, RDATASIZE);
+	rlen = ars->read(theKey, rdata);
 	cout << "Second read yields [" << rdata << "]" << endl;
 
 	try {
-		cout << "length(" << firstRec << "): ";
-		rlen = ars->length(firstRec);
+		cout << "length(" << theKey << "): ";
+		rlen = ars->length(theKey);
 	} catch (ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
 		return (EXIT_FAILURE);
@@ -198,17 +227,17 @@ int main (int argc, char* argv[]) {
 	}
 
 	cout << "Deleting record... ";
-	ars->remove(firstRec);
+	ars->remove(theKey);
 	cout << "Record count is now " << ars->getCount() << endl;
 
 	/*
 	 * Try to read the record we just deleted.
 	 */
-	bzero(rdata, 64);
+	bzero(rdata, RDATASIZE);
 	bool success;
 	try {
-		cout << "Non-existent read(" << firstRec << "): ";
-		rlen = ars->read(firstRec, rdata);
+		cout << "Non-existent read(" << theKey << "): ";
+		rlen = ars->read(theKey, rdata);
 		success = false;
 	} catch (ObjectDoesNotExist& e) {
 		cout << "succeeded." << endl;
@@ -229,6 +258,26 @@ int main (int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	}
 	cout << "Space usage with no records is " << ars->getSpaceUsed() << endl;
+	cout << "Sequencing records..." << endl;
+	int i;
+	for (i = 0; i < SEQUENCECOUNT; i++) {
+		bzero(rdata, RDATASIZE);
+		snprintf(rdata, RDATASIZE, "key%u", i);
+		theKey.assign(rdata);
+		snprintf(rdata, RDATASIZE, "Bogus data for key%u", i);
+		ars->insert(theKey, rdata, RDATASIZE);
+	}
+	testSequence(rs);
+	cout << "Deleting all records..." << endl;
+	for (i = 0; i < SEQUENCECOUNT; i++) {
+		snprintf(rdata, RDATASIZE, "key%u", i);
+		theKey.assign(rdata);
+		ars->remove(theKey);
+	}
+	cout << "Sequencing empty store... ";
+	testSequence(rs);
+	cout << "there should be no output." << endl;
+
 #endif
 	return(EXIT_SUCCESS);
 }
