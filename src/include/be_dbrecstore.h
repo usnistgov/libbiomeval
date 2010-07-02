@@ -89,6 +89,12 @@ namespace BiometricEvaluation {
 			    const string &key)
 			    throw (ObjectDoesNotExist, StrategyError);
 
+			uint64_t sequence(
+			    string &key,
+			    void *data,
+			    int cursor = BE_RECSTORE_SEQ_NEXT)
+			    throw (ObjectDoesNotExist, StrategyError);
+
 		protected:
 
 		private:

@@ -49,6 +49,7 @@ BiometricEvaluation::StrategyError::StrategyError(string info) :
 BiometricEvaluation::RecordStore::RecordStore()
 {
 	_count = 0;
+	_cursor = BE_RECSTORE_SEQ_START;
 }
 
 BiometricEvaluation::RecordStore::RecordStore(
@@ -62,6 +63,7 @@ BiometricEvaluation::RecordStore::RecordStore(
 	_name = name;
 	_directory = name;
 	_description = description;
+	_cursor = BE_RECSTORE_SEQ_START;
 
 	/*
 	 * The RecordStore is implemented as a directory in the current
@@ -89,6 +91,7 @@ BiometricEvaluation::RecordStore::RecordStore(
 	struct stat sb;
 
 	_directory = name;
+	_cursor = BE_RECSTORE_SEQ_START;
 
 	/* Check that the directory exists, throwing an error if not */
 	if (stat(_directory.c_str(), &sb) != 0)

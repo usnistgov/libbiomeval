@@ -322,6 +322,17 @@ BiometricEvaluation::ArchiveRecordStore::flush(
 	}
 }
 
+uint64_t
+BiometricEvaluation::ArchiveRecordStore::sequence(
+    string &key,
+    void *data,
+    int cursor)
+    throw (ObjectDoesNotExist, StrategyError)
+{
+	throw StrategyError("Not implemented");
+	//XXX implement
+}
+
 BiometricEvaluation::ManifestMap::iterator 
     BiometricEvaluation::ArchiveRecordStore::efficient_insert(
     ManifestMap &m,

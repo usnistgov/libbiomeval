@@ -157,6 +157,25 @@ namespace BiometricEvaluation {
 			    const string &key)
 			    throw (ObjectDoesNotExist, StrategyError) = 0;
 
+			/*
+			 * Sequence through a RecordStore, returning the
+			 * key/data pairs. Sequencing means to start at some
+			 * point in the store and return the record, then
+			 * repeatedly calling the sequencor to return the
+			 * next record. The starting point is typically the 
+			 * the first record, and is set to that when the
+			 * RecordStore object is created. The starting point
+			 * can be reset by calling this method with the
+			 * cursor parameter set to BE_RECSTORE_SEQ_START.
+			*/
+			static const int BE_RECSTORE_SEQ_START = 1;
+			static const int BE_RECSTORE_SEQ_NEXT = 2;
+			virtual uint64_t sequence(
+			    string &key,
+			    void *data,
+			    int cursor = BE_RECSTORE_SEQ_NEXT)
+			    throw (ObjectDoesNotExist, StrategyError) = 0;
+
 		protected:
 			/*
 			 * The data members of the RecordStore are protected 
@@ -175,6 +194,9 @@ namespace BiometricEvaluation {
 
 			/* Number of items in the store */
 			unsigned int _count;
+
+			/* The current record position cursor */
+			int _cursor;
 
 			/* Return the full name of a file stored as part
 			 * of the RecordStore, typically _directory + name.

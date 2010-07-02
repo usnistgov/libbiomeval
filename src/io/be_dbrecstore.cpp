@@ -224,6 +224,47 @@ BiometricEvaluation::DBRecordStore::flush(
 		throw StrategyError("Could not synchronize database");
 }
 
+uint64_t
+BiometricEvaluation::DBRecordStore::sequence(
+    string &key,
+    void *data,
+    int cursor)
+    throw (ObjectDoesNotExist, StrategyError)
+{
+	if ((cursor != BE_RECSTORE_SEQ_START) &&
+	    (cursor != BE_RECSTORE_SEQ_NEXT))
+		throw StrategyError("Invalid cursor position as argument");
+
+
+	u_int pos;
+	DBT dbtkey, dbtdata; 
+
+	/* If the current cursor position is START, then it doesn't matter
+	 * what the client requests; we start at the first record.
+	*/
+	if ((_cursor == BE_RECSTORE_SEQ_START) ||
+	    (cursor == BE_RECSTORE_SEQ_START))
+		pos = R_FIRST;
+	else
+		pos = R_NEXT;
+
+	int rc = _db->seq(_db, &dbtkey, &dbtdata, pos);
+	switch (rc) {
+		case 0:
+			break;
+		case 1:
+			throw ObjectDoesNotExist("No record at position");
+			break;
+		default:
+			throw StrategyError("Could not read from database");
+			break;		/* not reached */
+	}
+	_cursor = cursor;
+	memcpy(data, dbtdata.data, dbtdata.size);
+	key.assign((const char *)dbtkey.data, dbtkey.size);
+	return (dbtdata.size);
+}
+
 /*
  * Private method implementations.
  */
