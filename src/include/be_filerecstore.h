@@ -74,7 +74,14 @@ namespace BiometricEvaluation {
 			    const string &key)
 			    throw (ObjectDoesNotExist, StrategyError);
 
+			uint64_t sequence(
+			    string &key,
+			    void *data,
+			    int cursor = BE_RECSTORE_SEQ_NEXT)
+			    throw (ObjectDoesNotExist, StrategyError);
+
 		protected:
+			string canonicalName(const string &name);
 
 		private:
 			bool fileExists(const string &name);
@@ -85,7 +92,8 @@ namespace BiometricEvaluation {
 			    throw (StrategyError);
 			uint64_t getFileSize(const string &name)
 			    throw (ObjectDoesNotExist, StrategyError);
-
+			uint64_t _cursorPos;
+			string _theFilesDir;
 	};
 }
 #endif	/* __BE_FILERECSTORE_H__ */

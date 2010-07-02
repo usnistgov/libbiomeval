@@ -128,7 +128,7 @@ BiometricEvaluation::RecordStore::getSpaceUsed()
 {
 	struct stat sb;
 
-	if (stat(canonicalName(controlFileName).c_str(), &sb) != 0)
+	if (stat(RecordStore::canonicalName(controlFileName).c_str(), &sb) != 0)
 		throw StrategyError("Could not find control file");
 	return (sb.st_blocks * S_BLKSIZE);
 }
@@ -185,7 +185,7 @@ BiometricEvaluation::RecordStore::readControlFile()
 	/* Read the store name and description from the control file.
 	 * _directory must be set before calling this method.
 	 */
-	std::ifstream ifs(canonicalName(controlFileName).c_str());
+	std::ifstream ifs(RecordStore::canonicalName(controlFileName).c_str());
 	if (!ifs)
 		throw StrategyError("Could not open control file");
 
@@ -206,7 +206,7 @@ void
 BiometricEvaluation::RecordStore::writeControlFile()
     throw (StrategyError)
 {
-	std::ofstream ofs(canonicalName(controlFileName).c_str());
+	std::ofstream ofs(RecordStore::canonicalName(controlFileName).c_str());
 	if (!ofs)
 		throw StrategyError("Could not create control file");
 

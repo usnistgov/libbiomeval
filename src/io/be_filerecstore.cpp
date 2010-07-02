@@ -13,19 +13,28 @@
 #include <iostream>
 #include <be_filerecstore.h>
 
+static const string _fileArea = "theFiles";
+
 BiometricEvaluation::FileRecordStore::FileRecordStore(
     const string &name,
     const string &description)
     throw (ObjectExists, StrategyError) : RecordStore(name, description)
 {
-	return;		/* The parent does all the work */
+	_cursorPos = 1;
+	_theFilesDir = RecordStore::canonicalName(_fileArea);
+	if (mkdir(_theFilesDir.c_str(), S_IRWXU) != 0)
+		throw StrategyError("Could not create file area directory");
+	return;
 }
 
 BiometricEvaluation::FileRecordStore::FileRecordStore(
     const string &name)
     throw (ObjectDoesNotExist, StrategyError) : RecordStore(name)
 {
-	return;		/* The parent does all the work */
+	_cursorPos = 1;
+	_theFilesDir = RecordStore::canonicalName(_fileArea);
+	if (mkdir(_theFilesDir.c_str(), S_IRWXU) != 0)
+	return;
 }
 
 uint64_t
@@ -33,16 +42,11 @@ BiometricEvaluation::FileRecordStore::getSpaceUsed()
     throw (StrategyError)
 {
 	DIR *dir;
-	dir = opendir(_name.c_str());
+	dir = opendir(_theFilesDir.c_str());
 	if (dir == NULL)
 		throw StrategyError("Cannot open store directory");
 
-	/*
-	 * We don't call on the parent class to return its space usage
-	 * because 1) we know it is a file allocation, and 2) it will
-	 * be counted below.
-	 */
-	uint64_t total = 0;
+	uint64_t total = RecordStore::getSpaceUsed();
 	struct dirent *entry;
 	struct stat sb;
 	string cname;
@@ -52,7 +56,7 @@ BiometricEvaluation::FileRecordStore::getSpaceUsed()
 		if (entry->d_type == DT_DIR)	/* skip '.' and '..' */
 			continue;
 		cname = entry->d_name;
-		cname = canonicalName(cname);
+		cname = FileRecordStore::canonicalName(cname);
 		if (stat(cname.c_str(), &sb) != 0)	
 			throw StrategyError("Cannot stat store file");
 		total += sb.st_blocks * S_BLKSIZE;
@@ -67,7 +71,7 @@ BiometricEvaluation::FileRecordStore::insert(
     const uint64_t size)
     throw (ObjectExists, StrategyError)
 {
-	string pathname = canonicalName(key);
+	string pathname = FileRecordStore::canonicalName(key);
 	if (fileExists(pathname))
 		throw ObjectExists();
 
@@ -86,7 +90,7 @@ BiometricEvaluation::FileRecordStore::remove(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	string pathname = canonicalName(key);
+	string pathname = FileRecordStore::canonicalName(key);
 	if (!fileExists(pathname))
 		throw ObjectDoesNotExist();
 
@@ -102,7 +106,7 @@ BiometricEvaluation::FileRecordStore::read(
     void *data)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	string pathname = canonicalName(key);
+	string pathname = FileRecordStore::canonicalName(key);
 	if (!fileExists(pathname))
 		throw ObjectDoesNotExist();
 
@@ -126,7 +130,7 @@ BiometricEvaluation::FileRecordStore::replace(
     const uint64_t size)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	string pathname = canonicalName(key);
+	string pathname = FileRecordStore::canonicalName(key);
 	if (!fileExists(pathname))
 		throw ObjectDoesNotExist();
 
@@ -142,7 +146,7 @@ BiometricEvaluation::FileRecordStore::length(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	string pathname = canonicalName(key);
+	string pathname = FileRecordStore::canonicalName(key);
 	if (!fileExists(pathname))
 		throw ObjectDoesNotExist();
 
@@ -154,10 +158,62 @@ BiometricEvaluation::FileRecordStore::flush(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	string pathname = canonicalName(key);
+	string pathname = FileRecordStore::canonicalName(key);
 	if (!fileExists(pathname))
 		throw ObjectDoesNotExist();
-	//XXX Implement
+
+	/*
+	 * There's nothing to implement here as the record writes result
+	 * in the file being closed.
+	 */
+}
+
+uint64_t
+BiometricEvaluation::FileRecordStore::sequence(
+    string &key,
+    void *data,
+    int cursor)
+    throw (ObjectDoesNotExist, StrategyError)
+{
+	if ((cursor != BE_RECSTORE_SEQ_START) &&
+	    (cursor != BE_RECSTORE_SEQ_NEXT))
+		throw StrategyError("Invalid cursor position as argument");
+
+	DIR *dir;
+	dir = opendir(_theFilesDir.c_str());
+	if (dir == NULL)
+		throw StrategyError("Cannot open store directory");
+
+	/* If the current cursor position is START, then it doesn't matter
+	 * what the client requests; we start at the first record.
+	*/
+	if ((_cursor == BE_RECSTORE_SEQ_START) ||
+	    (cursor == BE_RECSTORE_SEQ_START))
+		_cursorPos = 1;
+
+	if (_cursorPos > _count)	/* Client needs to start over */
+		throw ObjectDoesNotExist("No record at position");
+
+	struct dirent *entry;
+	int i = 1;
+	while ((entry = readdir(dir)) != NULL) {
+		if (entry->d_ino == 0)
+			continue;
+		if (entry->d_type == DT_DIR)	/* skip '.' and '..' */
+			continue;
+		if (i == _cursorPos)
+			break;
+		i++;
+	}	
+	/* Sanity check */
+	if (i > _cursorPos)
+		throw StrategyError("Record cursor position out of sync");
+	string _key = entry->d_name;
+	uint64_t _size = FileRecordStore::read(_key, data);
+	key = _key;
+	_cursor = cursor;
+	_cursorPos = i + 1;
+	return (_size);
 }
 
 /******************************************************************************/
@@ -207,4 +263,10 @@ BiometricEvaluation::FileRecordStore::writeNewRecordFile(
 	std::fclose(fp);
 	if (sz != size)
 		throw StrategyError("Could not write " + name);
+}
+
+string
+BiometricEvaluation::FileRecordStore::canonicalName(const string &name)
+{
+	return(_theFilesDir + '/' + name);
 }
