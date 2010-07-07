@@ -204,11 +204,16 @@ BiometricEvaluation::FileRecordStore::sequence(
 		throw ObjectDoesNotExist("No record at position");
 
 	struct dirent *entry;
+	struct stat sb;
 	int i = 1;
+	string cname;
 	while ((entry = readdir(dir)) != NULL) {
 		if (entry->d_ino == 0)
 			continue;
-		if (entry->d_type == DT_DIR)	/* skip '.' and '..' */
+		cname = _theFilesDir + "/" + entry->d_name;
+		if (stat(cname.c_str(), &sb) != 0)	
+			throw StrategyError("Cannot stat store file");
+		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
 		if (i == _cursorPos)
 			break;
@@ -222,6 +227,13 @@ BiometricEvaluation::FileRecordStore::sequence(
 	key = _key;
 	_cursor = cursor;
 	_cursorPos = i + 1;
+
+	if (dir != NULL) {
+		if (closedir(dir)) {
+			throw StrategyError("Could not close " + _theFilesDir);
+		}
+	}
+
 	return (_size);
 }
 
