@@ -8,9 +8,11 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
-#include <sys/dir.h>
 #include <sys/stat.h>
+
+#include <dirent.h>
 #include <iostream>
+
 #include <be_filerecstore.h>
 
 static const string _fileArea = "theFiles";
@@ -53,14 +55,21 @@ BiometricEvaluation::FileRecordStore::getSpaceUsed()
 	while ((entry = readdir(dir)) != NULL) {
 		if (entry->d_ino == 0)
 			continue;
-		if (entry->d_type == DT_DIR)	/* skip '.' and '..' */
-			continue;
 		cname = entry->d_name;
 		cname = FileRecordStore::canonicalName(cname);
 		if (stat(cname.c_str(), &sb) != 0)	
 			throw StrategyError("Cannot stat store file");
+		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
+			continue;
 		total += sb.st_blocks * S_BLKSIZE;
 	}	
+
+	if (dir != NULL) {
+		if (closedir(dir)) {
+			throw StrategyError("Could not close " + _name);
+		}
+	}
+
 	return (total);
 }
 
