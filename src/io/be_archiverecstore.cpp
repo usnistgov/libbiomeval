@@ -329,8 +329,41 @@ BiometricEvaluation::ArchiveRecordStore::sequence(
     int cursor)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	throw StrategyError("Not implemented");
-	//XXX implement
+	if ((cursor != BE_RECSTORE_SEQ_START) &&
+	    (cursor != BE_RECSTORE_SEQ_NEXT))
+	    	throw StrategyError("Invalid cursor position as argument");
+
+	if (_entries.begin() == _entries.end())
+		throw StrategyError("Empty RecordStore");
+
+	/* If the current cursor position is START, then it doesn't matter
+	 * what the client requests; we start at the first record.
+	 */
+	if ((_cursor == BE_RECSTORE_SEQ_START) ||
+	    (cursor == BE_RECSTORE_SEQ_START)) {
+		_cursorPos = _entries.begin();
+		/* If client hasn't vacuumed, begin() might not be first item */
+		while (_cursorPos->second.offset == ARCHIVE_RECORD_REMOVED) {
+			_cursorPos++;
+			if (_cursorPos == _entries.end())
+				break;
+		}
+	} else {
+		while (true) {
+			_cursorPos++;
+			/* If user hasn't vacuumed, this item might not exist */
+			if (_cursorPos == _entries.end() ||
+			    _cursorPos->second.offset != ARCHIVE_RECORD_REMOVED)
+				break;
+		}
+	}
+
+	if (_cursorPos == _entries.end())	/* Client needs to start over */
+		throw ObjectDoesNotExist("No record at position");
+
+	_cursor = cursor;
+	key.assign(_cursorPos->first);
+	return read(key, data);
 }
 
 BiometricEvaluation::ManifestMap::iterator 

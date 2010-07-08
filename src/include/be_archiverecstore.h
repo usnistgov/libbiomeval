@@ -217,6 +217,11 @@ namespace BiometricEvaluation {
 		 * Offsets and sizes of data chunks within the archive.
 		 */
 		ManifestMap _entries;
+
+		/*
+		 * Position of iterator (for sequence())
+		 */
+		ManifestMap::const_iterator _cursorPos;
 		
 		/*
 		 * Read the manifest.
