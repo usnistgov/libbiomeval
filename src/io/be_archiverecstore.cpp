@@ -32,11 +32,6 @@ BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
 	} catch (FileError& e) {
 		throw StrategyError(e.getInfo());
 	}
-	
-	strncpy(linebuf, _description.c_str(), MAXLINELEN);
-	strncat(linebuf, "\n", 1);
-	if (fwrite(linebuf, 1, strlen(linebuf), _manifestfp) != strlen(linebuf))
-		throw StrategyError("Couldn't write description to manifest");
 }
 
 BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
@@ -149,16 +144,6 @@ BiometricEvaluation::ArchiveRecordStore::read_manifest()
 	}
 	rewind(_manifestfp);
 
-	/* Description */
-	if (fgets(linebuf, MAXLINELEN, _manifestfp) == NULL) {
-		if (feof(_manifestfp) || ferror(_manifestfp))
-			throw FileError("Error reading manifest description");
-	}
-	if (linebuf[strlen(linebuf) - 1] == '\n') 
-	    linebuf[strlen(linebuf) - 1] = '\0';
-	_description.assign(linebuf);
-
-	/* Records */
 	while (1) {
 		if (fgets(linebuf, MAXLINELEN, _manifestfp) == NULL) {
 			if (feof(_manifestfp))
