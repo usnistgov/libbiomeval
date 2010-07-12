@@ -348,6 +348,8 @@ BiometricEvaluation::ArchiveRecordStore::sequence(
 
 	_cursor = cursor;
 	key.assign(_cursorPos->first);
+	if (data == NULL)
+		return length(key);
 	return read(key, data);
 }
 

@@ -223,7 +223,6 @@ BiometricEvaluation::FileRecordStore::sequence(
 	if (i > _cursorPos)
 		throw StrategyError("Record cursor position out of sync");
 	string _key = entry->d_name;
-	uint64_t _size = FileRecordStore::read(_key, data);
 	key = _key;
 	_cursor = cursor;
 	_cursorPos = i + 1;
@@ -233,8 +232,10 @@ BiometricEvaluation::FileRecordStore::sequence(
 			throw StrategyError("Could not close " + _theFilesDir);
 		}
 	}
-
-	return (_size);
+	
+	if (data == NULL)
+		return FileRecordStore::length(_key);
+	return FileRecordStore::read(_key, data);
 }
 
 /******************************************************************************/

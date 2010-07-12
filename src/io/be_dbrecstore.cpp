@@ -260,7 +260,8 @@ BiometricEvaluation::DBRecordStore::sequence(
 			break;		/* not reached */
 	}
 	_cursor = cursor;
-	memcpy(data, dbtdata.data, dbtdata.size);
+	if (data != NULL)
+		memcpy(data, dbtdata.data, dbtdata.size);
 	key.assign((const char *)dbtkey.data, dbtkey.size);
 	return (dbtdata.size);
 }

@@ -172,7 +172,7 @@ namespace BiometricEvaluation {
 			static const int BE_RECSTORE_SEQ_NEXT = 2;
 			virtual uint64_t sequence(
 			    string &key,
-			    void *data,
+			    void *data = NULL,
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
 			    throw (ObjectDoesNotExist, StrategyError) = 0;
 
