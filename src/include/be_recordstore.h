@@ -96,6 +96,16 @@ namespace BiometricEvaluation {
 
 			/* Return the number of items in the RecordStore */
 			unsigned int getCount();
+
+			/* Change the name of the RecordStore */
+			virtual void changeName(
+			    string &name)
+			    throw (ObjectExists, StrategyError);
+
+			/* Change the description of the RecordStore */
+			virtual void changeDescription(
+			    string &description)
+			    throw (StrategyError);
 			
 			/* Return the amount of real storage utilization, the
 			 * amount of disk space used, for example. This is the
@@ -176,6 +186,13 @@ namespace BiometricEvaluation {
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
 			    throw (ObjectDoesNotExist, StrategyError) = 0;
 
+			/*
+			 * Remove a RecordStore 
+			 */
+			static void removeRecordStore(
+			    const string &name)
+			    throw (ObjectDoesNotExist, StrategyError);
+
 		protected:
 			/*
 			 * The data members of the RecordStore are protected 
@@ -212,6 +229,13 @@ namespace BiometricEvaluation {
 			 * for all RecordStores.
 			 */
 			void writeControlFile() throw (StrategyError);
+
+			/* Recursive function to remove a RecordStore and its
+			 * contents.
+			 */
+			static void internalRemoveRecordStore(
+			    const string &directory, const string &prefix)
+			    throw (ObjectDoesNotExist, StrategyError);
 
 	};
 }

@@ -204,6 +204,11 @@ namespace BiometricEvaluation {
 		 */
 		string getManifestName();
 
+		/* Change the name of the RecordStore */
+		void changeName(
+		    string &name)
+		    throw (ObjectExists, StrategyError);
+
 	protected:
 	
 	private:
@@ -249,6 +254,12 @@ namespace BiometricEvaluation {
 		 */
 		void open_streams()
 		    throw (FileError);
+
+		/*
+		 * Close the manifest and archive file streams
+		 */
+		void close_streams()
+		    throw (StrategyError);
 
 		/*
 		 * Use the most efficient method for inserting an item

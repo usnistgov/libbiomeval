@@ -78,6 +78,22 @@ BiometricEvaluation::ArchiveRecordStore::open_streams()
 	}
 }
 
+void
+BiometricEvaluation::ArchiveRecordStore::close_streams()
+    throw (StrategyError)
+{
+	if (_manifestfp != NULL) {
+		if (fclose(_manifestfp))
+			throw StrategyError("Could not close manifest");
+		_manifestfp = NULL;
+	}
+	if (_archivefp != NULL) {
+		if (fclose(_archivefp))
+			throw StrategyError("Could not close archive");
+		_archivefp = NULL;
+	}
+}
+
 uint64_t
 BiometricEvaluation::ArchiveRecordStore::getSpaceUsed()
     throw (StrategyError)
@@ -374,11 +390,24 @@ BiometricEvaluation::ArchiveRecordStore::vacuum()
 {
 }
 
+void
+BiometricEvaluation::ArchiveRecordStore::changeName(string &name)
+    throw (ObjectExists, StrategyError)
+{
+	RecordStore::changeName(name);
+	close_streams();
+}
+
 BiometricEvaluation::ArchiveRecordStore::~ArchiveRecordStore()
 {
-	if (_manifestfp != NULL)
-		fclose(_manifestfp);
-	if (_archivefp != NULL)
-		fclose(_archivefp);
+	try {
+		close_streams();
+	} catch (StrategyError &e) {
+		/* 
+		 * Don't throw exceptions in destructors.  Even if we cannot
+		 * close the file streams here, the OS will take care of that
+		 * detail on our behalf.
+		 */
+	}
 }
 

@@ -52,6 +52,8 @@ testSequence(RecordStore *rs)
 				printf("data is [%s]\n", rdata);
 			} catch (ObjectDoesNotExist &e) {
 				break;
+			} catch (StrategyError &e) {
+				cout << "Caught " << e.getInfo() << endl;
 			}
 			i++;
 		}
@@ -268,15 +270,40 @@ main (int argc, char* argv[]) {
 		ars->insert(theKey, rdata, RDATASIZE);
 	}
 	testSequence(rs);
+	cout << "Changing RecordStore name..." << endl;
+	try {
+		string newName = tempnam(".", NULL);
+		newName = newName.substr(2, newName.length());
+		ars->changeName(newName);
+	} catch (ObjectExists &e) {
+		cout << "failed: " << e.getInfo() << "." << endl;
+		return (EXIT_FAILURE);
+	} catch (StrategyError &e) {
+		cout << "failed: " << e.getInfo() << "." << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << "Name is now " << ars->getName() << endl;
 	cout << "Deleting all records..." << endl;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
 		snprintf(rdata, RDATASIZE, "key%u", i);
 		theKey.assign(rdata);
-		ars->remove(theKey);
+		try { 
+			ars->remove(theKey);
+		} catch (StrategyError &e) {
+			cout << "Caught:  " << e.getInfo() << endl;
+		}
 	}
 	cout << "Sequencing empty store... ";
 	testSequence(rs);
 	cout << "there should be no output." << endl;
+	cout << "Return RecordStore to original name..." << endl;
+	try {
+		ars->changeName(rsname);
+	} catch (ObjectExists &e) {
+		cout << "Caught:  " << e.getInfo() << endl;
+	} catch (StrategyError &e)  {
+		cout << "Caught:  " << e.getInfo() << endl;
+	}
 
 #endif
 	return(EXIT_SUCCESS);

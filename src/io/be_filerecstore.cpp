@@ -39,6 +39,15 @@ BiometricEvaluation::FileRecordStore::FileRecordStore(
 	return;
 }
 
+void
+BiometricEvaluation::FileRecordStore::changeName(
+    string &name)
+    throw (ObjectExists, StrategyError)
+{
+	RecordStore::changeName(name);
+	_theFilesDir = RecordStore::canonicalName(_fileArea);
+}
+
 uint64_t
 BiometricEvaluation::FileRecordStore::getSpaceUsed()
     throw (StrategyError)

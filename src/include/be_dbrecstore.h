@@ -95,6 +95,10 @@ namespace BiometricEvaluation {
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
 			    throw (ObjectDoesNotExist, StrategyError);
 
+			void changeName(
+			    string &name)
+			    throw (ObjectExists, StrategyError);
+
 		protected:
 
 		private:

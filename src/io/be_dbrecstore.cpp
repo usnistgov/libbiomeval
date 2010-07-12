@@ -50,6 +50,29 @@ BiometricEvaluation::DBRecordStore::~DBRecordStore()
 		_db->close(_db);
 }
 
+void
+BiometricEvaluation::DBRecordStore::changeName(string &name)
+    throw (ObjectExists, StrategyError)
+{ 
+	if (_db != NULL)
+		_db->close(_db);
+
+	string oldDBName = name + '/' + _name;
+	string newDBName = name + '/' + name;
+	RecordStore::changeName(name);
+	if (rename(oldDBName.c_str(), newDBName.c_str()))
+		// XXX Check errno
+		throw StrategyError("Could not rename database");
+
+	_dbname = _directory + '/' + _name;
+	if (!fileExists(_dbname))
+		throw StrategyError("Database " + _dbname + "does not exist");
+
+	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, NULL);
+	if (_db == NULL)
+		throw StrategyError("Could not open database");
+}
+
 uint64_t
 BiometricEvaluation::DBRecordStore::getSpaceUsed()
     throw (StrategyError)

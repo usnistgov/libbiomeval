@@ -9,8 +9,12 @@
  ******************************************************************************/
 
 #include <sys/stat.h>
+#include <sys/types.h>
+
+#include <dirent.h>
 #include <iostream>
 #include <fstream>
+
 #include <be_recordstore.h>
 
 /*
@@ -156,10 +160,55 @@ BiometricEvaluation::RecordStore::getDescription()
 	return _description;
 }
 
+void
+BiometricEvaluation::RecordStore::changeName(string &name)
+    throw (ObjectExists, StrategyError)
+{
+	struct stat sb;
+
+	if (stat(name.c_str(), &sb) == 0)
+		throw ObjectExists(name);
+	if (rename(_directory.c_str(), name.c_str()))
+		// XXX Check errno
+		throw StrategyError("Could not rename " + _directory);
+	
+	_name = name;
+	_directory = name;
+	writeControlFile();
+}
+
+void
+BiometricEvaluation::RecordStore::changeDescription(string &description)
+    throw (StrategyError)
+{
+	_description = description;
+	writeControlFile();
+}
+
 unsigned int
 BiometricEvaluation::RecordStore::getCount()
 {
 	return _count;
+}
+
+void 
+BiometricEvaluation::RecordStore::removeRecordStore(
+    const string &name)
+    throw (ObjectDoesNotExist, StrategyError)
+{
+	struct stat sb;
+
+	/* Check that the RecordStore directory exists */
+	if (stat(name.c_str(), &sb) != 0)
+		throw ObjectDoesNotExist();
+
+	try {
+		internalRemoveRecordStore(name, ".");
+	} catch (ObjectDoesNotExist &e) {
+		throw e;
+	} catch (StrategyError &e) {
+		throw e;
+	}
 }
 
 /******************************************************************************/
@@ -216,3 +265,67 @@ BiometricEvaluation::RecordStore::writeControlFile()
 	ofs << _count << '\n';
 	ofs.close();
 }
+
+void 
+BiometricEvaluation::RecordStore::internalRemoveRecordStore(
+    const string &directory, const string &prefix)
+    throw (ObjectDoesNotExist, StrategyError)
+{
+	struct stat sb;
+	struct dirent *entry;
+	DIR *dir = NULL;
+	string dirpath, filename;
+
+	dirpath = prefix + "/" + directory;
+	if (stat(dirpath.c_str(), &sb) != 0)
+		throw ObjectDoesNotExist(dirpath + " does not exist");
+	dir = opendir(dirpath.c_str());
+	if (dir == NULL)
+		throw StrategyError(dirpath + " could not be opened");
+	
+	while ((entry = readdir(dir)) != NULL) {
+		if (entry->d_ino == 0)
+			continue;
+		if ((strcmp(entry->d_name, ".") == 0) ||
+		    (strcmp(entry->d_name, "..") == 0))
+			continue;
+
+		filename = dirpath + "/" + entry->d_name;
+		if (stat(filename.c_str(), &sb) != 0) {
+			if (dir != NULL) {
+				if (closedir(dir)) {
+					throw StrategyError("Could not close " +
+					    dirpath);
+				}
+			}
+			throw StrategyError("Could not stat " + filename);
+		}
+
+		/* Recursively remove subdirectories and files */
+		if ((S_IFMT & sb.st_mode) == S_IFDIR)
+			internalRemoveRecordStore(entry->d_name, dirpath);
+		else {
+			if (unlink(filename.c_str())) {
+				if (dir != NULL) {
+					if (closedir(dir)) {
+						throw StrategyError("Could "
+						    "not close " + dirpath);
+					}
+				}
+				throw StrategyError(filename + " could not " +
+				    "be removed");
+			}
+		}
+	}
+
+	/* Remove parent directory, now that children have been removed */
+	if (rmdir(dirpath.c_str()))
+		throw StrategyError(dirpath + " could not be removed");
+
+	if (dir != NULL) {
+		if (closedir(dir)) {
+			throw StrategyError("Could not close " + dirpath);
+		}
+	}
+}
+
