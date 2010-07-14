@@ -95,7 +95,7 @@ int main (int argc, char* argv[]) {
 	string rsname("frs_test");
 	FileRecordStore *rs;
 	try {
-		rs = new FileRecordStore(rsname, "RW Test Dir");
+		rs = new FileRecordStore(rsname, "RW Test Dir", "");
 	} catch (ObjectExists& e) {
 		cout << "The FileRecordStore already exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -110,7 +110,7 @@ int main (int argc, char* argv[]) {
 	string rsname("dbrs_test");
 	DBRecordStore *rs;
 	try {
-		rs = new DBRecordStore(rsname, "RW Test Dir");
+		rs = new DBRecordStore(rsname, "RW Test Dir", "");
 	} catch (ObjectExists& e) {
 		cout << "The DBRecordStore already exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -125,7 +125,7 @@ int main (int argc, char* argv[]) {
 	string rsname("ars_test");
 	ArchiveRecordStore *rs;
 	try {
-		rs = new ArchiveRecordStore(rsname, "RW Test Dir");
+		rs = new ArchiveRecordStore(rsname, "RW Test Dir", "");
 	} catch (ObjectExists& e) {
 		cout << "The ArchiveRecordStore already exists; exiting." << endl;
 		return (EXIT_FAILURE);

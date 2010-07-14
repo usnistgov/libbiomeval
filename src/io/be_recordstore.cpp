@@ -58,21 +58,29 @@ BiometricEvaluation::RecordStore::RecordStore()
 
 BiometricEvaluation::RecordStore::RecordStore(
     const string &name,
-    const string &description)
+    const string &description,
+    const string &parentDir)
     throw (ObjectExists, StrategyError)
 {
+	if (name.find("/") != string::npos || name.find("\\") != string::npos)
+		throw StrategyError("Invalid slash characters in RS name");
+
 	struct stat sb;
 
 	_count = 0;
 	_name = name;
-	_directory = name;
+	_parentDir = parentDir;
+	if (_parentDir.empty() || _parentDir == ".")
+		_directory = name;
+	else
+		_directory = _parentDir + '/' + name;
 	_description = description;
 	_cursor = BE_RECSTORE_SEQ_START;
 
 	/*
 	 * The RecordStore is implemented as a directory in the current
-	 * working directory. Subclasses of this class store all their
-	 * data in this directory.
+	 * working directory by default or in parentDir if specified.
+	 * Subclasses of this class store all their data in this directory.
 	 */
 	/* Check that the directory doesn't already exist */
 	if (stat(_directory.c_str(), &sb) == 0)
@@ -89,12 +97,20 @@ BiometricEvaluation::RecordStore::RecordStore(
 }
 
 BiometricEvaluation::RecordStore::RecordStore(
-    const string &name)
+    const string &name,
+    const string &parentDir)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (name.find("/") != string::npos || name.find("\\") != string::npos)
+		throw StrategyError("Invalid slash characters in RS name");
+
 	struct stat sb;
 
-	_directory = name;
+	_parentDir = parentDir;
+	if (_parentDir.empty() || _parentDir == ".")
+		_directory = name;
+	else
+		_directory = _parentDir + '/' + name;
 	_cursor = BE_RECSTORE_SEQ_START;
 
 	/* Check that the directory exists, throwing an error if not */
@@ -164,16 +180,25 @@ void
 BiometricEvaluation::RecordStore::changeName(string &name)
     throw (ObjectExists, StrategyError)
 {
+	if (name.find("/") != string::npos || name.find("\\") != string::npos)
+		throw StrategyError("Invalid slash characters in RS name");
+
 	struct stat sb;
 
-	if (stat(name.c_str(), &sb) == 0)
-		throw ObjectExists(name);
-	if (rename(_directory.c_str(), name.c_str()))
+	string newDirectory;
+	if (_parentDir.empty() || _parentDir == ".")
+		newDirectory = name.c_str();
+	else
+		newDirectory = _parentDir + "/" + name.c_str();
+
+	if (stat(newDirectory.c_str(), &sb) == 0)
+		throw ObjectExists(newDirectory);
+	if (rename(_directory.c_str(), newDirectory.c_str()))
 		// XXX Check errno
 		throw StrategyError("Could not rename " + _directory);
 	
 	_name = name;
-	_directory = name;
+	_directory = newDirectory;
 	writeControlFile();
 }
 

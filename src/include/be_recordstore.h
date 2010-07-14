@@ -74,14 +74,16 @@ namespace BiometricEvaluation {
 			 */
 			RecordStore(
 			    const string &name,
-			    const string &description)
+			    const string &description,
+			    const string &parentDir)
 			    throw (ObjectExists, StrategyError);
 
 			/*
 			 * Open an existing RecordStore.
 			 */
 			RecordStore(
-			    const string &name)
+			    const string &name,
+			    const string &parentDir)
 			    throw (ObjectDoesNotExist, StrategyError);
 
 			RecordStore();
@@ -205,6 +207,11 @@ namespace BiometricEvaluation {
 
 			/* The name directory where the store is rooted */
 			string _directory;
+
+			/*
+			 * The directory containing _directory.
+			 */
+			string _parentDir;
 
 			/* A textual description of the store. */
 			string _description;

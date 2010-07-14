@@ -18,8 +18,10 @@
 #include <iostream>
 BiometricEvaluation::DBRecordStore::DBRecordStore(
     const string &name,
-    const string &description)
-    throw (ObjectExists, StrategyError) : RecordStore(name, description)
+    const string &description,
+    const string &parentDir)
+    throw (ObjectExists, StrategyError) : 
+    RecordStore(name, description, parentDir)
 {
 	_dbname = _directory + '/' + _name;
 	if (fileExists(_dbname))
@@ -32,9 +34,10 @@ BiometricEvaluation::DBRecordStore::DBRecordStore(
 }
 
 BiometricEvaluation::DBRecordStore::DBRecordStore(
-    const string &name)
-    throw (ObjectDoesNotExist, StrategyError) : RecordStore(name)
-{
+    const string &name,
+    const string &parentDir)
+    throw (ObjectDoesNotExist, StrategyError) : RecordStore(name, parentDir)
+{ 
 	_dbname = _directory + '/' + _name;
 	if (!fileExists(_dbname))
 		throw ObjectDoesNotExist("Database does not exist");
@@ -57,14 +60,20 @@ BiometricEvaluation::DBRecordStore::changeName(string &name)
 	if (_db != NULL)
 		_db->close(_db);
 
-	string oldDBName = name + '/' + _name;
-	string newDBName = name + '/' + name;
+	string oldDBName, newDBName;
+	if (_parentDir.empty() || _parentDir == ".") {
+		oldDBName = name + '/' + _name;
+		newDBName = name + '/' + name;
+	} else {
+		oldDBName = _parentDir + '/' + name + '/' + _name;
+		newDBName = _parentDir + '/' + name + '/' + name;
+	}
 	RecordStore::changeName(name);
 	if (rename(oldDBName.c_str(), newDBName.c_str()))
 		// XXX Check errno
 		throw StrategyError("Could not rename database");
 
-	_dbname = _directory + '/' + _name;
+	_dbname = RecordStore::canonicalName(_name);
 	if (!fileExists(_dbname))
 		throw StrategyError("Database " + _dbname + "does not exist");
 

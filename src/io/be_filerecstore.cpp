@@ -19,8 +19,10 @@ static const string _fileArea = "theFiles";
 
 BiometricEvaluation::FileRecordStore::FileRecordStore(
     const string &name,
-    const string &description)
-    throw (ObjectExists, StrategyError) : RecordStore(name, description)
+    const string &description,
+    const string &parentDir)
+    throw (ObjectExists, StrategyError) : 
+    RecordStore(name, description, parentDir)
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
@@ -30,8 +32,9 @@ BiometricEvaluation::FileRecordStore::FileRecordStore(
 }
 
 BiometricEvaluation::FileRecordStore::FileRecordStore(
-    const string &name)
-    throw (ObjectDoesNotExist, StrategyError) : RecordStore(name)
+    const string &name,
+    const string &parentDir)
+    throw (ObjectDoesNotExist, StrategyError) : RecordStore(name, parentDir)
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);

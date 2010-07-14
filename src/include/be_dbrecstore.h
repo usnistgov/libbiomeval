@@ -39,14 +39,16 @@ namespace BiometricEvaluation {
 			 */
 			DBRecordStore(
 			    const string &name,
-			    const string &description)
+			    const string &description,
+			    const string &parentDir)
 			    throw (ObjectExists, StrategyError);
 
 			/*
 			 * Construct an existing DB record store.
 			 */
 			DBRecordStore(
-			    const string &name)
+			    const string &name,
+			    const string &parentDir)
 			    throw (ObjectDoesNotExist, StrategyError);
 
 			/*

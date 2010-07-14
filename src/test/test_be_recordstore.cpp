@@ -82,11 +82,11 @@ main (int argc, char* argv[]) {
 	string rsname("frs_test");
 	FileRecordStore *rs;
 	try {
-		rs = new FileRecordStore(rsname, "RW Test Dir");
+		rs = new FileRecordStore(rsname, "RW Test Dir", "");
 	} catch (ObjectExists& e) {
 		cout << "The RecordStore already exists; using it." << endl;
 		try {
-			rs = new FileRecordStore(rsname);
+			rs = new FileRecordStore(rsname, "");
 		} catch (StrategyError& e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}
@@ -101,11 +101,11 @@ main (int argc, char* argv[]) {
 	string rsname("dbrs_test");
 	DBRecordStore *rs;
 	try {
-		rs = new DBRecordStore(rsname, "RW Test Dir");
+		rs = new DBRecordStore(rsname, "RW Test Dir", "");
 	} catch (ObjectExists &e) {
 		cout << "The DB RecordStore already exists; using it." << endl;
 		try {
-			rs = new DBRecordStore(rsname);
+			rs = new DBRecordStore(rsname, "");
 		} catch (StrategyError& e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}
@@ -120,11 +120,11 @@ main (int argc, char* argv[]) {
 	string rsname("ars_test");
 	ArchiveRecordStore *rs;
 	try {
-		rs = new ArchiveRecordStore(rsname, "RW Test Dir");
+		rs = new ArchiveRecordStore(rsname, "RW Test Dir", "");
 	} catch (ObjectExists &e) {
 		cout << "The RecordStore already exists; using it." << endl;
 		try {
-			rs = new ArchiveRecordStore(rsname);
+			rs = new ArchiveRecordStore(rsname, "");
 		} catch (StrategyError& e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}

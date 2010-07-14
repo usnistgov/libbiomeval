@@ -73,14 +73,16 @@ namespace BiometricEvaluation {
 		 */
 		ArchiveRecordStore(
 		    const string &name,
-		    const string &description)
+		    const string &description,
+		    const string &parentDir)
 		    throw (ObjectExists, StrategyError);
 
 		/*
 		 * Open an existing ArchiveRecordStore.
 		 */
 		 ArchiveRecordStore(
-		     const string &name)
+		     const string &name,
+		     const string &parentDir)
 		     throw (ObjectDoesNotExist, StrategyError);
 
 		uint64_t getSpaceUsed()

@@ -32,14 +32,16 @@ namespace BiometricEvaluation {
 			 */
 			FileRecordStore(
 			    const string &name,
-			    const string &description)
+			    const string &description,
+			    const string &parentDir)
 			    throw (ObjectExists, StrategyError);
 
 			/*
 			 * Open an existing File record store.
 			 */
 			FileRecordStore(
-			    const string &name)
+			    const string &name,
+			    const string &parentDir)
 			    throw (ObjectDoesNotExist, StrategyError);
 
 			uint64_t getSpaceUsed()

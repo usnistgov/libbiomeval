@@ -21,8 +21,10 @@
 
 BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
     const string &name,
-    const string &description) 
-    throw (ObjectExists, StrategyError) : RecordStore(name, description)
+    const string &description,
+    const string &parentDir)
+    throw (ObjectExists, StrategyError) : 
+    RecordStore(name, description, parentDir)
 {
 	char linebuf[MAXLINELEN];
 	_manifestfp = _archivefp = NULL;
@@ -35,8 +37,9 @@ BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
 }
 
 BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
-    const string &name)
-    throw (ObjectDoesNotExist, StrategyError) : RecordStore(name)
+    const string &name,
+    const string &parentDir)
+    throw (ObjectDoesNotExist, StrategyError) : RecordStore(name, parentDir)
 {
 	_manifestfp = _archivefp = NULL;
 
