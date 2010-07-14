@@ -98,7 +98,7 @@ namespace BiometricEvaluation {
 			    throw (ObjectDoesNotExist, StrategyError);
 
 			void changeName(
-			    string &name)
+			    const string &name)
 			    throw (ObjectExists, StrategyError);
 
 		protected:

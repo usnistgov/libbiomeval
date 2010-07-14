@@ -54,7 +54,7 @@ BiometricEvaluation::DBRecordStore::~DBRecordStore()
 }
 
 void
-BiometricEvaluation::DBRecordStore::changeName(string &name)
+BiometricEvaluation::DBRecordStore::changeName(const string &name)
     throw (ObjectExists, StrategyError)
 { 
 	if (_db != NULL)

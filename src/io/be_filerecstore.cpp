@@ -44,7 +44,7 @@ BiometricEvaluation::FileRecordStore::FileRecordStore(
 
 void
 BiometricEvaluation::FileRecordStore::changeName(
-    string &name)
+    const string &name)
     throw (ObjectExists, StrategyError)
 {
 	RecordStore::changeName(name);

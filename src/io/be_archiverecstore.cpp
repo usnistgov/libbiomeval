@@ -394,7 +394,7 @@ BiometricEvaluation::ArchiveRecordStore::vacuum()
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::changeName(string &name)
+BiometricEvaluation::ArchiveRecordStore::changeName(const string &name)
     throw (ObjectExists, StrategyError)
 {
 	RecordStore::changeName(name);

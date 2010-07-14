@@ -208,7 +208,7 @@ namespace BiometricEvaluation {
 
 		/* Change the name of the RecordStore */
 		void changeName(
-		    string &name)
+		    const string &name)
 		    throw (ObjectExists, StrategyError);
 
 	protected:

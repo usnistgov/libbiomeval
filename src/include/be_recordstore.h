@@ -101,12 +101,12 @@ namespace BiometricEvaluation {
 
 			/* Change the name of the RecordStore */
 			virtual void changeName(
-			    string &name)
+			    const string &name)
 			    throw (ObjectExists, StrategyError);
 
 			/* Change the description of the RecordStore */
 			virtual void changeDescription(
-			    string &description)
+			    const string &description)
 			    throw (StrategyError);
 			
 			/* Return the amount of real storage utilization, the

@@ -177,7 +177,7 @@ BiometricEvaluation::RecordStore::getDescription()
 }
 
 void
-BiometricEvaluation::RecordStore::changeName(string &name)
+BiometricEvaluation::RecordStore::changeName(const string &name)
     throw (ObjectExists, StrategyError)
 {
 	if (name.find("/") != string::npos || name.find("\\") != string::npos)
@@ -203,7 +203,7 @@ BiometricEvaluation::RecordStore::changeName(string &name)
 }
 
 void
-BiometricEvaluation::RecordStore::changeDescription(string &description)
+BiometricEvaluation::RecordStore::changeDescription(const string &description)
     throw (StrategyError)
 {
 	_description = description;
