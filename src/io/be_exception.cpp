@@ -27,11 +27,43 @@ string BiometricEvaluation::Exception::getInfo() {
 	return (this->_info);
 }
 
-BiometricEvaluation::FileError::FileError() : Exception() { }
-BiometricEvaluation::FileError::FileError(string info) : Exception(info) { }
+BiometricEvaluation::FileError::FileError() :
+    Exception() { }
+BiometricEvaluation::FileError::FileError(string info) :
+    Exception(info) { }
 
-BiometricEvaluation::ParameterError::ParameterError() : Exception() { }
-BiometricEvaluation::ParameterError::ParameterError(string info) : Exception(info) { }
+BiometricEvaluation::ParameterError::ParameterError() :
+    Exception() { }
+BiometricEvaluation::ParameterError::ParameterError(string info) :
+    Exception(info) { }
 
-BiometricEvaluation::MemoryError::MemoryError() : Exception() { }
-BiometricEvaluation::MemoryError::MemoryError(string info) : Exception(info) { }
+BiometricEvaluation::MemoryError::MemoryError() :
+    Exception() { }
+BiometricEvaluation::MemoryError::MemoryError(string info) :
+    Exception(info) { }
+
+BiometricEvaluation::ObjectExists::ObjectExists() :
+    Exception() { }
+BiometricEvaluation::ObjectExists::ObjectExists(string info) :
+    Exception(info) { }
+	
+BiometricEvaluation::ObjectDoesNotExist::ObjectDoesNotExist() :
+    Exception() { }
+BiometricEvaluation::ObjectDoesNotExist::ObjectDoesNotExist(string info) :
+    Exception(info) { }
+
+BiometricEvaluation::ObjectIsOpen::ObjectIsOpen() :
+    Exception() { }
+BiometricEvaluation::ObjectIsOpen::ObjectIsOpen(string info) :
+    Exception(info) { }
+
+BiometricEvaluation::ObjectIsClosed::ObjectIsClosed() :
+    Exception() { }
+BiometricEvaluation::ObjectIsClosed::ObjectIsClosed(string info) :
+    Exception(info) { }
+
+BiometricEvaluation::StrategyError::StrategyError() :
+    Exception() { }
+BiometricEvaluation::StrategyError::StrategyError(string info) :
+    Exception(info) { }
+

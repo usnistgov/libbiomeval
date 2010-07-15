@@ -22,31 +22,6 @@
  */
 const string controlFileName(".rscontrol");
 
-BiometricEvaluation::ObjectExists::ObjectExists() :
-    Exception() { }
-BiometricEvaluation::ObjectExists::ObjectExists(string info) :
-    Exception(info) { }
-	
-BiometricEvaluation::ObjectDoesNotExist::ObjectDoesNotExist() :
-    Exception() { }
-BiometricEvaluation::ObjectDoesNotExist::ObjectDoesNotExist(string info) :
-    Exception(info) { }
-
-BiometricEvaluation::ObjectIsOpen::ObjectIsOpen() :
-	Exception() { }
-BiometricEvaluation::ObjectIsOpen::ObjectIsOpen(string info) :
-	Exception(info) { }
-
-BiometricEvaluation::ObjectIsClosed::ObjectIsClosed() :
-	Exception() { }
-BiometricEvaluation::ObjectIsClosed::ObjectIsClosed(string info) :
-	Exception(info) { }
-
-BiometricEvaluation::StrategyError::StrategyError() :
-	Exception() { }
-BiometricEvaluation::StrategyError::StrategyError(string info) :
-	Exception(info) { }
-
 /*
  * Constructors
  */

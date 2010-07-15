@@ -22,47 +22,6 @@ using namespace std;
 namespace BiometricEvaluation {
 
 	/*
-	 * Exception classes unique to record storage mechanisms.
-	 */
-	 
-	/*
-	 * The named object exists, or doesn't.
-	 */
-	class ObjectExists : public Exception {
-		public:
-			ObjectExists();
-			ObjectExists(string info);
-	};
-	
-	class ObjectDoesNotExist : public Exception {
-		public:
-			ObjectDoesNotExist();
-			ObjectDoesNotExist(string info);
-	};
-
-	class ObjectIsOpen : public Exception {
-		public:
-			ObjectIsOpen();
-			ObjectIsOpen(string info);
-	};
-
-	class ObjectIsClosed : public Exception {
-		public:
-			ObjectIsClosed();
-			ObjectIsClosed(string info);
-	};
-
-	/*
-	 * The StrategyError object is thrown when the underlying
-	 * implementation of this interface encounters and error.
-	 */
-	class StrategyError : public Exception {
-		public:
-			StrategyError();
-			StrategyError(string info);
-	};
-	
-	/*
 	 * Class to represent a data storage mechanism.
 	 */
 	class RecordStore {
