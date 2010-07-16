@@ -151,7 +151,8 @@ namespace BiometricEvaluation {
 			 * Remove a RecordStore 
 			 */
 			static void removeRecordStore(
-			    const string &name)
+			    const string &name,
+			    const string &parentDir)
 			    throw (ObjectDoesNotExist, StrategyError);
 
 		protected:

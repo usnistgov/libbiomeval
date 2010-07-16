@@ -193,17 +193,30 @@ BiometricEvaluation::RecordStore::getCount()
 
 void 
 BiometricEvaluation::RecordStore::removeRecordStore(
-    const string &name)
+    const string &name,
+    const string &parentDir)
     throw (ObjectDoesNotExist, StrategyError)
 {
 	struct stat sb;
 
+	if (name.find("/") != string::npos || name.find("\\") != string::npos)
+		throw StrategyError("Invalid slash characters in RS name");
+
+	string newDirectory;
+	if (parentDir.empty() || parentDir == ".")
+		newDirectory = name.c_str();
+	else
+		newDirectory = parentDir + "/" + name.c_str();
+
 	/* Check that the RecordStore directory exists */
-	if (stat(name.c_str(), &sb) != 0)
+	if (stat(newDirectory.c_str(), &sb) != 0)
 		throw ObjectDoesNotExist();
 
 	try {
-		internalRemoveRecordStore(name, ".");
+		if (parentDir.empty())
+			internalRemoveRecordStore(name, ".");
+		else
+			internalRemoveRecordStore(name, parentDir);
 	} catch (ObjectDoesNotExist &e) {
 		throw e;
 	} catch (StrategyError &e) {
