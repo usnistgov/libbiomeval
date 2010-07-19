@@ -28,42 +28,42 @@ string BiometricEvaluation::Exception::getInfo() {
 }
 
 BiometricEvaluation::FileError::FileError() :
-    Exception() { }
+    Exception("FileError") { }
 BiometricEvaluation::FileError::FileError(string info) :
-    Exception(info) { }
+    Exception("FileError: " + info) { }
 
 BiometricEvaluation::ParameterError::ParameterError() :
-    Exception() { }
+    Exception("ParameterError") { }
 BiometricEvaluation::ParameterError::ParameterError(string info) :
-    Exception(info) { }
+    Exception("ParameterError: " + info) { }
 
 BiometricEvaluation::MemoryError::MemoryError() :
-    Exception() { }
+    Exception("MemoryError") { }
 BiometricEvaluation::MemoryError::MemoryError(string info) :
-    Exception(info) { }
+    Exception("MemoryError: " + info) { }
 
 BiometricEvaluation::ObjectExists::ObjectExists() :
-    Exception() { }
+    Exception("ObjectExists") { }
 BiometricEvaluation::ObjectExists::ObjectExists(string info) :
-    Exception(info) { }
+    Exception("ObjectExists: " + info) { }
 	
 BiometricEvaluation::ObjectDoesNotExist::ObjectDoesNotExist() :
-    Exception() { }
+    Exception("ObjectDoesNotExist") { }
 BiometricEvaluation::ObjectDoesNotExist::ObjectDoesNotExist(string info) :
-    Exception(info) { }
+    Exception("ObjectDoesNotExist: " + info) { }
 
 BiometricEvaluation::ObjectIsOpen::ObjectIsOpen() :
-    Exception() { }
+    Exception("ObjectIsOpen") { }
 BiometricEvaluation::ObjectIsOpen::ObjectIsOpen(string info) :
-    Exception(info) { }
+    Exception("ObjectIsOpen: " + info) { }
 
 BiometricEvaluation::ObjectIsClosed::ObjectIsClosed() :
-    Exception() { }
+    Exception("ObjectIsClosed") { }
 BiometricEvaluation::ObjectIsClosed::ObjectIsClosed(string info) :
-    Exception(info) { }
+    Exception("ObjectIsClosed: " + info) { }
 
 BiometricEvaluation::StrategyError::StrategyError() :
-    Exception() { }
+    Exception("StrategyError") { }
 BiometricEvaluation::StrategyError::StrategyError(string info) :
-    Exception(info) { }
+    Exception("StrategyError: " + info) { }
 
