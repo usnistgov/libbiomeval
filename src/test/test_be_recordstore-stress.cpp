@@ -20,7 +20,7 @@ using namespace BiometricEvaluation;
 #define TESTDEFINED
 #endif
 
-#ifdef DBECORDSTORETEST
+#ifdef DBRECORDSTORETEST
 #include <be_dbrecstore.h>
 #define TESTDEFINED
 #endif
@@ -40,6 +40,7 @@ using namespace BiometricEvaluation;
 const int RECCOUNT = 110503;		/* A prime number of records */
 const int RECSIZE = 1153;		/* of prime number size each */
 const int KEYNAMESIZE = 32;
+const int CREATEDESETROYCOUNT = 11;
 static char keyName[KEYNAMESIZE];
 static struct timeval starttm, endtm;
 static uint64_t totalTime;
@@ -89,92 +90,89 @@ int main (int argc, char* argv[]) {
 	 * accessed via the Bitstore interface.
 	 */
 
-#ifdef FILERECORDSTORETEST
+#ifdef TESTDEFINED
+	cout << "Testing multiple object creation/destruction/reopen...";
+	string descr("RecordStore Stress Test");
+#endif
 
+#ifdef FILERECORDSTORETEST
 	/* Call the constructor that will create a new FileRecordStore. */
 	string rsname("frs_test");
 	FileRecordStore *rs;
-	try {
-		rs = new FileRecordStore(rsname, "RW Test Dir", "");
-	} catch (ObjectExists& e) {
-		cout << "The FileRecordStore already exists; exiting." << endl;
-		return (EXIT_FAILURE);
-	} catch (StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
-	}
-	auto_ptr<FileRecordStore> ars(rs);
 #endif
 
-#ifdef DBECORDSTORETEST
+#ifdef DBRECORDSTORETEST
 	/* Call the constructor that will create a new DBRecordStore. */
 	string rsname("dbrs_test");
 	DBRecordStore *rs;
-	try {
-		rs = new DBRecordStore(rsname, "RW Test Dir", "");
-	} catch (ObjectExists& e) {
-		cout << "The DBRecordStore already exists; exiting." << endl;
-		return (EXIT_FAILURE);
-	} catch (StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
-	}
-	auto_ptr<DBRecordStore> ars(rs);
 #endif
-
 #ifdef ARCHIVERECORDSTORETEST
 	/* Call the constructor that will create a new ArchiveRecordStore. */
 	string rsname("ars_test");
 	ArchiveRecordStore *rs;
-	try {
-		rs = new ArchiveRecordStore(rsname, "RW Test Dir", "");
-	} catch (ObjectExists& e) {
-		cout << "The ArchiveRecordStore already exists; exiting." << endl;
-		return (EXIT_FAILURE);
-	} catch (StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+#endif
+	for (int i = 1; i <= CREATEDESETROYCOUNT; i++) {
+		try {
+#ifdef FILERECORDSTORETEST
+			rs = new FileRecordStore(rsname, descr, "");
+#endif
+#ifdef DBRECORDSTORETEST
+			rs = new DBRecordStore(rsname, descr, "");
+#endif
+#ifdef ARCHIVERECORDSTORETEST
+			rs = new ArchiveRecordStore(rsname, descr, "");
+#endif
+		} catch (ObjectExists& e) {
+			cout << "The RecordStore already exists; exiting." << endl;
+			return (EXIT_FAILURE);
+		} catch (StrategyError& e) {
+			cout << "A strategy error occurred: " << e.getInfo() << endl;
+		}
+		try {
+#ifdef FILERECORDSTORETEST
+			rs = new FileRecordStore(rsname, "");
+#endif
+#ifdef DBRECORDSTORETEST
+			rs = new DBRecordStore(rsname, "");
+#endif
+#ifdef ARCHIVERECORDSTORETEST
+			rs = new ArchiveRecordStore(rsname, "");
+#endif
+		} catch (ObjectDoesNotExist& e) {
+			cout << "Could not re-open RecordStore; exiting." << endl;
+			return (EXIT_FAILURE);
+		}
+		/* The last time through, leave the store open */
+		if (i != CREATEDESETROYCOUNT) {
+			delete rs;
+			RecordStore::removeRecordStore(rsname, "");
+		}
 	}
+#ifdef FILERECORDSTORETEST
+	auto_ptr<FileRecordStore> ars(rs);
+#endif
+#ifdef DBRECORDSTORETEST
+	auto_ptr<DBRecordStore> ars(rs);
+#endif
+#ifdef ARCHIVERECORDSTORETEST
 	auto_ptr<ArchiveRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED
+
+	cout << "passed." << endl;
 
 	/*
 	 * From this point forward, all access to the store object, no matter
 	 * what subclass, is done via the RecordStore interface.
 	 */
 
-	string *theKey;
-	uint8_t *theData;
-
-	theData = (uint8_t *)malloc(RECSIZE);
-#if 0
-	cout << "Creating " << RECCOUNT << " records of size " << RECSIZE << "." << endl;
-
-	/* Insert test */
-	totalTime = 0;
-	for (int i = 0; i < RECCOUNT; i++) {
-		snprintf(keyName, KEYNAMESIZE, "key%u", i);
-		theKey = new string(keyName);
-		gettimeofday(&starttm, NULL);
-		try {
-			ars->insert(*theKey, theData, RECSIZE);
-		} catch (ObjectExists& e) {
-			cout << "Whoops! Record exists?. Insert failed at record " << i << "." << endl;
-			return (EXIT_FAILURE);
-		} catch (StrategyError& e) {
-			cout << "Could not insert record " << i << ": " <<
-			    e.getInfo() << "." << endl;
-			return (EXIT_FAILURE);
-		}
-		gettimeofday(&endtm, NULL);
-		totalTime += TIMEINTERVAL(starttm, endtm);
-		delete theKey;
-	}
-	cout << "Insert lapsed time: " << totalTime << endl;
-#endif
 	if (insertMany(rs) != 0)
 		return (EXIT_FAILURE);
 
 	/* Random replace test */
+	string *theKey;
+	uint8_t *theData = (uint8_t *)malloc(RECSIZE);
 	srand(endtm.tv_sec);
 	totalTime = 0;
 	for (int i = 0; i < RECCOUNT; i++) {

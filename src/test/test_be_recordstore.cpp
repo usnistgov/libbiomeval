@@ -9,6 +9,7 @@
  */
 
 #include <iostream>
+#include <string>
 
 #include <stdlib.h>
 
@@ -18,7 +19,7 @@ using namespace BiometricEvaluation;
 #define TESTDEFINED
 #endif
 
-#ifdef DBECORDSTORETEST
+#ifdef DBRECORDSTORETEST
 #include <be_dbrecstore.h>
 #define TESTDEFINED
 #endif
@@ -33,7 +34,8 @@ using namespace BiometricEvaluation;
 #endif
 
 static const int SEQUENCECOUNT = 10;
-const int RDATASIZE = 64;
+static const int RDATASIZE = 64;
+static string rsname;
 
 static void
 testSequence(RecordStore *rs)
@@ -69,73 +71,8 @@ testSequence(RecordStore *rs)
  * an object of the appropriate implementation class.
  */
 int
-main (int argc, char* argv[]) {
-
-	/*
-	 * Other types of Bitstore objects can be created here and
-	 * accessed via the Bitstore interface.
-	 */
-
-#ifdef FILERECORDSTORETEST
-
-	/* Call the constructor that will create a new FileRecordStore. */
-	string rsname("frs_test");
-	FileRecordStore *rs;
-	try {
-		rs = new FileRecordStore(rsname, "RW Test Dir", "");
-	} catch (ObjectExists& e) {
-		cout << "The RecordStore already exists; using it." << endl;
-		try {
-			rs = new FileRecordStore(rsname, "");
-		} catch (StrategyError& e) {
-			cout << "A strategy error occurred: " << e.getInfo() << endl;
-		}
-	} catch (StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
-	}
-	auto_ptr<FileRecordStore> ars(rs);
-#endif
-
-#ifdef DBECORDSTORETEST
-	/* Call the constructor that will create a new DBRecordStore. */
-	string rsname("dbrs_test");
-	DBRecordStore *rs;
-	try {
-		rs = new DBRecordStore(rsname, "RW Test Dir", "");
-	} catch (ObjectExists &e) {
-		cout << "The DB RecordStore already exists; using it." << endl;
-		try {
-			rs = new DBRecordStore(rsname, "");
-		} catch (StrategyError& e) {
-			cout << "A strategy error occurred: " << e.getInfo() << endl;
-		}
-	} catch (StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
-	}
-	auto_ptr<DBRecordStore> ars(rs);
-#endif
-
-#ifdef ARCHIVEECORDSTORETEST
-	/* Call the constructor that will create a new ArchiveRecordStore. */
-	string rsname("ars_test");
-	ArchiveRecordStore *rs;
-	try {
-		rs = new ArchiveRecordStore(rsname, "RW Test Dir", "");
-	} catch (ObjectExists &e) {
-		cout << "The RecordStore already exists; using it." << endl;
-		try {
-			rs = new ArchiveRecordStore(rsname, "");
-		} catch (StrategyError& e) {
-			cout << "A strategy error occurred: " << e.getInfo() << endl;
-		}
-	} catch (StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
-	}
-	auto_ptr<ArchiveRecordStore> ars(rs);
-#endif
-
-#ifdef TESTDEFINED
-
+runTests(RecordStore *rs)
+{
 	/*
 	 * From this point forward, all access to the store object, no matter
 	 * what subclass, is done via the RecordStore interface.
@@ -150,35 +87,35 @@ main (int argc, char* argv[]) {
 	uint64_t wlen = strlen(wdata);
 	try {
 		cout << "insert(" << theKey << "): ";
-		ars->insert(theKey, wdata, wlen);
+		rs->insert(theKey, wdata, wlen);
 	} catch (ObjectExists& e) {
 		cout << "exists; deleting." << endl;
 		try {
-			ars->remove(theKey);
-			ars->insert(theKey, wdata, wlen);
+			rs->remove(theKey);
+			rs->insert(theKey, wdata, wlen);
 		} catch (StrategyError& e) {
 			cout << "Could not remove, and should be able to: " <<
 			    e.getInfo() << "." << endl;
-			return (EXIT_FAILURE);
+			return (-1);
 		}
 	} catch (StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	}
 	cout << endl;
-	cout << "Count of records is " << ars->getCount() << endl;
+	cout << "Count of records is " << rs->getCount() << endl;
 
 	char rdata[RDATASIZE];
 	bzero(rdata, RDATASIZE);
 	try {
 		cout << "read(" << theKey << "): ";
-		rlen = ars->read(theKey, rdata);
+		rlen = rs->read(theKey, rdata);
 	} catch (ObjectDoesNotExist& e) {
 		cout << "failed: Does not exist. " << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	} catch (StrategyError& e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	}
 	cout << "succeeded, read [" << rdata << "] ";
 	if (rlen != wlen)
@@ -190,47 +127,47 @@ main (int argc, char* argv[]) {
 	wlen = strlen(wdata);
 	try {
 		cout << "replace(" << theKey << "): ";
-		ars->replace(theKey, wdata, wlen);
+		rs->replace(theKey, wdata, wlen);
 	} catch (ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	} catch (StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	}
 	cout << endl;
-	cout << "Count of records is " << ars->getCount() << endl;
+	cout << "Count of records is " << rs->getCount() << endl;
 	cout << "Space usage is ";
 	try {
-		cout << ars->getSpaceUsed() << endl;
+		cout << rs->getSpaceUsed() << endl;
 	} catch (StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 	}
 
 	bzero(rdata, RDATASIZE);
-	rlen = ars->read(theKey, rdata);
+	rlen = rs->read(theKey, rdata);
 	cout << "Second read yields [" << rdata << "]" << endl;
 
 	try {
 		cout << "length(" << theKey << "): ";
-		rlen = ars->length(theKey);
+		rlen = rs->length(theKey);
 	} catch (ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	} catch (StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	}
 	if (rlen != wlen) {
 		cout << "failed: length " << rlen << " is incorrect." << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	} else {
 		cout << rlen << " is correct." << endl;
 	}
 
 	cout << "Deleting record... ";
-	ars->remove(theKey);
-	cout << "Record count is now " << ars->getCount() << endl;
+	rs->remove(theKey);
+	cout << "Record count is now " << rs->getCount() << endl;
 
 	/*
 	 * Try to read the record we just deleted.
@@ -239,27 +176,27 @@ main (int argc, char* argv[]) {
 	bool success;
 	try {
 		cout << "Non-existent read(" << theKey << "): ";
-		rlen = ars->read(theKey, rdata);
+		rlen = rs->read(theKey, rdata);
 		success = false;
 	} catch (ObjectDoesNotExist& e) {
 		cout << "succeeded." << endl;
 		success = true;
 	} catch (StrategyError& e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	}
 	if (!success)
 		cout << "failed." << endl;
 
 	try {
 		cout << "sync(): ";
-		ars->sync();
+		rs->sync();
 		cout << "succeeded." << endl;
 	} catch (StrategyError& e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	}
-	cout << "Space usage with no records is " << ars->getSpaceUsed() << endl;
+	cout << "Space usage with no records is " << rs->getSpaceUsed() << endl;
 	cout << "Sequencing records..." << endl;
 	int i;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
@@ -267,28 +204,28 @@ main (int argc, char* argv[]) {
 		snprintf(rdata, RDATASIZE, "key%u", i);
 		theKey.assign(rdata);
 		snprintf(rdata, RDATASIZE, "Bogus data for key%u", i);
-		ars->insert(theKey, rdata, RDATASIZE);
+		rs->insert(theKey, rdata, RDATASIZE);
 	}
 	testSequence(rs);
 	cout << "Changing RecordStore name..." << endl;
 	try {
 		string newName = tempnam(".", NULL);
 		newName = newName.substr(2, newName.length());
-		ars->changeName(newName);
+		rs->changeName(newName);
 	} catch (ObjectExists &e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	} catch (StrategyError &e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
-		return (EXIT_FAILURE);
+		return (-1);
 	}
-	cout << "Name is now " << ars->getName() << endl;
+	cout << "Name is now " << rs->getName() << endl;
 	cout << "Deleting all records..." << endl;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
 		snprintf(rdata, RDATASIZE, "key%u", i);
 		theKey.assign(rdata);
 		try { 
-			ars->remove(theKey);
+			rs->remove(theKey);
 		} catch (StrategyError &e) {
 			cout << "Caught:  " << e.getInfo() << endl;
 		}
@@ -296,15 +233,139 @@ main (int argc, char* argv[]) {
 	cout << "Sequencing empty store... ";
 	testSequence(rs);
 	cout << "there should be no output." << endl;
+
 	cout << "Return RecordStore to original name..." << endl;
 	try {
-		ars->changeName(rsname);
+		rs->changeName(rsname);
 	} catch (ObjectExists &e) {
 		cout << "Caught:  " << e.getInfo() << endl;
 	} catch (StrategyError &e)  {
 		cout << "Caught:  " << e.getInfo() << endl;
 	}
 
+	return (0);
+}
+
+int
+main(int argc, char* argv[]) {
+
+	/*
+	 * Other types of Bitstore objects can be created here and
+	 * accessed via the Bitstore interface.
+	 */
+
+#ifdef FILERECORDSTORETEST
+
+	/* Call the constructor that will create a new FileRecordStore. */
+	rsname = "frs_test";
+	FileRecordStore *rs;
+	try {
+		rs = new FileRecordStore(rsname, "RW Test Dir", "");
+	} catch (ObjectExists& e) {
+		cout << "The File Record Store exists; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+	}
+	auto_ptr<FileRecordStore> ars(rs);
 #endif
+
+#ifdef DBRECORDSTORETEST
+	/* Call the constructor that will create a new DBRecordStore. */
+	rsname = "dbrs_test";
+	DBRecordStore *rs;
+	try {
+		rs = new DBRecordStore(rsname, "RW Test Dir", "");
+	} catch (ObjectExists &e) {
+		cout << "The DB Record Store exists; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+	}
+	auto_ptr<DBRecordStore> ars(rs);
+#endif
+
+#ifdef ARCHIVEECORDSTORETEST
+	/* Call the constructor that will create a new ArchiveRecordStore. */
+	rsname = "ars_test";
+	ArchiveRecordStore *rs;
+	try {
+		rs = new ArchiveRecordStore(rsname, "RW Test Dir", "");
+	} catch (ObjectExists &e) {
+		cout << "The Archive Record Store exists; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+	}
+	auto_ptr<ArchiveRecordStore> ars(rs);
+#endif
+#ifdef TESTDEFINED
+
+	cout << "Running tests with new record store:" << endl;
+	if (runTests(rs) != 0)
+		return (EXIT_FAILURE);
+#endif
+
+#ifdef FILERECORDSTORETEST
+
+	/* Call the constructor that will create a new FileRecordStore. */
+	rsname = "frs_test";
+	try {
+		rs = new FileRecordStore(rsname, "");
+	} catch (ObjectDoesNotExist& e) {
+		cout << "The File Record Store does not exist; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+	}
+#endif
+
+#ifdef DBRECORDSTORETEST
+	/* Call the constructor that will create a new DBRecordStore. */
+	rsname = "dbrs_test";
+	try {
+		rs = new DBRecordStore(rsname, "");
+	} catch (ObjectDoesNotExist &e) {
+		cout << "The DB Record Store does not exist; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+	}
+#endif
+
+#ifdef ARCHIVEECORDSTORETEST
+	/* Call the constructor that will create a new ArchiveRecordStore. */
+	rsname = "ars_test";
+	try {
+		rs = new ArchiveRecordStore(rsname, "");
+	} catch (ObjectDoesNotExist &e) {
+		cout << "The Archive  Record Store does not exist; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+	}
+#endif
+
+#ifdef TESTDEFINED
+
+	ars.reset(rs);
+	cout << endl << "----------------------------------------" << endl << endl;
+	cout << "Running tests with existing record store:" << endl;
+	if (runTests(rs) != 0)
+		return (EXIT_FAILURE);
+
+	/*
+	 * Test the deletion of a record store.
+	 */
+	cout << "Removing store... " << endl;
+	try {
+		RecordStore::removeRecordStore(rsname, "");
+	} catch (ObjectDoesNotExist &e) {
+		cout << "Caught:  " << e.getInfo() << endl;
+	} catch (StrategyError &e) {
+		cout << "Caught:  " << e.getInfo() << endl;
+	}
+	cout << "You should see a failure to write the control file... "<< endl;
 	return(EXIT_SUCCESS);
+#endif
 }
