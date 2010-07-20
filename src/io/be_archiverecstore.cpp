@@ -389,8 +389,82 @@ BiometricEvaluation::ManifestMap::iterator
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::vacuum()
+BiometricEvaluation::ArchiveRecordStore::vacuum(
+    const string &name, 
+    const string &parentDir)
+    throw (ObjectDoesNotExist, StrategyError)
 {
+	if (name.find("/") != string::npos || name.find("\\") != string::npos)
+		throw StrategyError("Invalid slash characters in RS name");
+
+	struct stat sb;
+	
+	string newDirectory;
+	if (parentDir.empty() || parentDir == ".")
+		newDirectory = name.c_str();
+	else
+		newDirectory = parentDir + "/" + name.c_str();
+
+	if (stat(newDirectory.c_str(), &sb) != 0)
+		throw ObjectDoesNotExist(newDirectory);
+
+	char *data = NULL;
+	uint64_t size;
+	string key;
+	ArchiveRecordStore *oldrs = NULL, *newrs = NULL;
+
+	try {
+		oldrs = new ArchiveRecordStore(name, parentDir);
+		string newName = tempnam(".", NULL);
+		newName = newName.substr(2, newName.length());
+		newrs = new ArchiveRecordStore(newName, 
+		    oldrs->getDescription(), parentDir);
+	} catch (ObjectExists &e) {
+		throw StrategyError(e.getInfo());
+	}
+
+	/* Copy all valid entries into a new RecordStore on disk (sequence) */
+	while (true) {
+		try {
+			size = oldrs->sequence(key, NULL);
+			data = (char *)malloc(sizeof(char) * size);
+			if (data == NULL)
+				throw StrategyError("Couldn't allocate buffer");
+
+			newrs->insert(key, data, size);
+
+			if (data != NULL) {
+				free(data);
+				data = NULL;
+			}
+		} catch (ObjectDoesNotExist &e) {
+			break;	/* Thrown at end of sequence */
+		}
+	}
+
+	if (data != NULL) {
+		free(data);
+		data = NULL;
+	}
+	if (oldrs != NULL)
+		delete oldrs;
+
+	/* Delete the original RecordStore, then change the name of the temp */
+	try {
+		RecordStore::removeRecordStore(name, parentDir);
+		newrs->changeName(name);
+	} catch (ObjectDoesNotExist &e) {
+		if (newrs != NULL)
+			delete newrs;
+		throw StrategyError("Could not remove " + name);
+	} catch (ObjectExists &e) {
+		if (newrs != NULL)
+			delete newrs;
+		throw StrategyError("Could not rename temporary RS to " + name);
+	}
+
+	if (newrs != NULL)
+		delete newrs;
 }
 
 void

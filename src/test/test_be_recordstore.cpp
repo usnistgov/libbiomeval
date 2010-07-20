@@ -354,6 +354,26 @@ main(int argc, char* argv[]) {
 	if (runTests(rs) != 0)
 		return (EXIT_FAILURE);
 
+#ifdef ARCHIVEECORDSTORETEST
+	/*
+	 * Test vacuuming an ArchiveRecordStore
+	 */
+	cout << "Vacuuming ArchiveRecordStore... " << endl;
+	try {
+		ArchiveRecordStore::vacuum(rsname, "");
+	} catch (ObjectDoesNotExist &e) {
+		cout << "Caught:  " << e.getInfo() << endl;
+	} catch (StrategyError &e) {
+		cout << "Caught:  " << e.getInfo() << endl;
+	}
+	cout << "Space usage after vacuum is ";
+	try {
+		cout << rs->getSpaceUsed() << endl;
+	} catch (StrategyError& e) {
+		cout << "failed:" << e.getInfo() << "." << endl;
+	}
+#endif
+
 	/*
 	 * Test the deletion of a record store.
 	 */

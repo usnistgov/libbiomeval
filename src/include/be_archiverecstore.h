@@ -186,7 +186,10 @@ namespace BiometricEvaluation {
 		 *
 		 * NOTE: This is an expensive operation.
 		 */
-		void vacuum();
+		static void vacuum(
+		    const string &name,
+		    const string &parentDir)
+		    throw (ObjectDoesNotExist, StrategyError);
 
 		/*
 		 * Return the name of the file storing the data for this
