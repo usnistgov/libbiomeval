@@ -37,18 +37,13 @@ BiometricEvaluation::RecordStore::RecordStore(
     const string &parentDir)
     throw (ObjectExists, StrategyError)
 {
-	if (name.find("/") != string::npos || name.find("\\") != string::npos)
-		throw StrategyError("Invalid slash characters in RS name");
-
-	struct stat sb;
+	if (!validateName(name))
+		throw StrategyError("Invalid characters in RS name");
 
 	_count = 0;
 	_name = name;
 	_parentDir = parentDir;
-	if (_parentDir.empty() || _parentDir == ".")
-		_directory = name;
-	else
-		_directory = _parentDir + '/' + name;
+	_directory = canonicalPath(name);
 	_description = description;
 	_cursor = BE_RECSTORE_SEQ_START;
 
@@ -58,6 +53,7 @@ BiometricEvaluation::RecordStore::RecordStore(
 	 * Subclasses of this class store all their data in this directory.
 	 */
 	/* Check that the directory doesn't already exist */
+	struct stat sb;
 	if (stat(_directory.c_str(), &sb) == 0)
 		throw ObjectExists("Named object already exists");
 
@@ -76,19 +72,15 @@ BiometricEvaluation::RecordStore::RecordStore(
     const string &parentDir)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	if (name.find("/") != string::npos || name.find("\\") != string::npos)
-		throw StrategyError("Invalid slash characters in RS name");
-
-	struct stat sb;
+	if (!validateName(name))
+		throw StrategyError("Invalid characters in RS name");
 
 	_parentDir = parentDir;
-	if (_parentDir.empty() || _parentDir == ".")
-		_directory = name;
-	else
-		_directory = _parentDir + '/' + name;
+	_directory = canonicalPath(name);
 	_cursor = BE_RECSTORE_SEQ_START;
 
 	/* Check that the directory exists, throwing an error if not */
+	struct stat sb;
 	if (stat(_directory.c_str(), &sb) != 0)
 		throw ObjectDoesNotExist();
 
@@ -155,17 +147,12 @@ void
 BiometricEvaluation::RecordStore::changeName(const string &name)
     throw (ObjectExists, StrategyError)
 {
-	if (name.find("/") != string::npos || name.find("\\") != string::npos)
-		throw StrategyError("Invalid slash characters in RS name");
+	if (!validateName(name))
+		throw StrategyError("Invalid characters in RS name");
+
+	string newDirectory = canonicalPath(name);
 
 	struct stat sb;
-
-	string newDirectory;
-	if (_parentDir.empty() || _parentDir == ".")
-		newDirectory = name.c_str();
-	else
-		newDirectory = _parentDir + "/" + name.c_str();
-
 	if (stat(newDirectory.c_str(), &sb) == 0)
 		throw ObjectExists(newDirectory);
 	if (rename(_directory.c_str(), newDirectory.c_str()))
@@ -197,18 +184,13 @@ BiometricEvaluation::RecordStore::removeRecordStore(
     const string &parentDir)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	struct stat sb;
+	if (!validateName(name))
+		throw StrategyError("Invalid characters in RS name");
 
-	if (name.find("/") != string::npos || name.find("\\") != string::npos)
-		throw StrategyError("Invalid slash characters in RS name");
-
-	string newDirectory;
-	if (parentDir.empty() || parentDir == ".")
-		newDirectory = name.c_str();
-	else
-		newDirectory = parentDir + "/" + name.c_str();
+	string newDirectory = canonicalPath(name, parentDir);
 
 	/* Check that the RecordStore directory exists */
+	struct stat sb;
 	if (stat(newDirectory.c_str(), &sb) != 0)
 		throw ObjectDoesNotExist();
 
@@ -224,6 +206,19 @@ BiometricEvaluation::RecordStore::removeRecordStore(
 	}
 }
 
+bool
+BiometricEvaluation::RecordStore::validateName(
+    const string &name)
+{
+	bool validity = true;
+
+	/* Do not allow slash characters in the name */
+	if (name.find("/") != string::npos || name.find("\\") != string::npos)
+		validity = false;
+
+	return validity;
+}
+
 /******************************************************************************/
 /* Common protected method implementations.                                   */
 /******************************************************************************/
@@ -232,6 +227,35 @@ BiometricEvaluation::RecordStore::canonicalName(
     const string &name)
 {
 	return (_directory + '/' + name);
+}
+
+string
+BiometricEvaluation::RecordStore::canonicalPath(
+    const string &name)
+{
+	string path;
+
+	if (_parentDir.empty() || _parentDir == ".")
+		path = name;
+	else
+		path = _parentDir + "/" + name;
+
+	return path;
+}
+
+string
+BiometricEvaluation::RecordStore::canonicalPath(
+    const string &name,
+    const string &parentDir)
+{
+	string path;
+
+	if (parentDir.empty() || parentDir == ".")
+		path = name;
+	else
+		path = parentDir + "/" + name;
+
+	return path;
 }
 
 /*

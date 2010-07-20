@@ -394,17 +394,11 @@ BiometricEvaluation::ArchiveRecordStore::vacuum(
     const string &parentDir)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	if (name.find("/") != string::npos || name.find("\\") != string::npos)
-		throw StrategyError("Invalid slash characters in RS name");
+	if (!validateName(name))
+		throw StrategyError("Invalid characters in RS name");
 
 	struct stat sb;
-	
-	string newDirectory;
-	if (parentDir.empty() || parentDir == ".")
-		newDirectory = name.c_str();
-	else
-		newDirectory = parentDir + "/" + name.c_str();
-
+	string newDirectory = canonicalPath(name, parentDir);
 	if (stat(newDirectory.c_str(), &sb) != 0)
 		throw ObjectDoesNotExist(newDirectory);
 

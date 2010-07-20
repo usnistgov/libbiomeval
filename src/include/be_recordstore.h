@@ -155,6 +155,13 @@ namespace BiometricEvaluation {
 			    const string &parentDir)
 			    throw (ObjectDoesNotExist, StrategyError);
 
+			/*
+			 * Whether or not a string is valid as a name for
+			 * a RecordStore.
+			 */
+			static bool validateName(
+			    const string &name);
+
 		protected:
 			/*
 			 * The data members of the RecordStore are protected 
@@ -186,6 +193,14 @@ namespace BiometricEvaluation {
 			 * of the RecordStore, typically _directory + name.
 			 */
 			string canonicalName(const string &name);
+
+			/* Return the full path to a RecordStore */
+			string canonicalPath(
+			    const string &name);
+
+			static string canonicalPath(
+			    const string &name,
+			    const string &parentDir);
 
 			/* Read the contents of the common control file format
 			 * for all RecordStores.
