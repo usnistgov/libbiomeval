@@ -13,25 +13,7 @@ SOURCES = be_net.c
 OBJECTS = be_net.o
 LIBRARY=libbiomeval
 
-all: $(SOURCES)
-ifeq ($(OS), Darwin)
-	$(CC) -c $(CFLAGS) $(SOURCES)
-	libtool -dynamic -o $(LIBRARY).dylib -lc $(OBJECTS) -lSystemStubs
-	$(CP) $(LIBRARY).dylib $(LOCALLIB)
-else
-ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
-	$(CC) $(CFLAGS) -c $(SOURCES)
-	ar rs $(LIBRARY).a $(OBJECTS)
-	ranlib $(LIBRARY).a
-	$(CC) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive
-	$(CP) $(LIBRARY).a $(LOCALLIB)
-	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
-	$(CP) $(LIBRARY).dll $(LOCALLIB)
-else
-	$(CC) $(CFLAGS) -shared $(SOURCES) -o $(LIBRARY).so
-	$(CP) $(LIBRARY).so $(LOCALLIB)
-endif
-endif
+all: $(OBJECTS)
 
 clean:
 	$(RM) $(DISPOSABLEFILES) $(LIBRARY).*

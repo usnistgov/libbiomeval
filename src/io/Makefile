@@ -13,22 +13,6 @@ SOURCES = be_exception.cpp be_recordstore.cpp be_dbrecstore.cpp be_filerecstore.
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
 all: $(OBJECTS)
-ifeq ($(OS), Darwin)
-	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -o $(LIBRARY).dylib
-	$(CP) $(LIBRARY).dylib $(LOCALLIB)
-else
-ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
-	ar rs $(LIBRARY).a $(OBJECTS)
-	ranlib $(LIBRARY).a
-	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive
-	$(CP) $(LIBRARY).a $(LOCALLIB)
-	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
-	$(CP) $(LIBRARY).dll $(LOCALLIB)
-else
-	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -o $(LIBRARY).so
-	$(CP) $(LIBRARY).so $(LOCALLIB)
-endif
-endif
 
 be_dbrecstore.o: be_dbrecstore.cpp
 ifeq ($(OS), Darwin)
