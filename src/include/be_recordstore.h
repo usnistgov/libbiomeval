@@ -30,6 +30,27 @@ namespace BiometricEvaluation {
 			/*
 			 * All RecordStores should have the ability to be
 			 * created with a string for the description.
+			 * Parameters:
+			 * 	name (in)
+			 *		The name of the RecordStore to be
+			 *		created.
+			 *	description (in)
+			 *		The text used to describe the store.
+			 *	parentDir (in)
+			 *		Where, in the file system, the store
+			 *		is to be rooted. This directory must
+			 *		exist.
+			 * Returns:
+			 *	An object representing the new, empty store.
+			 * Throws:
+			 * 	ObjectExists
+			 *		The store was previously created,
+			 *		or the directory where it would be
+			 *		created exists.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system, or the
+			 *		the name malformed.
 			 */
 			RecordStore(
 			    const string &name,
@@ -39,6 +60,19 @@ namespace BiometricEvaluation {
 
 			/*
 			 * Open an existing RecordStore.
+			 * Parameters:
+			 * 	name (in)
+			 *		The name of the store to be opened.
+			 *	parentDir (in)
+			 *		Where, in the file system, the store
+			 *		is rooted.
+			 * Returns:
+			 *	An object representing the existing store.
+			 * Throws:
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system, or the
+			 *		name is malformed.
 			 */
 			RecordStore(
 			    const string &name,
@@ -49,56 +83,134 @@ namespace BiometricEvaluation {
 
 			virtual ~RecordStore();
 			
-			/* Return a textual description of the RecordStore */
+			/*
+			 * Return a textual description of the RecordStore.
+			 */
 			string getDescription();
 
-			/* Return the name of the RecordStore */
+			/*
+			 * Return the name of the RecordStore.
+			 */
 			string getName();
 
-			/* Return the number of items in the RecordStore */
+			/*
+			 * Return the number of items in the RecordStore.
+			 */
 			unsigned int getCount();
 
-			/* Change the name of the RecordStore */
+			/*
+			 * Change the name of the RecordStore
+			 * Parameters:
+			 * Returns:
+			 * Throws:
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system, or the
+			 *		name is malformed.
+			 */
 			virtual void changeName(
 			    const string &name)
 			    throw (ObjectExists, StrategyError);
 
-			/* Change the description of the RecordStore */
+			/*
+			 * Change the description of the RecordStore.
+			 * Parameters:
+			 * Returns:
+			 * Throws:
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
+			 */
 			virtual void changeDescription(
 			    const string &description)
 			    throw (StrategyError);
 			
-			/* Return the amount of real storage utilization, the
+			/*
+			 * Return the amount of real storage utilization, the
 			 * amount of disk space used, for example. This is the
 			 * actual space allocated by the underlying storage
 			 * mechanism; in the case of files for example, the
 			 * value returned will be in block-size increments.
+			 *
+			 * Throws:
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
 			 */
 			virtual uint64_t getSpaceUsed()
 			    throw (StrategyError);
 			
-			/* Synchronize the entire record store to persistent
+			/*
+			 * Synchronize the entire record store to persistent
 			 * storage. Subclasses can override, but this base
 			 * class will update the control file.
+			 *
+			 * Throws:
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
 			*/
 			virtual void sync()
 			    throw (StrategyError);
 
-			/* Insert a record into the store, with a key */
+			/*
+			 * Insert a record into the store.
+			 *
+			 * Parameters:
+			 *	key (in)
+			 *		The key of the record to be flushed.
+			 *	data (in)
+			 *		The data for the record.
+			 * Throws:
+			 *	ObjectExists
+			 *		A record with the given key is already
+			 *		present.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
+			 */
 			virtual void insert(
 			    const string &key,
 			    const void *data,
 			    const uint64_t size)
 			    throw (ObjectExists, StrategyError) = 0;
 
-			/* Remove a keyed record  from the store */
+			/*
+			 * Remove a record from the store
+			 *
+			 * Parameters:
+			 *	key (in)
+			 *		The key of the record to be removed.
+			 * Throws:
+			 *	ObjectDoesNotExist
+			 *		A record for the key does not exist.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
+			 */
 			virtual void remove(
 			    const string &key)
 			    throw (ObjectDoesNotExist, StrategyError) = 0;
 
 			/*
-			 * Read a complete record from a store.
-			 * Returns the size of the record
+			 * Read a complete record from a store. Applications
+			 * are responsible for allocating storage for the
+			 * record's data.
+			 *
+			 * Parameters:
+			 *	key (in)
+			 *		The key of the record to be read.
+			 *	data (in)
+			 *		Pointer to where the data is to be
+			 *		written.
+			 * Returns:
+			 * 	The size of the record.
+			 * Throws:
+			 *	ObjectDoesNotExist
+			 *		A record for the key does not exist.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
 			 */	
 			virtual uint64_t read(
 			    const string &key,
@@ -107,6 +219,18 @@ namespace BiometricEvaluation {
 
 			/*
 			 * Replace a complete record in a store.
+			 *
+			 * Parameters:
+			 *	key (in)
+			 *		The key of the record to be replaced.
+			 *	data (in)
+			 *		The data for the record.
+			 * Throws:
+			 *	ObjectDoesNotExist
+			 *		A record for the key does not exist.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
 			 */	
 			virtual void replace(
 			    const string &key,
@@ -116,6 +240,18 @@ namespace BiometricEvaluation {
 
 			/*
 			 * Return the length of a record.
+			 *
+			 * Parameters:
+			 *	key (in)
+			 *		The key of the record.
+			 * Returns:
+			 *	The record length.
+			 * Throws:
+			 *	ObjectDoesNotExist
+			 *		A record for the key does not exist.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
 			 */
 			virtual uint64_t length(
 			    const string &key)
@@ -123,6 +259,15 @@ namespace BiometricEvaluation {
 
 			/*
 			 * Commit the record's data to storage.
+			 * Parameters:
+			 *	key (in)
+			 *		The key of the record to be flushed.
+			 * Throws:
+			 *	ObjectDoesNotExist
+			 *		A record for the key does not exist.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
 			 */
 			virtual void flush(
 			    const string &key)
@@ -138,6 +283,26 @@ namespace BiometricEvaluation {
 			 * RecordStore object is created. The starting point
 			 * can be reset by calling this method with the
 			 * cursor parameter set to BE_RECSTORE_SEQ_START.
+			 *
+			 * Parameters:
+			 *	key (out)
+			 *		The key of the currently sequenced
+			 *		record.
+			 *	data (in)
+			 *		Pointer to where the data is to be
+			 *		written. Applications can set data to
+			 *		NULL to indicate only the key is wanted.
+			 *	cursor (in)
+			 *		The location within the sequence of
+			 *		the key/data pair to return.
+			 * Returns:
+			 *	The length of the record currently in sequence.
+			 * Throws:
+			 *	ObjectDoesNotExist
+			 *		A record for the key does not exist.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
 			*/
 			static const int BE_RECSTORE_SEQ_START = 1;
 			static const int BE_RECSTORE_SEQ_NEXT = 2;
@@ -148,7 +313,22 @@ namespace BiometricEvaluation {
 			    throw (ObjectDoesNotExist, StrategyError) = 0;
 
 			/*
-			 * Remove a RecordStore 
+			 * Remove a RecordStore by deleting all persistant
+			 * data associated with the store.
+			 *
+			 * Parameters:
+			 *	name (in)
+			 *		The name of the existing RecordStore.
+			 *	parentDir (in)
+			 *		Where, in the file system, the store
+			 *		is rooted.
+			 * Throws:
+			 *	ObjectDoesNotExist
+			 *		A record with the given key does not
+			 *		exist.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
 			 */
 			static void removeRecordStore(
 			    const string &name,
@@ -157,7 +337,13 @@ namespace BiometricEvaluation {
 
 			/*
 			 * Whether or not a string is valid as a name for
-			 * a RecordStore.
+			 * a RecordStore. Notably, name cannot contain
+			 * path name separators ('/' and '\').
+			 *
+			 * Parameters:
+			 * 	name (in) The proposed name for the RecordStore.
+			 * Returns:
+			 *	True if the name is acceptable, false otherwise.
 			 */
 			static bool validateName(
 			    const string &name);
@@ -172,29 +358,41 @@ namespace BiometricEvaluation {
 			/* The name of the RecordStore */
 			string _name;
 
-			/* The name directory where the store is rooted */
+			/*
+			 * The name directory where the store is rooted,
+			 * including _parentDir.
+			 */
 			string _directory;
 
 			/*
-			 * The directory containing _directory.
+			 * The directory containing the store.
 			 */
 			string _parentDir;
 
-			/* A textual description of the store. */
+			/*
+			 * A textual description of the store.
+			 */
 			string _description;
 
-			/* Number of items in the store */
+			/*
+			 * Number of items in the store.
+			 */
 			unsigned int _count;
 
-			/* The current record position cursor */
+			/*
+			 * The current record position cursor.
+			 */
 			int _cursor;
 
-			/* Return the full name of a file stored as part
+			/*
+			 * Return the full name of a file stored as part
 			 * of the RecordStore, typically _directory + name.
 			 */
 			string canonicalName(const string &name);
 
-			/* Return the full path to a RecordStore */
+			/*
+			 * Return the full path to a RecordStore.
+			 */
 			string canonicalPath(
 			    const string &name);
 
@@ -202,17 +400,20 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &parentDir);
 
-			/* Read the contents of the common control file format
+			/*
+			 * Read the contents of the common control file format
 			 * for all RecordStores.
 			 */
 			void readControlFile() throw (StrategyError);
 
-			/* Write the contents of the common control file format
+			/*
+			 * Write the contents of the common control file format
 			 * for all RecordStores.
 			 */
 			void writeControlFile() throw (StrategyError);
 
-			/* Recursive function to remove a RecordStore and its
+			/*
+			 * Recursive function to remove a RecordStore and its
 			 * contents.
 			 */
 			static void internalRemoveRecordStore(
