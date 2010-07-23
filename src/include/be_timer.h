@@ -22,11 +22,8 @@ namespace BiometricEvaluation
 			    throw (StrategyError);
 	
 			/* Get the elapsed time between start() and stop() */
-			double elapsed()
+			uint64_t elapsed()
 			    throw (StrategyError);
-
-			/* Number of microseconds in one second */
-			static const double MicrosecondsPerSecond = 1000000.0;
 
 			private:
 

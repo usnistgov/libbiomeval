@@ -7,6 +7,9 @@
 #include <windows.h>
 #endif
 
+/* Number of microseconds in one second */
+const int MicrosecondsPerSecond = 1000000;
+
 #if defined(WIN32) || defined(__CYGWIN__)
 BiometricEvaluation::Utility::Timer::Timer()
     throw (StrategyError)
@@ -42,7 +45,7 @@ BiometricEvaluation::Utility::Timer::stop()
 	_inProgress = false;
 }
 
-double
+uint64_t
 BiometricEvaluation::Utility::Timer::elapsed()
     throw (StrategyError)
 {
@@ -53,7 +56,8 @@ BiometricEvaluation::Utility::Timer::elapsed()
 	if (QueryPerformanceFrequency(&frequency) == 0)
 		throw StrategyError("QueryPerformanceFrequency returned false");
 
-	return (_finish - _start) / (double)frequency.QuadPart;
+	return ((_finish - _start) / (double)frequency.QuadPart) * 
+	    MicrosecondsPerSecond;
 }
 #else
 BiometricEvaluation::Utility::Timer::Timer()
@@ -71,7 +75,7 @@ BiometricEvaluation::Utility::Timer::start()
 
 	struct timeval start;
 	gettimeofday(&start, 0);
-	_start = (start.tv_sec * (int)MicrosecondsPerSecond) + start.tv_usec;
+	_start = (start.tv_sec * MicrosecondsPerSecond) + start.tv_usec;
 	_inProgress = true;
 }
 
@@ -84,17 +88,17 @@ BiometricEvaluation::Utility::Timer::stop()
 
 	struct timeval finish;
 	gettimeofday(&finish, 0);
-	_finish = (finish.tv_sec * (int)MicrosecondsPerSecond)+ finish.tv_usec;
+	_finish = (finish.tv_sec * MicrosecondsPerSecond)+ finish.tv_usec;
 	_inProgress = false;
 }
 
-double
+uint64_t
 BiometricEvaluation::Utility::Timer::elapsed()
     throw (StrategyError)
 {
 	if (_inProgress)
 		throw StrategyError("Timing in progress");
 
-	return (_finish - _start) / MicrosecondsPerSecond;
+	return _finish - _start;
 }
 #endif
