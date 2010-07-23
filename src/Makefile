@@ -12,7 +12,7 @@
 CORE := libbiomeval io
 SUBDIRS := $(CORE)
 
-OBJECTS := io/be_exception.o io/be_recordstore.o io/be_dbrecstore.o io/be_filerecstore.o io/be_archiverecstore.o libbiomeval/be_net.o
+OBJECTS := io/be_exception.o io/be_recordstore.o io/be_dbrecstore.o io/be_filerecstore.o io/be_archiverecstore.o libbiomeval/be_net.o libbiomeval/be_timer.o
 LIBRARY := libbiomeval
 LOCALLIB := ../lib
 

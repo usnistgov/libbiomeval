@@ -9,8 +9,8 @@
 #
 LOCALINC := ../include
 include ../common.mk
-SOURCES = be_net.c
-OBJECTS = be_net.o
+SOURCES = be_net.c be_timer.cpp
+OBJECTS = be_net.o be_timer.o
 LIBRARY=libbiomeval
 
 all: $(OBJECTS)
