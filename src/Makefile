@@ -12,7 +12,7 @@
 CORE := libbiomeval io
 SUBDIRS := $(CORE)
 
-OBJECTS := io/be_exception.o io/be_recordstore.o io/be_dbrecstore.o io/be_filerecstore.o io/be_archiverecstore.o libbiomeval/be_net.o libbiomeval/be_timer.o
+OBJECTS := io/be_exception.o io/be_recordstore.o io/be_dbrecstore.o io/be_filerecstore.o io/be_archiverecstore.o libbiomeval/be_timer.o
 LIBRARY := libbiomeval
 LOCALLIB := ../lib
 
@@ -22,20 +22,16 @@ all:
 	@for subdir in $(SUBDIRS); do \
 		(cd $$subdir && $(MAKE) all) || exit 1; \
 	done
+	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
 ifeq ($(OS), Darwin)
-	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -o $(LIBRARY).dylib
-	$(CP) $(LIBRARY).dylib $(LOCALLIB)
+	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -o $(LOCALLIB)/$(LIBRARY).dylib
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
-	ar rs $(LIBRARY).a $(OBJECTS)
-	ranlib $(LIBRARY).a
-	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive
-	$(CP) $(LIBRARY).a $(LOCALLIB)
-	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
-	$(CP) $(LIBRARY).dll $(LOCALLIB)
+	ar rs $(LOCALLIB)/$(LIBRARY).a $(OBJECTS)
+	ranlib $(LOCALLIB)/$(LIBRARY).a
+	$(CXX) -shared -o $(LOCALLIB)/$(LIBRARY).dll -Wl,--out-implib=$(LOCALLIB)/$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LOCALLIB)/$(LIBRARY).a -Wl,--no-whole-archive
 else
-	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -o $(LIBRARY).so
-	$(CP) $(LIBRARY).so $(LOCALLIB)
+	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -o $(LOCALLIB)/$(LIBRARY).so
 endif
 endif
 
