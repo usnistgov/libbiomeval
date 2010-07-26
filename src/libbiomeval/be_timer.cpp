@@ -10,7 +10,6 @@
 /* Number of microseconds in one second */
 const int MicrosecondsPerSecond = 1000000;
 
-#if defined(WIN32) || defined(__CYGWIN__)
 BiometricEvaluation::Utility::Timer::Timer()
     throw (StrategyError)
 {
@@ -24,10 +23,17 @@ BiometricEvaluation::Utility::Timer::start()
 	if (_inProgress)
 		throw StrategyError("Timing already in progress");
 
+#if defined(WIN32) || defined(__CYGWIN__)
 	LARGE_INTEGER start;
 	if (QueryPerformanceCounter(&start) == 0)
 		throw StrategyError("QueryPerformanceCounter returned false");
 	_start = start.QuadPart;
+#else
+	struct timeval start;
+	gettimeofday(&start, 0);
+	_start = (start.tv_sec * MicrosecondsPerSecond) + start.tv_usec;
+#endif
+
 	_inProgress = true;
 }
 
@@ -38,10 +44,17 @@ BiometricEvaluation::Utility::Timer::stop()
 	if (!_inProgress)
 		throw StrategyError("Timing not in progress");
 
+#if defined(WIN32) || defined(__CYGWIN__)
 	LARGE_INTEGER finish;
 	if (QueryPerformanceCounter(&finish) == 0)
 		throw StrategyError("QueryPerformanceCounter returned false");
 	_finish = finish.QuadPart;
+#else
+	struct timeval finish;
+	gettimeofday(&finish, 0);
+	_finish = (finish.tv_sec * MicrosecondsPerSecond)+ finish.tv_usec;
+#endif
+
 	_inProgress = false;
 }
 
@@ -52,53 +65,15 @@ BiometricEvaluation::Utility::Timer::elapsed()
 	if (_inProgress)
 		throw StrategyError("Timing in progress");
 	
+#if defined(WIN32) || defined(__CYGWIN__)
 	LARGE_INTEGER frequency;
 	if (QueryPerformanceFrequency(&frequency) == 0)
 		throw StrategyError("QueryPerformanceFrequency returned false");
 
-	return ((_finish - _start) / (double)frequency.QuadPart) * 
-	    MicrosecondsPerSecond;
-}
+	return (uint64_t)(((_finish - _start) / (double)frequency.QuadPart) * 
+	    MicrosecondsPerSecond);
 #else
-BiometricEvaluation::Utility::Timer::Timer()
-    throw (StrategyError)
-{
-	_inProgress = false;
-}
-
-void
-BiometricEvaluation::Utility::Timer::start()
-    throw (StrategyError)
-{
-	if (_inProgress)
-		throw StrategyError("Timing already in progress");
-
-	struct timeval start;
-	gettimeofday(&start, 0);
-	_start = (start.tv_sec * MicrosecondsPerSecond) + start.tv_usec;
-	_inProgress = true;
-}
-
-void
-BiometricEvaluation::Utility::Timer::stop()
-    throw (StrategyError)
-{
-	if (!_inProgress)
-		throw StrategyError("Timing not in progress");
-
-	struct timeval finish;
-	gettimeofday(&finish, 0);
-	_finish = (finish.tv_sec * MicrosecondsPerSecond)+ finish.tv_usec;
-	_inProgress = false;
-}
-
-uint64_t
-BiometricEvaluation::Utility::Timer::elapsed()
-    throw (StrategyError)
-{
-	if (_inProgress)
-		throw StrategyError("Timing in progress");
-
 	return _finish - _start;
-}
 #endif
+}
+
