@@ -8,7 +8,8 @@
 # about its quality, reliability, or any other characteristic.
 #
 include ../common.mk
-PROGS = test_be_netserver test_be_netclient test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress test_be_archiverecordstore-stress test_construct_be_archiverecstore test_be_archiverecordstore test_be_timer
+#PROGS = test_be_netserver test_be_netclient test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress test_be_archiverecordstore-stress test_construct_be_archiverecstore test_be_archiverecordstore test_be_timer
+PROGS = test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress test_be_archiverecordstore-stress test_construct_be_archiverecstore test_be_archiverecordstore test_be_timer
 
 all: $(PROGS)
 
