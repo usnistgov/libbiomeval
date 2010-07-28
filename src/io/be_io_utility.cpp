@@ -19,7 +19,77 @@ BiometricEvaluation::IO::Utility::removeDirectory(
     const string &prefix)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	throw StrategyError("Not implemented");
+	struct stat sb;
+	struct dirent *entry;
+	DIR *dir = NULL;
+	string dirpath, filename;
+
+	dirpath = prefix + "/" + directory;
+	if (stat(dirpath.c_str(), &sb) != 0)
+		throw ObjectDoesNotExist(dirpath + " does not exist");
+	dir = opendir(dirpath.c_str());
+	if (dir == NULL)
+		throw StrategyError(dirpath + " could not be opened");
+	
+	while ((entry = readdir(dir)) != NULL) {
+		if (entry->d_ino == 0)
+			continue;
+		if ((strcmp(entry->d_name, ".") == 0) ||
+		    (strcmp(entry->d_name, "..") == 0))
+			continue;
+
+		filename = dirpath + "/" + entry->d_name;
+		if (stat(filename.c_str(), &sb) != 0) {
+			if (dir != NULL) {
+				if (closedir(dir)) {
+					throw StrategyError("Could not close " +
+					    dirpath);
+				}
+			}
+			throw StrategyError("Could not stat " + filename);
+		}
+
+		/* Recursively remove subdirectories and files */
+		if ((S_IFMT & sb.st_mode) == S_IFDIR)
+			removeDirectory(entry->d_name, dirpath);
+		else {
+			if (unlink(filename.c_str())) {
+				if (dir != NULL) {
+					if (closedir(dir)) {
+						throw StrategyError("Could "
+						    "not close " + dirpath);
+					}
+				}
+				throw StrategyError(filename + " could not " +
+				    "be removed");
+			}
+		}
+	}
+
+	/* Remove parent directory, now that children have been removed */
+	if (rmdir(dirpath.c_str()))
+		throw StrategyError(dirpath + " could not be removed");
+
+	if (dir != NULL) {
+		if (closedir(dir)) {
+			throw StrategyError("Could not close " + dirpath);
+		}
+	}
+}
+
+
+bool
+BiometricEvaluation::IO::Utility::fileExists(
+    const string &name)
+    throw (StrategyError)
+{
+	struct stat sb;
+
+	if (stat(name.c_str(), &sb) == 0)
+		return (true);
+	else
+		return (false);
+
 }
 
 uint64_t
@@ -27,13 +97,13 @@ BiometricEvaluation::IO::Utility::getFileSize(
     const string &name)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	throw StrategyError("Not implemented");
-}
+	struct stat sb;
 
-bool
-BiometricEvaluation::IO::Utility::fileExists(
-    const string &name)
-    throw (StrategyError)
-{
-	throw StrategyError("Not implemented");
+	if (!fileExists(name))
+		throw ObjectDoesNotExist();
+
+	if (stat(name.c_str(), &sb) != 0)
+		throw StrategyError("Getting stats on file");
+
+	return ((uint64_t)sb.st_size);
 }
