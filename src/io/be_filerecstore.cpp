@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <iostream>
 
+#include <be_io_utility.h>
 #include <be_filerecstore.h>
 
 static const string _fileArea = "theFiles";
@@ -93,7 +94,7 @@ BiometricEvaluation::FileRecordStore::insert(
     throw (ObjectExists, StrategyError)
 {
 	string pathname = FileRecordStore::canonicalName(key);
-	if (fileExists(pathname))
+	if (IO::Utility::fileExists(pathname))
 		throw ObjectExists();
 
 	try {
@@ -112,7 +113,7 @@ BiometricEvaluation::FileRecordStore::remove(
     throw (ObjectDoesNotExist, StrategyError)
 {
 	string pathname = FileRecordStore::canonicalName(key);
-	if (!fileExists(pathname))
+	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
 
 	if (std::remove(pathname.c_str()) != 0)
@@ -128,11 +129,11 @@ BiometricEvaluation::FileRecordStore::read(
     throw (ObjectDoesNotExist, StrategyError)
 {
 	string pathname = FileRecordStore::canonicalName(key);
-	if (!fileExists(pathname))
+	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
 
 	/* Allow exceptions to propagate out of here */
-	uint64_t size = getFileSize(pathname);
+	uint64_t size = IO::Utility::getFileSize(pathname);
 	std::FILE *fp = std::fopen(pathname.c_str(), "rb");
 	if (fp == NULL)
 		throw StrategyError("Could not open " + pathname);
@@ -152,7 +153,7 @@ BiometricEvaluation::FileRecordStore::replace(
     throw (ObjectDoesNotExist, StrategyError)
 {
 	string pathname = FileRecordStore::canonicalName(key);
-	if (!fileExists(pathname))
+	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
 
 	try {
@@ -168,10 +169,10 @@ BiometricEvaluation::FileRecordStore::length(
     throw (ObjectDoesNotExist, StrategyError)
 {
 	string pathname = FileRecordStore::canonicalName(key);
-	if (!fileExists(pathname))
+	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
 
-	return (getFileSize(pathname));
+	return (IO::Utility::getFileSize(pathname));
 }
 
 void
@@ -180,7 +181,7 @@ BiometricEvaluation::FileRecordStore::flush(
     throw (ObjectDoesNotExist, StrategyError)
 {
 	string pathname = FileRecordStore::canonicalName(key);
-	if (!fileExists(pathname))
+	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
 
 	/*
@@ -253,31 +254,6 @@ BiometricEvaluation::FileRecordStore::sequence(
 /******************************************************************************/
 /* Private method implementations.                                            */
 /******************************************************************************/
-bool
-BiometricEvaluation::FileRecordStore::fileExists(const string &pathname)
-{
-	struct stat sb;
-
-	if (stat(pathname.c_str(), &sb) == 0)
-		return (true);
-	else
-		return (false);
-}
-
-/*
- * Get the size of a file managed by this class, a record.
- */
-uint64_t
-BiometricEvaluation::FileRecordStore::getFileSize(const string &name)
-    throw (ObjectDoesNotExist, StrategyError)
-{
-	struct stat sb;
-
-	if (stat(name.c_str(), &sb) != 0)
-		throw StrategyError("Getting stats on file");
-	return ((uint64_t)sb.st_size);
-
-}
 
 /*
  * Writes a file, replacing any data that previously existed in the file.

@@ -112,9 +112,6 @@ namespace BiometricEvaluation {
 			    const string &key,
 			    DBT *dbtdata)
 			    throw (ObjectDoesNotExist, StrategyError);
-
-			bool fileExists(const string &pathname);
-
 	};
 }
 #endif	/* __BE_DBRECSTORE_H__ */

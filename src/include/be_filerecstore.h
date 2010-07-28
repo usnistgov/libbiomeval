@@ -90,14 +90,11 @@ namespace BiometricEvaluation {
 			string canonicalName(const string &name);
 
 		private:
-			bool fileExists(const string &name);
 			void writeNewRecordFile(
 			    const string &name, 
 			    const void *data,
 			    const uint64_t size)
 			    throw (StrategyError);
-			uint64_t getFileSize(const string &name)
-			    throw (ObjectDoesNotExist, StrategyError);
 			uint64_t _cursorPos;
 			string _theFilesDir;
 	};

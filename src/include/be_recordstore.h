@@ -411,15 +411,6 @@ namespace BiometricEvaluation {
 			 * for all RecordStores.
 			 */
 			void writeControlFile() throw (StrategyError);
-
-			/*
-			 * Recursive function to remove a RecordStore and its
-			 * contents.
-			 */
-			static void internalRemoveRecordStore(
-			    const string &directory, const string &prefix)
-			    throw (ObjectDoesNotExist, StrategyError);
-
 	};
 }
 #endif	/* __BE_RECORDSTORE_H__ */

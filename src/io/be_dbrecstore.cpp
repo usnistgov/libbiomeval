@@ -8,14 +8,16 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
-#include <be_dbrecstore.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <limits.h>
 
 #include <iostream>
+
+#include <be_io_utility.h>
+#include <be_dbrecstore.h>
+
 BiometricEvaluation::DBRecordStore::DBRecordStore(
     const string &name,
     const string &description,
@@ -24,7 +26,7 @@ BiometricEvaluation::DBRecordStore::DBRecordStore(
     RecordStore(name, description, parentDir)
 {
 	_dbname = _directory + '/' + _name;
-	if (fileExists(_dbname))
+	if (IO::Utility::fileExists(_dbname))
 		throw ObjectExists("Database already exists");
 
 	_db = dbopen(_dbname.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR,
@@ -39,7 +41,7 @@ BiometricEvaluation::DBRecordStore::DBRecordStore(
     throw (ObjectDoesNotExist, StrategyError) : RecordStore(name, parentDir)
 { 
 	_dbname = _directory + '/' + _name;
-	if (!fileExists(_dbname))
+	if (!IO::Utility::fileExists(_dbname))
 		throw ObjectDoesNotExist("Database does not exist");
 
 	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, NULL);
@@ -74,7 +76,7 @@ BiometricEvaluation::DBRecordStore::changeName(const string &name)
 		throw StrategyError("Could not rename database");
 
 	_dbname = RecordStore::canonicalName(_name);
-	if (!fileExists(_dbname))
+	if (!IO::Utility::fileExists(_dbname))
 		throw StrategyError("Database " + _dbname + "does not exist");
 
 	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, NULL);
@@ -302,16 +304,6 @@ BiometricEvaluation::DBRecordStore::sequence(
  * Private method implementations.
  */
 
-bool
-BiometricEvaluation::DBRecordStore::fileExists(const string &pathname)
-{
-	struct stat sb;
-
-	if (stat(pathname.c_str(), &sb) == 0)
-		return (true);
-	else
-		return (false);
-}
 void
 BiometricEvaluation::DBRecordStore::internalRead(
     const string &key,
