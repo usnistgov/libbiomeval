@@ -10,7 +10,10 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+
 #include <dirent.h>
+#include <string.h>
+
 #include <be_io_utility.h>
 
 void
