@@ -14,27 +14,27 @@ PROGS = test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecords
 all: $(PROGS)
 
 test_be_netserver: test_be_netserver.c
-	$(CC) $(CFLAGS) -lbiomeval $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ -lbiomeval
 test_be_netclient: test_be_netclient.c
-	$(CC) $(CFLAGS) -lbiomeval $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ -lbiomeval
 test_construct_be_filerecstore: test_be_filerecstore.cpp
-	$(CXX) $(CXXFLAGS) -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 test_be_filerecordstore: test_be_recordstore.cpp
-	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST $^ -o $@ -lbiomeval
 test_be_dbrecordstore: test_be_recordstore.cpp
-	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST $^ -o $@ -lbiomeval
 test_be_filerecordstore-stress: test_be_recordstore-stress.cpp
-	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST $^ -o $@ -lbiomeval
 test_be_dbrecordstore-stress: test_be_recordstore-stress.cpp
-	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST $^ -o $@ -lbiomeval
 test_construct_be_archiverecstore: test_be_archiverecstore.cpp
-	$(CXX) $(CXXFLAGS) -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 test_be_archiverecordstore: test_be_recordstore.cpp
-	$(CXX) $(CXXFLAGS) -DARCHIVEECORDSTORETEST -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) -DARCHIVEECORDSTORETEST $^ -o $@ -lbiomeval
 test_be_archiverecordstore-stress: test_be_recordstore-stress.cpp
-	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST $^ -o $@ -lbiomeval
 test_be_timer: test_be_timer.cpp
-	$(CXX) $(CXXFLAGS) -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 
 clean:
 	$(RM) $(DISPOSABLEFILES) $(PROGS)
