@@ -227,20 +227,33 @@ runTests(RecordStore *rs)
 		try { 
 			rs->remove(theKey);
 		} catch (StrategyError &e) {
-			cout << "Caught:  " << e.getInfo() << endl;
+			cout << "Caught: " << e.getInfo() << endl;
 		}
 	}
 	cout << "Sequencing empty store... ";
 	testSequence(rs);
 	cout << "there should be no output." << endl;
 
+#ifdef FILERECORDSTORETEST
+	cout << "Insert with an invalid key into FileRecordStore..." << endl;
+	try {
+		string badKey("test/with/path/chars");
+		rs->insert(badKey, rdata, RDATASIZE);
+	} catch (ObjectExists &e) {
+		cout << "Caught: " << e.getInfo() << endl;
+	} catch (StrategyError &e)  {
+		cout << "Caught: " << e.getInfo() << endl;
+		cout << "\tShould be invalid key." << endl;
+	}
+#endif
+
 	cout << "Return RecordStore to original name..." << endl;
 	try {
 		rs->changeName(rsname);
 	} catch (ObjectExists &e) {
-		cout << "Caught:  " << e.getInfo() << endl;
+		cout << "Caught: " << e.getInfo() << endl;
 	} catch (StrategyError &e)  {
-		cout << "Caught:  " << e.getInfo() << endl;
+		cout << "Caught: " << e.getInfo() << endl;
 	}
 
 	return (0);
@@ -362,9 +375,9 @@ main(int argc, char* argv[]) {
 	try {
 		ArchiveRecordStore::vacuum(rsname, "");
 	} catch (ObjectDoesNotExist &e) {
-		cout << "Caught:  " << e.getInfo() << endl;
+		cout << "Caught: " << e.getInfo() << endl;
 	} catch (StrategyError &e) {
-		cout << "Caught:  " << e.getInfo() << endl;
+		cout << "Caught: " << e.getInfo() << endl;
 	}
 	cout << "Space usage after vacuum is ";
 	try {
@@ -381,9 +394,9 @@ main(int argc, char* argv[]) {
 	try {
 		RecordStore::removeRecordStore(rsname, "");
 	} catch (ObjectDoesNotExist &e) {
-		cout << "Caught:  " << e.getInfo() << endl;
+		cout << "Caught: " << e.getInfo() << endl;
 	} catch (StrategyError &e) {
-		cout << "Caught:  " << e.getInfo() << endl;
+		cout << "Caught: " << e.getInfo() << endl;
 	}
 	cout << "You should see a failure to write the control file... "<< endl;
 	return(EXIT_SUCCESS);

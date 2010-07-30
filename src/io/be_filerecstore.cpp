@@ -93,6 +93,8 @@ BiometricEvaluation::FileRecordStore::insert(
     const uint64_t size)
     throw (ObjectExists, StrategyError)
 {
+	if (!validateKeyString(key))
+		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (IO::Utility::fileExists(pathname))
 		throw ObjectExists();
@@ -112,6 +114,8 @@ BiometricEvaluation::FileRecordStore::remove(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (!validateKeyString(key))
+		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
@@ -128,6 +132,8 @@ BiometricEvaluation::FileRecordStore::read(
     void *data)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (!validateKeyString(key))
+		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
@@ -152,6 +158,8 @@ BiometricEvaluation::FileRecordStore::replace(
     const uint64_t size)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (!validateKeyString(key))
+		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
@@ -168,6 +176,8 @@ BiometricEvaluation::FileRecordStore::length(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (!validateKeyString(key))
+		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
@@ -180,6 +190,8 @@ BiometricEvaluation::FileRecordStore::flush(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (!validateKeyString(key))
+		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw ObjectDoesNotExist();
@@ -279,4 +291,21 @@ string
 BiometricEvaluation::FileRecordStore::canonicalName(const string &name)
 {
 	return(_theFilesDir + '/' + name);
+}
+
+bool
+BiometricEvaluation::FileRecordStore::validateKeyString(const string &key)
+{
+	bool validity = true;
+
+	if (key.empty())
+		validity = false;
+
+	if (key.find("/") != string::npos || key.find("\\") != string::npos)
+		validity = false;
+
+	if (isspace(key[0]))
+		validity = false;
+
+	return (validity);
 }

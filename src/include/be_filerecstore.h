@@ -22,7 +22,8 @@ using namespace std;
 namespace BiometricEvaluation {
 
 	/*
-	 * Class to represent the data storage mechanism.
+	 * Class to represent the record store data storage mechanism
+	 * implemented as files for each record.
 	 */
 	class FileRecordStore : public RecordStore {
 		public:
@@ -47,6 +48,14 @@ namespace BiometricEvaluation {
 			uint64_t getSpaceUsed()
 			    throw (StrategyError);
 
+			/*
+			 * For the methods that take a key parameter,
+			 * StrategyError will be thrown if the key string
+			 * is not compliant. A FileRecordStore has the
+			 * additional requirement that a key name may not
+			 * contain path delimiter characters ('/' and '\'),
+			 * or begin with whitespace.
+			 */
 			void insert(
 			    const string &key,
 			    const void *data,
@@ -95,6 +104,8 @@ namespace BiometricEvaluation {
 			    const void *data,
 			    const uint64_t size)
 			    throw (StrategyError);
+			bool validateKeyString(
+			    const string &key);
 			uint64_t _cursorPos;
 			string _theFilesDir;
 	};
