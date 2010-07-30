@@ -1,4 +1,6 @@
 #include <iostream>
+#include <memory>
+
 #include <stdlib.h>
 
 #include <be_timer.h>

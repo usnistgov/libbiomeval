@@ -12,6 +12,8 @@
 #include <sstream>
 
 #include <stdlib.h>
+#include <string.h>
+
 #include <be_archiverecstore.h>
 
 using namespace BiometricEvaluation;

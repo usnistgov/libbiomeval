@@ -11,6 +11,7 @@
 #include <sys/time.h>
 
 #include <iostream>
+#include <memory>
 
 #include <stdlib.h>
 

@@ -9,9 +9,11 @@
  */
 
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef FILERECORDSTORETEST
 #include <be_filerecstore.h>
