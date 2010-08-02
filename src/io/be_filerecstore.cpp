@@ -89,7 +89,7 @@ BiometricEvaluation::FileRecordStore::getSpaceUsed()
 void
 BiometricEvaluation::FileRecordStore::insert( 
     const string &key,
-    const void *data,
+    const void *const data,
     const uint64_t size)
     throw (ObjectExists, StrategyError)
 {
@@ -129,7 +129,7 @@ BiometricEvaluation::FileRecordStore::remove(
 uint64_t
 BiometricEvaluation::FileRecordStore::read(
     const string &key,
-    void *data)
+    void *const data)
     throw (ObjectDoesNotExist, StrategyError)
 {
 	if (!validateKeyString(key))
@@ -154,7 +154,7 @@ BiometricEvaluation::FileRecordStore::read(
 void
 BiometricEvaluation::FileRecordStore::replace(
     const string &key,
-    void * data,
+    const void *const data,
     const uint64_t size)
     throw (ObjectDoesNotExist, StrategyError)
 {
@@ -205,7 +205,7 @@ BiometricEvaluation::FileRecordStore::flush(
 uint64_t
 BiometricEvaluation::FileRecordStore::sequence(
     string &key,
-    void *data,
+    void *const data,
     int cursor)
     throw (ObjectDoesNotExist, StrategyError)
 {

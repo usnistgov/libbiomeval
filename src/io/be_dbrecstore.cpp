@@ -111,7 +111,7 @@ BiometricEvaluation::DBRecordStore::sync()
 void
 BiometricEvaluation::DBRecordStore::insert( 
     const string &key,
-    const void *data,
+    const void *const data,
     const uint64_t size)
     throw (ObjectExists, StrategyError)
 {
@@ -171,7 +171,7 @@ BiometricEvaluation::DBRecordStore::remove(
 uint64_t
 BiometricEvaluation::DBRecordStore::read(
     const string &key,
-    void *data)
+    void *const data)
     throw (ObjectDoesNotExist, StrategyError)
 {
 	DBT dbtdata;
@@ -189,7 +189,7 @@ BiometricEvaluation::DBRecordStore::read(
 void
 BiometricEvaluation::DBRecordStore::replace(
     const string &key,
-    void *data,
+    const void *const data,
     const uint64_t size)
     throw (ObjectDoesNotExist, StrategyError)
 {

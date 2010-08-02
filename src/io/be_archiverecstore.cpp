@@ -183,7 +183,7 @@ BiometricEvaluation::ArchiveRecordStore::read_manifest()
 uint64_t
 BiometricEvaluation::ArchiveRecordStore::read(
     const string &key,
-    void *data)
+    void *const data)
     throw (ObjectDoesNotExist, StrategyError)
 {
 	/* Check for existance */
@@ -214,7 +214,7 @@ BiometricEvaluation::ArchiveRecordStore::read(
 void
 BiometricEvaluation::ArchiveRecordStore::insert(
     const string &key,
-    const void *data,
+    const void *const data,
     const uint64_t size)
     throw (ObjectExists, StrategyError)
 {
@@ -290,7 +290,7 @@ BiometricEvaluation::ArchiveRecordStore::remove(const string &key)
 void
 BiometricEvaluation::ArchiveRecordStore::replace(
     const string &key,
-    void *data,
+    const void *const data,
     const uint64_t size)
     throw (ObjectDoesNotExist, StrategyError)
 {
@@ -331,7 +331,7 @@ BiometricEvaluation::ArchiveRecordStore::flush(
 uint64_t
 BiometricEvaluation::ArchiveRecordStore::sequence(
     string &key,
-    void *data,
+    void *const data,
     int cursor)
     throw (ObjectDoesNotExist, StrategyError)
 {

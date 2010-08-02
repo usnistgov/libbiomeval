@@ -64,7 +64,7 @@ namespace BiometricEvaluation {
 
 			void insert(
 			    const string &key,
-			    const void *data,
+			    const void *const data,
 			    const uint64_t size)
 			    throw (ObjectExists, StrategyError);
 
@@ -74,12 +74,12 @@ namespace BiometricEvaluation {
 
 			uint64_t read(
 			    const string &key,
-			    void *data)
+			    void *const data)
 			    throw (ObjectDoesNotExist, StrategyError);
 
 			virtual void replace(
 			    const string &key,
-			    void *data,
+			    const void *const data,
 			    const uint64_t size)
 			    throw (ObjectDoesNotExist, StrategyError);
 
@@ -93,7 +93,7 @@ namespace BiometricEvaluation {
 
 			uint64_t sequence(
 			    string &key,
-			    void *data,
+			    void *const data,
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
 			    throw (ObjectDoesNotExist, StrategyError);
 
