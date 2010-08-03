@@ -84,17 +84,17 @@ runTests(RecordStore *rs)
 	 * Insert a record to the RecordStore so we can read/write it.
 	 */
 	string theKey("firstRec");
-	char *wdata = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	string wdata = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	uint64_t rlen;
-	uint64_t wlen = strlen(wdata);
+	uint64_t wlen = wdata.size();
 	try {
 		cout << "insert(" << theKey << "): ";
-		rs->insert(theKey, wdata, wlen);
+		rs->insert(theKey, wdata.c_str(), wlen);
 	} catch (ObjectExists& e) {
 		cout << "exists; deleting." << endl;
 		try {
 			rs->remove(theKey);
-			rs->insert(theKey, wdata, wlen);
+			rs->insert(theKey, wdata.c_str(), wlen);
 		} catch (StrategyError& e) {
 			cout << "Could not remove, and should be able to: " <<
 			    e.getInfo() << "." << endl;
@@ -126,10 +126,10 @@ runTests(RecordStore *rs)
 		cout << "and length is correct." << endl;
 
 	wdata = "ZYXWVUTSRQPONMLKJIHGFEDCBA0123456789";
-	wlen = strlen(wdata);
+	wlen = wdata.size();
 	try {
 		cout << "replace(" << theKey << "): ";
-		rs->replace(theKey, wdata, wlen);
+		rs->replace(theKey, wdata.c_str(), wlen);
 	} catch (ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
 		return (-1);
