@@ -9,7 +9,7 @@
 #
 include ../common.mk
 #PROGS = test_be_netserver test_be_netclient test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress test_be_archiverecordstore-stress test_construct_be_archiverecstore test_be_archiverecordstore test_be_timer
-PROGS = test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress test_be_archiverecordstore-stress test_construct_be_archiverecstore test_be_archiverecordstore test_be_timer
+PROGS = test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress test_be_archiverecordstore-stress test_construct_be_archiverecstore test_be_archiverecordstore test_be_time_timer
 
 all: $(PROGS)
 
@@ -33,7 +33,7 @@ test_be_archiverecordstore: test_be_recordstore.cpp
 	$(CXX) $(CXXFLAGS) -DARCHIVEECORDSTORETEST $^ -o $@ -lbiomeval
 test_be_archiverecordstore-stress: test_be_recordstore-stress.cpp
 	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST $^ -o $@ -lbiomeval
-test_be_timer: test_be_timer.cpp
+test_be_time_timer: test_be_time_timer.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 
 clean:

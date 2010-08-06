@@ -42,7 +42,8 @@ namespace BiometricEvaluation {
 			 */
 			FileRecordStore(
 			    const string &name,
-			    const string &parentDir)
+			    const string &parentDir,
+			    uint8_t mode = IO_READWRITE)
 			    throw (ObjectDoesNotExist, StrategyError);
 
 			uint64_t getSpaceUsed()

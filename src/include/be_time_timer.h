@@ -8,19 +8,18 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#ifndef __BE_TIMER_H__
-#define __BE_TIMER_H__
+#ifndef __BE_TIME_TIMER_H__
+#define __BE_TIME_TIMER_H__
 
 #include <be_exception.h>
 
 namespace BiometricEvaluation 
 {
-	class Utility 
+	namespace Time
 	{
-		public:
 		class Timer
 		{
-			public:
+		public:
 	
 			/* Constructor for the timer object */
 			Timer()
@@ -38,7 +37,7 @@ namespace BiometricEvaluation
 			uint64_t elapsed()
 			    throw (StrategyError);
 
-			private:
+		private:
 
 			/*
 			 * Whether or not start() has been called and stop()
@@ -56,8 +55,8 @@ namespace BiometricEvaluation
 			 */
 			uint64_t _finish;
 		};
-	};
+	}
 }
 
-#endif /* __BE_TIMER_H__ */
+#endif /* __BE_TIME_TIMER_H__ */
 

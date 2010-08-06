@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include <be_timer.h>
+#include <be_time_timer.h>
 
 using namespace std;
 using namespace BiometricEvaluation;
@@ -16,18 +16,18 @@ int main(int argc, char *argv[])
 	cout << "Testing with gettimeofday()" << endl;
 #endif
 	
-	Utility::Timer *timer = NULL;
+	Time::Timer *timer = NULL;
 
 	cout << "Creating a Timer... ";
 	try {
-		timer = new Utility::Timer();
+		timer = new Time::Timer();
 		cout << "passed" << endl;
 	} catch (StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.getInfo() << endl;
 		return (EXIT_FAILURE);
 	}
-	auto_ptr<Utility::Timer> atimer(timer);
+	auto_ptr<Time::Timer> atimer(timer);
 
 	cout << "Stop an unstarted timer... ";
 	try {

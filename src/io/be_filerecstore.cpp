@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <iostream>
 
+#include <be_error_utility.h>
 #include <be_io_utility.h>
 #include <be_filerecstore.h>
 
@@ -28,14 +29,17 @@ BiometricEvaluation::FileRecordStore::FileRecordStore(
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
 	if (mkdir(_theFilesDir.c_str(), S_IRWXU) != 0)
-		throw StrategyError("Could not create file area directory");
+		throw StrategyError("Could not create file area directory (" +
+		    Error::Utility::errorStr() + ")");
 	return;
 }
 
 BiometricEvaluation::FileRecordStore::FileRecordStore(
     const string &name,
-    const string &parentDir)
-    throw (ObjectDoesNotExist, StrategyError) : RecordStore(name, parentDir)
+    const string &parentDir,
+    uint8_t mode)
+    throw (ObjectDoesNotExist, StrategyError) : 
+    RecordStore(name, parentDir, mode)
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
@@ -48,6 +52,9 @@ BiometricEvaluation::FileRecordStore::changeName(
     const string &name)
     throw (ObjectExists, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	RecordStore::changeName(name);
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
 }
@@ -71,7 +78,8 @@ BiometricEvaluation::FileRecordStore::getSpaceUsed()
 		cname = entry->d_name;
 		cname = FileRecordStore::canonicalName(cname);
 		if (stat(cname.c_str(), &sb) != 0)	
-			throw StrategyError("Cannot stat store file");
+			throw StrategyError("Cannot stat store file (" +
+			    Error::Utility::errorStr() + ")");
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
 		total += sb.st_blocks * S_BLKSIZE;
@@ -79,7 +87,8 @@ BiometricEvaluation::FileRecordStore::getSpaceUsed()
 
 	if (dir != NULL) {
 		if (closedir(dir)) {
-			throw StrategyError("Could not close " + _name);
+			throw StrategyError("Could not close " + _name + "(" +
+			    Error::Utility::errorStr() + ")");
 		}
 	}
 
@@ -93,6 +102,9 @@ BiometricEvaluation::FileRecordStore::insert(
     const uint64_t size)
     throw (ObjectExists, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	if (!validateKeyString(key))
 		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
@@ -114,6 +126,9 @@ BiometricEvaluation::FileRecordStore::remove(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	if (!validateKeyString(key))
 		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
@@ -142,12 +157,14 @@ BiometricEvaluation::FileRecordStore::read(
 	uint64_t size = IO::Utility::getFileSize(pathname);
 	std::FILE *fp = std::fopen(pathname.c_str(), "rb");
 	if (fp == NULL)
-		throw StrategyError("Could not open " + pathname);
+		throw StrategyError("Could not open " + pathname + " (" + 
+		    Error::Utility::errorStr() + ")");
 
 	std::size_t sz = fread(data, 1, size, fp);
 	std::fclose(fp);
 	if (sz != size)
-		throw StrategyError("Could not write " + pathname);
+		throw StrategyError("Could not write " + pathname + " (" + 
+		    Error::Utility::errorStr() + ")");
 	return(size);
 }
 
@@ -158,6 +175,9 @@ BiometricEvaluation::FileRecordStore::replace(
     const uint64_t size)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	if (!validateKeyString(key))
 		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
@@ -190,6 +210,9 @@ BiometricEvaluation::FileRecordStore::flush(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	if (!validateKeyString(key))
 		throw StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
@@ -237,7 +260,8 @@ BiometricEvaluation::FileRecordStore::sequence(
 			continue;
 		cname = _theFilesDir + "/" + entry->d_name;
 		if (stat(cname.c_str(), &sb) != 0)	
-			throw StrategyError("Cannot stat store file");
+			throw StrategyError("Cannot stat store file (" +
+			    Error::Utility::errorStr() + ")");
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
 		if (i == _cursorPos)
@@ -254,7 +278,8 @@ BiometricEvaluation::FileRecordStore::sequence(
 
 	if (dir != NULL) {
 		if (closedir(dir)) {
-			throw StrategyError("Could not close " + _theFilesDir);
+			throw StrategyError("Could not close " + _theFilesDir +
+			    " (" + Error::Utility::errorStr() + ")");
 		}
 	}
 	
@@ -279,12 +304,14 @@ BiometricEvaluation::FileRecordStore::writeNewRecordFile(
 {
 	std::FILE *fp = std::fopen(name.c_str(), "wb");
 	if (fp == NULL)
-		throw StrategyError("Could not open " + name);
+		throw StrategyError("Could not open " + name + " (" + 
+		    Error::Utility::errorStr() + ")");
 
 	std::size_t sz = fwrite(data, 1, size, fp);
 	std::fclose(fp);
 	if (sz != size)
-		throw StrategyError("Could not write " + name);
+		throw StrategyError("Could not write " + name + " (" +
+		    Error::Utility::errorStr() + ")");
 }
 
 string

@@ -9,11 +9,14 @@
 #
 LOCALINC := ../include
 include ../common.mk
-SOURCES = be_timer.cpp
-OBJECTS = be_timer.o
+SOURCES = be_time_timer.cpp be_error_utility.cpp
+OBJECTS = $(SOURCES:%.cpp=%.o)
 LIBRARY=libbiomeval
 
 all: $(OBJECTS)
+
+be_error_utility.o: be_error_utility.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ -D_XOPEN_SOURCE=600 $<
 
 clean:
 	$(RM) $(DISPOSABLEFILES) $(LIBRARY).*

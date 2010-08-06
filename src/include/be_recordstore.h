@@ -66,6 +66,9 @@ namespace BiometricEvaluation {
 			 *	parentDir (in)
 			 *		Where, in the file system, the store
 			 *		is rooted.
+			 *	mode (in)
+			 *		The type of access a client of this 
+			 *		RecordStore has.
 			 * Returns:
 			 *	An object representing the existing store.
 			 * Throws:
@@ -74,9 +77,12 @@ namespace BiometricEvaluation {
 			 *		underlying storage system, or the
 			 *		name is malformed.
 			 */
+			static const uint8_t IO_READWRITE = 0;
+			static const uint8_t IO_READONLY = 1;
 			RecordStore(
 			    const string &name,
-			    const string &parentDir)
+			    const string &parentDir,
+			    uint8_t mode = IO_READWRITE)
 			    throw (ObjectDoesNotExist, StrategyError);
 
 			RecordStore();
@@ -389,6 +395,11 @@ namespace BiometricEvaluation {
 			 * of the RecordStore, typically _directory + name.
 			 */
 			string canonicalName(const string &name);
+
+			/*
+			 * Mode in which the RecordStore was opened.
+			 */
+			uint8_t _mode;
 
 			/*
 			 * Return the full path to a RecordStore.

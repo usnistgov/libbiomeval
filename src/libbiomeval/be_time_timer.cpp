@@ -11,7 +11,7 @@
 #include <sys/time.h>
 
 #include <be_exception.h>
-#include <be_timer.h>
+#include <be_time_timer.h>
 
 #if defined(WIN32) || defined(__CYGWIN__)
 #include <windows.h>
@@ -20,14 +20,14 @@
 /* Number of microseconds in one second */
 const int MicrosecondsPerSecond = 1000000;
 
-BiometricEvaluation::Utility::Timer::Timer()
+BiometricEvaluation::Time::Timer::Timer()
     throw (StrategyError)
 {
 	_inProgress = false;
 }
 
 void
-BiometricEvaluation::Utility::Timer::start()
+BiometricEvaluation::Time::Timer::start()
     throw (StrategyError)
 {
 	if (_inProgress)
@@ -48,7 +48,7 @@ BiometricEvaluation::Utility::Timer::start()
 }
 
 void
-BiometricEvaluation::Utility::Timer::stop()
+BiometricEvaluation::Time::Timer::stop()
     throw (StrategyError)
 {
 	if (!_inProgress)
@@ -69,7 +69,7 @@ BiometricEvaluation::Utility::Timer::stop()
 }
 
 uint64_t
-BiometricEvaluation::Utility::Timer::elapsed()
+BiometricEvaluation::Time::Timer::elapsed()
     throw (StrategyError)
 {
 	if (_inProgress)

@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include <be_archiverecstore.h>
+#include <be_error_utility.h>
 
 BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
     const string &name,
@@ -40,8 +41,10 @@ BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
 
 BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
     const string &name,
-    const string &parentDir)
-    throw (ObjectDoesNotExist, StrategyError) : RecordStore(name, parentDir)
+    const string &parentDir,
+    uint8_t mode)
+    throw (ObjectDoesNotExist, StrategyError) : 
+    RecordStore(name, parentDir, mode)
 {
 	_manifestfp = _archivefp = NULL;
 
@@ -59,27 +62,51 @@ BiometricEvaluation::ArchiveRecordStore::open_streams()
 	struct stat sb;
 	
 	if (stat(canonicalName(manifestFileName).c_str(), &sb)) {
-		_manifestfp = fopen(canonicalName(manifestFileName).c_str(), 
-		    "w+");
+		if (_mode == IO_READONLY) {
+			_manifestfp = fopen(
+			    canonicalName(manifestFileName).c_str(), "r");
+		} else {
+			_manifestfp = fopen(
+			    canonicalName(manifestFileName).c_str(), "w+");
+		}
 		if (_manifestfp == NULL)
-			throw FileError("Could not create manifest file");
+			throw FileError("Could not create manifest file (" +
+			    Error::Utility::errorStr() + ")");
 	} else if (_manifestfp == NULL)  {
-		_manifestfp = fopen(canonicalName(manifestFileName).c_str(), 
-		    "r+");
+		if (_mode == IO_READONLY) {
+			_manifestfp = fopen(
+			    canonicalName(manifestFileName).c_str(), "r");
+		} else {
+			_manifestfp = fopen(
+			    canonicalName(manifestFileName).c_str(), "r+");
+		}	
 		if (_manifestfp == NULL)
-			throw FileError("Could not open manifest file");
+			throw FileError("Could not open manifest file (" +
+			    Error::Utility::errorStr() + ")");
 	}
 
 	if (stat(canonicalName(archiveFileName).c_str(), &sb)) {
-		_archivefp = fopen(canonicalName(archiveFileName).c_str(), 
-		    "wb+");
+		if (_mode == IO_READONLY) {
+			_archivefp = fopen(
+			    canonicalName(archiveFileName).c_str(), "rb");
+		} else {
+			_archivefp = fopen(
+			    canonicalName(archiveFileName).c_str(), "wb+");
+		}
 		if (_archivefp == NULL)
-			throw FileError("Could not create archive file");
+			throw FileError("Could not create archive file (" +
+			    Error::Utility::errorStr() + ")");
 	} else if (_archivefp == NULL) {
-		_archivefp = fopen(canonicalName(archiveFileName).c_str(), 
-		    "rb+");
+		if (_mode == IO_READONLY) {
+			_archivefp = fopen(
+			    canonicalName(archiveFileName).c_str(), "rb");
+		} else {
+			_archivefp = fopen(
+			    canonicalName(archiveFileName).c_str(), "rb+");
+		}
 		if (_archivefp == NULL)
-			throw FileError("Could not open archive file");
+			throw FileError("Could not open archive file (" +
+			    Error::Utility::errorStr() + ")");
 	}
 }
 
@@ -89,12 +116,14 @@ BiometricEvaluation::ArchiveRecordStore::close_streams()
 {
 	if (_manifestfp != NULL) {
 		if (fclose(_manifestfp))
-			throw StrategyError("Could not close manifest");
+			throw StrategyError("Could not close manifest (" +
+			    Error::Utility::errorStr() + ")");
 		_manifestfp = NULL;
 	}
 	if (_archivefp != NULL) {
 		if (fclose(_archivefp))
-			throw StrategyError("Could not close archive");
+			throw StrategyError("Could not close archive (" +
+			    Error::Utility::errorStr() + ")");
 		_archivefp = NULL;
 	}
 }
@@ -109,11 +138,13 @@ BiometricEvaluation::ArchiveRecordStore::getSpaceUsed()
 	total = RecordStore::getSpaceUsed();
 	sync();
 	if (stat(canonicalName(manifestFileName).c_str(), &sb) != 0)
-		throw StrategyError("Could not find manifest file");
+		throw StrategyError("Could not find manifest file (" +
+		    Error::Utility::errorStr() + ")");
 	total += sb.st_blocks * S_BLKSIZE;
 
 	if (stat(canonicalName(archiveFileName).c_str(), &sb) != 0)
-		throw StrategyError("Could not find archive file");
+		throw StrategyError("Could not find archive file (" +
+		    Error::Utility::errorStr() + ")");
 	total += sb.st_blocks * S_BLKSIZE;
 	return (total);
 	
@@ -123,16 +154,21 @@ void
 BiometricEvaluation::ArchiveRecordStore::sync()
     throw (StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	/* Flush the streams, not necessarily for the key passed */
 	RecordStore::sync();
 	if (_manifestfp != NULL) {
 		if (fflush(_manifestfp) == EOF)
-			throw StrategyError("Could not sync manifest file");
+			throw StrategyError("Could not sync manifest file (" +
+			    Error::Utility::errorStr() + ")");
 	}
 
 	if (_archivefp != NULL) {
 		if (fflush(_archivefp))
-			throw StrategyError("Could not sync archive file");
+			throw StrategyError("Could not sync archive file (" +
+			    Error::Utility::errorStr() + ")");
 	}
 }
 
@@ -204,9 +240,11 @@ BiometricEvaluation::ArchiveRecordStore::read(
 		}
 	}
 	if (fseek(_archivefp, entry.offset, SEEK_SET))
-		throw StrategyError("Archive cannot seek");
+		throw StrategyError("Archive cannot seek (" +
+		    Error::Utility::errorStr() + ")");
 	if (fread(data, 1, entry.size, _archivefp) != entry.size)
-		throw StrategyError("Archive cannot read");
+		throw StrategyError("Archive cannot read (" +
+		    Error::Utility::errorStr() + ")");
 
 	return entry.size;
 }
@@ -218,6 +256,9 @@ BiometricEvaluation::ArchiveRecordStore::insert(
     const uint64_t size)
     throw (ObjectExists, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	long offset = -1;
 
 	/* Write data chunk */
@@ -230,7 +271,8 @@ BiometricEvaluation::ArchiveRecordStore::insert(
 	}
 	offset = ftell(_archivefp);
 	if (fwrite(data, 1, size, _archivefp) != size)
-		throw StrategyError("Could not write to archive file");
+		throw StrategyError("Could not write to archive file (" +
+		    Error::Utility::errorStr() + ")");
 
 	/* Write to manifest */
 	ManifestEntry entry;
@@ -263,7 +305,8 @@ BiometricEvaluation::ArchiveRecordStore::write_manifest_entry(
 	snprintf(linebuf, MAXLINELEN, "%s %ld %llu\n", key.c_str(), 
 	    entry.offset, entry.size);
 	if (fwrite(linebuf, 1, strlen(linebuf), _manifestfp) != strlen(linebuf))
-		throw StrategyError("Could write manifest entry for " + key);
+		throw StrategyError("Could write manifest entry for " + key +
+		    " (" + Error::Utility::errorStr() + ")");
 
 	efficient_insert(_entries, key, entry);
 }
@@ -272,6 +315,9 @@ void
 BiometricEvaluation::ArchiveRecordStore::remove(const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	ManifestMap::iterator lb = _entries.lower_bound(key);
 	if (lb == _entries.end())
 		throw ObjectDoesNotExist(key);
@@ -294,6 +340,9 @@ BiometricEvaluation::ArchiveRecordStore::replace(
     const uint64_t size)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	try {
 		remove(key);
 	} catch (ObjectDoesNotExist& e) {
@@ -316,15 +365,20 @@ BiometricEvaluation::ArchiveRecordStore::flush(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	/* Flush the streams, not necessarily for the key passed */
 	if (_manifestfp != NULL) {
 		if (fflush(_manifestfp) == EOF) 
-			throw StrategyError("Could not flush manifest file");
+			throw StrategyError("Could not flush manifest file (" +
+			    Error::Utility::errorStr() + ")");
 	}
 
 	if (_archivefp != NULL) {
 		if (fflush(_archivefp))
-			throw StrategyError("Could not flush archive file");
+			throw StrategyError("Could not flush archive file (" +
+			    Error::Utility::errorStr() + ")");
 	}
 }
 
@@ -467,6 +521,9 @@ void
 BiometricEvaluation::ArchiveRecordStore::changeName(const string &name)
     throw (ObjectExists, StrategyError)
 {
+	if (_mode == IO_READONLY)
+		throw StrategyError("RecordStore was opened read-only");
+
 	RecordStore::changeName(name);
 	close_streams();
 }
