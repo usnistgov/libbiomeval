@@ -17,23 +17,59 @@ namespace BiometricEvaluation
 {
 	namespace Time
 	{
+		/*
+		 * An object for timing operations in code.  Wrap statements
+		 * in Timer::start()/Timer::stop().  Use Timer::elapsed() to 
+		 * obtain the calculated time of the operation.
+		 */
 		class Timer
 		{
 		public:
 	
-			/* Constructor for the timer object */
-			Timer()
-			    throw (StrategyError);
+			/* 
+			 * Constructor for the Timer object.
+			 */
+			Timer();
 	
-			/* Start tracking time */
+			/* 
+			 * Start tracking time.
+			 * 
+			 * Throws:
+			 * 	StrategyError 
+			 *		This object is currently timing an
+			 *		operation or an error occurred when
+			 *		obtaining timing information.
+			 */
 			void start()
 			    throw (StrategyError);
 	
-			/* Stop tracking time */
+			/* 
+			 * Stop tracking time.
+			 *
+			 * Throws:
+			 * 	StrategyError
+			 *		This object is not currently timing
+			 *		an operation or an error occurred when
+			 *		obtaining timing information.
+			 */
 			void stop()
 			    throw (StrategyError);
 	
-			/* Get the elapsed time between start() and stop() */
+			/* 
+			 * Get the elapsed time in microseconds between calls
+			 * to this object's start() and stop() methods.
+			 *
+			 * Returns:
+			 * 	The number of microseconds between calls to 
+			 *	this object's start() and stop() methods.
+			 *
+			 * Throws:
+			 *	StrategyError
+			 *		This object is currently timing an 
+			 *		operation or an error occurred when
+			 *		obtaining timing information.
+			 *		
+			 */
 			uint64_t elapsed()
 			    throw (StrategyError);
 
@@ -41,7 +77,7 @@ namespace BiometricEvaluation
 
 			/*
 			 * Whether or not start() has been called and stop()
-			 * has not yet been called()
+			 * has not yet been called() on this object.
 			 */
 			bool _inProgress;
 

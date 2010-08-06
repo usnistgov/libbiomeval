@@ -21,7 +21,6 @@
 const int MicrosecondsPerSecond = 1000000;
 
 BiometricEvaluation::Time::Timer::Timer()
-    throw (StrategyError)
 {
 	_inProgress = false;
 }
