@@ -389,16 +389,6 @@ namespace BiometricEvaluation {
 			uint8_t _mode;
 
 			/*
-			 * Return the full path to a RecordStore.
-			 */
-			string canonicalPath(
-			    const string &name);
-
-			static string canonicalPath(
-			    const string &name,
-			    const string &parentDir);
-
-			/*
 			 * Read the contents of the common control file format
 			 * for all RecordStores.
 			 */

@@ -454,10 +454,9 @@ BiometricEvaluation::ArchiveRecordStore::vacuum(
 	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
 
-	struct stat sb;
-	string newDirectory = canonicalPath(name, parentDir);
-	if (stat(newDirectory.c_str(), &sb) != 0)
-		throw ObjectDoesNotExist(newDirectory);
+	string newDirectory;
+	if (IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
+		throw ObjectExists();
 
 	char *data = NULL;
 	uint64_t size;

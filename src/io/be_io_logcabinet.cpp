@@ -88,23 +88,6 @@ BiometricEvaluation::IO::LogSheet::flush()
 /*
  * Class methods.
  */
-bool
-BiometricEvaluation::IO::LogCabinet::constructAndCheckPath(
-    const string &name,
-    const string &parentDir,
-    string &fullPath)
-{
-	if (parentDir.empty() || parentDir == ".")
-		fullPath = name;
-	else
-		fullPath = parentDir + "/" + name;
-
-	/* Check whether the directory exists */
-	if (IO::Utility::fileExists(fullPath))
-		return (true);
-	else
-		return (false);
-}
 
 /*
  * Constructors and destructors oh my.
@@ -118,7 +101,7 @@ BiometricEvaluation::IO::LogCabinet::LogCabinet(
 	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid LogCabinet name");
 
-	if (constructAndCheckPath(name, parentDir, _directory))
+	if (IO::Utility::constructAndCheckPath(name, parentDir, _directory))
 		throw ObjectExists();
 
 	if (mkdir(_directory.c_str(), S_IRWXU) != 0)
@@ -143,7 +126,7 @@ BiometricEvaluation::IO::LogCabinet::LogCabinet(
 	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid LogCabinet name");
 
-	if (!constructAndCheckPath(name, parentDir, _directory))
+	if (!IO::Utility::constructAndCheckPath(name, parentDir, _directory))
 		throw ObjectDoesNotExist();
 	_parentDir = parentDir;
 
@@ -175,7 +158,7 @@ BiometricEvaluation::IO::LogCabinet::newLogSheet(
     throw (ObjectExists, StrategyError)
 {
 	string fullPath;
-	if (constructAndCheckPath(name, _directory, fullPath))
+	if (IO::Utility::constructAndCheckPath(name, _directory, fullPath))
 		throw ObjectExists();
 
 	LogSheet *ls;
@@ -220,7 +203,7 @@ BiometricEvaluation::IO::LogCabinet::remove(
 		throw StrategyError("Invalid LogCabinet name");
 
 	string oldDirectory;
-	if (!constructAndCheckPath(name, parentDir, oldDirectory))
+	if (!IO::Utility::constructAndCheckPath(name, parentDir, oldDirectory))
 		throw ObjectDoesNotExist();
 
 	try {

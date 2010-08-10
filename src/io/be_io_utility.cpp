@@ -90,12 +90,12 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 
 bool
 BiometricEvaluation::IO::Utility::fileExists(
-    const string &name)
+    const string &pathname)
     throw (StrategyError)
 {
 	struct stat sb;
 
-	if (stat(name.c_str(), &sb) == 0)
+	if (stat(pathname.c_str(), &sb) == 0)
 		return (true);
 	else
 		return (false);
@@ -104,15 +104,15 @@ BiometricEvaluation::IO::Utility::fileExists(
 
 uint64_t
 BiometricEvaluation::IO::Utility::getFileSize(
-    const string &name)
+    const string &pathname)
     throw (ObjectDoesNotExist, StrategyError)
 {
 	struct stat sb;
 
-	if (!fileExists(name))
+	if (!fileExists(pathname))
 		throw ObjectDoesNotExist();
 
-	if (stat(name.c_str(), &sb) != 0)
+	if (stat(pathname.c_str(), &sb) != 0)
 		throw StrategyError("Getting stats on file (" + 
 		    Error::Utility::errorStr() + ")");
 
@@ -136,4 +136,22 @@ BiometricEvaluation::IO::Utility::validateRootName(
 		validity = false;
 
         return (validity);
+}
+
+bool
+BiometricEvaluation::IO::Utility::constructAndCheckPath(
+    const string &name,
+    const string &parentDir,
+    string &fullPath)
+{
+	if (parentDir.empty() || parentDir == ".")
+		fullPath = name;
+	else
+		fullPath = parentDir + "/" + name;
+
+	/* Check whether the directory exists */
+	if (IO::Utility::fileExists(fullPath))
+		return (true);
+	else
+		return (false);
 }

@@ -41,11 +41,12 @@ BiometricEvaluation::RecordStore::RecordStore(
 {
 	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
+	if (IO::Utility::constructAndCheckPath(name, parentDir, _directory))
+		throw ObjectExists();
 
 	_count = 0;
 	_name = name;
 	_parentDir = parentDir;
-	_directory = canonicalPath(name);
 	_description = description;
 	_cursor = BE_RECSTORE_SEQ_START;
 
@@ -54,10 +55,6 @@ BiometricEvaluation::RecordStore::RecordStore(
 	 * working directory by default or in parentDir if specified.
 	 * Subclasses of this class store all their data in this directory.
 	 */
-	/* Check that the directory doesn't already exist */
-	struct stat sb;
-	if (stat(_directory.c_str(), &sb) == 0)
-		throw ObjectExists("Named object already exists");
 
 	/* Make the new directory, checking for errors */
 	if (mkdir(_directory.c_str(), S_IRWXU) != 0)
@@ -78,18 +75,14 @@ BiometricEvaluation::RecordStore::RecordStore(
 {
 	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
+	if (!IO::Utility::constructAndCheckPath(name, parentDir, _directory))
+		throw ObjectDoesNotExist();
 
 	_parentDir = parentDir;
-	_directory = canonicalPath(name);
 	_cursor = BE_RECSTORE_SEQ_START;
 	if (mode != IO_READWRITE && mode != IO_READONLY)
 		throw StrategyError("Invalid mode");
 	_mode = mode;
-
-	/* Check that the directory exists, throwing an error if not */
-	struct stat sb;
-	if (stat(_directory.c_str(), &sb) != 0)
-		throw ObjectDoesNotExist();
 
 	try {
 		(void)readControlFile();
@@ -164,11 +157,10 @@ BiometricEvaluation::RecordStore::changeName(const string &name)
 	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
 
-	string newDirectory = canonicalPath(name);
-
-	struct stat sb;
-	if (stat(newDirectory.c_str(), &sb) == 0)
+	string newDirectory;
+	if (IO::Utility::constructAndCheckPath(name, _parentDir, newDirectory))
 		throw ObjectExists(newDirectory);
+
 	if (rename(_directory.c_str(), newDirectory.c_str()))
 		throw StrategyError("Could not rename " + _directory + " (" +
 		    Error::Utility::errorStr() + ")");
@@ -204,11 +196,8 @@ BiometricEvaluation::RecordStore::removeRecordStore(
 	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
 
-	string newDirectory = canonicalPath(name, parentDir);
-
-	/* Check that the RecordStore directory exists */
-	struct stat sb;
-	if (stat(newDirectory.c_str(), &sb) != 0)
+	string newDirectory;
+	if (!IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
 		throw ObjectDoesNotExist();
 
 	try {
@@ -231,35 +220,6 @@ BiometricEvaluation::RecordStore::canonicalName(
     const string &name)
 {
 	return (_directory + '/' + name);
-}
-
-string
-BiometricEvaluation::RecordStore::canonicalPath(
-    const string &name)
-{
-	string path;
-
-	if (_parentDir.empty() || _parentDir == ".")
-		path = name;
-	else
-		path = _parentDir + "/" + name;
-
-	return path;
-}
-
-string
-BiometricEvaluation::RecordStore::canonicalPath(
-    const string &name,
-    const string &parentDir)
-{
-	string path;
-
-	if (parentDir.empty() || parentDir == ".")
-		path = name;
-	else
-		path = parentDir + "/" + name;
-
-	return path;
 }
 
 /*

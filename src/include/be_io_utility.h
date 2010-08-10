@@ -28,7 +28,11 @@ namespace BiometricEvaluation {
 			 * Remove a directory.
 			 *
 			 * Parameters:
-			 *
+			 *	directory (in)
+			 *		The name of the directory to be
+			 *		removed, without a preceding path.
+			 *	prefix (in)
+			 *		The path leading to the directory.
 			 * Throws:
 			 *	ObjectDoesNotExist
 			 *		The named directory does not exist.
@@ -46,7 +50,9 @@ namespace BiometricEvaluation {
 			 * Get the size of a file.
 			 *
 			 * Parameters:
-			 * 
+			 *	pathname (in)
+			 *		The name of the file to be
+			 *		sized; can be a complete path.
 			 * Returns:
 			 * 	The file size.
 			 * Throws:
@@ -58,16 +64,18 @@ namespace BiometricEvaluation {
 			 *		name is malformed.
 			 */
 			static uint64_t getFileSize(
-			    const string &name)
+			    const string &pathname)
 			    throw (ObjectDoesNotExist, StrategyError);
 
 			/*
 			 * Indicate whether a file exists.
 			 *
 			 * Parameters:
-			 * 
+			 *	pathname (in)
+			 *		The name of the file to be
+			 *		checked; can be a complete path.
 			 * Returns:
-			 * 	true if the file exists, false otherwise.
+			 * 	True if the file exists, false otherwise.
 			 * Throws:
 			 *	StrategyError
 			 *		An error occurred when using the
@@ -86,12 +94,37 @@ namespace BiometricEvaluation {
 			 * separators ('/' and '\') or begin with whitespace.
 			 *
 			 * Parameters:
-			 * 	name (in) The proposed name for the entity.
+			 * 	name (in)
+			 *		The proposed name for the entity.
 			 * Returns:
 			 *	True if the name is acceptable, false otherwise.
 			 */
 			static bool validateRootName(
 			    const string &name);
+
+			/*
+			 * Construct a full path for a rooted entity, and
+			 * return true if that path exists; false otherwise.
+			 *
+			 * Parameters:
+			 * 	name (in)
+			 *		The proposed name for the entity;
+			 *		cannot be a pathname.
+			 * 	parentDir (in)
+			 *		The name of the directory to contain
+			 *		the entity.
+			 *	fullPath (out)
+			 *		The complete path to the new entity,
+			 *		when true is returned; ambiguous when
+			 *		false is returned.
+			 * Returns:
+			 *	True if the named entiry is present in the file
+			 *	system, false otherwise.
+			*/
+			static bool constructAndCheckPath(
+			    const string &name,
+			    const string &parentDir,
+			    string &fullPath);
 	};
     }
 }

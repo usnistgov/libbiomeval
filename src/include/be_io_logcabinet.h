@@ -147,15 +147,6 @@ namespace BiometricEvaluation {
 			 */
 			string canonicalName(const string &name);
 
-			/*
-			 * Construct a full path for a file cabinet, and
-			 * return true if that path exists; false otherwise.
-			*/
-			static bool constructAndCheckPath(
-			    const string &name,
-			    const string &parentDir,
-			    string &fullPath);
-
 			/* Read the contents of the common control file format
 			 * for all LogCabinet.
 			 */
