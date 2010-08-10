@@ -249,14 +249,15 @@ runTests(RecordStore *rs)
 	}
 #endif
 
-	cout << "Return RecordStore to original name..." << endl;
+	cout << "Return RecordStore to original name... ";
 	try {
 		rs->changeName(rsname);
 	} catch (ObjectExists &e) {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.getInfo();
 	} catch (StrategyError &e)  {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.getInfo();
 	}
+	cout << "finished." << endl;
 
 	return (0);
 }
@@ -323,7 +324,7 @@ main(int argc, char* argv[]) {
 
 #ifdef FILERECORDSTORETEST
 
-	/* Call the constructor that will create a new FileRecordStore. */
+	/* Call the constructor that will open an existing FileRecordStore. */
 	rsname = "frs_test";
 	try {
 		rs = new FileRecordStore(rsname, "");
@@ -336,7 +337,7 @@ main(int argc, char* argv[]) {
 #endif
 
 #ifdef DBRECORDSTORETEST
-	/* Call the constructor that will create a new DBRecordStore. */
+	/* Call the constructor that will open an existing DBRecordStore. */
 	rsname = "dbrs_test";
 	try {
 		rs = new DBRecordStore(rsname, "");
@@ -349,12 +350,12 @@ main(int argc, char* argv[]) {
 #endif
 
 #ifdef ARCHIVEECORDSTORETEST
-	/* Call the constructor that will create a new ArchiveRecordStore. */
+	/* Call the constructor that will open an existing ArchiveRecordStore.*/
 	rsname = "ars_test";
 	try {
 		rs = new ArchiveRecordStore(rsname, "");
 	} catch (ObjectDoesNotExist &e) {
-		cout << "The Archive  Record Store does not exist; exiting." << endl;
+		cout << "The Archive Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
