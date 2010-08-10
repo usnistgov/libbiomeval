@@ -77,6 +77,21 @@ namespace BiometricEvaluation {
 			static bool fileExists(
 			    const string &pathname)
 			    throw (StrategyError);
+
+			/*
+			 * Check whether or not a string is valid as a name for
+			 * a rooted entity, such as a RecordStore or other type
+			 * of container that is persistent within the file
+			 * system. Notably, name cannot contain path name
+			 * separators ('/' and '\') or begin with whitespace.
+			 *
+			 * Parameters:
+			 * 	name (in) The proposed name for the entity.
+			 * Returns:
+			 *	True if the name is acceptable, false otherwise.
+			 */
+			static bool validateRootName(
+			    const string &name);
 	};
     }
 }

@@ -39,7 +39,7 @@ BiometricEvaluation::RecordStore::RecordStore(
     const string &parentDir)
     throw (ObjectExists, StrategyError)
 {
-	if (!validateName(name))
+	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
 
 	_count = 0;
@@ -76,7 +76,7 @@ BiometricEvaluation::RecordStore::RecordStore(
     uint8_t mode)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	if (!validateName(name))
+	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
 
 	_parentDir = parentDir;
@@ -108,7 +108,7 @@ BiometricEvaluation::RecordStore::~RecordStore()
 			writeControlFile();
 	} catch (StrategyError& e) {
 		if (!std::uncaught_exception())
-			cerr << "Failed to write control file." << endl;
+			cerr << e.getInfo() << endl;
 	}
 }
 
@@ -161,7 +161,7 @@ BiometricEvaluation::RecordStore::changeName(const string &name)
 	if (_mode == IO_READONLY)
 		throw StrategyError("RecordStore was opened read-only");
 
-	if (!validateName(name))
+	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
 
 	string newDirectory = canonicalPath(name);
@@ -201,7 +201,7 @@ BiometricEvaluation::RecordStore::removeRecordStore(
     const string &parentDir)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	if (!validateName(name))
+	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
 
 	string newDirectory = canonicalPath(name, parentDir);
@@ -221,19 +221,6 @@ BiometricEvaluation::RecordStore::removeRecordStore(
 	} catch (StrategyError &e) {
 		throw e;
 	}
-}
-
-bool
-BiometricEvaluation::RecordStore::validateName(
-    const string &name)
-{
-	bool validity = true;
-
-	/* Do not allow slash characters in the name */
-	if (name.find("/") != string::npos || name.find("\\") != string::npos)
-		validity = false;
-
-	return validity;
 }
 
 /******************************************************************************/
@@ -314,7 +301,7 @@ BiometricEvaluation::RecordStore::writeControlFile()
 
 	std::ofstream ofs(RecordStore::canonicalName(controlFileName).c_str());
 	if (!ofs)
-		throw StrategyError("Could not create control file");
+		throw StrategyError("Could not write control file");
 
 	/* Write the store name and description into the control file */
 	ofs << _name << '\n';

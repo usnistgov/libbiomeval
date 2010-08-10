@@ -7,7 +7,6 @@
 # its use by other parties, and makes no guarantees, expressed or implied,
 # about its quality, reliability, or any other characteristic.
 #
-LOCALINC := ../include
 include ../common.mk
 SOURCES = be_time_timer.cpp be_error_utility.cpp
 OBJECTS = $(SOURCES:%.cpp=%.o)

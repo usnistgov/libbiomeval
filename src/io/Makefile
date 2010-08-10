@@ -9,12 +9,10 @@
 #
 include ../common.mk
 LIBRARY = libbiomevalio
-SOURCES = be_exception.cpp be_recordstore.cpp be_dbrecstore.cpp be_filerecstore.cpp be_archiverecstore.cpp be_io_utility.cpp
+SOURCES = be_exception.cpp be_recordstore.cpp be_dbrecstore.cpp be_filerecstore.cpp be_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
 all: $(OBJECTS)
-
-be_dbrecstore.o: be_dbrecstore.cpp
 ifeq ($(OS), Darwin)
 	$(CXX) -c $(CXXFLAGS) $<
 else

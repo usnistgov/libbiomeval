@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <be_io_utility.h>
 #include <be_archiverecstore.h>
 #include <be_error_utility.h>
 
@@ -450,7 +451,7 @@ BiometricEvaluation::ArchiveRecordStore::vacuum(
     const string &parentDir)
     throw (ObjectDoesNotExist, StrategyError)
 {
-	if (!validateName(name))
+	if (!IO::Utility::validateRootName(name))
 		throw StrategyError("Invalid characters in RS name");
 
 	struct stat sb;

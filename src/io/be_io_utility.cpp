@@ -118,3 +118,22 @@ BiometricEvaluation::IO::Utility::getFileSize(
 
 	return ((uint64_t)sb.st_size);
 }
+
+bool
+BiometricEvaluation::IO::Utility::validateRootName(
+    const string &name)
+{
+	bool validity = true;
+
+	if (name.empty())
+		validity = false;
+
+        /* Do not allow pathname delimiters in the name */
+	if (name.find("/") != string::npos || name.find("\\") != string::npos)
+		validity = false;
+
+	if (isspace(name[0]))
+		validity = false;
+
+        return (validity);
+}

@@ -341,19 +341,6 @@ namespace BiometricEvaluation {
 			    const string &parentDir)
 			    throw (ObjectDoesNotExist, StrategyError);
 
-			/*
-			 * Whether or not a string is valid as a name for
-			 * a RecordStore. Notably, name cannot contain
-			 * path name separators ('/' and '\').
-			 *
-			 * Parameters:
-			 * 	name (in) The proposed name for the RecordStore.
-			 * Returns:
-			 *	True if the name is acceptable, false otherwise.
-			 */
-			static bool validateName(
-			    const string &name);
-
 		protected:
 			/*
 			 * The data members of the RecordStore are protected 
