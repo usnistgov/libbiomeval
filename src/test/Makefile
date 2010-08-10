@@ -36,7 +36,7 @@ test_be_archiverecordstore-stress: test_be_recordstore-stress.cpp
 test_be_time_timer: test_be_time_timer.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 test_be_io_logcabinet: test_be_io_logcabinet.cpp
-	$(CXX) $(CXXFLAGS) -lbiomeval $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 clean:
 	$(RM) $(DISPOSABLEFILES) $(PROGS)
 	$(RM) -r $(DISPOSABLEDIRS)

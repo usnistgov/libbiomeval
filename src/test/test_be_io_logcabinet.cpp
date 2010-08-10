@@ -9,6 +9,7 @@
  */
 
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <stdlib.h>
 
@@ -21,7 +22,7 @@ static int
 doLogSheetTests(LogSheet *ls)
 {
 	string test;
-	srand((unsigned)ls);
+	srand((unsigned)(size_t)ls);
 	float f;
 	try {
 		for (int i = 1; i <= 19; i++) {
@@ -29,7 +30,7 @@ doLogSheetTests(LogSheet *ls)
 			ls->write(test);
 			i += 1;
 			*ls << "Entry number " << i << endl;
-			f = (float)rand() / (int)ls;
+			f = (float)rand() / (int)(size_t)ls;
 			*ls << "\t Second line of entry " << i << ".";
 			*ls << " 'Random' value is " << f << ".";
 			ls->flush();
