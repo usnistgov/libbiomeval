@@ -25,16 +25,19 @@ doLogSheetTests(LogSheet *ls)
 	srand((unsigned)(size_t)ls);
 	float f;
 	try {
-		for (int i = 1; i <= 19; i++) {
+		for (int i = 2; i <= 19; i++) {
+			cout << ls->getCurrentEntryNumber() << " ";
 			test = "Entry " + string(i, 'a');
 			ls->write(test);
+			cout << ls->getCurrentEntryNumber() << " ";
 			i += 1;
 			*ls << "Entry number " << i << endl;
 			f = (float)rand() / (int)(size_t)ls;
 			*ls << "\t Second line of entry " << i << ".";
 			*ls << " 'Random' value is " << f << ".";
-			ls->flush();
+			ls->newEntry();
 		}
+		ls->sync();
 	} catch (StrategyError &e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
@@ -174,13 +177,27 @@ main(int argc, char* argv[])
 	auto_ptr<LogSheet> als(ls);
 
 	cout << "Writing to Log Sheet not in cabinet... ";
+	try {
+		*als << "First entry that will be thrown away; ";
+		*als << "Should not appear in the log file.";
+		cout << "Current entry:" << endl;
+		cout << "[" << als->getCurrentEntry() << "]" << endl;
+		als->resetCurrentEntry();
+		cout << "Check that the entry above is NOT in the log." << endl;
+		*als << "First entry that is saved to the log file.";
+		als->newEntry();
+	} catch (StrategyError& e) {
+		cout << "Caught " << e.getInfo() << endl;
+		return (-1);
+	}
+	cout << "Writing more entries... ";
 	if (doLogSheetTests(ls) != 0) {
 		cout << "failed." << endl;
 		status = EXIT_FAILURE;
 	} else {
 		cout << "success." << endl;
 	}
-
+	cout << endl << "LogCabinet tests: " << endl;
 	if (doLogCabinetTests() != 0)
 		status = EXIT_FAILURE;
 

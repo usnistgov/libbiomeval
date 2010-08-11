@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <be_io_utility.h>
 #include <be_io_logcabinet.h>
@@ -52,7 +53,7 @@ BiometricEvaluation::IO::LogSheet::LogSheet(
 	    != len) {
 		throw StrategyError("Could not write description to log file");
 	}
-	_entryNumber = 0;
+	_entryNumber = 1;
 }
 
 BiometricEvaluation::IO::LogSheet::~LogSheet()
@@ -64,21 +65,53 @@ void
 BiometricEvaluation::IO::LogSheet::write(const string &entry)
     throw (StrategyError)
 {
-	_entryNumber++;
 	uint32_t len = 10 + 1 + entry.length() + 1;
 	if (std::fprintf(_theLogFile, "%010u %s\n", _entryNumber, entry.c_str())
 	    != len) {
-		_entryNumber--;
-		throw StrategyError("Could not write to file");
+		ostringstream sbuf;
+		sbuf << "Failed writing entry " << _entryNumber << " to log file";
+		throw StrategyError(sbuf.str());
 	}
+	_entryNumber++;
+}
+
+string
+BiometricEvaluation::IO::LogSheet::getCurrentEntry()
+{
+	return (this->str());
+}
+
+uint32_t
+BiometricEvaluation::IO::LogSheet::getCurrentEntryNumber()
+{
+	return (_entryNumber);
 }
 
 void
-BiometricEvaluation::IO::LogSheet::flush()
+BiometricEvaluation::IO::LogSheet::resetCurrentEntry()
+{
+	this->seekp(beg);
+	this->str("");
+}
+
+void
+BiometricEvaluation::IO::LogSheet::newEntry()
     throw (StrategyError)
 {
-	write(this->str());
-	this->seekp(beg);
+	try {
+		this->write(this->str());
+	} catch (StrategyError &e) {
+		throw e;
+	}
+	this->resetCurrentEntry();
+}
+
+void
+BiometricEvaluation::IO::LogSheet::sync()
+    throw (StrategyError)
+{
+	if (std::fflush(_theLogFile) != 0)
+		throw StrategyError("Could not sync the log file");
 }
 
 /*

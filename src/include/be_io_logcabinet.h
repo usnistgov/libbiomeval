@@ -29,16 +29,19 @@ namespace BiometricEvaluation {
 	/*
 	 * Class to represent a single logging mechanism. A LogSheet is
 	 * a string stream, so applications can write into the stream as
-	 * a staging area using the << operator, then commit the buffer to
-	 * a file using flush().
-	 * One of these objects is passed back to the client from the
-	 * LogCabinet object.
+	 * a staging area using the << operator, then start a new entry by
+	 * calling newEntry(). Entries in the log file are prefixed with an
+	 * entry number, which is incremented when the entry is written
+	 * (either by directly calling write(), or calling newEntry().
+	 *
+	 * A LogSheet object can be constructed and passed back to the client
+	 * by the LogCabinet object.
 	*/
 	class LogSheet : public std::ostringstream {
 		public:
 
 			/*
-			 * Create a new log shee.
+			 * Create a new log sheet.
 			 */
 			LogSheet(const string &name,
 				 const string &description,
@@ -48,17 +51,45 @@ namespace BiometricEvaluation {
 
 			/*
 			 * Write a string as an entry to the log file. This
-			 * does not affect the current log entry buffer.
+			 * does not affect the current log entry buffer, but
+			 * does increment the entry number.
 			 */
 			void write(const string &entry)
 			    throw (StrategyError);
 
 			/*
-			 * Commit the current entry buffer to the log file,
-			 * then reset the buffer to the beginning.
+			 * Start a new entry, causing the existing entry
+			 * to be closed. Applications do not have to call
+			 * this method for the first entry, however, as the
+			 * stream is ready for writing upon construction.
 			 */
-			void flush()
+			void newEntry()
 			    throw (StrategyError);
+
+			/*
+			 * Return the contents of the current entry currently
+			 * under construction.
+			 */
+			string getCurrentEntry();
+
+			/*
+			 * Reset the current entry buffer to the beginning.
+			 */
+			void resetCurrentEntry();
+
+			/*
+			 * Return the current entry number.
+			 */
+			uint32_t getCurrentEntryNumber();
+
+			/*
+			 * Synchronize any buffered data to the underlying
+			 * log file. This syncing is dependent on the behavior
+			 * of the underlying filesystem/OS.
+			*/
+			void sync()
+			    throw (StrategyError);
+
 		private:
 			uint32_t _entryNumber;
 			FILE *_theLogFile;
