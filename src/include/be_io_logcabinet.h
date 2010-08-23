@@ -20,7 +20,7 @@ using namespace std;
 
 /*
  * This file contains the class declaration for the LogCabinet, a class
- * that represents a collection of log files, and LogSheet, a class that
+ * that represents a collection of log sheets, and LogSheet, a class that
  * represents one log file.
  */
 namespace BiometricEvaluation {
@@ -32,27 +32,57 @@ namespace BiometricEvaluation {
 	 * a staging area using the << operator, then start a new entry by
 	 * calling newEntry(). Entries in the log file are prefixed with an
 	 * entry number, which is incremented when the entry is written
-	 * (either by directly calling write(), or calling newEntry().
+	 * (either by directly calling write(), or calling newEntry()).
 	 *
 	 * A LogSheet object can be constructed and passed back to the client
-	 * by the LogCabinet object.
+	 * by the LogCabinet object. All sheets created in the manner are
+	 * placed in a common area maintained by the cabinet.
 	*/
 	class LogSheet : public std::ostringstream {
 		public:
-
 			/*
 			 * Create a new log sheet.
+			 * Parameters:
+			 * 	name (in)
+			 *		The name of the LogSheet to be
+			 *		created.
+			 *	description (in)
+			 *		The text used to describe the sheet.
+			 *		This text is written into the log file
+			 *		prior to any entries.
+			 *	parentDir (in)
+			 *		Where, in the file system, the sheet
+			 *		is to be stored. This directory must
+			 *		exist.
+			 * Returns:
+			 *	An object representing the new log sheet.
+			 * Throws:
+			 * 	ObjectExists
+			 *		The sheet was previously created.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying file system, or the name
+			 *		is malformed.
 			 */
 			LogSheet(const string &name,
 				 const string &description,
 				 const string &parentDir)
 			    throw (ObjectExists, StrategyError);
+
 			~LogSheet();
 
 			/*
 			 * Write a string as an entry to the log file. This
 			 * does not affect the current log entry buffer, but
 			 * does increment the entry number.
+			 * Parameters:
+			 *	entry (in)
+			 *		The text of the log entry.
+			 *
+			 * Throws:
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying file system.
 			 */
 			void write(const string &entry)
 			    throw (StrategyError);
@@ -62,6 +92,10 @@ namespace BiometricEvaluation {
 			 * to be closed. Applications do not have to call
 			 * this method for the first entry, however, as the
 			 * stream is ready for writing upon construction.
+			 * Throws:
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying file system.
 			 */
 			void newEntry()
 			    throw (StrategyError);
@@ -69,6 +103,8 @@ namespace BiometricEvaluation {
 			/*
 			 * Return the contents of the current entry currently
 			 * under construction.
+			 * Returns:
+			 *	The text of the current entry.
 			 */
 			string getCurrentEntry();
 
@@ -86,6 +122,10 @@ namespace BiometricEvaluation {
 			 * Synchronize any buffered data to the underlying
 			 * log file. This syncing is dependent on the behavior
 			 * of the underlying filesystem/OS.
+			 * Throws:
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying file system.
 			*/
 			void sync()
 			    throw (StrategyError);
@@ -96,15 +136,33 @@ namespace BiometricEvaluation {
 	};
 
 	/*
-	 * Class to represent a collection of logging mechanisms.
+	 * Class to represent a collection of log sheets.
 	 */
 	class LogCabinet {
 		public:
-			
+
 			/*
-			 * All LogCabinet should have the ability to be
-			 * created with a string for the description.
-			 */
+			 * Create a new LogCabinet in the file system.
+			 * Parameters:
+			 * 	name (in)
+			 *		The name of the LogCabinet to be
+			 *		created.
+			 *	description (in)
+			 *		The text used to describe the cabinet.
+			 *	parentDir (in)
+			 *		Where, in the file system, the cabinet
+			 *		is to be stored. This directory must
+			 *		exist.
+			 * Returns:
+			 *	An object representing the new log cabinet.
+			 * Throws:
+			 * 	ObjectExists
+			 *		The cabinet was previously created.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying file system, or the name
+			 *		is malformed.
+			*/
 			LogCabinet(
 			    const string &name,
 			    const string &description,
@@ -113,6 +171,22 @@ namespace BiometricEvaluation {
 
 			/*
 			 * Open an existing LogCabinet.
+			 * Parameters:
+			 * 	name (in)
+			 *		The name of the LogCabinet to be opened.
+			 *	parentDir (in)
+			 *		Where, in the file system, the cabinet
+			 *		is stored.
+			 * Returns:
+			 *	An object representing the existing log cabinet.
+			 * Throws:
+			 * 	ObjectDoesNotExist
+			 *		The cabinet does not exist in the
+			 *		file system.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying file system, or the name
+			 *		is malformed.
 			 */
 			LogCabinet(
 			    const string &name,
@@ -122,8 +196,24 @@ namespace BiometricEvaluation {
 			~LogCabinet();
 			
 			/*
-			 * Return an object that represents one area for
-			 * logging, a LogSheet.
+			 * Create a new LogSheet within the LogCabinet.
+			 * Parameters:
+			 * 	name (in)
+			 *		The name of the LogSheet to be
+			 *		created.
+			 *	description (in)
+			 *		The text used to describe the sheet.
+			 *		This text is written into the log file
+			 *		prior to any entries.
+			 * Returns:
+			 *	A pointer to the new log sheet.
+			 * Throws:
+			 * 	ObjectExists
+			 *		The sheet was previously created.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying file system, or the name
+			 *		is malformed.
 			*/
 			LogSheet *newLogSheet(
 			    const string &name,
@@ -140,7 +230,22 @@ namespace BiometricEvaluation {
 			unsigned int getCount();
 
 			/*
-			 * Remove a LogCabinet 
+			 * Remove a LogCabinet.
+			 * Parameters:
+			 * 	name (in)
+			 *		The name of the LogCabinet to be
+			 *		removed.
+			 *	parentDir (in)
+			 *		Where, in the file system, the cabinet
+			 *		is stored.
+			 * Throws:
+			 * 	ObjectDoesNotExist
+			 *		The cabinet does not exist in the
+			 *		file system.
+			 *	StrategyError
+			 *		An error occurred when using the
+			 *		underlying file system, or the name
+			 *		is malformed.
 			 */
 			static void remove(
 			    const string &name,

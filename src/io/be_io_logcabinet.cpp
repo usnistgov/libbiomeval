@@ -42,7 +42,7 @@ BiometricEvaluation::IO::LogSheet::LogSheet(
                 pathname = parentDir + '/' + name;
 
 	if (IO::Utility::fileExists(pathname))
-		throw StrategyError("LogSheet file exists");
+		throw ObjectExists();
 
 	_theLogFile = std::fopen(pathname.c_str(), "wb");
 	if (_theLogFile == NULL)
