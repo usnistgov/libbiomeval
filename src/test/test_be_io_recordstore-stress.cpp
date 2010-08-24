@@ -16,18 +16,17 @@
 #include <stdlib.h>
 
 #ifdef FILERECORDSTORETEST
-#include <be_filerecstore.h>
-using namespace BiometricEvaluation;
+#include <be_io_filerecstore.h>
 #define TESTDEFINED
 #endif
 
 #ifdef DBRECORDSTORETEST
-#include <be_dbrecstore.h>
+#include <be_io_dbrecstore.h>
 #define TESTDEFINED
 #endif
 
 #ifdef ARCHIVERECORDSTORETEST
-#include <be_archiverecstore.h>
+#include <be_io_archiverecstore.h>
 #define TESTDEFINED
 #endif
 
@@ -50,7 +49,7 @@ static uint64_t totalTime;
  * Insert a suite of records to the RecordStore in order to measure
  * performance in terms of speed and robustness.
  */
-static int insertMany(RecordStore *rs)
+static int insertMany(IO::RecordStore *rs)
 {
 	string *theKey;
 	totalTime = 0;
@@ -99,29 +98,29 @@ int main (int argc, char* argv[]) {
 #ifdef FILERECORDSTORETEST
 	/* Call the constructor that will create a new FileRecordStore. */
 	string rsname("frs_test");
-	FileRecordStore *rs;
+	IO::FileRecordStore *rs;
 #endif
 
 #ifdef DBRECORDSTORETEST
 	/* Call the constructor that will create a new DBRecordStore. */
 	string rsname("dbrs_test");
-	DBRecordStore *rs;
+	IO::DBRecordStore *rs;
 #endif
 #ifdef ARCHIVERECORDSTORETEST
 	/* Call the constructor that will create a new ArchiveRecordStore. */
 	string rsname("ars_test");
-	ArchiveRecordStore *rs;
+	IO::ArchiveRecordStore *rs;
 #endif
 	for (int i = 1; i <= CREATEDESETROYCOUNT; i++) {
 		try {
 #ifdef FILERECORDSTORETEST
-			rs = new FileRecordStore(rsname, descr, "");
+			rs = new IO::FileRecordStore(rsname, descr, "");
 #endif
 #ifdef DBRECORDSTORETEST
-			rs = new DBRecordStore(rsname, descr, "");
+			rs = new IO::DBRecordStore(rsname, descr, "");
 #endif
 #ifdef ARCHIVERECORDSTORETEST
-			rs = new ArchiveRecordStore(rsname, descr, "");
+			rs = new IO::ArchiveRecordStore(rsname, descr, "");
 #endif
 		} catch (ObjectExists& e) {
 			cout << "The RecordStore already exists; exiting." << endl;
@@ -131,13 +130,13 @@ int main (int argc, char* argv[]) {
 		}
 		try {
 #ifdef FILERECORDSTORETEST
-			rs = new FileRecordStore(rsname, "");
+			rs = new IO::FileRecordStore(rsname, "");
 #endif
 #ifdef DBRECORDSTORETEST
-			rs = new DBRecordStore(rsname, "");
+			rs = new IO::DBRecordStore(rsname, "");
 #endif
 #ifdef ARCHIVERECORDSTORETEST
-			rs = new ArchiveRecordStore(rsname, "");
+			rs = new IO::ArchiveRecordStore(rsname, "");
 #endif
 		} catch (ObjectDoesNotExist& e) {
 			cout << "Could not re-open RecordStore; exiting." << endl;
@@ -146,17 +145,17 @@ int main (int argc, char* argv[]) {
 		/* The last time through, leave the store open */
 		if (i != CREATEDESETROYCOUNT) {
 			delete rs;
-			RecordStore::removeRecordStore(rsname, "");
+			IO::RecordStore::removeRecordStore(rsname, "");
 		}
 	}
 #ifdef FILERECORDSTORETEST
-	auto_ptr<FileRecordStore> ars(rs);
+	auto_ptr<IO::FileRecordStore> ars(rs);
 #endif
 #ifdef DBRECORDSTORETEST
-	auto_ptr<DBRecordStore> ars(rs);
+	auto_ptr<IO::DBRecordStore> ars(rs);
 #endif
 #ifdef ARCHIVERECORDSTORETEST
-	auto_ptr<ArchiveRecordStore> ars(rs);
+	auto_ptr<IO::ArchiveRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED

@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <be_archiverecstore.h>
+#include <be_io_archiverecstore.h>
 
 using namespace BiometricEvaluation;
 
@@ -29,9 +29,10 @@ int main (int argc, char* argv[]) {
 
 	/* Try to create a new ArchiveRecordStore.  Should pass. */
 	string archivefn("test");
-	ArchiveRecordStore *ars;
+	IO::ArchiveRecordStore *ars;
 	try {
-		ars = new ArchiveRecordStore(archivefn, "Test ArchiveRS", "");
+		ars = new IO::ArchiveRecordStore(archivefn, "Test ArchiveRS", 
+		    "");
 	} catch (ObjectExists) {
 		cout << "The archive already exists; exiting." << endl;
 		exit (EXIT_FAILURE);
@@ -46,7 +47,7 @@ int main (int argc, char* argv[]) {
 	 */
 	bool cont = false;
 	try {
-		ArchiveRecordStore ars2("bogus", "");
+		IO::ArchiveRecordStore ars2("bogus", "");
 	} catch (ObjectDoesNotExist) {
 		cout << "Passed test of opening non-existing archive." << endl;
 		cont = true;
@@ -61,7 +62,7 @@ int main (int argc, char* argv[]) {
 
 	cont = false;
 	try {
-		ars = new ArchiveRecordStore(archivefn, "");
+		ars = new IO::ArchiveRecordStore(archivefn, "");
 		cont = true;
 	} catch (ObjectDoesNotExist e) {
 		cout << "Failed test of opening existing archive." << endl;
@@ -115,9 +116,9 @@ int main (int argc, char* argv[]) {
 	delete ars;
 
 	/* Create a new object to read, testing private init methods */
-	ArchiveRecordStore *ars3;
+	IO::ArchiveRecordStore *ars3;
 	try {
-		ars3 = new ArchiveRecordStore(archivefn, "");
+		ars3 = new IO::ArchiveRecordStore(archivefn, "");
 		cout << "Passed test of reading manifest" << endl;
 	} catch (ObjectDoesNotExist) {
 		cout << "Failed test of reading manifest" << endl;

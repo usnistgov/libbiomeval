@@ -8,8 +8,7 @@
 # about its quality, reliability, or any other characteristic.
 #
 include ../common.mk
-#PROGS = test_be_netserver test_be_netclient test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress test_be_archiverecordstore-stress test_construct_be_archiverecstore test_be_archiverecordstore test_be_time_timer test_be_io_logcabinet
-PROGS = test_construct_be_filerecstore test_be_filerecordstore test_be_dbrecordstore test_be_filerecordstore-stress test_be_dbrecordstore-stress test_be_archiverecordstore-stress test_construct_be_archiverecstore test_be_archiverecordstore test_be_time_timer test_be_io_logcabinet
+PROGS = test_construct_be_io_filerecstore test_be_io_filerecordstore test_be_io_dbrecordstore test_be_io_filerecordstore-stress test_be_io_dbrecordstore-stress test_be_io_archiverecordstore-stress test_construct_be_io_archiverecstore test_be_io_archiverecordstore test_be_time_timer test_be_io_logcabinet
 
 all: $(PROGS)
 
@@ -17,21 +16,21 @@ test_be_netserver: test_be_netserver.c
 	$(CC) $(CFLAGS) $^ -o $@ -lbiomeval
 test_be_netclient: test_be_netclient.c
 	$(CC) $(CFLAGS) $^ -o $@ -lbiomeval
-test_construct_be_filerecstore: test_be_filerecstore.cpp
+test_construct_be_io_filerecstore: test_be_io_filerecstore.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
-test_be_filerecordstore: test_be_recordstore.cpp
+test_be_io_filerecordstore: test_be_io_recordstore.cpp
 	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST $^ -o $@ -lbiomeval
-test_be_dbrecordstore: test_be_recordstore.cpp
+test_be_io_dbrecordstore: test_be_io_recordstore.cpp
 	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST $^ -o $@ -lbiomeval
-test_be_filerecordstore-stress: test_be_recordstore-stress.cpp
+test_be_io_filerecordstore-stress: test_be_io_recordstore-stress.cpp
 	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST $^ -o $@ -lbiomeval
-test_be_dbrecordstore-stress: test_be_recordstore-stress.cpp
+test_be_io_dbrecordstore-stress: test_be_io_recordstore-stress.cpp
 	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST $^ -o $@ -lbiomeval
-test_construct_be_archiverecstore: test_be_archiverecstore.cpp
+test_construct_be_io_archiverecstore: test_be_io_archiverecstore.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
-test_be_archiverecordstore: test_be_recordstore.cpp
+test_be_io_archiverecordstore: test_be_io_recordstore.cpp
 	$(CXX) $(CXXFLAGS) -DARCHIVEECORDSTORETEST $^ -o $@ -lbiomeval
-test_be_archiverecordstore-stress: test_be_recordstore-stress.cpp
+test_be_io_archiverecordstore-stress: test_be_io_recordstore-stress.cpp
 	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST $^ -o $@ -lbiomeval
 test_be_time_timer: test_be_time_timer.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
