@@ -20,10 +20,10 @@
 #include <string.h>
 
 #include <be_io_utility.h>
-#include <be_archiverecstore.h>
+#include <be_io_archiverecstore.h>
 #include <be_error_utility.h>
 
-BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
+BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
     const string &name,
     const string &description,
     const string &parentDir)
@@ -40,7 +40,7 @@ BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
 	}
 }
 
-BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
+BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
     const string &name,
     const string &parentDir,
     uint8_t mode)
@@ -57,7 +57,7 @@ BiometricEvaluation::ArchiveRecordStore::ArchiveRecordStore(
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::open_streams()
+BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
     throw (FileError)
 {
 	struct stat sb;
@@ -112,7 +112,7 @@ BiometricEvaluation::ArchiveRecordStore::open_streams()
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::close_streams()
+BiometricEvaluation::IO::ArchiveRecordStore::close_streams()
     throw (StrategyError)
 {
 	if (_manifestfp != NULL) {
@@ -130,7 +130,7 @@ BiometricEvaluation::ArchiveRecordStore::close_streams()
 }
 
 uint64_t
-BiometricEvaluation::ArchiveRecordStore::getSpaceUsed()
+BiometricEvaluation::IO::ArchiveRecordStore::getSpaceUsed()
     throw (StrategyError)
 {
 	struct stat sb;
@@ -152,7 +152,7 @@ BiometricEvaluation::ArchiveRecordStore::getSpaceUsed()
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::sync()
+BiometricEvaluation::IO::ArchiveRecordStore::sync()
     throw (StrategyError)
 {
 	if (_mode == IO_READONLY)
@@ -174,7 +174,7 @@ BiometricEvaluation::ArchiveRecordStore::sync()
 }
 
 uint64_t
-BiometricEvaluation::ArchiveRecordStore::length(
+BiometricEvaluation::IO::ArchiveRecordStore::length(
     const string &key) 
     throw (ObjectDoesNotExist)
 {
@@ -186,7 +186,7 @@ BiometricEvaluation::ArchiveRecordStore::length(
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::read_manifest()
+BiometricEvaluation::IO::ArchiveRecordStore::read_manifest()
     throw (FileError)
 {
 	string key;
@@ -218,7 +218,7 @@ BiometricEvaluation::ArchiveRecordStore::read_manifest()
 }
 
 uint64_t
-BiometricEvaluation::ArchiveRecordStore::read(
+BiometricEvaluation::IO::ArchiveRecordStore::read(
     const string &key,
     void *const data)
     throw (ObjectDoesNotExist, StrategyError)
@@ -251,7 +251,7 @@ BiometricEvaluation::ArchiveRecordStore::read(
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::insert(
+BiometricEvaluation::IO::ArchiveRecordStore::insert(
     const string &key,
     const void *const data,
     const uint64_t size)
@@ -288,7 +288,7 @@ BiometricEvaluation::ArchiveRecordStore::insert(
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::write_manifest_entry(
+BiometricEvaluation::IO::ArchiveRecordStore::write_manifest_entry(
     const string &key,
     ManifestEntry entry)
     throw (StrategyError)
@@ -313,7 +313,7 @@ BiometricEvaluation::ArchiveRecordStore::write_manifest_entry(
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::remove(const string &key)
+BiometricEvaluation::IO::ArchiveRecordStore::remove(const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
 	if (_mode == IO_READONLY)
@@ -335,7 +335,7 @@ BiometricEvaluation::ArchiveRecordStore::remove(const string &key)
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::replace(
+BiometricEvaluation::IO::ArchiveRecordStore::replace(
     const string &key,
     const void *const data,
     const uint64_t size)
@@ -362,7 +362,7 @@ BiometricEvaluation::ArchiveRecordStore::replace(
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::flush(
+BiometricEvaluation::IO::ArchiveRecordStore::flush(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
@@ -384,7 +384,7 @@ BiometricEvaluation::ArchiveRecordStore::flush(
 }
 
 uint64_t
-BiometricEvaluation::ArchiveRecordStore::sequence(
+BiometricEvaluation::IO::ArchiveRecordStore::sequence(
     string &key,
     void *const data,
     int cursor)
@@ -429,8 +429,8 @@ BiometricEvaluation::ArchiveRecordStore::sequence(
 	return read(key, data);
 }
 
-BiometricEvaluation::ManifestMap::iterator 
-    BiometricEvaluation::ArchiveRecordStore::efficient_insert(
+BiometricEvaluation::IO::ManifestMap::iterator 
+    BiometricEvaluation::IO::ArchiveRecordStore::efficient_insert(
     ManifestMap &m,
     const ManifestMap::key_type &k,
     const ManifestMap::mapped_type &v)
@@ -446,7 +446,7 @@ BiometricEvaluation::ManifestMap::iterator
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::vacuum(
+BiometricEvaluation::IO::ArchiveRecordStore::vacuum(
     const string &name, 
     const string &parentDir)
     throw (ObjectDoesNotExist, StrategyError)
@@ -518,7 +518,7 @@ BiometricEvaluation::ArchiveRecordStore::vacuum(
 }
 
 void
-BiometricEvaluation::ArchiveRecordStore::changeName(const string &name)
+BiometricEvaluation::IO::ArchiveRecordStore::changeName(const string &name)
     throw (ObjectExists, StrategyError)
 {
 	if (_mode == IO_READONLY)
@@ -528,7 +528,7 @@ BiometricEvaluation::ArchiveRecordStore::changeName(const string &name)
 	close_streams();
 }
 
-BiometricEvaluation::ArchiveRecordStore::~ArchiveRecordStore()
+BiometricEvaluation::IO::ArchiveRecordStore::~ArchiveRecordStore()
 {
 	try {
 		close_streams();

@@ -12,7 +12,7 @@
 
 #include <string>
 #include <vector>
-#include <be_recordstore.h>
+#include <be_io_recordstore.h>
 using namespace std;
 
 /*
@@ -21,11 +21,13 @@ using namespace std;
  */
 namespace BiometricEvaluation {
 
-	/*
-	 * Class to represent the record store data storage mechanism
-	 * implemented as files for each record.
-	 */
-	class FileRecordStore : public RecordStore {
+	namespace IO {
+
+		/*
+		 * Class to represent the record store data storage mechanism
+		 * implemented as files for each record.
+		 */
+		class FileRecordStore : public RecordStore {
 		public:
 			
 			/*
@@ -109,6 +111,7 @@ namespace BiometricEvaluation {
 			    const string &key);
 			uint64_t _cursorPos;
 			string _theFilesDir;
-	};
+		};
+	}
 }
 #endif	/* __BE_FILERECSTORE_H__ */

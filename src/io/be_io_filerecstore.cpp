@@ -15,11 +15,11 @@
 
 #include <be_error_utility.h>
 #include <be_io_utility.h>
-#include <be_filerecstore.h>
+#include <be_io_filerecstore.h>
 
 static const string _fileArea = "theFiles";
 
-BiometricEvaluation::FileRecordStore::FileRecordStore(
+BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
     const string &name,
     const string &description,
     const string &parentDir)
@@ -34,7 +34,7 @@ BiometricEvaluation::FileRecordStore::FileRecordStore(
 	return;
 }
 
-BiometricEvaluation::FileRecordStore::FileRecordStore(
+BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
     const string &name,
     const string &parentDir,
     uint8_t mode)
@@ -48,7 +48,7 @@ BiometricEvaluation::FileRecordStore::FileRecordStore(
 }
 
 void
-BiometricEvaluation::FileRecordStore::changeName(
+BiometricEvaluation::IO::FileRecordStore::changeName(
     const string &name)
     throw (ObjectExists, StrategyError)
 {
@@ -60,7 +60,7 @@ BiometricEvaluation::FileRecordStore::changeName(
 }
 
 uint64_t
-BiometricEvaluation::FileRecordStore::getSpaceUsed()
+BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
     throw (StrategyError)
 {
 	DIR *dir;
@@ -96,7 +96,7 @@ BiometricEvaluation::FileRecordStore::getSpaceUsed()
 }
 
 void
-BiometricEvaluation::FileRecordStore::insert( 
+BiometricEvaluation::IO::FileRecordStore::insert( 
     const string &key,
     const void *const data,
     const uint64_t size)
@@ -122,7 +122,7 @@ BiometricEvaluation::FileRecordStore::insert(
 }
 
 void
-BiometricEvaluation::FileRecordStore::remove( 
+BiometricEvaluation::IO::FileRecordStore::remove( 
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
@@ -142,7 +142,7 @@ BiometricEvaluation::FileRecordStore::remove(
 }
 
 uint64_t
-BiometricEvaluation::FileRecordStore::read(
+BiometricEvaluation::IO::FileRecordStore::read(
     const string &key,
     void *const data)
     throw (ObjectDoesNotExist, StrategyError)
@@ -169,7 +169,7 @@ BiometricEvaluation::FileRecordStore::read(
 }
 
 void
-BiometricEvaluation::FileRecordStore::replace(
+BiometricEvaluation::IO::FileRecordStore::replace(
     const string &key,
     const void *const data,
     const uint64_t size)
@@ -192,7 +192,7 @@ BiometricEvaluation::FileRecordStore::replace(
 }
 
 uint64_t
-BiometricEvaluation::FileRecordStore::length(
+BiometricEvaluation::IO::FileRecordStore::length(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
@@ -206,7 +206,7 @@ BiometricEvaluation::FileRecordStore::length(
 }
 
 void
-BiometricEvaluation::FileRecordStore::flush(
+BiometricEvaluation::IO::FileRecordStore::flush(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
@@ -226,7 +226,7 @@ BiometricEvaluation::FileRecordStore::flush(
 }
 
 uint64_t
-BiometricEvaluation::FileRecordStore::sequence(
+BiometricEvaluation::IO::FileRecordStore::sequence(
     string &key,
     void *const data,
     int cursor)
@@ -296,7 +296,7 @@ BiometricEvaluation::FileRecordStore::sequence(
  * Writes a file, replacing any data that previously existed in the file.
  */
 void
-BiometricEvaluation::FileRecordStore::writeNewRecordFile( 
+BiometricEvaluation::IO::FileRecordStore::writeNewRecordFile( 
     const string &name,
     const void *data,
     const uint64_t size)
@@ -315,13 +315,13 @@ BiometricEvaluation::FileRecordStore::writeNewRecordFile(
 }
 
 string
-BiometricEvaluation::FileRecordStore::canonicalName(const string &name)
+BiometricEvaluation::IO::FileRecordStore::canonicalName(const string &name)
 {
 	return(_theFilesDir + '/' + name);
 }
 
 bool
-BiometricEvaluation::FileRecordStore::validateKeyString(const string &key)
+BiometricEvaluation::IO::FileRecordStore::validateKeyString(const string &key)
 {
 	bool validity = true;
 

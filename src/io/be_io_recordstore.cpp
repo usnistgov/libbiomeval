@@ -17,7 +17,7 @@
 
 #include <be_error_utility.h>
 #include <be_io_utility.h>
-#include <be_recordstore.h>
+#include <be_io_recordstore.h>
 
 /*
  * The name of the control file use by all RecordStores.
@@ -27,13 +27,13 @@ const string controlFileName(".rscontrol");
 /*
  * Constructors
  */
-BiometricEvaluation::RecordStore::RecordStore()
+BiometricEvaluation::IO::RecordStore::RecordStore()
 {
 	_count = 0;
 	_cursor = BE_RECSTORE_SEQ_START;
 }
 
-BiometricEvaluation::RecordStore::RecordStore(
+BiometricEvaluation::IO::RecordStore::RecordStore(
     const string &name,
     const string &description,
     const string &parentDir)
@@ -67,7 +67,7 @@ BiometricEvaluation::RecordStore::RecordStore(
 	}
 }
 
-BiometricEvaluation::RecordStore::RecordStore(
+BiometricEvaluation::IO::RecordStore::RecordStore(
     const string &name,
     const string &parentDir,
     uint8_t mode)
@@ -94,7 +94,7 @@ BiometricEvaluation::RecordStore::RecordStore(
 /*
  * Destructor for the abstract class; required NULL implementaton.
  */
-BiometricEvaluation::RecordStore::~RecordStore()
+BiometricEvaluation::IO::RecordStore::~RecordStore()
 {
 	try {
 		if (_mode != IO_READONLY)
@@ -111,7 +111,7 @@ BiometricEvaluation::RecordStore::~RecordStore()
 /******************************************************************************/
 
 uint64_t
-BiometricEvaluation::RecordStore::getSpaceUsed()
+BiometricEvaluation::IO::RecordStore::getSpaceUsed()
     throw (StrategyError)
 {
 	struct stat sb;
@@ -122,7 +122,7 @@ BiometricEvaluation::RecordStore::getSpaceUsed()
 }
 
 void
-BiometricEvaluation::RecordStore::sync()
+BiometricEvaluation::IO::RecordStore::sync()
     throw (StrategyError)
 {
 	if (_mode == IO_READONLY)
@@ -136,19 +136,19 @@ BiometricEvaluation::RecordStore::sync()
 }
 
 string
-BiometricEvaluation::RecordStore::getName()
+BiometricEvaluation::IO::RecordStore::getName()
 {
 	return _name;
 }
 
 string
-BiometricEvaluation::RecordStore::getDescription()
+BiometricEvaluation::IO::RecordStore::getDescription()
 {
 	return _description;
 }
 
 void
-BiometricEvaluation::RecordStore::changeName(const string &name)
+BiometricEvaluation::IO::RecordStore::changeName(const string &name)
     throw (ObjectExists, StrategyError)
 {
 	if (_mode == IO_READONLY)
@@ -171,7 +171,7 @@ BiometricEvaluation::RecordStore::changeName(const string &name)
 }
 
 void
-BiometricEvaluation::RecordStore::changeDescription(const string &description)
+BiometricEvaluation::IO::RecordStore::changeDescription(const string &description)
     throw (StrategyError)
 {
 	if (_mode == IO_READONLY)
@@ -182,13 +182,13 @@ BiometricEvaluation::RecordStore::changeDescription(const string &description)
 }
 
 unsigned int
-BiometricEvaluation::RecordStore::getCount()
+BiometricEvaluation::IO::RecordStore::getCount()
 {
 	return _count;
 }
 
 void 
-BiometricEvaluation::RecordStore::removeRecordStore(
+BiometricEvaluation::IO::RecordStore::removeRecordStore(
     const string &name,
     const string &parentDir)
     throw (ObjectDoesNotExist, StrategyError)
@@ -216,7 +216,7 @@ BiometricEvaluation::RecordStore::removeRecordStore(
 /* Common protected method implementations.                                   */
 /******************************************************************************/
 string
-BiometricEvaluation::RecordStore::canonicalName(
+BiometricEvaluation::IO::RecordStore::canonicalName(
     const string &name)
 {
 	return (_directory + '/' + name);
@@ -227,7 +227,7 @@ BiometricEvaluation::RecordStore::canonicalName(
  * existing file.
  */
 void
-BiometricEvaluation::RecordStore::readControlFile()
+BiometricEvaluation::IO::RecordStore::readControlFile()
     throw (StrategyError)
 {
 	string str;
@@ -253,7 +253,7 @@ BiometricEvaluation::RecordStore::readControlFile()
 }
 
 void
-BiometricEvaluation::RecordStore::writeControlFile()
+BiometricEvaluation::IO::RecordStore::writeControlFile()
     throw (StrategyError)
 {
 	if (_mode == IO_READONLY)

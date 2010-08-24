@@ -21,10 +21,11 @@ using namespace std;
  */
 namespace BiometricEvaluation {
 
-	/*
-	 * Class to represent a data storage mechanism.
-	 */
-	class RecordStore {
+	namespace IO {
+		/*
+		 * Class to represent a data storage mechanism.
+		 */
+		class RecordStore {
 		public:
 			
 			/*
@@ -399,6 +400,7 @@ namespace BiometricEvaluation {
 			 * for all RecordStores.
 			 */
 			void writeControlFile() throw (StrategyError);
-	};
+		};
+	}
 }
 #endif	/* __BE_RECORDSTORE_H__ */

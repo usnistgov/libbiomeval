@@ -12,7 +12,7 @@
 
 #include <string>
 #include <vector>
-#include <be_recordstore.h>
+#include <be_io_recordstore.h>
 
 #ifdef DB1X
 #include <db_185.h>
@@ -28,10 +28,12 @@ using namespace std;
  */
 namespace BiometricEvaluation {
 
-	/*
-	 * Class to represent the data storage mechanism.
-	 */
-	class DBRecordStore : public RecordStore {
+	namespace IO {
+
+		/*
+		 * Class to represent the data storage mechanism.
+		 */
+		class DBRecordStore : public RecordStore {
 		public:
 			
 			/*
@@ -113,6 +115,7 @@ namespace BiometricEvaluation {
 			    const string &key,
 			    DBT *dbtdata)
 			    throw (ObjectDoesNotExist, StrategyError);
-	};
+		};
+	}
 }
 #endif	/* __BE_DBRECSTORE_H__ */

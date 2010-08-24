@@ -11,18 +11,17 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <string.h>
 
 #include <iostream>
 
-#include <be_dbrecstore.h>
+#include <be_io_dbrecstore.h>
 #include <be_error_utility.h>
 #include <be_io_utility.h>
 
-BiometricEvaluation::DBRecordStore::DBRecordStore(
+BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     const string &name,
     const string &description,
     const string &parentDir)
@@ -40,7 +39,7 @@ BiometricEvaluation::DBRecordStore::DBRecordStore(
 		    Error::Utility::errorStr() + ")");
 }
 
-BiometricEvaluation::DBRecordStore::DBRecordStore(
+BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     const string &name,
     const string &parentDir,
     uint8_t mode)
@@ -57,14 +56,14 @@ BiometricEvaluation::DBRecordStore::DBRecordStore(
 		    Error::Utility::errorStr() + ")");
 }
 
-BiometricEvaluation::DBRecordStore::~DBRecordStore()
+BiometricEvaluation::IO::DBRecordStore::~DBRecordStore()
 {
 	if (_db != NULL)
 		_db->close(_db);
 }
 
 void
-BiometricEvaluation::DBRecordStore::changeName(const string &name)
+BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
     throw (ObjectExists, StrategyError)
 { 
 	if (_mode == IO_READONLY)
@@ -97,7 +96,7 @@ BiometricEvaluation::DBRecordStore::changeName(const string &name)
 }
 
 uint64_t
-BiometricEvaluation::DBRecordStore::getSpaceUsed()
+BiometricEvaluation::IO::DBRecordStore::getSpaceUsed()
     throw (StrategyError)
 {
 	struct stat sb;
@@ -110,7 +109,7 @@ BiometricEvaluation::DBRecordStore::getSpaceUsed()
 }
 
 void
-BiometricEvaluation::DBRecordStore::sync()
+BiometricEvaluation::IO::DBRecordStore::sync()
     throw (StrategyError)
 {
 	if (_mode == IO_READONLY)
@@ -124,7 +123,7 @@ BiometricEvaluation::DBRecordStore::sync()
 }
 
 void
-BiometricEvaluation::DBRecordStore::insert( 
+BiometricEvaluation::IO::DBRecordStore::insert( 
     const string &key,
     const void *const data,
     const uint64_t size)
@@ -159,7 +158,7 @@ BiometricEvaluation::DBRecordStore::insert(
 }
 
 void
-BiometricEvaluation::DBRecordStore::remove( 
+BiometricEvaluation::IO::DBRecordStore::remove( 
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
@@ -190,7 +189,7 @@ BiometricEvaluation::DBRecordStore::remove(
 }
 
 uint64_t
-BiometricEvaluation::DBRecordStore::read(
+BiometricEvaluation::IO::DBRecordStore::read(
     const string &key,
     void *const data)
     throw (ObjectDoesNotExist, StrategyError)
@@ -208,7 +207,7 @@ BiometricEvaluation::DBRecordStore::read(
 }
 
 void
-BiometricEvaluation::DBRecordStore::replace(
+BiometricEvaluation::IO::DBRecordStore::replace(
     const string &key,
     const void *const data,
     const uint64_t size)
@@ -252,7 +251,7 @@ BiometricEvaluation::DBRecordStore::replace(
 }
 
 uint64_t
-BiometricEvaluation::DBRecordStore::length(
+BiometricEvaluation::IO::DBRecordStore::length(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
@@ -269,7 +268,7 @@ BiometricEvaluation::DBRecordStore::length(
 }
 
 void
-BiometricEvaluation::DBRecordStore::flush(
+BiometricEvaluation::IO::DBRecordStore::flush(
     const string &key)
     throw (ObjectDoesNotExist, StrategyError)
 {
@@ -288,7 +287,7 @@ BiometricEvaluation::DBRecordStore::flush(
 }
 
 uint64_t
-BiometricEvaluation::DBRecordStore::sequence(
+BiometricEvaluation::IO::DBRecordStore::sequence(
     string &key,
     void *data,
     int cursor)
@@ -335,7 +334,7 @@ BiometricEvaluation::DBRecordStore::sequence(
  */
 
 void
-BiometricEvaluation::DBRecordStore::internalRead(
+BiometricEvaluation::IO::DBRecordStore::internalRead(
     const string &key,
     DBT *dbtdata)
     throw (ObjectDoesNotExist, StrategyError)
