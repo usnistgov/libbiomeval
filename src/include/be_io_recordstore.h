@@ -12,7 +12,7 @@
 
 #include <string>
 #include <vector>
-#include <be_exception.h>
+#include <be_error_exception.h>
 using namespace std;
 
 /*
@@ -44,11 +44,11 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 *	An object representing the new, empty store.
 			 * Throws:
-			 * 	ObjectExists
+			 * 	Error::ObjectExists
 			 *		The store was previously created,
 			 *		or the directory where it would be
 			 *		created exists.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system, or the
 			 *		the name malformed.
@@ -57,7 +57,7 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &description,
 			    const string &parentDir)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 
 			/*
 			 * Open an existing RecordStore.
@@ -73,7 +73,7 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 *	An object representing the existing store.
 			 * Throws:
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system, or the
 			 *		name is malformed.
@@ -84,7 +84,8 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &parentDir,
 			    uint8_t mode = IO_READWRITE)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			RecordStore();
 
@@ -110,27 +111,27 @@ namespace BiometricEvaluation {
 			 * Parameters:
 			 * Returns:
 			 * Throws:
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system, or the
 			 *		name is malformed.
 			 */
 			virtual void changeName(
 			    const string &name)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 
 			/*
 			 * Change the description of the RecordStore.
 			 * Parameters:
 			 * Returns:
 			 * Throws:
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			 */
 			virtual void changeDescription(
 			    const string &description)
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 			
 			/*
 			 * Return the amount of real storage utilization, the
@@ -140,12 +141,12 @@ namespace BiometricEvaluation {
 			 * value returned will be in block-size increments.
 			 *
 			 * Throws:
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			 */
 			virtual uint64_t getSpaceUsed()
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 			
 			/*
 			 * Synchronize the entire record store to persistent
@@ -153,12 +154,12 @@ namespace BiometricEvaluation {
 			 * class will update the control file.
 			 *
 			 * Throws:
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			*/
 			virtual void sync()
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 
 			/*
 			 * Insert a record into the store.
@@ -169,10 +170,10 @@ namespace BiometricEvaluation {
 			 *	data (in)
 			 *		The data for the record.
 			 * Throws:
-			 *	ObjectExists
+			 *	Error::ObjectExists
 			 *		A record with the given key is already
 			 *		present.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			 */
@@ -180,7 +181,7 @@ namespace BiometricEvaluation {
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
-			    throw (ObjectExists, StrategyError) = 0;
+			    throw (Error::ObjectExists, Error::StrategyError) = 0;
 
 			/*
 			 * Remove a record from the store
@@ -189,15 +190,16 @@ namespace BiometricEvaluation {
 			 *	key (in)
 			 *		The key of the record to be removed.
 			 * Throws:
-			 *	ObjectDoesNotExist
+			 *	Error::ObjectDoesNotExist
 			 *		A record for the key does not exist.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			 */
 			virtual void remove(
 			    const string &key)
-			    throw (ObjectDoesNotExist, StrategyError) = 0;
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError) = 0;
 
 			/*
 			 * Read a complete record from a store. Applications
@@ -213,16 +215,17 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 * 	The size of the record.
 			 * Throws:
-			 *	ObjectDoesNotExist
+			 *	Error::ObjectDoesNotExist
 			 *		A record for the key does not exist.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			 */	
 			virtual uint64_t read(
 			    const string &key,
 			    void *const data)
-			    throw (ObjectDoesNotExist, StrategyError) = 0;
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError) = 0;
 
 			/*
 			 * Replace a complete record in a store.
@@ -233,9 +236,9 @@ namespace BiometricEvaluation {
 			 *	data (in)
 			 *		The data for the record.
 			 * Throws:
-			 *	ObjectDoesNotExist
+			 *	Error::ObjectDoesNotExist
 			 *		A record for the key does not exist.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			 */	
@@ -243,7 +246,8 @@ namespace BiometricEvaluation {
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
-			    throw (ObjectDoesNotExist, StrategyError) = 0;
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError) = 0;
 
 			/*
 			 * Return the length of a record.
@@ -254,15 +258,16 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 *	The record length.
 			 * Throws:
-			 *	ObjectDoesNotExist
+			 *	Error::ObjectDoesNotExist
 			 *		A record for the key does not exist.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			 */
 			virtual uint64_t length(
 			    const string &key)
-			    throw (ObjectDoesNotExist, StrategyError) = 0;
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError) = 0;
 
 			/*
 			 * Commit the record's data to storage.
@@ -270,15 +275,16 @@ namespace BiometricEvaluation {
 			 *	key (in)
 			 *		The key of the record to be flushed.
 			 * Throws:
-			 *	ObjectDoesNotExist
+			 *	Error::ObjectDoesNotExist
 			 *		A record for the key does not exist.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			 */
 			virtual void flush(
 			    const string &key)
-			    throw (ObjectDoesNotExist, StrategyError) = 0;
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError) = 0;
 
 			/*
 			 * Sequence through a RecordStore, returning the
@@ -305,9 +311,9 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 *	The length of the record currently in sequence.
 			 * Throws:
-			 *	ObjectDoesNotExist
+			 *	Error::ObjectDoesNotExist
 			 *		A record for the key does not exist.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			*/
@@ -317,7 +323,8 @@ namespace BiometricEvaluation {
 			    string &key,
 			    void *const data = NULL,
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (ObjectDoesNotExist, StrategyError) = 0;
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError) = 0;
 
 			/*
 			 * Remove a RecordStore by deleting all persistant
@@ -330,17 +337,18 @@ namespace BiometricEvaluation {
 			 *		Where, in the file system, the store
 			 *		is rooted.
 			 * Throws:
-			 *	ObjectDoesNotExist
+			 *	Error::ObjectDoesNotExist
 			 *		A record with the given key does not
 			 *		exist.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system.
 			 */
 			static void removeRecordStore(
 			    const string &name,
 			    const string &parentDir)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 		protected:
 			/*
@@ -393,13 +401,13 @@ namespace BiometricEvaluation {
 			 * Read the contents of the common control file format
 			 * for all RecordStores.
 			 */
-			void readControlFile() throw (StrategyError);
+			void readControlFile() throw (Error::StrategyError);
 
 			/*
 			 * Write the contents of the common control file format
 			 * for all RecordStores.
 			 */
-			void writeControlFile() throw (StrategyError);
+			void writeControlFile() throw (Error::StrategyError);
 		};
 	}
 }

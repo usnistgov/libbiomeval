@@ -23,14 +23,14 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
     const string &name,
     const string &description,
     const string &parentDir)
-    throw (ObjectExists, StrategyError) : 
+    throw (Error::ObjectExists, Error::StrategyError) : 
     RecordStore(name, description, parentDir)
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
 	if (mkdir(_theFilesDir.c_str(), S_IRWXU) != 0)
-		throw StrategyError("Could not create file area directory (" +
-		    Error::Utility::errorStr() + ")");
+		throw Error::StrategyError("Could not create file area "
+		    "directory (" + Error::Utility::errorStr() + ")");
 	return;
 }
 
@@ -38,7 +38,7 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
     const string &name,
     const string &parentDir,
     uint8_t mode)
-    throw (ObjectDoesNotExist, StrategyError) : 
+    throw (Error::ObjectDoesNotExist, Error::StrategyError) : 
     RecordStore(name, parentDir, mode)
 {
 	_cursorPos = 1;
@@ -50,10 +50,10 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
 void
 BiometricEvaluation::IO::FileRecordStore::changeName(
     const string &name)
-    throw (ObjectExists, StrategyError)
+    throw (Error::ObjectExists, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::changeName(name);
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
@@ -61,12 +61,12 @@ BiometricEvaluation::IO::FileRecordStore::changeName(
 
 uint64_t
 BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	DIR *dir;
 	dir = opendir(_theFilesDir.c_str());
 	if (dir == NULL)
-		throw StrategyError("Cannot open store directory");
+		throw Error::StrategyError("Cannot open store directory");
 
 	uint64_t total = RecordStore::getSpaceUsed();
 	struct dirent *entry;
@@ -78,7 +78,7 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
 		cname = entry->d_name;
 		cname = FileRecordStore::canonicalName(cname);
 		if (stat(cname.c_str(), &sb) != 0)	
-			throw StrategyError("Cannot stat store file (" +
+			throw Error::StrategyError("Cannot stat store file (" +
 			    Error::Utility::errorStr() + ")");
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
@@ -87,8 +87,8 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
 
 	if (dir != NULL) {
 		if (closedir(dir)) {
-			throw StrategyError("Could not close " + _name + "(" +
-			    Error::Utility::errorStr() + ")");
+			throw Error::StrategyError("Could not close " + _name +
+			    "(" + Error::Utility::errorStr() + ")");
 		}
 	}
 
@@ -100,20 +100,20 @@ BiometricEvaluation::IO::FileRecordStore::insert(
     const string &key,
     const void *const data,
     const uint64_t size)
-    throw (ObjectExists, StrategyError)
+    throw (Error::ObjectExists, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
-		throw StrategyError("Invalid key format");
+		throw Error::StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (IO::Utility::fileExists(pathname))
-		throw ObjectExists();
+		throw Error::ObjectExists();
 
 	try {
 		writeNewRecordFile(pathname, data, size);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		throw e;
 	}
 
@@ -124,19 +124,19 @@ BiometricEvaluation::IO::FileRecordStore::insert(
 void
 BiometricEvaluation::IO::FileRecordStore::remove( 
     const string &key)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
-		throw StrategyError("Invalid key format");
+		throw Error::StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 
 	if (std::remove(pathname.c_str()) != 0)
-		throw StrategyError("Could not remove " + pathname);
+		throw Error::StrategyError("Could not remove " + pathname);
 
 	_count--;
 }
@@ -145,26 +145,26 @@ uint64_t
 BiometricEvaluation::IO::FileRecordStore::read(
     const string &key,
     void *const data)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!validateKeyString(key))
-		throw StrategyError("Invalid key format");
+		throw Error::StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 
 	/* Allow exceptions to propagate out of here */
 	uint64_t size = IO::Utility::getFileSize(pathname);
 	std::FILE *fp = std::fopen(pathname.c_str(), "rb");
 	if (fp == NULL)
-		throw StrategyError("Could not open " + pathname + " (" + 
-		    Error::Utility::errorStr() + ")");
+		throw Error::StrategyError("Could not open " + pathname + 
+		    " (" + Error::Utility::errorStr() + ")");
 
 	std::size_t sz = fread(data, 1, size, fp);
 	std::fclose(fp);
 	if (sz != size)
-		throw StrategyError("Could not write " + pathname + " (" + 
-		    Error::Utility::errorStr() + ")");
+		throw Error::StrategyError("Could not write " + pathname + 
+		    " (" + Error::Utility::errorStr() + ")");
 	return(size);
 }
 
@@ -173,20 +173,20 @@ BiometricEvaluation::IO::FileRecordStore::replace(
     const string &key,
     const void *const data,
     const uint64_t size)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
-		throw StrategyError("Invalid key format");
+		throw Error::StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 
 	try {
 		writeNewRecordFile(pathname, data, size);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		throw e;
 	}
 }
@@ -194,13 +194,13 @@ BiometricEvaluation::IO::FileRecordStore::replace(
 uint64_t
 BiometricEvaluation::IO::FileRecordStore::length(
     const string &key)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!validateKeyString(key))
-		throw StrategyError("Invalid key format");
+		throw Error::StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 
 	return (IO::Utility::getFileSize(pathname));
 }
@@ -208,16 +208,16 @@ BiometricEvaluation::IO::FileRecordStore::length(
 void
 BiometricEvaluation::IO::FileRecordStore::flush(
     const string &key)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
-		throw StrategyError("Invalid key format");
+		throw Error::StrategyError("Invalid key format");
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 
 	/*
 	 * There's nothing to implement here as the record writes result
@@ -230,16 +230,17 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
     string &key,
     void *const data,
     int cursor)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if ((cursor != BE_RECSTORE_SEQ_START) &&
 	    (cursor != BE_RECSTORE_SEQ_NEXT))
-		throw StrategyError("Invalid cursor position as argument");
+		throw Error::StrategyError("Invalid cursor position as "
+		    "argument");
 
 	DIR *dir;
 	dir = opendir(_theFilesDir.c_str());
 	if (dir == NULL)
-		throw StrategyError("Cannot open store directory");
+		throw Error::StrategyError("Cannot open store directory");
 
 	/* If the current cursor position is START, then it doesn't matter
 	 * what the client requests; we start at the first record.
@@ -249,7 +250,7 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 		_cursorPos = 1;
 
 	if (_cursorPos > _count)	/* Client needs to start over */
-		throw ObjectDoesNotExist("No record at position");
+		throw Error::ObjectDoesNotExist("No record at position");
 
 	struct dirent *entry;
 	struct stat sb;
@@ -260,7 +261,7 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 			continue;
 		cname = _theFilesDir + "/" + entry->d_name;
 		if (stat(cname.c_str(), &sb) != 0)	
-			throw StrategyError("Cannot stat store file (" +
+			throw Error::StrategyError("Cannot stat store file (" +
 			    Error::Utility::errorStr() + ")");
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
@@ -270,7 +271,8 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 	}	
 	/* Sanity check */
 	if (i > _cursorPos)
-		throw StrategyError("Record cursor position out of sync");
+		throw Error::StrategyError("Record cursor position out of "
+		    "sync");
 	string _key = entry->d_name;
 	key = _key;
 	_cursor = cursor;
@@ -278,8 +280,9 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 
 	if (dir != NULL) {
 		if (closedir(dir)) {
-			throw StrategyError("Could not close " + _theFilesDir +
-			    " (" + Error::Utility::errorStr() + ")");
+			throw Error::StrategyError("Could not close " + 
+			    _theFilesDir + " (" + Error::Utility::errorStr() + 
+			    ")");
 		}
 	}
 	
@@ -300,17 +303,17 @@ BiometricEvaluation::IO::FileRecordStore::writeNewRecordFile(
     const string &name,
     const void *data,
     const uint64_t size)
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	std::FILE *fp = std::fopen(name.c_str(), "wb");
 	if (fp == NULL)
-		throw StrategyError("Could not open " + name + " (" + 
+		throw Error::StrategyError("Could not open " + name + " (" + 
 		    Error::Utility::errorStr() + ")");
 
 	std::size_t sz = fwrite(data, 1, size, fp);
 	std::fclose(fp);
 	if (sz != size)
-		throw StrategyError("Could not write " + name + " (" +
+		throw Error::StrategyError("Could not write " + name + " (" +
 		    Error::Utility::errorStr() + ")");
 }
 

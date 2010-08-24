@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	try {
 		timer = new Time::Timer();
 		cout << "passed" << endl;
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.getInfo() << endl;
 		return (EXIT_FAILURE);
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 		atimer->stop();
 		cout << "failed" << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "passed" << endl;
 	}
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 			return (EXIT_FAILURE);
 		}
 		cout << "Time = " << seconds << " (should be 0)" << endl;
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.getInfo() << endl;
 		return (EXIT_FAILURE);
@@ -60,14 +60,14 @@ int main(int argc, char *argv[])
 		atimer->elapsed();
 		cout << "failed" << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "passed" << endl;
 	}
 
 	/* Stop the timer we started before */
 	try {
 		atimer->stop();
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 		atimer->stop();
 		cout << "passed" << endl;
 		cout << "Time for sleep(1): " << atimer->elapsed() << endl;
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.getInfo() << endl;
 		return (EXIT_FAILURE);

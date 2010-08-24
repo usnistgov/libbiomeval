@@ -37,12 +37,12 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
     const string &name,
     const string &description,
     const string &parentDir)
-    throw (ObjectExists, StrategyError)
+    throw (Error::ObjectExists, Error::StrategyError)
 {
 	if (!IO::Utility::validateRootName(name))
-		throw StrategyError("Invalid characters in RS name");
+		throw Error::StrategyError("Invalid characters in RS name");
 	if (IO::Utility::constructAndCheckPath(name, parentDir, _directory))
-		throw ObjectExists();
+		throw Error::ObjectExists();
 
 	_count = 0;
 	_name = name;
@@ -58,11 +58,11 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 
 	/* Make the new directory, checking for errors */
 	if (mkdir(_directory.c_str(), S_IRWXU) != 0)
-		throw StrategyError("Could not create directory (" +
+		throw Error::StrategyError("Could not create directory (" +
 		    Error::Utility::errorStr() + ")");
 	try {
 		(void)writeControlFile();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		throw e;
 	}
 }
@@ -71,22 +71,22 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
     const string &name,
     const string &parentDir,
     uint8_t mode)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!IO::Utility::validateRootName(name))
-		throw StrategyError("Invalid characters in RS name");
+		throw Error::StrategyError("Invalid characters in RS name");
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, _directory))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 
 	_parentDir = parentDir;
 	_cursor = BE_RECSTORE_SEQ_START;
 	if (mode != IO_READWRITE && mode != IO_READONLY)
-		throw StrategyError("Invalid mode");
+		throw Error::StrategyError("Invalid mode");
 	_mode = mode;
 
 	try {
 		(void)readControlFile();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		throw e;
 	}
 }
@@ -99,38 +99,37 @@ BiometricEvaluation::IO::RecordStore::~RecordStore()
 	try {
 		if (_mode != IO_READONLY)
 			writeControlFile();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		if (!std::uncaught_exception())
 			cerr << e.getInfo() << endl;
 	}
 }
 
-/*
 /******************************************************************************/
 /* Common public methods implementations.                                     */
 /******************************************************************************/
 
 uint64_t
 BiometricEvaluation::IO::RecordStore::getSpaceUsed()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	struct stat sb;
 
 	if (stat(RecordStore::canonicalName(controlFileName).c_str(), &sb) != 0)
-		throw StrategyError("Could not find control file");
+		throw Error::StrategyError("Could not find control file");
 	return (sb.st_blocks * S_BLKSIZE);
 }
 
 void
 BiometricEvaluation::IO::RecordStore::sync()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	try {
 		(void)writeControlFile();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		throw e;
 	}
 }
@@ -149,21 +148,21 @@ BiometricEvaluation::IO::RecordStore::getDescription()
 
 void
 BiometricEvaluation::IO::RecordStore::changeName(const string &name)
-    throw (ObjectExists, StrategyError)
+    throw (Error::ObjectExists, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!IO::Utility::validateRootName(name))
-		throw StrategyError("Invalid characters in RS name");
+		throw Error::StrategyError("Invalid characters in RS name");
 
 	string newDirectory;
 	if (IO::Utility::constructAndCheckPath(name, _parentDir, newDirectory))
-		throw ObjectExists(newDirectory);
+		throw Error::ObjectExists(newDirectory);
 
 	if (rename(_directory.c_str(), newDirectory.c_str()))
-		throw StrategyError("Could not rename " + _directory + " (" +
-		    Error::Utility::errorStr() + ")");
+		throw Error::StrategyError("Could not rename " + _directory + 
+		    " (" + Error::Utility::errorStr() + ")");
 	
 	_name = name;
 	_directory = newDirectory;
@@ -172,10 +171,10 @@ BiometricEvaluation::IO::RecordStore::changeName(const string &name)
 
 void
 BiometricEvaluation::IO::RecordStore::changeDescription(const string &description)
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	_description = description;
 	writeControlFile();
@@ -191,23 +190,23 @@ void
 BiometricEvaluation::IO::RecordStore::removeRecordStore(
     const string &name,
     const string &parentDir)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!IO::Utility::validateRootName(name))
-		throw StrategyError("Invalid characters in RS name");
+		throw Error::StrategyError("Invalid characters in RS name");
 
 	string newDirectory;
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 
 	try {
 		if (parentDir.empty())
 			IO::Utility::removeDirectory(name, ".");
 		else
 			IO::Utility::removeDirectory(name, parentDir);
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		throw e;
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		throw e;
 	}
 }
@@ -228,7 +227,7 @@ BiometricEvaluation::IO::RecordStore::canonicalName(
  */
 void
 BiometricEvaluation::IO::RecordStore::readControlFile()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	string str;
 
@@ -237,15 +236,15 @@ BiometricEvaluation::IO::RecordStore::readControlFile()
 	 */
 	std::ifstream ifs(RecordStore::canonicalName(controlFileName).c_str());
 	if (!ifs)
-		throw StrategyError("Could not open control file");
+		throw Error::StrategyError("Could not open control file");
 
 	std::getline(ifs, _name);
 	if (ifs.eof())
-		throw StrategyError("Premature EOF on control file");
+		throw Error::StrategyError("Premature EOF on control file");
 
 	std::getline(ifs, _description);
 	if (ifs.eof())
-		throw StrategyError("Premature EOF on control file");
+		throw Error::StrategyError("Premature EOF on control file");
 
 	ifs >> _count;
 	
@@ -254,14 +253,14 @@ BiometricEvaluation::IO::RecordStore::readControlFile()
 
 void
 BiometricEvaluation::IO::RecordStore::writeControlFile()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	std::ofstream ofs(RecordStore::canonicalName(controlFileName).c_str());
 	if (!ofs)
-		throw StrategyError("Could not write control file");
+		throw Error::StrategyError("Could not write control file");
 
 	/* Write the store name and description into the control file */
 	ofs << _name << '\n';

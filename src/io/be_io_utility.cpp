@@ -21,7 +21,7 @@ void
 BiometricEvaluation::IO::Utility::removeDirectory(
     const string &directory,
     const string &prefix)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	struct stat sb;
 	struct dirent *entry;
@@ -30,10 +30,10 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 
 	dirpath = prefix + "/" + directory;
 	if (stat(dirpath.c_str(), &sb) != 0)
-		throw ObjectDoesNotExist(dirpath + " does not exist");
+		throw Error::ObjectDoesNotExist(dirpath + " does not exist");
 	dir = opendir(dirpath.c_str());
 	if (dir == NULL)
-		throw StrategyError(dirpath + " could not be opened");
+		throw Error::StrategyError(dirpath + " could not be opened");
 	
 	while ((entry = readdir(dir)) != NULL) {
 		if (entry->d_ino == 0)
@@ -46,12 +46,13 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 		if (stat(filename.c_str(), &sb) != 0) {
 			if (dir != NULL) {
 				if (closedir(dir)) {
-					throw StrategyError("Could not close " +
-					    dirpath + " (" +
+					throw Error::StrategyError("Could not "
+					    "close " + dirpath + " (" +
 			    		    Error::Utility::errorStr() + ")");
 				}
 			}
-			throw StrategyError("Could not stat " + filename);
+			throw Error::StrategyError("Could not stat " + 
+			    filename);
 		}
 
 		/* Recursively remove subdirectories and files */
@@ -61,14 +62,15 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 			if (unlink(filename.c_str())) {
 				if (dir != NULL) {
 					if (closedir(dir)) {
-						throw StrategyError("Could "
-						    "not close " + dirpath + 
-						    " (" + Error::Utility::
+						throw Error::StrategyError(
+						    "Could not close " + 
+						    dirpath + " (" + 
+						    Error::Utility::
 						    errorStr() + ")");
 					}
 				}
-				throw StrategyError(filename + " could not " +
-				    "be removed (" +
+				throw Error::StrategyError(filename + 
+				    " could not be removed (" +
 			    	    Error::Utility::errorStr() + ")");
 			}
 		}
@@ -76,13 +78,13 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 
 	/* Remove parent directory, now that children have been removed */
 	if (rmdir(dirpath.c_str()))
-		throw StrategyError(dirpath + " could not be removed (" +
+		throw Error::StrategyError(dirpath + " could not be removed (" +
 		    Error::Utility::errorStr() + ")");
 
 	if (dir != NULL) {
 		if (closedir(dir)) {
-			throw StrategyError("Could not close " + dirpath + 
-			    " (" + Error::Utility::errorStr() + ")");
+			throw Error::StrategyError("Could not close " + 
+			    dirpath + " (" + Error::Utility::errorStr() + ")");
 		}
 	}
 }
@@ -91,7 +93,7 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 bool
 BiometricEvaluation::IO::Utility::fileExists(
     const string &pathname)
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	struct stat sb;
 
@@ -105,15 +107,15 @@ BiometricEvaluation::IO::Utility::fileExists(
 uint64_t
 BiometricEvaluation::IO::Utility::getFileSize(
     const string &pathname)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	struct stat sb;
 
 	if (!fileExists(pathname))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 
 	if (stat(pathname.c_str(), &sb) != 0)
-		throw StrategyError("Getting stats on file (" + 
+		throw Error::StrategyError("Getting stats on file (" + 
 		    Error::Utility::errorStr() + ")");
 
 	return ((uint64_t)sb.st_size);

@@ -78,7 +78,7 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &description,
 			    const string &parentDir)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 	
 			/*
 			 * Open an existing ArchiveRecordStore.
@@ -87,10 +87,11 @@ namespace BiometricEvaluation {
 			     const string &name,
 			     const string &parentDir,
 			     uint8_t mode = IO_READWRITE)
-			     throw (ObjectDoesNotExist, StrategyError);
+			     throw (Error::ObjectDoesNotExist, 
+			     Error::StrategyError);
 	
 			uint64_t getSpaceUsed()
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 	
 			/*
 			 * Destructor.
@@ -101,7 +102,7 @@ namespace BiometricEvaluation {
 			 * Synchronize the entire store to persistent storage.
 			 */
 			void sync()
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 			/*
 			 * Get the size of the data chunk.
 			 *
@@ -113,7 +114,7 @@ namespace BiometricEvaluation {
 			 */
 			uint64_t length(
 			    const string &key) 
-			    throw (ObjectDoesNotExist);
+			    throw (Error::ObjectDoesNotExist);
 			
 			/*
 			 * Read a data chunk.
@@ -129,7 +130,8 @@ namespace BiometricEvaluation {
 			uint64_t read(
 			    const string &key,
 			    void *const data)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 		
 			/*
 			 * Add a data chunk to the archive
@@ -143,7 +145,7 @@ namespace BiometricEvaluation {
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 			
 			/*
 			 * Remove an entry from the archive.
@@ -153,7 +155,8 @@ namespace BiometricEvaluation {
 			 */
 			void remove(
 			    const string &key)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 	
 			/*
 			 * Replace an entry from the archive.
@@ -167,7 +170,8 @@ namespace BiometricEvaluation {
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 	
 			/*
 			 * Write file on disk
@@ -177,13 +181,15 @@ namespace BiometricEvaluation {
 			 */
 			void flush(
 			    const string &key)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 			
 			uint64_t sequence(
 			    string &key,
 			    void *const data,
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 	
 			/*
 			 * Remove "removed" entries from the manifest and 
@@ -195,7 +201,8 @@ namespace BiometricEvaluation {
 			static void vacuum(
 			    const string &name,
 			    const string &parentDir)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 	
 			/*
 			 * Return the name of the file storing the data for this
@@ -218,7 +225,7 @@ namespace BiometricEvaluation {
 			/* Change the name of the RecordStore */
 			void changeName(
 			    const string &name)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 	
 		protected:
 		
@@ -242,7 +249,7 @@ namespace BiometricEvaluation {
 			/*
 			 * Read the manifest.
 			 */
-			void read_manifest() throw (FileError);
+			void read_manifest() throw (Error::FileError);
 		
 			/*
 			 * Write to the manifest.
@@ -259,19 +266,19 @@ namespace BiometricEvaluation {
 			void write_manifest_entry(
 			    const string &key, 
 			    ManifestEntry entry)
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 	
 			/* 
 			 * Open the manifest and archive file streams
 			 */
 			void open_streams()
-			    throw (FileError);
+			    throw (Error::FileError);
 	
 			/*
 			 * Close the manifest and archive file streams
 			 */
 			void close_streams()
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 	
 			/*
 			 * Use the most efficient method for inserting an item

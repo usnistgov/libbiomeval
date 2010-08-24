@@ -53,14 +53,14 @@ testSequence(IO::RecordStore *rs)
 				cout << "Record " << i << " key is " << theKey;
 				cout << "; record length is " << rlen << "; ";
 				printf("data is [%s]\n", rdata);
-			} catch (ObjectDoesNotExist &e) {
+			} catch (Error::ObjectDoesNotExist &e) {
 				break;
-			} catch (StrategyError &e) {
+			} catch (Error::StrategyError &e) {
 				cout << "Caught " << e.getInfo() << endl;
 			}
 			i++;
 		}
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.getInfo() << endl;
 	}
 }
@@ -89,17 +89,17 @@ runTests(IO::RecordStore *rs)
 	try {
 		cout << "insert(" << theKey << "): ";
 		rs->insert(theKey, wdata.c_str(), wlen);
-	} catch (ObjectExists& e) {
+	} catch (Error::ObjectExists& e) {
 		cout << "exists; deleting." << endl;
 		try {
 			rs->remove(theKey);
 			rs->insert(theKey, wdata.c_str(), wlen);
-		} catch (StrategyError& e) {
+		} catch (Error::StrategyError& e) {
 			cout << "Could not remove, and should be able to: " <<
 			    e.getInfo() << "." << endl;
 			return (-1);
 		}
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 		return (-1);
 	}
@@ -111,10 +111,10 @@ runTests(IO::RecordStore *rs)
 	try {
 		cout << "read(" << theKey << "): ";
 		rlen = rs->read(theKey, rdata);
-	} catch (ObjectDoesNotExist& e) {
+	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "failed: Does not exist. " << endl;
 		return (-1);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (-1);
 	}
@@ -129,10 +129,10 @@ runTests(IO::RecordStore *rs)
 	try {
 		cout << "replace(" << theKey << "): ";
 		rs->replace(theKey, wdata.c_str(), wlen);
-	} catch (ObjectDoesNotExist& e) {
+	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
 		return (-1);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 		return (-1);
 	}
@@ -141,7 +141,7 @@ runTests(IO::RecordStore *rs)
 	cout << "Space usage is ";
 	try {
 		cout << rs->getSpaceUsed() << endl;
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 	}
 
@@ -152,10 +152,10 @@ runTests(IO::RecordStore *rs)
 	try {
 		cout << "length(" << theKey << "): ";
 		rlen = rs->length(theKey);
-	} catch (ObjectDoesNotExist& e) {
+	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
 		return (-1);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 		return (-1);
 	}
@@ -179,10 +179,10 @@ runTests(IO::RecordStore *rs)
 		cout << "Non-existent read(" << theKey << "): ";
 		rlen = rs->read(theKey, rdata);
 		success = false;
-	} catch (ObjectDoesNotExist& e) {
+	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "succeeded." << endl;
 		success = true;
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (-1);
 	}
@@ -193,7 +193,7 @@ runTests(IO::RecordStore *rs)
 		cout << "sync(): ";
 		rs->sync();
 		cout << "succeeded." << endl;
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (-1);
 	}
@@ -213,10 +213,10 @@ runTests(IO::RecordStore *rs)
 		string newName = tempnam(".", NULL);
 		newName = newName.substr(2, newName.length());
 		rs->changeName(newName);
-	} catch (ObjectExists &e) {
+	} catch (Error::ObjectExists &e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (-1);
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (-1);
 	}
@@ -227,7 +227,7 @@ runTests(IO::RecordStore *rs)
 		theKey.assign(rdata);
 		try { 
 			rs->remove(theKey);
-		} catch (StrategyError &e) {
+		} catch (Error::StrategyError &e) {
 			cout << "Caught: " << e.getInfo() << endl;
 		}
 	}
@@ -240,9 +240,9 @@ runTests(IO::RecordStore *rs)
 	try {
 		string badKey("test/with/path/chars");
 		rs->insert(badKey, rdata, RDATASIZE);
-	} catch (ObjectExists &e) {
+	} catch (Error::ObjectExists &e) {
 		cout << "Caught: " << e.getInfo() << endl;
-	} catch (StrategyError &e)  {
+	} catch (Error::StrategyError &e)  {
 		cout << "Caught: " << e.getInfo() << endl;
 		cout << "\tShould be invalid key." << endl;
 	}
@@ -251,9 +251,9 @@ runTests(IO::RecordStore *rs)
 	cout << "Return RecordStore to original name... ";
 	try {
 		rs->changeName(rsname);
-	} catch (ObjectExists &e) {
+	} catch (Error::ObjectExists &e) {
 		cout << "Caught: " << e.getInfo();
-	} catch (StrategyError &e)  {
+	} catch (Error::StrategyError &e)  {
 		cout << "Caught: " << e.getInfo();
 	}
 	cout << "finished." << endl;
@@ -276,10 +276,10 @@ main(int argc, char* argv[]) {
 	IO::FileRecordStore *rs;
 	try {
 		rs = new IO::FileRecordStore(rsname, "RW Test Dir", "");
-	} catch (ObjectExists& e) {
+	} catch (Error::ObjectExists& e) {
 		cout << "The File Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<IO::FileRecordStore> ars(rs);
@@ -291,10 +291,10 @@ main(int argc, char* argv[]) {
 	IO::DBRecordStore *rs;
 	try {
 		rs = new IO::DBRecordStore(rsname, "RW Test Dir", "");
-	} catch (ObjectExists &e) {
+	} catch (Error::ObjectExists &e) {
 		cout << "The DB Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<IO::DBRecordStore> ars(rs);
@@ -306,10 +306,10 @@ main(int argc, char* argv[]) {
 	IO::ArchiveRecordStore *rs;
 	try {
 		rs = new IO::ArchiveRecordStore(rsname, "RW Test Dir", "");
-	} catch (ObjectExists &e) {
+	} catch (Error::ObjectExists &e) {
 		cout << "The Archive Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	auto_ptr<IO::ArchiveRecordStore> ars(rs);
@@ -327,10 +327,10 @@ main(int argc, char* argv[]) {
 	rsname = "frs_test";
 	try {
 		rs = new IO::FileRecordStore(rsname, "");
-	} catch (ObjectDoesNotExist& e) {
+	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "The File Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 #endif
@@ -340,10 +340,10 @@ main(int argc, char* argv[]) {
 	rsname = "dbrs_test";
 	try {
 		rs = new IO::DBRecordStore(rsname, "");
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The DB Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 #endif
@@ -353,10 +353,10 @@ main(int argc, char* argv[]) {
 	rsname = "ars_test";
 	try {
 		rs = new IO::ArchiveRecordStore(rsname, "");
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Archive Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 #endif
@@ -376,15 +376,15 @@ main(int argc, char* argv[]) {
 	cout << "Vacuuming ArchiveRecordStore... " << endl;
 	try {
 		IO::ArchiveRecordStore::vacuum(rsname, "");
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "Caught: " << e.getInfo() << endl;
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "Caught: " << e.getInfo() << endl;
 	}
 	cout << "Space usage after vacuum is ";
 	try {
 		cout << rs->getSpaceUsed() << endl;
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 	}
 #endif
@@ -395,9 +395,9 @@ main(int argc, char* argv[]) {
 	cout << "Removing store... " << endl;
 	try {
 		IO::RecordStore::removeRecordStore(rsname, "");
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "Caught: " << e.getInfo() << endl;
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "Caught: " << e.getInfo() << endl;
 	}
 	cout << "You should see a failure to write the control file... "<< endl;

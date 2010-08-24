@@ -43,7 +43,7 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &description,
 			    const string &parentDir)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 
 			/*
 			 * Construct an existing DB record store.
@@ -52,7 +52,8 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &parentDir,
 			    uint8_t mode = IO_READWRITE)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			/*
 			 * Destructor.
@@ -60,49 +61,55 @@ namespace BiometricEvaluation {
 			~DBRecordStore();
 
 			uint64_t getSpaceUsed()
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 
 			void sync()
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 
 			void insert(
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 
 			void remove(
 			    const string &key)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			uint64_t read(
 			    const string &key,
 			    void *const data)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			virtual void replace(
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			virtual uint64_t length(
 			    const string &key)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			void flush(
 			    const string &key)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			uint64_t sequence(
 			    string &key,
 			    void *const data,
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			void changeName(
 			    const string &name)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 
 		protected:
 
@@ -114,7 +121,8 @@ namespace BiometricEvaluation {
 			void internalRead(
 			    const string &key,
 			    DBT *dbtdata)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 		};
 	}
 }

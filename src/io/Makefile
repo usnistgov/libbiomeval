@@ -8,7 +8,7 @@
 # about its quality, reliability, or any other characteristic.
 #
 include ../common.mk
-SOURCES = be_exception.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp
+SOURCES = be_error_exception.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp
 OBJECTS = $(SOURCES:%.cpp=%.o)
 
 #

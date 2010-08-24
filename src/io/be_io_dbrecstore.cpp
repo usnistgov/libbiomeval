@@ -25,17 +25,17 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     const string &name,
     const string &description,
     const string &parentDir)
-    throw (ObjectExists, StrategyError) : 
+    throw (Error::ObjectExists, Error::StrategyError) : 
     RecordStore(name, description, parentDir)
 {
 	_dbname = _directory + '/' + _name;
 	if (IO::Utility::fileExists(_dbname))
-		throw ObjectExists("Database already exists");
+		throw Error::ObjectExists("Database already exists");
 
 	_db = dbopen(_dbname.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR,
 	    DB_BTREE, NULL);
 	if (_db == NULL)
-		throw StrategyError("Could not create database (" + 
+		throw Error::StrategyError("Could not create database (" + 
 		    Error::Utility::errorStr() + ")");
 }
 
@@ -43,16 +43,17 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     const string &name,
     const string &parentDir,
     uint8_t mode)
-    throw (ObjectDoesNotExist, StrategyError) : 
+    throw (Error::ObjectDoesNotExist, Error::StrategyError) : 
     RecordStore(name, parentDir, mode)
 { 
 	_dbname = _directory + '/' + _name;
 	if (!IO::Utility::fileExists(_dbname))
-		throw ObjectDoesNotExist("Database does not exist");
+		throw Error::ObjectDoesNotExist("Database does not exist");
 
-	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, NULL);
+	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, 
+	    NULL);
 	if (_db == NULL)
-		throw StrategyError("Could not open database (" + 
+		throw Error::StrategyError("Could not open database (" + 
 		    Error::Utility::errorStr() + ")");
 }
 
@@ -64,10 +65,10 @@ BiometricEvaluation::IO::DBRecordStore::~DBRecordStore()
 
 void
 BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
-    throw (ObjectExists, StrategyError)
+    throw (Error::ObjectExists, Error::StrategyError)
 { 
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (_db != NULL)
 		_db->close(_db);
@@ -82,43 +83,45 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
 	}
 	RecordStore::changeName(name);
 	if (rename(oldDBName.c_str(), newDBName.c_str()))
-		throw StrategyError("Could not rename database (" + 
+		throw Error::StrategyError("Could not rename database (" + 
 		    Error::Utility::errorStr() + ")");
 
 	_dbname = RecordStore::canonicalName(_name);
 	if (!IO::Utility::fileExists(_dbname))
-		throw StrategyError("Database " + _dbname + "does not exist");
+		throw Error::StrategyError("Database " + _dbname + 
+		    "does not exist");
 
-	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, NULL);
+	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, 
+	    NULL);
 	if (_db == NULL)
-		throw StrategyError("Could not open database (" +
+		throw Error::StrategyError("Could not open database (" +
 		    Error::Utility::errorStr() + ")");
 }
 
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::getSpaceUsed()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	struct stat sb;
 
 	sync();
 	if (stat(_dbname.c_str(), &sb) != 0)
-		throw StrategyError("Could not find database file");
+		throw Error::StrategyError("Could not find database file");
 	return (RecordStore::getSpaceUsed() + (sb.st_blocks * S_BLKSIZE));
 	
 }
 
 void
 BiometricEvaluation::IO::DBRecordStore::sync()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::sync();
 	int rc = _db->sync(_db, 0);
 	if (rc != 0)
-		throw StrategyError("Could not synchronize database (" +
+		throw Error::StrategyError("Could not synchronize database (" +
 		    Error::Utility::errorStr() + ")");
 }
 
@@ -127,10 +130,10 @@ BiometricEvaluation::IO::DBRecordStore::insert(
     const string &key,
     const void *const data,
     const uint64_t size)
-    throw (ObjectExists, StrategyError)
+    throw (Error::ObjectExists, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	int rc;
 	DBT dbtkey, dbtdata;
@@ -145,14 +148,15 @@ BiometricEvaluation::IO::DBRecordStore::insert(
 			_count++;
 			break;
 		case 1:
-			throw ObjectExists("Key already in database");
+			throw Error::ObjectExists("Key already in database");
 			break;		/* not reached */
 		case -1:
-			throw StrategyError("Could not insert into database (" +
-			    Error::Utility::errorStr() + ")");
+			throw Error::StrategyError("Could not insert into "
+			    "database (" + Error::Utility::errorStr() + ")");
 			break;		/* not reached */
 		default:
-			throw StrategyError("Unknown error inserting into database");
+			throw Error::StrategyError("Unknown error inserting " 
+			    "into database");
 			break;		/* not reached */
 	}
 }
@@ -160,10 +164,10 @@ BiometricEvaluation::IO::DBRecordStore::insert(
 void
 BiometricEvaluation::IO::DBRecordStore::remove( 
     const string &key)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	int rc;
 	DBT dbtkey;
@@ -176,14 +180,15 @@ BiometricEvaluation::IO::DBRecordStore::remove(
 			_count--;
 			break;
 		case 1:
-			throw ObjectDoesNotExist("Key not in database");
+			throw Error::ObjectDoesNotExist("Key not in database");
 			break;		/* not reached */
 		case -1:
-			throw StrategyError("Could not delete from database (" +
-			    Error::Utility::errorStr() + ")");
+			throw Error::StrategyError("Could not delete from " 
+			    "database (" + Error::Utility::errorStr() + ")");
 			break;		/* not reached */
 		default:
-			throw StrategyError("Unknown error deleting from database");
+			throw Error::StrategyError("Unknown error deleting " 
+			    "from database");
 			break;		/* not reached */
 	}
 }
@@ -192,7 +197,7 @@ uint64_t
 BiometricEvaluation::IO::DBRecordStore::read(
     const string &key,
     void *const data)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	DBT dbtdata;
 
@@ -211,10 +216,10 @@ BiometricEvaluation::IO::DBRecordStore::replace(
     const string &key,
     const void *const data,
     const uint64_t size)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	int rc;
 	DBT dbtkey, dbtdata;
@@ -238,14 +243,16 @@ BiometricEvaluation::IO::DBRecordStore::replace(
 			/* We should never get here; if we do, something
 			 * is wrong because we asking for replacement above.
 			 */
-			throw StrategyError("Should never happen: Key already in database");
+			throw Error::StrategyError("Should never happen: " 
+			    "Key already in database");
 			break;		/* not reached */
 		case -1:
-			throw StrategyError("Could not replace in database (" +
-			    Error::Utility::errorStr() + ")");
+			throw Error::StrategyError("Could not replace in " 
+			    "database (" + Error::Utility::errorStr() + ")");
 			break;		/* not reached */
 		default:
-			throw StrategyError("Unknown error replacing in database");
+			throw Error::StrategyError("Unknown error replacing " 
+			    "in database");
 			break;		/* not reached */
 	}
 }
@@ -253,7 +260,7 @@ BiometricEvaluation::IO::DBRecordStore::replace(
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::length(
     const string &key)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	DBT dbtdata;
 
@@ -270,10 +277,10 @@ BiometricEvaluation::IO::DBRecordStore::length(
 void
 BiometricEvaluation::IO::DBRecordStore::flush(
     const string &key)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (_mode == IO_READONLY)
-		throw StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError("RecordStore was opened read-only");
 
 	/*
 	 * Because we sync the entire database, we really don't care
@@ -282,7 +289,7 @@ BiometricEvaluation::IO::DBRecordStore::flush(
 	 */
 	int rc = _db->sync(_db, 0);
 	if (rc != 0)
-		throw StrategyError("Could not synchronize database (" +
+		throw Error::StrategyError("Could not synchronize database (" +
 		    Error::Utility::errorStr() + ")");
 }
 
@@ -291,11 +298,12 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
     string &key,
     void *data,
     int cursor)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if ((cursor != BE_RECSTORE_SEQ_START) &&
 	    (cursor != BE_RECSTORE_SEQ_NEXT))
-		throw StrategyError("Invalid cursor position as argument");
+		throw Error::StrategyError("Invalid cursor position as " 
+		    "argument");
 
 
 	u_int pos;
@@ -315,11 +323,12 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 		case 0:
 			break;
 		case 1:
-			throw ObjectDoesNotExist("No record at position");
+			throw Error::ObjectDoesNotExist("No record at "
+			    "position");
 			break;
 		default:
-			throw StrategyError("Could not read from database (" +
-			    Error::Utility::errorStr() + ")");
+			throw Error::StrategyError("Could not read from " 
+			    "database (" + Error::Utility::errorStr() + ")");
 			break;		/* not reached */
 	}
 	_cursor = cursor;
@@ -337,7 +346,7 @@ void
 BiometricEvaluation::IO::DBRecordStore::internalRead(
     const string &key,
     DBT *dbtdata)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	DBT dbtkey;
 
@@ -349,14 +358,15 @@ BiometricEvaluation::IO::DBRecordStore::internalRead(
 			return;
 			break;
 		case 1:
-			throw ObjectDoesNotExist("Key not in database");
+			throw Error::ObjectDoesNotExist("Key not in database");
 			break;		/* not reached */
 		case -1:
-			throw StrategyError("Could not read from database (" +
-			    Error::Utility::errorStr() + ")");
+			throw Error::StrategyError("Could not read from "
+			    "database (" + Error::Utility::errorStr() + ")");
 			break;		/* not reached */
 		default:
-			throw StrategyError("Unknown error reading database");
+			throw Error::StrategyError("Unknown error reading "
+			    "database");
 			break;		/* not reached */
 	}
 }

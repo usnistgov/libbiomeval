@@ -10,7 +10,6 @@
 
 #include <sys/time.h>
 
-#include <be_exception.h>
 #include <be_time_timer.h>
 
 #if defined(WIN32) || defined(__CYGWIN__)
@@ -27,15 +26,16 @@ BiometricEvaluation::Time::Timer::Timer()
 
 void
 BiometricEvaluation::Time::Timer::start()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	if (_inProgress)
-		throw StrategyError("Timing already in progress");
+		throw Error::StrategyError("Timing already in progress");
 
 #if defined(WIN32) || defined(__CYGWIN__)
 	LARGE_INTEGER start;
 	if (QueryPerformanceCounter(&start) == 0)
-		throw StrategyError("QueryPerformanceCounter returned false");
+		throw Error::StrategyError("QueryPerformanceCounter returned "
+		    "false");
 	_start = start.QuadPart;
 #else
 	struct timeval start;
@@ -48,15 +48,16 @@ BiometricEvaluation::Time::Timer::start()
 
 void
 BiometricEvaluation::Time::Timer::stop()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	if (!_inProgress)
-		throw StrategyError("Timing not in progress");
+		throw Error::StrategyError("Timing not in progress");
 
 #if defined(WIN32) || defined(__CYGWIN__)
 	LARGE_INTEGER finish;
 	if (QueryPerformanceCounter(&finish) == 0)
-		throw StrategyError("QueryPerformanceCounter returned false");
+		throw Error::StrategyError("QueryPerformanceCounter returned "
+		    "false");
 	_finish = finish.QuadPart;
 #else
 	struct timeval finish;
@@ -69,15 +70,16 @@ BiometricEvaluation::Time::Timer::stop()
 
 uint64_t
 BiometricEvaluation::Time::Timer::elapsed()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	if (_inProgress)
-		throw StrategyError("Timing in progress");
+		throw Error::StrategyError("Timing in progress");
 	
 #if defined(WIN32) || defined(__CYGWIN__)
 	LARGE_INTEGER frequency;
 	if (QueryPerformanceFrequency(&frequency) == 0)
-		throw StrategyError("QueryPerformanceFrequency returned false");
+		throw Error::StrategyError("QueryPerformanceFrequency returned "
+		    "false");
 
 	return (uint64_t)(((_finish - _start) / (double)frequency.QuadPart) * 
 	    MicrosecondsPerSecond);

@@ -33,10 +33,10 @@ int main (int argc, char* argv[]) {
 	try {
 		ars = new IO::ArchiveRecordStore(archivefn, "Test ArchiveRS", 
 		    "");
-	} catch (ObjectExists) {
+	} catch (Error::ObjectExists) {
 		cout << "The archive already exists; exiting." << endl;
 		exit (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (Error::StrategyError e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 	}
 	cout << "Passed test of creating non-existing archive." << endl;
@@ -48,10 +48,10 @@ int main (int argc, char* argv[]) {
 	bool cont = false;
 	try {
 		IO::ArchiveRecordStore ars2("bogus", "");
-	} catch (ObjectDoesNotExist) {
+	} catch (Error::ObjectDoesNotExist) {
 		cout << "Passed test of opening non-existing archive." << endl;
 		cont = true;
-	} catch (StrategyError e) {
+	} catch (Error::StrategyError e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
 		exit (EXIT_FAILURE);
 	}
@@ -64,11 +64,11 @@ int main (int argc, char* argv[]) {
 	try {
 		ars = new IO::ArchiveRecordStore(archivefn, "");
 		cont = true;
-	} catch (ObjectDoesNotExist e) {
+	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Failed test of opening existing archive." << endl;
 		cout << e.getInfo() << endl;
 		exit (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (Error::StrategyError e) {
 		cout << "Failed test of opening existing archive." << endl;
 		exit (EXIT_FAILURE);
 	}
@@ -92,10 +92,10 @@ int main (int argc, char* argv[]) {
 				cout << "Wrote Key " << randkey.str() << 
 				    ": \'" << randbuf << "\'" << endl;
 			}
-		} catch (ObjectExists e) {
+		} catch (Error::ObjectExists e) {
 			cout << "Failed test of inserting." << endl;
 			exit (EXIT_FAILURE);
-		} catch (StrategyError e) {
+		} catch (Error::StrategyError e) {
 			cout << "Failed test of inserting." << endl;
 			exit (EXIT_FAILURE);
 		}
@@ -106,10 +106,10 @@ int main (int argc, char* argv[]) {
 		char buf[] = "0123456789";
 		ars->replace(chkkey, buf, strlen(buf));
 		cout << "Passed test of replacing" << endl;
-	} catch (ObjectDoesNotExist e) {
+	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Failed test of replacing" << endl;
 		exit (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (Error::StrategyError e) {
 		cout << "Failed test of replacing" << endl;
 		exit (EXIT_FAILURE);
 	}
@@ -120,10 +120,10 @@ int main (int argc, char* argv[]) {
 	try {
 		ars3 = new IO::ArchiveRecordStore(archivefn, "");
 		cout << "Passed test of reading manifest" << endl;
-	} catch (ObjectDoesNotExist) {
+	} catch (Error::ObjectDoesNotExist) {
 		cout << "Failed test of reading manifest" << endl;
 		exit (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (Error::StrategyError e) {
 		cout << "Failed test of reading manifest" << endl;
 		exit (EXIT_FAILURE);
 	}
@@ -141,11 +141,11 @@ int main (int argc, char* argv[]) {
 		cout << "Passed test of reading replacement value" << endl;
 		cout << "Read Key " << chkkey << ": \'" << buf << "\' Size: " << size << endl;
 		if (buf != NULL) free(buf);
-	} catch (ObjectDoesNotExist e) {
+	} catch (Error::ObjectDoesNotExist e) {
 		cout << e.getInfo() << endl;
 		cout << "Failed test of reading replacement" << endl;
 		exit (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (Error::StrategyError e) {
 		cout << e.getInfo() << endl;
 		cout << "Failed test of reading replacement" << endl;
 		exit (EXIT_FAILURE);
@@ -155,10 +155,10 @@ int main (int argc, char* argv[]) {
 	try {
 		ars3->remove(chkkey);
 		cout << "Passed test of removing" << endl;
-	} catch (ObjectDoesNotExist e) {
+	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Failed test of removing" << endl;
 		exit (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (Error::StrategyError e) {
 		cout << "Failed test of removing" << endl;
 		exit (EXIT_FAILURE);
 	}
@@ -169,9 +169,9 @@ int main (int argc, char* argv[]) {
 		ars3->read(chkkey, buf);
 		cout << "Failed test of removing/re-reading" << endl;
 		exit (EXIT_FAILURE);
-	} catch (StrategyError e) {
+	} catch (Error::StrategyError e) {
 		cout << "Failed test of removing/re-reading" << endl;
-	} catch (ObjectDoesNotExist e) {
+	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Passed test of removing/re-reading" << endl;
 		exit  (EXIT_FAILURE);
 	}

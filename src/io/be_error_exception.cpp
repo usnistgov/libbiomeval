@@ -10,60 +10,61 @@
 
 #include <string>
 
-#include <be_exception.h>
+#include <be_error_exception.h>
 
 using namespace std;
 
-BiometricEvaluation::Exception::Exception() {
+BiometricEvaluation::Error::Exception::Exception() {
 }
 
-BiometricEvaluation::Exception::Exception(string info) {
+BiometricEvaluation::Error::Exception::Exception(string info) {
 	this->_info = info;
 }
 
-BiometricEvaluation::Exception::~Exception() { }
+BiometricEvaluation::Error::Exception::~Exception() { }
 
-string BiometricEvaluation::Exception::getInfo() {
+string BiometricEvaluation::Error::Exception::getInfo() {
 	return (this->_info);
 }
 
-BiometricEvaluation::FileError::FileError() :
+BiometricEvaluation::Error::FileError::FileError() :
     Exception("FileError") { }
-BiometricEvaluation::FileError::FileError(string info) :
+BiometricEvaluation::Error::FileError::FileError(string info) :
     Exception("FileError: " + info) { }
 
-BiometricEvaluation::ParameterError::ParameterError() :
+BiometricEvaluation::Error::ParameterError::ParameterError() :
     Exception("ParameterError") { }
-BiometricEvaluation::ParameterError::ParameterError(string info) :
+BiometricEvaluation::Error::ParameterError::ParameterError(string info) :
     Exception("ParameterError: " + info) { }
 
-BiometricEvaluation::MemoryError::MemoryError() :
+BiometricEvaluation::Error::MemoryError::MemoryError() :
     Exception("MemoryError") { }
-BiometricEvaluation::MemoryError::MemoryError(string info) :
+BiometricEvaluation::Error::MemoryError::MemoryError(string info) :
     Exception("MemoryError: " + info) { }
 
-BiometricEvaluation::ObjectExists::ObjectExists() :
+BiometricEvaluation::Error::ObjectExists::ObjectExists() :
     Exception("ObjectExists") { }
-BiometricEvaluation::ObjectExists::ObjectExists(string info) :
+BiometricEvaluation::Error::ObjectExists::ObjectExists(string info) :
     Exception("ObjectExists: " + info) { }
 	
-BiometricEvaluation::ObjectDoesNotExist::ObjectDoesNotExist() :
+BiometricEvaluation::Error::ObjectDoesNotExist::ObjectDoesNotExist() :
     Exception("ObjectDoesNotExist") { }
-BiometricEvaluation::ObjectDoesNotExist::ObjectDoesNotExist(string info) :
+BiometricEvaluation::Error::ObjectDoesNotExist::ObjectDoesNotExist(
+    string info) :
     Exception("ObjectDoesNotExist: " + info) { }
 
-BiometricEvaluation::ObjectIsOpen::ObjectIsOpen() :
+BiometricEvaluation::Error::ObjectIsOpen::ObjectIsOpen() :
     Exception("ObjectIsOpen") { }
-BiometricEvaluation::ObjectIsOpen::ObjectIsOpen(string info) :
+BiometricEvaluation::Error::ObjectIsOpen::ObjectIsOpen(string info) :
     Exception("ObjectIsOpen: " + info) { }
 
-BiometricEvaluation::ObjectIsClosed::ObjectIsClosed() :
+BiometricEvaluation::Error::ObjectIsClosed::ObjectIsClosed() :
     Exception("ObjectIsClosed") { }
-BiometricEvaluation::ObjectIsClosed::ObjectIsClosed(string info) :
+BiometricEvaluation::Error::ObjectIsClosed::ObjectIsClosed(string info) :
     Exception("ObjectIsClosed: " + info) { }
 
-BiometricEvaluation::StrategyError::StrategyError() :
+BiometricEvaluation::Error::StrategyError::StrategyError() :
     Exception("StrategyError") { }
-BiometricEvaluation::StrategyError::StrategyError(string info) :
+BiometricEvaluation::Error::StrategyError::StrategyError(string info) :
     Exception("StrategyError: " + info) { }
 

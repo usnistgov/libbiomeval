@@ -15,7 +15,7 @@
 #include <vector>
 
 #include <stdio.h>
-#include <be_exception.h>
+#include <be_error_exception.h>
 using namespace std;
 
 /*
@@ -57,9 +57,9 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 *	An object representing the new log sheet.
 			 * Throws:
-			 * 	ObjectExists
+			 * 	Error::ObjectExists
 			 *		The sheet was previously created.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying file system, or the name
 			 *		is malformed.
@@ -67,7 +67,7 @@ namespace BiometricEvaluation {
 			LogSheet(const string &name,
 				 const string &description,
 				 const string &parentDir)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 
 			~LogSheet();
 
@@ -80,12 +80,12 @@ namespace BiometricEvaluation {
 			 *		The text of the log entry.
 			 *
 			 * Throws:
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying file system.
 			 */
 			void write(const string &entry)
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 
 			/*
 			 * Start a new entry, causing the existing entry
@@ -93,12 +93,12 @@ namespace BiometricEvaluation {
 			 * this method for the first entry, however, as the
 			 * stream is ready for writing upon construction.
 			 * Throws:
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying file system.
 			 */
 			void newEntry()
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 
 			/*
 			 * Return the contents of the current entry currently
@@ -123,12 +123,12 @@ namespace BiometricEvaluation {
 			 * log file. This syncing is dependent on the behavior
 			 * of the underlying filesystem/OS.
 			 * Throws:
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying file system.
 			*/
 			void sync()
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 
 			/*
 			 * Turn on/off auto-sync of the data. When TRUE, the
@@ -168,9 +168,9 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 *	An object representing the new log cabinet.
 			 * Throws:
-			 * 	ObjectExists
+			 * 	Error::ObjectExists
 			 *		The cabinet was previously created.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying file system, or the name
 			 *		is malformed.
@@ -179,7 +179,7 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &description,
 			    const string &parentDir)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 
 			/*
 			 * Open an existing LogCabinet.
@@ -192,10 +192,10 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 *	An object representing the existing log cabinet.
 			 * Throws:
-			 * 	ObjectDoesNotExist
+			 * 	Error::ObjectDoesNotExist
 			 *		The cabinet does not exist in the
 			 *		file system.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying file system, or the name
 			 *		is malformed.
@@ -203,7 +203,8 @@ namespace BiometricEvaluation {
 			LogCabinet(
 			    const string &name,
 			    const string &parentDir)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			~LogCabinet();
 			
@@ -220,9 +221,9 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 *	A pointer to the new log sheet.
 			 * Throws:
-			 * 	ObjectExists
+			 * 	Error::ObjectExists
 			 *		The sheet was previously created.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying file system, or the name
 			 *		is malformed.
@@ -230,7 +231,7 @@ namespace BiometricEvaluation {
 			LogSheet *newLogSheet(
 			    const string &name,
 			    const string &description)
-			    throw (ObjectExists, StrategyError);
+			    throw (Error::ObjectExists, Error::StrategyError);
 
 			/* Return the name of the LogCabinet */
 			string getName();
@@ -251,10 +252,10 @@ namespace BiometricEvaluation {
 			 *		Where, in the file system, the cabinet
 			 *		is stored.
 			 * Throws:
-			 * 	ObjectDoesNotExist
+			 * 	Error::ObjectDoesNotExist
 			 *		The cabinet does not exist in the
 			 *		file system.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying file system, or the name
 			 *		is malformed.
@@ -262,7 +263,8 @@ namespace BiometricEvaluation {
 			static void remove(
 			    const string &name,
 			    const string &parentDir)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 		protected:
 			/*
@@ -298,12 +300,12 @@ namespace BiometricEvaluation {
 			/* Read the contents of the common control file format
 			 * for all LogCabinet.
 			 */
-			void readControlFile() throw (StrategyError);
+			void readControlFile() throw (Error::StrategyError);
 
 			/* Write the contents of the common control file format
 			 * for all LogCabinet.
 			 */
-			void writeControlFile() throw (StrategyError);
+			void writeControlFile() throw (Error::StrategyError);
 
 	};
     }

@@ -61,10 +61,10 @@ static int insertMany(IO::RecordStore *rs)
 		gettimeofday(&starttm, NULL);
 		try {
 			rs->insert(*theKey, theData, RECSIZE);
-		} catch (ObjectExists& e) {
+		} catch (Error::ObjectExists& e) {
 			cout << "Whoops! Record exists?. Insert failed at record " << i << "." << endl;
 			return (-1);
-		} catch (StrategyError& e) {
+		} catch (Error::StrategyError& e) {
 			cout << "Could not insert record " << i << ": " <<
 			    e.getInfo() << "." << endl;
 			return (-1);
@@ -122,10 +122,10 @@ int main (int argc, char* argv[]) {
 #ifdef ARCHIVERECORDSTORETEST
 			rs = new IO::ArchiveRecordStore(rsname, descr, "");
 #endif
-		} catch (ObjectExists& e) {
+		} catch (Error::ObjectExists& e) {
 			cout << "The RecordStore already exists; exiting." << endl;
 			return (EXIT_FAILURE);
-		} catch (StrategyError& e) {
+		} catch (Error::StrategyError& e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}
 		try {
@@ -138,7 +138,7 @@ int main (int argc, char* argv[]) {
 #ifdef ARCHIVERECORDSTORETEST
 			rs = new IO::ArchiveRecordStore(rsname, "");
 #endif
-		} catch (ObjectDoesNotExist& e) {
+		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Could not re-open RecordStore; exiting." << endl;
 			return (EXIT_FAILURE);
 		}
@@ -182,10 +182,10 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, NULL);
 		try {
 			ars->replace(*theKey, theData, RECSIZE);
-		} catch (ObjectDoesNotExist& e) {
+		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exists?. Insert failed at record " << i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (StrategyError& e) {
+		} catch (Error::StrategyError& e) {
 			cout << "Could not replace record " << i << ": " <<
 			    e.getInfo() << "." << endl;
 			return (EXIT_FAILURE);
@@ -204,11 +204,11 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, NULL);
 		try {
 			ars->read(*theKey, theData);
-		} catch (ObjectDoesNotExist& e) {
+		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (StrategyError& e) {
+		} catch (Error::StrategyError& e) {
 			cout << "Could not read record " << i << ": " <<
 			    e.getInfo() << "." << endl;
 			return (EXIT_FAILURE);
@@ -228,11 +228,11 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, NULL);
 		try {
 			ars->read(*theKey, theData);
-		} catch (ObjectDoesNotExist& e) {
+		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (StrategyError& e) {
+		} catch (Error::StrategyError& e) {
 			cout << "Could not read record " << i << ": " <<
 			    e.getInfo() << "." << endl;
 			return (EXIT_FAILURE);
@@ -247,7 +247,7 @@ int main (int argc, char* argv[]) {
 	uint64_t startStoreSize;
 	try {
 		startStoreSize = ars->getSpaceUsed();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
                 cout << "Can't get space usage:" << e.getInfo() << "." << endl;
 		return (EXIT_FAILURE);
         }
@@ -260,11 +260,11 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, NULL);
 		try {
 			ars->remove(*theKey);
-		} catch (ObjectDoesNotExist& e) {
+		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Remove failed at record " <<
 			    i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (StrategyError& e) {
+		} catch (Error::StrategyError& e) {
 			cout << "Could not remove record " << i << ": " <<
 			    e.getInfo() << "." << endl;
 			return (EXIT_FAILURE);
@@ -279,7 +279,7 @@ int main (int argc, char* argv[]) {
 	uint64_t endStoreSize;
 	try {
 		endStoreSize = ars->getSpaceUsed();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
                 cout << "Can't get space usage:" << e.getInfo() << "." << endl;
 		return (EXIT_FAILURE);
         }

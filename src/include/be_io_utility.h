@@ -11,7 +11,7 @@
 #define __BE_IO_UTILITY_H
 
 #include <string>
-#include <be_exception.h>
+#include <be_error_exception.h>
 using namespace std;
 
 /*
@@ -34,9 +34,9 @@ namespace BiometricEvaluation {
 			 *	prefix (in)
 			 *		The path leading to the directory.
 			 * Throws:
-			 *	ObjectDoesNotExist
+			 *	Error::ObjectDoesNotExist
 			 *		The named directory does not exist.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system, or the
 			 *		name is malformed.
@@ -44,7 +44,8 @@ namespace BiometricEvaluation {
 			static void removeDirectory(
 			    const string &directory,
 			    const string &prefix)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			/*
 			 * Get the size of a file.
@@ -56,16 +57,17 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 * 	The file size.
 			 * Throws:
-			 *	ObjectDoesNotExist
+			 *	Error::ObjectDoesNotExist
 			 *		The named directory does not exist.
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system, or the
 			 *		name is malformed.
 			 */
 			static uint64_t getFileSize(
 			    const string &pathname)
-			    throw (ObjectDoesNotExist, StrategyError);
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			/*
 			 * Indicate whether a file exists.
@@ -77,14 +79,14 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 * 	True if the file exists, false otherwise.
 			 * Throws:
-			 *	StrategyError
+			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system, or the
 			 *		name is malformed.
 			 */
 			static bool fileExists(
 			    const string &pathname)
-			    throw (StrategyError);
+			    throw (Error::StrategyError);
 
 			/*
 			 * Check whether or not a string is valid as a name for

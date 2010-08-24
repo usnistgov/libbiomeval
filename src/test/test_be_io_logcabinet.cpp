@@ -38,7 +38,7 @@ doLogSheetTests(LogSheet *ls)
 			ls->newEntry();
 		}
 		ls->sync();
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
 	}
@@ -55,10 +55,10 @@ doLogCabinetTests()
 	cout << "Creating Log Cabinet with bad name... ";
 	try {
 		lc = new LogCabinet("foo/bar", "Bad Log Cabinet", "");
-	} catch (ObjectExists &e) {
+	} catch (Error::ObjectExists &e) {
 		cout << "Cabinet already exists; should not happen." << endl;
 		return (-1);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.getInfo();
 		success = true;
 	}
@@ -71,10 +71,10 @@ doLogCabinetTests()
 	cout << "Creating Log Cabinet... ";
 	try {
 		lc = new LogCabinet(lcname, "Test Log Cabinet", "");
-	} catch (ObjectExists &e) {
+	} catch (Error::ObjectExists &e) {
 		cout << "The Log Cabinet already exists." << endl;
 		return (-1);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
 	}
@@ -90,10 +90,10 @@ doLogCabinetTests()
 		cout << "Obtaining Log Sheet from Log Cabinet... ";
 		try {
 			ls = alc->newLogSheet(lsname, "Log Sheet in Cabinet");
-		} catch (ObjectExists &e) {
+		} catch (Error::ObjectExists &e) {
 			cout << "The Log Sheet already exists." << endl;
 			return (-1);
-		} catch (StrategyError& e) {
+		} catch (Error::StrategyError& e) {
 			cout << "Caught " << e.getInfo() << endl;
 			return (-1);
 		}
@@ -109,10 +109,10 @@ doLogCabinetTests()
 	cout << "Opening existing Log Cabinet... ";
 	try {
 		lc = new LogCabinet(lcname, "");
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Log Cabinet does not exist; what happened?" << endl;
 		return (-1);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
 	}
@@ -127,10 +127,10 @@ doLogCabinetTests()
 	cout << "Deleting Log Cabinet... ";
 	try {
 		BiometricEvaluation::IO::LogCabinet::remove(lcname, "");
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Log Cabinet does not exist; what happened?" << endl;
 		return (-1);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
 	}
@@ -140,9 +140,9 @@ doLogCabinetTests()
 	cout << "Open deleted Log Cabinet... ";
 	try {
 		lc = new LogCabinet(lcname, "");
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		success = true;
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
 	}
@@ -166,10 +166,10 @@ main(int argc, char* argv[])
 	LogSheet *ls;
 	try {
 		ls = new LogSheet(lsname, "Test Log Sheet", "");
-	} catch (ObjectExists &e) {
+	} catch (Error::ObjectExists &e) {
 		cout << "The Log Sheet already exists; exiting." << endl;
 		return (-1);
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
 	}
@@ -186,7 +186,7 @@ main(int argc, char* argv[])
 		cout << "Check that the entry above is NOT in the log." << endl;
 		*als << "First entry that is saved to the log file.";
 		als->newEntry();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
 	}

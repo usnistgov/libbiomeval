@@ -30,10 +30,10 @@ BiometricEvaluation::IO::LogSheet::LogSheet(
     const string &name,
     const string &description,
     const string &parentDir)
-    throw (ObjectExists, StrategyError) : std::ostringstream()
+    throw (Error::ObjectExists, Error::StrategyError) : std::ostringstream()
 {
 	if (!IO::Utility::validateRootName(name))
-		throw StrategyError("Invalid LogSheet name");
+		throw Error::StrategyError("Invalid LogSheet name");
 
 	string pathname;
 	if (parentDir.empty() || parentDir == ".")
@@ -42,16 +42,17 @@ BiometricEvaluation::IO::LogSheet::LogSheet(
                 pathname = parentDir + '/' + name;
 
 	if (IO::Utility::fileExists(pathname))
-		throw ObjectExists();
+		throw Error::ObjectExists();
 
 	_theLogFile = std::fopen(pathname.c_str(), "wb");
 	if (_theLogFile == NULL)
-		throw StrategyError("Could not open file for log sheet");
+		throw Error::StrategyError("Could not open file for log sheet");
 
 	uint32_t len = 13 + description.length() + 1;
 	if (std::fprintf(_theLogFile, "Description: %s\n", description.c_str())
 	    != len) {
-		throw StrategyError("Could not write description to log file");
+		throw Error::StrategyError("Could not write description to "
+		    "log file");
 	}
 	_autoSync = false;
 	_entryNumber = 1;
@@ -64,14 +65,15 @@ BiometricEvaluation::IO::LogSheet::~LogSheet()
 
 void
 BiometricEvaluation::IO::LogSheet::write(const string &entry)
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	uint32_t len = 10 + 1 + entry.length() + 1;
 	if (std::fprintf(_theLogFile, "%010u %s\n", _entryNumber, entry.c_str())
 	    != len) {
 		ostringstream sbuf;
-		sbuf << "Failed writing entry " << _entryNumber << " to log file";
-		throw StrategyError(sbuf.str());
+		sbuf << "Failed writing entry " << _entryNumber << 
+		    " to log file";
+		throw Error::StrategyError(sbuf.str());
 	}
 	if (_autoSync)
 		this->sync();
@@ -99,11 +101,11 @@ BiometricEvaluation::IO::LogSheet::resetCurrentEntry()
 
 void
 BiometricEvaluation::IO::LogSheet::newEntry()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	try {
 		this->write(this->str());
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		throw e;
 	}
 	this->resetCurrentEntry();
@@ -111,10 +113,10 @@ BiometricEvaluation::IO::LogSheet::newEntry()
 
 void
 BiometricEvaluation::IO::LogSheet::sync()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	if (std::fflush(_theLogFile) != 0)
-		throw StrategyError("Could not sync the log file");
+		throw Error::StrategyError("Could not sync the log file");
 }
 
 void
@@ -138,16 +140,16 @@ BiometricEvaluation::IO::LogCabinet::LogCabinet(
     const string &name,
     const string &description,
     const string &parentDir)
-    throw (ObjectExists, StrategyError)
+    throw (Error::ObjectExists, Error::StrategyError)
 {
 	if (!IO::Utility::validateRootName(name))
-		throw StrategyError("Invalid LogCabinet name");
+		throw Error::StrategyError("Invalid LogCabinet name");
 
 	if (IO::Utility::constructAndCheckPath(name, parentDir, _directory))
-		throw ObjectExists();
+		throw Error::ObjectExists();
 
 	if (mkdir(_directory.c_str(), S_IRWXU) != 0)
-		throw StrategyError("Could not create directory");
+		throw Error::StrategyError("Could not create directory");
 
 	_count = 0;
 	_name = name;
@@ -155,7 +157,7 @@ BiometricEvaluation::IO::LogCabinet::LogCabinet(
 	_description = description;
 	try {
 		(void)writeControlFile();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		throw e;
 	}
 }
@@ -163,19 +165,19 @@ BiometricEvaluation::IO::LogCabinet::LogCabinet(
 BiometricEvaluation::IO::LogCabinet::LogCabinet(
     const string &name,
     const string &parentDir)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!IO::Utility::validateRootName(name))
-		throw StrategyError("Invalid LogCabinet name");
+		throw Error::StrategyError("Invalid LogCabinet name");
 
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, _directory))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 	_parentDir = parentDir;
 
 	/* _name, _description and _count are read from the control file */
 	try {
 		(void)readControlFile();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		throw e;
 	}
 }
@@ -184,7 +186,7 @@ BiometricEvaluation::IO::LogCabinet::~LogCabinet()
 {
 	try {
 		writeControlFile();
-	} catch (StrategyError& e) {
+	} catch (Error::StrategyError& e) {
 		if (!std::uncaught_exception())
 			cerr << e.getInfo() << endl;
 	}
@@ -197,18 +199,18 @@ BiometricEvaluation::IO::LogSheet *
 BiometricEvaluation::IO::LogCabinet::newLogSheet(
     const string &name,
     const string &description)
-    throw (ObjectExists, StrategyError)
+    throw (Error::ObjectExists, Error::StrategyError)
 {
 	string fullPath;
 	if (IO::Utility::constructAndCheckPath(name, _directory, fullPath))
-		throw ObjectExists();
+		throw Error::ObjectExists();
 
 	LogSheet *ls;
 	try {
 		ls = new LogSheet(name, description, _directory);
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		throw e;
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		throw e;
 	}
 	_count++;
@@ -238,24 +240,24 @@ void
 BiometricEvaluation::IO::LogCabinet::remove(
     const string &name,
     const string &parentDir)
-    throw (ObjectDoesNotExist, StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 
 	if (!IO::Utility::validateRootName(name))
-		throw StrategyError("Invalid LogCabinet name");
+		throw Error::StrategyError("Invalid LogCabinet name");
 
 	string oldDirectory;
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, oldDirectory))
-		throw ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist();
 
 	try {
 		if (parentDir.empty())
 			IO::Utility::removeDirectory(name, ".");
 		else
 			IO::Utility::removeDirectory(name, parentDir);
-	} catch (ObjectDoesNotExist &e) {
+	} catch (Error::ObjectDoesNotExist &e) {
 		throw e;
-	} catch (StrategyError &e) {
+	} catch (Error::StrategyError &e) {
 		throw e;
 	}
 }
@@ -272,7 +274,7 @@ BiometricEvaluation::IO::LogCabinet::canonicalName(
 
 void
 BiometricEvaluation::IO::LogCabinet::readControlFile()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 
 	string str;
@@ -282,35 +284,37 @@ BiometricEvaluation::IO::LogCabinet::readControlFile()
 	 */
 	std::ifstream ifs(canonicalName(controlFileName).c_str());
 	if (!ifs)
-		throw StrategyError("Could not open control file");
+		throw Error::StrategyError("Could not open control file");
 
 	std::getline(ifs, _name);
 	if (ifs.eof())
-		throw StrategyError("Premature EOF on control file");
+		throw Error::StrategyError("Premature EOF on control file");
 
 	std::getline(ifs, _description);
 	if (ifs.eof())
-		throw StrategyError("Premature EOF on control file");
+		throw Error::StrategyError("Premature EOF on control file");
 
 	ifs >> _count;
 	if (!ifs.good())
-		throw StrategyError("Could not read count from control file");
+		throw Error::StrategyError("Could not read count from control "
+		    "file");
 	
 	ifs.close();
 }
 
 void
 BiometricEvaluation::IO::LogCabinet::writeControlFile()
-    throw (StrategyError)
+    throw (Error::StrategyError)
 {
 	std::ofstream ofs(canonicalName(controlFileName).c_str());
 	if (!ofs)
-		throw StrategyError("Could not write control file");
+		throw Error::StrategyError("Could not write control file");
 
 	ofs << _name << endl;
 	ofs << _description << endl;
 	ofs << _count << endl;
 	if (!ofs.good())
-		throw StrategyError("Could not write count to control file");
+		throw Error::StrategyError("Could not write count to control "
+		    "file");
 	ofs.close();
 }
