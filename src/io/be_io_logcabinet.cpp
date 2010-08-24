@@ -53,6 +53,7 @@ BiometricEvaluation::IO::LogSheet::LogSheet(
 	    != len) {
 		throw StrategyError("Could not write description to log file");
 	}
+	_autoSync = false;
 	_entryNumber = 1;
 }
 
@@ -72,6 +73,8 @@ BiometricEvaluation::IO::LogSheet::write(const string &entry)
 		sbuf << "Failed writing entry " << _entryNumber << " to log file";
 		throw StrategyError(sbuf.str());
 	}
+	if (_autoSync)
+		this->sync();
 	_entryNumber++;
 }
 
@@ -112,6 +115,12 @@ BiometricEvaluation::IO::LogSheet::sync()
 {
 	if (std::fflush(_theLogFile) != 0)
 		throw StrategyError("Could not sync the log file");
+}
+
+void
+BiometricEvaluation::IO::LogSheet::setAutoSync(bool state)
+{
+	_autoSync = state;	
 }
 
 /*

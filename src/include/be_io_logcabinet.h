@@ -130,9 +130,21 @@ namespace BiometricEvaluation {
 			void sync()
 			    throw (StrategyError);
 
+			/*
+			 * Turn on/off auto-sync of the data. When TRUE, the
+			 * data is sync'd whenever newEntry() is or write()
+			 * is called.
+			 * Parameters:
+			 * 	state
+			 *		TRUE if auto-sync is desired, FALSE
+			 *		otherwise.
+			*/
+			void setAutoSync(bool state);
+
 		private:
 			uint32_t _entryNumber;
 			FILE *_theLogFile;
+			bool _autoSync;
 	};
 
 	/*
