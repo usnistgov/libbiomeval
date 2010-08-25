@@ -8,7 +8,7 @@
 # about its quality, reliability, or any other characteristic.
 #
 #
-# Top-level make file to build all of the BIOMDI common code.
+# Top-level make file to build all of the EVALUATION common code.
 #
 include common.mk
 SUBDIRS := src
@@ -25,6 +25,20 @@ all:
 install: installpaths
 	install -m 644 -o $(ROOT) $(LOCALINC)/*.h $(INCPATH)
 	install -m 755 -o $(ROOT) $(LOCALLIB)/* $(LIBPATH)
+
+installpaths: $(INCPATH) $(LIBPATH) $(BINPATH) $(MANPATH)
+$(INCPATH):
+	@echo "$(INCPATH) does not exist";
+	exit 2
+$(LIBPATH):
+	@echo "$(LIBPATH) does not exist";
+	exit 2
+$(BINPATH):
+	@echo "$(BINPATH) does not exist";
+	exit 2
+$(MANPATH):
+	@echo "$(MANPATH) does not exist";
+	exit 2
 
 clean:
 	@for subdir in $(SUBDIRS); do \
