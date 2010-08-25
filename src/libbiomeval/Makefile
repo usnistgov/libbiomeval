@@ -8,11 +8,39 @@
 # about its quality, reliability, or any other characteristic.
 #
 include ../common.mk
-SOURCES = be_time_timer.cpp be_error_utility.cpp
+SOURCES = be_error_exception.cpp be_error_utility.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp be_time_timer.cpp 
 OBJECTS = $(SOURCES:%.cpp=%.o)
-LIBRARY=libbiomeval
+LIBRARY = libbiomeval
+LOCALLIB = ../../lib
 
 all: $(OBJECTS)
+	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
+ifeq ($(OS), Darwin)
+	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -o $(LIBRARY).dylib
+	$(CP) $(LIBRARY).dylib $(LOCALLIB)
+else
+ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
+	ar rs $(LIBRARY).a $(OBJECTS)
+	ranlib $(LIBRARY).a
+	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive
+	$(CP) $(LIBRARY).a $(LOCALLIB)
+	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
+	$(CP) $(LIBRARY).dll $(LOCALLIB)
+else
+	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -o $(LIBRARY).so
+	$(CP) $(LIBRARY).so $(LOCALLIB)
+endif
+endif
+
+#
+# The default make rule is OK for most files.
+#
+be_io_dbrecstore.o: be_io_dbrecstore.cpp
+ifeq ($(OS), Darwin)
+	$(CXX) -c $(CXXFLAGS) $<
+else
+	$(CXX) -c -DDB1X $(CXXFLAGS) $<
+endif
 
 be_error_utility.o: be_error_utility.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ -D_XOPEN_SOURCE=600 $<

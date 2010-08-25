@@ -9,12 +9,8 @@
 #
 
 # The 'core' library and programs, that always build
-CORE := libbiomeval io
+CORE := libbiomeval
 SUBDIRS := $(CORE)
-
-OBJECTS := io/be_error_exception.o io/be_io_recordstore.o io/be_io_dbrecstore.o io/be_io_filerecstore.o io/be_io_archiverecstore.o io/be_io_utility.o io/be_io_logcabinet.o libbiomeval/be_time_timer.o libbiomeval/be_error_utility.o
-
-LIBRARY := libbiomeval
 LOCALLIB := ../lib
 
 include ../common.mk
@@ -23,18 +19,6 @@ all:
 	@for subdir in $(SUBDIRS); do \
 		(cd $$subdir && $(MAKE) all) || exit 1; \
 	done
-	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
-ifeq ($(OS), Darwin)
-	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -o $(LOCALLIB)/$(LIBRARY).dylib
-else
-ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
-	ar rs $(LOCALLIB)/$(LIBRARY).a $(OBJECTS)
-	ranlib $(LOCALLIB)/$(LIBRARY).a
-	$(CXX) -shared -o $(LOCALLIB)/$(LIBRARY).dll -Wl,--out-implib=$(LOCALLIB)/$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LOCALLIB)/$(LIBRARY).a -Wl,--no-whole-archive
-else
-	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -o $(LOCALLIB)/$(LIBRARY).so
-endif
-endif
 
 clean:
 	@for subdir in $(SUBDIRS); do \
