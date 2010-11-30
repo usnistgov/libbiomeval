@@ -457,8 +457,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::vacuum(
 		throw Error::StrategyError("Invalid characters in RS name");
 
 	string newDirectory;
-	if (IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
-		throw Error::ObjectExists();
+	if (!IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
+		throw Error::ObjectDoesNotExist();
 
 	char *data = NULL;
 	uint64_t size;
