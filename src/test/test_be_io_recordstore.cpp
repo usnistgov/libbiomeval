@@ -281,6 +281,7 @@ main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
 	}
 	auto_ptr<IO::FileRecordStore> ars(rs);
 #endif
@@ -296,6 +297,7 @@ main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
 	}
 	auto_ptr<IO::DBRecordStore> ars(rs);
 #endif
@@ -311,6 +313,7 @@ main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
 	}
 	auto_ptr<IO::ArchiveRecordStore> ars(rs);
 #endif
@@ -332,6 +335,7 @@ main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
 	}
 #endif
 
@@ -345,6 +349,7 @@ main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
 	}
 #endif
 
@@ -358,6 +363,7 @@ main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
 	}
 #endif
 

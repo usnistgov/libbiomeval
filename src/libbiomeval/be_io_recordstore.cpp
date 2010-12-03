@@ -17,12 +17,16 @@
 
 #include <be_error_utility.h>
 #include <be_io_utility.h>
+#include <be_io_properties.h>
 #include <be_io_recordstore.h>
 
 /*
  * The name of the control file use by all RecordStores.
  */
-const string controlFileName(".rscontrol");
+const string controlFileName(".rscontrol.prop");
+const string NAMEPROPERTY("Name");
+const string DESCRIPTIONPROPERTY("Description");
+const string COUNTPROPERTY("Count");
 
 /*
  * Constructors
@@ -49,6 +53,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 	_parentDir = parentDir;
 	_description = description;
 	_cursor = BE_RECSTORE_SEQ_START;
+	_mode = IO::READWRITE;
 
 	/*
 	 * The RecordStore is implemented as a directory in the current
@@ -80,7 +85,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 
 	_parentDir = parentDir;
 	_cursor = BE_RECSTORE_SEQ_START;
-	if (mode != IO_READWRITE && mode != IO_READONLY)
+	if (mode != IO::READWRITE && mode != IO::READONLY)
 		throw Error::StrategyError("Invalid mode");
 	_mode = mode;
 
@@ -97,7 +102,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 BiometricEvaluation::IO::RecordStore::~RecordStore()
 {
 	try {
-		if (_mode != IO_READONLY)
+		if (_mode != IO::READONLY)
 			writeControlFile();
 	} catch (Error::StrategyError& e) {
 		if (!std::uncaught_exception())
@@ -124,7 +129,7 @@ void
 BiometricEvaluation::IO::RecordStore::sync()
     throw (Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	try {
@@ -150,7 +155,7 @@ void
 BiometricEvaluation::IO::RecordStore::changeName(const string &name)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!IO::Utility::validateRootName(name))
@@ -173,7 +178,7 @@ void
 BiometricEvaluation::IO::RecordStore::changeDescription(const string &description)
     throw (Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	_description = description;
@@ -229,42 +234,75 @@ void
 BiometricEvaluation::IO::RecordStore::readControlFile()
     throw (Error::StrategyError)
 {
-	string str;
 
-	/* Read the store name and description from the control file.
+	/* Read the properties file and set the related state variables
+	 * from the Properties object, checking for errors.
 	 * _directory must be set before calling this method.
 	 */
-	std::ifstream ifs(RecordStore::canonicalName(controlFileName).c_str());
-	if (!ifs)
-		throw Error::StrategyError("Could not open control file");
+	Properties *props;
+	try {
+		props = new Properties(RecordStore::canonicalName(controlFileName));
+	} catch (Error::StrategyError &e) {
+                throw Error::StrategyError("Could not read properties");
+        } catch (Error::FileError& e) {
+                throw Error::StrategyError("Could not open properties");
+	}
 
-	std::getline(ifs, _name);
-	if (ifs.eof())
-		throw Error::StrategyError("Premature EOF on control file");
+	auto_ptr<Properties> aprops(props);
 
-	std::getline(ifs, _description);
-	if (ifs.eof())
-		throw Error::StrategyError("Premature EOF on control file");
-
-	ifs >> _count;
-	
-	ifs.close();
+	/* Don't change any object state until all properties are read */
+	string tname, tdescription;
+	unsigned int tcount;
+	try {
+		tname = aprops->getProperty(NAMEPROPERTY);
+        } catch (Error::ObjectDoesNotExist& e) {
+                throw Error::StrategyError("Name property is missing");
+        }
+	try {
+		tdescription = aprops->getProperty(DESCRIPTIONPROPERTY);
+        } catch (Error::ObjectDoesNotExist& e) {
+                throw Error::StrategyError("Description property is missing");
+        }
+	try {
+		tcount = (unsigned int)aprops->getPropertyAsInteger(COUNTPROPERTY);
+        } catch (Error::ObjectDoesNotExist& e) {
+                throw Error::StrategyError("Count property is missing");
+        }
+	_name = tname;
+	_description = tdescription;
+	_count = tcount;
 }
 
 void
 BiometricEvaluation::IO::RecordStore::writeControlFile()
     throw (Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	std::ofstream ofs(RecordStore::canonicalName(controlFileName).c_str());
-	if (!ofs)
-		throw Error::StrategyError("Could not write control file");
+	Properties *props;
+	try {
+		props = new Properties(RecordStore::canonicalName(controlFileName));
+	} catch (Error::FileError &e) {
+                throw Error::StrategyError("Could not write properties");
+	} catch (Error::StrategyError &e) {
+                throw Error::StrategyError("Could not write properties");
+	}
 
-	/* Write the store name and description into the control file */
-	ofs << _name << '\n';
-	ofs << _description << '\n';
-	ofs << _count << '\n';
-	ofs.close();
+	auto_ptr<Properties> aprops(props);
+	aprops->setProperty(NAMEPROPERTY, _name);
+	aprops->setProperty(DESCRIPTIONPROPERTY, _description);
+	aprops->setPropertyFromInteger(COUNTPROPERTY, _count);
+	try {
+		aprops->sync();
+	} catch (Error::StrategyError &e) {
+                throw Error::StrategyError("Control property state is bad; not written");
+        } catch (Error::FileError& e) {
+		/* This should never happen as the Properties object
+		 * is r/w, and has a file associated with it. However, if
+		 * some destructive operation on the directory or file occurs
+		 * outside of this class, we will have problems.
+		 */
+                throw Error::StrategyError("Could not write control file");
+        }
 }

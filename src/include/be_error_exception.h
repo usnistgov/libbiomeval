@@ -41,7 +41,7 @@ namespace BiometricEvaluation {
 				FileError();
 				FileError(string info);
 		};
-	
+
 		/*
 		 * An invalid parameter was passed to a constructor or method.
 		 */
@@ -51,6 +51,16 @@ namespace BiometricEvaluation {
 				ParameterError(string info);
 		};
 		
+		/*
+		 * Error when converting one object into another, a property
+		 * value from string to int, for example.
+		 */
+		class ConversionError : public Exception {
+			public:
+				ConversionError();
+				ConversionError(string info);
+		};
+
 		/*
 		 * An error occurred when allocating an object.
 		 */

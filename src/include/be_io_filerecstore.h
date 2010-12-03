@@ -45,7 +45,7 @@ namespace BiometricEvaluation {
 			FileRecordStore(
 			    const string &name,
 			    const string &parentDir,
-			    uint8_t mode = IO_READWRITE)
+			    uint8_t mode = IO::READWRITE)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 

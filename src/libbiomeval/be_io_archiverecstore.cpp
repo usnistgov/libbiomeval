@@ -63,7 +63,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 	struct stat sb;
 	
 	if (stat(canonicalName(manifestFileName).c_str(), &sb)) {
-		if (_mode == IO_READONLY) {
+		if (_mode == IO::READONLY) {
 			_manifestfp = fopen(
 			    canonicalName(manifestFileName).c_str(), "r");
 		} else {
@@ -74,7 +74,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 			throw Error::FileError("Could not create manifest "
 			    "file (" + Error::Utility::errorStr() + ")");
 	} else if (_manifestfp == NULL)  {
-		if (_mode == IO_READONLY) {
+		if (_mode == IO::READONLY) {
 			_manifestfp = fopen(
 			    canonicalName(manifestFileName).c_str(), "r");
 		} else {
@@ -87,7 +87,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 	}
 
 	if (stat(canonicalName(archiveFileName).c_str(), &sb)) {
-		if (_mode == IO_READONLY) {
+		if (_mode == IO::READONLY) {
 			_archivefp = fopen(
 			    canonicalName(archiveFileName).c_str(), "rb");
 		} else {
@@ -98,7 +98,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 			throw Error::FileError("Could not create archive "
 			    "file (" + Error::Utility::errorStr() + ")");
 	} else if (_archivefp == NULL) {
-		if (_mode == IO_READONLY) {
+		if (_mode == IO::READONLY) {
 			_archivefp = fopen(
 			    canonicalName(archiveFileName).c_str(), "rb");
 		} else {
@@ -155,7 +155,7 @@ void
 BiometricEvaluation::IO::ArchiveRecordStore::sync()
     throw (Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	/* Flush the streams, not necessarily for the key passed */
@@ -258,7 +258,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::insert(
     const uint64_t size)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	long offset = -1;
@@ -317,7 +317,7 @@ void
 BiometricEvaluation::IO::ArchiveRecordStore::remove(const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	ManifestMap::iterator lb = _entries.lower_bound(key);
@@ -342,7 +342,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::replace(
     const uint64_t size)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	try {
@@ -367,7 +367,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::flush(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	/* Flush the streams, not necessarily for the key passed */
@@ -525,7 +525,7 @@ void
 BiometricEvaluation::IO::ArchiveRecordStore::changeName(const string &name)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::changeName(name);

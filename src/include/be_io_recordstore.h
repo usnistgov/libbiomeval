@@ -7,11 +7,12 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
-#ifndef __BE_RECORDSTORE_H__
-#define __BE_RECORDSTORE_H__
+#ifndef __BE_IO_RECORDSTORE_H__
+#define __BE_IO_RECORDSTORE_H__
 
 #include <string>
 #include <vector>
+#include <be_io.h>
 #include <be_error_exception.h>
 using namespace std;
 
@@ -28,6 +29,14 @@ namespace BiometricEvaluation {
 		class RecordStore {
 		public:
 			
+			/*
+		 	* Keys used in the Properties list for the RecordStore.
+		 	*
+			* "Name" - The name of the store
+			* "Description" - The description of the store
+			* "Count" - The number of items in the store
+			*/
+
 			/*
 			 * All RecordStores should have the ability to be
 			 * created with a string for the description.
@@ -78,12 +87,10 @@ namespace BiometricEvaluation {
 			 *		underlying storage system, or the
 			 *		name is malformed.
 			 */
-			static const uint8_t IO_READWRITE = 0;
-			static const uint8_t IO_READONLY = 1;
 			RecordStore(
 			    const string &name,
 			    const string &parentDir,
-			    uint8_t mode = IO_READWRITE)
+			    uint8_t mode = READWRITE)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
@@ -411,4 +418,4 @@ namespace BiometricEvaluation {
 		};
 	}
 }
-#endif	/* __BE_RECORDSTORE_H__ */
+#endif	/* __BE_IO_RECORDSTORE_H__ */

@@ -52,7 +52,7 @@ BiometricEvaluation::IO::FileRecordStore::changeName(
     const string &name)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::changeName(name);
@@ -102,7 +102,7 @@ BiometricEvaluation::IO::FileRecordStore::insert(
     const uint64_t size)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -126,7 +126,7 @@ BiometricEvaluation::IO::FileRecordStore::remove(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -175,7 +175,7 @@ BiometricEvaluation::IO::FileRecordStore::replace(
     const uint64_t size)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -210,7 +210,7 @@ BiometricEvaluation::IO::FileRecordStore::flush(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO_READONLY)
+	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
