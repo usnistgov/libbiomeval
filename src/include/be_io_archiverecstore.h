@@ -190,6 +190,11 @@ namespace BiometricEvaluation {
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
+
+			void setCursor(
+			    string &key)
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
 	
 			/*
 			 * Remove "removed" entries from the manifest and 

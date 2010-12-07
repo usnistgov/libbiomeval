@@ -107,6 +107,11 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
+			void setCursor(
+			    string &key)
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
+
 			void changeName(
 			    const string &name)
 			    throw (Error::ObjectExists, Error::StrategyError);

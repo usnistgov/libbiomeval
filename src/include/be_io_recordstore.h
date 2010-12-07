@@ -334,6 +334,30 @@ namespace BiometricEvaluation {
 			    Error::StrategyError) = 0;
 
 			/*
+			 * Set the sequence cursor to an arbitrary position
+			 * within the RecordStore, starting at key.  Key 
+			 * will be the first record returned from the next
+			 * call to sequence().
+			 *
+			 * Parameters:
+			 *	key (in)
+			 *		The key of the record which will be 
+			 *		returned by the first subsequent call
+			 *		to sequence().
+			 *
+			 * Throws:
+			 * 	Error::ObjectDoesNotExist
+			 *		A record for the key does not exist.
+			 *	Error::StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system.
+			 */
+			virtual void setCursor(
+			    string &key)
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError) = 0;
+
+			/*
 			 * Remove a RecordStore by deleting all persistant
 			 * data associated with the store.
 			 *

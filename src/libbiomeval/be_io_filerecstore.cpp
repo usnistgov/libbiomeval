@@ -291,6 +291,49 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 	return FileRecordStore::read(_key, data);
 }
 
+void 
+BiometricEvaluation::IO::FileRecordStore::setCursor(
+    string &key)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	DIR *dir;
+	dir = opendir(_theFilesDir.c_str());
+	if (dir == NULL)
+		throw Error::StrategyError("Cannot open store directory");
+
+	struct dirent *entry;
+	struct stat sb;
+	int i = 1;
+	string cname;
+	while ((entry = readdir(dir)) != NULL) {
+		if (entry->d_ino == 0)
+			continue;
+		cname = _theFilesDir + "/" + entry->d_name;
+		if (stat(cname.c_str(), &sb) != 0)	
+			throw Error::StrategyError("Cannot stat store file (" +
+			    Error::Utility::errorStr() + ")");
+		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
+			continue;
+		if (key == entry->d_name) {
+			_cursorPos = i;
+			break;
+		}
+		i++;
+	}
+
+	/* Exited the loop by exhausting the directory */
+	if (entry == NULL)
+		throw Error::ObjectDoesNotExist(key);
+
+	if (dir != NULL) {
+		if (closedir(dir)) {
+			throw Error::StrategyError("Could not close " + 
+			    _theFilesDir + " (" + Error::Utility::errorStr() + 
+			    ")");
+		}
+	}
+}
+
 /******************************************************************************/
 /* Private method implementations.                                            */
 /******************************************************************************/

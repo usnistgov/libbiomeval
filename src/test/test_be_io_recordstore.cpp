@@ -208,6 +208,14 @@ runTests(IO::RecordStore *rs)
 		rs->insert(theKey, rdata, RDATASIZE);
 	}
 	testSequence(rs);
+	theKey.assign("key5");
+	cout << "Sequence, starting from \"" << theKey << "\"" << endl;
+	try {
+		rs->setCursor(theKey);
+	} catch (Error::Exception &e) {
+		cout << "Caught: " << e.getInfo() << endl;
+	}
+	testSequence(rs);
 	cout << "Changing RecordStore name..." << endl;
 	try {
 		string newName = tempnam(".", NULL);

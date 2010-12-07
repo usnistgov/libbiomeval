@@ -431,6 +431,24 @@ BiometricEvaluation::IO::ArchiveRecordStore::sequence(
 	return read(key, data);
 }
 
+void 
+BiometricEvaluation::IO::ArchiveRecordStore::setCursor(
+    string &key)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	/* Check for existance */
+	ManifestMap::iterator lb = _entries.lower_bound(key);
+	if (lb == _entries.end())
+		throw Error::ObjectDoesNotExist(key);
+
+	/* Check for "removal" */
+	ManifestEntry entry = lb->second;
+	if (entry.offset == ARCHIVE_RECORD_REMOVED)
+		throw Error::ObjectDoesNotExist(key + " was removed");
+
+	_cursorPos = (lb == _entries.begin()) ? lb : --lb;
+}
+
 BiometricEvaluation::IO::ManifestMap::iterator 
     BiometricEvaluation::IO::ArchiveRecordStore::efficient_insert(
     ManifestMap &m,

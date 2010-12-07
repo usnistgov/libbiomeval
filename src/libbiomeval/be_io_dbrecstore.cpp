@@ -338,6 +338,54 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 	return (dbtdata.size);
 }
 
+void 
+BiometricEvaluation::IO::DBRecordStore::setCursor(
+    string &key)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	DBT dbtkey, dbtdata;
+
+	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
+	dbtkey.size = key.length();
+	int rc = _db->seq(_db, &dbtkey, &dbtdata, R_CURSOR);
+	switch (rc) {
+		case 0:
+			break;
+		case 1:
+			throw Error::ObjectDoesNotExist("Key not in database");
+			break;		/* not reached */
+		case -1:
+			throw Error::StrategyError("Could not read from "
+			    "database (" + Error::Utility::errorStr() + ")");
+			break;		/* not reached */
+		default:
+			throw Error::StrategyError("Unknown error reading "
+			    "database");
+			break;		/* not reached */
+	}
+
+	/* Access the previous record, so that this record is returned first. */
+	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
+	dbtkey.size = key.length();
+	rc = _db->seq(_db, &dbtkey, &dbtdata, R_PREV);
+	switch (rc) {
+		case 0:
+			return;
+			break;
+		case 1:
+			_cursor = BE_RECSTORE_SEQ_START;
+			break;
+		case -1:
+			throw Error::StrategyError("Could not read from "
+			    "database (" + Error::Utility::errorStr() + ")");
+			break;		/* not reached */
+		default:
+			throw Error::StrategyError("Unknown error reading "
+			    "database");
+			break;		/* not reached */
+	}
+}
+
 /*
  * Private method implementations.
  */
