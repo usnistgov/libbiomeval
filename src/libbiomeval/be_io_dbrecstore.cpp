@@ -370,7 +370,7 @@ BiometricEvaluation::IO::DBRecordStore::setCursor(
 	rc = _db->seq(_db, &dbtkey, &dbtdata, R_PREV);
 	switch (rc) {
 		case 0:
-			return;
+			_cursor = BE_RECSTORE_SEQ_NEXT;
 			break;
 		case 1:
 			_cursor = BE_RECSTORE_SEQ_START;
