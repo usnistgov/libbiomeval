@@ -21,6 +21,18 @@
 #include <be_error_utility.h>
 #include <be_io_utility.h>
 
+static void setBtreeInfo(BTREEINFO *bti)
+{
+	bti->flags = 0;
+	bti->cachesize = 0;	/* Default */
+	bti->maxkeypage = 0;
+	bti->minkeypage = 0;
+	bti->psize = 0;
+	bti->compare = NULL;
+	bti->prefix = NULL;
+	bti->lorder = 4321;	/* Big-endian */
+}
+
 BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     const string &name,
     const string &description,
@@ -32,8 +44,10 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	if (IO::Utility::fileExists(_dbname))
 		throw Error::ObjectExists("Database already exists");
 
+	BTREEINFO bti;
+	setBtreeInfo(&bti);
 	_db = dbopen(_dbname.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR,
-	    DB_BTREE, NULL);
+	    DB_BTREE, &bti);
 	if (_db == NULL)
 		throw Error::StrategyError("Could not create database (" + 
 		    Error::Utility::errorStr() + ")");
@@ -50,8 +64,10 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	if (!IO::Utility::fileExists(_dbname))
 		throw Error::ObjectDoesNotExist("Database does not exist");
 
+	BTREEINFO bti;
+	setBtreeInfo(&bti);
 	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, 
-	    NULL);
+	    &bti);
 	if (_db == NULL)
 		throw Error::StrategyError("Could not open database (" + 
 		    Error::Utility::errorStr() + ")");
