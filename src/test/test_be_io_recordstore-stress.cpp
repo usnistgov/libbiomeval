@@ -37,8 +37,10 @@ using namespace BiometricEvaluation;
 #define TIMEINTERVAL(__s, __f)                                          \
 	(__f.tv_sec - __s.tv_sec)*1000000+(__f.tv_usec - __s.tv_usec)
 
+//const int RECCOUNT = 1099997;		/* A prime number of records */
 const int RECCOUNT = 110503;		/* A prime number of records */
 const int RECSIZE = 1153;		/* of prime number size each */
+//const int RECSIZE = 13859;		/* of prime number size each */
 const int KEYNAMESIZE = 32;
 const int CREATEDESETROYCOUNT = 11;
 static char keyName[KEYNAMESIZE];
@@ -51,16 +53,16 @@ static uint64_t totalTime;
  */
 static int insertMany(IO::RecordStore *rs)
 {
-	string *theKey;
+	string theKey;
 	totalTime = 0;
 	uint8_t *theData = (uint8_t *)malloc(RECSIZE);
 	cout << "Creating " << RECCOUNT << " records of size " << RECSIZE << "." << endl;
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", i);
-		theKey = new string(keyName);
+		theKey = keyName;
 		gettimeofday(&starttm, NULL);
 		try {
-			rs->insert(*theKey, theData, RECSIZE);
+			rs->insert(theKey, theData, RECSIZE);
 		} catch (Error::ObjectExists& e) {
 			cout << "Whoops! Record exists?. Insert failed at record " << i << "." << endl;
 			return (-1);
@@ -71,7 +73,6 @@ static int insertMany(IO::RecordStore *rs)
 		}
 		gettimeofday(&endtm, NULL);
 		totalTime += TIMEINTERVAL(starttm, endtm);
-		delete theKey;
 	}
 	cout << "Insert lapsed time: " << totalTime << endl;
 	return (0);
@@ -171,17 +172,17 @@ int main (int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 
 	/* Random replace test */
-	string *theKey;
+	string theKey;
 	uint8_t *theData = (uint8_t *)malloc(RECSIZE);
 	srand(endtm.tv_sec);
 	totalTime = 0;
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", 
 		    (unsigned int)(rand() % RECCOUNT));
-		theKey = new string(keyName);
+		theKey = keyName;
 		gettimeofday(&starttm, NULL);
 		try {
-			ars->replace(*theKey, theData, RECSIZE);
+			ars->replace(theKey, theData, RECSIZE);
 		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exists?. Insert failed at record " << i << "." << endl;
 			return (EXIT_FAILURE);
@@ -192,7 +193,6 @@ int main (int argc, char* argv[]) {
 		}
 		gettimeofday(&endtm, NULL);
 		totalTime += TIMEINTERVAL(starttm, endtm);
-		delete theKey;
 	}
 	cout << "Random replace lapsed time: " << totalTime << endl;
 
@@ -200,10 +200,10 @@ int main (int argc, char* argv[]) {
 	totalTime = 0;
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", i);
-		theKey = new string(keyName);
+		theKey = keyName;
 		gettimeofday(&starttm, NULL);
 		try {
-			ars->read(*theKey, theData);
+			ars->read(theKey, theData);
 		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
@@ -215,7 +215,6 @@ int main (int argc, char* argv[]) {
 		}
 		gettimeofday(&endtm, NULL);
 		totalTime += TIMEINTERVAL(starttm, endtm);
-		delete theKey;
 	}
 	cout << "Sequential read lapsed time: " << totalTime << endl;
 
@@ -224,10 +223,10 @@ int main (int argc, char* argv[]) {
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", 
 		    (unsigned int)(rand() % RECCOUNT));
-		theKey = new string(keyName);
+		theKey = keyName;
 		gettimeofday(&starttm, NULL);
 		try {
-			ars->read(*theKey, theData);
+			ars->read(theKey, theData);
 		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
@@ -239,7 +238,6 @@ int main (int argc, char* argv[]) {
 		}
 		gettimeofday(&endtm, NULL);
 		totalTime += TIMEINTERVAL(starttm, endtm);
-		delete theKey;
 	}
 	cout << "Random read lapsed time: " << totalTime << endl;
 
@@ -256,10 +254,10 @@ int main (int argc, char* argv[]) {
 	totalTime = 0;
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", i);
-		theKey = new string(keyName);
+		theKey = keyName;
 		gettimeofday(&starttm, NULL);
 		try {
-			ars->remove(*theKey);
+			ars->remove(theKey);
 		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Remove failed at record " <<
 			    i << "." << endl;
@@ -271,7 +269,6 @@ int main (int argc, char* argv[]) {
 		}
 		gettimeofday(&endtm, NULL);
 		totalTime += TIMEINTERVAL(starttm, endtm);
-		delete theKey;
 	}
 	cout << "Remove lapsed time: " << totalTime << endl;
 	ars->sync();
