@@ -30,12 +30,32 @@ namespace BiometricEvaluation {
 		public:
 			
 			/*
+			 * The name of the control file, a properties list.
+			 */
+			static const string CONTROLFILENAME;
+
+			/*
 		 	* Keys used in the Properties list for the RecordStore.
 		 	*
 			* "Name" - The name of the store
 			* "Description" - The description of the store
 			* "Count" - The number of items in the store
+			* "Type" - The type of RecordStore.
 			*/
+			static const string NAMEPROPERTY;
+			static const string DESCRIPTIONPROPERTY;
+			static const string COUNTPROPERTY;
+			static const string TYPEPROPERTY;
+
+			/*
+			 * The known RecordStore type strings:
+			 * "BerkeleyDB" - Berkeley database
+			 * "Archive" - Archive file
+			 * "File" - One file per record
+			 */
+			static const string BERKELEYDBTYPE;
+			static const string ARCHIVETYPE;
+			static const string FILETYPE;
 
 			/*
 			 * All RecordStores should have the ability to be
@@ -46,6 +66,8 @@ namespace BiometricEvaluation {
 			 *		created.
 			 *	description (in)
 			 *		The text used to describe the store.
+			 *	type (in)
+			 *		The type of RecordStore.
 			 *	parentDir (in)
 			 *		Where, in the file system, the store
 			 *		is to be rooted. This directory must
@@ -65,6 +87,7 @@ namespace BiometricEvaluation {
 			RecordStore(
 			    const string &name,
 			    const string &description,
+			    const string &type,
 			    const string &parentDir)
 			    throw (Error::ObjectExists, Error::StrategyError);
 
@@ -82,6 +105,8 @@ namespace BiometricEvaluation {
 			 * Returns:
 			 *	An object representing the existing store.
 			 * Throws:
+			 *	Error::ObjectDoesNotExist
+			 *		The RecordStore does not exist.
 			 *	Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system, or the
@@ -114,7 +139,7 @@ namespace BiometricEvaluation {
 			unsigned int getCount();
 
 			/*
-			 * Change the name of the RecordStore
+			 * Change the name of the RecordStore.
 			 * Parameters:
 			 * Returns:
 			 * Throws:
@@ -188,7 +213,8 @@ namespace BiometricEvaluation {
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
-			    throw (Error::ObjectExists, Error::StrategyError) = 0;
+			    throw (Error::ObjectExists,
+			    Error::StrategyError) = 0;
 
 			/*
 			 * Remove a record from the store
@@ -392,6 +418,16 @@ namespace BiometricEvaluation {
 			string _name;
 
 			/*
+			 * A textual description of the store.
+			 */
+			string _description;
+
+			/*
+			 * The RecordStore type.
+			 */
+			string _type;
+
+			/*
 			 * The name directory where the store is rooted,
 			 * including _parentDir.
 			 */
@@ -401,11 +437,6 @@ namespace BiometricEvaluation {
 			 * The directory containing the store.
 			 */
 			string _parentDir;
-
-			/*
-			 * A textual description of the store.
-			 */
-			string _description;
 
 			/*
 			 * Number of items in the store.
@@ -418,15 +449,15 @@ namespace BiometricEvaluation {
 			int _cursor;
 
 			/*
+			 * Mode in which the RecordStore was opened.
+			 */
+			uint8_t _mode;
+
+			/*
 			 * Return the full name of a file stored as part
 			 * of the RecordStore, typically _directory + name.
 			 */
 			string canonicalName(const string &name);
-
-			/*
-			 * Mode in which the RecordStore was opened.
-			 */
-			uint8_t _mode;
 
 			/*
 			 * Read the contents of the common control file format

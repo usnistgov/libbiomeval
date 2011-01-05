@@ -11,24 +11,27 @@
 #include <sys/param.h>
 #include <sys/stat.h>
 
-#include <map>
-#include <string>
-
 #include <errno.h>
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include <map>
+#include <string>
+#include <cstdio>
+
 #include <be_io_utility.h>
 #include <be_io_archiverecstore.h>
 #include <be_error_utility.h>
+
+using namespace std;
 
 BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
     const string &name,
     const string &description,
     const string &parentDir)
     throw (Error::ObjectExists, Error::StrategyError) : 
-    RecordStore(name, description, parentDir)
+    RecordStore(name, description, ARCHIVETYPE, parentDir)
 {
 	char linebuf[MAXLINELEN];
 	_manifestfp = _archivefp = NULL;
@@ -116,13 +119,13 @@ BiometricEvaluation::IO::ArchiveRecordStore::close_streams()
     throw (Error::StrategyError)
 {
 	if (_manifestfp != NULL) {
-		if (fclose(_manifestfp))
+		if (std::fclose(_manifestfp))
 			throw Error::StrategyError("Could not close manifest "
 			    "(" + Error::Utility::errorStr() + ")");
 		_manifestfp = NULL;
 	}
 	if (_archivefp != NULL) {
-		if (fclose(_archivefp))
+		if (std::fclose(_archivefp))
 			throw Error::StrategyError("Could not close archive (" +
 			    Error::Utility::errorStr() + ")");
 		_archivefp = NULL;
@@ -204,7 +207,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::read_manifest()
 
 	while (1) {
 		if (fgets(linebuf, MAXLINELEN, _manifestfp) == NULL) {
-			if (feof(_manifestfp))
+			if (std::feof(_manifestfp))
 				break;
 			throw Error::FileError("Error reading entry from "
 			    "manifest.");
@@ -271,8 +274,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::insert(
 			throw Error::StrategyError(e.getInfo());
 		}
 	}
-	offset = ftell(_archivefp);
-	if (fwrite(data, 1, size, _archivefp) != size)
+	offset = std::ftell(_archivefp);
+	if (std::fwrite(data, 1, size, _archivefp) != size)
 		throw Error::StrategyError("Could not write to archive file (" +
 		    Error::Utility::errorStr() + ")");
 

@@ -13,6 +13,7 @@
 
 #include <fcntl.h>
 #include <limits.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <iostream>
@@ -38,7 +39,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     const string &description,
     const string &parentDir)
     throw (Error::ObjectExists, Error::StrategyError) : 
-    RecordStore(name, description, parentDir)
+    RecordStore(name, description, BERKELEYDBTYPE, parentDir)
 {
 	_dbname = _directory + '/' + _name;
 	if (IO::Utility::fileExists(_dbname))

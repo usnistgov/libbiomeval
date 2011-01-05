@@ -10,10 +10,11 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-
 #include <dirent.h>
+
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 #include <be_error_utility.h>
 #include <be_io_utility.h>
@@ -23,10 +24,19 @@
 /*
  * The name of the control file use by all RecordStores.
  */
-const string controlFileName(".rscontrol.prop");
-const string NAMEPROPERTY("Name");
-const string DESCRIPTIONPROPERTY("Description");
-const string COUNTPROPERTY("Count");
+const string BiometricEvaluation::IO::RecordStore::CONTROLFILENAME(".rscontrol.prop");
+
+/*
+ * The common properties for all RecordStore types.
+ */
+const string BiometricEvaluation::IO::RecordStore::NAMEPROPERTY("Name");
+const string BiometricEvaluation::IO::RecordStore::DESCRIPTIONPROPERTY("Description");
+const string BiometricEvaluation::IO::RecordStore::COUNTPROPERTY("Count");
+const string BiometricEvaluation::IO::RecordStore::TYPEPROPERTY("Type");
+
+const string BiometricEvaluation::IO::RecordStore::BERKELEYDBTYPE("BerkeleyDB");
+const string BiometricEvaluation::IO::RecordStore::ARCHIVETYPE("Archive");
+const string BiometricEvaluation::IO::RecordStore::FILETYPE("File");
 
 /*
  * Constructors
@@ -40,6 +50,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore()
 BiometricEvaluation::IO::RecordStore::RecordStore(
     const string &name,
     const string &description,
+    const string &type,
     const string &parentDir)
     throw (Error::ObjectExists, Error::StrategyError)
 {
@@ -50,8 +61,9 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 
 	_count = 0;
 	_name = name;
-	_parentDir = parentDir;
 	_description = description;
+	_type = type;
+	_parentDir = parentDir;
 	_cursor = BE_RECSTORE_SEQ_START;
 	_mode = IO::READWRITE;
 
@@ -120,7 +132,7 @@ BiometricEvaluation::IO::RecordStore::getSpaceUsed()
 {
 	struct stat sb;
 
-	if (stat(RecordStore::canonicalName(controlFileName).c_str(), &sb) != 0)
+	if (stat(RecordStore::canonicalName(CONTROLFILENAME).c_str(), &sb) != 0)
 		throw Error::StrategyError("Could not find control file");
 	return (sb.st_blocks * S_BLKSIZE);
 }
@@ -241,7 +253,7 @@ BiometricEvaluation::IO::RecordStore::readControlFile()
 	 */
 	Properties *props;
 	try {
-		props = new Properties(RecordStore::canonicalName(controlFileName));
+		props = new Properties(RecordStore::canonicalName(CONTROLFILENAME));
 	} catch (Error::StrategyError &e) {
                 throw Error::StrategyError("Could not read properties");
         } catch (Error::FileError& e) {
@@ -251,7 +263,7 @@ BiometricEvaluation::IO::RecordStore::readControlFile()
 	auto_ptr<Properties> aprops(props);
 
 	/* Don't change any object state until all properties are read */
-	string tname, tdescription;
+	string tname, tdescription, ttype;
 	unsigned int tcount;
 	try {
 		tname = aprops->getProperty(NAMEPROPERTY);
@@ -264,11 +276,17 @@ BiometricEvaluation::IO::RecordStore::readControlFile()
                 throw Error::StrategyError("Description property is missing");
         }
 	try {
+		ttype = aprops->getProperty(TYPEPROPERTY);
+        } catch (Error::ObjectDoesNotExist& e) {
+                throw Error::StrategyError("Type property is missing");
+        }
+	try {
 		tcount = (unsigned int)aprops->getPropertyAsInteger(COUNTPROPERTY);
         } catch (Error::ObjectDoesNotExist& e) {
                 throw Error::StrategyError("Count property is missing");
         }
 	_name = tname;
+	_type = ttype;
 	_description = tdescription;
 	_count = tcount;
 }
@@ -282,7 +300,7 @@ BiometricEvaluation::IO::RecordStore::writeControlFile()
 
 	Properties *props;
 	try {
-		props = new Properties(RecordStore::canonicalName(controlFileName));
+		props = new Properties(RecordStore::canonicalName(CONTROLFILENAME));
 	} catch (Error::FileError &e) {
                 throw Error::StrategyError("Could not write properties");
 	} catch (Error::StrategyError &e) {
@@ -292,6 +310,7 @@ BiometricEvaluation::IO::RecordStore::writeControlFile()
 	auto_ptr<Properties> aprops(props);
 	aprops->setProperty(NAMEPROPERTY, _name);
 	aprops->setProperty(DESCRIPTIONPROPERTY, _description);
+	aprops->setProperty(TYPEPROPERTY, _type);
 	aprops->setPropertyFromInteger(COUNTPROPERTY, _count);
 	try {
 		aprops->sync();

@@ -9,13 +9,16 @@
  ******************************************************************************/
 
 #include <sys/stat.h>
-
 #include <dirent.h>
+
+#include <cstdio>
 #include <iostream>
 
 #include <be_error_utility.h>
 #include <be_io_utility.h>
 #include <be_io_filerecstore.h>
+
+using namespace std;
 
 static const string _fileArea = "theFiles";
 
@@ -24,7 +27,7 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
     const string &description,
     const string &parentDir)
     throw (Error::ObjectExists, Error::StrategyError) : 
-    RecordStore(name, description, parentDir)
+    RecordStore(name, description, FILETYPE, parentDir)
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
