@@ -10,6 +10,8 @@
 #ifndef __BE_IO_UTILITY_H
 #define __BE_IO_UTILITY_H
 
+#include <stdint.h>
+
 #include <string>
 #include <be_error_exception.h>
 using namespace std;

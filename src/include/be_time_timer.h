@@ -11,6 +11,8 @@
 #ifndef __BE_TIME_TIMER_H__
 #define __BE_TIME_TIMER_H__
 
+#include <stdint.h>
+
 #include <be_error_exception.h>
 
 namespace BiometricEvaluation 
