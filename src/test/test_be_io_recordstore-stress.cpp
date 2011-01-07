@@ -79,16 +79,16 @@ static int insertMany(IO::RecordStore *rs)
 }
 
 /*
- * Test the read and write operations of a Bitstore, hopefully stressing
+ * Test the read and write operations of a RecordStore, hopefully stressing
  * it enough to gain confidence in its operation. This program should be
- * able to test any implementation of the abstract Bitstore by creating
+ * able to test any implementation of the abstract RecordStore by creating
  * an object of the appropriate implementation class.
  */
 int main (int argc, char* argv[]) {
 
 	/*
-	 * Other types of Bitstore objects can be created here and
-	 * accessed via the Bitstore interface.
+	 * Other types of RecordStore objects can be created here and
+	 * accessed via the RecordStore interface.
 	 */
 
 #ifdef TESTDEFINED
@@ -97,30 +97,33 @@ int main (int argc, char* argv[]) {
 #endif
 
 #ifdef FILERECORDSTORETEST
-	/* Call the constructor that will create a new FileRecordStore. */
 	string rsname("frs_test");
 	IO::FileRecordStore *rs;
 #endif
 
 #ifdef DBRECORDSTORETEST
-	/* Call the constructor that will create a new DBRecordStore. */
 	string rsname("dbrs_test");
 	IO::DBRecordStore *rs;
 #endif
 #ifdef ARCHIVERECORDSTORETEST
-	/* Call the constructor that will create a new ArchiveRecordStore. */
 	string rsname("ars_test");
 	IO::ArchiveRecordStore *rs;
 #endif
 	for (int i = 1; i <= CREATEDESETROYCOUNT; i++) {
 		try {
 #ifdef FILERECORDSTORETEST
+			/* Call the constructor that will create a new
+			 * FileRecordStore. */
 			rs = new IO::FileRecordStore(rsname, descr, "");
 #endif
 #ifdef DBRECORDSTORETEST
+			/* Call the constructor that will create a new
+			 * DBRecordStore. */
 			rs = new IO::DBRecordStore(rsname, descr, "");
 #endif
 #ifdef ARCHIVERECORDSTORETEST
+			/* Call the constructor that will create a new
+			 * ArchiveRecordStore. */
 			rs = new IO::ArchiveRecordStore(rsname, descr, "");
 #endif
 		} catch (Error::ObjectExists& e) {
@@ -129,6 +132,7 @@ int main (int argc, char* argv[]) {
 		} catch (Error::StrategyError& e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}
+		/* Test the re-open of an existing RecordStore. */
 		try {
 #ifdef FILERECORDSTORETEST
 			rs = new IO::FileRecordStore(rsname, "");

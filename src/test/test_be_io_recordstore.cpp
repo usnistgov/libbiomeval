@@ -38,6 +38,9 @@ static const int SEQUENCECOUNT = 10;
 static const int RDATASIZE = 64;
 static string rsname;
 
+/*
+ * Test the ability to sequence through the entire RecordStore.
+ */
 static void
 testSequence(IO::RecordStore *rs)
 {
@@ -66,19 +69,13 @@ testSequence(IO::RecordStore *rs)
 }
 
 /*
- * Test the read and write operations of a Bitstore, hopefully stressing
- * it enough to gain confidence in its operation. This program should be
- * able to test any implementation of the abstract Bitstore by creating
- * an object of the appropriate implementation class.
+ * Test the read and write operations of a RecordStore. This function will
+ * test any implementation of the abstract RecordStore by using the abstract
+ * RecordStore interface.
  */
 int
 runTests(IO::RecordStore *rs)
 {
-	/*
-	 * From this point forward, all access to the store object, no matter
-	 * what subclass, is done via the RecordStore interface.
-	 */
-
 	/*
 	 * Insert a record to the RecordStore so we can read/write it.
 	 */
@@ -273,8 +270,8 @@ int
 main(int argc, char* argv[]) {
 
 	/*
-	 * Other types of Bitstore objects can be created here and
-	 * accessed via the Bitstore interface.
+	 * Other types of RecordStore objects can be created here and
+	 * accessed via the RecordStore interface.
 	 */
 
 #ifdef FILERECORDSTORETEST
