@@ -65,17 +65,6 @@ namespace BiometricEvaluation {
 			static sigjmp_buf _sigJumpBuf;
 
 			/*
-			 * Definition of the signal handler, a class method
-			 * that will handle all signals managed by this object,
-			 * conditionally jumping to a jump block. This jump
-			 * capability allows applications to bypass code that
-			 * is raising signals. Applications should use the
-			 * BEGIN_SIGNAL_BLOCK()/END_SIGNAL_BLOCK() macro pair
-			 * to take advantage of this capability.
-			 */
-			static void sighandler(int signo);
-
-			/*
 			 * Construct a new SignalManager object with the default
 			 * signal handling: SIGSEGV and SIGBUS.
 			 *
@@ -205,9 +194,21 @@ namespace BiometricEvaluation {
 
 			void internalSetSignalHandler(
 			    const sigset_t sigset)
-    			    throw (Error::StrategyError, Error::ParameterError);
+    			    throw (Error::StrategyError);
 
 		};
+
+		/*
+ 		* Declaration of the signal handler, a function with C linkage
+		* that will handle all signals managed by this object,
+		* conditionally jumping to a jump block within the application
+		* process. This function is of no interest to applications,
+		* which should use the BEGIN_SIGNAL_BLOCK()/END_SIGNAL_BLOCK()
+		* macro pair to take advantage of signal handling.
+ 		*/
+		extern "C" {
+			void SignalManagerSighandler(int signo);
+		}
 	}
 }
 #endif	/* __BE_ERROR_SIGNAL_MANAGER_H__ */

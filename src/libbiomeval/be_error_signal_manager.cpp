@@ -18,16 +18,23 @@ using namespace BiometricEvaluation;
 bool BiometricEvaluation::Error::SignalManager::_canSigJump = false;
 sigjmp_buf BiometricEvaluation::Error::SignalManager::_sigJumpBuf;
 
+/*
+ * The signal handler, with C linkage.
+ */
+void
+BiometricEvaluation::Error::SignalManagerSighandler(int signo)
+{
+	if (Error::SignalManager::_canSigJump) {
+		siglongjmp(
+		    BiometricEvaluation::Error::SignalManager::_sigJumpBuf, 1);
+	}
+}
+
 void
 BiometricEvaluation::Error::SignalManager::internalSetSignalHandler(
     const sigset_t sigset)
-    throw (Error::ParameterError, Error::StrategyError)
+    throw (Error::StrategyError)
 {
-	if (sigismember(&sigset, SIGKILL))
-		throw (Error::ParameterError("Cannot specify SIGKILL"));
-	if (sigismember(&sigset, SIGSTOP))
-		throw (Error::ParameterError("Cannot specify SIGSTOP"));
-
 	struct sigaction sa;
 	sigemptyset(&sa.sa_mask);
 	for (int sig = SIGHUP; sig <= SIGUSR2; sig++) {
@@ -35,7 +42,7 @@ BiometricEvaluation::Error::SignalManager::internalSetSignalHandler(
 			continue;
 		if (sigismember(&sigset, sig)) {
 			sa.sa_flags = SA_SIGINFO;
-			sa.sa_handler = sighandler;
+			sa.sa_handler = SignalManagerSighandler;
 			if (sigaction(sig, &sa, NULL) == -1) {
 				throw (Error::StrategyError("Registering signal handler failed"));
 			}
@@ -49,13 +56,14 @@ BiometricEvaluation::Error::SignalManager::internalSetSignalHandler(
 	}
 }
 
-void
-BiometricEvaluation::Error::SignalManager::sighandler(int signo)
+static bool
+validSignalSet(const sigset_t sigset)
 {
-	if (Error::SignalManager::_canSigJump) {
-		siglongjmp(
-		    BiometricEvaluation::Error::SignalManager::_sigJumpBuf, 1);
-	}
+	if (sigismember(&sigset, SIGKILL))
+		return (false);
+	if (sigismember(&sigset, SIGSTOP))
+		return (false);
+	return (true);
 }
 
 BiometricEvaluation::Error::SignalManager::SignalManager()
@@ -69,6 +77,8 @@ BiometricEvaluation::Error::SignalManager::SignalManager(
     const sigset_t signalSet)
     throw (Error::StrategyError, Error::ParameterError)
 {
+	if (!validSignalSet(signalSet))
+		throw (Error::ParameterError("Invalid signal set"));
 	_canSigJump = false;
 	_signalSet = signalSet;
 }
@@ -116,8 +126,8 @@ BiometricEvaluation::Error::SignalManager::setSignalSet(
     const sigset_t signalSet)
     throw (Error::ParameterError, Error::StrategyError)
 {
-	_canSigJump = false;
-	internalSetSignalHandler(signalSet);
+	if (!validSignalSet(signalSet))
+		throw (Error::ParameterError("Invalid signal set"));
 	_signalSet = signalSet;
 }
 

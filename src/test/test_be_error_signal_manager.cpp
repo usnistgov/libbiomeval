@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
 	}
 	if (!success) {
 		cout << "failed.\n";
+		return (EXIT_FAILURE);
 	}
 
 	Error::SignalManager *sigmgr = NULL;
