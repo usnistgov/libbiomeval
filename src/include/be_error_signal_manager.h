@@ -19,7 +19,7 @@ using namespace std;
 /*
  * Macros that are used by applications to indicate the start and end of
  * a signal handling block. The BEGIN macro sets up the jump block and
- * tells the SignalManager object  to start handling signals. Applications
+ * tells the SignalManager object to start handling signals. Applications
  * should call either setSignalSet() or setDefaultSignalSet() before invoking
  * these macros to indicate which signals are to be handled.
  *
@@ -85,10 +85,8 @@ namespace BiometricEvaluation {
 			 * Construct a new SignalManager object with the default
 			 * signal handling: SIGSEGV and SIGBUS.
 			 *
-			 * Parameters:
-			 *
 			 * Returns:
-			 *      An object representing the properties set.
+			 *      The SignalManager.
 			 *
 			 * Throws:
 			 *      Error::StrategyError
@@ -106,7 +104,7 @@ namespace BiometricEvaluation {
 			 *              The signal set; see sigaction(2),
 			 *		sigemptyset(3) and sigaddset(3).
 			 * Returns:
-			 *      An object representing the properties set.
+			 *      The SignalManager.
 			 *
 			 * Throws:
 			 *	Error::ParameterError
@@ -158,8 +156,6 @@ namespace BiometricEvaluation {
 			    throw (Error::StrategyError);
 
 			/*
-			 * Indicate that the signal handler can jump into the
-			 * application code after handling the signal.
 			 * The setCanSigJump(), clearCanSigJump(), 
 			 * setSigHandled() and clearSigHandled() methods are
 			 * not meant to be used directly by applications,
