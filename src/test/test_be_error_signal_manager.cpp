@@ -86,19 +86,23 @@ int main(int argc, char *argv[])
 	/*
 	 * Test filtering of specified signals.
 	 */
-	cout << "Testing catch of SIGUSR1: ";
 	sigemptyset(&sigset);
 	sigaddset(&sigset, SIGUSR1);
 	asigmgr->setSignalSet(sigset);
-	BEGIN_SIGNAL_BLOCK(asigmgr, sigblock2);
-	kill(getpid(), SIGUSR1);
-	cout << "You should not see this message.\n";
-	return (EXIT_FAILURE);
-	END_SIGNAL_BLOCK(asigmgr, sigblock2);
-	if (asigmgr->sigHandled())
-		cout << "success.\n";
-	else
-		cout << "Signal handled, but sigHandled flag not set.\n";
+	for (int i = 1; i< 3; i++) {
+		cout << "Testing catch of SIGUSR1: Test number " << i << ": ";
+		BEGIN_SIGNAL_BLOCK(asigmgr, sigblock2);
+		kill(getpid(), SIGUSR1);
+		cout << "You should not see this message.\n";
+		return (EXIT_FAILURE);
+		END_SIGNAL_BLOCK(asigmgr, sigblock2);
+		if (asigmgr->sigHandled()) {
+			cout << "success.\n";
+		} else {
+			cout << "Signal handled, but sigHandled() is false.\n";
+			return (EXIT_FAILURE);
+		}
+	}
 
 	/*
 	 * Last test.

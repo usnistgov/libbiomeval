@@ -26,29 +26,23 @@ using namespace std;
  * The END_SIGNAL_BLOCK() clears the signal set, so from that point forward
  * application code signals will be handled in the system's default manner
  * until either setSignalSet() or setDefaultSignalSet() is again called.
- *
- * Note that if an application calls setSignalSet() or setDefaultSignalSet()
- * without invoking the BEGIN_SIGNAL_BLOCK() macro, behavior is undefined,
- * and can result in an infinite loop if the application behavior causes the
- * signal to be raised.
  */
 
 #define BEGIN_SIGNAL_BLOCK(_sigmgr, _blockname) do {			\
 	_sigmgr->clearSigHandled();					\
-	_sigmgr->clearCanSigJump();					\
+	_sigmgr->stop();						\
 	if (sigsetjmp(							\
 	    BiometricEvaluation::Error::SignalManager::_sigJumpBuf, 1) != 0) \
 	 {								\
 		_sigmgr->setSigHandled();				\
 		goto _blockname ## _end;				\
 	}								\
-	_sigmgr->setCanSigJump();					\
+	_sigmgr->start();						\
 } while (0)
 
 #define END_SIGNAL_BLOCK(_sigmgr, _blockname) do {			\
 	_blockname ## _end:						\
-	_sigmgr->clearSignalSet();					\
-	_sigmgr->clearCanSigJump();					\
+	_sigmgr->stop();						\
 } while (0);
 
 /*
@@ -76,7 +70,7 @@ namespace BiometricEvaluation {
 			 * conditionally jumping to a jump block. This jump
 			 * capability allows applications to bypass code that
 			 * is raising signals. Applications should use the
-			 * BEGIN_SIGNAL_BLOCK() END_SIGNAL_BLOCK() macro pair
+			 * BEGIN_SIGNAL_BLOCK()/END_SIGNAL_BLOCK() macro pair
 			 * to take advantage of this capability.
 			 */
 			static void sighandler(int signo);
@@ -87,7 +81,6 @@ namespace BiometricEvaluation {
 			 *
 			 * Returns:
 			 *      The SignalManager.
-			 *
 			 * Throws:
 			 *      Error::StrategyError
 			 *		Could not register the signal handler.
@@ -124,6 +117,7 @@ namespace BiometricEvaluation {
 			 *      signalSet (in)
 			 *              The signal set; see sigaction(2),
 			 *		sigemptyset(3) and sigaddset(3).
+			 * Throws:
 			 *	Error::ParameterError
 			 *		One of the signals in signalSet cannot
 			 * 		be handled (SIGKILL, SIGSTOP.).
@@ -148,7 +142,7 @@ namespace BiometricEvaluation {
 			 * Set the default signals this object will manage:
 			 * SIGSEGV and SIGBUS.
 			 *
-			 * Parameters:
+			 * Throws:
 			 *	Error::StrategyError
 			 *		Could not register the signal handler.
 			 */
@@ -156,26 +150,34 @@ namespace BiometricEvaluation {
 			    throw (Error::StrategyError);
 
 			/*
-			 * The setCanSigJump(), clearCanSigJump(), 
-			 * setSigHandled() and clearSigHandled() methods are
-			 * not meant to be used directly by applications,
-			 * which should use the BEGIN_SIGNAL_BLOCK()
-			 * and END_SIGNAL_BLOCK() macro pairs.
+			 * Indicate whether a signal was handled.
+			 * Returns:
+			 *      true if a signal was handled, false otherwise.
+			 */
+			bool sigHandled();
+
+			/*
+			 * The start(), stop(), setSigHandled() and
+			 * clearSigHandled() methods are not meant to
+			 * be used directly by applications, which should
+			 * use the BEGIN_SIGNAL_BLOCK()/END_SIGNAL_BLOCK()
+			 * macro pair.
+ 			 *
+			 * Note that if an application calls start() 
+			 * without setting up a signal jump block, behavior
+ 			 * is undefined, and can result in an infinite loop
+			 * if further processing causes a signal to be raised.
 			 */
 
 			 /*
-			 * Set a flag for the SignalManager object to
-			 * indicate that the signal jump block has been
-			 * initialized.
+			 * Start handling signals of the current signal set.
 			 */
-			void setCanSigJump();
+			void start();
 
 			 /*
-			 * Clears the flag for the SignalManager object to
-			 * indicate that the signal jump block has NOT been
-			 * initialized, or is no longer valid.
+			 * Stop handling signals of the current signal set.
 			 */
-			void clearCanSigJump();
+			void stop();
 
 			/*
 			 * Set a flag to indicate a signal was handled.
@@ -183,17 +185,10 @@ namespace BiometricEvaluation {
 			void setSigHandled();
 
 			/*
-			 * Indicate whether a signal was handled.
+			 * Clear the indication that a signal was handled.
 			 */
 			void clearSigHandled();
 
-			/*
-			 * Indicate whether a signal was handled.
-			 * Returns:
-			 *      true if a signal was handled, false otherwise.
-			 */
-			bool sigHandled();
-			
 		protected:
 
 		private:

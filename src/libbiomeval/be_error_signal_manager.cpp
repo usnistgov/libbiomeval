@@ -63,7 +63,6 @@ BiometricEvaluation::Error::SignalManager::SignalManager()
 {
 	_canSigJump = false;
 	(void)sigemptyset(&_signalSet);
-	internalSetSignalHandler(_signalSet);
 }
 
 BiometricEvaluation::Error::SignalManager::SignalManager(
@@ -71,18 +70,7 @@ BiometricEvaluation::Error::SignalManager::SignalManager(
     throw (Error::StrategyError, Error::ParameterError)
 {
 	_canSigJump = false;
-	internalSetSignalHandler(signalSet);
 	_signalSet = signalSet;
-}
-
-void
-BiometricEvaluation::Error::SignalManager::setDefaultSignalSet()
-    throw (Error::StrategyError)
-{
-	(void)sigemptyset(&_signalSet);
-	(void)sigaddset(&_signalSet, SIGBUS);
-	(void)sigaddset(&_signalSet, SIGSEGV);
-	internalSetSignalHandler(_signalSet);
 }
 
 void
@@ -90,7 +78,37 @@ BiometricEvaluation::Error::SignalManager::clearSignalSet()
     throw (Error::StrategyError)
 {
 	(void)sigemptyset(&_signalSet);
+}
+
+void
+BiometricEvaluation::Error::SignalManager::setDefaultSignalSet()
+    throw (Error::StrategyError)
+{
+	this->clearSignalSet();
+	(void)sigaddset(&_signalSet, SIGBUS);
+	(void)sigaddset(&_signalSet, SIGSEGV);
+}
+
+bool
+BiometricEvaluation::Error::SignalManager::sigHandled()
+{
+	return (_sigHandled);
+}
+
+void
+BiometricEvaluation::Error::SignalManager::start()
+{
+	_canSigJump = true;
 	internalSetSignalHandler(_signalSet);
+}
+
+void
+BiometricEvaluation::Error::SignalManager::stop()
+{
+	_canSigJump = false;
+	sigset_t lset;
+	(void)sigemptyset(&lset);
+	internalSetSignalHandler(lset);
 }
 
 void
@@ -104,18 +122,6 @@ BiometricEvaluation::Error::SignalManager::setSignalSet(
 }
 
 void
-BiometricEvaluation::Error::SignalManager::setCanSigJump()
-{
-	_canSigJump = true;
-}
-
-void
-BiometricEvaluation::Error::SignalManager::clearCanSigJump()
-{
-	_canSigJump = false;
-}
-
-void
 BiometricEvaluation::Error::SignalManager::setSigHandled()
 {
 	_sigHandled = true;
@@ -125,10 +131,4 @@ void
 BiometricEvaluation::Error::SignalManager::clearSigHandled()
 {
 	_sigHandled = false;
-}
-
-bool
-BiometricEvaluation::Error::SignalManager::sigHandled()
-{
-	return (_sigHandled);
 }
