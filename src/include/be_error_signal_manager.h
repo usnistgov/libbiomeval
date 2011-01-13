@@ -207,7 +207,8 @@ namespace BiometricEvaluation {
 		* macro pair to take advantage of signal handling.
  		*/
 		extern "C" {
-			void SignalManagerSighandler(int signo);
+			void SignalManagerSighandler(int signo,
+			    siginfo_t *info, void *uap);
 		}
 	}
 }

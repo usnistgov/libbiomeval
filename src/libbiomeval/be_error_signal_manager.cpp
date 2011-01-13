@@ -22,7 +22,8 @@ sigjmp_buf BiometricEvaluation::Error::SignalManager::_sigJumpBuf;
  * The signal handler, with C linkage.
  */
 void
-BiometricEvaluation::Error::SignalManagerSighandler(int signo)
+BiometricEvaluation::Error::SignalManagerSighandler(
+    int signo, siginfo_t *info, void *uap)
 {
 	if (Error::SignalManager::_canSigJump) {
 		siglongjmp(
@@ -42,7 +43,7 @@ BiometricEvaluation::Error::SignalManager::internalSetSignalHandler(
 			continue;
 		if (sigismember(&sigset, sig)) {
 			sa.sa_flags = SA_SIGINFO;
-			sa.sa_handler = SignalManagerSighandler;
+			sa.sa_sigaction = SignalManagerSighandler;
 			if (sigaction(sig, &sa, NULL) == -1) {
 				throw (Error::StrategyError("Registering signal handler failed"));
 			}
