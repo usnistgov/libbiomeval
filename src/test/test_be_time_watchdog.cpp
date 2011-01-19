@@ -12,7 +12,7 @@ using namespace std;
 using namespace BiometricEvaluation;
 
 #define LONGDELAY { 							\
-	for (uint32_t i = 0; i< INT32_MAX; i++) {			\
+	for (uint32_t i = 0; i< 2147483647; i++) {			\
 		if (i % 80000000 == 0) {				\
 			cout << "."; fflush(stdout);			\
 		}							\
