@@ -47,7 +47,11 @@ using namespace std;
 
 /*
  * A SignalManager object is used to handle signals that come from the operating
- * system.
+ * system. A SignalManager is passive (i.e. no signal handlers are installed)
+ * until that start() method is called, and becomes passive when stop() is
+ * invoked. The signals that are to be handled by the object are maitained as
+ * state, and the set of signals can be changed at any time, but are not in
+ * effect until start() is called.
  */
 namespace BiometricEvaluation {
 
@@ -57,13 +61,6 @@ namespace BiometricEvaluation {
 
 		public:
 			
-			/*
-			 * Flag indicating can jump after handling a signal,
-			 * and the jump buffer used by the signal handler.
-			 */
-			static bool _canSigJump;
-			static sigjmp_buf _sigJumpBuf;
-
 			/*
 			 * Construct a new SignalManager object with the default
 			 * signal handling: SIGSEGV and SIGBUS.
@@ -92,12 +89,10 @@ namespace BiometricEvaluation {
 			 *	Error::ParameterError
 			 *		One of the signals in signalSet cannot
 			 * 		be handled (SIGKILL, SIGSTOP.).
-			 *      Error::StrategyError
-			 *		Could not register the signal handler.
 			 */
 			SignalManager(
 			    const sigset_t signalSet)
-			    throw (Error::ParameterError, Error::StrategyError);
+			    throw (Error::ParameterError);
 
 			/*
 			 * Set the signals this object will manage.
@@ -110,33 +105,21 @@ namespace BiometricEvaluation {
 			 *	Error::ParameterError
 			 *		One of the signals in signalSet cannot
 			 * 		be handled (SIGKILL, SIGSTOP.).
-			 *	Error::StrategyError
-			 *		Could not register the signal handler.
 			 */
 			void setSignalSet(
 			    const sigset_t signalSet)
-			    throw (Error::ParameterError, Error::StrategyError);
+			    throw (Error::ParameterError);
 
 			/*
 			 * Clear all signal handling.
-			 *
-			 * Parameters:
-			 *	Error::StrategyError
-			 *		Could not register the signal handler.
 			 */
-			void clearSignalSet()
-			    throw (Error::StrategyError);
+			void clearSignalSet();
 
 			/*
 			 * Set the default signals this object will manage:
 			 * SIGSEGV and SIGBUS.
-			 *
-			 * Throws:
-			 *	Error::StrategyError
-			 *		Could not register the signal handler.
 			 */
-			void setDefaultSignalSet()
-			    throw (Error::StrategyError);
+			void setDefaultSignalSet();
 
 			/*
 			 * Indicate whether a signal was handled.
@@ -160,13 +143,21 @@ namespace BiometricEvaluation {
 
 			 /*
 			 * Start handling signals of the current signal set.
+			 * Throws:
+			 *	Error::StrategyError
+			 *		Could not register the signal handler.
 			 */
-			void start();
+			void start()
+				throw (Error::StrategyError);
 
 			 /*
 			 * Stop handling signals of the current signal set.
+			 * Throws:
+			 *	Error::StrategyError
+			 *		Could not register the signal handler.
 			 */
-			void stop();
+			void stop()
+				throw (Error::StrategyError);
 
 			/*
 			 * Set a flag to indicate a signal was handled.
@@ -178,6 +169,14 @@ namespace BiometricEvaluation {
 			 */
 			void clearSigHandled();
 
+			/*
+			 * Flag indicating can jump after handling a signal,
+			 * and the jump buffer used by the signal handler.
+			 * Both are usually of no interest to applications.
+			 */
+			static bool _canSigJump;
+			static sigjmp_buf _sigJumpBuf;
+
 		protected:
 
 		private:
@@ -186,16 +185,10 @@ namespace BiometricEvaluation {
 			 */
 			sigset_t _signalSet;
 
-
 			/*
 			 * Flag indicated that a signal was handled.
 			 */
 			bool _sigHandled;
-
-			void internalSetSignalHandler(
-			    const sigset_t sigset)
-    			    throw (Error::StrategyError);
-
 		};
 
 		/*

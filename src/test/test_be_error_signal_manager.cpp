@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
 	 * Create one of the signals handled by default.
 	 */
 	cout << "Testing default signal handling: ";
-	asigmgr->setDefaultSignalSet();
 	char *cptr = NULL;
 	BEGIN_SIGNAL_BLOCK(asigmgr, sigblock1);
 	if (asigmgr->sigHandled()) {

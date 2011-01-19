@@ -13,6 +13,7 @@
 
 #include <stdint.h>
 
+#include <be_time.h>
 #include <be_error_exception.h>
 
 namespace BiometricEvaluation 
