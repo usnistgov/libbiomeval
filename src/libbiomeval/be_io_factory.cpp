@@ -44,14 +44,14 @@ BiometricEvaluation::IO::Factory::openRecordStore(
         } catch (Error::FileError& e) {
                 throw Error::StrategyError("Could not open properties");
 	}
+	std::auto_ptr<Properties> aprops(props);
 
 	string type;
 	try {
-		type = props->getProperty(RecordStore::TYPEPROPERTY);
+		type = aprops->getProperty(RecordStore::TYPEPROPERTY);
 	} catch (Error::ObjectDoesNotExist& e) {
 		throw Error::StrategyError("Type property is missing");
 	}
-	delete props;
 
 	RecordStore *rs;
 	/* Exceptions thrown by constructors are allowed to float out */
