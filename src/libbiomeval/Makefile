@@ -32,6 +32,9 @@ else
 endif
 endif
 
+debug: CXXFLAGS += -g
+debug: all
+
 #
 # The default make rule is OK for most files.
 #
