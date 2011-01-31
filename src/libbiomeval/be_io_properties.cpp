@@ -26,7 +26,7 @@ static string RO_ERR_MSG = "Object is read-only";
 static void
 removeLeadingTrailingWhitespace(string &s)
 {
-	for (int idx = 0; idx < s.length(); idx++) {
+	for (unsigned int idx = 0; idx < s.length(); idx++) {
 		if (std::isspace(s[idx])) {
 			s.erase(idx, 1);
 			idx--;
@@ -166,11 +166,8 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 
 	int base = 10;
 	/* Check for hexadecimal value */
-	if (value.find("0x") == 0)
+	if ((value.find("0x") == 0) || (value.find("0X") == 0))
 		base = 16;
-	else
-		if (value.find("0X") == 0)
-			base = 16;
 
 	int startIdx = 0;
 	if (base == 16)
@@ -178,7 +175,7 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 	if (value[0] == '-')
 		startIdx = 1;
 	int id;
-	for (int idx = startIdx; idx < value.size(); idx++) {
+	for (unsigned int idx = startIdx; idx < value.size(); idx++) {
 		if (base == 16)
 			id = isxdigit(value[idx]);
 		else
@@ -188,11 +185,11 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 	}
 
 	/* Convert the string value to integer */
-	long long conVal = strtoll(value.c_str(), NULL, base);
+	long long conVal = std::strtoll(value.c_str(), NULL, base);
 	if (errno == ERANGE)
 		throw Error::ConversionError("Value out of range");
 
-	return ((uint64_t)conVal);
+	return ((int64_t)conVal);
 }
 
 void
