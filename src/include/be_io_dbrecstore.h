@@ -30,14 +30,29 @@ namespace BiometricEvaluation {
 
 	namespace IO {
 
-		/*
-		 * Class to represent the data storage mechanism.
+		/**
+		 * \brief
+		 * A class that implements IO::RecordStore using a Berkeley
+		 * DB database as the underlying record storage system.
 		 */
 		class DBRecordStore : public RecordStore {
 		public:
-			
-			/*
-			 * Construct a new DB record store.
+
+			/**
+			 * Create a new DBRecordStore, read/write mode.
+			 *
+			 * @param name[in]
+			 *	The name of the store.
+			 * @param description[in]
+			 *	The store's description.
+			 * @param parentDir[in]
+			 * 	The directory where the store is to be created.
+			 *
+			 * \throw Error::ObjectExists
+			 * 	The store already exists.
+			 * \throw Error::StrategyError
+			 * 	An error occurred when accessing the underlying
+			 * 	file system.
 			 */
 			DBRecordStore(
 			    const string &name,
@@ -45,8 +60,21 @@ namespace BiometricEvaluation {
 			    const string &parentDir)
 			    throw (Error::ObjectExists, Error::StrategyError);
 
-			/*
-			 * Construct an existing DB record store.
+			/**
+			 * Open an existing DBRecordStore.
+			 *
+			 * @param name[in]
+			 *	The name of the store.
+			 * @param parentDir[in]
+			 * 	The directory where the store is to be created.
+			 * @param mode[in]
+			 *	Open mode, read-only or read-write.
+			 *
+			 * \throw Error::ObjectDoesNotExist
+			 *	The store does not exist.
+			 * \throw Error::StrategyError
+			 *	An error occurred when accessing the underlying
+			 *	file system.
 			 */
 			DBRecordStore(
 			    const string &name,
@@ -60,6 +88,9 @@ namespace BiometricEvaluation {
 			 */
 			~DBRecordStore();
 
+			/*
+			 * Implementation of the RecordStore interface.
+			 */
 			uint64_t getSpaceUsed()
 			    throw (Error::StrategyError);
 

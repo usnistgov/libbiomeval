@@ -20,24 +20,31 @@ namespace BiometricEvaluation
 {
 	namespace Time
 	{
-		/*
-		 * An object for timing operations in code.  Wrap statements
-		 * in Timer::start()/Timer::stop().  Use Timer::elapsed() to 
+		/**
+		 * \brief
+		 * This class can be used by applications to report
+		 * the amount of time a block of code takes to execute.
+		 */
+
+		/**
+		 * \details
+		 * Applcations wrap the block of code in the Timer::start()
+		 * and Timer::stop() calls, then use Timer::elapsed() to 
 		 * obtain the calculated time of the operation.
 		 */
 		class Timer
 		{
 		public:
 	
-			/* 
+			/**
 			 * Constructor for the Timer object.
 			 */
 			Timer();
 	
-			/* 
+			/** 
 			 * Start tracking time.
 			 * 
-			 * Throws:
+			 * \throw
 			 * 	Error::StrategyError 
 			 *		This object is currently timing an
 			 *		operation or an error occurred when
@@ -46,10 +53,10 @@ namespace BiometricEvaluation
 			void start()
 			    throw (Error::StrategyError);
 	
-			/* 
+			/** 
 			 * Stop tracking time.
 			 *
-			 * Throws:
+			 * \throw
 			 * 	Error::StrategyError
 			 *		This object is not currently timing
 			 *		an operation or an error occurred when
@@ -58,15 +65,15 @@ namespace BiometricEvaluation
 			void stop()
 			    throw (Error::StrategyError);
 	
-			/* 
+			/**
 			 * Get the elapsed time in microseconds between calls
 			 * to this object's start() and stop() methods.
 			 *
-			 * Returns:
+			 * @return
 			 * 	The number of microseconds between calls to 
 			 *	this object's start() and stop() methods.
 			 *
-			 * Throws:
+			 * \throw
 			 *	Error::StrategyError
 			 *		This object is currently timing an 
 			 *		operation or an error occurred when
@@ -98,4 +105,3 @@ namespace BiometricEvaluation
 }
 
 #endif /* __BE_TIME_TIMER_H__ */
-

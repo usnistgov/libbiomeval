@@ -18,51 +18,52 @@
 #include <be_error_exception.h>
 using namespace std;
 
-/*
- * This file contains the class declaration for the LogCabinet, a class
- * that represents a collection of log sheets, and LogSheet, a class that
- * represents one log file.
- */
 namespace BiometricEvaluation {
     namespace IO {
 
-	/*
-	 * Class to represent a single logging mechanism. A LogSheet is
-	 * a string stream, so applications can write into the stream as
-	 * a staging area using the << operator, then start a new entry by
-	 * calling newEntry(). Entries in the log file are prefixed with an
-	 * entry number, which is incremented when the entry is written
+	/**
+	 * \brief
+	 * A class to represent a single logging mechanism.
+	 *
+	 * \details
+	 * A LogSheet is a string stream, so applications can write into the
+	 * stream as a staging area using the << operator, then start a new
+	 * entry by calling newEntry(). Entries in the log file are prefixed
+	 * with an entry number, which is incremented when the entry is written
 	 * (either by directly calling write(), or calling newEntry()).
 	 *
 	 * A LogSheet object can be constructed and passed back to the client
 	 * by the LogCabinet object. All sheets created in the manner are
 	 * placed in a common area maintained by the cabinet.
+	 *
+	 * \note
+	 * By default, the entries in the LogSheet may not be immediately
+	 * written to the file system, depending on the buffering behavior
+	 * of the operating system. Applications can force a write by
+	 * invoking sync(), or force a write at every new log entry by
+	 * invoking setAutoSync(true).
 	*/
 	class LogSheet : public std::ostringstream {
 		public:
-			/*
+			/**
 			 * Create a new log sheet.
-			 * Parameters:
-			 * 	name (in)
-			 *		The name of the LogSheet to be
-			 *		created.
-			 *	description (in)
-			 *		The text used to describe the sheet.
-			 *		This text is written into the log file
-			 *		prior to any entries.
-			 *	parentDir (in)
-			 *		Where, in the file system, the sheet
-			 *		is to be stored. This directory must
-			 *		exist.
-			 * Returns:
+			 *
+			 * @param name[in]
+			 *	The name of the LogSheet to be created.
+			 * @param description[in]
+			 *	The text used to describe the sheet.
+			 *	This text is written into the log file
+			 *	prior to any entries.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the sheet is to
+			 *	be stored. This directory must exist.
+			 * @returns
 			 *	An object representing the new log sheet.
-			 * Throws:
-			 * 	Error::ObjectExists
-			 *		The sheet was previously created.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying file system, or the name
-			 *		is malformed.
+			 * \throw Error::ObjectExists
+			 *	The sheet was previously created.
+			 * \throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system, or name or parentDir is malformed.
 			 */
 			LogSheet(const string &name,
 				 const string &description,
@@ -71,73 +72,77 @@ namespace BiometricEvaluation {
 
 			~LogSheet();
 
-			/*
+			/**
 			 * Write a string as an entry to the log file. This
 			 * does not affect the current log entry buffer, but
 			 * does increment the entry number.
-			 * Parameters:
-			 *	entry (in)
-			 *		The text of the log entry.
 			 *
-			 * Throws:
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying file system.
+			 * @param entry[in]
+			 *	The text of the log entry.
+			 *
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system.
 			 */
 			void write(const string &entry)
 			    throw (Error::StrategyError);
 
-			/*
+			/**
 			 * Start a new entry, causing the existing entry
 			 * to be closed. Applications do not have to call
 			 * this method for the first entry, however, as the
 			 * stream is ready for writing upon construction.
-			 * Throws:
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying file system.
+			 *
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system.
 			 */
 			void newEntry()
 			    throw (Error::StrategyError);
 
-			/*
-			 * Return the contents of the current entry currently
+			/**
+			 * Obtain the contents of the current entry currently
 			 * under construction.
-			 * Returns:
+			 *
+			 * @returns
 			 *	The text of the current entry.
 			 */
 			string getCurrentEntry();
 
-			/*
+			/**
 			 * Reset the current entry buffer to the beginning.
 			 */
 			void resetCurrentEntry();
 
-			/*
-			 * Return the current entry number.
+			/**
+			 * Obtain the current entry number.
+			 *
+			 * @returns
+			 *	The current entry number.
 			 */
 			uint32_t getCurrentEntryNumber();
 
-			/*
+			/**
 			 * Synchronize any buffered data to the underlying
 			 * log file. This syncing is dependent on the behavior
-			 * of the underlying filesystem/OS.
-			 * Throws:
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying file system.
+			 * of the underlying filesystem and operating system.
+			 *
+			 * \throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system.
 			*/
 			void sync()
 			    throw (Error::StrategyError);
 
-			/*
-			 * Turn on/off auto-sync of the data. When TRUE, the
-			 * data is sync'd whenever newEntry() is or write()
-			 * is called.
-			 * Parameters:
-			 * 	state
-			 *		TRUE if auto-sync is desired, FALSE
-			 *		otherwise.
+			/**
+			 * Turn on/off auto-sync of the data. Applications can
+			 * gain loggin performance by turning off auto-sysnc,
+			 * or gain reliability by turning it on.
+			 * 
+			 * @param state
+			 *	When true, the data is sync'd whenever
+			 *	newEntry() is or write() is called. When 
+			 *	false, sync() must be called to force a write.
 			*/
 			void setAutoSync(bool state);
 
@@ -147,33 +152,29 @@ namespace BiometricEvaluation {
 			bool _autoSync;
 	};
 
-	/*
-	 * Class to represent a collection of log sheets.
+	/**
+	 * A class to represent a collection of log sheets.
 	 */
 	class LogCabinet {
 		public:
 
-			/*
+			/**
 			 * Create a new LogCabinet in the file system.
-			 * Parameters:
-			 * 	name (in)
-			 *		The name of the LogCabinet to be
-			 *		created.
-			 *	description (in)
-			 *		The text used to describe the cabinet.
-			 *	parentDir (in)
-			 *		Where, in the file system, the cabinet
-			 *		is to be stored. This directory must
-			 *		exist.
-			 * Returns:
+			 * @param name[in]
+			 *	The name of the LogCabinet to be created.
+			 * @param description[in]
+			 *	The text used to describe the cabinet.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the cabinet is to
+			 *	be stored. This directory must exist.
+			 * @returns
 			 *	An object representing the new log cabinet.
-			 * Throws:
-			 * 	Error::ObjectExists
-			 *		The cabinet was previously created.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying file system, or the name
-			 *		is malformed.
+			 * \throws Error::ObjectExists
+			 *	The cabinet was previously created.
+			 * \throws Error::StrategyError
+			 * \throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system, or name or parentDir is malformed.
 			*/
 			LogCabinet(
 			    const string &name,
@@ -181,24 +182,22 @@ namespace BiometricEvaluation {
 			    const string &parentDir)
 			    throw (Error::ObjectExists, Error::StrategyError);
 
-			/*
+			/**
 			 * Open an existing LogCabinet.
-			 * Parameters:
-			 * 	name (in)
-			 *		The name of the LogCabinet to be opened.
-			 *	parentDir (in)
-			 *		Where, in the file system, the cabinet
-			 *		is stored.
-			 * Returns:
-			 *	An object representing the existing log cabinet.
-			 * Throws:
-			 * 	Error::ObjectDoesNotExist
-			 *		The cabinet does not exist in the
-			 *		file system.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying file system, or the name
-			 *		is malformed.
+			 * @param name[in]
+			 *	The name of the LogCabinet to be created.
+			 * @param description[in]
+			 *	The text used to describe the cabinet.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the cabinet is to
+			 *	be stored. This directory must exist.
+			 * @returns
+			 *	An object representing the log cabinet.
+			 * \throw Error::ObjectDoesNotExist
+			 *	The cabinet does not exist in the file system.
+			 * \throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system, or name or parentDir is malformed.
 			 */
 			LogCabinet(
 			    const string &name,
@@ -208,57 +207,69 @@ namespace BiometricEvaluation {
 
 			~LogCabinet();
 			
-			/*
+			/**
 			 * Create a new LogSheet within the LogCabinet.
-			 * Parameters:
-			 * 	name (in)
-			 *		The name of the LogSheet to be
-			 *		created.
-			 *	description (in)
-			 *		The text used to describe the sheet.
-			 *		This text is written into the log file
-			 *		prior to any entries.
-			 * Returns:
-			 *	A pointer to the new log sheet.
-			 * Throws:
-			 * 	Error::ObjectExists
-			 *		The sheet was previously created.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying file system, or the name
-			 *		is malformed.
+			 *
+			 * @param name[in]
+			 *	The name of the LogSheet to be created.
+			 * @param description[in]
+			 *	The text used to describe the sheet.
+			 *	This text is written into the log file
+			 *	prior to any entries.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the sheet is to
+			 *	be stored. This directory must exist.
+			 * @returns
+			 *	An object pointer to the new log sheet.
+			 * \throw Error::ObjectExists
+			 *	The sheet was previously created.
+			 * \throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system, or name or parentDir is malformed.
 			*/
 			LogSheet *newLogSheet(
 			    const string &name,
 			    const string &description)
 			    throw (Error::ObjectExists, Error::StrategyError);
 
-			/* Return the name of the LogCabinet */
+			/**
+			 * Obtain the name of the LogCabinet.
+			 *
+			 * @ returns
+			 *	The name of the LogCabinet.
+			 */
 			string getName();
 
-			/* Return a textual description of the LogCabinet */
+			/**
+			 * Obtain the description of the LogCabinet.
+			 *
+			 * @ returns
+			 *	The description of the LogCabinet.
+			 */
 			string getDescription();
 
-			/* Return the number of items in the LogCabinet */
+			/**
+			 * Obtain the number of items in the LogCabinet.
+			 *
+			 * @ returns
+			 *	The number of LogSheets manages by the cabinet.
+			 */
 			unsigned int getCount();
 
-			/*
+			/**
 			 * Remove a LogCabinet.
-			 * Parameters:
-			 * 	name (in)
-			 *		The name of the LogCabinet to be
-			 *		removed.
-			 *	parentDir (in)
-			 *		Where, in the file system, the cabinet
-			 *		is stored.
-			 * Throws:
-			 * 	Error::ObjectDoesNotExist
-			 *		The cabinet does not exist in the
-			 *		file system.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying file system, or the name
-			 *		is malformed.
+			 *
+			 * @param name[in]
+			 *	The name of the LogCabinet to be removed.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the sheet is to
+			 *	be stored. This directory must exist.
+			 *
+			 * \throw Error::ObjectDoesNotExist
+			 *	The LogCabinet does not exist.
+			 * \throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system, or name or parentDir is malformed.
 			 */
 			static void remove(
 			    const string &name,

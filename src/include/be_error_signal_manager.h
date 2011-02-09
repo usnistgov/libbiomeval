@@ -18,16 +18,8 @@ using namespace std;
 
 /*
  * Macros that are used by applications to indicate the start and end of
- * a signal handling block. The BEGIN macro sets up the jump block and
- * tells the SignalManager object to start handling signals. Applications
- * should call either setSignalSet() or setDefaultSignalSet() before invoking
- * these macros to indicate which signals are to be handled.
- *
- * The END_SIGNAL_BLOCK() clears the signal set, so from that point forward
- * application code signals will be handled in the system's default manner
- * until either setSignalSet() or setDefaultSignalSet() is again called.
+ * a signal handling block.
  */
-
 #define BEGIN_SIGNAL_BLOCK(_sigmgr, _blockname) do {			\
 	_sigmgr->clearSigHandled();					\
 	_sigmgr->stop();						\
@@ -45,29 +37,53 @@ using namespace std;
 	_sigmgr->stop();						\
 } while (0);
 
-/*
- * A SignalManager object is used to handle signals that come from the operating
- * system. A SignalManager is passive (i.e. no signal handlers are installed)
- * until that start() method is called, and becomes passive when stop() is
- * invoked. The signals that are to be handled by the object are maitained as
- * state, and the set of signals can be changed at any time, but are not in
- * effect until start() is called.
- */
 namespace BiometricEvaluation {
 
 	namespace Error {
 
+/**
+ * \brief
+ * A SignalManager object is used to handle signals that come from the operating
+ * system.
+
+ * \details
+ * Applications typically do not invoke most methods of a SignalManager, except
+ * the setSignalSet(), setDefaultSignalSet(), and sigHandled(). An application
+ * wishing to just catch memory errors can simply construct a SignalManager
+ * object, and invoke sigHandled() at the end of the signal block to detect
+ * whether a signal was handled.
+ *
+ * The BEGIN_SIGNAL_BLOCK macro sets up the jump block and
+ * tells the SignalManager object to start handling signals. Applications
+ * can call either setSignalSet() or setDefaultSignalSet() before invoking
+ * these macros to indicate which signals are to be handled.
+ *
+ * The END_SIGNAL_BLOCK() macro clears the signal set, so from that point
+ * forward application code signals will be handled in the system's default
+ * manner until another signal block is created.
+ *
+ * A SignalManager is passive (i.e. no signal handlers are installed)
+ * until that start() method is called, and becomes passive when stop() is
+ * invoked. The signals that are to be handled by the object are maitained as
+ * state, and the set of signals can be changed at any time, but are not in
+ * effect until start() is called.
+ *
+ * \attention
+ * The start(), stop(), setSigHandled() and clearSigHandled() methods are not
+ * meant to be used directly by applications, which should use the 
+ * BEGIN_SIGNAL_BLOCK()/END_SIGNAL_BLOCK() macro pair.
+ */
 		class SignalManager {
 
 		public:
 			
-			/*
+			/**
 			 * Construct a new SignalManager object with the default
 			 * signal handling: SIGSEGV and SIGBUS.
 			 *
-			 * Returns:
+			 * @returns
 			 *      The SignalManager.
-			 * Throws:
+			 * \throws
 			 *      Error::StrategyError
 			 *		Could not register the signal handler.
 			 */
@@ -78,14 +94,14 @@ namespace BiometricEvaluation {
 			 * Construct a new SignalManager object with the
 			 * specified signal handling, no defaults.
 			 *
-			 * Parameters:
+			 * @param
 			 *	signalSet (in)
 			 *              The signal set; see sigaction(2),
 			 *		sigemptyset(3) and sigaddset(3).
-			 * Returns:
+			 * @returns
 			 *      The SignalManager.
 			 *
-			 * Throws:
+			 * \throws
 			 *	Error::ParameterError
 			 *		One of the signals in signalSet cannot
 			 * 		be handled (SIGKILL, SIGSTOP.).
@@ -94,14 +110,14 @@ namespace BiometricEvaluation {
 			    const sigset_t signalSet)
 			    throw (Error::ParameterError);
 
-			/*
+			/**
 			 * Set the signals this object will manage.
 			 *
-			 * Parameters:
+			 * @param
 			 *      signalSet (in)
 			 *              The signal set; see sigaction(2),
 			 *		sigemptyset(3) and sigaddset(3).
-			 * Throws:
+			 * \throws
 			 *	Error::ParameterError
 			 *		One of the signals in signalSet cannot
 			 * 		be handled (SIGKILL, SIGSTOP.).
@@ -110,82 +126,77 @@ namespace BiometricEvaluation {
 			    const sigset_t signalSet)
 			    throw (Error::ParameterError);
 
-			/*
+			/**
 			 * Clear all signal handling.
 			 */
 			void clearSignalSet();
 
-			/*
+			/**
 			 * Set the default signals this object will manage:
 			 * SIGSEGV and SIGBUS.
 			 */
 			void setDefaultSignalSet();
 
-			/*
+			/**
 			 * Indicate whether a signal was handled.
-			 * Returns:
+			 * @returns
 			 *      true if a signal was handled, false otherwise.
 			 */
 			bool sigHandled();
 
-			/*
-			 * The start(), stop(), setSigHandled() and
-			 * clearSigHandled() methods are not meant to
-			 * be used directly by applications, which should
-			 * use the BEGIN_SIGNAL_BLOCK()/END_SIGNAL_BLOCK()
-			 * macro pair.
- 			 *
-			 * Note that if an application calls start() 
+			 /**
+			 * Start handling signals of the current signal set.
+			 * \throws
+			 *	Error::StrategyError
+			 *		Could not register the signal handler.
+			 *
+			 * \note If an application invokes start() 
 			 * without setting up a signal jump block, behavior
  			 * is undefined, and can result in an infinite loop
 			 * if further processing causes a signal to be raised.
 			 */
-
-			 /*
-			 * Start handling signals of the current signal set.
-			 * Throws:
-			 *	Error::StrategyError
-			 *		Could not register the signal handler.
-			 */
 			void start()
 				throw (Error::StrategyError);
 
-			 /*
+			 /**
 			 * Stop handling signals of the current signal set.
-			 * Throws:
+			 * \throws
 			 *	Error::StrategyError
 			 *		Could not register the signal handler.
 			 */
 			void stop()
 				throw (Error::StrategyError);
 
-			/*
+			/**
 			 * Set a flag to indicate a signal was handled.
 			 */
 			void setSigHandled();
 
-			/*
+			/**
 			 * Clear the indication that a signal was handled.
 			 */
 			void clearSigHandled();
 
-			/*
-			 * Flag indicating can jump after handling a signal,
-			 * and the jump buffer used by the signal handler.
-			 * Both are usually of no interest to applications.
+			/**
+			 * Flag indicating can jump after handling a signal.
+			 * \note Should not be directly used by applications.
 			 */
 			static bool _canSigJump;
+			/**
+			 * The jump buffer used by the signal handler.
+			 * \note Should not be directly used by applications.
+			 */
 			static sigjmp_buf _sigJumpBuf;
 
 		protected:
 
 		private:
-			/*
+			/**
 			 * Current signal set.
 			 */
 			sigset_t _signalSet;
 
-			/*
+			/**
 			 * Flag indicated that a signal was handled.
 			 */
 			bool _sigHandled;

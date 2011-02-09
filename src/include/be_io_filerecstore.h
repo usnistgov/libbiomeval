@@ -23,15 +23,33 @@ namespace BiometricEvaluation {
 
 	namespace IO {
 
-		/*
+		/**
 		 * Class to represent the record store data storage mechanism
 		 * implemented as files for each record.
+		 * \note
+		 * For the methods that take a key parameter,
+		 * Error::StrategyError will be thrown if the key string
+		 * is not compliant. A FileRecordStore has the additional
+		 * requirement that a key name may not contain path delimiter
+		 * characters ('/' and '\'), or begin with whitespace.
 		 */
 		class FileRecordStore : public RecordStore {
 		public:
 			
-			/*
-			 * Construct a new File record store.
+			/**
+			 * Create a new FileRecordStore, read/write mode.
+			 *
+			 * @param name[in]
+			 *	The name of the store.
+			 * @param description[in]
+			 *	The store's description.
+			 * @param parentDir[in]
+			 *	The directory where the store is to be created.
+			 * \throw  Error::ObjectExists
+			 *	The store already exists.
+			 * \throw Error::StrategyError
+			 * 	An error occurred when accessing the underlying
+			 * 	file system.
 			 */
 			FileRecordStore(
 			    const string &name,
@@ -39,8 +57,21 @@ namespace BiometricEvaluation {
 			    const string &parentDir)
 			    throw (Error::ObjectExists, Error::StrategyError);
 
-			/*
-			 * Open an existing File record store.
+			/**
+			 * Open an existing FileRecordStore.
+			 *
+			 * @param name[in]
+			 *	The name of the store.
+			 * @param parentDir[in]
+			 *	The directory where the store is to be created.
+			 * @param mode[in]
+			 *	Open mode, read-only or read-write.
+			 *
+			 * \throw Error::ObjectDoesNotExist
+			 *	The store does not exist.
+			 * \throw Error::StrategyError
+			 *	An error occurred when accessing the underlying
+			 *	file system.
 			 */
 			FileRecordStore(
 			    const string &name,
@@ -49,17 +80,12 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
+			/*
+			 * Methods that implement the RecordStore interface.
+			 */
 			uint64_t getSpaceUsed()
 			    throw (Error::StrategyError);
 
-			/*
-			 * For the methods that take a key parameter,
-			 * Error::StrategyError will be thrown if the key string
-			 * is not compliant. A FileRecordStore has the
-			 * additional requirement that a key name may not
-			 * contain path delimiter characters ('/' and '\'),
-			 * or begin with whitespace.
-			 */
 			void insert(
 			    const string &key,
 			    const void *const data,

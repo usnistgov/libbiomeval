@@ -15,9 +15,36 @@
 #include <be_utility_autoarray.h>
 
 namespace BiometricEvaluation {
+
+/**
+ * \brief
+ * A class representing a raw image.
+ * \details
+ * \todo Add more detail.
+ */
 	namespace Image {
 		class RawImage : public Image {
 		public:
+			/**
+			 * Construct a RawImage object.
+			 *
+			 * @param data[in]
+			 *	The image data.
+			 * @param size[in]
+			 *	The size of the image data, in bytes.
+			 * @param width[in]
+			 *	The width of the image, in pixels.
+			 * @param height[in]
+			 *	The height of the image, in pixels.
+			 * @param depth[in]
+			 *	The image depth, in bits-per-pixel.
+			 * @param XResolution[in]
+			 *	The resolution of the image in the horizontal
+			 *	direction, in pixels-per-centimeter.
+			 * @param YResolution[in]
+			 *	The resolution of the image in the horizontal
+			 *	direction, in pixels-per-centimeter.
+			 */
 			RawImage(
 			    uint8_t* _data,
 			    uint64_t size,
@@ -27,7 +54,10 @@ namespace BiometricEvaluation {
 			    unsigned int XResolution,
 			    unsigned int YResolution);
 			~RawImage();
-	
+
+			/*
+			 * Implementations of the Image interface.
+			 */
 			uint64_t getWidth() const;
 			uint64_t getHeight() const;
 			unsigned int getDepth() const;

@@ -50,7 +50,6 @@ int main(int argc, char *argv[])
 	 * Test setting an invalid signal set.
 	 */
 	cout << "Setting invalid signal SIGKILL in signal set: ";
-	sigset;
 	sigemptyset(&sigset);
 	sigaddset(&sigset, SIGKILL);
 	success = false;

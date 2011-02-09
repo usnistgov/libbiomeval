@@ -19,12 +19,18 @@
 namespace BiometricEvaluation {
 
 	namespace IO {
-			/*
-			 * Constants that indicate the state of an object
-			 * that manages some underlying file. This object
-			 * may be read-only, or read-write.
+			/**
+			 * Constant indicating the state of an object
+			 * that manages some underlying file is accessible
+			 * for reading and writing.
 			 */
 			static const uint8_t READWRITE = 0;
+
+			/**
+			 * Constant indicating the state of an object
+			 * that manages some underlying file is accessible
+			 * for reading only.
+			 */
 			static const uint8_t READONLY = 1;
 	}
 }

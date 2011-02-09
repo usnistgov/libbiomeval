@@ -17,15 +17,12 @@
 
 namespace BiometricEvaluation 
 {
-	/*
+	/**
 	 * The Time name space gathers all timing relating matters, such as
 	 * Timers, Watchdog timers, etc. Time values are in microsecond units.
 	 */
 	namespace Time
 	{
-		/*
-		 * Constants for time intervals in terms of microseconds.
-		 */
 		const uint64_t OneSecond = 1000000;
 		const uint64_t OneHalfSecond = 500000;
 		const uint64_t OneQuarterSecond = 250000;

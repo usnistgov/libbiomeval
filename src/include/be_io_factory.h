@@ -19,16 +19,18 @@ using namespace std;
 namespace BiometricEvaluation {
 
 	namespace IO {
-		/*
-		 * Class to provide constructed objects of classes defined
+		/**
+		 * A class to provide constructed objects of classes defined
 		 * in the BiometricEvaluation::IO package, RecordStores, etc.
 		 */
 		class Factory {
 		public:
 			
-			/*
+			/**
+			 * \brief
 			 * Open an existing RecordStore and return a managed
 			 * pointer to the the object representing that store.
+			 * \details
 			 * Applications can open existing record stores
 			 * without the need to know what type of RecordStore
 			 * it is.
@@ -37,25 +39,20 @@ namespace BiometricEvaluation {
 			 * when the returned pointer goes out of scope.
 			 * Applications should not delete the object.
 			 *
-			 * Parameters:
-			 * 	name (in)
-			 *		The name of the store to be opened.
-			 *	parentDir (in)
-			 *		Where, in the file system, the store
-			 *		is rooted.
-			 *	mode (in)
-			 *		The type of access a client of this 
-			 *		RecordStore has.
-			 * Returns:
-			 *	An auto_ptr to the object representing the
-			 *	existing store.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		The RecordStore does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system, or the
-			 *		name is malformed.
+			 * @param name[in]
+			 *	The name of the store to be opened.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the store is rooted.
+			 * @param mode[in]
+			 *	The type of access a client of this 
+			 *	RecordStore has.
+			 * @returns
+			 *	An object representing the existing store.
+			 * \throws Error::ObjectDoesNotExist
+			 *	The RecordStore does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or the name is malformed.
 			 */
 			static tr1::shared_ptr<RecordStore> openRecordStore(
 			    const string &name,

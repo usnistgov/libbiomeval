@@ -1,0 +1,84 @@
+%
+% Time API
+%
+\chapter{Time and Timing}
+\label{chp-time}
+
+The Time package within the \lname provides a set of classes for performing
+timing-related operations, such as elapsed time and limiting execution time.
+
+\section{Elapsed Time}
+
+The {\em Timer} class provides applications a method to determine how long
+a block of code takes to execute. On many systems (e.g. Linux) the timer
+resolution is in microseconds.
+
+Listing~\ref{timeruse} shows how an application can use a {\em Timer}
+object to limit obtain the amount of time used for the execution of a block
+of code.
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Using the Timer}, label=timeruse]
+#include <be_time_timer.h>
+
+int main(int argc, char *argv[])
+{
+	Time::Timer timer = new Time::Timer();
+
+	try {
+		atimer->start();
+		// do something useful, or not
+		atimer->stop();
+		cout << "Elapsed time: " << atimer->elapsed() << endl;
+	} catch (Error::StrategyError &e) {
+		cout << "Failed to create timer." << endl;
+	}
+}
+\end{lstlisting}
+
+\section{Limiting Execution Time}
+
+The {\em Watchdog} class allows applications to control the amount of time
+that a block of code has to execute. The time can be {\em real} (i.e. ``wall'')
+time, or {\em process} time (not available on Windows). One typical usage for
+a watchdog timer is when a call is made to a function that may never return,
+due to problems processing an input biometric image.
+
+Watch dog timers can be used in conjunction with {\em SignalManager} in
+order to both limit the processing time of a call, and handle all signals
+generated as a result of that call. See~\ref{sec-signalhandling} for
+information on the {\em SignalManager} class.
+
+One restriction on the use of {\em Watchdog} is that the POSIX calls for
+signal management ({\em signal(3)}, {\em sigaction(2)}, etc.) cannot be
+invoked inside of the watchdog block. This restriction includes calls to
+{\em sleep(3)} because it is based on signal handling as well.
+
+Listing~\ref{watchdoguse} shows how an application can use a {\em Watchdog}
+object to limit the about of process time for a block of code.
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Using the Watchdog}, label=watchdoguse]
+#include <be_time_watchdog.h>
+int main(int argc, char *argv[])
+
+	Time::Watchdog theDog = new Time::Watchdog(Time::Watchdog::PROCESSTIME);
+	theDog->setInterval(300);	// 300 microseconds
+	BEGIN_WATCHDOG_BLOCK(theDog, watchdogblock1);
+		// Do something that may take more than 300 usecs
+	END_WATCHDOG_BLOCK(theDog, watchdogblock1);
+	if (theDog->expired()) {
+		cout << "That took too long." << endl;
+		// further processing
+	}
+{
+}
+\end{lstlisting}
+
+Within the {\em Watchdog} header file, two macros are defined:
+{\tt BEGIN\_WATCHDOG\_BLOCK()} and {\tt END\_WATCHDOG\_BLOCK()}, each taking
+the {\em Watchdog} object and label as parameters. The label must be unique
+for each watch dog block.  The use of these macros greatly simplifies
+watchdog timers for the application, and it is recommended that applications
+use these macros instead of directly invoking the methods of the
+{\em Watchdog} class, except for setting the timeout value.

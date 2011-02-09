@@ -19,15 +19,20 @@ namespace BiometricEvaluation
 {
 	namespace Error
 	{
+/**
+ * \brief
+ * This class contains methods that are useful utility functions, such as
+ * converting system values to strings.
+ */
 		class Utility
 		{
 		public:
 			
-			/*
+			/**
 			 * Convert the value of errno to a human-readable
 			 * error messsage.
 			 *
-			 * Return:
+			 * @returns
 			 * 	The current error message specified by errno.
 			 */
 			static string errorStr();
@@ -36,4 +41,3 @@ namespace BiometricEvaluation
 }
 
 #endif
-

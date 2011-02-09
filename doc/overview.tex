@@ -1,0 +1,24 @@
+\chapter{Overview}
+
+The \lname (\sname)
+is a set of C++\cite{cpp:plguide} classes, error codes, and design
+patterns used to create a common environment to provide logging, data
+management, error handling, and other functionality that is needed for many
+applications used in the testing of biometric software. The goals of the
+framework include:
+\begin{itemize}
+\item Reduce the amount of I/O error handling implemented by applications;
+\item Provide standard interfaces for data management and logging;
+\item Remove the need for applications to handle low-level events from the
+operating system (signals, etc.);
+\item Provide services for timing the execution of code blocks;
+\item Allow appications to constrain the amount of processing time used
+by a block of code.
+\end{itemize}
+
+\sname is divided into several packages, each providing a set of
+related functionality, such as error handling and timing operations. The
+packages are an informal concept, mapped to formal C++ name spaces, e.g.
+{\em IO} and {\em Time}.
+All classes within \sname belong to the top-level {\em BiometricEvaluation}
+name space.

@@ -8,28 +8,6 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-/*
- * This file describes a format for storing multiple data chunks into a 
- * single file.  This requires the use of a simple manifest file.  "Archives"
- * consist of binary data chunks written back to back of each other. 
- * To pull information out of an archive, a manifest file is written in the 
- * same directory as the archive files.  The most recently written entry
- * in the manifest is accurate (see "vacuum()").
- *
- * Each data chunk is assigned a string key, which will be required for 
- * retrieving the data.  As the data is written, a plain text entry is 
- * entered into the manifest in the format:
- * 	key offset size
- * where offset is the offset into the archive file key's data chunk resides
- * and size is the length of key's data chunk.
- *
- * By default, information is not removed when updated in the archive, rather
- * the old information is ignored.  Therefore, it is possible to have multiple
- * entries in the manifest for one key.  The last entry for the key is 
- * considered accurate.  If the last offset for a key is 
- * ARCHIVE_RECORD_REMOVED, the information is treated as unavailable.
- */
-
 #ifndef __BE_ARCHIVERECSTORE_H__
 #define __BE_ARCHIVERECSTORE_H__
 
@@ -69,10 +47,48 @@ namespace BiometricEvaluation {
 		 */
 		typedef map<string, ManifestEntry> ManifestMap;
 	
+/**
+ * \brief
+ * This class implements the IO::RecordStore interface by storing data items
+ * in single file, with an associated manifest file. 
+ * 
+ * \details
+ * Archives consist of binary records written back to back of each other. 
+ * To pull information out of an archive, a manifest file is written in the 
+ * same directory as the archive file.
+ *
+ * Each record is assigned a string key, which will be required for 
+ * retrieving the data.  As the data is written, a plain text entry is 
+ * entered into the manifest in the format:
+ * \n
+ * 	key offset size
+ * \n
+ * where offset is the offset into the archive file key's data chunk resides
+ * and size is the length of key's data chunk.
+ *
+ * By default, information is not removed when updated in the archive, rather
+ * the old information is ignored.  Therefore, it is possible to have multiple
+ * entries in the manifest for one key.  The last entry for the key is 
+ * considered accurate.  If the last offset for a key is 
+ * ARCHIVE_RECORD_REMOVED, the information is treated as unavailable.
+ */
 		class ArchiveRecordStore : public RecordStore {
 		public:	
-			/*
-			 * Create a new ArchiveRecordStore.
+			/**
+			 * Create a new ArchiveRecordStore, read/write mode.
+			 *
+			 * @param name[in]
+			 *	The name of the store.
+			 * @param description[in]
+			 *	The store's description.
+			 * @param parentDir[in]
+			 * 	The directory where the store is to be created.
+			 *
+			 * \throw Error::ObjectExists
+			 * 	The store already exists.
+			 * \throw Error::StrategyError
+			 * 	An error occurred when accessing the underlying
+			 * 	file system.
 			 */
 			ArchiveRecordStore(
 			    const string &name,
@@ -80,8 +96,21 @@ namespace BiometricEvaluation {
 			    const string &parentDir)
 			    throw (Error::ObjectExists, Error::StrategyError);
 	
-			/*
+			/**
 			 * Open an existing ArchiveRecordStore.
+			 *
+			 * @param name[in]
+			 *	The name of the store.
+			 * @param parentDir[in]
+			 * 	The directory where the store is to be created.
+			 * @param mode[in]
+			 *	Open mode, read-only or read-write.
+			 *
+			 * \throw Error::ObjectDoesNotExist
+			 *	The store does not exist.
+			 * \throw Error::StrategyError
+			 *	An error occurred when accessing the underlying
+			 *	file system.
 			 */
 			 ArchiveRecordStore(
 			     const string &name,
@@ -89,83 +118,38 @@ namespace BiometricEvaluation {
 			     uint8_t mode = IO::READWRITE)
 			     throw (Error::ObjectDoesNotExist, 
 			     Error::StrategyError);
-	
-			uint64_t getSpaceUsed()
-			    throw (Error::StrategyError);
-	
-			/*
+
+			/**
 			 * Destructor.
 			 */
 			~ArchiveRecordStore();
 			
+			uint64_t getSpaceUsed()
+			    throw (Error::StrategyError);
+
 			/*
-			 * Synchronize the entire store to persistent storage.
+			 * Implementations of RecordStore methods.
 			 */
 			void sync()
 			    throw (Error::StrategyError);
-			/*
-			 * Get the size of the data chunk.
-			 *
-			 * Parameters:
-			 *	key	The key you want the size of
-			 * 
-			 * Returns:
-			 *	The size of key.
-			 */
-			uint64_t length(
-			    const string &key) 
-			    throw (Error::ObjectDoesNotExist);
-			
-			/*
-			 * Read a data chunk.
-			 * 
-			 * Parameters:
-			 *	key	The key for a particular data chunk
-			 *	data	(output) Populated with the data chunk 
-			 *		desired.
-			 *
-			 * Return:
-			 *	The size of data
-			 */
-			uint64_t read(
-			    const string &key,
-			    void *const data)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
-		
-			/*
-			 * Add a data chunk to the archive
-			 *
-			 * Parameters:
-			 * 	key	A unique ID for the data chunk
-			 *	data	The data to store
-			 *	size	The size of data
-			 */
+
 			void insert(
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
 			    throw (Error::ObjectExists, Error::StrategyError);
-			
-			/*
-			 * Remove an entry from the archive.
-			 *
-			 * Parameters:
-			 * 	key	The unique ID for the data chunk
-			 */
+
 			void remove(
 			    const string &key)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
-	
-			/*
-			 * Replace an entry from the archive.
-			 *
-			 * Parameters:
-			 * 	key	A unique ID for the data chunk
-			 *	data	The data to store
-			 *	size	The size of data
-			 */
+
+			uint64_t read(
+			    const string &key,
+			    void *const data)
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
+
 			void replace(
 			    const string &key,
 			    const void *const data,
@@ -173,12 +157,10 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 	
-			/*
-			 * Write file on disk
-			 *
-			 * Parameters:
-			 * 	key	A unique ID for the data chunk
-			 */
+			uint64_t length(
+			    const string &key) 
+			    throw (Error::ObjectDoesNotExist);
+
 			void flush(
 			    const string &key)
 			    throw (Error::ObjectDoesNotExist, 
@@ -196,12 +178,25 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError);
 	
-			/*
-			 * Remove "removed" entries from the manifest and 
-			 * archive 
-			 * files to save space on disk.
+			void changeName(
+			    const string &name)
+			    throw (Error::ObjectExists, Error::StrategyError);
+	
+			/**
+			 * Remove deleted entries from the manifest and 
+			 * archive files to save space on disk.
 			 *
-			 * NOTE: This is an expensive operation.
+			 * @param name[in]
+			 *	The name of the existing RecordStore.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the store is rooted.
+			 * \throws Error::ObjectDoesNotExist
+			 *	A record with the given key does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 * \note
+			 * This is an expensive operation.
 			 */
 			static void vacuum(
 			    const string &name,
@@ -209,28 +204,23 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 	
-			/*
-			 * Return the name of the file storing the data for this
-			 * archive.
+			/**
+			 * Obtain the name of the file storing the data for 
+			 * this store.
 			 *
-			 * Return:
-			 *	Path to archive file
+			 * @returns
+			 *	Path to archive file.
 			 */
 			string getArchiveName();
 	
-			/*
-			 * Return the name of the file storing the manifest data
-			 * for the data in this archive.
+			/**
+			 * Obtain the name of the file storing the manifest data
+			 * data for this store.
 			 *
-			 * Return:
-			 *	Path to manifest file
+			 * @returns
+			 *	Path to manifest file.
 			 */
 			string getManifestName();
-	
-			/* Change the name of the RecordStore */
-			void changeName(
-			    const string &name)
-			    throw (Error::ObjectExists, Error::StrategyError);
 	
 		protected:
 		

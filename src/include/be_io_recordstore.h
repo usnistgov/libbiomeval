@@ -23,18 +23,30 @@ using namespace std;
 namespace BiometricEvaluation {
 
 	namespace IO {
-		/*
-		 * Class to represent a data storage mechanism.
+		/**
+		 * \brief
+		 * A class to represent a data storage mechanism.
+		 *
+		 * \details
+		 * A RecordStore is an abstraction that associates keys with
+		 * a specific record. Implementations of this abstraction
+		 * can store the records in any format supported by the
+		 * operating system, such as files or databases, rooted in
+		 * the file system.
+		 *
+		 * \see
+		 * IO::ArchiveRecordStore, IO::DBRecordStore,
+		 * IO::FileRecordStore.
 		 */
 		class RecordStore {
 		public:
 			
-			/*
+			/**
 			 * The name of the control file, a properties list.
 			 */
 			static const string CONTROLFILENAME;
 
-			/*
+			/**
 		 	* Keys used in the Properties list for the RecordStore.
 		 	*
 			* "Name" - The name of the store
@@ -47,7 +59,7 @@ namespace BiometricEvaluation {
 			static const string COUNTPROPERTY;
 			static const string TYPEPROPERTY;
 
-			/*
+			/**
 			 * The known RecordStore type strings:
 			 * "BerkeleyDB" - Berkeley database
 			 * "Archive" - Archive file
@@ -57,32 +69,26 @@ namespace BiometricEvaluation {
 			static const string ARCHIVETYPE;
 			static const string FILETYPE;
 
-			/*
-			 * All RecordStores should have the ability to be
-			 * created with a string for the description.
-			 * Parameters:
-			 * 	name (in)
-			 *		The name of the RecordStore to be
-			 *		created.
-			 *	description (in)
-			 *		The text used to describe the store.
-			 *	type (in)
-			 *		The type of RecordStore.
-			 *	parentDir (in)
-			 *		Where, in the file system, the store
-			 *		is to be rooted. This directory must
-			 *		exist.
-			 * Returns:
+			/**
+			 * Constructor to create a new RecordStore.
+			 *
+			 * @param name[in]
+			 *	The name of the RecordStore to be created.
+			 * @param description[in]
+			 *	The text used to describe the store.
+			 * @param type[in]
+			 *	The type of RecordStore.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the store is to
+			 *	be rooted. This directory must exist.
+			 * @returns
 			 *	An object representing the new, empty store.
-			 * Throws:
-			 * 	Error::ObjectExists
-			 *		The store was previously created,
-			 *		or the directory where it would be
-			 *		created exists.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system, or the
-			 *		the name malformed.
+			 * \throws Error::ObjectExists
+			 *	The store was previously created, or the
+			 *	directory where it would be created exists.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or the the name malformed.
 			 */
 			RecordStore(
 			    const string &name,
@@ -91,26 +97,22 @@ namespace BiometricEvaluation {
 			    const string &parentDir)
 			    throw (Error::ObjectExists, Error::StrategyError);
 
-			/*
-			 * Open an existing RecordStore.
-			 * Parameters:
-			 * 	name (in)
-			 *		The name of the store to be opened.
-			 *	parentDir (in)
-			 *		Where, in the file system, the store
-			 *		is rooted.
-			 *	mode (in)
-			 *		The type of access a client of this 
-			 *		RecordStore has.
-			 * Returns:
+			/**
+			 * Constructor to open an existing RecordStore.
+			 * @param name[in]
+			 *	The name of the store to be opened.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the store is rooted.
+			 * @param mode[in]
+			 *	The type of access a client of this 
+			 *	RecordStore has.
+			 * @returns
 			 *	An object representing the existing store.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		The RecordStore does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system, or the
-			 *		name is malformed.
+			 * \throws Error::ObjectDoesNotExist
+			 *	The RecordStore does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or the name is malformed.
 			 */
 			RecordStore(
 			    const string &name,
@@ -123,91 +125,93 @@ namespace BiometricEvaluation {
 
 			virtual ~RecordStore();
 			
-			/*
-			 * Return a textual description of the RecordStore.
-			 */
-			string getDescription();
-
-			/*
+			/**
 			 * Return the name of the RecordStore.
+			 * @returns
+			 *	 The RecordStore's name.
 			 */
 			string getName();
 
-			/*
-			 * Return the number of items in the RecordStore.
+			/**
+			 * Obtain a textual description of the RecordStore.
+			 * @returns
+			 *	The RecordStore's description.
+			 */
+			string getDescription();
+
+			/**
+			 * Obtain the number of items in the RecordStore.
+			 * @returns
+			 *	The number of items in the RecordStore.
 			 */
 			unsigned int getCount();
 
-			/*
+			/**
 			 * Change the name of the RecordStore.
-			 * Parameters:
-			 * Returns:
-			 * Throws:
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system, or the
-			 *		name is malformed.
+			 * @param
+			 *	name[in] The new name for the RecordStore.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or the name is malformed.
 			 */
 			virtual void changeName(
 			    const string &name)
 			    throw (Error::ObjectExists, Error::StrategyError);
 
-			/*
+			/**
 			 * Change the description of the RecordStore.
-			 * Parameters:
-			 * Returns:
-			 * Throws:
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * @param description[in]
+			 *	The new description.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */
 			virtual void changeDescription(
 			    const string &description)
 			    throw (Error::StrategyError);
 			
-			/*
-			 * Return the amount of real storage utilization, the
+			/**
+			 * Obtain the amount of real storage utilization, the
 			 * amount of disk space used, for example. This is the
 			 * actual space allocated by the underlying storage
-			 * mechanism; in the case of files for example, the
-			 * value returned will be in block-size increments.
+			 * mechanism, in bytes.
 			 *
-			 * Throws:
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * @returns
+			 * 	The amount of backing storage used by
+			 * 	the RecordStore.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */
 			virtual uint64_t getSpaceUsed()
 			    throw (Error::StrategyError);
 			
-			/*
+			/**
 			 * Synchronize the entire record store to persistent
-			 * storage. Subclasses can override, but this base
-			 * class will update the control file.
+			 * storage.
 			 *
-			 * Throws:
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			*/
 			virtual void sync()
 			    throw (Error::StrategyError);
 
-			/*
+			/**
 			 * Insert a record into the store.
 			 *
-			 * Parameters:
-			 *	key (in)
-			 *		The key of the record to be flushed.
-			 *	data (in)
-			 *		The data for the record.
-			 * Throws:
-			 *	Error::ObjectExists
-			 *		A record with the given key is already
-			 *		present.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * @param
+			 *	key[in] The key of the record to be flushed.
+			 * @param
+			 *	data[in] The data for the record.
+			 * @param
+			 *	size[in] The size, in bytes, of the record.
+			 * \throws Error::ObjectExists
+			 *	A record with the given key is already
+			 *	present.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */
 			virtual void insert(
 			    const string &key,
@@ -216,43 +220,38 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectExists,
 			    Error::StrategyError) = 0;
 
-			/*
-			 * Remove a record from the store
+			/**
+			 * Remove a record from the store.
 			 *
-			 * Parameters:
-			 *	key (in)
-			 *		The key of the record to be removed.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		A record for the key does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * @param key[in]
+			 * 	The key of the record to be removed.
+			 * \throws Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */
 			virtual void remove(
 			    const string &key)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
-			/*
+			/**
 			 * Read a complete record from a store. Applications
 			 * are responsible for allocating storage for the
 			 * record's data.
 			 *
-			 * Parameters:
-			 *	key (in)
-			 *		The key of the record to be read.
-			 *	data (in)
-			 *		Pointer to where the data is to be
-			 *		written.
-			 * Returns:
+			 * @param key[in]
+			 *	The key of the record to be read.
+			 * @paramdata[in]
+			 *	Pointer to where the data is to be written.
+			 * @returns
 			 * 	The size of the record.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		A record for the key does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * \throws 	Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * \throws 	Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */	
 			virtual uint64_t read(
 			    const string &key,
@@ -260,20 +259,18 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
-			/*
+			/**
 			 * Replace a complete record in a store.
 			 *
-			 * Parameters:
-			 *	key (in)
-			 *		The key of the record to be replaced.
-			 *	data (in)
-			 *		The data for the record.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		A record for the key does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * @param key[in]
+			 *	The key of the record to be replaced.
+			 * @param data[in]
+			 *	The data for the record.
+			 * \throws Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */	
 			virtual void replace(
 			    const string &key,
@@ -282,44 +279,40 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
-			/*
+			/**
 			 * Return the length of a record.
 			 *
-			 * Parameters:
-			 *	key (in)
-			 *		The key of the record.
-			 * Returns:
+			 * @param key[in]
+			 *	The key of the record.
+			 * @returns
 			 *	The record length.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		A record for the key does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * \throws Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */
 			virtual uint64_t length(
 			    const string &key)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
-			/*
+			/**
 			 * Commit the record's data to storage.
-			 * Parameters:
-			 *	key (in)
-			 *		The key of the record to be flushed.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		A record for the key does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * @param key[in]
+			 *	The key of the record to be flushed.
+			 * \throws Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */
 			virtual void flush(
 			    const string &key)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
-			/*
+			/**
 			 * Sequence through a RecordStore, returning the
 			 * key/data pairs. Sequencing means to start at some
 			 * point in the store and return the record, then
@@ -330,25 +323,22 @@ namespace BiometricEvaluation {
 			 * can be reset by calling this method with the
 			 * cursor parameter set to BE_RECSTORE_SEQ_START.
 			 *
-			 * Parameters:
-			 *	key (out)
-			 *		The key of the currently sequenced
-			 *		record.
-			 *	data (in)
-			 *		Pointer to where the data is to be
-			 *		written. Applications can set data to
-			 *		NULL to indicate only the key is wanted.
-			 *	cursor (in)
-			 *		The location within the sequence of
-			 *		the key/data pair to return.
-			 * Returns:
+			 * @param key[out]
+			 *	The key of the currently sequenced record.
+			 * @param data[in]
+			 *	Pointer to where the data is to be written.
+			 *	Applications can set data to NULL to indicate
+			 *	only the key is wanted.
+			 * @param cursor[in]
+			 *	The location within the sequence of the
+			 *	key/data pair to return.
+			 * @returns
 			 *	The length of the record currently in sequence.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		A record for the key does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * \throws Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			*/
 			static const int BE_RECSTORE_SEQ_START = 1;
 			static const int BE_RECSTORE_SEQ_NEXT = 2;
@@ -359,47 +349,40 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
-			/*
+			/**
 			 * Set the sequence cursor to an arbitrary position
 			 * within the RecordStore, starting at key.  Key 
 			 * will be the first record returned from the next
 			 * call to sequence().
 			 *
-			 * Parameters:
-			 *	key (in)
-			 *		The key of the record which will be 
-			 *		returned by the first subsequent call
-			 *		to sequence().
+			 * @param key[in]
+			 *	The key of the record which will be returned
+			 *	by the first subsequent call to sequence().
 			 *
-			 * Throws:
-			 * 	Error::ObjectDoesNotExist
-			 *		A record for the key does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * \throws Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */
 			virtual void setCursor(
 			    string &key)
 			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError) = 0;
 
-			/*
+			/**
 			 * Remove a RecordStore by deleting all persistant
 			 * data associated with the store.
 			 *
-			 * Parameters:
-			 *	name (in)
-			 *		The name of the existing RecordStore.
-			 *	parentDir (in)
-			 *		Where, in the file system, the store
-			 *		is rooted.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		A record with the given key does not
-			 *		exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system.
+			 * @param name[in]
+			 *	The name of the existing RecordStore.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the store is rooted.
+			 * \throws Error::ObjectDoesNotExist
+			 *	A record with the given key does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */
 			static void removeRecordStore(
 			    const string &name,
