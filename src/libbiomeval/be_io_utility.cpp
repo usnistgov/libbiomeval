@@ -13,6 +13,7 @@
 
 #include <dirent.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <be_error_utility.h>
 #include <be_io_utility.h>
@@ -97,11 +98,27 @@ BiometricEvaluation::IO::Utility::fileExists(
 {
 	struct stat sb;
 
-	if (stat(pathname.c_str(), &sb) == 0)
+	if (access(pathname.c_str(), F_OK) == 0)
 		return (true);
 	else
 		return (false);
 
+}
+
+bool
+BiometricEvaluation::IO::Utility::pathIsDirectory(
+    const string &pathname)
+    throw (Error::StrategyError)
+{
+	struct stat sb;
+
+	if (stat(pathname.c_str(), &sb) != 0)
+		return (false);
+	
+	if (S_ISDIR(sb.st_mode))
+		return (true);
+
+	return (false);
 }
 
 uint64_t

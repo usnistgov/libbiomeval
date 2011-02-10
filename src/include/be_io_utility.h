@@ -82,6 +82,22 @@ namespace BiometricEvaluation {
 			    const string &pathname)
 			    throw (Error::StrategyError);
 
+			/*
+			 * Indicate whether a path points to a directory.
+			 *
+			 * @param pathname[in]
+			 *	The path to be checked
+			 * @returns
+			 * 	true if the path is a dir, false otherwise.
+			 * \throws Error::StrategyError
+			 *		An error occurred when using the
+			 *		underlying storage system, or the
+			 *		name is malformed.
+			 */
+			static bool pathIsDirectory(
+			    const string &pathname)
+			    throw (Error::StrategyError);
+
 			/**
 			 * Check whether or not a string is valid as a name for
 			 * a rooted entity, such as a RecordStore or other type
