@@ -212,8 +212,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::read_manifest()
 			throw Error::FileError("Error reading entry from "
 			    "manifest.");
 		}
-		if (sscanf(linebuf, "%s %ld %llu", keybuf, &entry.offset, 
-		    &entry.size) != 3)
+		if (sscanf(linebuf, "%s %llu %ld", keybuf, &entry.size, 
+		    &entry.offset) != 3)
 		    	break;
 
 		key.assign(keybuf);
@@ -307,8 +307,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::write_manifest_entry(
 		}
 	}
 
-	snprintf(linebuf, MAXLINELEN, "%s %ld %llu\n", key.c_str(), 
-	    entry.offset, entry.size);
+	snprintf(linebuf, MAXLINELEN, "%s %llu %ld\n", key.c_str(), 
+	    entry.size, entry.offset);
 	if (fwrite(linebuf, 1, strlen(linebuf), _manifestfp) != strlen(linebuf))
 		throw Error::StrategyError("Could write manifest entry for " + 
 		key + " (" + Error::Utility::errorStr() + ")");
