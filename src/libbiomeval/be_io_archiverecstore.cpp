@@ -35,6 +35,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
 {
 	char linebuf[MAXLINELEN];
 	_manifestfp = _archivefp = NULL;
+	_dirty = false;
 
 	try {
 		open_streams();
@@ -51,6 +52,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
     RecordStore(name, parentDir, mode)
 {
 	_manifestfp = _archivefp = NULL;
+	_dirty = false;
 
 	try {
 		read_manifest();
@@ -218,6 +220,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::read_manifest()
 
 		key.assign(keybuf);
 		efficient_insert(_entries, key, entry);
+
+		if (!_dirty && entry.offset == ARCHIVE_RECORD_REMOVED)
+			_dirty = true;
 	}
 }
 
@@ -333,6 +338,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::remove(const string &key)
 	try {
 		write_manifest_entry(key, entry);
 		_count--;
+		_dirty = true;
 	} catch (Error::StrategyError& e) {
 		throw e;
 	}
@@ -488,6 +494,12 @@ BiometricEvaluation::IO::ArchiveRecordStore::vacuum(
 
 	try {
 		oldrs = new ArchiveRecordStore(name, parentDir);
+		/* Bail if vacuuming isn't necessary */
+		if (!oldrs->needsVacuum()) {
+			if (oldrs != NULL)
+				delete oldrs;
+			return;
+		}
 		string newName = tempnam(".", NULL);
 		newName = newName.substr(2, newName.length());
 		newrs = new ArchiveRecordStore(newName, 
@@ -551,6 +563,29 @@ BiometricEvaluation::IO::ArchiveRecordStore::changeName(const string &name)
 
 	RecordStore::changeName(name);
 	close_streams();
+}
+
+bool
+BiometricEvaluation::IO::ArchiveRecordStore::needsVacuum()
+{
+	return _dirty;
+}
+
+bool
+BiometricEvaluation::IO::ArchiveRecordStore::needsVacuum(
+    const string &name, 
+    const string &parentDir)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	if (!IO::Utility::validateRootName(name))
+		throw Error::StrategyError("Invalid characters in RS name");
+
+	string newDirectory;
+	if (!IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
+		throw Error::ObjectDoesNotExist();
+
+	ArchiveRecordStore rs = ArchiveRecordStore(name, parentDir);
+	return rs.needsVacuum();
 }
 
 BiometricEvaluation::IO::ArchiveRecordStore::~ArchiveRecordStore()

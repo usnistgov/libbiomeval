@@ -101,6 +101,13 @@ int main (int argc, char* argv[]) {
 		}
 	}
 
+	/* See if the RecordStore needs vacuuming -- it should not */
+	if (ars->needsVacuum()) {
+		cout << "Failed first test of vacuum necessity" << endl;
+		exit (EXIT_FAILURE);
+	} else
+		cout << "Passed first test of vacuum necessity" << endl;
+
 	/* Replace the value */
 	try {
 		char buf[] = "0123456789";
@@ -111,6 +118,14 @@ int main (int argc, char* argv[]) {
 		exit (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << "Failed test of replacing" << endl;
+		exit (EXIT_FAILURE);
+	}
+
+	/* See if the RecordStore needs vacuuming -- it should */
+	if (ars->needsVacuum())
+		cout << "Passed second test of vacuum necessity" << endl;
+	else {
+		cout << "Failed second test of vacuum necessity" << endl;
 		exit (EXIT_FAILURE);
 	}
 	delete ars;
@@ -125,6 +140,14 @@ int main (int argc, char* argv[]) {
 		exit (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << "Failed test of reading manifest" << endl;
+		exit (EXIT_FAILURE);
+	}
+
+	/* See if the RecordStore needs vacuuming -- it should */
+	if (ars3->needsVacuum())
+		cout << "Passed third test of vacuum necessity" << endl;
+	else {
+		cout << "Failed third test of vacuum necessity" << endl;
 		exit (EXIT_FAILURE);
 	}
 	try {
@@ -173,9 +196,32 @@ int main (int argc, char* argv[]) {
 		cout << "Failed test of removing/re-reading" << endl;
 	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Passed test of removing/re-reading" << endl;
-		exit  (EXIT_FAILURE);
 	}
 	delete ars3;
 
-	exit(EXIT_SUCCESS);
+	/* Vacuum the RecordStore */
+	try {
+		IO::ArchiveRecordStore::vacuum(archivefn, "");
+		cout << "Passed test of vacuuming" << endl;
+	} catch (Error::Exception) {
+		cout << "Failed test of vacuuming" << endl;
+		exit (EXIT_FAILURE);
+	}
+
+	/* See if the RecordStore needs vacuuming -- it should not */
+	try {
+		if (!IO::ArchiveRecordStore::needsVacuum(archivefn, "")) {
+			cout << "Passed fourth test of vacuum necessity" <<
+			    endl;
+			exit(EXIT_SUCCESS);
+		} else {
+			cout << "Failed fourth test of vacuum necessity" <<
+			    endl;
+			exit (EXIT_FAILURE);
+		}
+	} catch (Error::Exception) {
+		cout << "Failed fourth test of vacuum necessity" << endl;
+		exit (EXIT_FAILURE);
+	}
+
 }

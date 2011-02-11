@@ -183,6 +183,41 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectExists, Error::StrategyError);
 	
 			/**
+			 * See if the ArchiveRecordStore would benefit from
+			 * calling vacuum() to remove deleted entries, since
+			 * vacuum() is an expensive operation.
+			 *
+			 * @returns
+			 *	true if vacuum() would be beneficial
+			 *	false otherwise
+			 */
+			bool needsVacuum();
+
+			/**
+			 * See if the ArchiveRecordStore would benefit from
+			 * calling vacuum() to remove deleted entries, since
+			 * vacuum() is an expensive operation.
+			 *
+			 * @param name[in]
+			 *	The name of the existing RecordStore.
+			 * @param parentDir[in]
+			 *	Where, in the filesystem, the store is rooted.
+			 * \throws Error::ObjectDoesNotExist
+			 *	A record with the given key does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 * @returns
+			 *	true if vacuum() would be beneficial
+			 *	false otherwise
+			 */
+			static bool needsVacuum(
+			    const string &name, 
+    			    const string &parentDir)
+    			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
+
+			/**
 			 * Remove deleted entries from the manifest and 
 			 * archive files to save space on disk.
 			 *
@@ -240,6 +275,12 @@ namespace BiometricEvaluation {
 			 * Position of iterator (for sequence())
 			 */
 			ManifestMap::const_iterator _cursorPos;
+
+			/*
+			 * Whether or not the ArchiveRecordStore contains a 
+			 * deleted entry and would benefit from vacuum().
+			 */
+			bool _dirty;
 			
 			/*
 			 * Read the manifest.
