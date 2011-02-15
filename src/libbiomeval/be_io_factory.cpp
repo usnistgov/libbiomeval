@@ -65,3 +65,25 @@ BiometricEvaluation::IO::Factory::openRecordStore(
 		throw Error::StrategyError("Unknown RecordStore type");
 	return (std::tr1::shared_ptr<RecordStore>(rs));
 }
+
+
+std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore::RecordStore>
+BiometricEvaluation::IO::Factory::createRecordStore(
+    const string &name,
+    const string &description,
+    const string &type,
+    const string &destDir)
+    throw (Error::ObjectExists, Error::StrategyError)
+{
+	RecordStore *rs;
+	/* Exceptions thrown by constructors are allowed to float out */
+	if (strcasecmp( type.c_str(), RecordStore::BERKELEYDBTYPE.c_str()) == 0)
+		rs = new DBRecordStore(name, description, destDir);
+	else if (strcasecmp(type.c_str(), RecordStore::ARCHIVETYPE.c_str()) == 0)
+		rs = new ArchiveRecordStore(name, description, destDir);
+	else if (strcasecmp(type.c_str(), RecordStore::FILETYPE.c_str()) == 0)
+		rs = new FileRecordStore(name, description, destDir);
+	else
+		throw Error::StrategyError("Unknown RecordStore type");
+	return (std::tr1::shared_ptr<RecordStore>(rs));
+}
