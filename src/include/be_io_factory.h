@@ -61,44 +61,41 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
-			/*
+			/**
+			 * \brief
 			 * Create a new RecordStore and return a managed
 			 * pointer to the the object representing that store.
-			 *
+			 * \details
 			 * The allocated object will be automatically freed
 			 * when the returned pointer goes out of scope.
 			 * Applications should not delete the object.
 			 *
-			 * Parameters:
-			 * 	name (in)
-			 *		The name of the store to be created.
-			 *	description (in)
-			 *		The description of the store to be created.
-			 *	type (in)
-			 *		The type of the store to be created.
-			 *	destDir (in)
-			 *		Where, in the file system, the store
-			 *		will be created.
-			 *
-			 * Returns:
+			 * @param name[in]
+			 *	The name of the store to be created.
+			 * @param description[in]
+			 *	The description of the store to be created.
+			 * @param type[in]
+			 *	The type of the store to be created.
+			 * @param destDir[in]
+			 *	Where, in the file system, the store will be 
+			 *	created.
+			 * @returns
 			 *	An auto_ptr to the object representing the
 			 *	created store.
-			 * Throws:
-			 *	Error::ObjectDoesNotExist
-			 *		The RecordStore does not exist.
-			 *	Error::StrategyError
-			 *		An error occurred when using the
-			 *		underlying storage system, or the
-			 *		name is malformed.
+			 * \throws Error::ObjectDoesNotExist
+			 *	The RecordStore does not exist.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or the name is malformed.
 			 */
 			static tr1::shared_ptr<RecordStore> createRecordStore(
-				const string &name,
-				const string &description,
-				const string &type,
-				const string &destDir)
-				throw (Error::ObjectExists,
-						Error::StrategyError);
+			    const string &name,
+			    const string &description,
+			    const string &type,
+			    const string &destDir)
+			    throw (Error::ObjectExists, Error::StrategyError);
 		};
 	}
 }
 #endif	/* __BE_IO_FACTORY_H__ */
+
