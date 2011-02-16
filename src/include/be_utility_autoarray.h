@@ -23,33 +23,193 @@
  
 namespace BiometricEvaluation {
 	namespace Utility {
-
+		/**
+		 * \brief
+		 * A class to represent a C-style array with C++ features like
+		 * iterators and benefits like knowledge of the size.
+		 */
 		template<class T> 
 		class AutoArray {
 			public:
-				
+			
+				/**
+				 * \brief
+				 * Convenience typedef for the templated type.
+				 */
 				typedef T value_type;
-			
+				/**
+				 * \brief
+				 * Convenience typedef for a pointer to the
+				 * templated type.
+				 */
 				typedef T* iterator;
+				/**
+				 * \brief
+				 * Convenience typedef for a pointer to a 
+				 * const templated type.
+				 */
 				typedef const T* const_iterator;
+				/**
+				 * \brief
+				 * Convenience typedef for a reference to the
+				 * templated type.
+				 */
 				typedef T& reference;
+				/**
+				 * \brief
+				 * Convenience typedef for a reference to 
+				 * a const templated type.
+				 */
 				typedef const T& const_reference;
-			
+		
+				/**
+				 * \brief
+				 * Dereference operator overload.
+				 * \details
+				 * Resolves to a pointer to the beginning
+				 * of the underlying array storage of the
+				 * AutoArray.
+				 */
 				operator T*();
-			
+		
+				/**
+				 * \brief
+				 * Indexing operator overload.
+				 *
+				 * @param i[in]
+				 * 	Index
+				 *
+				 * @returns
+				 *	Reference to element at index i.
+				 */
 				reference operator[] (ptrdiff_t i);
+				/**
+				 * \brief
+				 * Const indexing operator overload.
+				 *
+				 * @param i[in]
+				 * 	Index
+				 *
+				 * @returns
+				 *	Reference to const element at index i.
+				 */
 				const_reference operator[] (ptrdiff_t i) const;
+
+				/**
+				 * \brief
+				 * Assignment operator overload performing a
+				 * deep copy.
+				 * 
+				 * @param other[in]
+				 *	AutoArray to be copied
+				 *
+				 * @returns
+				 *	Reference to a new AutoArray object.
+				 */
 				AutoArray& operator= (const AutoArray& other);
-				
-				iterator begin();
-				const_iterator begin() const;
-				iterator end();
-				const_iterator end() const;
 			
+				/**
+				 * \brief
+				 * Obtain an iterator to the beginning of the
+				 * AutoArray.
+				 *
+				 * @returns
+				 *	Pointer to the first element of the
+				 *	AutoArray.
+				 */
+				iterator begin();
+
+				/**
+				 * \brief
+				 * Obtain an iterator to the beginning of the
+				 * AutoArray.
+				 *
+				 * @returns
+				 *	Pointer to the const first element of
+				 *	the AutoArray.
+				 */
+				const_iterator begin() const;
+
+				/**
+				 * \brief
+				 * Obtain an iterator to the end of the
+				 * AutoArray.
+				 *
+				 * @returns
+				 *	Pointer to the const last element of
+				 *	the AutoArray.
+				 */
+				iterator end();
+
+				/**
+				 * \brief
+				 * Obtain an iterator to the end of the
+				 * AutoArray.
+				 *
+				 * @returns
+				 *	Pointer to the const last element of
+				 *	the AutoArray.
+				 */
+				const_iterator end() const;
+		
+				/**
+				 * \brief
+				 * Obtain the number of elements allocated
+				 * for this AutoArray.
+				 *
+				 * @returns
+				 *	Number of allocated elements.
+				 */
 				size_t size() const;
-				
+
+				/**
+				 * \brief
+				 * Add/subtract the number of elements this 
+				 * AutoArray can hold.
+				 * \details
+				 * This method can grow or shrink the number
+				 * of allocated elements.
+				 *
+				 * @param new_size
+				 *	The number of elements the AutoArray
+				 *	should have allocated.
+				 * @param free
+				 *	Whether or not excess memory should be
+				 *	freed, in the case that new_size is
+				 *	smaller than the current AutoArray size.
+				 *
+				 * \throws Error::StrategyError
+				 *	Problem allocating memory.
+				 */
+				void resize(size_t new_size, bool free=false)
+    				    throw (Error::StrategyError);
+		
+				/**
+				 * \brief
+				 * Construct an AutoArray.
+				 * \details
+				 * The AutoArray will be of size 0.
+				 */
 				AutoArray();
+				
+				/**
+				 * \brief
+				 * Construct an AutoArray.
+				 * 
+				 * @param[in] size
+				 *	The number of elements this AutoArray
+				 *	should hold.
+				 */
 				AutoArray(size_t size);
+
+				/**
+				 * \brief
+				 * Construct an AutoArray.
+				 * 
+				 * @param copy[in]
+				 *	An AutoArray whose contents will be 
+				 *	deep copied into the new AutoArray.
+				 */
 				AutoArray(const AutoArray& copy);
 		
 				~AutoArray();
@@ -58,6 +218,7 @@ namespace BiometricEvaluation {
 			
 				T* _data;
 				size_t _size;
+				size_t _max_size;
 		};
 	}
 }
@@ -76,6 +237,34 @@ size_t BiometricEvaluation::Utility::AutoArray<T>::size() const
 	return _size;
 }
 
+template<class T>
+void
+BiometricEvaluation::Utility::AutoArray<T>::resize(
+    size_t new_size,
+    bool free)
+    throw (Error::StrategyError)
+{
+	/* If we've already allocated at least new_size space, then bail */
+	if (!free && (new_size <= _max_size)) {
+		_size = new_size;
+		return;
+	}
+
+	T* new_data = NULL;
+	new_data = new T[new_size];
+	if (new_data == NULL)
+		throw Error::StrategyError("Could not allocate data");
+
+	/* Copy as much data as will fit into the new buffer */
+	memcpy(new_data, _data, ((new_size < _size) ? new_size : _size) *
+	    sizeof(T));
+
+	/* Delete the old buffer and assign the new buffer to this object */
+	delete [] _data;
+	_data = new_data;
+	_size = _max_size = new_size;
+}
+
 /*
  * Operators.
  */
@@ -84,7 +273,6 @@ BiometricEvaluation::Utility::AutoArray<T>::operator T*()
 {
 	return _data; 
 }
-
 
 template<class T>
 typename BiometricEvaluation::Utility::AutoArray<T>::reference 
@@ -108,11 +296,11 @@ BiometricEvaluation::Utility::AutoArray<T>::operator= (
     const BiometricEvaluation::Utility::AutoArray<T>& copy) 
 {
 	if (this != &copy) {
-		_size = copy._size; 
+		_size = _max_size = copy._size; 
 		_data = new T[_size];
 		if (_data == NULL)
 			throw Error::StrategyError("Could not allocate data");
-		memcpy(_data, copy._data, _size);
+		memcpy(_data, copy._data, _size * sizeof(T));
 	}
 
 	return *this;
@@ -156,13 +344,14 @@ template<class T>
 BiometricEvaluation::Utility::AutoArray<T>::AutoArray() {
 	_data = NULL;
 	_size = 0;
+	_max_size = 0;
 }
 
 template<class T>
 BiometricEvaluation::Utility::AutoArray<T>::AutoArray(
     size_t size) {
 	if (size > 0)
-		_size = size;
+		_size = _max_size = size;
 	else
 		throw Error::StrategyError("Invalid size");
 
@@ -174,11 +363,11 @@ BiometricEvaluation::Utility::AutoArray<T>::AutoArray(
 template<class T>
 BiometricEvaluation::Utility::AutoArray<T>::AutoArray(
     const AutoArray& copy) {
-	_size = copy._size; 
+	_size = _max_size = copy._size; 
 	_data = new T[_size];
 	if (_data == NULL)
 		throw Error::StrategyError("Could not allocate data");
-	memcpy(_data, copy._data, _size);
+	memcpy(_data, copy._data, _size * sizeof(T));
 }
 
 /******************************************************************************/
@@ -190,3 +379,4 @@ BiometricEvaluation::Utility::AutoArray<T>::~AutoArray() {
 }
 
 #endif /* __BE_UTILITY_AUTOARRAY_H__ */
+
