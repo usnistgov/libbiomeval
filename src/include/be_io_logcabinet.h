@@ -45,6 +45,12 @@ namespace BiometricEvaluation {
 	*/
 	class LogSheet : public std::ostringstream {
 		public:
+
+			/**
+			 * The delimiter for a comment line in the log sheet.
+			 */
+			static const char CommentDelimiter = '#';
+
 			/**
 			 * Create a new log sheet.
 			 *
@@ -85,6 +91,23 @@ namespace BiometricEvaluation {
 			 *	file system.
 			 */
 			void write(const string &entry)
+			    throw (Error::StrategyError);
+
+			/**
+			 * Write a string as a comment to the log file. This
+			 * does not affect the current log entry buffer, and
+			 * does not increment the entry number. A comment
+			 * line is prefixed with CommentDelimiter followed by
+			 * a space by this method.
+			 *
+			 * @param comment[in]
+			 *	The text of the comment.
+			 *
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system.
+			 */
+			void writeComment(const string &comment)
 			    throw (Error::StrategyError);
 
 			/**

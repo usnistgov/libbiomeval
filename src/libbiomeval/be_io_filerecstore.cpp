@@ -14,7 +14,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include <be_error_utility.h>
+#include <be_error.h>
 #include <be_io_utility.h>
 #include <be_io_filerecstore.h>
 
@@ -33,7 +33,7 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
 	if (mkdir(_theFilesDir.c_str(), S_IRWXU) != 0)
 		throw Error::StrategyError("Could not create file area "
-		    "directory (" + Error::Utility::errorStr() + ")");
+		    "directory (" + Error::errorStr() + ")");
 	return;
 }
 
@@ -82,7 +82,7 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
 		cname = FileRecordStore::canonicalName(cname);
 		if (stat(cname.c_str(), &sb) != 0)	
 			throw Error::StrategyError("Cannot stat store file (" +
-			    Error::Utility::errorStr() + ")");
+			    Error::errorStr() + ")");
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
 		total += sb.st_blocks * S_BLKSIZE;
@@ -91,7 +91,7 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
 	if (dir != NULL) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + _name +
-			    "(" + Error::Utility::errorStr() + ")");
+			    "(" + Error::errorStr() + ")");
 		}
 	}
 
@@ -161,13 +161,13 @@ BiometricEvaluation::IO::FileRecordStore::read(
 	std::FILE *fp = std::fopen(pathname.c_str(), "rb");
 	if (fp == NULL)
 		throw Error::StrategyError("Could not open " + pathname + 
-		    " (" + Error::Utility::errorStr() + ")");
+		    " (" + Error::errorStr() + ")");
 
 	std::size_t sz = fread(data, 1, size, fp);
 	std::fclose(fp);
 	if (sz != size)
 		throw Error::StrategyError("Could not write " + pathname + 
-		    " (" + Error::Utility::errorStr() + ")");
+		    " (" + Error::errorStr() + ")");
 	return(size);
 }
 
@@ -265,7 +265,7 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 		cname = _theFilesDir + "/" + entry->d_name;
 		if (stat(cname.c_str(), &sb) != 0)	
 			throw Error::StrategyError("Cannot stat store file (" +
-			    Error::Utility::errorStr() + ")");
+			    Error::errorStr() + ")");
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
 		if (i == _cursorPos)
@@ -284,7 +284,7 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 	if (dir != NULL) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + 
-			    _theFilesDir + " (" + Error::Utility::errorStr() + 
+			    _theFilesDir + " (" + Error::errorStr() + 
 			    ")");
 		}
 	}
@@ -314,7 +314,7 @@ BiometricEvaluation::IO::FileRecordStore::setCursor(
 		cname = _theFilesDir + "/" + entry->d_name;
 		if (stat(cname.c_str(), &sb) != 0)	
 			throw Error::StrategyError("Cannot stat store file (" +
-			    Error::Utility::errorStr() + ")");
+			    Error::errorStr() + ")");
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
 		if (key == entry->d_name) {
@@ -331,7 +331,7 @@ BiometricEvaluation::IO::FileRecordStore::setCursor(
 	if (dir != NULL) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + 
-			    _theFilesDir + " (" + Error::Utility::errorStr() + 
+			    _theFilesDir + " (" + Error::errorStr() + 
 			    ")");
 		}
 	}
@@ -354,13 +354,13 @@ BiometricEvaluation::IO::FileRecordStore::writeNewRecordFile(
 	std::FILE *fp = std::fopen(name.c_str(), "wb");
 	if (fp == NULL)
 		throw Error::StrategyError("Could not open " + name + " (" + 
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 
 	std::size_t sz = fwrite(data, 1, size, fp);
 	std::fclose(fp);
 	if (sz != size)
 		throw Error::StrategyError("Could not write " + name + " (" +
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 }
 
 string

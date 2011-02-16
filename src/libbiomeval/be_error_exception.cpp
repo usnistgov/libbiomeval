@@ -72,3 +72,8 @@ BiometricEvaluation::Error::ConversionError::ConversionError() :
     Exception("ConversionError") { }
 BiometricEvaluation::Error::ConversionError::ConversionError(string info) :
     Exception("ConversionError: " + info) { }
+
+BiometricEvaluation::Error::NotImplemented::NotImplemented() :
+    Exception("NotImplemented") { }
+BiometricEvaluation::Error::NotImplemented::NotImplemented(string info) :
+    Exception("NotImplemented: " + info) { }

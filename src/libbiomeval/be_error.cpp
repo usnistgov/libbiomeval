@@ -12,12 +12,12 @@
 #include <string.h>
 #include <errno.h>
 
-#include <be_error_utility.h>
+#include <be_error.h>
 
 using namespace std;
 
 string
-BiometricEvaluation::Error::Utility::errorStr()
+BiometricEvaluation::Error::errorStr()
 {
 	char msgbuf[BUFSIZ];
 	char *msgbufptr = NULL;

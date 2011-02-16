@@ -21,14 +21,18 @@ using namespace BiometricEvaluation::IO;
 static int
 doLogSheetTests(LogSheet *ls)
 {
-	string test;
+	ostringstream test;
 	srand((unsigned)(size_t)ls);
 	float f;
 	try {
 		for (int i = 2; i <= 19; i++) {
 			cout << ls->getCurrentEntryNumber() << " ";
-			test = "Entry " + string(i, 'a');
-			ls->write(test);
+			test.str("");
+			test << "Comment for entry " << i;
+			ls->writeComment(test.str());
+			test.str("");
+			test << "Entry " << i;
+			ls->write(test.str());
 			cout << ls->getCurrentEntryNumber() << " ";
 			i += 1;
 			*ls << "Entry number " << i << endl;

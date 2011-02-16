@@ -16,7 +16,7 @@
 #include <fstream>
 #include <memory>
 
-#include <be_error_utility.h>
+#include <be_error.h>
 #include <be_io_utility.h>
 #include <be_io_properties.h>
 #include <be_io_recordstore.h>
@@ -76,7 +76,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 	/* Make the new directory, checking for errors */
 	if (mkdir(_directory.c_str(), S_IRWXU) != 0)
 		throw Error::StrategyError("Could not create directory (" +
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 	try {
 		(void)writeControlFile();
 	} catch (Error::StrategyError& e) {
@@ -179,7 +179,7 @@ BiometricEvaluation::IO::RecordStore::changeName(const string &name)
 
 	if (rename(_directory.c_str(), newDirectory.c_str()))
 		throw Error::StrategyError("Could not rename " + _directory + 
-		    " (" + Error::Utility::errorStr() + ")");
+		    " (" + Error::errorStr() + ")");
 	
 	_name = name;
 	_directory = newDirectory;

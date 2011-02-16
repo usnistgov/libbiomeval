@@ -80,6 +80,19 @@ BiometricEvaluation::IO::LogSheet::write(const string &entry)
 	_entryNumber++;
 }
 
+void
+BiometricEvaluation::IO::LogSheet::writeComment(const string &comment)
+    throw (Error::StrategyError)
+{
+	if (std::fprintf(_theLogFile, "%c ", CommentDelimiter) != 2)
+		throw Error::StrategyError();
+	if (std::fprintf(_theLogFile, "%s\n", comment.c_str()) !=
+	    comment.length() + 1)
+		throw Error::StrategyError();
+	if (_autoSync)
+		this->sync();
+}
+
 string
 BiometricEvaluation::IO::LogSheet::getCurrentEntry()
 {

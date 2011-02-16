@@ -8,27 +8,26 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#ifndef __BE_TIME_H__
-#define __BE_TIME_H__
+#ifndef __BE_ERROR_UTILITY__
+#define __BE_ERROR_UTILITY__
 
-#include <stdint.h>
+#include <string>
 
-#include <be_error_exception.h>
+using namespace std;
 
 namespace BiometricEvaluation 
 {
-	/**
-	 * The Time name space gathers all timing relating matters, such as
-	 * Timers, Watchdog timers, etc. Time values are in microsecond units.
-	 */
-	namespace Time
+	namespace Error
 	{
-		const uint64_t OneSecond = 1000000;
-		const uint64_t OneHalfSecond = 500000;
-		const uint64_t OneQuarterSecond = 250000;
-		const uint64_t OneEighthSecond = 125000;
-		const int MicrosecondsPerSecond = 1000000;
-		const int MillisecondsPerSecond = 1000;
+		/**
+		 * Convert the value of errno to a human-readable
+		 * error messsage.
+		 *
+		 * @returns
+		 * 	The current error message specified by errno.
+		 */
+		string errorStr();
 	}
 }
-#endif /* __BE_TIME_H__ */
+#endif
+

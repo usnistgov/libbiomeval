@@ -301,6 +301,34 @@ namespace BiometricEvaluation {
 				 */
 				StrategyError(string info);
 		};
+	
+		/**
+		 * \brief
+		 * A NotImplemented object is thrown when the underlying
+		 * implementation of this interface has not or could not
+		 * be created.
+		 */
+		class NotImplemented : public Exception {
+			public:
+				/**
+				 * Construct a NotImplemented object with
+				 * the default information string.
+				 *
+				 * @return
+				 *	The NotImplemented object.
+				 */
+				NotImplemented();
+
+				/**
+				 * Construct a NotImplemented object with
+				 * an information string appended to the
+				 * default information string.
+				 *
+				 * @return
+				 *	The NotImplemented object.
+				 */
+				NotImplemented(string info);
+		};
 	}
 }
 #endif	/* __BE_EXCEPTION_H__ */

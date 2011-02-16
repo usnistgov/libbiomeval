@@ -18,8 +18,8 @@
 
 #include <iostream>
 
+#include <be_error.h>
 #include <be_io_dbrecstore.h>
-#include <be_error_utility.h>
 #include <be_io_utility.h>
 
 static void setBtreeInfo(BTREEINFO *bti)
@@ -51,7 +51,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	    DB_BTREE, &bti);
 	if (_db == NULL)
 		throw Error::StrategyError("Could not create database (" + 
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 }
 
 BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
@@ -71,7 +71,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	    &bti);
 	if (_db == NULL)
 		throw Error::StrategyError("Could not open database (" + 
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 }
 
 BiometricEvaluation::IO::DBRecordStore::~DBRecordStore()
@@ -101,7 +101,7 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
 	RecordStore::changeName(name);
 	if (rename(oldDBName.c_str(), newDBName.c_str()))
 		throw Error::StrategyError("Could not rename database (" + 
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 
 	_dbname = RecordStore::canonicalName(_name);
 	if (!IO::Utility::fileExists(_dbname))
@@ -112,7 +112,7 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
 	    NULL);
 	if (_db == NULL)
 		throw Error::StrategyError("Could not open database (" +
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 }
 
 uint64_t
@@ -139,7 +139,7 @@ BiometricEvaluation::IO::DBRecordStore::sync()
 	int rc = _db->sync(_db, 0);
 	if (rc != 0)
 		throw Error::StrategyError("Could not synchronize database (" +
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 }
 
 void
@@ -169,7 +169,7 @@ BiometricEvaluation::IO::DBRecordStore::insert(
 			break;		/* not reached */
 		case -1:
 			throw Error::StrategyError("Could not insert into "
-			    "database (" + Error::Utility::errorStr() + ")");
+			    "database (" + Error::errorStr() + ")");
 			break;		/* not reached */
 		default:
 			throw Error::StrategyError("Unknown error inserting " 
@@ -201,7 +201,7 @@ BiometricEvaluation::IO::DBRecordStore::remove(
 			break;		/* not reached */
 		case -1:
 			throw Error::StrategyError("Could not delete from " 
-			    "database (" + Error::Utility::errorStr() + ")");
+			    "database (" + Error::errorStr() + ")");
 			break;		/* not reached */
 		default:
 			throw Error::StrategyError("Unknown error deleting " 
@@ -265,7 +265,7 @@ BiometricEvaluation::IO::DBRecordStore::replace(
 			break;		/* not reached */
 		case -1:
 			throw Error::StrategyError("Could not replace in " 
-			    "database (" + Error::Utility::errorStr() + ")");
+			    "database (" + Error::errorStr() + ")");
 			break;		/* not reached */
 		default:
 			throw Error::StrategyError("Unknown error replacing " 
@@ -307,7 +307,7 @@ BiometricEvaluation::IO::DBRecordStore::flush(
 	int rc = _db->sync(_db, 0);
 	if (rc != 0)
 		throw Error::StrategyError("Could not synchronize database (" +
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 }
 
 uint64_t
@@ -345,7 +345,7 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 			break;
 		default:
 			throw Error::StrategyError("Could not read from " 
-			    "database (" + Error::Utility::errorStr() + ")");
+			    "database (" + Error::errorStr() + ")");
 			break;		/* not reached */
 	}
 	_cursor = cursor;
@@ -373,7 +373,7 @@ BiometricEvaluation::IO::DBRecordStore::setCursor(
 			break;		/* not reached */
 		case -1:
 			throw Error::StrategyError("Could not read from "
-			    "database (" + Error::Utility::errorStr() + ")");
+			    "database (" + Error::errorStr() + ")");
 			break;		/* not reached */
 		default:
 			throw Error::StrategyError("Unknown error reading "
@@ -394,7 +394,7 @@ BiometricEvaluation::IO::DBRecordStore::setCursor(
 			break;
 		case -1:
 			throw Error::StrategyError("Could not read from "
-			    "database (" + Error::Utility::errorStr() + ")");
+			    "database (" + Error::errorStr() + ")");
 			break;		/* not reached */
 		default:
 			throw Error::StrategyError("Unknown error reading "
@@ -427,7 +427,7 @@ BiometricEvaluation::IO::DBRecordStore::internalRead(
 			break;		/* not reached */
 		case -1:
 			throw Error::StrategyError("Could not read from "
-			    "database (" + Error::Utility::errorStr() + ")");
+			    "database (" + Error::errorStr() + ")");
 			break;		/* not reached */
 		default:
 			throw Error::StrategyError("Unknown error reading "

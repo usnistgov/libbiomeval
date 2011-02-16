@@ -16,9 +16,6 @@
 #include <windows.h>
 #endif
 
-/* Number of microseconds in one second */
-const int MicrosecondsPerSecond = 1000000;
-
 BiometricEvaluation::Time::Timer::Timer()
 {
 	_inProgress = false;

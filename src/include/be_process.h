@@ -8,36 +8,17 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#ifndef __BE_ERROR_UTILITY__
-#define __BE_ERROR_UTILITY__
-
-#include <string>
-
-using namespace std;
+#ifndef __BE_PROCESS_H__
+#define __BE_PROCESS_H__
 
 namespace BiometricEvaluation 
 {
-	namespace Error
+	/**
+	 * The Process name space gathers all process relatd matters, such as
+	 * resource usage statistics.
+	 */
+	namespace Process
 	{
-/**
- * \brief
- * This class contains methods that are useful utility functions, such as
- * converting system values to strings.
- */
-		class Utility
-		{
-		public:
-			
-			/**
-			 * Convert the value of errno to a human-readable
-			 * error messsage.
-			 *
-			 * @returns
-			 * 	The current error message specified by errno.
-			 */
-			static string errorStr();
-		};
 	}
 }
-
-#endif
+#endif /* __BE_PROCESS_H__ */

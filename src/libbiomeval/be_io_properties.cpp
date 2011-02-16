@@ -17,31 +17,9 @@
 #include <stdlib.h>
 #include <be_io_properties.h>
 #include <be_io_utility.h>
+#include <be_text.h>
 
 static string RO_ERR_MSG = "Object is read-only";
-
-/*
- * Remove all leading whitespace from a string.
- */
-static void
-removeLeadingTrailingWhitespace(string &s)
-{
-	for (unsigned int idx = 0; idx < s.length(); idx++) {
-		if (std::isspace(s[idx])) {
-			s.erase(idx, 1);
-			idx--;
-		} else {
-			break;
-		}
-	}
-	for (int idx = s.length() - 1; idx >= 0; idx--) {
-		if (std::isspace(s[idx])) {
-			s.erase(idx, 1);
-		} else {
-			break;
-		}
-	}
-}
 
 BiometricEvaluation::IO::Properties::Properties(
 	const string &filename,
@@ -80,12 +58,12 @@ BiometricEvaluation::IO::Properties::Properties(
 		 * Each line must contain a '=' separator
 		 */
 		idx = oneline.find("=");
-		if ((idx == string::npos) | (idx == 0))
+		if ((idx == string::npos) || (idx == 0))
 			throw Error::StrategyError("Properties file has invalid line");
 		property = oneline.substr(0, idx);
-		removeLeadingTrailingWhitespace(property);
+		Text::removeLeadingTrailingWhitespace(property);
 		value = oneline.substr(idx + 1, oneline.length());
-		removeLeadingTrailingWhitespace(value);
+		Text::removeLeadingTrailingWhitespace(value);
 		
 		_properties[property] = value;
 	}
@@ -103,8 +81,8 @@ BiometricEvaluation::IO::Properties::setProperty(
 
 	string p = property;
 	string v = value;
-	removeLeadingTrailingWhitespace(p);
-	removeLeadingTrailingWhitespace(v);
+	Text::removeLeadingTrailingWhitespace(p);
+	Text::removeLeadingTrailingWhitespace(v);
 	_properties[p] = v;
 }
 
@@ -118,7 +96,7 @@ BiometricEvaluation::IO::Properties::setPropertyFromInteger(
 		throw Error::StrategyError(RO_ERR_MSG);
 
 	string p = property;
-	removeLeadingTrailingWhitespace(p);
+	Text::removeLeadingTrailingWhitespace(p);
 
 	char buf[32];			/* Plenty for log10(2^64) + nul */
 	sprintf(buf, "%jd", (intmax_t)value);
@@ -134,7 +112,7 @@ BiometricEvaluation::IO::Properties::removeProperty(
 		throw Error::StrategyError(RO_ERR_MSG);
 
 	string p = property;
-	removeLeadingTrailingWhitespace(p);
+	Text::removeLeadingTrailingWhitespace(p);
 	if (_properties.find(p) == _properties.end())
 		throw Error::ObjectDoesNotExist();
 	_properties.erase(p);
@@ -146,7 +124,7 @@ BiometricEvaluation::IO::Properties::getProperty(
 	throw (Error::ObjectDoesNotExist)
 {
 	string p = property;
-	removeLeadingTrailingWhitespace(p);
+	Text::removeLeadingTrailingWhitespace(p);
 	if (_properties.find(p) == _properties.end())
 		throw Error::ObjectDoesNotExist();
 	return(_properties[p]);
@@ -158,7 +136,7 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 	throw (Error::ObjectDoesNotExist, Error::ConversionError)
 {
 	string p = property;
-	removeLeadingTrailingWhitespace(p);
+	Text::removeLeadingTrailingWhitespace(p);
 	if (_properties.find(p) == _properties.end())
 		throw Error::ObjectDoesNotExist();
 

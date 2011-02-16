@@ -15,7 +15,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <be_error_utility.h>
+#include <be_error.h>
 #include <be_io_utility.h>
 
 void
@@ -49,7 +49,7 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 				if (closedir(dir)) {
 					throw Error::StrategyError("Could not "
 					    "close " + dirpath + " (" +
-			    		    Error::Utility::errorStr() + ")");
+			    		    Error::errorStr() + ")");
 				}
 			}
 			throw Error::StrategyError("Could not stat " + 
@@ -66,13 +66,12 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 						throw Error::StrategyError(
 						    "Could not close " + 
 						    dirpath + " (" + 
-						    Error::Utility::
-						    errorStr() + ")");
+						    Error::errorStr() + ")");
 					}
 				}
 				throw Error::StrategyError(filename + 
 				    " could not be removed (" +
-			    	    Error::Utility::errorStr() + ")");
+			    	    Error::errorStr() + ")");
 			}
 		}
 	}
@@ -80,12 +79,12 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 	/* Remove parent directory, now that children have been removed */
 	if (rmdir(dirpath.c_str()))
 		throw Error::StrategyError(dirpath + " could not be removed (" +
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 
 	if (dir != NULL) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + 
-			    dirpath + " (" + Error::Utility::errorStr() + ")");
+			    dirpath + " (" + Error::errorStr() + ")");
 		}
 	}
 }
@@ -133,7 +132,7 @@ BiometricEvaluation::IO::Utility::getFileSize(
 
 	if (stat(pathname.c_str(), &sb) != 0)
 		throw Error::StrategyError("Getting stats on file (" + 
-		    Error::Utility::errorStr() + ")");
+		    Error::errorStr() + ")");
 
 	return ((uint64_t)sb.st_size);
 }
