@@ -25,7 +25,7 @@
 #define TESTDEFINED
 #endif
 
-#ifdef ARCHIVEECORDSTORETEST
+#ifdef ARCHIVERECORDSTORETEST
 #include <be_io_archiverecstore.h>
 #define TESTDEFINED
 #endif
@@ -64,6 +64,95 @@ testSequence(IO::RecordStore *rs)
 			i++;
 		}
 	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.getInfo() << endl;
+	}
+}
+
+/*
+ * Test the ability to merge RecordStores of different types
+ */
+static void
+testMerge()
+{
+	string merged_type;
+	const size_t num_rs = 3;
+	const string merge_rs_fn[num_rs] = {"merge_test1", "merge_test2", 
+	    "merge_test3"};
+	IO::RecordStore *merged_rs;
+	IO::RecordStore *merge_rs[num_rs];
+
+	try {
+#ifdef ARCHIVERECORDSTORETEST
+		merged_type = IO::RecordStore::ARCHIVETYPE;
+		merge_rs[0] = new IO::ArchiveRecordStore(merge_rs_fn[0],
+		    "RS for merge", "");
+		merge_rs[1] = new IO::ArchiveRecordStore(merge_rs_fn[1],
+		    "RS for merge", "");
+		merge_rs[2] = new IO::ArchiveRecordStore(merge_rs_fn[2],
+		    "RS for merge", "");
+#endif
+#ifdef DBRECORDSTORETEST
+		merged_type = IO::RecordStore::BERKELEYDBTYPE;
+		merge_rs[0] = new IO::DBRecordStore(merge_rs_fn[0],
+		    "RS for merge", "");
+		merge_rs[1] = new IO::DBRecordStore(merge_rs_fn[1],
+		    "RS for merge", "");
+		merge_rs[2] = new IO::DBRecordStore(merge_rs_fn[2],
+		    "RS for merge", "");
+#endif
+#ifdef FILERECORDSTORETEST
+		merged_type = IO::RecordStore::FILETYPE;
+		merge_rs[0] = new IO::FileRecordStore(merge_rs_fn[0],
+		    "RS for merge", "");
+		merge_rs[1] = new IO::FileRecordStore(merge_rs_fn[1],
+		    "RS for merge", "");
+		merge_rs[2] = new IO::FileRecordStore(merge_rs_fn[2],
+		    "RS for merge", "");
+#endif
+		merge_rs[0]->insert("0", "0", 2);
+		merge_rs[0]->insert("1", "1", 2);
+		merge_rs[0]->insert("2", "2", 2);
+		merge_rs[1]->insert("3", "3", 2);
+		merge_rs[1]->insert("4", "4", 2);
+		merge_rs[1]->insert("5", "5", 2);
+		merge_rs[2]->insert("6", "6", 2);
+		merge_rs[2]->insert("7", "7", 2);
+		merge_rs[2]->insert("8", "8", 2);
+
+		const string merged_rs_fn = "test_merged";
+		IO::RecordStore::mergeRecordStores(merged_rs_fn,
+		    "A merge of 3 RS", "", merged_type, merge_rs, num_rs);
+#ifdef ARCHIVERECORDSTORETEST
+		merged_rs = new IO::ArchiveRecordStore(merged_rs_fn, "");
+#endif
+#ifdef DBRECORDSTORETEST
+		merged_rs = new IO::DBRecordStore(merged_rs_fn, "");
+#endif
+#ifdef FILERECORDSTORETEST
+		merged_rs = new IO::FileRecordStore(merged_rs_fn, "");
+#endif
+		if (merged_rs->getCount() == (num_rs * 3))
+			cout << "success." << endl;
+		else
+			cout << "FAILED." << endl;
+
+		if (merged_rs != NULL) {
+			delete merged_rs; 
+			IO::RecordStore::removeRecordStore(merged_rs_fn, "");
+		}
+		if (merge_rs[0] != NULL) {
+			delete merge_rs[0];
+			IO::RecordStore::removeRecordStore(merge_rs_fn[0], "");
+		}
+		if (merge_rs[1] != NULL) {
+			delete merge_rs[1];
+			IO::RecordStore::removeRecordStore(merge_rs_fn[1], "");
+		}
+		if (merge_rs[2] != NULL) {
+			delete merge_rs[2];
+			IO::RecordStore::removeRecordStore(merge_rs_fn[2], "");
+		}
+	} catch (Error::Exception &e) {
 		cout << "Caught " << e.getInfo() << endl;
 	}
 }
@@ -307,7 +396,7 @@ main(int argc, char* argv[]) {
 	auto_ptr<IO::DBRecordStore> ars(rs);
 #endif
 
-#ifdef ARCHIVEECORDSTORETEST
+#ifdef ARCHIVERECORDSTORETEST
 	/* Call the constructor that will create a new ArchiveRecordStore. */
 	rsname = "ars_test";
 	IO::ArchiveRecordStore *rs;
@@ -399,6 +488,12 @@ main(int argc, char* argv[]) {
 		cout << "failed:" << e.getInfo() << "." << endl;
 	}
 #endif
+
+	/*
+	 * Test merging many RecordStores
+	 */
+	cout << "Test merging many RecordStores... ";
+	testMerge();
 
 	/*
 	 * Test the deletion of a record store.

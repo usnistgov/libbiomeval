@@ -17,9 +17,13 @@
 #include <memory>
 
 #include <be_error.h>
-#include <be_io_utility.h>
+#include <be_io_archiverecstore.h>
+#include <be_io_dbrecstore.h>
+#include <be_io_filerecstore.h>
 #include <be_io_properties.h>
 #include <be_io_recordstore.h>
+#include <be_io_utility.h>
+#include <be_utility_autoarray.h>
 
 /*
  * The name of the control file use by all RecordStores.
@@ -325,3 +329,53 @@ BiometricEvaluation::IO::RecordStore::writeControlFile()
                 throw Error::StrategyError("Could not write control file");
         }
 }
+
+void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
+    const string &mergedName,
+    const string &mergedDescription,
+    const string &parentDir,
+    const string &type,
+    RecordStore *recordStores[],
+    size_t numRecordStores)
+    throw (Error::ObjectExists, Error::StrategyError)
+{
+	auto_ptr<RecordStore> merged_rs;
+	if (type == RecordStore::BERKELEYDBTYPE)
+		merged_rs.reset(new DBRecordStore(mergedName,
+		    mergedDescription, parentDir));
+	else if (type == RecordStore::ARCHIVETYPE)
+		merged_rs.reset(new ArchiveRecordStore(mergedName, 
+		    mergedDescription, parentDir));
+	else if (type == RecordStore::FILETYPE)
+		merged_rs.reset(new FileRecordStore(mergedName,
+		    mergedDescription, parentDir));
+	else
+		throw Error::StrategyError("Unknown RecordStore type");
+
+	bool exhausted;
+	uint64_t record_size;
+	string key;
+	BiometricEvaluation::Utility::AutoArray<uint8_t> buf;
+	for (int i = 0; i < numRecordStores; i++) {
+		exhausted = false;
+		while (!exhausted) {
+			try {
+				record_size = recordStores[i]->sequence(key);
+				buf.resize(record_size);
+			} catch (Error::ObjectDoesNotExist) {
+				exhausted = true;
+				continue;
+			}
+
+			try {
+				recordStores[i]->read(key, buf);
+			} catch (Error::ObjectDoesNotExist) {
+				throw Error::StrategyError("Could not read " +
+				    key + " from RecordStore");
+			}
+
+			merged_rs->insert(key, buf, record_size);
+		}
+	}
+}
+

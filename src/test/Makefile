@@ -30,7 +30,7 @@ test_be_io_dbrecordstore-stress: test_be_io_recordstore-stress.cpp
 test_construct_be_io_archiverecstore: test_be_io_archiverecstore.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 test_be_io_archiverecordstore: test_be_io_recordstore.cpp
-	$(CXX) $(CXXFLAGS) -DARCHIVEECORDSTORETEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST $^ -o $@ -lbiomeval
 test_be_io_archiverecordstore-stress: test_be_io_recordstore-stress.cpp
 	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST $^ -o $@ -lbiomeval
 test_be_time_timer: test_be_time_timer.cpp

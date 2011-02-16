@@ -260,7 +260,8 @@ BiometricEvaluation::Utility::AutoArray<T>::resize(
 	    sizeof(T));
 
 	/* Delete the old buffer and assign the new buffer to this object */
-	delete [] _data;
+	if (_data != NULL)
+		delete [] _data;
 	_data = new_data;
 	_size = _max_size = new_size;
 }
@@ -375,7 +376,8 @@ BiometricEvaluation::Utility::AutoArray<T>::AutoArray(
 /******************************************************************************/
 template<class T>
 BiometricEvaluation::Utility::AutoArray<T>::~AutoArray() {
-	delete [] _data;
+	if (_data != NULL)
+		delete [] _data;
 }
 
 #endif /* __BE_UTILITY_AUTOARRAY_H__ */
