@@ -12,6 +12,8 @@
 
 #include <string>
 
+#include <be_error_exception.h>
+
 using namespace std;
 namespace BiometricEvaluation {
 	namespace Text {
@@ -22,6 +24,26 @@ namespace BiometricEvaluation {
 		 * object.
 		 */
 		void removeLeadingTrailingWhitespace(string &s);
+
+		/**
+		 * \brief
+		 * Compute the digest of a string.
+		 *
+		 * @param s[in]
+		 * 	The string of which a digest should be computed.
+		 * @param digest[in]
+		 *	The digest to use.  Any digest supported by OpenSSL
+		 *	is valid, and the default is MD5.
+		 *
+		 * @returns
+		 *	An ASCII representation of the hex digits composing
+		 *	the digest.
+		 */
+		string
+		digest(
+		    const string &s,
+		    const string &digest = "md5")
+		    throw (Error::StrategyError);
 	}
 }
 #endif /* __BE_TEXT_H__ */

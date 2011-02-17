@@ -16,18 +16,18 @@ LOCALLIB = ../../lib
 all: $(OBJECTS)
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
 ifeq ($(OS), Darwin)
-	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -o $(LIBRARY).dylib
+	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -lcrypto -o $(LIBRARY).dylib
 	$(CP) $(LIBRARY).dylib $(LOCALLIB)
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	ar rs $(LIBRARY).a $(OBJECTS)
 	ranlib $(LIBRARY).a
-	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive
+	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -lcrypto
 	$(CP) $(LIBRARY).a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -o $(LIBRARY).so
+	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -lcrypto -o $(LIBRARY).so
 	$(CP) $(LIBRARY).so $(LOCALLIB)
 endif
 endif
