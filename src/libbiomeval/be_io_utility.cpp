@@ -95,8 +95,6 @@ BiometricEvaluation::IO::Utility::fileExists(
     const string &pathname)
     throw (Error::StrategyError)
 {
-	struct stat sb;
-
 	if (access(pathname.c_str(), F_OK) == 0)
 		return (true);
 	else
