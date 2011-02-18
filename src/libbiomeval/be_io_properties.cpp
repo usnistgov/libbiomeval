@@ -163,7 +163,7 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 	}
 
 	/* Convert the string value to integer */
-	long long conVal = std::strtoll(value.c_str(), NULL, base);
+	long long conVal = strtoll(value.c_str(), NULL, base);
 	if (errno == ERANGE)
 		throw Error::ConversionError("Value out of range");
 

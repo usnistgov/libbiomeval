@@ -11,6 +11,8 @@
 #ifndef __BE_PROCESS_STATISTICS_H__
 #define __BE_PROCESS_STATISTICS_H__
 
+#include <memory>
+
 #include <be_io_logcabinet.h>
 
 namespace BiometricEvaluation {

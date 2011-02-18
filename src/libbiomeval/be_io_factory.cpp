@@ -8,6 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
+#include <cstring>
+
 #include <be_io_factory.h>
 #include <be_io_utility.h>
 #include <be_io_properties.h>

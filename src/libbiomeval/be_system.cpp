@@ -70,9 +70,13 @@ double
 BiometricEvaluation::System::getLoadAverage()
     throw (Error::NotImplemented)
 {
+#ifdef __CYGWIN__
+	throw Error::NotImplemented();
+#else
 	double avg[1];
 	int retval = getloadavg(avg, 1);
 	if (retval == -1)
 		throw (Error::NotImplemented());
 	return (avg[0]);
+#endif
 }
