@@ -41,8 +41,10 @@ BiometricEvaluation::Text::digest(const string &s, const string &digest)
 {
 	/* This need only be called once per executable */
 	static bool digests_loaded = false;
-	if (!digests_loaded)
+	if (!digests_loaded) {
 		OpenSSL_add_all_digests();
+		digests_loaded = true;
+	}
 
 	/* Supports any digest type supported by OpenSSL (MD5, SHA1, ...) */
 	const EVP_MD *md;
