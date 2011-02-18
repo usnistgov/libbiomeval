@@ -9,6 +9,7 @@
  */
 
 #include <iostream>
+#include <vector>
 
 #include <be_text.h>
 
@@ -30,6 +31,24 @@ main(int argc, char* argv[])
 	string secret_str = "secret_file_name.wsq";
 	cout << "MD5 (\"" << secret_str << "\") = " <<
 	    Text::digest(secret_str) << endl;
+	
+	cout << endl;
+	
+	cout << "Text::split()" << endl;
+	string split_str1 = "This is, a string, split on commas.";
+	string split_str2 = "Semicolons are bad form; avoid them.";
+	cout << "Split \"" << split_str1 << "\" on ','" << endl;
+	vector<string> str1_components = Text::split(split_str1, ',');
+	for (int i = 0; i < str1_components.size(); i++)
+		cout << "\t* \"" << str1_components[i] << "\"" << endl;
+	cout << "Split \"" << split_str2 << "\" on ';'" << endl;
+	vector<string> str2_components = Text::split(split_str2, ';');
+	for (int i = 0; i < str2_components.size(); i++)
+		cout << "\t* \"" << str2_components[i] << "\"" << endl;
+	cout << "Split \"" << split_str2 << "\" on 'z'" << endl;
+	vector<string> failed_split = Text::split(split_str2, 'z');
+	for (int i = 0; i < failed_split.size(); i++)
+		cout << "\t* \"" << failed_split[i] << "\"" << endl;
 
 	return (0);
 }

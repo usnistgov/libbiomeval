@@ -11,6 +11,7 @@
 #define __BE_TEXT_H__
 
 #include <string>
+#include <vector>
 
 #include <be_error_exception.h>
 
@@ -44,6 +45,26 @@ namespace BiometricEvaluation {
 		    const string &s,
 		    const string &digest = "md5")
 		    throw (Error::StrategyError);
+
+		/*
+		 * \brief
+		 * Return tokens bound by delimiters and the beginning and end
+		 * of a string.
+		 * 
+		 * @param str[in]
+		 *	String to tokenize.
+		 * @param delimiter[in]
+		 *	Character that defines the end of a token.
+		 * 
+		 * @returns
+		 *	vector<string>	Vector of tokens, in order of appearance
+		 *
+		 * \note
+		 * If delimiter does not appear in string, the returned vector
+		 * vector will still contain one item, str.
+		 */
+		vector<string>
+		split(const string &str, const char delimiter);
 	}
 }
 #endif /* __BE_TEXT_H__ */

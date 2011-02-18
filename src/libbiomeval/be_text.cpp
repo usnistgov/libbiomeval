@@ -12,6 +12,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <vector>
 
 #include <be_text.h>
 
@@ -74,5 +75,32 @@ BiometricEvaluation::Text::digest(const string &s, const string &digest)
 		ret << hex << setw(2) << setfill('0') << (int)md_value[i];
 
 	return ret.str();
+}
+
+std::vector<string>
+BiometricEvaluation::Text::split(const string &str, const char delimiter)
+{
+	std::vector<string> ret;
+
+	string cur_str("");
+	for (unsigned int i = 0; i < str.length(); i++)
+	{
+		if (str[i] == delimiter) {
+			/* Don't insert empy tokens */
+			if (cur_str == "")
+				continue;
+			ret.push_back(cur_str);
+			cur_str = "";
+		} else
+			cur_str.push_back(str[i]);
+	}
+	if (cur_str != "")
+		ret.push_back(cur_str);
+
+	/* Add the original string if the delimiter was not found */
+	if (ret.size() == 0)
+		ret.push_back(str);
+
+	return ret;
 }
 
