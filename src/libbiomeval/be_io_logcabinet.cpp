@@ -11,16 +11,29 @@
 #include <sys/stat.h>
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 
 #include <be_io_utility.h>
 #include <be_io_logcabinet.h>
 
+using namespace BiometricEvaluation;
+
 /*
  * The name of the control file use by the LogCabinet.
  */
 const string controlFileName(".lccontrol");
+
+const string BiometricEvaluation::IO::LogSheet::DescriptionTag("Description:");
+
+
+static inline bool
+lineIsLogEntry(string line)
+{
+	return (line[0] == IO::LogSheet::EntryDelimiter &&
+	     std::isdigit(line[1]));
+}
 
 /*
  * Implementation of the LogSheet class methods.
@@ -44,32 +57,77 @@ BiometricEvaluation::IO::LogSheet::LogSheet(
 	if (IO::Utility::fileExists(pathname))
 		throw Error::ObjectExists();
 
-	_theLogFile = std::fopen(pathname.c_str(), "wb");
-	if (_theLogFile == NULL)
-		throw Error::StrategyError("Could not open file for log sheet");
+	/* Open the log sheet file as a file output stream */
+	std::fstream *ofs = new std::fstream(pathname.c_str(), out);
+	if (!ofs)
+		throw Error::StrategyError("Could not open LogSheet file");
 
-	uint32_t len = 13 + description.length() + 1;
-	if (std::fprintf(_theLogFile, "Description: %s\n", description.c_str())
-	    != len) {
+	_theLogFile.reset(ofs);
+	*_theLogFile << DescriptionTag << " " << description << endl;
+	if (_theLogFile->fail())
 		throw Error::StrategyError("Could not write description to "
 		    "log file");
-	}
 	_autoSync = false;
 	_entryNumber = 1;
 }
 
+BiometricEvaluation::IO::LogSheet::LogSheet(
+    const string &name,
+    const string &parentDir)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError) :
+    std::ostringstream()
+{
+	if (!IO::Utility::validateRootName(name))
+		throw Error::StrategyError("Invalid LogSheet name");
+
+	string pathname;
+	if (parentDir.empty() || parentDir == ".")
+                pathname = name;
+        else
+                pathname = parentDir + '/' + name;
+
+	if (!IO::Utility::fileExists(pathname))
+		throw Error::ObjectDoesNotExist();
+
+	/* Open the log sheet file as a file input stream so we can
+	 * obtain the last entry number. */
+	std::ifstream ifs(pathname.c_str(), in);
+	if (ifs.fail())
+		throw Error::StrategyError("Could not open LogSheet file");
+
+	/*
+	 * Determine the current entry number by counting lines that
+	 * begin with the entry delimiter, etc.
+	 */
+	_entryNumber = 1;
+	string oneline;
+	while (!ifs.eof()) {
+		std::getline(ifs, oneline);
+		if (lineIsLogEntry(oneline))
+			_entryNumber++;
+	}
+
+	/* Open the log sheet file as a file output stream */
+	std::fstream *fs = new std::fstream(pathname.c_str(), app | out);
+	if (!fs)
+		throw Error::StrategyError("Could not open LogSheet file");
+
+	_theLogFile.reset(fs);
+	_autoSync = false;
+}
+
 BiometricEvaluation::IO::LogSheet::~LogSheet()
 {
-	std::fclose(_theLogFile);
+	_theLogFile->close();
 }
 
 void
 BiometricEvaluation::IO::LogSheet::write(const string &entry)
     throw (Error::StrategyError)
 {
-	uint32_t len = 10 + 1 + entry.length() + 1;
-	if (std::fprintf(_theLogFile, "%010u %s\n", _entryNumber, entry.c_str())
-	    != len) {
+	*_theLogFile << EntryDelimiter << setw(10) << setfill('0') <<
+	    _entryNumber << ' ' << entry << endl;
+	if (_theLogFile->fail()) {
 		ostringstream sbuf;
 		sbuf << "Failed writing entry " << _entryNumber << 
 		    " to log file";
@@ -84,10 +142,8 @@ void
 BiometricEvaluation::IO::LogSheet::writeComment(const string &comment)
     throw (Error::StrategyError)
 {
-	if (std::fprintf(_theLogFile, "%c ", CommentDelimiter) != 2)
-		throw Error::StrategyError();
-	if (std::fprintf(_theLogFile, "%s\n", comment.c_str()) !=
-	    comment.length() + 1)
+	*_theLogFile << CommentDelimiter << ' ' << comment << endl;
+	if (_theLogFile->fail())
 		throw Error::StrategyError();
 	if (_autoSync)
 		this->sync();
@@ -128,7 +184,8 @@ void
 BiometricEvaluation::IO::LogSheet::sync()
     throw (Error::StrategyError)
 {
-	if (std::fflush(_theLogFile) != 0)
+	_theLogFile->flush();
+	if (_theLogFile->fail())
 		throw Error::StrategyError("Could not sync the log file");
 }
 

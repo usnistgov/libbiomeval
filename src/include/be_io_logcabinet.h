@@ -14,7 +14,6 @@
 #include <string>
 #include <vector>
 
-#include <stdio.h>
 #include <be_error_exception.h>
 using namespace std;
 
@@ -42,6 +41,16 @@ namespace BiometricEvaluation {
 	 * of the operating system. Applications can force a write by
 	 * invoking sync(), or force a write at every new log entry by
 	 * invoking setAutoSync(true).
+	 * \note
+	 * Entries created by applications may be composed of more than one
+	 * line (each separated by the newline character). The text at the
+	 * beginning of a line should not "look like" an entry number:
+	 * \n
+	 *  Edddd
+	 * \n
+	 * i.e. the entry delimiter followed by some digits. LogSheet won't
+	 * check for that condition, but any existing LogSheet that is
+	 * re-opened for append may have an incorrect starting entry number.
 	*/
 	class LogSheet : public std::ostringstream {
 		public:
@@ -52,6 +61,17 @@ namespace BiometricEvaluation {
 			static const char CommentDelimiter = '#';
 
 			/**
+			 * The delimiter for an entry line in the log sheet.
+			 */
+			static const char EntryDelimiter = 'E';
+
+			/**
+			 * The tag for the description string.
+			 */
+			static const string DescriptionTag;
+
+			/**
+			 * \brief
 			 * Create a new log sheet.
 			 *
 			 * @param name[in]
@@ -75,6 +95,32 @@ namespace BiometricEvaluation {
 				 const string &description,
 				 const string &parentDir)
 			    throw (Error::ObjectExists, Error::StrategyError);
+
+			/**
+			 * \brief
+			 * Open an existing new log sheet for appending.
+			 * \details
+			 * On open, the current entry counter is set to
+			 * the last entry number plus one.
+			 * \note
+			 * Opening a large LogSheet may be a costly operation.
+			 *
+			 * @param name[in]
+			 *	The name of the LogSheet to be opened.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the sheet is stored.
+			 * @returns
+			 *	An object representing the existing log sheet.
+			 * \throw Error::ObjectDoesNotExist
+			 *	The sheet does not exist.
+			 * \throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	file system, or name or parentDir is malformed.
+			 */
+			LogSheet(const string &name,
+				 const string &parentDir)
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
 
 			~LogSheet();
 
@@ -171,7 +217,7 @@ namespace BiometricEvaluation {
 
 		private:
 			uint32_t _entryNumber;
-			FILE *_theLogFile;
+			auto_ptr<std::fstream> _theLogFile;
 			bool _autoSync;
 	};
 

@@ -158,7 +158,7 @@ main(int argc, char *argv[])
 		cout << "Caught " << e.getInfo() << endl;
 		return (EXIT_FAILURE);
 	}
-	cout << "Attempting to log: ";
+	cout << "Attempting to log synchronously: ";
 	try {
 		for (int i = 0; i < 6; i++) {
 			logstats->logStats();
@@ -178,5 +178,22 @@ main(int argc, char *argv[])
 	}
 	cout << "Success." << endl;
 		
+	cout << "Attempting to log asynchronously: ";
+	try {
+		logstats->startAutoLogging(1);
+		sleep(6);
+	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		delete logstats;
+		return (EXIT_FAILURE);
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		delete logstats;
+		return (EXIT_FAILURE);
+	} catch (Error::NotImplemented &e) {
+		cout << "Caught " << e.getInfo() << "; OK." << endl;
+	}
+	cout << "Success." << endl;
+
 	return (EXIT_SUCCESS);
 }

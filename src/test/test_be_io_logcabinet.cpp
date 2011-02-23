@@ -166,7 +166,7 @@ main(int argc, char* argv[])
 
 	/* Call the constructor that will create a new LogSheet. */
 	string lsname = "logsheet_test";
-	cout << "Creating Log Sheet...";
+	cout << "Creating Log Sheet: ";
 	LogSheet *ls;
 	try {
 		ls = new LogSheet(lsname, "Test Log Sheet", "");
@@ -180,7 +180,7 @@ main(int argc, char* argv[])
 	cout << "success." << endl;
 	auto_ptr<LogSheet> als(ls);
 
-	cout << "Writing to Log Sheet not in cabinet... ";
+	cout << "Writing to LogSheet not in cabinet: ";
 	try {
 		*als << "First entry that will be thrown away; ";
 		*als << "Should not appear in the log file.";
@@ -201,6 +201,38 @@ main(int argc, char* argv[])
 	} else {
 		cout << "success." << endl;
 	}
+	als.release();
+
+	cout << "Open existing LogSheet: ";
+	try {
+		ls = new LogSheet(lsname, "");
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "The LogSheet doesn't exist; exiting." << endl;
+		return (-1);
+	} catch (Error::StrategyError& e) {
+		cout << "Caught " << e.getInfo() << endl;
+		return (-1);
+	}
+	cout << "success." << endl;
+	als.reset(ls);
+
+	cout << "Writing more entries... ";
+	try {
+		ostringstream test;
+		for (int i = 0; i < 10 ; i++) {
+			cout << ls->getCurrentEntryNumber() << " ";
+			test.str("");
+			test << "Entry " << i << " into re-opened LogSheet";
+			ls->writeComment(test.str());
+			*ls << " Make sure entry number is one greater than";
+			*ls << " previous entry number.";
+			ls->newEntry();
+		}
+	} catch (Error::StrategyError& e) {
+		cout << "Caught " << e.getInfo() << endl;
+		return (-1);
+	}
+
 	cout << endl << "LogCabinet tests: " << endl;
 	if (doLogCabinetTests() != 0)
 		status = EXIT_FAILURE;

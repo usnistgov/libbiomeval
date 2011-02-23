@@ -54,6 +54,14 @@
 #define BE_SDKSOCK_DRIVER_START		9001
 
 /*
+ * The structure that is passed to the threads that perform all the work.
+ */
+typedef struct be_workorder {
+	int sockfd;
+	void *stateData;
+} be_workorder_t;
+
+/*
  * The functions that the actual SDK driver needs to implement.
  */
 int

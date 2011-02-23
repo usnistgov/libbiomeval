@@ -55,8 +55,7 @@ static const string LogSheetHeader =
 /*
  * Define a function to be used for Linux, to grab the OS statistics.
  */
-#ifdef Linux
-
+#if defined Linux
 static const string ProcNameProp = "Name";
 static const string VmRSSProp = "VmRSS";
 static const string VmSizeProp = "VmSize";
@@ -64,10 +63,12 @@ static const string VmPeakProp = "VmPeak";
 static const string VmDataProp = "VmData";
 static const string VmStackProp = "VmStk";
 static const string ThreadsProp = "Threads";
+#endif
 
 static PSTATS
 _internalGetPstats()
     throw (Error::StrategyError, Error::NotImplemented)
+#if defined Linux
 {
 	pid_t pid = getpid();
 	ostringstream tp;
@@ -78,7 +79,7 @@ _internalGetPstats()
 
 	/* Read the process status into a string so we can parse it. */
 	std::ifstream ifs(tp.str().c_str());
-	if (!ifs)
+	if (ifs.fail())
 		throw Error::StrategyError("Could not open " + tp.str() + ".");
 
 	/*
@@ -143,34 +144,47 @@ _internalGetPstats()
 	return (stats);
 }
 
+#elif defined Darwin
+
 /*
  * Local function to get usage stats from the Darwin (Mac OS-X) OS.
  */
-#elif Darwin
-static PSTATS
-_internalGetPstats()
-    throw (Error::StrategyError, Error::NotImplemented)
 {
-//XXX Replace with Darwin-specific info retrieval
 	throw Error::NotImplemented();
 }
-#else
+
+#else /* Unsupported OS */
 
 /*
  * The default, not-implemented-here stats function.
  */
-static PSTATS
-_internalGetPstats()
-    throw (Error::StrategyError, Error::NotImplemented)
 {
 	throw Error::NotImplemented();
 }
-#endif
+#endif	/* OS check */
+
+static void _internalGetCPUTimes(
+    uint64_t *usertime,
+    uint64_t *systemtime)
+    throw (Error::StrategyError)
+{
+	struct rusage ru;
+	int ret = getrusage(RUSAGE_SELF, &ru);
+	if (ret != 0)
+		throw Error::StrategyError("OS call failed: " +
+		    Error::errorStr());
+
+	*usertime = (uint64_t)(ru.ru_utime.tv_sec *
+	    Time::MicrosecondsPerSecond + ru.ru_utime.tv_usec);
+	*systemtime = (uint64_t)(ru.ru_stime.tv_sec *
+	    Time::MicrosecondsPerSecond + ru.ru_stime.tv_usec);
+}
 
 BiometricEvaluation::Process::Statistics::Statistics()
 {
 	_logCabinet = NULL;
 	_logging = false;
+	_autoLogging = false;
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
@@ -193,6 +207,7 @@ BiometricEvaluation::Process::Statistics::Statistics(
 		throw e;
 	}
 	_logging = true;
+	_autoLogging = false;
 	tempLS->writeComment(LogSheetHeader);
 	_logSheet.reset(tempLS);
 }
@@ -203,18 +218,13 @@ BiometricEvaluation::Process::Statistics::getCPUTimes(
     uint64_t *systemtime)
     throw (Error::StrategyError, Error::NotImplemented)
 {
-	struct rusage ru;
-	int ret = getrusage(RUSAGE_SELF, &ru);
-	if (ret != 0)
-		throw Error::StrategyError("OS call failed: " +
-		    Error::errorStr());
+	uint64_t utime, stime;
 
+	_internalGetCPUTimes(&utime, &stime);
 	if (usertime != NULL)
-		*usertime = (uint64_t)(ru.ru_utime.tv_sec *
-		    Time::MicrosecondsPerSecond + ru.ru_utime.tv_usec);
+		*usertime = utime;
 	if (systemtime != NULL)
-		*systemtime = (uint64_t)(ru.ru_stime.tv_sec *
-		    Time::MicrosecondsPerSecond + ru.ru_stime.tv_usec);
+		*systemtime = stime;
 }
 
 void
@@ -258,9 +268,90 @@ BiometricEvaluation::Process::Statistics::logStats()
 
 	PSTATS ps = _internalGetPstats();
 	uint64_t usertime, systemtime;
-	this->getCPUTimes(&usertime, &systemtime);
+	_internalGetCPUTimes(&usertime, &systemtime);
 	*_logSheet << usertime << " " << systemtime << " ";
 	*_logSheet << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
 	*_logSheet << ps.vmdata << " " << ps.vmstack << " " << ps.threads;
 	_logSheet->newEntry();
+}
+
+extern "C" void
+BiometricEvaluation::Process::Statistics::callStatistics_logStats()
+{
+	this->logStats();
+}
+
+struct loggerPackage {
+	int interval;
+	Process::Statistics *stat;
+};
+
+/*
+ * Pointer to structure that will be passed into the child thread.
+ * Needs to be global so the stop function can free the memory
+ * for the package.
+ * XXX This needs to be made thread safe.
+ */
+static struct loggerPackage *theLoggerPackage;
+
+extern "C" void *
+autoLogger(void *ptr)
+{
+	struct loggerPackage *lp = (struct loggerPackage *)(ptr);
+	struct timespec req, rem;
+	req.tv_sec = lp->interval;
+	req.tv_nsec = 0;
+	while (true) {
+		lp->stat->callStatistics_logStats();
+
+		/* We use nanosleep(2) to avoid causing signals sometimes
+		 * used by sleep(3).
+		 */
+		nanosleep(&req, &rem);
+
+		/* If a signal occurs, there will be remaining time on
+		 * the sleep interval, so use it up.
+		 */
+		while (rem.tv_sec != 0) {
+			req = rem;
+			nanosleep(&req, &rem);
+		}
+	}
+}
+
+void
+BiometricEvaluation::Process::Statistics::startAutoLogging(
+    int interval)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError,
+	Error::NotImplemented)
+{
+	if (!_logging)
+		throw Error::ObjectDoesNotExist();
+	if (interval == 0)
+		return;
+
+	theLoggerPackage = (struct loggerPackage *)malloc(
+	    sizeof(struct loggerPackage));
+	theLoggerPackage->interval = interval;
+	theLoggerPackage->stat = this;
+	_autoLogging = true;
+	int retval = pthread_create(&_loggingThread, NULL, autoLogger,
+	    (void *)theLoggerPackage);
+	if (retval != 0) {
+		throw Error::StrategyError("Creating thread failed: " +
+		    Error::errorStr());
+		_autoLogging = false;
+	}
+}
+
+void
+BiometricEvaluation::Process::Statistics::stopAutoLogging()
+    throw (Error::StrategyError)
+{
+	_autoLogging = false;
+	int retval = pthread_cancel(_loggingThread);
+	if (retval != 0)
+		throw Error::StrategyError("Cancel of logging thread failed: " +
+		    Error::errorStr());
+	free (theLoggerPackage);
 }

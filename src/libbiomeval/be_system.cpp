@@ -34,7 +34,7 @@ uint64_t
 BiometricEvaluation::System::getRealMemorySize()
     throw (Error::NotImplemented)
 {
-#ifdef Linux
+#if defined Linux
 	long numpages = sysconf(_SC_PHYS_PAGES);
 	if (numpages <= 0)
 		throw (Error::NotImplemented());
@@ -51,8 +51,8 @@ BiometricEvaluation::System::getRealMemorySize()
 	if (total <= 0)
 		throw (Error::NotImplemented());
 	return ((uint64_t)(total / 1024));
-#endif
-#ifdef Darwin
+
+#elif defined Darwin
 	int mib[2];
 	uint64_t total;
 	size_t len = sizeof(total);
@@ -63,6 +63,8 @@ BiometricEvaluation::System::getRealMemorySize()
 		throw (Error::NotImplemented());
 	total = total / 1024;
 	return (total);
+#else
+	throw (Error::NotImplemented());
 #endif
 }
 

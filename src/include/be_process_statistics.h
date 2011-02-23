@@ -12,6 +12,7 @@
 #define __BE_PROCESS_STATISTICS_H__
 
 #include <memory>
+#include <pthread.h>
 
 #include <be_io_logcabinet.h>
 
@@ -150,6 +151,7 @@ namespace BiometricEvaluation {
 			    throw (Error::StrategyError, Error::NotImplemented);
 
 			/**
+			 * \brief
 			 * Create a snapshot of the current process statistics
 			 * in the LogSheet created in the LogCabinet.
 			 *
@@ -165,11 +167,58 @@ namespace BiometricEvaluation {
 			void logStats()
 			    throw (Error::ObjectDoesNotExist,
 				Error::StrategyError, Error::NotImplemented);
+
+			/**
+			 * \brief
+			 * Start logging process statistics automatically,
+			 * in intervals of seconds.
+			 *
+			 * @param interval[in]
+			 *	The gap between logging snapshots, in seconds.
+			 * \throw Error::ObjectDoesNotExist
+			 *	The LogSheet does not exist; this object was
+			 *	not created with LogCabinet object.
+			 * \throw Error::StrategyError
+			 *	An error occurred when writing to the LogSheet.
+			 * \throw Error::NotImplemented
+			 *	The statistics gathering is not implemented for
+			 *	this operating system.
+			 */
+			void startAutoLogging(int interval)
+			    throw (Error::ObjectDoesNotExist,
+				Error::StrategyError, Error::NotImplemented);
+
+			/**
+			 * \brief
+			 * Stop the automatic logging of process statistics.
+			 * Has no effect if not currently auto-logging.
+			 *
+			 * \throw Error::StrategyError
+			 *	An error occurred when stopping, most likely
+			 *	because the logging thread died.
+			 */
+			void stopAutoLogging()
+			    throw (Error::StrategyError);
+
+			/**
+			 * Helper function in C++ space that has access to
+			 * this object, and is called from C space by the
+			 * logging thread. Applications should not call
+			 * this function.
+			 */
+			void callStatistics_logStats();
+
 		private:
+		/*
+		 * The logging thread function, in C space.
+		 */
 			IO::LogCabinet *_logCabinet;
 			std::auto_ptr<IO::LogSheet> _logSheet;
 			bool _logging;
+			bool _autoLogging;
+			pthread_t _loggingThread;
 		};
+
 	}
 }
 #endif /* __BE_PROCESS_STATISTICS_H__ */
