@@ -98,7 +98,7 @@ internalGetProcName(pid_t pid)
 		return (s);
 	}
 #else
-	throw Error::NotImplemented;
+	throw Error::NotImplemented();
 #endif
 }
 
