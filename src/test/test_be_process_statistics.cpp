@@ -194,6 +194,7 @@ main(int argc, char *argv[])
 		cout << "Caught " << e.getInfo() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
+	cout << "The log sheet in statLogCabinet should have 11 or 12 entries." << endl;
 
 	return (EXIT_SUCCESS);
 }

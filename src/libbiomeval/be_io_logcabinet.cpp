@@ -10,9 +10,9 @@
 
 #include <sys/stat.h>
 
-#include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 #include <be_io_utility.h>
@@ -58,7 +58,7 @@ BiometricEvaluation::IO::LogSheet::LogSheet(
 		throw Error::ObjectExists();
 
 	/* Open the log sheet file as a file output stream */
-	std::fstream *ofs = new std::fstream(pathname.c_str(), out);
+	std::fstream *ofs = new std::fstream(pathname.c_str(), ios_base::out);
 	if (!ofs)
 		throw Error::StrategyError("Could not open LogSheet file");
 

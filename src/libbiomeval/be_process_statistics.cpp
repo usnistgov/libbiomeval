@@ -10,6 +10,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <string>
 
 #include <sys/resource.h>
 #include <dirent.h>
@@ -40,7 +41,6 @@ using namespace BiometricEvaluation;
  * back process statistics.
  */
 struct _pstats {
-	string procname;
 	uint64_t vmrss;
 	uint64_t vmsize;
 	uint64_t vmpeak;
@@ -56,7 +56,6 @@ static const string LogSheetHeader =
  * Define a function to be used for Linux, to grab the OS statistics.
  */
 #if defined Linux
-static const string ProcNameProp = "Name";
 static const string VmRSSProp = "VmRSS";
 static const string VmSizeProp = "VmSize";
 static const string VmPeakProp = "VmPeak";
@@ -65,15 +64,51 @@ static const string VmStackProp = "VmStk";
 static const string ThreadsProp = "Threads";
 #endif
 
+static string
+internalGetProcName(pid_t pid)
+    throw (Error::StrategyError, Error::NotImplemented)
+{
+#if defined Linux
+	ostringstream tp;
+	tp <<  "/proc/" << pid << "/cmdline";
+	if (!IO::Utility::fileExists(tp.str()))
+		throw Error::StrategyError("Could not find " + tp.str() + ".");
+
+	/* Read the process cmdline into a string so we can parse it. */
+	std::ifstream ifs(tp.str().c_str());
+	if (ifs.fail())
+		throw Error::StrategyError("Could not open " + tp.str() + ".");
+
+	string line;
+	ifs >> line;
+	ifs.close();
+
+	/*
+	 * /proc/<pid>cmdline wasn't deemed important enough to have a newline,
+	 * and the string ends up with a nil character at the end; remove it.
+	 */
+	int loc = line.find_last_of('\0');
+	line.erase(loc, loc);
+
+	loc = line.find_last_of('/');
+	if (loc == string::npos) {
+		return (line);
+	} else {
+		string s(line, loc + 1, string::npos);
+		return (s);
+	}
+#else
+	throw Error::NotImplemented;
+#endif
+}
+
 static PSTATS
-_internalGetPstats()
+internalGetPstats(pid_t pid)
     throw (Error::StrategyError, Error::NotImplemented)
 #if defined Linux
 {
-	pid_t pid = getpid();
 	ostringstream tp;
 	tp <<  "/proc/" << pid << "/status";
-
 	if (!IO::Utility::fileExists(tp.str()))
 		throw Error::StrategyError("Could not find " + tp.str() + ".");
 
@@ -105,11 +140,6 @@ _internalGetPstats()
 		 * because the entry in /proc/<pid>/status has the number
 		 * separated from the units by a whitespace.
 		 */
-		if (key == ProcNameProp) {
-			Text::removeLeadingTrailingWhitespace(value);
-			stats.procname = value;
-			continue;
-		}
 		if (key == VmRSSProp) {
 			stats.vmrss = (uint64_t)std::strtoll(value.c_str(),
 			    NULL, 10);;
@@ -141,6 +171,7 @@ _internalGetPstats()
 			continue;
 		}
 	}
+	ifs.close();
 	return (stats);
 }
 
@@ -163,7 +194,7 @@ _internalGetPstats()
 }
 #endif	/* OS check */
 
-static void _internalGetCPUTimes(
+static void internalGetCPUTimes(
     uint64_t *usertime,
     uint64_t *systemtime)
     throw (Error::StrategyError)
@@ -185,6 +216,7 @@ BiometricEvaluation::Process::Statistics::Statistics()
 	_logCabinet = NULL;
 	_logging = false;
 	_autoLogging = false;
+	_pid = getpid();
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
@@ -193,12 +225,14 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	Error::ObjectExists,
 	Error::StrategyError)
 {
+	_pid = getpid();
 	_logCabinet = logCabinet;
+
 	IO::LogSheet *tempLS;
 	ostringstream lsname, descr;
-	PSTATS ps = _internalGetPstats();
-	lsname << ps.procname << "-" << getpid() << ".stats.log";
-	descr << "Statistics for " << ps.procname << "(PID " << getpid() << ")";
+	string procname = internalGetProcName(_pid);
+	lsname << procname << "-" << _pid << ".stats.log";
+	descr << "Statistics for " << procname << " (PID " << _pid << ")";
 	try {
 		tempLS = logCabinet->newLogSheet(lsname.str(), descr.str());
 	} catch (Error::ObjectExists &e) {
@@ -207,7 +241,6 @@ BiometricEvaluation::Process::Statistics::Statistics(
 		throw e;
 	}
 	_logging = true;
-	_autoLogging = false;
 	tempLS->writeComment(LogSheetHeader);
 	_logSheet.reset(tempLS);
 }
@@ -220,7 +253,7 @@ BiometricEvaluation::Process::Statistics::getCPUTimes(
 {
 	uint64_t utime, stime;
 
-	_internalGetCPUTimes(&utime, &stime);
+	internalGetCPUTimes(&utime, &stime);
 	if (usertime != NULL)
 		*usertime = utime;
 	if (systemtime != NULL)
@@ -237,7 +270,7 @@ BiometricEvaluation::Process::Statistics::getMemorySizes(
     throw (Error::StrategyError, Error::NotImplemented)
 {
 	/* Let exceptions from this call float out */
-	PSTATS ps = _internalGetPstats();
+	PSTATS ps = internalGetPstats(_pid);
 	if (vmrss != NULL)
 		*vmrss = ps.vmrss;
 	if (vmsize != NULL)
@@ -254,7 +287,7 @@ uint32_t
 BiometricEvaluation::Process::Statistics::getNumThreads()
     throw (Error::StrategyError, Error::NotImplemented)
 {
-	PSTATS ps = _internalGetPstats();
+	PSTATS ps = internalGetPstats(_pid);
 	return (ps.threads);
 }
 
@@ -266,9 +299,9 @@ BiometricEvaluation::Process::Statistics::logStats()
 	if (!_logging)
 		throw Error::ObjectDoesNotExist();
 
-	PSTATS ps = _internalGetPstats();
+	PSTATS ps = internalGetPstats(_pid);
 	uint64_t usertime, systemtime;
-	_internalGetCPUTimes(&usertime, &systemtime);
+	internalGetCPUTimes(&usertime, &systemtime);
 	*_logSheet << usertime << " " << systemtime << " ";
 	*_logSheet << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
 	*_logSheet << ps.vmdata << " " << ps.vmstack << " " << ps.threads;
@@ -307,14 +340,16 @@ autoLogger(void *ptr)
 		/* We use nanosleep(2) to avoid causing signals sometimes
 		 * used by sleep(3).
 		 */
-		nanosleep(&req, &rem);
+		int retval = nanosleep(&req, &rem);
 
 		/* If a signal occurs, there will be remaining time on
 		 * the sleep interval, so use it up.
 		 */
-		while (rem.tv_sec != 0) {
-			req = rem;
-			nanosleep(&req, &rem);
+		if (retval == -1) {
+			while (rem.tv_sec != 0) {
+				req = rem;
+				nanosleep(&req, &rem);
+			}
 		}
 	}
 }

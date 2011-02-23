@@ -209,9 +209,7 @@ namespace BiometricEvaluation {
 			void callStatistics_logStats();
 
 		private:
-		/*
-		 * The logging thread function, in C space.
-		 */
+			pid_t _pid;
 			IO::LogCabinet *_logCabinet;
 			std::auto_ptr<IO::LogSheet> _logSheet;
 			bool _logging;
