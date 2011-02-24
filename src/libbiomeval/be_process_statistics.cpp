@@ -88,8 +88,9 @@ internalGetProcName(pid_t pid)
 	 * /proc/<pid>cmdline wasn't deemed important enough to have a newline,
 	 * and the string ends up with a nil character at the end; remove it.
 	 */
-	int loc = line.find_last_of('\0');
-	line.erase(loc, loc);
+	unsigned int loc = line.find_last_of('\0');
+	if (loc != string::npos)
+		line.erase(loc, loc);
 
 	loc = line.find_last_of('/');
 	if (loc == string::npos) {
