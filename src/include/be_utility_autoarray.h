@@ -256,8 +256,8 @@ BiometricEvaluation::Utility::AutoArray<T>::resize(
 		throw Error::StrategyError("Could not allocate data");
 
 	/* Copy as much data as will fit into the new buffer */
-	memcpy(new_data, _data, ((new_size < _size) ? new_size : _size) *
-	    sizeof(T));
+	for (size_t i = 0; i < ((new_size < _size) ? new_size : _size); i++)
+		new_data[i] = _data[i];
 
 	/* Delete the old buffer and assign the new buffer to this object */
 	if (_data != NULL)
@@ -301,7 +301,8 @@ BiometricEvaluation::Utility::AutoArray<T>::operator= (
 		_data = new T[_size];
 		if (_data == NULL)
 			throw Error::StrategyError("Could not allocate data");
-		memcpy(_data, copy._data, _size * sizeof(T));
+		for (size_t i = 0; i < _size; i++)
+			_data[i] = copy._data[i];
 	}
 
 	return *this;
@@ -368,7 +369,8 @@ BiometricEvaluation::Utility::AutoArray<T>::AutoArray(
 	_data = new T[_size];
 	if (_data == NULL)
 		throw Error::StrategyError("Could not allocate data");
-	memcpy(_data, copy._data, _size * sizeof(T));
+	for (size_t i = 0; i < _size; i++)
+		_data[i] = copy._data[i];
 }
 
 /******************************************************************************/

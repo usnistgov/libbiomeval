@@ -335,6 +335,23 @@ void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
     const string &mergedDescription,
     const string &parentDir,
     const string &type,
+    tr1::shared_ptr<RecordStore> recordStores[],
+    size_t numRecordStores)
+    throw (Error::ObjectExists, Error::StrategyError)
+{
+	RecordStore *rs[numRecordStores];
+	for (int i = 0; i < numRecordStores; i++)
+		rs[i] = recordStores[i].get();
+
+	RecordStore::mergeRecordStores(mergedName, mergedDescription, parentDir,
+	    type, rs, numRecordStores);
+}
+
+void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
+    const string &mergedName,
+    const string &mergedDescription,
+    const string &parentDir,
+    const string &type,
     RecordStore *recordStores[],
     size_t numRecordStores)
     throw (Error::ObjectExists, Error::StrategyError)

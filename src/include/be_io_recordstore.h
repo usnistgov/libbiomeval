@@ -11,6 +11,7 @@
 #define __BE_IO_RECORDSTORE_H__
 
 #include <string>
+#include <tr1/memory>
 #include <vector>
 #include <be_io.h>
 #include <be_error_exception.h>
@@ -423,6 +424,43 @@ namespace BiometricEvaluation {
 			    const string &parentDir,
 			    const string &type,
 			    RecordStore *recordStores[],
+			    size_t numRecordStores)
+			    throw (Error::ObjectExists, Error::StrategyError);
+
+			/**
+			 * Create a new RecordStore that contains the contents
+			 * of several RecordStores.
+			 *
+			 * @param mergedName[in]
+			 *	The name of the new RecordStore that will be
+			 *	created.
+			 * @param mergedDescription[in]
+			 *	The text used to describe the RecordStore.
+			 * @param parentDir[in]
+			 *	Where, in the file system, the new store should
+			 *	be rooted.
+			 * @param type[in]
+			 *	The type of RecordStore that mergedName should
+			 *	be.
+			 * @param recordStores[in]
+			 *	An array of RecordStore shared pointers, such
+			 *	as those returned from IO::Factory, that 
+			 *	should be merged into mergedName.
+			 * @param numRecordStores[in]
+			 *	The number of RecordStore* in recordStores.
+			 * \throws Error::ObjectExists
+			 *	A RecordStore with mergedNamed in parentDir
+			 *	already exists.
+			 * \throws Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			static void mergeRecordStores(
+			    const string &mergedName,
+			    const string &mergedDescription,
+			    const string &parentDir,
+			    const string &type,
+			    tr1::shared_ptr<RecordStore> recordStores[],
 			    size_t numRecordStores)
 			    throw (Error::ObjectExists, Error::StrategyError);
 
