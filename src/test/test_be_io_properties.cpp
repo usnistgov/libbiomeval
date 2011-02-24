@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cstdlib>
 #include <iostream>
 #include <be_io_properties.h>
 #include <be_error_exception.h>

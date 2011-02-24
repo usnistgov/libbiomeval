@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <unistd.h>
 #include <be_error_exception.h>

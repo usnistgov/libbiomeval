@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 
 #include <cstddef>
+#include <cstdlib>
 #include <iostream>
 
 #include <be_image_image.h>

@@ -10,6 +10,7 @@
 #ifndef __BE_IO_LOGCABINET_H
 #define __BE_IO_LOGCABINET_H
 
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
