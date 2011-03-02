@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cstdio>
 #include <iostream>
 #include <sstream>
 

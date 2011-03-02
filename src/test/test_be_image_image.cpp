@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 
 #include <cstddef>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 
