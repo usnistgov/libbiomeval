@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <libgen.h>
 #include <openssl/evp.h>
 
 #include <iomanip>
@@ -15,6 +16,7 @@
 #include <vector>
 
 #include <be_text.h>
+#include <be_utility_autoarray.h>
 
 void
 BiometricEvaluation::Text::removeLeadingTrailingWhitespace(string &s)
@@ -102,5 +104,27 @@ BiometricEvaluation::Text::split(const string &str, const char delimiter)
 		ret.push_back(str);
 
 	return ret;
+}
+
+string
+BiometricEvaluation::Text::filename(
+    const string &path)
+{
+	static Utility::AutoArray<char> buf;
+	buf.resize(strlen(path.c_str()) + 1);
+	strncpy(buf, path.c_str(), strlen(path.c_str()) + 1);
+
+	return (::basename(buf));
+}
+
+string
+BiometricEvaluation::Text::dirname(
+    const string &path)
+{
+	static Utility::AutoArray<char> buf;
+	buf.resize(strlen(path.c_str()) + 1);
+	strncpy(buf, path.c_str(), strlen(path.c_str()) + 1);
+
+	return (::dirname(buf));
 }
 

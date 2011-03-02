@@ -46,7 +46,7 @@ namespace BiometricEvaluation {
 		    const string &digest = "md5")
 		    throw (Error::StrategyError);
 
-		/*
+		/**
 		 * \brief
 		 * Return tokens bound by delimiters and the beginning and end
 		 * of a string.
@@ -65,6 +65,34 @@ namespace BiometricEvaluation {
 		 */
 		vector<string>
 		split(const string &str, const char delimiter);
+
+		/**
+		 * @brief
+		 * Extract the filename portion of a pathname.
+		 *
+		 * @param path[in]
+		 *	Path from which to extract the filename portion.
+		 *
+		 * @returns
+		 *	Filename portion of path.
+		 */
+		string
+		filename(
+		    const string &path);
+
+		/**
+		 * @brief
+		 * Extract the directory part of a pathname.
+		 *
+		 * @param path[in]
+		 *	Path from which to extract the directory portion.
+		 *
+		 * @returns
+		 *	Directory portion of path.
+		 */
+		string
+		dirname(
+		    const string &path);
 	}
 }
 #endif /* __BE_TEXT_H__ */

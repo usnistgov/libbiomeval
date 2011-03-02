@@ -50,6 +50,14 @@ main(int argc, char* argv[])
 	for (int i = 0; i < failed_split.size(); i++)
 		cout << "\t* \"" << failed_split[i] << "\"" << endl;
 
+	cout << endl;
+
+	cout << "Text::filename() / Text::dirname()" << endl;
+	string path = "/this/portion/is/the/dirname/and_this_is_the_filename";
+	cout << "Path: " << path << endl;
+	cout << "Dirname: " << Text::dirname(path) << endl;
+	cout << "Filename: " << Text::filename(path) << endl;
+
 	return (0);
 }
 
