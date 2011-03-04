@@ -85,20 +85,16 @@ internalGetProcName(pid_t pid)
 	ifs.close();
 
 	/*
-	 * /proc/<pid>cmdline wasn't deemed important enough to have a newline,
-	 * and the string ends up with a nil character at the end; remove it.
+	 * /proc/<pid>cmdline represents the command line used to execute the
+	 * program, with the arguments separated by the nul character.
+	 * Therefore, the cmdline from the start until the first nul is the
+	 * command name and we'll call that the process name.
 	 */
-	unsigned int loc = line.find_last_of('\0');
+	std::size_t loc = line.find_first_of('\0');
 	if (loc != string::npos)
 		line.erase(loc, loc);
 
-	loc = line.find_last_of('/');
-	if (loc == string::npos) {
-		return (line);
-	} else {
-		string s(line, loc + 1, string::npos);
-		return (s);
-	}
+	return (Text::filename(line));
 #else
 	throw Error::NotImplemented();
 #endif
