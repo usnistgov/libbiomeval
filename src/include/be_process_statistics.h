@@ -178,6 +178,8 @@ namespace BiometricEvaluation {
 			 * \throw Error::ObjectDoesNotExist
 			 *	The LogSheet does not exist; this object was
 			 *	not created with LogCabinet object.
+			 * \throw Error::ObjectExists
+			 *	Autologging is currently invoked.
 			 * \throw Error::StrategyError
 			 *	An error occurred when writing to the LogSheet.
 			 * \throw Error::NotImplemented
@@ -186,19 +188,25 @@ namespace BiometricEvaluation {
 			 */
 			void startAutoLogging(int interval)
 			    throw (Error::ObjectDoesNotExist,
-				Error::StrategyError, Error::NotImplemented);
+				Error::ObjectExists,
+				Error::StrategyError,
+				Error::NotImplemented);
 
 			/**
 			 * \brief
 			 * Stop the automatic logging of process statistics.
 			 * Has no effect if not currently auto-logging.
 			 *
+			 * \throw Error::ObjectDoesNotExist
+			 *	Not currently autologging.
 			 * \throw Error::StrategyError
 			 *	An error occurred when stopping, most likely
 			 *	because the logging thread died.
 			 */
 			void stopAutoLogging()
-			    throw (Error::StrategyError);
+			    throw (
+				Error::ObjectDoesNotExist,
+				Error::StrategyError);
 
 			/**
 			 * Helper function in C++ space that has access to

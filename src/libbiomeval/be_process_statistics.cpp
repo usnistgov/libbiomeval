@@ -239,6 +239,7 @@ BiometricEvaluation::Process::Statistics::Statistics(
 		throw e;
 	}
 	_logging = true;
+	_autoLogging = false;
 	tempLS->writeComment(LogSheetHeader);
 	_logSheet.reset(tempLS);
 }
@@ -355,36 +356,43 @@ autoLogger(void *ptr)
 void
 BiometricEvaluation::Process::Statistics::startAutoLogging(
     int interval)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError,
-	Error::NotImplemented)
+    throw (Error::ObjectDoesNotExist, Error::ObjectExists,
+	Error::StrategyError, Error::NotImplemented)
 {
 	if (!_logging)
 		throw Error::ObjectDoesNotExist();
+	if (_autoLogging)
+		throw Error::ObjectExists();
 	if (interval == 0)
 		return;
 
 	theLoggerPackage = (struct loggerPackage *)malloc(
 	    sizeof(struct loggerPackage));
+	if (theLoggerPackage == NULL)
+		throw Error::StrategyError("Memory allocation error");
+
 	theLoggerPackage->interval = interval;
 	theLoggerPackage->stat = this;
-	_autoLogging = true;
 	int retval = pthread_create(&_loggingThread, NULL, autoLogger,
 	    (void *)theLoggerPackage);
 	if (retval != 0) {
+		free (theLoggerPackage);
 		throw Error::StrategyError("Creating thread failed: " +
 		    Error::errorStr());
-		_autoLogging = false;
 	}
+	_autoLogging = true;
 }
 
 void
 BiometricEvaluation::Process::Statistics::stopAutoLogging()
-    throw (Error::StrategyError)
+    throw ( Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	_autoLogging = false;
+	if (!_autoLogging)
+		throw Error::ObjectDoesNotExist();
 	int retval = pthread_cancel(_loggingThread);
 	if (retval != 0)
 		throw Error::StrategyError("Cancel of logging thread failed: " +
 		    Error::errorStr());
+	_autoLogging = false;
 	free (theLoggerPackage);
 }

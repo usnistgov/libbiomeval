@@ -189,7 +189,7 @@ main(int argc, char *argv[])
 	}
 	cout << "Success." << endl;
 		
-	cout << "Attempting to log asynchronously: ";
+	cout << "Attempting to log asynchronously: " << flush;
 	try {
 		logstats->startAutoLogging(1);
 		sleep(6);
@@ -201,11 +201,45 @@ main(int argc, char *argv[])
 		cout << "Caught " << e.getInfo() << "; failure." << endl;
 		delete logstats;
 		return (EXIT_FAILURE);
+	} catch (Error::ObjectExists &e) {
+		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		delete logstats;
+		return (EXIT_FAILURE);
 	} catch (Error::NotImplemented &e) {
 		cout << "Caught " << e.getInfo() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
-	cout << "The log sheet in statLogCabinet should have 11 or 12 entries." << endl;
+	cout << "The log sheet in statLogCabinet should have 11 or 12 entries." << flush << endl;
+
+	/*
+	 * Try to start the already logging object.
+	 */
+	cout << "Attempting to start currently logging object: ";
+	success = false;
+	try {
+		logstats->startAutoLogging(1);
+	} catch (Error::ObjectExists &e) {
+		cout << "Caught " << e.getInfo() << "; OK." << flush << endl;
+		success = true;
+	}
+	if (!success) {
+		cout << "failed.\n";
+		return (EXIT_FAILURE);
+	}
+	logstats->stopAutoLogging();
+
+	cout << "Attempting to stop a stopped logging object: ";
+	success = false;
+	try {
+		logstats->stopAutoLogging();
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "Caught " << e.getInfo() << "; OK." << flush << endl;
+		success = true;
+	}
+	if (!success) {
+		cout << "failed.\n";
+		return (EXIT_FAILURE);
+	}
 
 	return (EXIT_SUCCESS);
 }
