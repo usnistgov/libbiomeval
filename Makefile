@@ -22,6 +22,11 @@ all:
 		(cd $$subdir && $(MAKE) all) || exit 1; \
 	done
 
+debug:
+	@for subdir in $(SUBDIRS); do \
+		(cd $$subdir && $(MAKE) debug) || exit 1; \
+	done
+
 install: installpaths
 	install -m 644 -o $(ROOT) $(LOCALINC)/*.h $(INCPATH)
 	install -m 755 -o $(ROOT) $(LOCALLIB)/* $(LIBPATH)
