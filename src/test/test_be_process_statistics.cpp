@@ -241,5 +241,21 @@ main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 
+	/*
+	 * Try rapid-fire start/stop of logging.
+	 */
+	cout << "Rapid-fire start/stop: ";
+	try {
+		for (int i=0; i<5; i++) {
+			cout << "start ... " << flush;
+			logstats->startAutoLogging(2);
+			logstats->stopAutoLogging();
+			cout << "stop:thread count is " << logstats->getNumThreads() << flush << endl;;
+		}
+	} catch (Error::Exception &e) {
+		cout << "Caught " << e.getInfo() << "; OK." << flush << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << "There may be a few extra entries in the log, no more than 5." << endl;
 	return (EXIT_SUCCESS);
 }

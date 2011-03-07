@@ -15,6 +15,8 @@
 
 #include <sys/resource.h>
 #include <dirent.h>
+#include <errno.h>
+#include <pthread.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -316,25 +318,52 @@ BiometricEvaluation::Process::Statistics::callStatistics_logStats()
 struct loggerPackage {
 	int interval;
 	Process::Statistics *stat;
+	pthread_mutex_t logMutex;
+	pthread_cond_t logCond;
 };
-
-/*
- * Pointer to structure that will be passed into the child thread.
- * Needs to be global so the stop function can free the memory
- * for the package.
- * XXX This needs to be made thread safe.
- */
-static struct loggerPackage *theLoggerPackage;
 
 extern "C" void *
 autoLogger(void *ptr)
 {
+	int type;
+
+	/*
+	 * We need some control over when this thread will be cancelled,
+	 * so defer cancellation, but we'll test for the cancel event and
+	 * give up control.
+	 */
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &type);
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &type);
+
+	/*
+	 * We need to copy data out of the logging package in a manner
+	 * that is synchronized with the owner of the package.
+	 */
 	struct loggerPackage *lp = (struct loggerPackage *)(ptr);
+	pthread_mutex_lock(&lp->logMutex);
+	Process::Statistics *stat = lp->stat;
+	int interval = lp->interval;
+	pthread_cond_signal(&lp->logCond);
+	pthread_mutex_unlock(&lp->logMutex);
+
 	struct timespec req, rem;
-	req.tv_sec = lp->interval;
-	req.tv_nsec = 0;
+
 	while (true) {
-		lp->stat->callStatistics_logStats();
+
+		/*
+		 * Test for a cancel request. Note that we could create one
+		 * more log entry AFTER a request comes in.
+		 */
+		pthread_testcancel();
+
+		/* We want the logging operation to complete, so disable
+		 * cancellation while that is going on.
+		 */
+		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &type);
+		stat->callStatistics_logStats();
+		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &type);
+		req.tv_sec = interval;
+		req.tv_nsec = 0;
 
 		/* We use nanosleep(2) to avoid causing signals sometimes
 		 * used by sleep(3).
@@ -345,8 +374,9 @@ autoLogger(void *ptr)
 		 * the sleep interval, so use it up.
 		 */
 		if (retval == -1) {
-			while (rem.tv_sec != 0) {
+			while (rem.tv_sec > 0) {
 				req = rem;
+				req.tv_nsec = 0;
 				nanosleep(&req, &rem);
 			}
 		}
@@ -366,20 +396,31 @@ BiometricEvaluation::Process::Statistics::startAutoLogging(
 	if (interval == 0)
 		return;
 
-	theLoggerPackage = (struct loggerPackage *)malloc(
-	    sizeof(struct loggerPackage));
-	if (theLoggerPackage == NULL)
+	struct loggerPackage *lp;
+	lp = (struct loggerPackage *)malloc(sizeof(struct loggerPackage));
+	if (lp == NULL)
 		throw Error::StrategyError("Memory allocation error");
 
-	theLoggerPackage->interval = interval;
-	theLoggerPackage->stat = this;
+	lp->interval = interval;
+	lp->stat = this;
+	pthread_mutex_init(&lp->logMutex, NULL);
+	pthread_cond_init(&lp->logCond, NULL);
+
 	int retval = pthread_create(&_loggingThread, NULL, autoLogger,
-	    (void *)theLoggerPackage);
+	    (void *)lp);
 	if (retval != 0) {
-		free (theLoggerPackage);
+		free (lp);
 		throw Error::StrategyError("Creating thread failed: " +
 		    Error::errorStr());
 	}
+
+	/* Synchronize with the logging thread so it can copy the info
+	 * out of the logging package before it is freed.
+	 */
+	pthread_mutex_lock(&lp->logMutex);
+	pthread_cond_wait(&lp->logCond, &lp->logMutex);
+	pthread_mutex_unlock(&lp->logMutex);
+	free(lp);
 	_autoLogging = true;
 }
 
@@ -393,6 +434,6 @@ BiometricEvaluation::Process::Statistics::stopAutoLogging()
 	if (retval != 0)
 		throw Error::StrategyError("Cancel of logging thread failed: " +
 		    Error::errorStr());
+
 	_autoLogging = false;
-	free (theLoggerPackage);
 }

@@ -195,7 +195,6 @@ namespace BiometricEvaluation {
 			/**
 			 * \brief
 			 * Stop the automatic logging of process statistics.
-			 * Has no effect if not currently auto-logging.
 			 *
 			 * \throw Error::ObjectDoesNotExist
 			 *	Not currently autologging.
@@ -217,6 +216,7 @@ namespace BiometricEvaluation {
 			void callStatistics_logStats();
 
 		private:
+
 			pid_t _pid;
 			IO::LogCabinet *_logCabinet;
 			std::auto_ptr<IO::LogSheet> _logSheet;
