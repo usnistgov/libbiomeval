@@ -246,16 +246,18 @@ main(int argc, char *argv[])
 	 */
 	cout << "Rapid-fire start/stop: ";
 	try {
-		for (int i=0; i<5; i++) {
-			cout << "start ... " << flush;
+		for (int i=0; i<1500; i++) {
+//			cout << "start ... " << flush;
 			logstats->startAutoLogging(2);
 			logstats->stopAutoLogging();
-			cout << "stop:thread count is " << logstats->getNumThreads() << flush << endl;;
+//			cout << "stop:thread count is " << logstats->getNumThreads() << flush << endl;;
 		}
 	} catch (Error::Exception &e) {
 		cout << "Caught " << e.getInfo() << "; OK." << flush << endl;
 		return (EXIT_FAILURE);
 	}
-	cout << "There may be a few extra entries in the log, no more than 5." << endl;
+	cout << "There should be over 1000 entries in the log." << endl;
+
+	delete logstats;
 	return (EXIT_SUCCESS);
 }

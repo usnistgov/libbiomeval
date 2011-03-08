@@ -20,16 +20,16 @@ namespace BiometricEvaluation {
 	namespace Process {
 
 		/**
-		 * \brief
+		 * @brief
 		 * The Statistics class provides an interface for gathering 
 		 * process statistics, such as memory usage, system time, etc.
 		 *
-		 * \details
+		 * @details
 		 * The information gathered by objects of this class are for the
 		 * current process, and can optionally be logged to a LogSheet
 		 * object contained within the provided LogCabinet.
 		 *
-		 * \note
+		 * @note
 		 * The resolution of a returned value for many methods may
 		 * not match the resolution allowed by the interface. For
 		 * example, the operating system my allow for second
@@ -52,26 +52,28 @@ namespace BiometricEvaluation {
 			 * 	The LogCabinet obejct where this object will
 			 * 	create a LogSheet to contain the statistic
 			 *	information for the process.
-			 * \throw Error::NotImplemented
+			 * @throw Error::NotImplemented
 			 *	Logging is not supported on this OS. This
 			 *	exception can be thrown when any portion of
 			 *	the statistics gathering cannot be completed.
-			 * \throw Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 *	The LogSheet already exists. This exception
 			 *	should rarely, if ever, occur.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	Failure to create the LogSheet in the cabinet.
 			 */
 			Statistics(IO::LogCabinet * const logCabinet)
 			    throw (Error::NotImplemented, Error::ObjectExists,
 				Error::StrategyError);
 
+			~Statistics();
+
 			/**
 			 * Obtain the total user and system times for the
 			 * process, in microseconds. Any of the out parameters
 			 * can be NULL, indicating non-interest in that
 			 * statistic.
-			 * \note
+			 * @note
 			 * This method may not be implemented in all operating
 			 * systems.
 			 *
@@ -80,12 +82,12 @@ namespace BiometricEvaluation {
 			 * @param systemtime[out]
 			 *	Pointer where to store the total system time.
 			 *
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when obtaining the process
 			 *	statistics from the operating system. The
 			 *	exception information string contains the
 			 *	error reason.
-			 * \throw Error::NotImplemented
+			 * @throw Error::NotImplemented
 			 *	This method is not implemented on this OS.
 			 */
 			void getCPUTimes(
@@ -98,7 +100,7 @@ namespace BiometricEvaluation {
 			 * process, in kilobytes. Any of the out parameters
 			 * can be NULL, indicating non-interest in that
 			 * statistic.
-			 * \note
+			 * @note
 			 * This method may not be implemented in all operating
 			 * systems.
 			 *
@@ -118,12 +120,12 @@ namespace BiometricEvaluation {
 			 *	Pointer where to store the current virtual
 			 *	memory stack segment size.
 			 *
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when obtaining the process
 			 *	statistics from the operating system. The
 			 *	exception information string contains the
 			 *	error reason.
-			 * \throw Error::NotImplemented
+			 * @throw Error::NotImplemented
 			 *	This method is not implemented on this OS.
 			 */
 			void getMemorySizes(
@@ -136,31 +138,31 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Obtain the number of threads composing this process.
-			 * \note
+			 * @note
 			 * This method may not be implemented in all operating
 			 * systems.
 			 *
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when obtaining the process
 			 *	info from the operating system. The exception
 			 *	information string contains the error reason.
-			 * \throw Error::NotImplemented
+			 * @throw Error::NotImplemented
 			 *	This method is not implemented on this OS.
 			 */
 			uint32_t getNumThreads()
 			    throw (Error::StrategyError, Error::NotImplemented);
 
 			/**
-			 * \brief
+			 * @brief
 			 * Create a snapshot of the current process statistics
 			 * in the LogSheet created in the LogCabinet.
 			 *
-			 * \throw Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The LogSheet does not exist; this object was
 			 *	not created with LogCabinet object.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when writing to the LogSheet.
-			 * \throw Error::NotImplemented
+			 * @throw Error::NotImplemented
 			 *	The statistics gathering is not implemented for
 			 *	this operating system.
 			 */
@@ -169,20 +171,25 @@ namespace BiometricEvaluation {
 				Error::StrategyError, Error::NotImplemented);
 
 			/**
-			 * \brief
+			 * @brief
 			 * Start logging process statistics automatically,
-			 * in intervals of seconds.
+			 * in intervals of seconds. The first log entry will
+			 * occur soon after the call to this method as the
+			 * delay interval is invoked after the first entry.
+			 * @note
+			 * If stopAutoLogging() is called very soon after the
+			 * start, a log entry may not be made.
 			 *
 			 * @param interval[in]
 			 *	The gap between logging snapshots, in seconds.
-			 * \throw Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The LogSheet does not exist; this object was
 			 *	not created with LogCabinet object.
-			 * \throw Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 *	Autologging is currently invoked.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when writing to the LogSheet.
-			 * \throw Error::NotImplemented
+			 * @throw Error::NotImplemented
 			 *	The statistics gathering is not implemented for
 			 *	this operating system.
 			 */
@@ -193,12 +200,12 @@ namespace BiometricEvaluation {
 				Error::NotImplemented);
 
 			/**
-			 * \brief
+			 * @brief
 			 * Stop the automatic logging of process statistics.
 			 *
-			 * \throw Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	Not currently autologging.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when stopping, most likely
 			 *	because the logging thread died.
 			 */
@@ -223,6 +230,7 @@ namespace BiometricEvaluation {
 			bool _logging;
 			bool _autoLogging;
 			pthread_t _loggingThread;
+			pthread_mutex_t _logMutex;
 		};
 
 	}

@@ -213,10 +213,16 @@ static void internalGetCPUTimes(
 
 BiometricEvaluation::Process::Statistics::Statistics()
 {
+	_pid = getpid();
 	_logCabinet = NULL;
 	_logging = false;
 	_autoLogging = false;
-	_pid = getpid();
+	pthread_mutex_init(&_logMutex, NULL);
+}
+
+BiometricEvaluation::Process::Statistics::~Statistics()
+{
+	pthread_mutex_destroy(&_logMutex);
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
@@ -242,6 +248,7 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	}
 	_logging = true;
 	_autoLogging = false;
+	pthread_mutex_init(&_logMutex, NULL);
 	tempLS->writeComment(LogSheetHeader);
 	_logSheet.reset(tempLS);
 }
@@ -300,6 +307,8 @@ BiometricEvaluation::Process::Statistics::logStats()
 	if (!_logging)
 		throw Error::ObjectDoesNotExist();
 
+	pthread_mutex_lock(&this->_logMutex);
+
 	PSTATS ps = internalGetPstats(_pid);
 	uint64_t usertime, systemtime;
 	internalGetCPUTimes(&usertime, &systemtime);
@@ -307,6 +316,8 @@ BiometricEvaluation::Process::Statistics::logStats()
 	*_logSheet << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
 	*_logSheet << ps.vmdata << " " << ps.vmstack << " " << ps.threads;
 	_logSheet->newEntry();
+
+	pthread_mutex_unlock(&this->_logMutex);
 }
 
 extern "C" void
@@ -317,6 +328,7 @@ BiometricEvaluation::Process::Statistics::callStatistics_logStats()
 
 struct loggerPackage {
 	int interval;
+	int flag;
 	Process::Statistics *stat;
 	pthread_mutex_t logMutex;
 	pthread_cond_t logCond;
@@ -343,6 +355,7 @@ autoLogger(void *ptr)
 	pthread_mutex_lock(&lp->logMutex);
 	Process::Statistics *stat = lp->stat;
 	int interval = lp->interval;
+	lp->flag = 1;
 	pthread_cond_signal(&lp->logCond);
 	pthread_mutex_unlock(&lp->logMutex);
 
@@ -403,6 +416,7 @@ BiometricEvaluation::Process::Statistics::startAutoLogging(
 
 	lp->interval = interval;
 	lp->stat = this;
+	lp->flag = 0;
 	pthread_mutex_init(&lp->logMutex, NULL);
 	pthread_cond_init(&lp->logCond, NULL);
 
@@ -418,8 +432,12 @@ BiometricEvaluation::Process::Statistics::startAutoLogging(
 	 * out of the logging package before it is freed.
 	 */
 	pthread_mutex_lock(&lp->logMutex);
-	pthread_cond_wait(&lp->logCond, &lp->logMutex);
+	while (lp->flag != 1) {
+		pthread_cond_wait(&lp->logCond, &lp->logMutex);
+	}
 	pthread_mutex_unlock(&lp->logMutex);
+	pthread_cond_destroy(&lp->logCond);
+	pthread_mutex_destroy(&lp->logMutex);
 	free(lp);
 	_autoLogging = true;
 }
