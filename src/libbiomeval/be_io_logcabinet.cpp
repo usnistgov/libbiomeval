@@ -278,7 +278,7 @@ BiometricEvaluation::IO::LogCabinet::newLogSheet(
 	LogSheet *ls;
 	try {
 		ls = new LogSheet(name, description, _directory);
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (Error::ObjectExists &e) {
 		throw e;
 	} catch (Error::StrategyError &e) {
 		throw e;
