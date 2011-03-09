@@ -260,6 +260,10 @@ namespace BiometricEvaluation {
 		protected:
 		
 		private:
+			/* Prevent copying of ArchiveRecordStore objects */
+			ArchiveRecordStore(const ArchiveRecordStore&);
+			ArchiveRecordStore& operator=(const ArchiveRecordStore&);
+
 			/*
 			 * The manifest and archive file handles.
 			 */

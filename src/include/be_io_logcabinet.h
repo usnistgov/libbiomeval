@@ -219,6 +219,11 @@ namespace BiometricEvaluation {
 			void setAutoSync(bool state);
 
 		private:
+
+			/* Prevent copying of LogSheet objects */
+			LogSheet(const LogSheet&);
+			LogSheet& operator=(const LogSheet&);
+
 			uint32_t _entryNumber;
 			auto_ptr<std::fstream> _theLogFile;
 			bool _autoSync;
@@ -390,6 +395,10 @@ namespace BiometricEvaluation {
 			 */
 			void writeControlFile() throw (Error::StrategyError);
 
+		private:
+			/* Prevent copying of LogCabinet objects */
+			LogCabinet(const LogCabinet&);
+			LogCabinet& operator=(const LogCabinet&);
 	};
     }
 }

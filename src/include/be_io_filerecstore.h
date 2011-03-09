@@ -140,6 +140,10 @@ namespace BiometricEvaluation {
 			string canonicalName(const string &name);
 
 		private:
+			/* Prevent copying of FileRecordStore objects */
+			FileRecordStore(const FileRecordStore&);
+			FileRecordStore& operator=(const FileRecordStore&);
+
 			void writeNewRecordFile(
 			    const string &name, 
 			    const void *data,

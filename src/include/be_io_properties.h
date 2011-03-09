@@ -204,6 +204,10 @@ namespace BiometricEvaluation {
 		protected:
 
 		private:
+			/* Prevent copying of Properties objects */
+			Properties(const Properties&);
+			Properties& operator=(const Properties&);
+
 			/* The file name of the underlying properties file */
 			string _filename;
 			/* Flag indicating properties are in memory only */

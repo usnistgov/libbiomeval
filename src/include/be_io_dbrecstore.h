@@ -114,14 +114,14 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
-			virtual void replace(
+			void replace(
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
-			virtual uint64_t length(
+			uint64_t length(
 			    const string &key)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
@@ -150,6 +150,10 @@ namespace BiometricEvaluation {
 		protected:
 
 		private:
+			/* Prevent copying of DBRecordStore objects */
+			DBRecordStore(const DBRecordStore&);
+			DBRecordStore& operator=(const DBRecordStore&);
+
 			/* The file name of the underlying database */
 			string _dbname;
 			/* The handle to the underlying database */

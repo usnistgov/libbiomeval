@@ -307,11 +307,16 @@ BiometricEvaluation::Process::Statistics::logStats()
 	if (!_logging)
 		throw Error::ObjectDoesNotExist();
 
-	pthread_mutex_lock(&this->_logMutex);
-
-	PSTATS ps = internalGetPstats(_pid);
+	PSTATS ps;
 	uint64_t usertime, systemtime;
-	internalGetCPUTimes(&usertime, &systemtime);
+	pthread_mutex_lock(&this->_logMutex);
+	try { 
+		ps = internalGetPstats(_pid);
+		internalGetCPUTimes(&usertime, &systemtime);
+	} catch (Error::Exception &e) {
+		pthread_mutex_unlock(&this->_logMutex);
+		throw e;
+	}
 	*_logSheet << usertime << " " << systemtime << " ";
 	*_logSheet << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
 	*_logSheet << ps.vmdata << " " << ps.vmstack << " " << ps.threads;
