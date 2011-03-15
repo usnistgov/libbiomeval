@@ -16,13 +16,19 @@
 
 namespace BiometricEvaluation {
 
-/**
- * \brief
- * A class representing a raw image.
- * \details
- * \todo Add more detail.
- */
+	/**
+	 * @brief
+	 * Image-related classes and functions.
+	 * @details
+	 * @todo Add more detail.
+	 */
 	namespace Image {
+		/**
+		 * @brief
+		 * A class representing a raw image.
+		 * @details
+		 * @todo Add more detail.
+		 */
 		class RawImage : public Image {
 		public:
 			/**

@@ -18,7 +18,10 @@
 namespace BiometricEvaluation 
 {
 	/**
-	 * The Time name space gathers all timing relating matters, such as
+	 * @brief
+	 * Support for time and timers.
+	 * @details
+	 * The Time package gathers all timing relating matters, such as
 	 * Timers, Watchdog timers, etc. Time values are in microsecond units.
 	 */
 	namespace Time

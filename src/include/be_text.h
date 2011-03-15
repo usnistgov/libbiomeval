@@ -17,17 +17,26 @@
 
 using namespace std;
 namespace BiometricEvaluation {
+
+	/**
+	 * @brief
+	 * Text processing for string objects.
+	 * @details
+	 * The Text package contains a set of functions for the processing
+	 * of strings: removing leading and trailing whitespace, computing
+	 * a digest, and other utility functions.
+	 */
 	namespace Text {
 
 		/**
-		 * \brief
+		 * @brief
 		 * Remove lead and trailing white space from a string
 		 * object.
 		 */
 		void removeLeadingTrailingWhitespace(string &s);
 
 		/**
-		 * \brief
+		 * @brief
 		 * Compute the digest of a string.
 		 *
 		 * @param s[in]
@@ -47,7 +56,7 @@ namespace BiometricEvaluation {
 		    throw (Error::StrategyError);
 
 		/**
-		 * \brief
+		 * @brief
 		 * Return tokens bound by delimiters and the beginning and end
 		 * of a string.
 		 * 
@@ -59,7 +68,7 @@ namespace BiometricEvaluation {
 		 * @returns
 		 *	vector<string>	Vector of tokens, in order of appearance
 		 *
-		 * \note
+		 * @note
 		 * If delimiter does not appear in string, the returned vector
 		 * vector will still contain one item, str.
 		 */

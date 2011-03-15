@@ -8,7 +8,7 @@
 # about its quality, reliability, or any other characteristic.
 #
 ROOTNAME = BECommonFramework
-SOURCETEX = intro.tex overview.tex error.tex io.tex time.tex utility.tex image.tex
+SOURCETEX = intro.tex overview.tex error.tex io.tex time.tex utility.tex image.tex process.tex system.tex
 SOURCEBIB = $(ROOTNAME).bib
 BUILDDIR = build
 LATEXBUILDDIR = $(BUILDDIR)/latex

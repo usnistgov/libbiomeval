@@ -4,7 +4,7 @@
 \chapter{Input/Output}
 \label{chp-io}
 
-The {\em BiometricEvaluation::IO}) classes are used
+The {\em BiometricEvaluation::IO} package is used
 by applications for the common types of input and output: managing stores of
 data, log files, and individual file management. The goal of using the IO API 
 is to relieve applications of the need to manage low-level I/O operations such
@@ -34,7 +34,7 @@ manage data on behalf of the application in a reliable, efficient manner.
 Many biometric evaluations generate thousands of files in the form of processed
 images and biometric templates, in addition to consuming large numbers of files
 as input. In many file systems, managing large numbers of files in not
-efficient, and leads to longer run times as well as difficulties in backing up
+efficient, and leads to longer run times as well as difficulty in backing up
 and processing these files outside of the actual evaluation.
 
 The {\em RecordStore} abstraction de-couples the application from
@@ -50,9 +50,58 @@ is consistent for all strategies by the use of common exceptions.
 
 Record stores provide no semantic meaning to the nature of the data that passes
 through the store. Each record is an opaque object, given to the store as a
-pointer and data lengrh, and is associated with a string, the key. Keys must
+pointer and data length, and is associated with a string the which is the key.
+Keys must
 be unique and are associated with a single record. Attempts to insert multiple
 records with the same key result in an exception being thrown.
+
+Listing~\ref{recordstoreuse} illustrates the use of a database RecordStore
+within an application.
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Using a RecordStore}, label=recordstoreuse]
+#include <iostream>
+#include <be_io_dbrecstore.h>
+int
+main(int argc, char* argv[]) {
+
+    IO::DBRecordStore *rs;
+    try {
+	rs = new IO::DBRecordStore("myRecords", "My Record Store", "");
+    } catch (Error::Exception& e) {
+	cout << "Caught " << e.getInfo() << endl;
+	return (EXIT_FAILURE);
+    }
+    auto_ptr<IO::DBRecordStore> ars(rs);
+
+    try {
+	uint8_t *theData;
+
+	theData = getSomeData();
+	ars->insert("key1", theData);
+
+	theData = getSomeData();
+	ars->insert("key2", theData);
+
+    } catch (Error::Exception& e) {
+	cout << "Caught " << e.getInfo() << endl;
+	return (EXIT_FAILURE);
+    }
+
+    // Some more processing where new data for a key comes in ...
+    theData = getSomeData();
+    ars->replace("key1", theData);
+  
+    // Obtain the data for all keys ...
+    string theKey;
+    while (true) {
+	uint64_t len = rs->sequence(theKey, theData);
+	cout << "Read data for key " << theKey << " of length " << len << endl;
+    }
+    // The data for the key is no longer needed ...
+    ars->remove("key1");
+}
+\end{lstlisting}
 
 \section{Logging}
 \label{sec-logging}
@@ -125,3 +174,12 @@ delete ls;
 return;			// The LogCabinet is destructed by the auto_ptr
 \end{lstlisting}
 
+\section{Properties}
+\label{sec-properties}
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Using a Properties Object}, label=propertiesuse]
+\end{lstlisting}
+
+\section{IO Factory}
+\label{sec-iofactory}

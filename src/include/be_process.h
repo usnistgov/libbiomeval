@@ -14,7 +14,10 @@
 namespace BiometricEvaluation 
 {
 	/**
-	 * The Process name space gathers all process related matters,
+	 * @brief
+	 * Process information and controls.
+	 * @details
+	 * The Process package gathers all process related matters,
 	 * including a class to obtain resource usage statistics.
 	 */
 	namespace Process

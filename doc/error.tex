@@ -59,7 +59,7 @@ handled as desired.
 
 One restriction on the use of {\em SignalManager} is that the POSIX calls for
 signal management ({\em signal(3)}, {\em sigaction(2)}, etc.) cannot be
-invoked inside of the watchdog block.
+invoked inside of the signal handler block.
 
 The example in Listing~\ref{signalmanageruse} shows application use of the
 {\em SignalManager} class.

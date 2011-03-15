@@ -18,6 +18,14 @@
  */
 namespace BiometricEvaluation {
 
+	/**
+	 * @brief
+	 * Input/Output functionality.
+	 * @details
+	 * The IO package contains classes and functions used to abstract
+	 * input and output operations and provide for robust error handling
+	 * on behalf of the application.
+	 */
 	namespace IO {
 			/**
 			 * Constant indicating the state of an object
