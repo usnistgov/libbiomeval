@@ -130,8 +130,48 @@ BiometricEvaluation::IO::RecordStore::~RecordStore()
 /* Common public methods implementations.                                     */
 /******************************************************************************/
 
+void
+BiometricEvaluation::IO::RecordStore::insert(
+    const string &key,
+    const void *const data,
+    const uint64_t size)
+    throw (Error::ObjectExists, Error::StrategyError)
+{
+	_count++;
+}
+
+void
+BiometricEvaluation::IO::RecordStore::remove(
+    const string &key)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	_count--;
+}
+
 uint64_t
-BiometricEvaluation::IO::RecordStore::getSpaceUsed()
+BiometricEvaluation::IO::RecordStore::sequence(
+    string &key,
+    void *data,
+    int cursor)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	_cursor = cursor;
+}
+
+int
+BiometricEvaluation::IO::RecordStore::getCursor() const
+{
+	return _cursor;
+}
+
+void
+BiometricEvaluation::IO::RecordStore::setCursor(int cursor)
+{
+	_cursor = cursor;
+}
+
+uint64_t
+BiometricEvaluation::IO::RecordStore::getSpaceUsed() 
     throw (Error::StrategyError)
 {
 	struct stat sb;
@@ -156,13 +196,13 @@ BiometricEvaluation::IO::RecordStore::sync()
 }
 
 string
-BiometricEvaluation::IO::RecordStore::getName()
+BiometricEvaluation::IO::RecordStore::getName() const
 {
 	return _name;
 }
 
 string
-BiometricEvaluation::IO::RecordStore::getDescription()
+BiometricEvaluation::IO::RecordStore::getDescription() const
 {
 	return _description;
 }
@@ -202,7 +242,7 @@ BiometricEvaluation::IO::RecordStore::changeDescription(const string &descriptio
 }
 
 unsigned int
-BiometricEvaluation::IO::RecordStore::getCount()
+BiometricEvaluation::IO::RecordStore::getCount() const
 {
 	return _count;
 }
@@ -236,8 +276,26 @@ BiometricEvaluation::IO::RecordStore::removeRecordStore(
 /* Common protected method implementations.                                   */
 /******************************************************************************/
 string
+BiometricEvaluation::IO::RecordStore::getDirectory() const
+{
+	return _directory;
+}
+
+string
+BiometricEvaluation::IO::RecordStore::getParentDirectory() const
+{
+	return _parentDir;
+}
+
+uint8_t
+BiometricEvaluation::IO::RecordStore::getMode() const
+{
+	return (_mode);
+}
+
+string
 BiometricEvaluation::IO::RecordStore::canonicalName(
-    const string &name)
+    const string &name) const
 {
 	return (_directory + '/' + name);
 }

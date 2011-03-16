@@ -124,7 +124,7 @@ namespace BiometricEvaluation {
 			 */
 			~ArchiveRecordStore();
 			
-			uint64_t getSpaceUsed()
+			uint64_t getSpaceUsed() 
 			    throw (Error::StrategyError);
 
 			/*
@@ -173,7 +173,7 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
-			void setCursor(
+			void setCursorAtKey(
 			    string &key)
 			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError);
@@ -246,7 +246,7 @@ namespace BiometricEvaluation {
 			 * @returns
 			 *	Path to archive file.
 			 */
-			string getArchiveName();
+			string getArchiveName() const;
 	
 			/**
 			 * Obtain the name of the file storing the manifest data
@@ -255,7 +255,7 @@ namespace BiometricEvaluation {
 			 * @returns
 			 *	Path to manifest file.
 			 */
-			string getManifestName();
+			string getManifestName() const;
 	
 		protected:
 		

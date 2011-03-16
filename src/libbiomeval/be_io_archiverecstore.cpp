@@ -68,7 +68,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 	struct stat sb;
 	
 	if (stat(canonicalName(manifestFileName).c_str(), &sb)) {
-		if (_mode == IO::READONLY) {
+		if (getMode() == IO::READONLY) {
 			_manifestfp = fopen(
 			    canonicalName(manifestFileName).c_str(), "r");
 		} else {
@@ -79,7 +79,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 			throw Error::FileError("Could not create manifest "
 			    "file (" + Error::errorStr() + ")");
 	} else if (_manifestfp == NULL)  {
-		if (_mode == IO::READONLY) {
+		if (getMode() == IO::READONLY) {
 			_manifestfp = fopen(
 			    canonicalName(manifestFileName).c_str(), "r");
 		} else {
@@ -92,7 +92,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 	}
 
 	if (stat(canonicalName(archiveFileName).c_str(), &sb)) {
-		if (_mode == IO::READONLY) {
+		if (getMode() == IO::READONLY) {
 			_archivefp = fopen(
 			    canonicalName(archiveFileName).c_str(), "rb");
 		} else {
@@ -103,7 +103,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 			throw Error::FileError("Could not create archive "
 			    "file (" + Error::errorStr() + ")");
 	} else if (_archivefp == NULL) {
-		if (_mode == IO::READONLY) {
+		if (getMode() == IO::READONLY) {
 			_archivefp = fopen(
 			    canonicalName(archiveFileName).c_str(), "rb");
 		} else {
@@ -160,7 +160,7 @@ void
 BiometricEvaluation::IO::ArchiveRecordStore::sync()
     throw (Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	/* Flush the streams, not necessarily for the key passed */
@@ -266,7 +266,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::insert(
     const uint64_t size)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	long offset = -1;
@@ -290,7 +290,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::insert(
 	entry.size = size;
 	try { 
 		write_manifest_entry(key, entry);
-		_count++;
+		RecordStore::insert(key, data, size);
 	} catch (Error::StrategyError& e) {
 		throw e;	
 	}
@@ -325,7 +325,7 @@ void
 BiometricEvaluation::IO::ArchiveRecordStore::remove(const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	ManifestMap::iterator lb = _entries.lower_bound(key);
@@ -337,7 +337,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::remove(const string &key)
 	
 	try {
 		write_manifest_entry(key, entry);
-		_count--;
+		RecordStore::remove(key);
 		_dirty = true;
 	} catch (Error::StrategyError& e) {
 		throw e;
@@ -351,7 +351,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::replace(
     const uint64_t size)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	try {
@@ -376,7 +376,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::flush(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	/* Flush the streams, not necessarily for the key passed */
@@ -411,7 +411,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::sequence(
 	/* If the current cursor position is START, then it doesn't matter
 	 * what the client requests; we start at the first record.
 	 */
-	if ((_cursor == BE_RECSTORE_SEQ_START) ||
+	if ((getCursor() == BE_RECSTORE_SEQ_START) ||
 	    (cursor == BE_RECSTORE_SEQ_START)) {
 		_cursorPos = _entries.begin();
 		/* If client hasn't vacuumed, begin() might not be first item */
@@ -433,7 +433,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::sequence(
 	if (_cursorPos == _entries.end())	/* Client needs to start over */
 		throw Error::ObjectDoesNotExist("No record at position");
 
-	_cursor = cursor;
+	RecordStore::sequence(key, data, cursor);
 	key.assign(_cursorPos->first);
 	if (data == NULL)
 		return length(key);
@@ -441,7 +441,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::sequence(
 }
 
 void 
-BiometricEvaluation::IO::ArchiveRecordStore::setCursor(
+BiometricEvaluation::IO::ArchiveRecordStore::setCursorAtKey(
     string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
@@ -558,7 +558,7 @@ void
 BiometricEvaluation::IO::ArchiveRecordStore::changeName(const string &name)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::changeName(name);

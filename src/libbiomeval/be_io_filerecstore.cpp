@@ -55,7 +55,7 @@ BiometricEvaluation::IO::FileRecordStore::changeName(
     const string &name)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::changeName(name);
@@ -90,8 +90,8 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
 
 	if (dir != NULL) {
 		if (closedir(dir)) {
-			throw Error::StrategyError("Could not close " + _name +
-			    "(" + Error::errorStr() + ")");
+			throw Error::StrategyError("Could not close " + 
+			    getName() + "(" + Error::errorStr() + ")");
 		}
 	}
 
@@ -105,7 +105,7 @@ BiometricEvaluation::IO::FileRecordStore::insert(
     const uint64_t size)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -120,7 +120,7 @@ BiometricEvaluation::IO::FileRecordStore::insert(
 		throw e;
 	}
 
-	_count++;
+	RecordStore::insert(key, data, size);
 
 }
 
@@ -129,7 +129,7 @@ BiometricEvaluation::IO::FileRecordStore::remove(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -141,7 +141,7 @@ BiometricEvaluation::IO::FileRecordStore::remove(
 	if (std::remove(pathname.c_str()) != 0)
 		throw Error::StrategyError("Could not remove " + pathname);
 
-	_count--;
+	RecordStore::remove(key);
 }
 
 uint64_t
@@ -178,7 +178,7 @@ BiometricEvaluation::IO::FileRecordStore::replace(
     const uint64_t size)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -213,7 +213,7 @@ BiometricEvaluation::IO::FileRecordStore::flush(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -248,11 +248,11 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 	/* If the current cursor position is START, then it doesn't matter
 	 * what the client requests; we start at the first record.
 	*/
-	if ((_cursor == BE_RECSTORE_SEQ_START) ||
+	if ((getCursor() == BE_RECSTORE_SEQ_START) ||
 	    (cursor == BE_RECSTORE_SEQ_START))
 		_cursorPos = 1;
 
-	if (_cursorPos > _count)	/* Client needs to start over */
+	if (_cursorPos > getCount())	/* Client needs to start over */
 		throw Error::ObjectDoesNotExist("No record at position");
 
 	struct dirent *entry;
@@ -278,7 +278,7 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 		    "sync");
 	string _key = entry->d_name;
 	key = _key;
-	_cursor = cursor;
+	RecordStore::sequence(key, data, cursor);
 	_cursorPos = i + 1;
 
 	if (dir != NULL) {
@@ -295,7 +295,7 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 }
 
 void 
-BiometricEvaluation::IO::FileRecordStore::setCursor(
+BiometricEvaluation::IO::FileRecordStore::setCursorAtKey(
     string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
@@ -364,7 +364,8 @@ BiometricEvaluation::IO::FileRecordStore::writeNewRecordFile(
 }
 
 string
-BiometricEvaluation::IO::FileRecordStore::canonicalName(const string &name)
+BiometricEvaluation::IO::FileRecordStore::canonicalName(
+    const string &name) const
 {
 	return(_theFilesDir + '/' + name);
 }

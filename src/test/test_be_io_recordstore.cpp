@@ -298,7 +298,7 @@ runTests(IO::RecordStore *rs)
 	theKey.assign("key5");
 	cout << "Sequence, starting from \"" << theKey << "\"" << endl;
 	try {
-		rs->setCursor(theKey);
+		rs->setCursorAtKey(theKey);
 	} catch (Error::Exception &e) {
 		cout << "Caught: " << e.getInfo() << endl;
 	}

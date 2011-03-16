@@ -127,7 +127,7 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
-			void setCursor(
+			void setCursorAtKey(
 			    string &key)
 			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError);
@@ -137,7 +137,7 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectExists, Error::StrategyError);
 
 		protected:
-			string canonicalName(const string &name);
+			string canonicalName(const string &name) const;
 
 		private:
 			/* Prevent copying of FileRecordStore objects */

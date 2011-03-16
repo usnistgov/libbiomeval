@@ -41,7 +41,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     throw (Error::ObjectExists, Error::StrategyError) : 
     RecordStore(name, description, BERKELEYDBTYPE, parentDir)
 {
-	_dbname = _directory + '/' + _name;
+	_dbname = getDirectory() + '/' + getName();
 	if (IO::Utility::fileExists(_dbname))
 		throw Error::ObjectExists("Database already exists");
 
@@ -61,7 +61,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     throw (Error::ObjectDoesNotExist, Error::StrategyError) : 
     RecordStore(name, parentDir, mode)
 { 
-	_dbname = _directory + '/' + _name;
+	_dbname = getDirectory() + '/' + getName();
 	if (!IO::Utility::fileExists(_dbname))
 		throw Error::ObjectDoesNotExist("Database does not exist");
 
@@ -84,26 +84,26 @@ void
 BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
     throw (Error::ObjectExists, Error::StrategyError)
 { 
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (_db != NULL)
 		_db->close(_db);
 
 	string oldDBName, newDBName;
-	if (_parentDir.empty() || _parentDir == ".") {
-		oldDBName = name + '/' + _name;
+	if (getParentDirectory().empty() || getParentDirectory() == ".") {
+		oldDBName = name + '/' + getName();
 		newDBName = name + '/' + name;
 	} else {
-		oldDBName = _parentDir + '/' + name + '/' + _name;
-		newDBName = _parentDir + '/' + name + '/' + name;
+		oldDBName = getParentDirectory() + '/' + name + '/' + getName();
+		newDBName = getParentDirectory() + '/' + name + '/' + name;
 	}
 	RecordStore::changeName(name);
 	if (rename(oldDBName.c_str(), newDBName.c_str()))
 		throw Error::StrategyError("Could not rename database (" + 
 		    Error::errorStr() + ")");
 
-	_dbname = RecordStore::canonicalName(_name);
+	_dbname = RecordStore::canonicalName(getName());
 	if (!IO::Utility::fileExists(_dbname))
 		throw Error::StrategyError("Database " + _dbname + 
 		    "does not exist");
@@ -132,7 +132,7 @@ void
 BiometricEvaluation::IO::DBRecordStore::sync()
     throw (Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::sync();
@@ -149,7 +149,7 @@ BiometricEvaluation::IO::DBRecordStore::insert(
     const uint64_t size)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	int rc;
@@ -162,7 +162,7 @@ BiometricEvaluation::IO::DBRecordStore::insert(
 	rc = _db->put(_db, &dbtkey, &dbtdata, R_NOOVERWRITE);
 	switch (rc) {
 		case 0:
-			_count++;
+			RecordStore::insert(key, data, size);
 			break;
 		case 1:
 			throw Error::ObjectExists("Key already in database");
@@ -183,7 +183,7 @@ BiometricEvaluation::IO::DBRecordStore::remove(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	int rc;
@@ -194,7 +194,7 @@ BiometricEvaluation::IO::DBRecordStore::remove(
 	rc = _db->del(_db, &dbtkey, 0);
 	switch (rc) {
 		case 0:
-			_count--;
+			RecordStore::remove(key);
 			break;
 		case 1:
 			throw Error::ObjectDoesNotExist("Key not in database");
@@ -235,7 +235,7 @@ BiometricEvaluation::IO::DBRecordStore::replace(
     const uint64_t size)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	int rc;
@@ -296,7 +296,7 @@ BiometricEvaluation::IO::DBRecordStore::flush(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
+	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	/*
@@ -329,7 +329,7 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 	/* If the current cursor position is START, then it doesn't matter
 	 * what the client requests; we start at the first record.
 	*/
-	if ((_cursor == BE_RECSTORE_SEQ_START) ||
+	if ((getCursor() == BE_RECSTORE_SEQ_START) ||
 	    (cursor == BE_RECSTORE_SEQ_START))
 		pos = R_FIRST;
 	else
@@ -348,7 +348,7 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 			    "database (" + Error::errorStr() + ")");
 			break;		/* not reached */
 	}
-	_cursor = cursor;
+	RecordStore::sequence(key, data, cursor);
 	if (data != NULL)
 		memcpy(data, dbtdata.data, dbtdata.size);
 	key.assign((const char *)dbtkey.data, dbtkey.size);
@@ -356,7 +356,7 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 }
 
 void 
-BiometricEvaluation::IO::DBRecordStore::setCursor(
+BiometricEvaluation::IO::DBRecordStore::setCursorAtKey(
     string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
@@ -387,10 +387,10 @@ BiometricEvaluation::IO::DBRecordStore::setCursor(
 	rc = _db->seq(_db, &dbtkey, &dbtdata, R_PREV);
 	switch (rc) {
 		case 0:
-			_cursor = BE_RECSTORE_SEQ_NEXT;
+			setCursor(BE_RECSTORE_SEQ_NEXT);
 			break;
 		case 1:
-			_cursor = BE_RECSTORE_SEQ_START;
+			setCursor(BE_RECSTORE_SEQ_START);
 			break;
 		case -1:
 			throw Error::StrategyError("Could not read from "

@@ -131,21 +131,21 @@ namespace BiometricEvaluation {
 			 * @returns
 			 *	 The RecordStore's name.
 			 */
-			string getName();
+			string getName() const;
 
 			/**
 			 * Obtain a textual description of the RecordStore.
 			 * @returns
 			 *	The RecordStore's description.
 			 */
-			string getDescription();
+			string getDescription() const;
 
 			/**
 			 * Obtain the number of items in the RecordStore.
 			 * @returns
 			 *	The number of items in the RecordStore.
 			 */
-			unsigned int getCount();
+			unsigned int getCount() const;
 
 			/**
 			 * Change the name of the RecordStore.
@@ -366,7 +366,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
-			virtual void setCursor(
+			virtual void setCursorAtKey(
 			    string &key)
 			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError) = 0;
@@ -465,12 +465,18 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectExists, Error::StrategyError);
 
 		protected:
+			uint8_t getMode() const;
+			string getDirectory() const;
+			string getParentDirectory() const;
 			/*
-			 * The data members of the RecordStore are protected 
-			 * so derived classes can use them while still being
-			 * hidden from non-derived classes.
+			 * Return the full name of a file stored as part
+			 * of the RecordStore, typically _directory + name.
 			 */
-			 
+			string canonicalName(const string &name) const;
+			int getCursor() const;
+			void setCursor(int cursor);
+
+		private:
 			/* The name of the RecordStore */
 			string _name;
 
@@ -509,12 +515,6 @@ namespace BiometricEvaluation {
 			 * Mode in which the RecordStore was opened.
 			 */
 			uint8_t _mode;
-
-			/*
-			 * Return the full name of a file stored as part
-			 * of the RecordStore, typically _directory + name.
-			 */
-			string canonicalName(const string &name);
 
 			/*
 			 * Read the contents of the common control file format

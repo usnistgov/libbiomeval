@@ -138,7 +138,7 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
-			void setCursor(
+			void setCursorAtKey(
 			    string &key)
 			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError);

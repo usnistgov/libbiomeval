@@ -354,12 +354,7 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
-		protected:
-			/*
-			 * The data members of the LogCabinet are protected 
-			 * so derived classes can use them while still being
-			 * hidden from non-derived classes.
-			 */
+		private:
 			 
 			/* The name of the LogCabinet */
 			string _name;
