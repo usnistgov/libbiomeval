@@ -84,7 +84,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 			    canonicalName(manifestFileName).c_str(), "r");
 		} else {
 			_manifestfp = fopen(
-			    canonicalName(manifestFileName).c_str(), "r+");
+			    canonicalName(manifestFileName).c_str(), "a+");
 		}	
 		if (_manifestfp == NULL)
 			throw Error::FileError("Could not open manifest "
@@ -108,7 +108,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 			    canonicalName(archiveFileName).c_str(), "rb");
 		} else {
 			_archivefp = fopen(
-			    canonicalName(archiveFileName).c_str(), "rb+");
+			    canonicalName(archiveFileName).c_str(), "ab+");
 		}
 		if (_archivefp == NULL)
 			throw Error::FileError("Could not open archive file (" +
