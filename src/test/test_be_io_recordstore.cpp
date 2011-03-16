@@ -468,7 +468,7 @@ main(int argc, char* argv[]) {
 	}
 #endif
 
-#ifdef ARCHIVEECORDSTORETEST
+#ifdef ARCHIVERECORDSTORETEST
 	/* Call the constructor that will open an existing ArchiveRecordStore.*/
 	rsname = "ars_test";
 	try {
@@ -490,7 +490,7 @@ main(int argc, char* argv[]) {
 	if (runTests(rs) != 0)
 		return (EXIT_FAILURE);
 
-#ifdef ARCHIVEECORDSTORETEST
+#ifdef ARCHIVERECORDSTORETEST
 	/*
 	 * Test vacuuming an ArchiveRecordStore
 	 */
