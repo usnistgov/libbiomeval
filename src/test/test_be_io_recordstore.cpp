@@ -303,6 +303,22 @@ runTests(IO::RecordStore *rs)
 		cout << "Caught: " << e.getInfo() << endl;
 	}
 	testSequence(rs);
+	cout << "Sequencing from end; there should be no output." << endl;
+	testSequence(rs);
+
+	/*
+	 * Test that we can sequence when the key at the cursor has been
+	 * deleted.
+	 */
+	theKey.assign("key5");
+	cout << "Resetting cursor to \"" << theKey << "\"" << endl;
+	rs->setCursorAtKey(theKey);
+	cout << "Deleting \"" << theKey << "\"" << endl;
+	rs->remove(theKey);
+	cout << "Sequence, starting from deleted \"" << theKey << "\"" << endl;
+	testSequence(rs);
+	cout << "Should sequence starting at key6" << endl;
+
 	cout << "Changing RecordStore name..." << endl;
 	try {
 		string newName = tempnam(".", NULL);
@@ -315,6 +331,10 @@ runTests(IO::RecordStore *rs)
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (-1);
 	}
+
+	/* Reinsert the record for the key that was deleted above */
+	snprintf(rdata, RDATASIZE, "Bogus data for key%u", i);
+	rs->insert(theKey, rdata, RDATASIZE);
 	cout << "Name is now " << rs->getName() << endl;
 	cout << "Deleting all records..." << endl;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
