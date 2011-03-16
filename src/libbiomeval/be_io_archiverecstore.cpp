@@ -421,6 +421,10 @@ BiometricEvaluation::IO::ArchiveRecordStore::sequence(
 				break;
 		}
 	} else {
+		if (_cursorPos == _entries.end())
+			throw Error::ObjectDoesNotExist("No record at "
+			    "position");
+
 		while (true) {
 			_cursorPos++;
 			/* If user hasn't vacuumed, this item might not exist */
