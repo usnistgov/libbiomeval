@@ -219,7 +219,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::read_manifest()
 		    	break;
 
 		key.assign(keybuf);
-		efficient_insert(_entries, key, entry);
+		if (entry.offset != ARCHIVE_RECORD_REMOVED)
+			efficient_insert(_entries, key, entry);
 
 		if (!_dirty && entry.offset == ARCHIVE_RECORD_REMOVED)
 			_dirty = true;
