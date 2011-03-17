@@ -23,8 +23,7 @@ namespace BiometricEvaluation {
  * A class containing utility functions used for IO operations. These
  * functions are class methods.
  */
-	class Utility {
-		public:
+	namespace Utility {
 			
 			/**
 			 * Remove a directory.
@@ -41,7 +40,7 @@ namespace BiometricEvaluation {
 			 *	storage system, or the directoy name or
 			* 	prefix is malformed.
 			 */
-			static void removeDirectory(
+			void removeDirectory(
 			    const string &directory,
 			    const string &prefix)
 			    throw (Error::ObjectDoesNotExist, 
@@ -61,7 +60,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system, or pathname is malformed.
 			 */
-			static uint64_t getFileSize(
+			uint64_t getFileSize(
 			    const string &pathname)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
@@ -78,7 +77,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system, or pathname is malformed.
 			 */
-			static bool fileExists(
+			bool fileExists(
 			    const string &pathname)
 			    throw (Error::StrategyError);
 
@@ -94,7 +93,7 @@ namespace BiometricEvaluation {
 			 *		underlying storage system, or the
 			 *		name is malformed.
 			 */
-			static bool pathIsDirectory(
+			bool pathIsDirectory(
 			    const string &pathname)
 			    throw (Error::StrategyError);
 
@@ -110,7 +109,7 @@ namespace BiometricEvaluation {
 			 * @returns
 			 *	true if the name is acceptable, false otherwise.
 			 */
-			static bool validateRootName(
+			bool validateRootName(
 			    const string &name);
 
 			/**
@@ -130,7 +129,7 @@ namespace BiometricEvaluation {
 			 *	true if the named entiry is present in the file
 			 *	system, false otherwise.
 			*/
-			static bool constructAndCheckPath(
+			bool constructAndCheckPath(
 			    const string &name,
 			    const string &parentDir,
 			    string &fullPath);
