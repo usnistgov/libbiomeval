@@ -24,7 +24,7 @@ CP := cp -f
 RM := rm -f
 PWD := $(shell pwd)
 OS := $(shell uname -s)
-ARCH := $(shell arch)
+ARCH := $(shell uname -m)
 CC = gcc
 CXX = g++
 
