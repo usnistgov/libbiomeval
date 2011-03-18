@@ -133,7 +133,7 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &parentDir,
 			    string &fullPath);
-	};
+	}
     }
 }
 #endif	/* __BE_IO_UTILITY_H */
