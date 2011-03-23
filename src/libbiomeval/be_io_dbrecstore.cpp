@@ -67,8 +67,12 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 
 	BTREEINFO bti;
 	setBtreeInfo(&bti);
-	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, 
-	    &bti);
+	if (mode == READWRITE)
+		_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR,
+		    DB_BTREE, &bti);
+	else
+		_db = dbopen(_dbname.c_str(), O_RDONLY, S_IRUSR, DB_BTREE,
+		    &bti);
 	if (_db == NULL)
 		throw Error::StrategyError("Could not open database (" + 
 		    Error::errorStr() + ")");
