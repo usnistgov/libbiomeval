@@ -8,7 +8,7 @@
 # about its quality, reliability, or any other characteristic.
 #
 include ../common.mk
-PROGS = test_construct_be_io_filerecstore test_be_io_filerecordstore test_be_io_dbrecordstore test_be_io_filerecordstore-stress test_be_io_dbrecordstore-stress test_be_io_archiverecordstore-stress test_construct_be_io_archiverecstore test_be_io_archiverecordstore test_be_time_timer test_be_time_watchdog test_be_io_logcabinet test_be_io_properties test_be_io_factory test_be_error_signal_manager test_be_image_rawimage test_be_process_statistics test_be_system test_be_utility_autoarray test_be_text test_be_utility
+PROGS = test_construct_be_io_filerecstore test_be_io_filerecordstore test_be_io_dbrecordstore test_be_io_filerecordstore-stress test_be_io_dbrecordstore-stress test_be_io_archiverecordstore-stress test_construct_be_io_archiverecstore test_be_io_archiverecordstore test_be_time_timer test_be_time_watchdog test_be_io_logcabinet test_be_io_properties test_be_io_factory test_be_error_signal_manager test_be_image_rawimage test_be_process_statistics test_be_system test_be_utility_autoarray test_be_text test_be_utility test_be_framework
 
 all: CXXFLAGS += -g
 all: $(PROGS)
@@ -56,6 +56,8 @@ test_be_utility_autoarray: test_be_utility_autoarray.cpp
 test_be_text: test_be_text.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 test_be_utility: test_be_utility.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+test_be_framework: test_be_framework.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 
 clean:
