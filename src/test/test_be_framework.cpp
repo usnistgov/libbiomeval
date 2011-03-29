@@ -26,6 +26,10 @@ main(int argc, char* argv[])
 	cout << Framework::getCompiler() << " v" <<
 	    Framework::getCompilerVersion() << endl;
 
+	cout << "Date/Time Compiled: ";
+	cout << Framework::getCompileDate() << " " <<
+	    Framework::getCompileTime() << endl;
+
 	return (0);
 }
 

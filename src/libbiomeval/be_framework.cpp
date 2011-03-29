@@ -80,3 +80,15 @@ BiometricEvaluation::Framework::getCompilerVersion()
 	return (version.str());
 }
 
+std::string
+BiometricEvaluation::Framework::getCompileDate()
+{
+	return (__DATE__);
+}
+
+std::string
+BiometricEvaluation::Framework::getCompileTime()
+{
+	return (__TIME__);
+}
+

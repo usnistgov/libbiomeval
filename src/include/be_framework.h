@@ -53,6 +53,28 @@ namespace BiometricEvaluation
 
 		/**
 		 * @brief
+		 * Date when this framework was compiled.
+		 *
+		 * @return
+		 * Date when this framework was compiled, in the form
+		 * "MMM DD YYYY"
+		 */
+		std::string
+		getCompileDate();
+
+		/**
+		 * @brief
+		 * Time when this framework was compiled.
+		 *
+		 * @return
+		 * Time when this framework was compiled, in the form
+		 * "HH:MM:SS"
+		 */
+		std::string
+		getCompileTime();
+
+		/**
+		 * @brief
 		 * Version string of compiler used to compile this framework.
 		 *
 		 * @return
