@@ -20,11 +20,6 @@ all:
 		(cd $$subdir && $(MAKE) all) || exit 1; \
 	done
 
-debug:
-	@for subdir in $(SUBDIRS); do \
-		(cd $$subdir && $(MAKE) debug) || exit 1; \
-	done
-
 clean:
 	@for subdir in $(SUBDIRS); do \
 		(cd $$subdir && $(MAKE) clean) || exit 1; \

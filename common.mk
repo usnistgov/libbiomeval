@@ -51,3 +51,22 @@ endif
 
 CFLAGS := -std=c99 -D$(OS) $(ARCHOPT) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH) $(COMMONLIBOPT) -L$(LOCALLIB) -L$(LIBPATH)
 CXXFLAGS := $(ARCHOPT) -D$(OS) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH) $(COMMONLIBOPT) -L$(LOCALLIB) -L$(LIBPATH)
+
+# Enable debugging symbols when DEBUG=1, true, or yes
+ifdef DEBUG
+	CFLAGS += $(if $(or $(findstring 1, $(DEBUG)), $(findstring true, $(DEBUG))m $(findstring yes, $(DEBUG))),-g)
+	CXXFLAGS += $(if $(or $(findstring 1, $(DEBUG)), $(findstring true, $(DEBUG))m $(findstring yes, $(DEBUG))),-g)
+endif
+
+# Force 64-bit compilation when 64=1, true, or yes
+ifdef 64
+	CFLAGS += $(if $(or $(findstring 1, $(64)), $(findstring true, $(64)), $(findstring yes, $(64))),-m64)
+	CXXFLAGS += $(if $(or $(findstring 1, $(64)), $(findstring true, $(64)), $(findstring yes, $(64))),-m64)
+endif
+
+# Force 32-bit compilation when 32=1, true, or yes
+ifdef 32
+	CFLAGS += $(if $(or $(findstring 1, $(32)), $(findstring true, $(32)), $(findstring yes, $(32))),-m32)
+	CXXFLAGS += $(if $(or $(findstring 1, $(32)), $(findstring true, $(32)), $(findstring yes, $(32))),-m32)
+endif
+
