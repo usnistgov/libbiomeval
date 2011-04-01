@@ -10,6 +10,8 @@
 #ifndef __BE_IO_UTILITY_H
 #define __BE_IO_UTILITY_H
 
+#include <sys/stat.h>
+
 #include <stdint.h>
 
 #include <string>
