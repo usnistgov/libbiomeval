@@ -133,6 +133,24 @@ namespace BiometricEvaluation {
 			    const string &name,
 			    const string &parentDir,
 			    string &fullPath);
+
+			/**
+			 * @brief
+			 * Create an entire directory tree.
+			 * @details
+			 * All intermediate nodes are created if they don't
+			 * exist.
+			 *
+			 * @param path[in]
+			 *	The path to create.
+			 * @param mode[in]
+			 *	The permission mode of each element in the
+			 *	path. See chmod(2).
+			 * @returns
+			 *	0 on success, non-zero otherwise, and errno
+			 *	can be checked.
+			*/
+			int makePath(const string &path, const mode_t mode);
 	}
     }
 }

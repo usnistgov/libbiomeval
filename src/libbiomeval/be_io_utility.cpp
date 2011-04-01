@@ -12,11 +12,15 @@
 #include <sys/types.h>
 
 #include <dirent.h>
+#include <errno.h>
 #include <string.h>
 #include <unistd.h>
 
 #include <be_error.h>
+#include <be_text.h>
 #include <be_io_utility.h>
+
+using namespace BiometricEvaluation;
 
 void
 BiometricEvaluation::IO::Utility::removeDirectory(
@@ -170,4 +174,26 @@ BiometricEvaluation::IO::Utility::constructAndCheckPath(
 		return (true);
 	else
 		return (false);
+}
+
+int
+BiometricEvaluation::IO::Utility::makePath(
+    const string &path,
+    const mode_t mode)
+{
+	if (mkdir(path.c_str(), mode) != 0) {
+		if (errno == ENOENT) {
+			if (makePath(Text::dirname(path), mode) != 0) {
+				return (-1);
+			}
+			if (mkdir(path.c_str(), mode) != 0) {
+				return (-1);
+			}
+		} else if (errno == EEXIST) {
+			return (0);
+		} else {
+			return (-1);
+		}
+	}
+	return (0);
 }
