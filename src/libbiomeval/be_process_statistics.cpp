@@ -332,7 +332,7 @@ BiometricEvaluation::Process::Statistics::callStatistics_logStats()
 }
 
 struct loggerPackage {
-	int interval;
+	uint64_t interval;
 	int flag;
 	Process::Statistics *stat;
 	pthread_mutex_t logMutex;
@@ -359,7 +359,11 @@ autoLogger(void *ptr)
 	struct loggerPackage *lp = (struct loggerPackage *)(ptr);
 	pthread_mutex_lock(&lp->logMutex);
 	Process::Statistics *stat = lp->stat;
-	int interval = lp->interval;
+	/*
+	 * Convert _interval to sec/nsec from usec
+	 */
+	time_t sec = (time_t)(lp->interval / Time::MicrosecondsPerSecond);
+	long nsec = (long)((lp->interval % Time::MicrosecondsPerSecond) * 1000);
 	lp->flag = 1;
 	pthread_cond_signal(&lp->logCond);
 	pthread_mutex_unlock(&lp->logMutex);
@@ -380,8 +384,8 @@ autoLogger(void *ptr)
 		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &type);
 		stat->callStatistics_logStats();
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &type);
-		req.tv_sec = interval;
-		req.tv_nsec = 0;
+		req.tv_sec = sec;
+		req.tv_nsec = nsec;
 
 		/* We use nanosleep(2) to avoid causing signals sometimes
 		 * used by sleep(3).
@@ -394,7 +398,6 @@ autoLogger(void *ptr)
 		if (retval == -1) {
 			while (rem.tv_sec > 0) {
 				req = rem;
-				req.tv_nsec = 0;
 				nanosleep(&req, &rem);
 			}
 		}
@@ -403,7 +406,7 @@ autoLogger(void *ptr)
 
 void
 BiometricEvaluation::Process::Statistics::startAutoLogging(
-    int interval)
+    uint64_t interval)
     throw (Error::ObjectDoesNotExist, Error::ObjectExists,
 	Error::StrategyError, Error::NotImplemented)
 {

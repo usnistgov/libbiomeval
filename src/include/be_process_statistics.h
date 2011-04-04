@@ -173,15 +173,19 @@ namespace BiometricEvaluation {
 			/**
 			 * @brief
 			 * Start logging process statistics automatically,
-			 * in intervals of seconds. The first log entry will
-			 * occur soon after the call to this method as the
-			 * delay interval is invoked after the first entry.
+			 * in intervals of microseconds. The first log entry
+			 * will occur soon after the call to this method as
+			 * the delay interval is invoked after the first entry.
+			 * @note
+			 * It is unrealistic to expect that log entries can
+			 * be made at a rate of one per microsecond.
 			 * @note
 			 * If stopAutoLogging() is called very soon after the
 			 * start, a log entry may not be made.
 			 *
 			 * @param interval[in]
-			 *	The gap between logging snapshots, in seconds.
+			 *	The gap between logging snapshots, in
+			 *	microseconds.
 			 * @throw Error::ObjectDoesNotExist
 			 *	The LogSheet does not exist; this object was
 			 *	not created with LogCabinet object.
@@ -193,7 +197,7 @@ namespace BiometricEvaluation {
 			 *	The statistics gathering is not implemented for
 			 *	this operating system.
 			 */
-			void startAutoLogging(int interval)
+			void startAutoLogging(uint64_t interval)
 			    throw (Error::ObjectDoesNotExist,
 				Error::ObjectExists,
 				Error::StrategyError,

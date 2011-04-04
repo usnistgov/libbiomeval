@@ -83,8 +83,8 @@ BiometricEvaluation::Time::Watchdog::start()
 	/*
 	 * Convert _interval to sec/usec from usec
 	 */
-	sec = (time_t)(_interval / 1000000);
-	usec = (time_t)(_interval % 1000000);
+	sec = (time_t)(_interval / Time::MicrosecondsPerSecond);
+	usec = (time_t)(_interval % Time::MicrosecondsPerSecond);
 	timerclear(&timerval.it_interval);
 	timerval.it_value.tv_sec = sec;
 	timerval.it_value.tv_usec = usec;
