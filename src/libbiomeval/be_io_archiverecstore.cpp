@@ -407,7 +407,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::sequence(
 		    "argument");
 
 	if (_entries.begin() == _entries.end())
-		throw Error::StrategyError("Empty RecordStore");
+		throw Error::ObjectDoesNotExist("Empty RecordStore");
 
 	/* If the current cursor position is START, then it doesn't matter
 	 * what the client requests; we start at the first record.
