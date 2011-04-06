@@ -193,7 +193,7 @@ main(int argc, char *argv[])
 	cout << "Attempting to log asynchronously: " << flush;
 	try {
 		logstats->startAutoLogging(Time::MicrosecondsPerSecond);
-		sleep(1);
+		sleep(6);
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.getInfo() << "; failure." << endl;
 		delete logstats;
