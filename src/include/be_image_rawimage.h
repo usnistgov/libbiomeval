@@ -64,11 +64,6 @@ namespace BiometricEvaluation {
 			/*
 			 * Implementations of the Image interface.
 			 */
-			uint64_t getWidth() const;
-			uint64_t getHeight() const;
-			unsigned int getDepth() const;
-			unsigned int getXResolution() const;
-			unsigned int getYResolution() const;
 			Utility::AutoArray<uint8_t> getRawData() const;
 
 		protected:

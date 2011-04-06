@@ -24,18 +24,6 @@ BiometricEvaluation::Image::RawImage::RawImage(
 
 }
 
-unsigned int
-BiometricEvaluation::Image::RawImage::getXResolution() const
-{
-	return _XResolution;
-}
-
-unsigned int
-BiometricEvaluation::Image::RawImage::getYResolution() const
-{
-	return _YResolution;
-}
-
 BiometricEvaluation::Utility::AutoArray<uint8_t>
 BiometricEvaluation::Image::RawImage::getRawData() const
 {
@@ -43,25 +31,8 @@ BiometricEvaluation::Image::RawImage::getRawData() const
 	return data;
 }
 
-uint64_t
-BiometricEvaluation::Image::RawImage::getWidth() const
-{
-	return _width;
-}
-	
-uint64_t
-BiometricEvaluation::Image::RawImage::getHeight() const
-{
-	return _height;
-}
-
-unsigned int 
-BiometricEvaluation::Image::RawImage::getDepth() const
-{
-	return _depth;
-}
-
 BiometricEvaluation::Image::RawImage::~RawImage()
 {
 
 }
+

@@ -65,7 +65,7 @@ namespace BiometricEvaluation {
 			 * @returns
 			 *	X-resolution (pixel/cm).
 			 */
-			virtual unsigned int getXResolution() const = 0;
+			unsigned int getXResolution() const;
 
 			/**
 			 * Accessor for the Y-resolution of the image 
@@ -74,7 +74,7 @@ namespace BiometricEvaluation {
 			 * @returns
 			 *	Y-resolution (pixel/cm).
 			 */
-			virtual unsigned int getYResolution() const = 0;
+			unsigned int getYResolution() const;
 
 			/**
 			 * Accessor for the raw image data. The data returned
@@ -92,7 +92,7 @@ namespace BiometricEvaluation {
 			 * @returns
 			 * 	Width of image (pixel).
 			 */
-			virtual uint64_t getWidth() const = 0;
+			uint64_t getWidth() const ;
 	
 			/**
 			 * Accessor for the height of the image in pixels.
@@ -100,7 +100,7 @@ namespace BiometricEvaluation {
 			 * @returns
 			 * 	Height of image (pixel).
 			 */
-			virtual uint64_t getHeight() const = 0;
+			uint64_t getHeight() const;
 
 			/**
 			 * Accessor for the color depth of the image in bits.
@@ -108,7 +108,7 @@ namespace BiometricEvaluation {
 			 * @returns
 			 * 	The color depth of the image (bit).
 			 */
-			virtual unsigned int getDepth() const = 0;
+			unsigned int getDepth() const;
 
 			virtual ~Image();
 

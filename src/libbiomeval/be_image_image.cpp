@@ -20,6 +20,41 @@ BiometricEvaluation::Image::Image::Image(uint8_t* data, uint64_t size,
 	memcpy(_data, data, size);
 }
 
+unsigned int
+BiometricEvaluation::Image::Image::getXResolution()
+    const
+{
+	return _XResolution;
+}
+
+unsigned int
+BiometricEvaluation::Image::Image::getYResolution()
+    const
+{
+	return _YResolution;
+}
+
+uint64_t
+BiometricEvaluation::Image::Image::getWidth()
+    const
+{
+	return _width;
+}
+	
+uint64_t
+BiometricEvaluation::Image::Image::getHeight()
+    const
+{
+	return _height;
+}
+
+unsigned int 
+BiometricEvaluation::Image::Image::getDepth()
+    const
+{
+	return _depth;
+}
+
 BiometricEvaluation::Image::Image::~Image()
 {
 
