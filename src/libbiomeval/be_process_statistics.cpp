@@ -54,6 +54,8 @@ struct _pstats {
 typedef struct _pstats PSTATS;
 static const string LogSheetHeader =
     "Entry Usertime Systime RSS VMSize VMPeak VMData VMStack Threads";
+static const string StartAutologComment = "Autolog started. Interval: ";
+static const string StopAutologComment = "Autolog stopped. ";
 
 /*
  * Define a function to be used for Linux, to grab the OS statistics.
@@ -436,7 +438,12 @@ BiometricEvaluation::Process::Statistics::startAutoLogging(
 		    Error::errorStr());
 	}
 
-	/* Synchronize with the logging thread so it can copy the info
+	ostringstream comment;
+	comment << StartAutologComment << lp->interval << " microseconds.";
+	_logSheet->writeComment(comment.str());
+
+	/*
+	 * Synchronize with the logging thread so it can copy the info
 	 * out of the logging package before it is freed.
 	 */
 	pthread_mutex_lock(&lp->logMutex);
@@ -460,6 +467,10 @@ BiometricEvaluation::Process::Statistics::stopAutoLogging()
 	if (retval != 0)
 		throw Error::StrategyError("Cancel of logging thread failed: " +
 		    Error::errorStr());
+
+	ostringstream comment;
+	comment << StopAutologComment;
+	_logSheet->writeComment(comment.str());
 
 	_autoLogging = false;
 }
