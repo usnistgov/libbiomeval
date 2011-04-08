@@ -11,13 +11,13 @@
 #include <be_image_image.h>
 
 BiometricEvaluation::Image::Image::Image(
-    uint8_t *data,
-    uint64_t size,
-    uint64_t width,
-    uint64_t height,
-    unsigned int depth,
-    unsigned int XResolution,
-    unsigned int YResolution) : 
+    const uint8_t *data,
+    const uint64_t size,
+    const uint64_t width,
+    const uint64_t height,
+    const unsigned int depth,
+    const unsigned int XResolution,
+    const unsigned int YResolution) : 
     _width(width),
     _height(height),
     _depth(depth),

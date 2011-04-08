@@ -63,13 +63,13 @@ namespace BiometricEvaluation
 			 *	direction, in pixels-per-centimeter.
 			 */
 			Image(
-			    uint8_t* data,
-			    uint64_t size,
-			    uint64_t width,
-			    uint64_t height,
-			    unsigned int depth, 
-			    unsigned int XResolution,
-			    unsigned int YResolution);
+			    const uint8_t *data,
+			    const uint64_t size,
+			    const uint64_t width,
+			    const uint64_t height,
+			    const unsigned int depth, 
+			    const unsigned int XResolution,
+			    const unsigned int YResolution);
 
 			/**
 		 	 * @brief
@@ -160,17 +160,17 @@ namespace BiometricEvaluation
 
 		private: 
 			/* Image width (pixel) */
-			uint64_t _width;
+			const uint64_t _width;
 			/* Image height (pixel) */
-			uint64_t _height;
+			const uint64_t _height;
 
 			/* Color depth */
-			unsigned int _depth;
+			const unsigned int _depth;
 
 			/* X resolution */
-			unsigned int _XResolution;
+			const unsigned int _XResolution;
 			/* Y resolution */
-			unsigned int _YResolution;
+			const unsigned int _YResolution;
 
 			/* Encoded image data */
 			Utility::AutoArray<uint8_t> _data;

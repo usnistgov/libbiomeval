@@ -12,13 +12,13 @@
 #include <be_utility_autoarray.h>
 
 BiometricEvaluation::Image::RawImage::RawImage(
-    uint8_t* data, 
-    uint64_t size, 
-    uint64_t width,
-    uint64_t height,
-    unsigned int depth,
-    unsigned int XResolution,
-    unsigned int YResolution) : 
+    const uint8_t *data, 
+    const uint64_t size, 
+    const uint64_t width,
+    const uint64_t height,
+    const unsigned int depth,
+    const unsigned int XResolution,
+    const unsigned int YResolution) : 
     Image(data, size, width, height, depth, XResolution, YResolution)
 {
 
