@@ -14,24 +14,18 @@
 #include <be_image_image.h>
 #include <be_utility_autoarray.h>
 
-namespace BiometricEvaluation {
-
-	/**
-	 * @brief
-	 * Image-related classes and functions.
-	 * @details
-	 * @todo Add more detail.
-	 */
-	namespace Image {
+namespace BiometricEvaluation
+{
+	namespace Image
+	{
 		/**
 		 * @brief
-		 * A class representing a raw image.
-		 * @details
-		 * @todo Add more detail.
+		 * An image with no encoding or compression.
 		 */
-		class RawImage : public Image {
+		class RawImage : Image {
 		public:
 			/**
+			 * @brief
 			 * Construct a RawImage object.
 			 *
 			 * @param data[in]
@@ -52,7 +46,7 @@ namespace BiometricEvaluation {
 			 *	direction, in pixels-per-centimeter.
 			 */
 			RawImage(
-			    uint8_t* _data,
+			    uint8_t *_data,
 			    uint64_t size,
 			    uint64_t width,
 			    uint64_t height,
@@ -81,4 +75,3 @@ namespace BiometricEvaluation {
 }
 
 #endif /* __BE_IMAGE_RAWIMAGE_H__ */
-

@@ -10,13 +10,21 @@
 
 #include <be_image_image.h>
 
-BiometricEvaluation::Image::Image::Image(uint8_t* data, uint64_t size,
-    uint64_t width, uint64_t height, unsigned int depth,
-    unsigned int XResolution, unsigned int YResolution) : 
-    _width(width), _height(height), _depth(depth), _XResolution(XResolution),
-    _YResolution(YResolution)
+BiometricEvaluation::Image::Image::Image(
+    uint8_t *data,
+    uint64_t size,
+    uint64_t width,
+    uint64_t height,
+    unsigned int depth,
+    unsigned int XResolution,
+    unsigned int YResolution) : 
+    _width(width),
+    _height(height),
+    _depth(depth),
+    _XResolution(XResolution),
+    _YResolution(YResolution),
+    _data(size)
 {
-	_data = Utility::AutoArray<uint8_t>(size);
 	memcpy(_data, data, size);
 }
 
@@ -24,35 +32,35 @@ unsigned int
 BiometricEvaluation::Image::Image::getXResolution()
     const
 {
-	return _XResolution;
+	return (_XResolution);
 }
 
 unsigned int
 BiometricEvaluation::Image::Image::getYResolution()
     const
 {
-	return _YResolution;
+	return (_YResolution);
 }
 
 uint64_t
 BiometricEvaluation::Image::Image::getWidth()
     const
 {
-	return _width;
+	return (_width);
 }
 	
 uint64_t
 BiometricEvaluation::Image::Image::getHeight()
     const
 {
-	return _height;
+	return (_height);
 }
 
 unsigned int 
 BiometricEvaluation::Image::Image::getDepth()
     const
 {
-	return _depth;
+	return (_depth);
 }
 
 BiometricEvaluation::Utility::AutoArray<uint8_t>
