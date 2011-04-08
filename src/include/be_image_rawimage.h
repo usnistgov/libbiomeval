@@ -22,7 +22,7 @@ namespace BiometricEvaluation
 		 * @brief
 		 * An image with no encoding or compression.
 		 */
-		class RawImage : Image {
+		class RawImage : public Image {
 		public:
 			/**
 			 * @brief
