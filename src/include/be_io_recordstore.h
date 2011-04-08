@@ -42,32 +42,23 @@ namespace BiometricEvaluation {
 		class RecordStore {
 		public:
 			
-			/**
-			 * The name of the control file, a properties list.
-			 */
+			/** The name of the control file, a properties list */
 			static const string CONTROLFILENAME;
 
-			/**
-		 	* Keys used in the Properties list for the RecordStore.
-		 	*
-			* "Name" - The name of the store
-			* "Description" - The description of the store
-			* "Count" - The number of items in the store
-			* "Type" - The type of RecordStore.
-			*/
+			/** Property key for name of the RecordStore */
 			static const string NAMEPROPERTY;
+			/** Property key for description of the RecordStore */
 			static const string DESCRIPTIONPROPERTY;
+			/** Property key for the number of items in the store */
 			static const string COUNTPROPERTY;
+			/** Property key for the type of RecordStore */
 			static const string TYPEPROPERTY;
 
-			/**
-			 * The known RecordStore type strings:
-			 * "BerkeleyDB" - Berkeley database
-			 * "Archive" - Archive file
-			 * "File" - One file per record
-			 */
+			/** DBRecordStore type */
 			static const string BERKELEYDBTYPE;
+			/** ArchiveRecordStore type */
 			static const string ARCHIVETYPE;
+			/** FileRecordStore type */
 			static const string FILETYPE;
 
 			/**
@@ -149,8 +140,8 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Change the name of the RecordStore.
-			 * @param
-			 *	name[in] The new name for the RecordStore.
+			 * @param[in] name
+			 *	The new name for the RecordStore.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or the name is malformed.
@@ -172,9 +163,12 @@ namespace BiometricEvaluation {
 			    throw (Error::StrategyError);
 			
 			/**
-			 * Obtain the amount of real storage utilization, the
-			 * amount of disk space used, for example. This is the
-			 * actual space allocated by the underlying storage
+			 * @brief
+			 * Obtain real storage utilization.
+			 * 
+			 * @details
+			 * The amount of disk space used, for example. This is
+			 * the actual space allocated by the underlying storage
 			 * mechanism, in bytes.
 			 *
 			 * @return
@@ -194,19 +188,19 @@ namespace BiometricEvaluation {
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
-			*/
+			 */
 			virtual void sync()
 			    throw (Error::StrategyError);
 
 			/**
 			 * Insert a record into the store.
 			 *
-			 * @param
-			 *	key[in] The key of the record to be flushed.
-			 * @param
-			 *	data[in] The data for the record.
-			 * @param
-			 *	size[in] The size, in bytes, of the record.
+			 * @param[in] key
+			 *	The key of the record to be flushed.
+			 * @param[in] data
+			 *	The data for the record.
+			 * @param[in] size
+			 *	The size, in bytes, of the record.
 			 * @throw Error::ObjectExists
 			 *	A record with the given key is already
 			 *	present.
@@ -244,13 +238,13 @@ namespace BiometricEvaluation {
 			 *
 			 * @param[in] key
 			 *	The key of the record to be read.
-			 * @paramdata[in]
+			 * @param[in] data
 			 *	Pointer to where the data is to be written.
 			 * @return
 			 * 	The size of the record.
-			 * @throw 	Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
-			 * @throw 	Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */	
@@ -267,6 +261,8 @@ namespace BiometricEvaluation {
 			 *	The key of the record to be replaced.
 			 * @param[in] data
 			 *	The data for the record.
+			 * @param[in] size
+			 *	The size of data.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
 			 * @throw Error::StrategyError
@@ -313,6 +309,10 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
+			/** Tell sequence() to sequence from beginning */
+			static const int BE_RECSTORE_SEQ_START = 1;
+			/** Tell sequence to sequence from current position */
+			static const int BE_RECSTORE_SEQ_NEXT = 2;
 			/**
 			 * Sequence through a RecordStore, returning the
 			 * key/data pairs. Sequencing means to start at some
@@ -340,9 +340,7 @@ namespace BiometricEvaluation {
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
-			*/
-			static const int BE_RECSTORE_SEQ_START = 1;
-			static const int BE_RECSTORE_SEQ_NEXT = 2;
+			 */
 			virtual uint64_t sequence(
 			    string &key,
 			    void *const data = NULL,

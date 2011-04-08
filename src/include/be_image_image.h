@@ -155,24 +155,24 @@ namespace BiometricEvaluation
 			virtual ~Image();
 
 		protected:
-			/* Raw image data, populated on demand */
+			/** Raw image data, populated on demand */
 			mutable Utility::AutoArray<uint8_t> _raw_data;
 
 		private: 
-			/* Image width (pixel) */
+			/** Image width (pixel) */
 			const uint64_t _width;
-			/* Image height (pixel) */
+			/** Image height (pixel) */
 			const uint64_t _height;
 
-			/* Color depth */
+			/** Color depth */
 			const unsigned int _depth;
 
-			/* X resolution */
+			/** X resolution */
 			const unsigned int _XResolution;
-			/* Y resolution */
+			/** Y resolution */
 			const unsigned int _YResolution;
 
-			/* Encoded image data */
+			/** Encoded image data */
 			Utility::AutoArray<uint8_t> _data;
 		};
 	}

@@ -24,27 +24,23 @@
 
 using namespace std;
 
+/** Name of the manifest file on disk */
 const string manifestFileName("manifest");
+/** Name of the archive file on disk */
 const string archiveFileName("archive");
 
 namespace BiometricEvaluation {
 
 	namespace IO {
-		/*
-		 * A struct to hold information about a single element in an 
-		 * archive.
-		 *
-		 * offset:	The offset from the beginning of the file/memory
-		 * size:	The length from offset this element spans
-		 */
+		/** Info about a single archive element */
 		typedef struct {
+			/** The offset from the beginning of the file/memory */
 			long offset;
+			/** The length from offset this element spans */
 			uint64_t size;
 		} ManifestEntry;
 	
-		/*
-		 * Convenience typedef for storing the manifest
-		 */
+		/** Convenience typedef for storing the manifest */
 		typedef map<string, ManifestEntry> ManifestMap;
 	
 /**
@@ -264,10 +260,9 @@ namespace BiometricEvaluation {
 			ArchiveRecordStore(const ArchiveRecordStore&);
 			ArchiveRecordStore& operator=(const ArchiveRecordStore&);
 
-			/*
-			 * The manifest and archive file handles.
-			 */
+			/** Manifest file handle */
 			FILE *_manifestfp;
+			/** Archive file handle */
 			FILE *_archivefp;
 	
 			/*
@@ -275,83 +270,102 @@ namespace BiometricEvaluation {
 			 */
 			ManifestMap _entries;
 	
-			/*
-			 * Position of iterator (for sequence())
-			 */
+			/** Position of iterator (for sequence()) */
 			ManifestMap::const_iterator _cursorPos;
 
-			/*
+			/**
 			 * Whether or not the ArchiveRecordStore contains a 
 			 * deleted entry and would benefit from vacuum().
 			 */
 			bool _dirty;
 			
-			/*
+			/**
 			 * Read the manifest.
 			 */
 			void read_manifest() throw (Error::FileError);
 		
-			/*
+			/**
+			 * @brief
 			 * Write to the manifest.
 			 *
-			 * Parameters:
-			 *	key	A unique key for the data chunk
-			 *	record	Information about key, populated by 
-			 *		caller.
+			 * @param[in] key
+			 *	A unique key for the data chunk
+			 * @param[in] record
+			 *	Information about key, populated by caller
 			 *
-			 * Return:
-			 * 	0	Success
-			 *	-1	Failure
+			 * @return
+			 * 	0 on success, -1 on failure
+			 *
+			 * @throw Error::StrategyError
+			 *	Problem with storage system
 			 */
-			void write_manifest_entry(
+			void
+			write_manifest_entry(
 			    const string &key, 
 			    ManifestEntry entry)
 			    throw (Error::StrategyError);
 	
-			/* 
+			/**
+			 * @brief
 			 * Open the manifest and archive file streams
+			 *
+			 * @throw Error::FileError
+			 *	Unable to open streams
 			 */
-			void open_streams()
+			void
+			open_streams()
 			    throw (Error::FileError);
 	
-			/*
+			/**
+			 * @brief
 			 * Close the manifest and archive file streams
+			 *
+			 * @throw Error::StrategyError
+			 *	Unable to close streams
 			 */
-			void close_streams()
+			void
+			close_streams()
 			    throw (Error::StrategyError);
 	
-			/*
+			/**
+			 * @brief
 			 * Use the most efficient method for inserting an item
 			 * into a map.
 			 *
-			 * Parameters:
-			 *	m	Map to modify
-			 *	k	The key value
-			 *	v	The value relating to the key
+			 * @param[in] m
+			 *	Map to modify
+			 * @param[in] k
+			 *	The key value
+			 * @param[in] v
+			 *	The value relating to the key
 			 *
-			 * Return:
+			 * @return
 			 *	Iterator to the object you inserted/updated
 			 *
+			 * @note
 			 * Based on Scott Meyers's suggestions from Item 24 in
 			 * "Effective STL."
 			 */
-			ManifestMap::iterator efficient_insert(
+			ManifestMap::iterator
+			efficient_insert(
 			    ManifestMap &m,
 			    const ManifestMap::key_type &k,
 			    const ManifestMap::mapped_type &v);
 	
-			/*
+			/**
+			 * @brief
 			 * Check to see if a key exists in the manifest's map
 			 *
-			 * Parameters:
-			 *	m	Map to check
-			 *	k	The key to look for
+			 * @param[in] m
+			 *	Map to check
+			 * @param[in] k
+			 *	The key to look for
 			 *
-			 * Return:
-			 *	true	Key exists
-			 *	false	Key does not exist
+			 * @return
+			 *	true if key exists, otherwise false
 			 */
-			bool key_exists(
+			bool
+			key_exists(
 			    ManifestMap &m,
 			    const ManifestMap::key_type &k);
 		};
