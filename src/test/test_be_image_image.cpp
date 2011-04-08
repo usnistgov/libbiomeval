@@ -39,6 +39,60 @@ static unsigned int _XResolution = 28;
 static unsigned int _YResolution = 28;
 static string filename("raw_img_test");
 
+/* Read/write buffer and compare byte-by-byte to some original buffer */
+int
+rw_diff(
+    Utility::AutoArray<uint8_t> data,
+    uint8_t *orig_data,
+    uint64_t orig_sz)
+{
+	FILE *fp = fopen(filename.c_str(), "w");
+	if (fp == NULL) {
+		cerr << "Could not open " << filename << " for writing" << endl;
+		return (EXIT_FAILURE);
+	}
+	if (fwrite(data, 1, data.size(), fp) != orig_sz) {
+		cerr << "Could not write " << filename << endl;
+		return (EXIT_FAILURE);
+	} else {
+		cout << "Wrote " << filename << endl;
+		fclose(fp);
+		fp == NULL;
+		fp = fopen(filename.c_str(), "r");
+		if (fp == NULL) {
+			cerr << "Could not reopen " << filename << endl;
+			return (EXIT_FAILURE);
+		} else {
+			uint8_t buf[16];
+			if (fread(buf, 1, orig_sz, fp) != orig_sz) {
+			    	cerr << filename << " is wrong size" << endl;
+				fclose(fp);
+				return (EXIT_FAILURE);
+			} else {
+				bool valid = true;
+				for (int i = 0; i < orig_sz; i++)
+					if (data[i] != orig_data[i])
+						valid = false;
+				if (valid)
+					cout << filename << " matches" << endl;
+				else {
+					cout << filename << " has errors" <<
+					    endl;
+					fclose(fp);
+					return (EXIT_FAILURE);
+				}
+				
+					   
+				fclose(fp);
+				if (unlink(filename.c_str()) == 0)
+					cout << "Removed " << filename << endl;
+			}
+		}
+	}
+
+	return (EXIT_SUCCESS);
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -70,46 +124,10 @@ main(int argc, char* argv[])
 	if (_YResolution != image->getYResolution())
 		cerr << "\tError in YResolution" << endl;
 
-	FILE *fp = fopen(filename.c_str(), "w");
-	if (fp == NULL)
-		cerr << "Could not open " << filename << " for writing" << endl;
-	else {
-		Utility::AutoArray<uint8_t> rawData = image->getRawData();
-		if (fwrite(rawData, 1, rawData.size(), fp) != _size)
-			cerr << "Could not write " << filename << endl;
-		else {
-			cout << "Wrote " << filename << endl;
-			fclose(fp);
-			fp == NULL;
-			fp = fopen(filename.c_str(), "r");
-			if (fp == NULL)
-				cerr << "Could not reopen " << filename << endl;
-			else {
-				uint8_t buf[16];
-				if (fread(buf, 1, _size, fp) != _size)
-				    	cerr << filename << " is wrong size" <<
-					    endl;
-				else {
-					bool valid = true;
-					for (int i = 0; i < _size; i++)
-						if (rawData[i] != _rawImg[i])
-							valid = false;
-					if (valid)
-						cout << filename << 
-						    " matches" << endl;
-					else
-						cout << filename <<
-						    " has errors" << endl;
-						   
-					fclose(fp);
-					if (!unlink(filename.c_str()))
-						cout << "Removed " << 
-						    filename << endl;
-				}
-			}
-		}
-
-	}
+	if (rw_diff(image->getRawData(), _rawImg, _size) != EXIT_SUCCESS)
+		cerr << "\tError in getRawData()" << endl;
+	if (rw_diff(image->getData(), _rawImg, _size) != EXIT_SUCCESS)
+		cerr << "\tError in getData()" << endl;
 
 	return (EXIT_SUCCESS);
 }

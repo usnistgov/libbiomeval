@@ -25,9 +25,17 @@ BiometricEvaluation::Image::RawImage::RawImage(
 }
 
 BiometricEvaluation::Utility::AutoArray<uint8_t>
-BiometricEvaluation::Image::RawImage::getRawData() const
+BiometricEvaluation::Image::RawImage::getData()
+    const
 {
-	return _data;
+	return (Image::getData());
+}
+
+BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Image::RawImage::getRawData()
+    const
+{
+	return (Image::getData());
 }
 
 BiometricEvaluation::Image::RawImage::~RawImage()

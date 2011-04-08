@@ -55,6 +55,13 @@ BiometricEvaluation::Image::Image::getDepth()
 	return _depth;
 }
 
+BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Image::Image::getData()
+    const
+{
+	return (_data);
+}
+
 BiometricEvaluation::Image::Image::~Image()
 {
 

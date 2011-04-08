@@ -64,7 +64,13 @@ namespace BiometricEvaluation {
 			/*
 			 * Implementations of the Image interface.
 			 */
-			Utility::AutoArray<uint8_t> getRawData() const;
+			Utility::AutoArray<uint8_t>
+			getData()
+			    const;
+
+			Utility::AutoArray<uint8_t>
+			getRawData()
+			    const;
 
 		protected:
 

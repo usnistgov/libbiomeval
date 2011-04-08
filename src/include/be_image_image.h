@@ -77,13 +77,25 @@ namespace BiometricEvaluation {
 			unsigned int getYResolution() const;
 
 			/**
+			 * Accessor for the image data. The data returned
+			 * is likely encoded in a specialized format.
+			 * 
+			 * @returns
+			 *	Image data.
+			 */
+			Utility::AutoArray<uint8_t>
+			getData() 
+			    const;
+
+			/**
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
 			 * 
 			 * @returns
 			 *	Raw image data.
 			 */
-			virtual Utility::AutoArray<uint8_t> getRawData() 
+			virtual Utility::AutoArray<uint8_t>
+			getRawData() 
 			    const = 0;
 
 			/**
@@ -113,6 +125,10 @@ namespace BiometricEvaluation {
 			virtual ~Image();
 
 		protected:
+			/* Raw image data, populated on demand */
+			mutable Utility::AutoArray<uint8_t> _raw_data;
+
+		private: 
 			/* Image width (pixel) */
 			uint64_t _width;
 			/* Image height (pixel) */
@@ -126,11 +142,8 @@ namespace BiometricEvaluation {
 			/* Y resolution */
 			unsigned int _YResolution;
 
-			/* Raw image data */
+			/* Encoded image data */
 			Utility::AutoArray<uint8_t> _data;
-
-		private:
-
 		};
 	}
 }
