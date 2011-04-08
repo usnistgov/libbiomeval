@@ -77,11 +77,11 @@ namespace BiometricEvaluation {
 			/**
 			 * Create a new ArchiveRecordStore, read/write mode.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the store.
-			 * @param description[in]
+			 * @param[in] description
 			 *	The store's description.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 * 	The directory where the store is to be created.
 			 *
 			 * @throw Error::ObjectExists
@@ -99,11 +99,11 @@ namespace BiometricEvaluation {
 			/**
 			 * Open an existing ArchiveRecordStore.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the store.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 * 	The directory where the store is to be created.
-			 * @param mode[in]
+			 * @param[in] mode
 			 *	Open mode, read-only or read-write.
 			 *
 			 * @throw Error::ObjectDoesNotExist
@@ -198,9 +198,9 @@ namespace BiometricEvaluation {
 			 * calling vacuum() to remove deleted entries, since
 			 * vacuum() is an expensive operation.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the existing RecordStore.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the filesystem, the store is rooted.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record with the given key does not exist.
@@ -221,9 +221,9 @@ namespace BiometricEvaluation {
 			 * Remove deleted entries from the manifest and 
 			 * archive files to save space on disk.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the existing RecordStore.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the store is rooted.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record with the given key does not exist.

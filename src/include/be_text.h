@@ -39,9 +39,9 @@ namespace BiometricEvaluation {
 		 * @brief
 		 * Compute the digest of a string.
 		 *
-		 * @param s[in]
+		 * @param[in] s
 		 * 	The string of which a digest should be computed.
-		 * @param digest[in]
+		 * @param[in] digest
 		 *	The digest to use.  Any digest supported by OpenSSL
 		 *	is valid, and the default is MD5.
 		 *
@@ -60,9 +60,9 @@ namespace BiometricEvaluation {
 		 * Return tokens bound by delimiters and the beginning and end
 		 * of a string.
 		 * 
-		 * @param str[in]
+		 * @param[in] str
 		 *	String to tokenize.
-		 * @param delimiter[in]
+		 * @param[in] delimiter
 		 *	Character that defines the end of a token.
 		 * 
 		 * @return
@@ -79,7 +79,7 @@ namespace BiometricEvaluation {
 		 * @brief
 		 * Extract the filename portion of a pathname.
 		 *
-		 * @param path[in]
+		 * @param[in] path
 		 *	Path from which to extract the filename portion.
 		 *
 		 * @return
@@ -93,7 +93,7 @@ namespace BiometricEvaluation {
 		 * @brief
 		 * Extract the directory part of a pathname.
 		 *
-		 * @param path[in]
+		 * @param[in] path
 		 *	Path from which to extract the directory portion.
 		 *
 		 * @return

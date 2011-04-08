@@ -77,13 +77,13 @@ namespace BiometricEvaluation {
 			 * @brief
 			 * Create a new log sheet.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the LogSheet to be created.
-			 * @param description[in]
+			 * @param[in] description
 			 *	The text used to describe the sheet.
 			 *	This text is written into the log file
 			 *	prior to any entries.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the sheet is to
 			 *	be stored. This directory must exist.
 			 * @return
@@ -108,9 +108,9 @@ namespace BiometricEvaluation {
 			 * @note
 			 * Opening a large LogSheet may be a costly operation.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the LogSheet to be opened.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the sheet is stored.
 			 * @return
 			 *	An object representing the existing log sheet.
@@ -132,7 +132,7 @@ namespace BiometricEvaluation {
 			 * does not affect the current log entry buffer, but
 			 * does increment the entry number.
 			 *
-			 * @param entry[in]
+			 * @param[in] entry
 			 *	The text of the log entry.
 			 *
 			 * @throw Error::StrategyError
@@ -149,7 +149,7 @@ namespace BiometricEvaluation {
 			 * line is prefixed with CommentDelimiter followed by
 			 * a space by this method.
 			 *
-			 * @param comment[in]
+			 * @param[in] comment
 			 *	The text of the comment.
 			 *
 			 * @throw Error::StrategyError
@@ -237,11 +237,11 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Create a new LogCabinet in the file system.
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the LogCabinet to be created.
-			 * @param description[in]
+			 * @param[in] description
 			 *	The text used to describe the cabinet.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the cabinet is to
 			 *	be stored. This directory must exist.
 			 * @return
@@ -261,11 +261,11 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Open an existing LogCabinet.
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the LogCabinet to be created.
-			 * @param description[in]
+			 * @param[in] description
 			 *	The text used to describe the cabinet.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the cabinet is to
 			 *	be stored. This directory must exist.
 			 * @return
@@ -287,13 +287,13 @@ namespace BiometricEvaluation {
 			/**
 			 * Create a new LogSheet within the LogCabinet.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the LogSheet to be created.
-			 * @param description[in]
+			 * @param[in] description
 			 *	The text used to describe the sheet.
 			 *	This text is written into the log file
 			 *	prior to any entries.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the sheet is to
 			 *	be stored. This directory must exist.
 			 * @return
@@ -336,9 +336,9 @@ namespace BiometricEvaluation {
 			/**
 			 * Remove a LogCabinet.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the LogCabinet to be removed.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the sheet is to
 			 *	be stored. This directory must exist.
 			 *

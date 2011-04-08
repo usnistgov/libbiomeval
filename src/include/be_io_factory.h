@@ -39,11 +39,11 @@ namespace BiometricEvaluation {
 			 * when the returned pointer goes out of scope.
 			 * Applications should not delete the object.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the store to be opened.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the store is rooted.
-			 * @param mode[in]
+			 * @param[in] mode
 			 *	The type of access a client of this 
 			 *	RecordStore has.
 			 * @return
@@ -70,13 +70,13 @@ namespace BiometricEvaluation {
 			 * when the returned pointer goes out of scope.
 			 * Applications should not delete the object.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the store to be created.
-			 * @param description[in]
+			 * @param[in] description
 			 *	The description of the store to be created.
-			 * @param type[in]
+			 * @param[in] type
 			 *	The type of the store to be created.
-			 * @param destDir[in]
+			 * @param[in] destDir
 			 *	Where, in the file system, the store will be 
 			 *	created.
 			 * @return

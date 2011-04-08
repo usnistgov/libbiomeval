@@ -28,11 +28,11 @@ namespace BiometricEvaluation {
 		 * @brief
 		 * Compute the digest of a string.
 		 *
-		 * @param buffer[in]
+		 * @param[in] buffer
 		 * 	The buffer of which a digest should be computed.
-		 * @param buffer_size[in]
+		 * @param[in] buffer_size
 		 *	The size of buffer.
-		 * @param digest[in]
+		 * @param[in] digest
 		 *	The digest to use.  Any digest supported by OpenSSL
 		 *	is valid, and the default is MD5.
 		 *

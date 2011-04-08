@@ -39,11 +39,11 @@ namespace BiometricEvaluation {
 			/**
 			 * Create a new FileRecordStore, read/write mode.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the store.
-			 * @param description[in]
+			 * @param[in] description
 			 *	The store's description.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	The directory where the store is to be created.
 			 * @throw  Error::ObjectExists
 			 *	The store already exists.
@@ -60,11 +60,11 @@ namespace BiometricEvaluation {
 			/**
 			 * Open an existing FileRecordStore.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the store.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	The directory where the store is to be created.
-			 * @param mode[in]
+			 * @param[in] mode
 			 *	Open mode, read-only or read-write.
 			 *
 			 * @throw Error::ObjectDoesNotExist

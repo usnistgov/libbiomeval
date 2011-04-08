@@ -18,29 +18,30 @@
 #include <be_error_exception.h>
 using namespace std;
 
-namespace BiometricEvaluation {
-    namespace IO {
-
-/**
- * A class containing utility functions used for IO operations. These
- * functions are class methods.
- */
-	namespace Utility {
+namespace BiometricEvaluation
+{
+	namespace IO
+	{
+		/**
+		 * A class containing utility functions used for IO operations.
+		 * These functions are class methods.
+	 	 */
+		namespace Utility {
 			
 			/**
 			 * Remove a directory.
 			 *
-			 * @param directory[in]
+			 * @param[in] directory
 			 *	The name of the directory to be removed,
 			 *	without a preceding path.
-			 * @param prefix[in]
+			 * @param[in] prefix
 			 *	The path leading to the directory.
 			 * @throw Error::ObjectDoesNotExist
 			 *	The named directory does not exist.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or the directoy name or
-			* 	prefix is malformed.
+			 * 	prefix is malformed.
 			 */
 			void removeDirectory(
 			    const string &directory,
@@ -51,7 +52,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Get the size of a file.
 			 *
-			 * @param pathname[in]
+			 * @param[in] pathname
 			 *	The name of the file to be sized; can be
 			 *	a complete path.
 			 * @return
@@ -70,7 +71,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Indicate whether a file exists.
 			 *
-			 * @param pathname[in]
+			 * @param[in] pathname
 			 *	The name of the file to be checked; can be
 			 *	a complete path.
 			 * @return
@@ -86,7 +87,7 @@ namespace BiometricEvaluation {
 			/*
 			 * Indicate whether a path points to a directory.
 			 *
-			 * @param pathname[in]
+			 * @param[in] pathname
 			 *	The path to be checked
 			 * @return
 			 * 	true if the path is a dir, false otherwise.
@@ -106,7 +107,7 @@ namespace BiometricEvaluation {
 			 * system. Notably, name cannot contain path name
 			 * separators ('/' and '\') or begin with whitespace.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The proposed name for the entity.
 			 * @return
 			 *	true if the name is acceptable, false otherwise.
@@ -118,19 +119,19 @@ namespace BiometricEvaluation {
 			 * Construct a full path for a rooted entity, and
 			 * return true if that path exists; false otherwise.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The proposed name for the entity; cannot
 			 *	be a pathname.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	The name of the directory to contain the entity.
-			 * @param fullPath[out]
+			 * @param[out] fullPath
 			 *	The complete path to the new entity, when
 			 *	when true is returned; ambiguous when
 			 *	false is returned.
 			 * @return
 			 *	true if the named entiry is present in the file
 			 *	system, false otherwise.
-			*/
+			 */
 			bool constructAndCheckPath(
 			    const string &name,
 			    const string &parentDir,
@@ -143,17 +144,17 @@ namespace BiometricEvaluation {
 			 * All intermediate nodes are created if they don't
 			 * exist.
 			 *
-			 * @param path[in]
+			 * @param[in] path
 			 *	The path to create.
-			 * @param mode[in]
+			 * @param[in] mode
 			 *	The permission mode of each element in the
 			 *	path. See chmod(2).
 			 * @return
 			 *	0 on success, non-zero otherwise, and errno
 			 *	can be checked.
-			*/
+			 */
 			int makePath(const string &path, const mode_t mode);
+		}
 	}
-    }
 }
 #endif	/* __BE_IO_UTILITY_H */

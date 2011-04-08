@@ -73,13 +73,13 @@ namespace BiometricEvaluation {
 			/**
 			 * Constructor to create a new RecordStore.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the RecordStore to be created.
-			 * @param description[in]
+			 * @param[in] description
 			 *	The text used to describe the store.
-			 * @param type[in]
+			 * @param[in] type
 			 *	The type of RecordStore.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the store is to
 			 *	be rooted. This directory must exist.
 			 * @return
@@ -100,11 +100,11 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Constructor to open an existing RecordStore.
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the store to be opened.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the store is rooted.
-			 * @param mode[in]
+			 * @param[in] mode
 			 *	The type of access a client of this 
 			 *	RecordStore has.
 			 * @return
@@ -161,7 +161,7 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Change the description of the RecordStore.
-			 * @param description[in]
+			 * @param[in] description
 			 *	The new description.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
@@ -224,7 +224,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Remove a record from the store.
 			 *
-			 * @param key[in]
+			 * @param[in] key
 			 * 	The key of the record to be removed.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
@@ -242,7 +242,7 @@ namespace BiometricEvaluation {
 			 * are responsible for allocating storage for the
 			 * record's data.
 			 *
-			 * @param key[in]
+			 * @param[in] key
 			 *	The key of the record to be read.
 			 * @paramdata[in]
 			 *	Pointer to where the data is to be written.
@@ -263,9 +263,9 @@ namespace BiometricEvaluation {
 			/**
 			 * Replace a complete record in a store.
 			 *
-			 * @param key[in]
+			 * @param[in] key
 			 *	The key of the record to be replaced.
-			 * @param data[in]
+			 * @param[in] data
 			 *	The data for the record.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
@@ -283,7 +283,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Return the length of a record.
 			 *
-			 * @param key[in]
+			 * @param[in] key
 			 *	The key of the record.
 			 * @return
 			 *	The record length.
@@ -300,7 +300,7 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Commit the record's data to storage.
-			 * @param key[in]
+			 * @param[in] key
 			 *	The key of the record to be flushed.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
@@ -324,13 +324,13 @@ namespace BiometricEvaluation {
 			 * can be reset by calling this method with the
 			 * cursor parameter set to BE_RECSTORE_SEQ_START.
 			 *
-			 * @param key[out]
+			 * @param[out] key
 			 *	The key of the currently sequenced record.
-			 * @param data[in]
+			 * @param[in] data
 			 *	Pointer to where the data is to be written.
 			 *	Applications can set data to NULL to indicate
 			 *	only the key is wanted.
-			 * @param cursor[in]
+			 * @param[in] cursor
 			 *	The location within the sequence of the
 			 *	key/data pair to return.
 			 * @return
@@ -356,7 +356,7 @@ namespace BiometricEvaluation {
 			 * will be the first record returned from the next
 			 * call to sequence().
 			 *
-			 * @param key[in]
+			 * @param[in] key
 			 *	The key of the record which will be returned
 			 *	by the first subsequent call to sequence().
 			 *
@@ -375,9 +375,9 @@ namespace BiometricEvaluation {
 			 * Remove a RecordStore by deleting all persistant
 			 * data associated with the store.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name of the existing RecordStore.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the store is rooted.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record with the given key does not exist.
@@ -395,21 +395,21 @@ namespace BiometricEvaluation {
 			 * Create a new RecordStore that contains the contents
 			 * of several RecordStores.
 			 *
-			 * @param mergedName[in]
+			 * @param[in] mergedName
 			 *	The name of the new RecordStore that will be
 			 *	created.
-			 * @param mergedDescription[in]
+			 * @param[in] mergedDescription
 			 *	The text used to describe the RecordStore.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the new store should
 			 *	be rooted.
-			 * @param type[in]
+			 * @param[in] type
 			 *	The type of RecordStore that mergedName should
 			 *	be.
-			 * @param recordStores[in]
+			 * @param[in] recordStores
 			 *	An array of RecordStore* that should be merged
 			 *	into mergedName.
-			 * @param numRecordStores[in]
+			 * @param[in] numRecordStores
 			 *	The number of RecordStore* in recordStores.
 			 * @throw Error::ObjectExists
 			 *	A RecordStore with mergedNamed in parentDir
@@ -431,22 +431,22 @@ namespace BiometricEvaluation {
 			 * Create a new RecordStore that contains the contents
 			 * of several RecordStores.
 			 *
-			 * @param mergedName[in]
+			 * @param[in] mergedName
 			 *	The name of the new RecordStore that will be
 			 *	created.
-			 * @param mergedDescription[in]
+			 * @param[in] mergedDescription
 			 *	The text used to describe the RecordStore.
-			 * @param parentDir[in]
+			 * @param[in] parentDir
 			 *	Where, in the file system, the new store should
 			 *	be rooted.
-			 * @param type[in]
+			 * @param[in] type
 			 *	The type of RecordStore that mergedName should
 			 *	be.
-			 * @param recordStores[in]
+			 * @param[in] recordStores
 			 *	An array of RecordStore shared pointers, such
 			 *	as those returned from IO::Factory, that 
 			 *	should be merged into mergedName.
-			 * @param numRecordStores[in]
+			 * @param[in] numRecordStores
 			 *	The number of RecordStore* in recordStores.
 			 * @throw Error::ObjectExists
 			 *	A RecordStore with mergedNamed in parentDir

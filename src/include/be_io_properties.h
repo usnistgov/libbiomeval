@@ -59,11 +59,11 @@ namespace BiometricEvaluation {
 			 * or to be created properties file. The constructor
 			 * will create the file when it does not exist.
 			 *
-			 * @param filename[in]
+			 * @param[in] filename
 			 *	The name of the file to store the properties.
 			 *	This can be the empty string, meaning the
 			 *	properties are to be stored in memory only.
-			 * @param mode[in]
+			 * @param[in] mode
 			 * 	The read/write mode of the object.
 			 *
 			 * @return
@@ -88,9 +88,9 @@ namespace BiometricEvaluation {
 			 * its value will be replaced with the new value;
 			 * otherwise, the property will be created.
 			 *
-			 * @param property[in]
+			 * @param[in] property
 			 *	The name of the property to set.
-			 * @param value[in]
+			 * @param[in] value
 			 *	The value associated with the property.
 			 * @throw Error::StrategyError
 			 *	The Properties object is read-only.
@@ -107,9 +107,9 @@ namespace BiometricEvaluation {
 			 * value will be replaced with the new value; otherwise
 			 * the property will be created.
 			 *
-			 * @param property[in]
+			 * @param[in] property
 			 *	The name of the property to set.
-			 * @param value[in]
+			 * @param[in] value
 			 *	The value associated with the property.
 			 * @throw Error::StrategyError
 			 *	The Properties object is read-only.
@@ -122,7 +122,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Remove a property.
 			 *
-			 * @param property[in]
+			 * @param[in] property
 			 *	The name of the property to set.
 			 *
 			 * @throw Error::ObjectDoesNotExist
@@ -138,7 +138,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Retrieve a property value as a string object.
 			 *
-			 * @param property[in]
+			 * @param[in] property
 			 *	The name of the property to get.
 			 *
 			 * @throw Error::ObjectDoesNotExist
@@ -154,7 +154,7 @@ namespace BiometricEvaluation {
 			 * either decimal or hexadecimal values, which must be
 			 * preceded with either "0x" or "0X".
 			 *
-			 * @param property[in]
+			 * @param[in] property
 			 *	The name of the property to get.
 			 *
 			 * @throw Error::ObjectDoesNotExist
@@ -192,7 +192,7 @@ namespace BiometricEvaluation {
 			 * No check is made that the file is writeable at this
 			 * time.
 			 *
-			 * @param filename[in]
+			 * @param[in] filename
 			 *	The name of the properties file.
 			 * @throw Error::StrategyError
 			 *	The object is read-only.

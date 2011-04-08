@@ -76,7 +76,7 @@ namespace BiometricEvaluation {
 				 * @brief
 				 * Indexing operator overload.
 				 *
-				 * @param i[in]
+				 * @param[in] i
 				 * 	Index
 				 *
 				 * @return
@@ -87,7 +87,7 @@ namespace BiometricEvaluation {
 				 * @brief
 				 * Const indexing operator overload.
 				 *
-				 * @param i[in]
+				 * @param[in] i
 				 * 	Index
 				 *
 				 * @return
@@ -100,7 +100,7 @@ namespace BiometricEvaluation {
 				 * Assignment operator overload performing a
 				 * deep copy.
 				 * 
-				 * @param other[in]
+				 * @param[in] other
 				 *	AutoArray to be copied
 				 *
 				 * @return
@@ -196,7 +196,7 @@ namespace BiometricEvaluation {
 				 * @brief
 				 * Construct an AutoArray.
 				 * 
-				 * @param size[in]
+				 * @param[in] size
 				 *	The number of elements this AutoArray
 				 *	should hold.
 				 */
@@ -206,7 +206,7 @@ namespace BiometricEvaluation {
 				 * @brief
 				 * Construct an AutoArray.
 				 * 
-				 * @param copy[in]
+				 * @param[in] copy
 				 *	An AutoArray whose contents will be 
 				 *	deep copied into the new AutoArray.
 				 */

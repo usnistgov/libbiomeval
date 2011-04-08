@@ -44,7 +44,7 @@ namespace BiometricEvaluation {
 				 * Construct an Exception object with
 				 * an information string.
 				 *
-				 * @param info[in]
+				 * @param[in] info
 				 *	The information string associated
 				 *	with the exception.
 				 * @return

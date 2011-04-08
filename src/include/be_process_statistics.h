@@ -48,7 +48,7 @@ namespace BiometricEvaluation {
 			 * Construct a Statistics object with the associated
 			 * LogCabinet.
 			 *
-			 * @param logCabinet[in]
+			 * @param[in] logCabinet
 			 * 	The LogCabinet obejct where this object will
 			 * 	create a LogSheet to contain the statistic
 			 *	information for the process.
@@ -77,9 +77,9 @@ namespace BiometricEvaluation {
 			 * This method may not be implemented in all operating
 			 * systems.
 			 *
-			 * @param usertime[out]
+			 * @param[out] usertime
 			 *	Pointer where to store the total user time.
-			 * @param systemtime[out]
+			 * @param[out] systemtime
 			 *	Pointer where to store the total system time.
 			 *
 			 * @throw Error::StrategyError
@@ -104,19 +104,19 @@ namespace BiometricEvaluation {
 			 * This method may not be implemented in all operating
 			 * systems.
 			 *
-			 * @param vmrss[out]
+			 * @param[out] vmrss
 			 *	Pointer where to store the current resident
 			 *	set size.
-			 * @param vmsize[out]
+			 * @param[out] vmsize
 			 *	Pointer where to store the current total
 			 *	virtual memory size.
-			 * @param vmpeak[out]
+			 * @param[out] vmpeak
 			 *	Pointer where to store the peak total
 			 *	virtual memory size.
-			 * @param vmdata[out]
+			 * @param[out] vmdata
 			 *	Pointer where to store the current virtual
 			 *	memory data segment size.
-			 * @param vmstack[out]
+			 * @param[out] vmstack
 			 *	Pointer where to store the current virtual
 			 *	memory stack segment size.
 			 *
@@ -183,7 +183,7 @@ namespace BiometricEvaluation {
 			 * If stopAutoLogging() is called very soon after the
 			 * start, a log entry may not be made.
 			 *
-			 * @param interval[in]
+			 * @param[in] interval
 			 *	The gap between logging snapshots, in
 			 *	microseconds.
 			 * @throw Error::ObjectDoesNotExist

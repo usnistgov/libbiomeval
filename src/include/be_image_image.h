@@ -45,20 +45,20 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Parent constructor for all Image classes.
 			 *
-			 * @param data[in]
+			 * @param[in] data
 			 *	The image data.
-			 * @param size[in]
+			 * @param[in] size
 			 *	The size of the image data, in bytes.
-			 * @param width[in]
+			 * @param[in] width
 			 *	The width of the image, in pixels.
-			 * @param height[in]
+			 * @param[in] height
 			 *	The height of the image, in pixels.
-			 * @param depth[in]
+			 * @param[in] depth
 			 *	The image depth, in bits-per-pixel.
-			 * @param XResolution[in]
+			 * @param[in] XResolution
 			 *	The resolution of the image in the horizontal
 			 *	direction, in pixels-per-centimeter.
-			 * @param YResolution[in]
+			 * @param[in] YResolution
 			 *	The resolution of the image in the horizontal
 			 *	direction, in pixels-per-centimeter.
 			 */

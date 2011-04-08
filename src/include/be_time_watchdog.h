@@ -103,7 +103,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Construct a new Watchdog object.
 			 *
-			 * @param type[in]
+			 * @param[in] type
 			 *	 The type of timer, ProcessTime or RealTime.
 			 *
 			 * @return
@@ -122,7 +122,7 @@ namespace BiometricEvaluation {
 			 * resolution of the system clock, and may not be at
 			 * microsecond resolution.
 			 *
-			 * @param interval[in]
+			 * @param[in] interval
 			 *	The timer interval, in microseconds.
 			 */
 			void setInterval(uint64_t interval);
