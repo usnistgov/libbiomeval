@@ -36,7 +36,7 @@ namespace BiometricEvaluation {
 		 *	The digest to use.  Any digest supported by OpenSSL
 		 *	is valid, and the default is MD5.
 		 *
-		 * @returns
+		 * @return
 		 *	An ASCII representation of the hex digits composing
 		 *	the digest.
 		 */

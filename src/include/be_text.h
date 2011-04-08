@@ -45,7 +45,7 @@ namespace BiometricEvaluation {
 		 *	The digest to use.  Any digest supported by OpenSSL
 		 *	is valid, and the default is MD5.
 		 *
-		 * @returns
+		 * @return
 		 *	An ASCII representation of the hex digits composing
 		 *	the digest.
 		 */
@@ -65,7 +65,7 @@ namespace BiometricEvaluation {
 		 * @param delimiter[in]
 		 *	Character that defines the end of a token.
 		 * 
-		 * @returns
+		 * @return
 		 *	vector<string>	Vector of tokens, in order of appearance
 		 *
 		 * @note
@@ -82,7 +82,7 @@ namespace BiometricEvaluation {
 		 * @param path[in]
 		 *	Path from which to extract the filename portion.
 		 *
-		 * @returns
+		 * @return
 		 *	Filename portion of path.
 		 */
 		string
@@ -96,7 +96,7 @@ namespace BiometricEvaluation {
 		 * @param path[in]
 		 *	Path from which to extract the directory portion.
 		 *
-		 * @returns
+		 * @return
 		 *	Directory portion of path.
 		 */
 		string

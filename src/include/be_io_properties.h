@@ -24,10 +24,10 @@ namespace BiometricEvaluation {
 		typedef map<string, string> PropertiesMap;
 
 /**
- * \brief
+ * @brief
  * A Properties class is used to maintain key/value pairs of strings, with
  * each property matched to one value.
- * \details
+ * @details
  * The properties are read from a file that is specified in the constructor,
  * and will be created if it does not exist.
  *
@@ -66,12 +66,12 @@ namespace BiometricEvaluation {
 			 * @param mode[in]
 			 * 	The read/write mode of the object.
 			 *
-			 * @returns
+			 * @return
 			 *      An object representing the properties set.
 			 *
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	A line in the properties file is malformed.
-			 * \throws Error::FileError
+			 * @throw Error::FileError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -92,7 +92,7 @@ namespace BiometricEvaluation {
 			 *	The name of the property to set.
 			 * @param value[in]
 			 *	The value associated with the property.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	The Properties object is read-only.
 			 */
 			void setProperty(
@@ -111,7 +111,7 @@ namespace BiometricEvaluation {
 			 *	The name of the property to set.
 			 * @param value[in]
 			 *	The value associated with the property.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	The Properties object is read-only.
 			 */
 			void setPropertyFromInteger(
@@ -125,9 +125,9 @@ namespace BiometricEvaluation {
 			 * @param property[in]
 			 *	The name of the property to set.
 			 *
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The named property does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	The Properties object is read-only.
 			 */
 			void removeProperty(
@@ -141,7 +141,7 @@ namespace BiometricEvaluation {
 			 * @param property[in]
 			 *	The name of the property to get.
 			 *
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The named property does not exist.
 			 */
 			string getProperty(
@@ -157,9 +157,9 @@ namespace BiometricEvaluation {
 			 * @param property[in]
 			 *	The name of the property to get.
 			 *
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The named property does not exist.
-			 * \throws Error::ConversionError
+			 * @throw Error::ConversionError
 			 *	The property value cannot be converted, usually
 			 *	 due to non-numeric characters in the string.
 			 */
@@ -172,10 +172,10 @@ namespace BiometricEvaluation {
 			 * Write the properties to the underlying file,
 			 * synchronizing the in-memory and on-disk versions.
 			 *
-			 * \throws Error::FileError
+			 * @throw Error::FileError
 			 *	An error occurred when using the underlying
 			 *	storage system.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	The object was constructed with NULL as the
 			 *	file name, or is read-only.
 			 */
@@ -188,13 +188,13 @@ namespace BiometricEvaluation {
 			 * changing the name of the underlying file that stores
 			 * the properties. The empty string ("") can be used
 			 * to indicate no backing file.
-			 * \note
+			 * @note
 			 * No check is made that the file is writeable at this
 			 * time.
 			 *
 			 * @param filename[in]
 			 *	The name of the properties file.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	The object is read-only.
 			 */
 			void changeName(

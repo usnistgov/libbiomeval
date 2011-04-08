@@ -42,11 +42,11 @@ namespace BiometricEvaluation {
 	namespace Error {
 
 /**
- * \brief
+ * @brief
  * A SignalManager object is used to handle signals that come from the operating
  * system.
 
- * \details
+ * @details
  * Applications typically do not invoke most methods of a SignalManager, except
  * the setSignalSet(), setDefaultSignalSet(), and sigHandled(). An application
  * wishing to just catch memory errors can simply construct a SignalManager
@@ -68,7 +68,7 @@ namespace BiometricEvaluation {
  * state, and the set of signals can be changed at any time, but are not in
  * effect until start() is called.
  *
- * \attention
+ * @attention
  * The start(), stop(), setSigHandled() and clearSigHandled() methods are not
  * meant to be used directly by applications, which should use the 
  * BEGIN_SIGNAL_BLOCK()/END_SIGNAL_BLOCK() macro pair.
@@ -81,16 +81,16 @@ namespace BiometricEvaluation {
 			 * Construct a new SignalManager object with the default
 			 * signal handling: SIGSEGV and SIGBUS.
 			 *
-			 * @returns
+			 * @return
 			 *      The SignalManager.
-			 * \throws
+			 * @throw
 			 *      Error::StrategyError
 			 *		Could not register the signal handler.
 			 */
 			SignalManager()
 			    throw (Error::StrategyError);
 
-			/*
+			/**
 			 * Construct a new SignalManager object with the
 			 * specified signal handling, no defaults.
 			 *
@@ -98,10 +98,10 @@ namespace BiometricEvaluation {
 			 *	signalSet (in)
 			 *              The signal set; see sigaction(2),
 			 *		sigemptyset(3) and sigaddset(3).
-			 * @returns
+			 * @return
 			 *      The SignalManager.
 			 *
-			 * \throws
+			 * @throw
 			 *	Error::ParameterError
 			 *		One of the signals in signalSet cannot
 			 * 		be handled (SIGKILL, SIGSTOP.).
@@ -117,7 +117,7 @@ namespace BiometricEvaluation {
 			 *      signalSet (in)
 			 *              The signal set; see sigaction(2),
 			 *		sigemptyset(3) and sigaddset(3).
-			 * \throws
+			 * @throw
 			 *	Error::ParameterError
 			 *		One of the signals in signalSet cannot
 			 * 		be handled (SIGKILL, SIGSTOP.).
@@ -139,18 +139,18 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Indicate whether a signal was handled.
-			 * @returns
+			 * @return
 			 *      true if a signal was handled, false otherwise.
 			 */
 			bool sigHandled();
 
 			 /**
 			 * Start handling signals of the current signal set.
-			 * \throws
+			 * @throw
 			 *	Error::StrategyError
 			 *		Could not register the signal handler.
 			 *
-			 * \note If an application invokes start() 
+			 * @note If an application invokes start() 
 			 * without setting up a signal jump block, behavior
  			 * is undefined, and can result in an infinite loop
 			 * if further processing causes a signal to be raised.
@@ -160,7 +160,7 @@ namespace BiometricEvaluation {
 
 			 /**
 			 * Stop handling signals of the current signal set.
-			 * \throws
+			 * @throw
 			 *	Error::StrategyError
 			 *		Could not register the signal handler.
 			 */
@@ -179,12 +179,12 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Flag indicating can jump after handling a signal.
-			 * \note Should not be directly used by applications.
+			 * @note Should not be directly used by applications.
 			 */
 			static bool _canSigJump;
 			/**
 			 * The jump buffer used by the signal handler.
-			 * \note Should not be directly used by applications.
+			 * @note Should not be directly used by applications.
 			 */
 			static sigjmp_buf _sigJumpBuf;
 

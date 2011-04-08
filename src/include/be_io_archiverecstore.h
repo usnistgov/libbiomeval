@@ -48,11 +48,11 @@ namespace BiometricEvaluation {
 		typedef map<string, ManifestEntry> ManifestMap;
 	
 /**
- * \brief
+ * @brief
  * This class implements the IO::RecordStore interface by storing data items
  * in single file, with an associated manifest file. 
  * 
- * \details
+ * @details
  * Archives consist of binary records written back to back of each other. 
  * To pull information out of an archive, a manifest file is written in the 
  * same directory as the archive file.
@@ -84,9 +84,9 @@ namespace BiometricEvaluation {
 			 * @param parentDir[in]
 			 * 	The directory where the store is to be created.
 			 *
-			 * \throw Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 * 	The store already exists.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 * 	An error occurred when accessing the underlying
 			 * 	file system.
 			 */
@@ -106,9 +106,9 @@ namespace BiometricEvaluation {
 			 * @param mode[in]
 			 *	Open mode, read-only or read-write.
 			 *
-			 * \throw Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The store does not exist.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when accessing the underlying
 			 *	file system.
 			 */
@@ -187,7 +187,7 @@ namespace BiometricEvaluation {
 			 * calling vacuum() to remove deleted entries, since
 			 * vacuum() is an expensive operation.
 			 *
-			 * @returns
+			 * @return
 			 *	true if vacuum() would be beneficial
 			 *	false otherwise
 			 */
@@ -202,12 +202,12 @@ namespace BiometricEvaluation {
 			 *	The name of the existing RecordStore.
 			 * @param parentDir[in]
 			 *	Where, in the filesystem, the store is rooted.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record with the given key does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
-			 * @returns
+			 * @return
 			 *	true if vacuum() would be beneficial
 			 *	false otherwise
 			 */
@@ -225,12 +225,12 @@ namespace BiometricEvaluation {
 			 *	The name of the existing RecordStore.
 			 * @param parentDir[in]
 			 *	Where, in the file system, the store is rooted.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record with the given key does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
-			 * \note
+			 * @note
 			 * This is an expensive operation.
 			 */
 			static void vacuum(
@@ -243,7 +243,7 @@ namespace BiometricEvaluation {
 			 * Obtain the name of the file storing the data for 
 			 * this store.
 			 *
-			 * @returns
+			 * @return
 			 *	Path to archive file.
 			 */
 			string getArchiveName() const;
@@ -252,7 +252,7 @@ namespace BiometricEvaluation {
 			 * Obtain the name of the file storing the manifest data
 			 * data for this store.
 			 *
-			 * @returns
+			 * @return
 			 *	Path to manifest file.
 			 */
 			string getManifestName() const;

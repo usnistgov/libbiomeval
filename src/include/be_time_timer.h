@@ -21,13 +21,13 @@ namespace BiometricEvaluation
 	namespace Time
 	{
 		/**
-		 * \brief
+		 * @brief
 		 * This class can be used by applications to report
 		 * the amount of time a block of code takes to execute.
 		 */
 
 		/**
-		 * \details
+		 * @details
 		 * Applcations wrap the block of code in the Timer::start()
 		 * and Timer::stop() calls, then use Timer::elapsed() to 
 		 * obtain the calculated time of the operation.

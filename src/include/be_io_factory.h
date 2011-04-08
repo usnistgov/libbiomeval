@@ -27,10 +27,10 @@ namespace BiometricEvaluation {
 		public:
 			
 			/**
-			 * \brief
+			 * @brief
 			 * Open an existing RecordStore and return a managed
 			 * pointer to the the object representing that store.
-			 * \details
+			 * @details
 			 * Applications can open existing record stores
 			 * without the need to know what type of RecordStore
 			 * it is.
@@ -46,11 +46,11 @@ namespace BiometricEvaluation {
 			 * @param mode[in]
 			 *	The type of access a client of this 
 			 *	RecordStore has.
-			 * @returns
+			 * @return
 			 *	An object representing the existing store.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The RecordStore does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or the name is malformed.
 			 */
@@ -62,10 +62,10 @@ namespace BiometricEvaluation {
 			    Error::StrategyError);
 
 			/**
-			 * \brief
+			 * @brief
 			 * Create a new RecordStore and return a managed
 			 * pointer to the the object representing that store.
-			 * \details
+			 * @details
 			 * The allocated object will be automatically freed
 			 * when the returned pointer goes out of scope.
 			 * Applications should not delete the object.
@@ -79,12 +79,12 @@ namespace BiometricEvaluation {
 			 * @param destDir[in]
 			 *	Where, in the file system, the store will be 
 			 *	created.
-			 * @returns
+			 * @return
 			 *	An auto_ptr to the object representing the
 			 *	created store.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The RecordStore does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or the name is malformed.
 			 */

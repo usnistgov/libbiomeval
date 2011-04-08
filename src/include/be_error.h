@@ -30,7 +30,7 @@ namespace BiometricEvaluation
 		 * Convert the value of errno to a human-readable
 		 * error messsage.
 		 *
-		 * @returns
+		 * @return
 		 * 	The current error message specified by errno.
 		 */
 		string errorStr();

@@ -21,9 +21,9 @@ namespace BiometricEvaluation {
 	namespace Error {
 	
 		/**
-		 * \brief
+		 * @brief
 		 * The parent class of all BiometricEvaluation exceptions.
-		 * \details
+		 * @details
 		 * The classes derived from this class will have a default
 		 * information string set indicating the type of exception.
 		 * Any additional information string is appended to that
@@ -67,7 +67,7 @@ namespace BiometricEvaluation {
 		};
 	
 		/**
-		 * \brief
+		 * @brief
 		 * File error when opening, reading, writing, etc.
 		 */
 		class FileError : public Exception {
@@ -93,7 +93,7 @@ namespace BiometricEvaluation {
 		};
 
 		/**
-		 * \brief
+		 * @brief
 		 * An invalid parameter was passed to a constructor or method.
 		 */
 		class ParameterError : public Exception {
@@ -119,7 +119,7 @@ namespace BiometricEvaluation {
 		};
 		
 		/**
-		 * \brief
+		 * @brief
 		 * Error when converting one object into another, a property
 		 * value from string to int, for example.
 		 */
@@ -146,7 +146,7 @@ namespace BiometricEvaluation {
 		};
 
 		/**
-		 * \brief
+		 * @brief
 		 * An error occurred when allocating an object.
 		 */
 		class MemoryError : public Exception {
@@ -172,7 +172,7 @@ namespace BiometricEvaluation {
 		};
 	
 		/**
-		 * \brief
+		 * @brief
 		 * The named object exists and will not be replaced.
 		 */
 		class ObjectExists : public Exception {
@@ -198,7 +198,7 @@ namespace BiometricEvaluation {
 		};
 		
 		/**
-		 * \brief
+		 * @brief
 		 * The named object does not exist.
 		 */
 		class ObjectDoesNotExist : public Exception {
@@ -224,7 +224,7 @@ namespace BiometricEvaluation {
 		};
 
 		/**
-		 * \brief
+		 * @brief
 		 * The object is already opened.
 		 */
 		class ObjectIsOpen : public Exception {
@@ -250,7 +250,7 @@ namespace BiometricEvaluation {
 		};
 
 		/**
-		 * \brief
+		 * @brief
 		 * The object is closed.
 		 */
 		class ObjectIsClosed : public Exception {
@@ -276,7 +276,7 @@ namespace BiometricEvaluation {
 		};
 	
 		/**
-		 * \brief
+		 * @brief
 		 * A StrategyError object is thrown when the underlying
 		 * implementation of this interface encounters an error.
 		 */
@@ -303,7 +303,7 @@ namespace BiometricEvaluation {
 		};
 	
 		/**
-		 * \brief
+		 * @brief
 		 * A NotImplemented object is thrown when the underlying
 		 * implementation of this interface has not or could not
 		 * be created.

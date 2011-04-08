@@ -24,7 +24,7 @@
 namespace BiometricEvaluation {
 	namespace Utility {
 		/**
-		 * \brief
+		 * @brief
 		 * A class to represent a C-style array with C++ features like
 		 * iterators and benefits like knowledge of the size.
 		 */
@@ -33,39 +33,39 @@ namespace BiometricEvaluation {
 			public:
 			
 				/**
-				 * \brief
+				 * @brief
 				 * Convenience typedef for the templated type.
 				 */
 				typedef T value_type;
 				/**
-				 * \brief
+				 * @brief
 				 * Convenience typedef for a pointer to the
 				 * templated type.
 				 */
 				typedef T* iterator;
 				/**
-				 * \brief
+				 * @brief
 				 * Convenience typedef for a pointer to a 
 				 * const templated type.
 				 */
 				typedef const T* const_iterator;
 				/**
-				 * \brief
+				 * @brief
 				 * Convenience typedef for a reference to the
 				 * templated type.
 				 */
 				typedef T& reference;
 				/**
-				 * \brief
+				 * @brief
 				 * Convenience typedef for a reference to 
 				 * a const templated type.
 				 */
 				typedef const T& const_reference;
 		
 				/**
-				 * \brief
+				 * @brief
 				 * Dereference operator overload.
-				 * \details
+				 * @details
 				 * Resolves to a pointer to the beginning
 				 * of the underlying array storage of the
 				 * AutoArray.
@@ -73,100 +73,100 @@ namespace BiometricEvaluation {
 				operator T*();
 		
 				/**
-				 * \brief
+				 * @brief
 				 * Indexing operator overload.
 				 *
 				 * @param i[in]
 				 * 	Index
 				 *
-				 * @returns
+				 * @return
 				 *	Reference to element at index i.
 				 */
 				reference operator[] (ptrdiff_t i);
 				/**
-				 * \brief
+				 * @brief
 				 * Const indexing operator overload.
 				 *
 				 * @param i[in]
 				 * 	Index
 				 *
-				 * @returns
+				 * @return
 				 *	Reference to const element at index i.
 				 */
 				const_reference operator[] (ptrdiff_t i) const;
 
 				/**
-				 * \brief
+				 * @brief
 				 * Assignment operator overload performing a
 				 * deep copy.
 				 * 
 				 * @param other[in]
 				 *	AutoArray to be copied
 				 *
-				 * @returns
+				 * @return
 				 *	Reference to a new AutoArray object.
 				 */
 				AutoArray& operator= (const AutoArray& other);
 			
 				/**
-				 * \brief
+				 * @brief
 				 * Obtain an iterator to the beginning of the
 				 * AutoArray.
 				 *
-				 * @returns
+				 * @return
 				 *	Pointer to the first element of the
 				 *	AutoArray.
 				 */
 				iterator begin();
 
 				/**
-				 * \brief
+				 * @brief
 				 * Obtain an iterator to the beginning of the
 				 * AutoArray.
 				 *
-				 * @returns
+				 * @return
 				 *	Pointer to the const first element of
 				 *	the AutoArray.
 				 */
 				const_iterator begin() const;
 
 				/**
-				 * \brief
+				 * @brief
 				 * Obtain an iterator to the end of the
 				 * AutoArray.
 				 *
-				 * @returns
+				 * @return
 				 *	Pointer to the const last element of
 				 *	the AutoArray.
 				 */
 				iterator end();
 
 				/**
-				 * \brief
+				 * @brief
 				 * Obtain an iterator to the end of the
 				 * AutoArray.
 				 *
-				 * @returns
+				 * @return
 				 *	Pointer to the const last element of
 				 *	the AutoArray.
 				 */
 				const_iterator end() const;
 		
 				/**
-				 * \brief
+				 * @brief
 				 * Obtain the number of elements allocated
 				 * for this AutoArray.
 				 *
-				 * @returns
+				 * @return
 				 *	Number of allocated elements.
 				 */
 				size_t size() const;
 
 				/**
-				 * \brief
+				 * @brief
 				 * Add/subtract the number of elements this 
 				 * AutoArray can hold.
-				 * \details
+				 * @details
 				 * This method can grow or shrink the number
 				 * of allocated elements.
 				 *
@@ -178,22 +178,22 @@ namespace BiometricEvaluation {
 				 *	freed, in the case that new_size is
 				 *	smaller than the current AutoArray size.
 				 *
-				 * \throws Error::StrategyError
+				 * @throw Error::StrategyError
 				 *	Problem allocating memory.
 				 */
 				void resize(size_t new_size, bool free=false)
     				    throw (Error::StrategyError);
 		
 				/**
-				 * \brief
+				 * @brief
 				 * Construct an AutoArray.
-				 * \details
+				 * @details
 				 * The AutoArray will be of size 0.
 				 */
 				AutoArray();
 				
 				/**
-				 * \brief
+				 * @brief
 				 * Construct an AutoArray.
 				 * 
 				 * @param[in] size
@@ -203,7 +203,7 @@ namespace BiometricEvaluation {
 				AutoArray(size_t size);
 
 				/**
-				 * \brief
+				 * @brief
 				 * Construct an AutoArray.
 				 * 
 				 * @param copy[in]

@@ -76,7 +76,7 @@ namespace BiometricEvaluation
 			 * Accessor for the X-resolution of the image 
 			 * in terms of pixels per centimeter.
 			 *
-			 * @returns
+			 * @return
 			 *	X-resolution (pixel/cm).
 			 */
 			unsigned int
@@ -88,7 +88,7 @@ namespace BiometricEvaluation
 			 * Accessor for the Y-resolution of the image 
 			 * in terms of pixels per centimeter.
 			 *
-			 * @returns
+			 * @return
 			 *	Y-resolution (pixel/cm).
 			 */
 			unsigned int
@@ -100,7 +100,7 @@ namespace BiometricEvaluation
 			 * Accessor for the image data. The data returned
 			 * is likely encoded in a specialized format.
 			 * 
-			 * @returns
+			 * @return
 			 *	Image data.
 			 */
 			Utility::AutoArray<uint8_t>
@@ -112,7 +112,7 @@ namespace BiometricEvaluation
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
 			 * 
-			 * @returns
+			 * @return
 			 *	Raw image data.
 			 */
 			virtual Utility::AutoArray<uint8_t>
@@ -123,7 +123,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the width of the image in pixels.
 			 * 
-			 * @returns
+			 * @return
 			 * 	Width of image (pixel).
 			 */
 			uint64_t
@@ -134,7 +134,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the height of the image in pixels.
 			 * 
-			 * @returns
+			 * @return
 			 * 	Height of image (pixel).
 			 */
 			uint64_t
@@ -145,7 +145,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the color depth of the image in bits.
 			 *
-			 * @returns
+			 * @return
 			 * 	The color depth of the image (bit).
 			 */
 			unsigned int

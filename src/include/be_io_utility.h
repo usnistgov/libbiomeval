@@ -35,9 +35,9 @@ namespace BiometricEvaluation {
 			 *	without a preceding path.
 			 * @param prefix[in]
 			 *	The path leading to the directory.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The named directory does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or the directoy name or
 			* 	prefix is malformed.
@@ -54,11 +54,11 @@ namespace BiometricEvaluation {
 			 * @param pathname[in]
 			 *	The name of the file to be sized; can be
 			 *	a complete path.
-			 * @returns
+			 * @return
 			 * 	The file size.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The named directory does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or pathname is malformed.
 			 */
@@ -73,9 +73,9 @@ namespace BiometricEvaluation {
 			 * @param pathname[in]
 			 *	The name of the file to be checked; can be
 			 *	a complete path.
-			 * @returns
+			 * @return
 			 * 	true if the file exists, false otherwise.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or pathname is malformed.
 			 */
@@ -88,9 +88,9 @@ namespace BiometricEvaluation {
 			 *
 			 * @param pathname[in]
 			 *	The path to be checked
-			 * @returns
+			 * @return
 			 * 	true if the path is a dir, false otherwise.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *		An error occurred when using the
 			 *		underlying storage system, or the
 			 *		name is malformed.
@@ -108,7 +108,7 @@ namespace BiometricEvaluation {
 			 *
 			 * @param name[in]
 			 *	The proposed name for the entity.
-			 * @returns
+			 * @return
 			 *	true if the name is acceptable, false otherwise.
 			 */
 			bool validateRootName(
@@ -127,7 +127,7 @@ namespace BiometricEvaluation {
 			 *	The complete path to the new entity, when
 			 *	when true is returned; ambiguous when
 			 *	false is returned.
-			 * @returns
+			 * @return
 			 *	true if the named entiry is present in the file
 			 *	system, false otherwise.
 			*/
@@ -148,7 +148,7 @@ namespace BiometricEvaluation {
 			 * @param mode[in]
 			 *	The permission mode of each element in the
 			 *	path. See chmod(2).
-			 * @returns
+			 * @return
 			 *	0 on success, non-zero otherwise, and errno
 			 *	can be checked.
 			*/

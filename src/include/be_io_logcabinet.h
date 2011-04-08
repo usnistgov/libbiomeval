@@ -24,10 +24,10 @@ namespace BiometricEvaluation {
     namespace IO {
 
 	/**
-	 * \brief
+	 * @brief
 	 * A class to represent a single logging mechanism.
 	 *
-	 * \details
+	 * @details
 	 * A LogSheet is a string stream, so applications can write into the
 	 * stream as a staging area using the << operator, then start a new
 	 * entry by calling newEntry(). Entries in the log file are prefixed
@@ -38,13 +38,13 @@ namespace BiometricEvaluation {
 	 * by the LogCabinet object. All sheets created in the manner are
 	 * placed in a common area maintained by the cabinet.
 	 *
-	 * \note
+	 * @note
 	 * By default, the entries in the LogSheet may not be immediately
 	 * written to the file system, depending on the buffering behavior
 	 * of the operating system. Applications can force a write by
 	 * invoking sync(), or force a write at every new log entry by
 	 * invoking setAutoSync(true).
-	 * \note
+	 * @note
 	 * Entries created by applications may be composed of more than one
 	 * line (each separated by the newline character). The text at the
 	 * beginning of a line should not "look like" an entry number:
@@ -74,7 +74,7 @@ namespace BiometricEvaluation {
 			static const string DescriptionTag;
 
 			/**
-			 * \brief
+			 * @brief
 			 * Create a new log sheet.
 			 *
 			 * @param name[in]
@@ -86,11 +86,11 @@ namespace BiometricEvaluation {
 			 * @param parentDir[in]
 			 *	Where, in the file system, the sheet is to
 			 *	be stored. This directory must exist.
-			 * @returns
+			 * @return
 			 *	An object representing the new log sheet.
-			 * \throw Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 *	The sheet was previously created.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system, or name or parentDir is malformed.
 			 */
@@ -100,23 +100,23 @@ namespace BiometricEvaluation {
 			    throw (Error::ObjectExists, Error::StrategyError);
 
 			/**
-			 * \brief
+			 * @brief
 			 * Open an existing new log sheet for appending.
-			 * \details
+			 * @details
 			 * On open, the current entry counter is set to
 			 * the last entry number plus one.
-			 * \note
+			 * @note
 			 * Opening a large LogSheet may be a costly operation.
 			 *
 			 * @param name[in]
 			 *	The name of the LogSheet to be opened.
 			 * @param parentDir[in]
 			 *	Where, in the file system, the sheet is stored.
-			 * @returns
+			 * @return
 			 *	An object representing the existing log sheet.
-			 * \throw Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The sheet does not exist.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system, or name or parentDir is malformed.
 			 */
@@ -135,7 +135,7 @@ namespace BiometricEvaluation {
 			 * @param entry[in]
 			 *	The text of the log entry.
 			 *
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system.
 			 */
@@ -152,7 +152,7 @@ namespace BiometricEvaluation {
 			 * @param comment[in]
 			 *	The text of the comment.
 			 *
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system.
 			 */
@@ -165,7 +165,7 @@ namespace BiometricEvaluation {
 			 * this method for the first entry, however, as the
 			 * stream is ready for writing upon construction.
 			 *
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system.
 			 */
@@ -176,7 +176,7 @@ namespace BiometricEvaluation {
 			 * Obtain the contents of the current entry currently
 			 * under construction.
 			 *
-			 * @returns
+			 * @return
 			 *	The text of the current entry.
 			 */
 			string getCurrentEntry();
@@ -189,7 +189,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Obtain the current entry number.
 			 *
-			 * @returns
+			 * @return
 			 *	The current entry number.
 			 */
 			uint32_t getCurrentEntryNumber();
@@ -199,7 +199,7 @@ namespace BiometricEvaluation {
 			 * log file. This syncing is dependent on the behavior
 			 * of the underlying filesystem and operating system.
 			 *
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system.
 			*/
@@ -244,12 +244,12 @@ namespace BiometricEvaluation {
 			 * @param parentDir[in]
 			 *	Where, in the file system, the cabinet is to
 			 *	be stored. This directory must exist.
-			 * @returns
+			 * @return
 			 *	An object representing the new log cabinet.
-			 * \throws Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 *	The cabinet was previously created.
-			 * \throws Error::StrategyError
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system, or name or parentDir is malformed.
 			*/
@@ -268,11 +268,11 @@ namespace BiometricEvaluation {
 			 * @param parentDir[in]
 			 *	Where, in the file system, the cabinet is to
 			 *	be stored. This directory must exist.
-			 * @returns
+			 * @return
 			 *	An object representing the log cabinet.
-			 * \throw Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The cabinet does not exist in the file system.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system, or name or parentDir is malformed.
 			 */
@@ -296,11 +296,11 @@ namespace BiometricEvaluation {
 			 * @param parentDir[in]
 			 *	Where, in the file system, the sheet is to
 			 *	be stored. This directory must exist.
-			 * @returns
+			 * @return
 			 *	An object pointer to the new log sheet.
-			 * \throw Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 *	The sheet was previously created.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system, or name or parentDir is malformed.
 			*/
@@ -342,9 +342,9 @@ namespace BiometricEvaluation {
 			 *	Where, in the file system, the sheet is to
 			 *	be stored. This directory must exist.
 			 *
-			 * \throw Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The LogCabinet does not exist.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	file system, or name or parentDir is malformed.
 			 */

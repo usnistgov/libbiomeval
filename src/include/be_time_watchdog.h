@@ -47,13 +47,13 @@ namespace BiometricEvaluation {
 	namespace Time {
 
 /**
- * \brief
+ * @brief
  * A Watchdog object can be used by applications to limit the amount of
  * processing time taken by a block of code.
  */
 
 /**
- * \details
+ * @details
  * A Watchdog object is used to set a timer that, upon expiration, will
  * force a jump to a location within the process. An application can
  * detect whether the timer expired at that point in the code. Watchdog
@@ -75,17 +75,17 @@ namespace BiometricEvaluation {
  * and use the BEGIN/END block macros repeatedly. Failure to call setInterval()
  * results in an effectively disabled timer, as does setting the interval to 0.
  *
- * \note Process virtual timing may not be available on all systems. In
+ * @note Process virtual timing may not be available on all systems. In
  * those cases, an application compilation error will occur because
  * PROCESSTIME will not be defined.
  *
- * \attention On many systems, the sleep(3) call is implemented using alarm
+ * @attention On many systems, the sleep(3) call is implemented using alarm
  * signals, the same technique used by the Watchdog class. Therefore,
  * applications should not call sleep(3) inside the Watchdog block; behavior
  * is undefined in that case, but usually results in cancellation of the
  * Watchdog timer.
  *
- * \attention
+ * @attention
  * The setCanSigJump(), clearCanSigJump(), setExpired() and clearExpired()
  * methods are not meant to be used directly by applications, which should
  * use the BEGIN_WATCHDOG_BLOCK()/END_WATCHDOG_BLOCK() macro pair.
@@ -109,7 +109,7 @@ namespace BiometricEvaluation {
 			 * @return
 			 *	The Watchdog object.
 			 *
-			 * \throw Error::ParameterError The type is invalid.
+			 * @throw Error::ParameterError The type is invalid.
 			 */
 			Watchdog(const uint8_t type)
 			    throw (Error::ParameterError);
@@ -130,7 +130,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Start a watchdog timer.
 			 *
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	Could not register the signal handler, or
 			 *	could not create the timer.
 			 */
@@ -140,7 +140,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Stop a watchdog timer.
 			 *
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	Could not clear the timer.
 			 */
 			void stop()

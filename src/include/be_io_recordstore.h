@@ -25,10 +25,10 @@ namespace BiometricEvaluation {
 
 	namespace IO {
 		/**
-		 * \brief
+		 * @brief
 		 * A class to represent a data storage mechanism.
 		 *
-		 * \details
+		 * @details
 		 * A RecordStore is an abstraction that associates keys with
 		 * a specific record. Implementations of this abstraction
 		 * can store the records in any format supported by the
@@ -82,12 +82,12 @@ namespace BiometricEvaluation {
 			 * @param parentDir[in]
 			 *	Where, in the file system, the store is to
 			 *	be rooted. This directory must exist.
-			 * @returns
+			 * @return
 			 *	An object representing the new, empty store.
-			 * \throws Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 *	The store was previously created, or the
 			 *	directory where it would be created exists.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or the the name malformed.
 			 */
@@ -107,11 +107,11 @@ namespace BiometricEvaluation {
 			 * @param mode[in]
 			 *	The type of access a client of this 
 			 *	RecordStore has.
-			 * @returns
+			 * @return
 			 *	An object representing the existing store.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The RecordStore does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or the name is malformed.
 			 */
@@ -128,21 +128,21 @@ namespace BiometricEvaluation {
 			
 			/**
 			 * Return the name of the RecordStore.
-			 * @returns
+			 * @return
 			 *	 The RecordStore's name.
 			 */
 			string getName() const;
 
 			/**
 			 * Obtain a textual description of the RecordStore.
-			 * @returns
+			 * @return
 			 *	The RecordStore's description.
 			 */
 			string getDescription() const;
 
 			/**
 			 * Obtain the number of items in the RecordStore.
-			 * @returns
+			 * @return
 			 *	The number of items in the RecordStore.
 			 */
 			unsigned int getCount() const;
@@ -151,7 +151,7 @@ namespace BiometricEvaluation {
 			 * Change the name of the RecordStore.
 			 * @param
 			 *	name[in] The new name for the RecordStore.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system, or the name is malformed.
 			 */
@@ -163,7 +163,7 @@ namespace BiometricEvaluation {
 			 * Change the description of the RecordStore.
 			 * @param description[in]
 			 *	The new description.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -177,10 +177,10 @@ namespace BiometricEvaluation {
 			 * actual space allocated by the underlying storage
 			 * mechanism, in bytes.
 			 *
-			 * @returns
+			 * @return
 			 * 	The amount of backing storage used by
 			 * 	the RecordStore.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -191,7 +191,7 @@ namespace BiometricEvaluation {
 			 * Synchronize the entire record store to persistent
 			 * storage.
 			 *
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			*/
@@ -207,10 +207,10 @@ namespace BiometricEvaluation {
 			 *	data[in] The data for the record.
 			 * @param
 			 *	size[in] The size, in bytes, of the record.
-			 * \throws Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 *	A record with the given key is already
 			 *	present.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -226,9 +226,9 @@ namespace BiometricEvaluation {
 			 *
 			 * @param key[in]
 			 * 	The key of the record to be removed.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -246,11 +246,11 @@ namespace BiometricEvaluation {
 			 *	The key of the record to be read.
 			 * @paramdata[in]
 			 *	Pointer to where the data is to be written.
-			 * @returns
+			 * @return
 			 * 	The size of the record.
-			 * \throws 	Error::ObjectDoesNotExist
+			 * @throw 	Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
-			 * \throws 	Error::StrategyError
+			 * @throw 	Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */	
@@ -267,9 +267,9 @@ namespace BiometricEvaluation {
 			 *	The key of the record to be replaced.
 			 * @param data[in]
 			 *	The data for the record.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */	
@@ -285,11 +285,11 @@ namespace BiometricEvaluation {
 			 *
 			 * @param key[in]
 			 *	The key of the record.
-			 * @returns
+			 * @return
 			 *	The record length.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -302,9 +302,9 @@ namespace BiometricEvaluation {
 			 * Commit the record's data to storage.
 			 * @param key[in]
 			 *	The key of the record to be flushed.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -333,11 +333,11 @@ namespace BiometricEvaluation {
 			 * @param cursor[in]
 			 *	The location within the sequence of the
 			 *	key/data pair to return.
-			 * @returns
+			 * @return
 			 *	The length of the record currently in sequence.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			*/
@@ -360,9 +360,9 @@ namespace BiometricEvaluation {
 			 *	The key of the record which will be returned
 			 *	by the first subsequent call to sequence().
 			 *
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -379,9 +379,9 @@ namespace BiometricEvaluation {
 			 *	The name of the existing RecordStore.
 			 * @param parentDir[in]
 			 *	Where, in the file system, the store is rooted.
-			 * \throws Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	A record with the given key does not exist.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -411,10 +411,10 @@ namespace BiometricEvaluation {
 			 *	into mergedName.
 			 * @param numRecordStores[in]
 			 *	The number of RecordStore* in recordStores.
-			 * \throws Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 *	A RecordStore with mergedNamed in parentDir
 			 *	already exists.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
@@ -448,10 +448,10 @@ namespace BiometricEvaluation {
 			 *	should be merged into mergedName.
 			 * @param numRecordStores[in]
 			 *	The number of RecordStore* in recordStores.
-			 * \throws Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 *	A RecordStore with mergedNamed in parentDir
 			 *	already exists.
-			 * \throws Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */

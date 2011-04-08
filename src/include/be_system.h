@@ -32,8 +32,8 @@ namespace BiometricEvaluation
 		 * Obtain the number of central processing units that are
 		 *	online. Typically, this is the total CPU core count
 		 *	for the system.
-		 * @returns The number of processing units.
-		 * @throws Error::NotImplemented
+		 * @return The number of processing units.
+		 * @throw Error::NotImplemented
 		 *	Not implemented for this operating system, or the
 		 *	underlying OS feature is not installed.
 		 */
@@ -44,7 +44,7 @@ namespace BiometricEvaluation
 		 * @brief
 		 * Obtain the amount of real memory in the system.
 		 * @return The real memory size, in kilobytes.
-		 * @throws Error::NotImplemented
+		 * @throw Error::NotImplemented
 		 *	Not implemented for this operating system, or the
 		 *	underlying OS feature is not installed.
 		 */
@@ -55,7 +55,7 @@ namespace BiometricEvaluation
 		 * @brief
 		 * Obtain the system load average for the last minute.
 		 * @return The system load average.
-		 * @throws Error::NotImplemented
+		 * @throw Error::NotImplemented
 		 *	Not implemented for this operating system, or the
 		 *	underlying OS feature is not installed.
 		 */

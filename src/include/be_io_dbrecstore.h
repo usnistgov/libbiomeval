@@ -31,7 +31,7 @@ namespace BiometricEvaluation {
 	namespace IO {
 
 		/**
-		 * \brief
+		 * @brief
 		 * A class that implements IO::RecordStore using a Berkeley
 		 * DB database as the underlying record storage system.
 		 */
@@ -48,9 +48,9 @@ namespace BiometricEvaluation {
 			 * @param parentDir[in]
 			 * 	The directory where the store is to be created.
 			 *
-			 * \throw Error::ObjectExists
+			 * @throw Error::ObjectExists
 			 * 	The store already exists.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 * 	An error occurred when accessing the underlying
 			 * 	file system.
 			 */
@@ -70,9 +70,9 @@ namespace BiometricEvaluation {
 			 * @param mode[in]
 			 *	Open mode, read-only or read-write.
 			 *
-			 * \throw Error::ObjectDoesNotExist
+			 * @throw Error::ObjectDoesNotExist
 			 *	The store does not exist.
-			 * \throw Error::StrategyError
+			 * @throw Error::StrategyError
 			 *	An error occurred when accessing the underlying
 			 *	file system.
 			 */
