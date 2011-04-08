@@ -196,7 +196,7 @@ namespace BiometricEvaluation {
 				 * @brief
 				 * Construct an AutoArray.
 				 * 
-				 * @param[in] size
+				 * @param size[in]
 				 *	The number of elements this AutoArray
 				 *	should hold.
 				 */
