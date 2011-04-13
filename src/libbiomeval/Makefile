@@ -8,7 +8,7 @@
 # about its quality, reliability, or any other characteristic.
 #
 include ../common.mk
-SOURCES = be_text.cpp be_system.cpp be_error_exception.cpp be_error.cpp be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_io_factory.cpp be_image_image.cpp be_image_rawimage.cpp be_process_statistics.cpp be_utility.cpp be_framework.cpp
+SOURCES = be_text.cpp be_system.cpp be_error_exception.cpp be_error.cpp be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_io_factory.cpp be_image_image.cpp be_image_rawimage.cpp be_image_jpeg.cpp be_process_statistics.cpp be_utility.cpp be_framework.cpp
 OBJECTS = $(SOURCES:%.cpp=%.o)
 LIBRARY = libbiomeval
 LOCALLIB = ../../lib
@@ -16,18 +16,18 @@ LOCALLIB = ../../lib
 all: $(OBJECTS)
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
 ifeq ($(OS), Darwin)
-	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -lcrypto -o $(LIBRARY).dylib
+	$(CXX) $(CXXFLAGS) -dynamiclib $(OBJECTS) -lcrypto -ljpeg -o $(LIBRARY).dylib
 	$(CP) $(LIBRARY).dylib $(LOCALLIB)
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	ar rs $(LIBRARY).a $(OBJECTS)
 	ranlib $(LIBRARY).a
-	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -lcrypto -ldb
+	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -lcrypto -ldb -ljpeg
 	$(CP) $(LIBRARY).a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -lcrypto -o $(LIBRARY).so
+	$(CXX) $(CXXFLAGS) -shared $(OBJECTS) -ldb -lcrypto -ljpeg -o $(LIBRARY).so
 	$(CP) $(LIBRARY).so $(LOCALLIB)
 endif
 endif

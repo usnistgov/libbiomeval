@@ -17,12 +17,27 @@ BiometricEvaluation::Image::Image::Image(
     const uint64_t height,
     const unsigned int depth,
     const unsigned int XResolution,
-    const unsigned int YResolution) : 
+    const unsigned int YResolution) 
+    throw (Error::StrategyError) : 
     _width(width),
     _height(height),
     _depth(depth),
     _XResolution(XResolution),
     _YResolution(YResolution),
+    _data(size)
+{
+	memcpy(_data, data, size);
+}
+
+BiometricEvaluation::Image::Image::Image(
+    const uint8_t *data,
+    const uint64_t size)
+    throw (Error::StrategyError) :
+    _width(0),
+    _height(0),
+    _depth(0),
+    _XResolution(0),
+    _YResolution(0),
     _data(size)
 {
 	memcpy(_data, data, size);
@@ -68,6 +83,41 @@ BiometricEvaluation::Image::Image::getData()
     const
 {
 	return (_data);
+}
+
+void
+BiometricEvaluation::Image::Image::setXResolution(
+    unsigned int XResolution)
+{
+	_XResolution = XResolution;
+}
+
+void
+BiometricEvaluation::Image::Image::setYResolution(
+    const unsigned int YResolution)
+{
+	_YResolution = YResolution;
+}
+
+void
+BiometricEvaluation::Image::Image::setWidth(
+    const uint64_t width)
+{
+	_width = width;
+}
+	
+void
+BiometricEvaluation::Image::Image::setHeight(
+    const uint64_t height)
+{
+	_height = height;
+}
+
+void
+BiometricEvaluation::Image::Image::setDepth(
+    const unsigned int depth)
+{
+	_depth = depth;
 }
 
 BiometricEvaluation::Image::Image::~Image()

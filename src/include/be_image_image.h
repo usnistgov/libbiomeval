@@ -61,6 +61,9 @@ namespace BiometricEvaluation
 			 * @param[in] YResolution
 			 *	The resolution of the image in the horizontal
 			 *	direction, in pixels-per-centimeter.
+			 *
+			 * @throw Error::StrategyError
+			 *	Error while creating Image.
 			 */
 			Image(
 			    const uint8_t *data,
@@ -69,7 +72,25 @@ namespace BiometricEvaluation
 			    const uint64_t height,
 			    const unsigned int depth, 
 			    const unsigned int XResolution,
-			    const unsigned int YResolution);
+			    const unsigned int YResolution)
+			    throw (Error::StrategyError);
+
+			/**
+		 	 * @brief
+			 * Parent constructor for all Image classes.
+			 *
+			 * @param[in] data
+			 *	The image data.
+			 * @param[in] size
+			 *	The size of the image data, in bytes.
+			 *
+			 * @throw Error::StrategyError
+			 *	Error while creating Image.
+			 */
+			Image(
+			    const uint8_t *data,
+			    const uint64_t size)
+			    throw (Error::StrategyError);
 
 			/**
 		 	 * @brief
@@ -153,24 +174,89 @@ namespace BiometricEvaluation
 			    const;
 
 			virtual ~Image();
+			
+			/*
+			 * Useful constants 
+			 */
+			/** Number of centemeters per one inch */
+			static const float cmPerInch = 2.54;
+			/* Number of bits per color component */
+			static const unsigned int bitsPerComponent = 8;
 
 		protected:
+			/**
+		 	 * @brief
+			 * Mutator for the X-resolution of the image 
+			 * in terms of pixels per centimeter.
+			 *
+			 * @param[in] XResolution
+			 *	X-resolution (pixel/cm).
+			 */
+			void
+			setXResolution(
+			    unsigned int XResolution);
+
+			/**
+		 	 * @brief
+			 * Mutator for the Y-resolution of the image 
+			 * in terms of pixels per centimeter.
+			 *
+			 * @param[in] YResolution
+			 *	Y-resolution (pixel/cm).
+			 */
+			void
+			setYResolution(
+			    const unsigned int YResolution);
+
+			/**
+		 	 * @brief
+			 * Mutator for the width of the image in pixels.
+			 * 
+			 * @param[in] width
+			 * 	Width of image (pixel).
+			 */
+			void
+			setWidth(
+			    const uint64_t width);
+	
+			/**
+		 	 * @brief
+			 * Mutator for the height of the image in pixels.
+			 * 
+			 * @param[in] height
+			 * 	Height of image (pixel).
+			 */
+			void
+			setHeight(
+			    const uint64_t height);
+
+			/**
+		 	 * @brief
+			 * Mutator for the color depth of the image in bits.
+			 *
+			 * @param[in] depth
+			 * 	The color depth of the image (bit).
+			 */
+			void
+			setDepth(
+			    const unsigned int depth);
+
 			/** Raw image data, populated on demand */
 			mutable Utility::AutoArray<uint8_t> _raw_data;
 
 		private: 
 			/** Image width (pixel) */
-			const uint64_t _width;
+			uint64_t _width;
 			/** Image height (pixel) */
-			const uint64_t _height;
+			uint64_t _height;
 
 			/** Color depth */
-			const unsigned int _depth;
+			unsigned int _depth;
 
 			/** X resolution */
-			const unsigned int _XResolution;
+			unsigned int _XResolution;
 			/** Y resolution */
-			const unsigned int _YResolution;
+			unsigned int _YResolution;
 
 			/** Encoded image data */
 			Utility::AutoArray<uint8_t> _data;
