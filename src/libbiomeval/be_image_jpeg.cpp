@@ -44,6 +44,8 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	setHeight(dinfo.image_height);
 	setDepth(dinfo.num_components * bitsPerComponent);
 
+	/* Number of centemeters per one inch */
+	static const float cmPerInch = 2.54;
 	/* libjpeg stores resolution as pixels per inch */
 	setXResolution((unsigned int)(dinfo.X_density / cmPerInch));
 	setYResolution((unsigned int)(dinfo.Y_density / cmPerInch));

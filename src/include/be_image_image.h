@@ -178,8 +178,6 @@ namespace BiometricEvaluation
 			/*
 			 * Useful constants 
 			 */
-			/** Number of centemeters per one inch */
-			static const float cmPerInch = 2.54;
 			/* Number of bits per color component */
 			static const unsigned int bitsPerComponent = 8;
 
