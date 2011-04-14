@@ -13,7 +13,9 @@
 
 #include <cstdio>
 
+extern "C" {
 #include <jpeglib.h>
+}
 
 #include <be_image_image.h>
 

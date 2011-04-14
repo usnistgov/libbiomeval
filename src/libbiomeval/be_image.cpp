@@ -47,5 +47,12 @@ std::ostream&
 BiometricEvaluation::Image::operator<< (std::ostream &s,
     const Image::Resolution& res)
 {
-	return (s << res.xRes << "x" << res.yRes);
+	std::string str;
+	switch (res.units) {
+	case Resolution::PPI: str = "PPI"; break;
+	case Resolution::PPMM: str = "PPMM"; break;
+	case Resolution::PPCM: str = "PPCM"; break;
+	default: str = "Unknown"; break;
+	}
+	return (s << res.xRes << "x" << res.yRes << " " << str);
 }

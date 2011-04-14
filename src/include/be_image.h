@@ -79,10 +79,14 @@ namespace BiometricEvaluation
 		 * A structure to represent the resolution of an image.
 		 */
 		typedef struct {
-			uint32_t xRes;
-			uint32_t yRes;
-			uint32_t ppmm;	/* Pixels/millimeter */
-			uint32_t ppi;	/* Pixes/inch */
+			typedef enum {
+				PPI	= 0,
+				PPMM	= 1,
+				PPCM	= 2
+			} Kind;
+			double xRes;
+			double yRes;
+			Kind units;
 		} Resolution;
 		std::ostream& operator<< (std::ostream&, const Resolution&);
 	}
