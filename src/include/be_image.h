@@ -11,6 +11,7 @@
 #ifndef __BE_IMAGE_H__
 #define __BE_IMAGE_H__
 
+#include <iostream>
 #include <vector>
 
 namespace BiometricEvaluation 
@@ -45,6 +46,8 @@ namespace BiometricEvaluation
 		private:
 			CompressionAlgorithm() {}
 		};
+		std::ostream& operator<< (std::ostream&,
+		    const CompressionAlgorithm::Kind&);
 
 		/**
 		 * @brief
@@ -57,6 +60,7 @@ namespace BiometricEvaluation
 			float xDistance;    /* X-coord distance from origin */
 			float yDistance;    /* Y-coord distance from origin */
 		} Coordinate;
+		std::ostream& operator<< (std::ostream&, const Coordinate&);
 		typedef std::vector<Image::Coordinate> CoordinateSet;
 
 		/**
@@ -68,6 +72,7 @@ namespace BiometricEvaluation
 			uint32_t xSize;
 			uint32_t ySize;
 		} Size;
+		std::ostream& operator<< (std::ostream&, const Size&);
 
 		/**
 		 * @brief
@@ -79,6 +84,7 @@ namespace BiometricEvaluation
 			uint32_t ppmm;	/* Pixels/millimeter */
 			uint32_t ppi;	/* Pixes/inch */
 		} Resolution;
+		std::ostream& operator<< (std::ostream&, const Resolution&);
 	}
 }
 #endif /* __BE_IMAGE_H__ */
