@@ -183,7 +183,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::length(
     const string &key) 
     throw (Error::ObjectDoesNotExist)
 {
-	ManifestMap::iterator lb = _entries.lower_bound(key);
+	ManifestMap::iterator lb = _entries.find(key);
 	if (lb == _entries.end())
 		throw Error::ObjectDoesNotExist(key);
 
@@ -234,7 +234,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::read(
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	/* Check for existance */
-	ManifestMap::iterator lb = _entries.lower_bound(key);
+	ManifestMap::iterator lb = _entries.find(key);
 	if (lb == _entries.end())
 		throw Error::ObjectDoesNotExist(key);
 
@@ -329,7 +329,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::remove(const string &key)
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	ManifestMap::iterator lb = _entries.lower_bound(key);
+	ManifestMap::iterator lb = _entries.find(key);
 	if (lb == _entries.end())
 		throw Error::ObjectDoesNotExist(key);
 
@@ -451,7 +451,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::setCursorAtKey(
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	/* Check for existance */
-	ManifestMap::iterator lb = _entries.lower_bound(key);
+	ManifestMap::iterator lb = _entries.find(key);
 	if (lb == _entries.end())
 		throw Error::ObjectDoesNotExist(key);
 
