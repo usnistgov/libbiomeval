@@ -14,15 +14,12 @@
 BiometricEvaluation::Image::RawImage::RawImage(
     const uint8_t *data, 
     const uint64_t size, 
-    const Size dimensions,
+    const uint64_t width,
+    const uint64_t height,
     const unsigned int depth,
-    const Resolution resolution) :
-    Image(data,
-    size,
-    dimensions,
-    depth,
-    resolution,
-    CompressionAlgorithm::None)
+    const unsigned int XResolution,
+    const unsigned int YResolution) : 
+    Image(data, size, width, height, depth, XResolution, YResolution)
 {
 
 }
