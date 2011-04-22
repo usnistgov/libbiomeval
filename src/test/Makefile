@@ -48,7 +48,7 @@ test_be_error_signal_manager: test_be_error_signal_manager.cpp
 test_be_image_rawimage: test_be_image_image.cpp
 	$(CXX) $(CXXFLAGS) -DRAWIMAGETEST $^ -o $@ -lbiomeval
 test_be_image_jpeg: test_be_image_image.cpp
-	$(CXX) $(CXXFLAGS) -DJPEGTEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DJPEGBTEST $^ -o $@ -lbiomeval
 test_be_io_factory: test_be_io_factory.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
 test_be_process_statistics: test_be_process_statistics.cpp

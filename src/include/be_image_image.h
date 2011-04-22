@@ -13,6 +13,7 @@
 
 #include <stdint.h>
 
+#include <be_image.h>
 #include <be_utility_autoarray.h>
 
 namespace BiometricEvaluation
@@ -49,18 +50,14 @@ namespace BiometricEvaluation
 			 *	The image data.
 			 * @param[in] size
 			 *	The size of the image data, in bytes.
-			 * @param[in] width
-			 *	The width of the image, in pixels.
-			 * @param[in] height
-			 *	The height of the image, in pixels.
+			 * @param[in] dimensions
+			 *	The width and height of the image in pixels.
 			 * @param[in] depth
 			 *	The image depth, in bits-per-pixel.
-			 * @param[in] XResolution
-			 *	The resolution of the image in the horizontal
-			 *	direction, in pixels-per-centimeter.
-			 * @param[in] YResolution
-			 *	The resolution of the image in the horizontal
-			 *	direction, in pixels-per-centimeter.
+			 * @param[in] resolution
+			 *	The resolution of the image
+			 * @param[in] compression
+			 *	The CompressionAlgorithm of data.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error while creating Image.
@@ -68,11 +65,10 @@ namespace BiometricEvaluation
 			Image(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const uint64_t width,
-			    const uint64_t height,
+			    const Size dimensions,
 			    const unsigned int depth, 
-			    const unsigned int XResolution,
-			    const unsigned int YResolution)
+			    const Resolution resolution,
+			    const CompressionAlgorithm::Kind compression)
 			    throw (Error::StrategyError);
 
 			/**
@@ -83,37 +79,39 @@ namespace BiometricEvaluation
 			 *	The image data.
 			 * @param[in] size
 			 *	The size of the image data, in bytes.
+			 * @param[in] compression
+			 *	The CompressionAlgorithm of data.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error while creating Image.
 			 */
 			Image(
 			    const uint8_t *data,
-			    const uint64_t size)
+			    const uint64_t size,
+			    const CompressionAlgorithm::Kind compression)
 			    throw (Error::StrategyError);
 
 			/**
-		 	 * @brief
-			 * Accessor for the X-resolution of the image 
-			 * in terms of pixels per centimeter.
+			 * @brief
+			 * Accessor for the CompressionAlgorithm of the image.
 			 *
 			 * @return
-			 *	X-resolution (pixel/cm).
+			 *	Type of compression used on the data that will
+			 *	be returned from getData().
 			 */
-			unsigned int
-			getXResolution()
+			CompressionAlgorithm::Kind
+			getCompressionAlgorithm()
 			    const;
 
 			/**
 		 	 * @brief
-			 * Accessor for the Y-resolution of the image 
-			 * in terms of pixels per centimeter.
+			 * Accessor for the resolution of the image 
 			 *
 			 * @return
-			 *	Y-resolution (pixel/cm).
+			 *	Resolution struct
 			 */
-			unsigned int
-			getYResolution()
+			Resolution
+			getResolution()
 			    const;
 
 			/**
@@ -142,24 +140,14 @@ namespace BiometricEvaluation
 
 			/**
 		 	 * @brief
-			 * Accessor for the width of the image in pixels.
+			 * Accessor for the dimensions of the image in pixels.
 			 * 
 			 * @return
-			 * 	Width of image (pixel).
+			 * 	Coordinate object containing dimensions in
+			 *	pixels.
 			 */
-			uint64_t
-			getWidth()
-			    const;
-	
-			/**
-		 	 * @brief
-			 * Accessor for the height of the image in pixels.
-			 * 
-			 * @return
-			 * 	Height of image (pixel).
-			 */
-			uint64_t
-			getHeight()
+			Size
+			getDimensions()
 			    const;
 
 			/**
@@ -184,50 +172,26 @@ namespace BiometricEvaluation
 		protected:
 			/**
 		 	 * @brief
-			 * Mutator for the X-resolution of the image 
-			 * in terms of pixels per centimeter.
+			 * Mutator for the resolution of the image .
 			 *
-			 * @param[in] XResolution
-			 *	X-resolution (pixel/cm).
+			 * @param[in] resolution
+			 *	Resolution struct.
 			 */
 			void
-			setXResolution(
-			    unsigned int XResolution);
+			setResolution(
+			    const Resolution resolution);
 
 			/**
 		 	 * @brief
-			 * Mutator for the Y-resolution of the image 
-			 * in terms of pixels per centimeter.
-			 *
-			 * @param[in] YResolution
-			 *	Y-resolution (pixel/cm).
-			 */
-			void
-			setYResolution(
-			    const unsigned int YResolution);
-
-			/**
-		 	 * @brief
-			 * Mutator for the width of the image in pixels.
+			 * Mutator for the dimensions of the image in pixels.
 			 * 
-			 * @param[in] width
-			 * 	Width of image (pixel).
+			 * @param[in] dimensions
+			 * 	Dimensions of image (pixel).
 			 */
 			void
-			setWidth(
-			    const uint64_t width);
+			setDimensions(
+			    const Size dimensions);
 	
-			/**
-		 	 * @brief
-			 * Mutator for the height of the image in pixels.
-			 * 
-			 * @param[in] height
-			 * 	Height of image (pixel).
-			 */
-			void
-			setHeight(
-			    const uint64_t height);
-
 			/**
 		 	 * @brief
 			 * Mutator for the color depth of the image in bits.
@@ -243,21 +207,20 @@ namespace BiometricEvaluation
 			mutable Utility::AutoArray<uint8_t> _raw_data;
 
 		private: 
-			/** Image width (pixel) */
-			uint64_t _width;
-			/** Image height (pixel) */
-			uint64_t _height;
+			/** Image dimensions (width and height) in pixels */
+			Size _dimensions;
 
 			/** Color depth */
 			unsigned int _depth;
 
-			/** X resolution */
-			unsigned int _XResolution;
-			/** Y resolution */
-			unsigned int _YResolution;
+			/** Resolution */
+			Resolution _resolution;
 
 			/** Encoded image data */
 			Utility::AutoArray<uint8_t> _data;
+
+			/** Compression algorithm of _data */
+			CompressionAlgorithm::Kind _compressionAlgorithm;
 		};
 	}
 }
