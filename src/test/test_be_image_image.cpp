@@ -19,7 +19,7 @@
 
 #if defined RAWIMAGETEST
 #include <be_image_rawimage.h>
-#elif defined JPEGTEST
+#elif defined JPEGBTEST
 #include <be_image_jpeg.h>
 #endif
 
@@ -36,7 +36,10 @@ static uint8_t _img[_size] = {
     0xFF, 0x00, 0xFF, 0x00, 
     0x00, 0xFF, 0x00, 0xFF
 };
-#elif defined JPEGTEST
+static unsigned int _XResolution = 28;
+static unsigned int _YResolution = 28;
+static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPCM;
+#elif defined JPEGBTEST
 static const uint64_t _size = 206;
 static const uint64_t _raw_size = 16;
 static uint8_t _img[_size] = {
@@ -60,13 +63,14 @@ static uint8_t _img[_size] = {
 	0xd0, 0xb2, 0x5e, 0x4c, 0x45, 0x21, 0x7b, 0xce, 0x74, 0xe2, 0xbc,
 	0xed, 0x91, 0x65, 0x21, 0x19, 0x9f, 0xff, 0xd9
 };
+static unsigned int _XResolution = 72;
+static unsigned int _YResolution = 72;
+static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPI;
 #endif
 
 static uint64_t _width = 4;
 static uint64_t _height = 4;
 static unsigned int _depth = 8;
-static unsigned int _XResolution = 28;
-static unsigned int _YResolution = 28;
 static string filename("img_test");
 
 /* Write buffer */
@@ -104,9 +108,10 @@ main(int argc, char* argv[])
 
 	Image::Image *image;
 	#if defined RAWIMAGETEST
-	image = new Image::RawImage(_img, _size, _width, _height, _depth,
-	    _XResolution, _YResolution);
-	#elif defined JPEGTEST
+	image = new Image::RawImage(_img, _size, Image::Size(_width, _height),
+	    _depth, Image::Resolution(_XResolution, _YResolution,
+	    _resolutionUnits));
+	#elif defined JPEGBTEST
 	try {
 		image = new Image::JPEG(_img, _size);
 	} catch (Error::StrategyError &e) {
@@ -114,21 +119,31 @@ main(int argc, char* argv[])
 	}
 	#endif
 
-	cout << "Width: " << image->getWidth() << endl;
-	if (_width != image->getWidth())
+	cout << "Compression Algorithm : " <<
+	    image->getCompressionAlgorithm() << endl;
+	if (image->getCompressionAlgorithm() !=
+	#if defined RAWIMAGETEST
+	    Image::CompressionAlgorithm::None)
+	#elif defined JPEGBTEST
+	    Image::CompressionAlgorithm::JPEGB)
+	#endif
+	    	cout << "\tError in compression algorithm" << endl;
+
+	cout << "Dimensions: " << image->getDimensions() << endl;
+	if (_width != image->getDimensions().xSize)
 		cerr << "\tError in width" << endl;
-	cout << "Height: " << image->getHeight() << endl;
-	if (_height != image->getHeight())
+	if (_height != image->getDimensions().ySize)
 		cerr << "\tError in height" << endl;
 	cout << "Depth: " << image->getDepth() << endl;
 	if (_depth != image->getDepth())
 		cerr << "\tError in depth" << endl;
-	cout << "X Res: " << image->getXResolution() << endl;
-	if (_XResolution != image->getXResolution())
+	cout << "Resolution: " << image->getResolution() << endl;
+	if (_XResolution != image->getResolution().xRes)
 		cerr << "\tError in XResolution" << endl;
-	cout << "Y Res: " << image->getYResolution() << endl;
-	if (_YResolution != image->getYResolution())
+	if (_YResolution != image->getResolution().yRes)
 		cerr << "\tError in YResolution" << endl;
+	if (_resolutionUnits != image->getResolution().units)
+		cerr << "\tError in Resolution Units" << endl;
 
 	if (write_buf(image->getRawData(), _raw_size) != EXIT_SUCCESS)
 		cerr << "\tError in getRawData()" << endl;

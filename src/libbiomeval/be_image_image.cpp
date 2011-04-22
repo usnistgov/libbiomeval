@@ -13,62 +13,53 @@
 BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
     const uint64_t size,
-    const uint64_t width,
-    const uint64_t height,
+    const Size dimensions,
     const unsigned int depth,
-    const unsigned int XResolution,
-    const unsigned int YResolution) 
+    const Resolution resolution,
+    const CompressionAlgorithm::Kind compressionAlgorithm)
     throw (Error::StrategyError) : 
-    _width(width),
-    _height(height),
+    _dimensions(dimensions),
     _depth(depth),
-    _XResolution(XResolution),
-    _YResolution(YResolution),
-    _data(size)
+    _resolution(resolution),
+    _data(size),
+    _compressionAlgorithm(compressionAlgorithm)
 {
 	memcpy(_data, data, size);
 }
 
 BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
-    const uint64_t size)
+    const uint64_t size,
+    const CompressionAlgorithm::Kind compressionAlgorithm)
     throw (Error::StrategyError) :
-    _width(0),
-    _height(0),
+    _dimensions(Size()),
     _depth(0),
-    _XResolution(0),
-    _YResolution(0),
-    _data(size)
+    _resolution(Resolution()),
+    _data(size),
+    _compressionAlgorithm(compressionAlgorithm)
 {
 	memcpy(_data, data, size);
 }
 
-unsigned int
-BiometricEvaluation::Image::Image::getXResolution()
+BiometricEvaluation::Image::CompressionAlgorithm::Kind
+BiometricEvaluation::Image::Image::getCompressionAlgorithm()
     const
 {
-	return (_XResolution);
+	return (_compressionAlgorithm);
 }
 
-unsigned int
-BiometricEvaluation::Image::Image::getYResolution()
+BiometricEvaluation::Image::Resolution
+BiometricEvaluation::Image::Image::getResolution()
     const
 {
-	return (_YResolution);
+	return (_resolution);
 }
 
-uint64_t
-BiometricEvaluation::Image::Image::getWidth()
+BiometricEvaluation::Image::Size
+BiometricEvaluation::Image::Image::getDimensions()
     const
 {
-	return (_width);
-}
-	
-uint64_t
-BiometricEvaluation::Image::Image::getHeight()
-    const
-{
-	return (_height);
+	return (_dimensions);
 }
 
 unsigned int 
@@ -86,33 +77,19 @@ BiometricEvaluation::Image::Image::getData()
 }
 
 void
-BiometricEvaluation::Image::Image::setXResolution(
-    unsigned int XResolution)
+BiometricEvaluation::Image::Image::setResolution(
+    const Resolution resolution)
 {
-	_XResolution = XResolution;
+	_resolution = resolution;
 }
 
 void
-BiometricEvaluation::Image::Image::setYResolution(
-    const unsigned int YResolution)
+BiometricEvaluation::Image::Image::setDimensions(
+    const Size dimensions)
 {
-	_YResolution = YResolution;
-}
-
-void
-BiometricEvaluation::Image::Image::setWidth(
-    const uint64_t width)
-{
-	_width = width;
+	_dimensions = dimensions;
 }
 	
-void
-BiometricEvaluation::Image::Image::setHeight(
-    const uint64_t height)
-{
-	_height = height;
-}
-
 void
 BiometricEvaluation::Image::Image::setDepth(
     const unsigned int depth)

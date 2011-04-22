@@ -11,6 +11,39 @@
 using namespace BiometricEvaluation;
 using namespace Image;
 
+BiometricEvaluation::Image::Coordinate::Coordinate(
+    const uint32_t x,
+    const uint32_t y,
+    const float xDistance,
+    const float yDistance) :
+    x(x),
+    y(y),
+    xDistance(xDistance),
+    yDistance(yDistance)
+{
+
+}
+
+BiometricEvaluation::Image::Resolution::Resolution(
+    const double xRes,
+    const double yRes,
+    const Kind units) :
+    xRes(xRes),
+    yRes(yRes),
+    units(units)
+{
+
+}
+
+BiometricEvaluation::Image::Size::Size(
+    const uint32_t xSize,
+    const uint32_t ySize) :
+    xSize(xSize),
+    ySize(ySize)
+{
+
+}
+
 std::ostream &
 BiometricEvaluation::Image::operator<< (std::ostream &s,
     const Image::CompressionAlgorithm::Kind &ca)

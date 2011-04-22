@@ -54,12 +54,36 @@ namespace BiometricEvaluation
 		 * A structure to contain a two-dimensional coordinate
 		 * without a specified origin.
 		 */
-		typedef struct {
+		struct Coordinate {
+			/**
+			 * @brief
+			 * Create a Coordinate struct
+			 *
+			 * @param[in] x
+			 *	X-coordinate
+			 * @param[in] y
+			 *	Y-coordinate
+			 * @param[in] xDistance
+			 *	X-coordinate distance from origin
+			 * @param[in] yDistance
+			 *	Y-coordinate distance from origin
+			 */
+			Coordinate(
+			    const uint32_t x = 0,
+			    const uint32_t y = 0,
+			    const float xDistance = 0,
+			    const float yDistance = 0);
+
+			/** X-coordinate */
 			uint32_t x;
+			/** Y-coordinate */
 			uint32_t y;
-			float xDistance;    /* X-coord distance from origin */
-			float yDistance;    /* Y-coord distance from origin */
-		} Coordinate;
+			/** X-coordinate distance from origin */
+			float xDistance;
+			/** Y-coordinate distance from origin */
+			float yDistance;
+		};
+		typedef struct Coordinate Coordinate;
 		std::ostream& operator<< (std::ostream&, const Coordinate&);
 		typedef std::vector<Image::Coordinate> CoordinateSet;
 
@@ -68,26 +92,71 @@ namespace BiometricEvaluation
 		 * A structure to represent the size of an image, in
 		 * pixels.
 		 */
-		typedef struct {
+		struct Size {
+			/**
+			 * @brief
+			 * Create a Size struct.
+			 *
+			 * @param[in] xSize
+			 *	Number of pixels on the X-axis
+			 * @param[in] ySize
+			 *	Number of pixels on the Y-axis
+			 */
+			Size(
+			    const uint32_t xSize = 0,
+			    const uint32_t ySize = 0);
+
+			/** Number of pixels on the X-axis */
 			uint32_t xSize;
+			/** Number of pixels on the Y-axis */
 			uint32_t ySize;
-		} Size;
+		};
+		typedef struct Size Size;
 		std::ostream& operator<< (std::ostream&, const Size&);
 
 		/**
 		 * @brief
 		 * A structure to represent the resolution of an image.
 		 */
-		typedef struct {
+		struct Resolution {
+			/**
+			 * @brief
+			 * Possible representations of the units in a
+			 * Resolution struct
+			 */
 			typedef enum {
+				/** Pixels per inch */
 				PPI	= 0,
+				/** Pixels per millimeter */
 				PPMM	= 1,
+				/** Pixels per centimeter */
 				PPCM	= 2
 			} Kind;
+				
+			/**
+			 * @brief
+			 * Create a Resolution struct.
+			 * 
+			 * @param[in] xRes
+			 *	Resolution along the X-axis
+			 * @param[in] yRes
+			 *	Resolution along the Y-axis
+			 * @param[in] units
+			 *	Units in which xRes and yRes are represented
+			 */
+			Resolution(
+			    const double xRes = 0.0,
+			    const double yRes = 0.0,
+			    const Kind units = PPI);
+
+			/** Resolution along the X-axis */
 			double xRes;
+			/** Resolution along the Y-axis */
 			double yRes;
+			/** Units in which xRes and yRes are represented */
 			Kind units;
-		} Resolution;
+		};
+		typedef struct Resolution Resolution;
 		std::ostream& operator<< (std::ostream&, const Resolution&);
 	}
 }

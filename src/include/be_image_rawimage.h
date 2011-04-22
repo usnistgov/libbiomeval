@@ -24,35 +24,12 @@ namespace BiometricEvaluation
 		 */
 		class RawImage : public Image {
 		public:
-			/**
-			 * @brief
-			 * Construct a RawImage object.
-			 *
-			 * @param[in] data
-			 *	The image data.
-			 * @param[in] size
-			 *	The size of the image data, in bytes.
-			 * @param[in] width
-			 *	The width of the image, in pixels.
-			 * @param[in] height
-			 *	The height of the image, in pixels.
-			 * @param[in] depth
-			 *	The image depth, in bits-per-pixel.
-			 * @param[in] XResolution
-			 *	The resolution of the image in the horizontal
-			 *	direction, in pixels-per-centimeter.
-			 * @param[in] YResolution
-			 *	The resolution of the image in the horizontal
-			 *	direction, in pixels-per-centimeter.
-			 */
 			RawImage(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const uint64_t width,
-			    const uint64_t height,
+			    const Size dimensions,
 			    const unsigned int depth,
-			    const unsigned int XResolution,
-			    const unsigned int YResolution);
+			    const Resolution resolution);
 			~RawImage();
 
 			/*
