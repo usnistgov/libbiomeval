@@ -22,6 +22,10 @@
 #include <be_io_dbrecstore.h>
 #include <be_io_utility.h>
 
+static const mode_t DBRS_MODE_RW =
+    S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+static const mode_t DBRS_MODE_R = S_IRUSR | S_IRGRP | S_IROTH;
+
 static void setBtreeInfo(BTREEINFO *bti)
 {
 	bti->flags = 0;
@@ -47,7 +51,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 
 	BTREEINFO bti;
 	setBtreeInfo(&bti);
-	_db = dbopen(_dbname.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR,
+	_db = dbopen(_dbname.c_str(), O_CREAT | O_RDWR, DBRS_MODE_RW,
 	    DB_BTREE, &bti);
 	if (_db == NULL)
 		throw Error::StrategyError("Could not create database (" + 
@@ -68,11 +72,11 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	BTREEINFO bti;
 	setBtreeInfo(&bti);
 	if (mode == READWRITE)
-		_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR,
+		_db = dbopen(_dbname.c_str(), O_RDWR, DBRS_MODE_RW,
 		    DB_BTREE, &bti);
 	else
-		_db = dbopen(_dbname.c_str(), O_RDONLY, S_IRUSR, DB_BTREE,
-		    &bti);
+		_db = dbopen(_dbname.c_str(), O_RDONLY, DBRS_MODE_R,
+		    DB_BTREE, &bti);
 	if (_db == NULL)
 		throw Error::StrategyError("Could not open database (" + 
 		    Error::errorStr() + ")");
@@ -112,8 +116,7 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
 		throw Error::StrategyError("Database " + _dbname + 
 		    "does not exist");
 
-	_db = dbopen(_dbname.c_str(), O_RDWR, S_IRUSR | S_IWUSR, DB_BTREE, 
-	    NULL);
+	_db = dbopen(_dbname.c_str(), O_RDWR, DBRS_MODE_RW, DB_BTREE, NULL);
 	if (_db == NULL)
 		throw Error::StrategyError("Could not open database (" +
 		    Error::errorStr() + ")");

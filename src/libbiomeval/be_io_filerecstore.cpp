@@ -31,7 +31,7 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
-	if (mkdir(_theFilesDir.c_str(), S_IRWXU) != 0)
+	if (mkdir(_theFilesDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
 		throw Error::StrategyError("Could not create file area "
 		    "directory (" + Error::errorStr() + ")");
 	return;
@@ -46,7 +46,7 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
-	if (mkdir(_theFilesDir.c_str(), S_IRWXU) != 0)
+	if (mkdir(_theFilesDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
 	return;
 }
 

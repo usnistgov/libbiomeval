@@ -78,7 +78,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 	 */
 
 	/* Make the new directory, checking for errors */
-	if (mkdir(_directory.c_str(), S_IRWXU) != 0)
+	if (mkdir(_directory.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
 		throw Error::StrategyError("Could not create directory (" +
 		    Error::errorStr() + ")");
 	try {
