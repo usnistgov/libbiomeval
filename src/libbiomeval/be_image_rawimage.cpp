@@ -30,6 +30,7 @@ BiometricEvaluation::Image::RawImage::RawImage(
 BiometricEvaluation::Utility::AutoArray<uint8_t>
 BiometricEvaluation::Image::RawImage::getRawData()
     const
+    throw (Error::DataError)
 {
 	return (Image::getData());
 }

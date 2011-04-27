@@ -17,7 +17,8 @@ BiometricEvaluation::Image::Image::Image(
     const unsigned int depth,
     const Resolution resolution,
     const CompressionAlgorithm::Kind compressionAlgorithm)
-    throw (Error::StrategyError) : 
+    throw (Error::DataError,
+    Error::StrategyError) : 
     _dimensions(dimensions),
     _depth(depth),
     _resolution(resolution),
@@ -31,7 +32,8 @@ BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
     const uint64_t size,
     const CompressionAlgorithm::Kind compressionAlgorithm)
-    throw (Error::StrategyError) :
+    throw (Error::DataError,
+    Error::StrategyError) :
     _dimensions(Size()),
     _depth(0),
     _resolution(Resolution()),

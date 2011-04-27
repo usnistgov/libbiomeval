@@ -41,7 +41,8 @@ namespace BiometricEvaluation
 
 			Utility::AutoArray<uint8_t>
 			getRawData()
-			    const;
+			    const
+			    throw (Error::DataError);
 
 		protected:
 

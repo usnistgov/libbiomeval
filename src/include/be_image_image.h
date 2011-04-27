@@ -60,6 +60,8 @@ namespace BiometricEvaluation
 			 *	The CompressionAlgorithm of data.
 			 *
 			 * @throw Error::StrategyError
+			 *	Error manipulating data.
+			 * @throw Error::StrategyError
 			 *	Error while creating Image.
 			 */
 			Image(
@@ -69,7 +71,8 @@ namespace BiometricEvaluation
 			    const unsigned int depth, 
 			    const Resolution resolution,
 			    const CompressionAlgorithm::Kind compression)
-			    throw (Error::StrategyError);
+			    throw (Error::DataError,
+			    Error::StrategyError);
 
 			/**
 		 	 * @brief
@@ -83,13 +86,16 @@ namespace BiometricEvaluation
 			 *	The CompressionAlgorithm of data.
 			 *
 			 * @throw Error::StrategyError
+			 *	Error manipulating data.
+			 * @throw Error::StrategyError
 			 *	Error while creating Image.
 			 */
 			Image(
 			    const uint8_t *data,
 			    const uint64_t size,
 			    const CompressionAlgorithm::Kind compression)
-			    throw (Error::StrategyError);
+			    throw (Error::DataError,
+			    Error::StrategyError);
 
 			/**
 			 * @brief
@@ -133,10 +139,14 @@ namespace BiometricEvaluation
 			 * 
 			 * @return
 			 *	Raw image data.
+			 *
+			 * @throw Error::DataError
+			 *	Error decompressing image data.
 			 */
 			virtual Utility::AutoArray<uint8_t>
 			getRawData() 
-			    const = 0;
+			    const
+			    throw (Error::DataError) = 0;
 
 			/**
 		 	 * @brief

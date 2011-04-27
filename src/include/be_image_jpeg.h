@@ -33,13 +33,15 @@ namespace BiometricEvaluation
 			JPEG(
 			    const uint8_t *data,
 			    const uint64_t size)
-			    throw (Error::StrategyError);
+			    throw (Error::DataError,
+			    Error::StrategyError);
 
 			~JPEG();
 
 			Utility::AutoArray<uint8_t>
 			getRawData()
-			    const;
+			    const
+			    throw (Error::DataError);
 	
 			/**
 			 * Whether or not data is a JPEG image.

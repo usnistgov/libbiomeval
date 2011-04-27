@@ -15,7 +15,8 @@
 BiometricEvaluation::Image::JPEG::JPEG(
     const uint8_t *data,
     const uint64_t size)
-    throw (Error::StrategyError) : 
+    throw (Error::DataError,
+    Error::StrategyError) : 
     Image::Image(
     data,
     size,
@@ -39,7 +40,7 @@ BiometricEvaluation::Image::JPEG::JPEG(
 #endif
 
 	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)
-		throw Error::StrategyError("jpeg_read_header()");
+		throw Error::DataError("jpeg_read_header()");
 
 	setDimensions(Size(dinfo.image_width, dinfo.image_height));
 	setDepth(dinfo.num_components * bitsPerComponent);
@@ -53,6 +54,7 @@ BiometricEvaluation::Image::JPEG::JPEG(
 BiometricEvaluation::Utility::AutoArray<uint8_t>
 BiometricEvaluation::Image::JPEG::getRawData()
     const
+    throw (Error::DataError)
 {
 	/* Check for cached version */
 	if (_raw_data.size() != 0)
