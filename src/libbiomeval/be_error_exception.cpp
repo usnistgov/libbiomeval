@@ -68,6 +68,11 @@ BiometricEvaluation::Error::StrategyError::StrategyError() :
 BiometricEvaluation::Error::StrategyError::StrategyError(string info) :
     Exception("StrategyError: " + info) { }
 
+BiometricEvaluation::Error::DataError::DataError() :
+    Exception("DataError") { }
+BiometricEvaluation::Error::DataError::DataError(string info) :
+    Exception("DataError: " + info) { }
+
 BiometricEvaluation::Error::ConversionError::ConversionError() :
     Exception("ConversionError") { }
 BiometricEvaluation::Error::ConversionError::ConversionError(string info) :

@@ -147,6 +147,36 @@ namespace BiometricEvaluation {
 
 		/**
 		 * @brief
+		 * Error when reading data from an external source.
+		 * @details
+		 * Typically occurs when reading data from a standard record,
+		 * ANST/NIST 2000, for example, and a required field is
+		 * missing, or a field has invalid data.
+		 */
+		class DataError : public Exception {
+			public:
+				/**
+				 * Construct a DataError object with
+				 * the default information string.
+				 *
+				 * @return
+				 *	The DataError object.
+				 */
+				DataError();
+
+				/**
+				 * Construct a DataError object with
+				 * an information string appended to the
+				 * default information string.
+				 *
+				 * @return
+				 *	The DataError object.
+				 */
+				DataError(string info);
+		};
+
+		/**
+		 * @brief
 		 * An error occurred when allocating an object.
 		 */
 		class MemoryError : public Exception {
