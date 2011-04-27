@@ -68,7 +68,7 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    const uint64_t size,
 			    const Size dimensions,
-			    const unsigned int depth, 
+			    const uint32_t depth, 
 			    const Resolution resolution,
 			    const CompressionAlgorithm::Kind compression)
 			    throw (Error::DataError,
@@ -167,7 +167,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * 	The color depth of the image (bit).
 			 */
-			unsigned int
+			uint32_t
 			getDepth()
 			    const;
 
@@ -177,7 +177,7 @@ namespace BiometricEvaluation
 			 * Useful constants 
 			 */
 			/* Number of bits per color component */
-			static const unsigned int bitsPerComponent = 8;
+			static const uint32_t bitsPerComponent = 8;
 
 		protected:
 			/**
@@ -211,7 +211,7 @@ namespace BiometricEvaluation
 			 */
 			void
 			setDepth(
-			    const unsigned int depth);
+			    const uint32_t depth);
 
 			/** Raw image data, populated on demand */
 			mutable Utility::AutoArray<uint8_t> _raw_data;
@@ -221,7 +221,7 @@ namespace BiometricEvaluation
 			Size _dimensions;
 
 			/** Color depth */
-			unsigned int _depth;
+			uint32_t _depth;
 
 			/** Resolution */
 			Resolution _resolution;

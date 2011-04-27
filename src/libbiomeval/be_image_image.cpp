@@ -14,7 +14,7 @@ BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
     const uint64_t size,
     const Size dimensions,
-    const unsigned int depth,
+    const uint32_t depth,
     const Resolution resolution,
     const CompressionAlgorithm::Kind compressionAlgorithm)
     throw (Error::DataError,
@@ -64,7 +64,7 @@ BiometricEvaluation::Image::Image::getDimensions()
 	return (_dimensions);
 }
 
-unsigned int 
+uint32_t 
 BiometricEvaluation::Image::Image::getDepth()
     const
 {
@@ -94,7 +94,7 @@ BiometricEvaluation::Image::Image::setDimensions(
 	
 void
 BiometricEvaluation::Image::Image::setDepth(
-    const unsigned int depth)
+    const uint32_t depth)
 {
 	_depth = depth;
 }
