@@ -183,6 +183,37 @@ namespace BiometricEvaluation {
 				 */
 				void resize(size_t new_size, bool free=false)
     				    throw (Error::StrategyError);
+				
+				/**
+				 * @brief
+				 * Deep-copy the contents of a buffer into
+				 * this AutoArray.
+				 *
+				 * @param[in] buffer
+				 *	An allocated buffer whose contents
+				 *	will be deep-copied into this object.
+				 * @param[in] size
+				 *	The number of bytes from buffer
+				 *	that will be deep-copied.
+				 */
+				void
+				copy(
+				    T *buffer,
+				    size_t size);
+
+				/**
+				 * @brief
+				 * Deep-copy the contents of a buffer into
+				 * this AutoArray.
+				 *
+				 * @param[in] buffer
+				 *	An allocated buffer whose contents
+				 *	will be deep-copied into this object.
+				 *	Only size() bytes will be copied.
+				 */
+				void
+				copy(
+				    T *buffer);
 		
 				/**
 				 * @brief
@@ -264,6 +295,26 @@ BiometricEvaluation::Utility::AutoArray<T>::resize(
 		delete [] _data;
 	_data = new_data;
 	_size = _max_size = new_size;
+}
+
+template<class T>
+void
+BiometricEvaluation::Utility::AutoArray<T>::copy(
+    T *buffer)
+{
+	for (size_t i = 0; i < _size; i++)
+		_data[i] = buffer[i];
+}
+
+template<class T>
+void
+BiometricEvaluation::Utility::AutoArray<T>::copy(
+    T *buffer,
+    size_t size)
+{
+	resize(size);
+	for (size_t i = 0; i < size; i++)
+		_data[i] = buffer[i];
 }
 
 /*

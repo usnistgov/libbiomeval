@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <iomanip>
 #include <iostream>
 
 #include <be_error_exception.h>
@@ -85,7 +86,34 @@ int main (int argc, char* argv[]) {
 	for (int i = 0; i < aa.size(); i++)
 		cout << aa[i] << " ";
 	cout << endl;
+
+	cout << "--------------------" << endl;
+	size_t five_letters_sz = 5;
+	char *five_letters = (char *)malloc(sizeof(char) * five_letters_sz);
+	if (five_letters == NULL)
+		throw Error::StrategyError("Could not allocate memory");
+	cout << "Address of malloc()'d buffer " << hex << showbase <<
+	    &five_letters << endl;
+	for (size_t i = 0; i < five_letters_sz; i++)
+		five_letters[i] = 'A' + i;
+	cout << "malloc()'d buffer: ";
+	for (size_t i = 0; i < five_letters_sz; i++)
+		cout << five_letters[i] << " ";
+	cout << endl;
+	Utility::AutoArray<char> auto_five_letters;
+	/* Copy and then clear the malloc()'d buffer */
+	auto_five_letters.copy(five_letters, five_letters_sz);
+	for (size_t i = 0; i < five_letters_sz; i++)
+		five_letters[i] = ('A' + five_letters_sz) + i;
+	if (five_letters != NULL)
+		free(five_letters);
+	cout << "AutoArray.copy(): ";
+	for (size_t i = 0; i < five_letters_sz; i++)
+		cout << auto_five_letters[i] << " ";
+	cout << endl;
+	cout << "Address of AutoArray " << hex << showbase <<
+	    &auto_five_letters << endl;
 	
-	return 0;
+	return (0);
 }
 
