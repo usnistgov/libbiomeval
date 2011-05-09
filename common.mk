@@ -36,6 +36,7 @@ CXX = g++
 
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
         ROOT = Administrator
+	OS = Cygwin
 else
         ROOT  = root
 endif
