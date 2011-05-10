@@ -37,6 +37,11 @@ BiometricEvaluation::IO::Factory::openRecordStore(
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, path))
 		throw Error::ObjectDoesNotExist();
 
+	if (!IO::Utility::fileExists(path + '/' +
+	    RecordStore::RecordStore::CONTROLFILENAME))
+		throw Error::StrategyError(path + " is not a "
+		    "RecordStore");
+
 	Properties *props;
 	try {
 		props = new Properties(path + '/' +

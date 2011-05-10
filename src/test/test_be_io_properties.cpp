@@ -72,6 +72,19 @@ testNonMutable(IO::Properties &props)
 		cout << "changeName() succeeded when it should not have!" << endl;
 		rv = -1;
 	}
+
+	cout << "\tConstructor(): ";
+	success = false;
+	try {
+		IO::Properties newProp("nonexistent", IO::READONLY);
+	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.getInfo() << "; success." << endl;
+		success = true;
+	}
+	if (!success) {
+		cout << "Constructor succeeded when it should not have!" << endl;
+		rv = -1;
+	}
 }
 
 int

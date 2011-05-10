@@ -34,6 +34,10 @@ BiometricEvaluation::IO::Properties::Properties(
 	}
 	_filename = filename;
 	if (!IO::Utility::fileExists(_filename)) {
+		if (mode == IO::READONLY)
+			throw Error::StrategyError("Properties file does not "
+			    "exist and mode is read-only");
+
 		FILE *fp = fopen(_filename.c_str(), "w");
 		if (fp == NULL)
 			throw Error::FileError("Could not create new properties file");

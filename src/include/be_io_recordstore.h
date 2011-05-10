@@ -518,7 +518,9 @@ namespace BiometricEvaluation {
 			 * Read the contents of the common control file format
 			 * for all RecordStores.
 			 */
-			void readControlFile() throw (Error::StrategyError);
+			void
+			readControlFile()
+			    throw (Error::StrategyError);
 
 			/*
 			 * Write the contents of the common control file format

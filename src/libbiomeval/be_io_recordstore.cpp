@@ -308,6 +308,10 @@ void
 BiometricEvaluation::IO::RecordStore::readControlFile()
     throw (Error::StrategyError)
 {
+	if (!IO::Utility::fileExists(RecordStore::canonicalName(
+	    CONTROLFILENAME)))
+		throw Error::StrategyError(_directory + " is not a "
+		    "RecordStore");
 
 	/* Read the properties file and set the related state variables
 	 * from the Properties object, checking for errors.
