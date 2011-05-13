@@ -13,14 +13,19 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 
 #include <be_image_image.h>
+#include <be_io_utility.h>
+#include <be_utility_autoarray.h>
 
 #if defined RAWIMAGETEST
 #include <be_image_rawimage.h>
 #elif defined JPEGBTEST
 #include <be_image_jpeg.h>
+#elif defined WSQTEST
+#include <be_image_wsq.h>
 #endif
 
 using namespace BiometricEvaluation;
@@ -39,6 +44,10 @@ static uint8_t _img[_size] = {
 static unsigned int _XResolution = 28;
 static unsigned int _YResolution = 28;
 static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPCM;
+static uint64_t _width = 4;
+static uint64_t _height = 4;
+static unsigned int _depth = 8;
+static string filename("img_test");
 #elif defined JPEGBTEST
 static const uint64_t _size = 206;
 static const uint64_t _raw_size = 16;
@@ -66,12 +75,21 @@ static uint8_t _img[_size] = {
 static unsigned int _XResolution = 72;
 static unsigned int _YResolution = 72;
 static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPI;
-#endif
-
 static uint64_t _width = 4;
 static uint64_t _height = 4;
 static unsigned int _depth = 8;
 static string filename("img_test");
+#elif defined WSQTEST
+static const uint64_t _size = 8256;
+static const uint64_t _raw_size = 65536;
+static unsigned int _XResolution = 500;
+static unsigned int _YResolution = 500;
+static uint64_t _width = 256;
+static uint64_t _height = 256;
+static unsigned int _depth = 8;
+static string filename("img.wsq");
+static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPI;
+#endif
 
 /* Write buffer */
 int
@@ -97,6 +115,26 @@ write_buf(
 	return (EXIT_SUCCESS);
 }
 
+Utility::AutoArray<uint8_t>
+read_image(
+    const string &name)
+    throw (Error::ObjectDoesNotExist,
+    Error::StrategyError)
+{
+	static const string test_dir = "test_data";
+	string path = test_dir + '/' + name;
+	
+	Utility::AutoArray<uint8_t> buf(IO::Utility::getFileSize(path));
+	FILE *fp = fopen(path.c_str(), "rb");
+	if (fp == NULL)
+		throw Error::StrategyError("Could not open " + path);
+	if (fread(buf, 1, buf.size(), fp) != buf.size())
+		throw Error::StrategyError("Could not read " + name);
+	fclose(fp);
+	
+	return (buf);
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -113,19 +151,40 @@ main(int argc, char* argv[])
 	    _resolutionUnits));
 	#elif defined JPEGBTEST
 	try {
-		image = new Image::JPEG(_img, _size);
-	} catch (Error::StrategyError &e) {
+		if (Image::JPEG::isJPEG(_img))
+			image = new Image::JPEG(_img, _size);
+		else {
+			cerr << "FAIL: Not a JPEG image." << endl;
+			return (EXIT_FAILURE);
+		}
+	} catch (Error::Exception &e) {
 		cout << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+	#elif defined WSQTEST
+	try {
+		Utility::AutoArray<uint8_t> wsq_img = read_image(filename);
+		if (Image::WSQ::isWSQ(wsq_img))
+			image = new Image::WSQ(wsq_img, wsq_img.size());
+		else {
+			cerr << "FAIL: Not a WSQ image." << endl;
+			return (EXIT_FAILURE);
+		}
+	} catch (Error::Exception &e) {
+		cout << e.getInfo() << endl;
+		return (EXIT_FAILURE);
 	}
 	#endif
 
-	cout << "Compression Algorithm : " <<
+	cout << "Compression Algorithm: " <<
 	    image->getCompressionAlgorithm() << endl;
 	if (image->getCompressionAlgorithm() !=
 	#if defined RAWIMAGETEST
 	    Image::CompressionAlgorithm::None)
 	#elif defined JPEGBTEST
 	    Image::CompressionAlgorithm::JPEGB)
+	#elif defined WSQTEST
+	    Image::CompressionAlgorithm::WSQ20)
 	#endif
 	    	cout << "\tError in compression algorithm" << endl;
 
