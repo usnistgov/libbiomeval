@@ -24,6 +24,8 @@
 #include <be_image_rawimage.h>
 #elif defined JPEGBTEST
 #include <be_image_jpeg.h>
+#elif defined PNGTEST
+#include <be_image_png.h>
 #elif defined WSQTEST
 #include <be_image_wsq.h>
 #endif
@@ -78,6 +80,29 @@ static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPI;
 static uint64_t _width = 4;
 static uint64_t _height = 4;
 static unsigned int _depth = 8;
+static string filename("img_test");
+#elif defined PNGTEST
+static const uint64_t _size = 117;
+static const uint64_t _raw_size = 64;
+static uint8_t _img[_size] = {
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00,
+    0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00,
+    0x00, 0x04, 0x08, 0x06, 0x00, 0x00, 0x00, 0xa9, 0xf1, 0x9e, 0x7e,
+    0x00, 0x00, 0x00, 0x09, 0x70, 0x48, 0x59, 0x73, 0x00, 0x00, 0x0b,
+    0x13, 0x00, 0x00, 0x0b, 0x13, 0x01, 0x00, 0x9a, 0x9c, 0x18, 0x00,
+    0x00, 0x00, 0x27, 0x49, 0x44, 0x41, 0x54, 0x08, 0x1d, 0x35, 0x8a,
+    0xb9, 0x0d, 0x00, 0x00, 0x08, 0x02, 0x0f, 0xf7, 0xdf, 0x59, 0x41,
+    0x23, 0x05, 0xbf, 0x80, 0x36, 0x2c, 0x20, 0x89, 0xfa, 0xb0, 0x8d,
+    0xa9, 0xde, 0x64, 0x0d, 0xc2, 0xf7, 0xdf, 0x08, 0x03, 0x9a, 0xa2,
+    0x08, 0x05, 0x50, 0xea, 0xae, 0x8e, 0x00, 0x00, 0x00, 0x00, 0x49,
+    0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+};
+static double _XResolution = 28.35;
+static double _YResolution = 28.35;
+static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPCM;
+static uint64_t _width = 4;
+static uint64_t _height = 4;
+static unsigned int _depth = 32;
 static string filename("img_test");
 #elif defined WSQTEST
 static const uint64_t _size = 8256;
@@ -161,6 +186,18 @@ main(int argc, char* argv[])
 		cout << e.getInfo() << endl;
 		return (EXIT_FAILURE);
 	}
+	#elif defined PNGTEST
+	try {
+		if (Image::PNG::isPNG(_img))
+			image = new Image::PNG(_img, _size);
+		else {
+			cerr << "FAIL: Not a PNG image." << endl;
+			return (EXIT_FAILURE);
+		}
+	} catch (Error::Exception &e) {
+		cout << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
 	#elif defined WSQTEST
 	try {
 		Utility::AutoArray<uint8_t> wsq_img = read_image(filename);
@@ -183,6 +220,8 @@ main(int argc, char* argv[])
 	    Image::CompressionAlgorithm::None)
 	#elif defined JPEGBTEST
 	    Image::CompressionAlgorithm::JPEGB)
+	#elif defined PNGTEST
+	    Image::CompressionAlgorithm::PNG)
 	#elif defined WSQTEST
 	    Image::CompressionAlgorithm::WSQ20)
 	#endif
