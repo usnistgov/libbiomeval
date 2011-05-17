@@ -9,6 +9,8 @@
  */
 
 extern "C" {
+	#include <stdio.h>
+	#include <dataio.h>
 	#include <wsq.h>
 	int debug = 0;	/* Required by libwsq */
 }
@@ -29,26 +31,27 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	uint8_t *wsq_buf = marker_buf;
 
 	/* Read to the "start of image" marker */
-	uint16_t marker;
+	uint16_t marker, tbl_size;
 	uint32_t rv = 0;
 	if ((rv = getc_marker_wsq(&marker, SOI_WSQ, &marker_buf,
 	    wsq_buf + size)))
 		throw Error::StrategyError("libwsq could not read to SOI_WSQ");
 	
 	/* Step through any tables up to the "start of frame" marker */
-	if ((rv = getc_marker_wsq(&marker, TBLS_N_SOF, &marker_buf,
-	    wsq_buf + size)))
-		throw Error::StrategyError("libwsq could not read to "
-		    "TBLS_N_SOF");
-	while (marker != SOF_WSQ) {
-		if ((rv = getc_table_wsq(marker, &dtt_table, &dqt_table, 
-		    dht_table, &marker_buf, wsq_buf + size)))
-			throw Error::StrategyError("libwsq could not read "
-			    "table");
+	for (;;) {
 		if ((rv = getc_marker_wsq(&marker, TBLS_N_SOF, &marker_buf,
 		    wsq_buf + size)))
 			throw Error::StrategyError("libwsq could not read to "
 			    "TBLS_N_SOF");
+
+		if (marker == SOF_WSQ)
+			break;
+			
+		if ((rv = getc_ushort(&tbl_size, &marker_buf, wsq_buf + size)))
+			throw Error::StrategyError("libwsq could not read size "
+			    "of table");
+		/* Table size includes size of field but not the marker */
+		marker_buf += tbl_size - sizeof(tbl_size);
 	}
 	
 	/* Read the frame header */
