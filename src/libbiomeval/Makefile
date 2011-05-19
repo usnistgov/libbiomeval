@@ -30,7 +30,7 @@ ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(CXX) $(CXXFLAGS) $(NBISLIB) -shared $(OBJECTS) -ldb -lcrypto -o $(LIBRARY).so
+	$(CXX) $(CXXFLAGS) -Wl,--start-group $(NBISLIB) $(OBJECTS) -Wl,--end-group -shared -ldb -lcrypto -o $(LIBRARY).so
 	$(CP) $(LIBRARY).so $(LOCALLIB)
 endif
 endif
