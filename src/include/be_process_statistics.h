@@ -11,6 +11,7 @@
 #ifndef __BE_PROCESS_STATISTICS_H__
 #define __BE_PROCESS_STATISTICS_H__
 
+#include <tr1/memory>
 #include <memory>
 #include <pthread.h>
 
@@ -230,7 +231,7 @@ namespace BiometricEvaluation {
 
 			pid_t _pid;
 			IO::LogCabinet *_logCabinet;
-			std::auto_ptr<IO::LogSheet> _logSheet;
+			tr1::shared_ptr<IO::LogSheet> _logSheet;
 			bool _logging;
 			bool _autoLogging;
 			pthread_t _loggingThread;

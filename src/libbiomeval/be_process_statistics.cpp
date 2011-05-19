@@ -236,13 +236,12 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	_pid = getpid();
 	_logCabinet = logCabinet;
 
-	IO::LogSheet *tempLS;
 	ostringstream lsname, descr;
 	string procname = internalGetProcName(_pid);
 	lsname << procname << "-" << _pid << ".stats.log";
 	descr << "Statistics for " << procname << " (PID " << _pid << ")";
 	try {
-		tempLS = logCabinet->newLogSheet(lsname.str(), descr.str());
+		_logSheet = logCabinet->newLogSheet(lsname.str(), descr.str());
 	} catch (Error::ObjectExists &e) {
 		throw Error::StrategyError("Logsheet already exists.");
 	} catch (Error::StrategyError &e) {
@@ -251,8 +250,7 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	_logging = true;
 	_autoLogging = false;
 	pthread_mutex_init(&_logMutex, NULL);
-	tempLS->writeComment(LogSheetHeader);
-	_logSheet.reset(tempLS);
+	_logSheet->writeComment(LogSheetHeader);
 }
 
 void
