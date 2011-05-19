@@ -10,6 +10,8 @@
 #ifndef __BE_IO_LOGCABINET_H
 #define __BE_IO_LOGCABINET_H
 
+#include <tr1/memory>
+
 #include <stdint.h>
 
 #include <memory>
@@ -304,7 +306,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	file system, or name or parentDir is malformed.
 			*/
-			LogSheet *newLogSheet(
+			tr1::shared_ptr<LogSheet> newLogSheet(
 			    const string &name,
 			    const string &description)
 			    throw (Error::ObjectExists, Error::StrategyError);

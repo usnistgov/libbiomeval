@@ -265,7 +265,7 @@ BiometricEvaluation::IO::LogCabinet::~LogCabinet()
 /*
  * Object methods.
  */
-BiometricEvaluation::IO::LogSheet *
+tr1::shared_ptr<BiometricEvaluation::IO::LogSheet>
 BiometricEvaluation::IO::LogCabinet::newLogSheet(
     const string &name,
     const string &description)
@@ -284,7 +284,7 @@ BiometricEvaluation::IO::LogCabinet::newLogSheet(
 		throw e;
 	}
 	_count++;
-	return (ls);
+	return (std::tr1::shared_ptr<BiometricEvaluation::IO::LogSheet>(ls));
 
 }
 

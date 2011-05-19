@@ -11,7 +11,7 @@
 # Framework versioning
 #
 MAJOR_VERSION=0
-MINOR_VERSION=3
+MINOR_VERSION=4
 #
 # This set of directories is where the header files, libraries, programs,
 # and man pages are to be installed.

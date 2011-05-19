@@ -19,29 +19,29 @@ using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::IO;
 
 static int
-doLogSheetTests(LogSheet *ls)
+doLogSheetTests(LogSheet &ls)
 {
 	ostringstream test;
-	srand((unsigned)(size_t)ls);
+	srand((unsigned)(size_t)&ls);
 	float f;
 	try {
 		for (int i = 2; i <= 19; i++) {
-			cout << ls->getCurrentEntryNumber() << " ";
+			cout << ls.getCurrentEntryNumber() << " ";
 			test.str("");
 			test << "Comment for entry " << i;
-			ls->writeComment(test.str());
+			ls.writeComment(test.str());
 			test.str("");
 			test << "Entry " << i;
-			ls->write(test.str());
-			cout << ls->getCurrentEntryNumber() << " ";
+			ls.write(test.str());
+			cout << ls.getCurrentEntryNumber() << " ";
 			i += 1;
-			*ls << "Entry number " << i << endl;
-			f = (float)rand() / (int)(size_t)ls;
-			*ls << "\t Second line of entry " << i << ".";
-			*ls << " 'Random' value is " << f << ".";
-			ls->newEntry();
+			ls << "Entry number " << i << endl;
+			f = (float)rand() / (int)(size_t)&ls;
+			ls << "\t Second line of entry " << i << ".";
+			ls << " 'Random' value is " << f << ".";
+			ls.newEntry();
 		}
-		ls->sync();
+		ls.sync();
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
@@ -85,7 +85,7 @@ doLogCabinetTests()
 	cout << "success." << endl;
 	auto_ptr<LogCabinet> alc(lc);
 
-	LogSheet *ls;
+	tr1::shared_ptr<LogSheet> ls;
 	string lsname;
 	for (int i = 0; i < LOGSHEETCOUNT; i++) {
 		ostringstream sbuf;
@@ -102,12 +102,11 @@ doLogCabinetTests()
 			return (-1);
 		}
 		cout << "Writing log sheet... ";
-		if (doLogSheetTests(ls) != 0) {
+		if (doLogSheetTests(*ls) != 0) {
 			cout << "failed" << endl;
 			return(-1);
 		}
 		cout << "success." << endl;
-		delete ls ;
 	}
 	delete alc.release();
 	cout << "Opening existing Log Cabinet... ";
@@ -195,7 +194,7 @@ main(int argc, char* argv[])
 		return (-1);
 	}
 	cout << "Writing more entries... ";
-	if (doLogSheetTests(ls) != 0) {
+	if (doLogSheetTests(*ls) != 0) {
 		cout << "failed." << endl;
 		status = EXIT_FAILURE;
 	} else {
