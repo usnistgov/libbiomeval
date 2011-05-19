@@ -32,6 +32,12 @@ namespace BiometricEvaluation
 		const uint64_t OneEighthSecond = 125000;
 		const int MicrosecondsPerSecond = 1000000;
 		const int MillisecondsPerSecond = 1000;
+
+		/**
+		 * @brief
+		 * Return the current time as a string.
+		 */
+		 string getCurrentTime();
 	}
 }
 #endif /* __BE_TIME_H__ */
