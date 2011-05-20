@@ -349,6 +349,8 @@ BiometricEvaluation::Utility::AutoArray<T>::operator= (
 {
 	if (this != &copy) {
 		_size = _max_size = copy._size; 
+		if (_data != NULL)
+			delete [] _data;
 		_data = new T[_size];
 		if (_data == NULL)
 			throw Error::StrategyError("Could not allocate data");
