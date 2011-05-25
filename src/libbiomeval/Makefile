@@ -11,7 +11,14 @@ COMMONINCOPT = -I/usr/local/nbis/include
 NBISLIB = -L/usr/local/nbis/lib -ljpegb -lwsq -ljpegl -lfet -lioutil -lutil -lpng -lz
 
 include ../common.mk
-SOURCES = be_text.cpp be_system.cpp be_error_exception.cpp be_error.cpp be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_io_factory.cpp be_image.cpp be_image_image.cpp be_image_rawimage.cpp be_image_jpeg.cpp be_image_png.cpp be_image_wsq.cpp be_process_statistics.cpp be_utility.cpp be_framework.cpp
+
+CORE = be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp be_utility.cpp
+
+IO = be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp be_io_factory.cpp
+
+IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_rawimage.cpp be_image_wsq.cpp be_image_png.cpp
+
+SOURCES = $(CORE) $(IO) $(IMAGE)
 OBJECTS = $(SOURCES:%.cpp=%.o)
 LIBRARY = libbiomeval
 LOCALLIB = ../../lib
