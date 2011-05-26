@@ -22,6 +22,8 @@
 
 #if defined RAWIMAGETEST
 #include <be_image_rawimage.h>
+#elif defined JPEG2000TEST
+#include <be_image_jpeg2000.h>
 #elif defined JPEGBTEST
 #include <be_image_jpeg.h>
 #elif defined PNGTEST
@@ -81,6 +83,16 @@ static uint64_t _width = 4;
 static uint64_t _height = 4;
 static unsigned int _depth = 8;
 static string filename("img_test");
+#elif defined JPEG2000TEST
+static const uint64_t _size = 446994;
+static const uint64_t _raw_size = 914356;
+static double _XResolution = 393.7;
+static double _YResolution = 393.7;
+static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPCM;
+static uint64_t _width = 908;
+static uint64_t _height = 1007;
+static unsigned int _depth = 8;
+static string filename("img.jp2");
 #elif defined PNGTEST
 static const uint64_t _size = 117;
 static const uint64_t _raw_size = 64;
@@ -186,6 +198,19 @@ main(int argc, char* argv[])
 		cout << e.getInfo() << endl;
 		return (EXIT_FAILURE);
 	}
+	#elif defined JPEG2000TEST
+	try {
+		Utility::AutoArray<uint8_t> img = read_image(filename);
+		if (Image::JPEG2000::isJPEG2000(img))
+			image = new Image::JPEG2000(img, img.size());
+		else {
+			cerr << "FAIL: Not a JPEG-2000 image." << endl;
+			return (EXIT_FAILURE);
+		}
+	} catch (Error::Exception &e) {
+		cout << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
 	#elif defined PNGTEST
 	try {
 		if (Image::PNG::isPNG(_img))
@@ -222,6 +247,8 @@ main(int argc, char* argv[])
 	    Image::CompressionAlgorithm::JPEGB)
 	#elif defined PNGTEST
 	    Image::CompressionAlgorithm::PNG)
+	#elif defined JPEG2000TEST
+	    Image::CompressionAlgorithm::JP2)
 	#elif defined WSQTEST
 	    Image::CompressionAlgorithm::WSQ20)
 	#endif
