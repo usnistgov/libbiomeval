@@ -100,6 +100,84 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	return (_raw_data);
 }
 
+BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
+    uint8_t depth)
+    const
+    throw (Error::DataError,
+    Error::ParameterError)
+{
+	if (depth != 8 && depth != 1)
+		throw Error::ParameterError("Invalid value for bit depth");
+	
+	/* Initialize custom JPEG error manager to throw exceptions */
+	struct jpeg_error_mgr jpeg_error_mgr;
+	jpeg_std_error(&jpeg_error_mgr);
+	jpeg_error_mgr.error_exit = JPEG::error_exit;
+	
+	struct jpeg_decompress_struct dinfo;
+	dinfo.err = &jpeg_error_mgr;
+	jpeg_create_decompress(&dinfo);
+
+	Utility::AutoArray<uint8_t> jpeg_data = getData();
+
+#if JPEG_LIB_VERSION >= 80
+	::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
+#else
+	JPEG::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
+#endif
+	
+	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)
+		throw Error::StrategyError("jpeg_read_header()");
+
+	dinfo.out_color_space = JCS_GRAYSCALE;
+	dinfo.dither_mode = JDITHER_NONE;
+	switch (depth) {
+	case 8:
+		dinfo.quantize_colors = FALSE;
+		break;
+	case 1:
+		/* We have to quantize to change the output bit depth */
+		dinfo.quantize_colors = TRUE;
+		dinfo.desired_number_of_colors = 2;
+		break;
+	}
+
+	if (jpeg_start_decompress(&dinfo) != TRUE)
+		throw Error::StrategyError("jpeg_start_decompress()");
+
+	uint64_t row_stride = dinfo.output_width * dinfo.output_components;
+	Utility::AutoArray<uint8_t> raw_gray(dinfo.output_height * row_stride);
+
+	JSAMPARRAY buffer = (*dinfo.mem->alloc_sarray)(
+	    (j_common_ptr)&dinfo, JPOOL_IMAGE, row_stride, 1);
+
+	for (int n = 0; dinfo.output_scanline < dinfo.output_height; n++) {
+		jpeg_read_scanlines(&dinfo, buffer, 1);
+
+		switch (depth) {
+		case 1:
+			/*
+			 * Quantize 1 bit per pixel value into an 8 bit 
+			 * container by mapping 1 to 255.
+			 *
+			 * TODO: Use a colormap to support 2-7 bit depth.
+			 */
+			for (int i = 0; i < row_stride; i++)
+				if (buffer[0][i] == 0x01)
+					buffer[0][i] = 0xFF;
+			break;
+		}
+		memcpy(&raw_gray[n * row_stride], buffer[0], row_stride);
+	}
+
+	/* Clean up after libjpeg */
+	jpeg_finish_decompress(&dinfo);
+	jpeg_destroy_decompress(&dinfo);
+	
+	return (raw_gray);
+}
+
 bool
 BiometricEvaluation::Image::JPEG::isJPEG(
     const uint8_t *data)

@@ -85,7 +85,7 @@ namespace BiometricEvaluation
 			 * @param[in] compression
 			 *	The CompressionAlgorithm of data.
 			 *
-			 * @throw Error::StrategyError
+			 * @throw Error::DataError
 			 *	Error manipulating data.
 			 * @throw Error::StrategyError
 			 *	Error while creating Image.
@@ -147,6 +147,43 @@ namespace BiometricEvaluation
 			getRawData() 
 			    const
 			    throw (Error::DataError) = 0;
+			    
+			/**
+			 * @brief
+			 * Accessor for decompressed data in grayscale.
+			 *
+			 * @param depth
+			 *	The desired bit depth of the resulting raw
+			 *	image.  This value may either be 8 or 1.
+			 *
+			 * @return
+			 *	Raw image buffer.
+			 *
+			 * @throw Error::DataError
+			 *	Error decompressing image data.
+			 *	
+			 * @throw Error::ParameterError
+			 *	Invalid value for depth.
+			 *
+			 * @note
+			 *	This method does not save a cached copy of the
+			 *	decompressed image because the bit depth of the
+			 *	image can be changed between calls.
+			 *
+			 * @note
+			 *	This method always returns an image that uses
+			 *	8 bits to represent a single pixel.  depth 
+			 *	adjusts the number of pixels used to determine
+			 *	the color of the pixel in the 8 bit container,
+			 *	currently 1 (2 gray levels) or 8 (256 gray 
+			 *	levels).
+			 */
+			virtual Utility::AutoArray<uint8_t>
+			getRawGrayscaleData(
+			    uint8_t depth = 8)
+			    const
+			    throw (Error::DataError,
+			    Error::ParameterError) = 0;
 
 			/**
 		 	 * @brief

@@ -36,6 +36,13 @@ namespace BiometricEvaluation
 			getRawData()
 			    const
 			    throw (Error::DataError);
+			    
+			Utility::AutoArray<uint8_t>
+			getRawGrayscaleData(
+			    uint8_t depth = 8)
+			    const
+			    throw (Error::DataError,
+			    Error::ParameterError);
 	
 			/**
 			 * Whether or not data is a WSQ image.

@@ -35,6 +35,20 @@ BiometricEvaluation::Image::RawImage::getRawData()
 	return (Image::getData());
 }
 
+BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Image::RawImage::getRawGrayscaleData(
+    uint8_t depth)
+    const
+    throw (Error::DataError,
+    Error::ParameterError)
+{
+	if (depth != 8 && depth != 1)
+		throw Error::ParameterError("Invalid value for bit depth");
+
+	/* TODO: Implement */
+	return (Utility::AutoArray<uint8_t>());
+}
+
 BiometricEvaluation::Image::RawImage::~RawImage()
 {
 

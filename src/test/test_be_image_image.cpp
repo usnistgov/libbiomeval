@@ -38,6 +38,7 @@ using namespace std;
 /* Image data */
 #if defined RAWIMAGETEST
 static const uint64_t _size = 16;
+static const uint64_t _gray_size = 0;
 static const uint64_t _raw_size = 16;
 static uint8_t _img[_size] = {
     0xFF, 0x00, 0xFF, 0x00, 
@@ -54,6 +55,7 @@ static unsigned int _depth = 8;
 static string filename("img_test");
 #elif defined JPEGBTEST
 static const uint64_t _size = 206;
+static const uint64_t _gray_size = 16;
 static const uint64_t _raw_size = 16;
 static uint8_t _img[_size] = {
 	0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00,
@@ -85,6 +87,7 @@ static unsigned int _depth = 8;
 static string filename("img_test");
 #elif defined JPEG2000TEST
 static const uint64_t _size = 446994;
+static const uint64_t _gray_size = 0;
 static const uint64_t _raw_size = 914356;
 static double _XResolution = 393.7;
 static double _YResolution = 393.7;
@@ -95,6 +98,7 @@ static unsigned int _depth = 8;
 static string filename("img.jp2");
 #elif defined PNGTEST
 static const uint64_t _size = 117;
+static const uint64_t _gray_size = 0;
 static const uint64_t _raw_size = 64;
 static uint8_t _img[_size] = {
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00,
@@ -118,6 +122,7 @@ static unsigned int _depth = 32;
 static string filename("img_test");
 #elif defined WSQTEST
 static const uint64_t _size = 8256;
+static const uint64_t _gray_size = 0;
 static const uint64_t _raw_size = 65536;
 static unsigned int _XResolution = 500;
 static unsigned int _YResolution = 500;
@@ -274,6 +279,8 @@ main(int argc, char* argv[])
 		cerr << "\tError in getRawData()" << endl;
 	if (write_buf(image->getData(), _size) != EXIT_SUCCESS)
 		cerr << "\tError in getData()" << endl;
+	if (write_buf(image->getRawGrayscaleData(), _gray_size) != EXIT_SUCCESS)
+		cerr << "\tError in getRawGrayscaleData()" << endl;
 
 	if (image != NULL)
 		delete image;
