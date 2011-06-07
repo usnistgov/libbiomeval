@@ -38,7 +38,7 @@ using namespace std;
 /* Image data */
 #if defined RAWIMAGETEST
 static const uint64_t _size = 16;
-static const uint64_t _gray_size = 0;
+static const uint64_t _gray_size = 16;
 static const uint64_t _raw_size = 16;
 static uint8_t _img[_size] = {
     0xFF, 0x00, 0xFF, 0x00, 
