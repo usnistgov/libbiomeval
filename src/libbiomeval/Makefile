@@ -52,7 +52,7 @@ else
 	$(CXX) -c -DDB1X $(CXXFLAGS) $<
 endif
 
-be_error_utility.o: be_error_utility.cpp
+be_error.o: be_error.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ -D_XOPEN_SOURCE=600 $<
 
 be_framework.o: be_framework.cpp

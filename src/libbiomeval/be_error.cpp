@@ -9,6 +9,10 @@
  */
 
 #include <stdio.h>
+
+#ifdef __CYGWIN__
+#define _GNU_SOURCE
+#endif
 #include <string.h>
 #include <errno.h>
 
@@ -23,15 +27,18 @@ BiometricEvaluation::Error::errorStr()
 	char *msgbufptr = NULL;
 
 	/* 
-	 * Although defining _XOPEN_SOURCE=600 should force usage of the 
-	 * XSI-compliant strerror_r(), Cygwin will still use the GNU version
-	 * because it does not implement any other version.
+	 * Certain versions of Cygwin only support the GNU version of
+	 * strerror_r(), which returns a char *; other versions support
+	 * both the BSD (returning int) and the GNU version. To support
+	 * all platforms, use a pointer set to the buffer passed in, and
+	 * #define _GNU_SOURCE above so we get the GNU version always on
+	 * Cygwin.
 	 * http://www.gnu.org/software/hello/manual/gnulib/strerror_005fr.html
 	 */
-#ifndef __CYGWIN__
-	msgbufptr = (strerror_r(errno, msgbuf, BUFSIZ) == 0 ? msgbuf : NULL);
-#else
+#ifdef __CYGWIN__
 	msgbufptr = strerror_r(errno, msgbuf, BUFSIZ);
+#else
+	msgbufptr = (strerror_r(errno, msgbuf, BUFSIZ) == 0 ? msgbuf : NULL);
 #endif
 
 	if (msgbufptr == NULL)
