@@ -131,11 +131,7 @@ BiometricEvaluation::Image::JPEG2000::getRawGrayscaleData(
     throw (Error::DataError,
     Error::ParameterError)
 {
-	if (depth != 8 && depth != 1)
-		throw Error::ParameterError("Invalid value for bit depth");
-
-	/* TODO: Implement */
-	return (Utility::AutoArray<uint8_t>());
+	return (Image::getRawGrayscaleData(depth));
 }
 
 bool
