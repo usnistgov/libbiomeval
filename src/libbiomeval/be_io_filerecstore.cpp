@@ -278,7 +278,7 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 		    "sync");
 	string _key = entry->d_name;
 	key = _key;
-	RecordStore::sequence(key, data, cursor);
+	setCursor(cursor);
 	_cursorPos = i + 1;
 
 	if (dir != NULL) {

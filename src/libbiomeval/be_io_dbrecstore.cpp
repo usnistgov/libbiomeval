@@ -355,7 +355,7 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 			    "database (" + Error::errorStr() + ")");
 			break;		/* not reached */
 	}
-	RecordStore::sequence(key, data, cursor);
+	setCursor(cursor);
 	if (data != NULL)
 		memcpy(data, dbtdata.data, dbtdata.size);
 	key.assign((const char *)dbtkey.data, dbtkey.size);

@@ -148,16 +148,6 @@ BiometricEvaluation::IO::RecordStore::remove(
 	_count--;
 }
 
-uint64_t
-BiometricEvaluation::IO::RecordStore::sequence(
-    string &key,
-    void *data,
-    int cursor)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
-{
-	_cursor = cursor;
-}
-
 int
 BiometricEvaluation::IO::RecordStore::getCursor() const
 {
