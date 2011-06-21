@@ -185,6 +185,12 @@ BiometricEvaluation::IO::RecordStore::sync()
 	}
 }
 
+unsigned int
+BiometricEvaluation::IO::RecordStore::getCount() const
+{
+	return _count;
+}
+
 string
 BiometricEvaluation::IO::RecordStore::getName() const
 {
@@ -231,12 +237,76 @@ BiometricEvaluation::IO::RecordStore::changeDescription(const string &descriptio
 	writeControlFile();
 }
 
-unsigned int
-BiometricEvaluation::IO::RecordStore::getCount() const
+std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore::RecordStore>
+BiometricEvaluation::IO::RecordStore::openRecordStore(
+    const string &name,
+    const string &parentDir,
+    uint8_t mode)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	return _count;
+	string path;
+	if (!IO::Utility::validateRootName(name))
+		throw Error::StrategyError("Invalid characters in RS name");
+	if (!IO::Utility::constructAndCheckPath(name, parentDir, path))
+		throw Error::ObjectDoesNotExist();
+
+	if (!IO::Utility::fileExists(path + '/' +
+	    RecordStore::RecordStore::CONTROLFILENAME))
+		throw Error::StrategyError(path + " is not a "
+		    "RecordStore");
+
+	Properties *props;
+	try {
+		props = new Properties(path + '/' +
+		    RecordStore::RecordStore::CONTROLFILENAME, IO::READONLY);
+	} catch (Error::StrategyError &e) {
+                throw Error::StrategyError("Could not read properties");
+        } catch (Error::FileError& e) {
+                throw Error::StrategyError("Could not open properties");
+	}
+	std::auto_ptr<Properties> aprops(props);
+
+	string type;
+	try {
+		type = aprops->getProperty(RecordStore::TYPEPROPERTY);
+	} catch (Error::ObjectDoesNotExist& e) {
+		throw Error::StrategyError("Type property is missing");
+	}
+
+	RecordStore *rs;
+	/* Exceptions thrown by constructors are allowed to float out */
+	if (type == RecordStore::BERKELEYDBTYPE)
+		rs = new DBRecordStore(name, parentDir, mode);
+	else if (type == RecordStore::ARCHIVETYPE)
+		rs = new ArchiveRecordStore(name, parentDir, mode);
+	else if (type == RecordStore::FILETYPE)
+		rs = new FileRecordStore(name, parentDir, mode);
+	else
+		throw Error::StrategyError("Unknown RecordStore type");
+	return (std::tr1::shared_ptr<RecordStore>(rs));
 }
 
+
+std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore::RecordStore>
+BiometricEvaluation::IO::RecordStore::createRecordStore(
+    const string &name,
+    const string &description,
+    const string &type,
+    const string &destDir)
+    throw (Error::ObjectExists, Error::StrategyError)
+{
+	RecordStore *rs;
+	/* Exceptions thrown by constructors are allowed to float out */
+	if (strcasecmp( type.c_str(), RecordStore::BERKELEYDBTYPE.c_str()) == 0)
+		rs = new DBRecordStore(name, description, destDir);
+	else if (strcasecmp(type.c_str(), RecordStore::ARCHIVETYPE.c_str()) == 0)
+		rs = new ArchiveRecordStore(name, description, destDir);
+	else if (strcasecmp(type.c_str(), RecordStore::FILETYPE.c_str()) == 0)
+		rs = new FileRecordStore(name, description, destDir);
+	else
+		throw Error::StrategyError("Unknown RecordStore type");
+	return (std::tr1::shared_ptr<RecordStore>(rs));
+}
 void 
 BiometricEvaluation::IO::RecordStore::removeRecordStore(
     const string &name,

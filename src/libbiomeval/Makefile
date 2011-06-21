@@ -14,7 +14,7 @@ include ../common.mk
 
 CORE = be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp be_utility.cpp
 
-IO = be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp be_io_factory.cpp
+IO = be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp 
 
 IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_rawimage.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp
 

@@ -370,6 +370,75 @@ namespace BiometricEvaluation {
 			    Error::StrategyError) = 0;
 
 			/**
+			 * @brief
+			 * Open an existing RecordStore and return a managed
+			 * pointer to the the object representing that store.
+			 * @details
+			 * Applications can open existing record stores
+			 * without the need to know what type of RecordStore
+			 * it is.
+			 *
+			 * The allocated object will be automatically freed
+			 * when the returned pointer goes out of scope.
+			 * Applications should not delete the object.
+			 *
+			 * @param[in] name
+			 *	The name of the store to be opened.
+			 * @param[in] parentDir
+			 *	Where, in the file system, the store is rooted.
+			 * @param[in] mode
+			 *	The type of access a client of this 
+			 *	RecordStore has.
+			 * @return
+			 *	An object representing the existing store.
+			 * @throw Error::ObjectDoesNotExist
+			 *	The RecordStore does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or the name is malformed.
+			 */
+			static tr1::shared_ptr<RecordStore> openRecordStore(
+			    const string &name,
+			    const string &parentDir,
+			    uint8_t mode = READWRITE)
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
+
+			/**
+			 * @brief
+			 * Create a new RecordStore and return a managed
+			 * pointer to the the object representing that store.
+			 * @details
+			 * The allocated object will be automatically freed
+			 * when the returned pointer goes out of scope.
+			 * Applications should not delete the object.
+			 *
+			 * @param[in] name
+			 *	The name of the store to be created.
+			 * @param[in] description
+			 *	The description of the store to be created.
+			 * @param[in] type
+			 *	The type of the store to be created.
+			 * @param[in] destDir
+			 *	Where, in the file system, the store will be 
+			 *	created.
+			 * @return
+			 *	An auto_ptr to the object representing the
+			 *	created store.
+			 * @throw Error::ObjectDoesNotExist
+			 *	The RecordStore does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or the name is malformed.
+			 */
+			static tr1::shared_ptr<RecordStore> createRecordStore(
+			    const string &name,
+			    const string &description,
+			    const string &type,
+			    const string &destDir)
+			    throw (Error::ObjectExists, Error::StrategyError);
+
+			/**
 			 * Remove a RecordStore by deleting all persistant
 			 * data associated with the store.
 			 *

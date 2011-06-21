@@ -169,6 +169,7 @@ runTests(IO::RecordStore *rs)
 	/*
 	 * Insert a record to the RecordStore so we can read/write it.
 	 */
+	cout << "-------------------------------------------------" << endl;
 	string theKey("firstRec");
 	string wdata = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	uint64_t rlen;
@@ -510,6 +511,21 @@ main(int argc, char* argv[]) {
 	}
 #endif
 
+	cout << "Opening existing record store using factory method: " << endl;
+	std::tr1::shared_ptr<IO::RecordStore> srs;
+	try {
+		srs = IO::RecordStore::openRecordStore(rsname, "");
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "The Record Store could not be opened by the factory; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (Error::StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+	if (runTests(srs.get()) != 0)
+		return (EXIT_FAILURE);
+	srs.reset();		// Close the RecordStore
+
 	/*
 	 * Test merging many RecordStores
 	 */
@@ -527,7 +543,12 @@ main(int argc, char* argv[]) {
 	} catch (Error::StrategyError &e) {
 		cout << "Caught: " << e.getInfo() << endl;
 	}
-	cout << "You should see a failure to write the control file... "<< endl;
+	/*
+	 * Should close the RecordStore by calling ars.reset(), before
+	 * deleting, but we want to see something, so let the failure
+	 * come through when the destructor closes the store.
+	 */
+	cout << "You should see a failure to write the properties file: ";
 	return(EXIT_SUCCESS);
 #endif
 }
