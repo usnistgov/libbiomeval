@@ -50,8 +50,9 @@ endif
 # be searched prior to the 'standard' libraries, add the to the CFLAGS
 # variable.
 
-CFLAGS := -std=c99 -D$(OS) $(ARCHOPT) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH) -L$(LOCALLIB) -L$(LIBPATH)
-CXXFLAGS := $(ARCHOPT) -D$(OS) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH) -L$(LOCALLIB) -L$(LIBPATH)
+CFLAGS := -std=c99 -D$(OS) $(ARCHOPT) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH)
+CXXFLAGS := $(ARCHOPT) -D$(OS) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH)
+LDFLAGS := -L$(LOCALLIB) -L$(LIBPATH)
 
 # Enable debugging symbols when DEBUG=1, true, or yes
 ifdef DEBUG
