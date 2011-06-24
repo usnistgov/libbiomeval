@@ -54,7 +54,7 @@ BiometricEvaluation::Utility::digest(
 	EVP_MD_CTX_cleanup(&mdctx);
 
 	stringstream ret;
-	for (int i = 0; i < md_size; i++)
+	for (unsigned int i = 0; i < md_size; i++)
 		ret << hex << setw(2) << setfill('0') << (int)md_value[i];
 
 	return ret.str();

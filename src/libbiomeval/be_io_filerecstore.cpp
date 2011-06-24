@@ -257,7 +257,7 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 
 	struct dirent *entry;
 	struct stat sb;
-	int i = 1;
+	uint64_t i = 1;
 	string cname;
 	while ((entry = readdir(dir)) != NULL) {
 		if (entry->d_ino == 0)

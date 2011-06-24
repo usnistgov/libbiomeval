@@ -33,7 +33,6 @@ BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
     throw (Error::ObjectExists, Error::StrategyError) : 
     RecordStore(name, description, ARCHIVETYPE, parentDir)
 {
-	char linebuf[MAXLINELEN];
 	_manifestfp = _archivefp = NULL;
 	_dirty = false;
 

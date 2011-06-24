@@ -462,7 +462,7 @@ void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
     throw (Error::ObjectExists, Error::StrategyError)
 {
 	RecordStore *rs[numRecordStores];
-	for (int i = 0; i < numRecordStores; i++)
+	for (uint32_t i = 0; i < numRecordStores; i++)
 		rs[i] = recordStores[i].get();
 
 	RecordStore::mergeRecordStores(mergedName, mergedDescription, parentDir,
@@ -495,7 +495,7 @@ void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 	uint64_t record_size;
 	string key;
 	BiometricEvaluation::Utility::AutoArray<uint8_t> buf;
-	for (int i = 0; i < numRecordStores; i++) {
+	for (uint32_t i = 0; i < numRecordStores; i++) {
 		exhausted = false;
 		while (!exhausted) {
 			try {

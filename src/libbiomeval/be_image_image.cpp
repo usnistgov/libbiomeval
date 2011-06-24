@@ -91,11 +91,11 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 	static const float blue_factor = 0.114;
 	
 	/* Pull Y' component from Y'CbCr, as seen in JPEG */		
-	for (uint32_t i = 0, j = 0; i < raw_color.size(), j < raw_gray.size(); 
+	for (uint32_t i = 0, j = 0; i < raw_color.size() && j < raw_gray.size(); 
 	    i += 3, j++)
-		raw_gray[j] = (raw_color[i] * red_factor) +
+		raw_gray[j] = (uint8_t)((raw_color[i] * red_factor) +
 		    (raw_color[i + 1] * green_factor) +
-		    (raw_color[i + 2] * blue_factor);
+		    (raw_color[i + 2] * blue_factor));
 	
 	switch (depth) {
 	case 1:

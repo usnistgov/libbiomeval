@@ -163,7 +163,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 			 *
 			 * TODO: Use a colormap to support 2-7 bit depth.
 			 */
-			for (int i = 0; i < row_stride; i++)
+			for (uint64_t i = 0; i < row_stride; i++)
 				if (buffer[0][i] == 0x01)
 					buffer[0][i] = 0xFF;
 			break;

@@ -99,7 +99,7 @@ BiometricEvaluation::Image::JPEG2000::decode_raw(
 	uint32_t w, h;
 	int32_t *ptr;
 	uint64_t offset;
-	for (uint32_t component = 0; component < image->numcomps; component++) {
+	for (int32_t component = 0; component < image->numcomps; component++) {
 		w = image->comps[component].w;
 		h = image->comps[component].h;
 		
