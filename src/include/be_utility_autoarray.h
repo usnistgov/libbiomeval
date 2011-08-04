@@ -198,7 +198,7 @@ namespace BiometricEvaluation {
 				 */
 				void
 				copy(
-				    T *buffer,
+				    const T *buffer,
 				    size_t size);
 
 				/**
@@ -213,7 +213,7 @@ namespace BiometricEvaluation {
 				 */
 				void
 				copy(
-				    T *buffer);
+				    const T *buffer);
 		
 				/**
 				 * @brief
@@ -300,7 +300,7 @@ BiometricEvaluation::Utility::AutoArray<T>::resize(
 template<class T>
 void
 BiometricEvaluation::Utility::AutoArray<T>::copy(
-    T *buffer)
+    const T *buffer)
 {
 	for (size_t i = 0; i < _size; i++)
 		_data[i] = buffer[i];
@@ -309,7 +309,7 @@ BiometricEvaluation::Utility::AutoArray<T>::copy(
 template<class T>
 void
 BiometricEvaluation::Utility::AutoArray<T>::copy(
-    T *buffer,
+    const T *buffer,
     size_t size)
 {
 	resize(size);
