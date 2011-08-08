@@ -22,59 +22,59 @@ all: CXXFLAGS += -g
 all: $(PROGS)
 
 test_be_netserver: test_be_netserver.c
-	$(CC) $(CFLAGS) $^ -o $@ -lbiomeval
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_netclient: test_be_netclient.c
-	$(CC) $(CFLAGS) $^ -o $@ -lbiomeval
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_construct_be_io_filerecstore: test_be_io_filerecstore.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_filerecordstore: test_be_io_recordstore.cpp
-	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_dbrecordstore: test_be_io_recordstore.cpp
-	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_filerecordstore-stress: test_be_io_recordstore-stress.cpp
-	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DFILERECORDSTORETEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_dbrecordstore-stress: test_be_io_recordstore-stress.cpp
-	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DDBRECORDSTORETEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_construct_be_io_archiverecstore: test_be_io_archiverecstore.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_archiverecordstore: test_be_io_recordstore.cpp
-	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_archiverecordstore-stress: test_be_io_recordstore-stress.cpp
-	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DARCHIVERECORDSTORETEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_time: test_be_time.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_time_timer: test_be_time_timer.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_time_watchdog: test_be_time_watchdog.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_logcabinet: test_be_io_logcabinet.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_properties: test_be_io_properties.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_error_signal_manager: test_be_error_signal_manager.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_rawimage: test_be_image_image.cpp
-	$(CXX) $(CXXFLAGS) -DRAWIMAGETEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DRAWIMAGETEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_jpeg: test_be_image_image.cpp
-	$(CXX) $(CXXFLAGS) -DJPEGBTEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DJPEGBTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_jpeg2000: test_be_image_image.cpp
-	$(CXX) $(CXXFLAGS) -DJPEG2000TEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DJPEG2000TEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_png: test_be_image_image.cpp
-	$(CXX) $(CXXFLAGS) -DPNGTEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DPNGTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_wsq: test_be_image_image.cpp
-	$(CXX) $(CXXFLAGS) -DWSQTEST $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) -DWSQTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_process_statistics: test_be_process_statistics.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_system: test_be_system.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_utility_autoarray: test_be_utility_autoarray.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_text: test_be_text.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_utility: test_be_utility.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_framework: test_be_framework.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 
 clean:
 	$(RM) $(DISPOSABLEFILES) $(PROGS)
