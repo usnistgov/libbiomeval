@@ -84,6 +84,7 @@ namespace BiometricEvaluation
 			float yDistance;
 		};
 		typedef struct Coordinate Coordinate;
+
 		std::ostream& operator<< (std::ostream&, const Coordinate&);
 		typedef std::vector<Image::Coordinate> CoordinateSet;
 
@@ -125,12 +126,14 @@ namespace BiometricEvaluation
 			 * Resolution struct
 			 */
 			typedef enum {
+				/** Not-applicable: unknown, or otherwise */
+				NA	= 0,
 				/** Pixels per inch */
-				PPI	= 0,
+				PPI	= 1,
 				/** Pixels per millimeter */
-				PPMM	= 1,
+				PPMM	= 2,
 				/** Pixels per centimeter */
-				PPCM	= 2
+				PPCM	= 3
 			} Kind;
 				
 			/**
@@ -158,6 +161,23 @@ namespace BiometricEvaluation
 		};
 		typedef struct Resolution Resolution;
 		std::ostream& operator<< (std::ostream&, const Resolution&);
+		
+		/**
+		 * @brief
+		 * Calculate the distance between two points.
+		 *
+		 * @param[in] p1
+		 *	First point.
+		 * @param[in] p2
+		 *	Second point.
+		 *
+		 * @return
+		 *	Distance between p1 and p2.
+		 */
+		float
+		distance(
+		    const Coordinate &p1,
+		    const Coordinate &p2);
 	}
 }
 #endif /* __BE_IMAGE_H__ */

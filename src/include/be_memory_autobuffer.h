@@ -68,7 +68,7 @@ namespace BiometricEvaluation {
 			AutoBuffer(T* data);
 			/* Constructor, Destructor, Copy Copy Constructor */
 			AutoBuffer(int (*ctor)(T**), void (*dtor)(T*), 
-			    int (*copyCtor)(T**, T*));
+			    int (*copyCtor)(T**, T*)=NULL);
 			AutoBuffer(const AutoBuffer& copy);
 
 			~AutoBuffer();
@@ -162,7 +162,7 @@ BiometricEvaluation::Memory::AutoBuffer<T>::AutoBuffer()
 template<class T>
 BiometricEvaluation::Memory::AutoBuffer<T>::AutoBuffer(
     int ctor(T**), void dtor(T*), 
-    int copyCtor(T**, T*)=NULL) 
+    int copyCtor(T**, T*)) 
 {
 	if (ctor != NULL)
 		_ctor = ctor;

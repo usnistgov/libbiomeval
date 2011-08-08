@@ -7,9 +7,12 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
+ 
+#include <cmath>
+ 
 #include <be_image.h>
+
 using namespace BiometricEvaluation;
-using namespace Image;
 
 BiometricEvaluation::Image::Coordinate::Coordinate(
     const uint32_t x,
@@ -82,10 +85,19 @@ BiometricEvaluation::Image::operator<< (std::ostream &s,
 {
 	std::string str;
 	switch (res.units) {
+	case Resolution::NA: str = "NA"; break;
 	case Resolution::PPI: str = "PPI"; break;
 	case Resolution::PPMM: str = "PPMM"; break;
 	case Resolution::PPCM: str = "PPCM"; break;
 	default: str = "Unknown"; break;
 	}
 	return (s << res.xRes << "x" << res.yRes << " " << str);
+}
+
+float
+BiometricEvaluation::Image::distance(
+    const Image::Coordinate &p1,
+    const Image::Coordinate &p2)
+{
+	return (sqrtf(powf(p2.x - p1.x, 2.0) + powf(p2.y - p1.y, 2.0)));
 }

@@ -71,6 +71,17 @@ namespace BiometricEvaluation {
 				 * AutoArray.
 				 */
 				operator T*();
+				
+				/**
+				 * @brief
+				 * Const dereference operator overload.
+				 * @details
+				 * Resolves to a pointer to the beginning
+				 * of the underlying array storage of the
+				 * AutoArray.
+				 */
+				operator T*()
+				    const;
 		
 				/**
 				 * @brief
@@ -251,6 +262,13 @@ namespace BiometricEvaluation {
 				size_t _size;
 				size_t _max_size;
 		};
+
+		/**************************************************************/
+		/* Useful type definitions of an AutoArray of basic types.    */
+		/**************************************************************/
+		typedef AutoArray<uint8_t> uint8Array;
+		typedef AutoArray<uint16_t> uint16Array;
+		typedef AutoArray<uint32_t> uint32Array;
 	}
 }
 
@@ -324,6 +342,13 @@ template<class T>
 BiometricEvaluation::Utility::AutoArray<T>::operator T*() 
 {
 	return _data; 
+}
+
+template<class T>
+BiometricEvaluation::Utility::AutoArray<T>::operator T*()
+    const
+{
+	return (_data); 
 }
 
 template<class T>
