@@ -27,8 +27,34 @@ main(int argc, char* argv[])
 
 	cout << endl;
 
-	cout << "Text::digest()" << endl;
+	/* Test an md5 digest of a character string with nul terminators */
+	cout << "Text::digest(void *, size_t): ";
+	const size_t buf_with_nuls_size = 28;
+	const char buf_with_nuls[buf_with_nuls_size + 1] = "c_str() would \0"
+	    "truncate\0this";
+	string md5 = "fb9ebc9cf86de78e9f21f708bb8b8758";
+	if (Text::digest(buf_with_nuls, buf_with_nuls_size) == md5)
+		cout << "passed." << endl;
+	else {
+		cout << "failed." << endl;
+	}
+
+	cout << "Text::digest(string) with buffer passed in: ";
+	md5  = "f784eb8ca97146ebc42f923860c007b8";
+	if (Text::digest(buf_with_nuls) == md5)
+		cout << "passed." << endl;
+	else {
+		cout << "failed." << endl;
+	}
+
+	cout << "Text::digest(string) with string passed in: ";
 	string secret_str = "secret_file_name.wsq";
+	md5  = "169a337d3689cbcfe508778a89419fa6";
+	if (Text::digest(secret_str) == md5)
+		cout << "passed." << endl;
+	else {
+		cout << "failed." << endl;
+	}
 	cout << "MD5 (\"" << secret_str << "\") = " <<
 	    Text::digest(secret_str) << endl;
 	
@@ -58,6 +84,6 @@ main(int argc, char* argv[])
 	cout << "Dirname: " << Text::dirname(path) << endl;
 	cout << "Filename: " << Text::filename(path) << endl;
 
-	return (0);
+	return (EXIT_SUCCESS);
 }
 

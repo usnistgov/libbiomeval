@@ -57,6 +57,29 @@ namespace BiometricEvaluation {
 
 		/**
 		 * @brief
+		 * Compute the digest of a memory buffer.
+		 *
+		 * @param[in] buffer
+		 * 	The buffer of which a digest should be computed.
+		 * @param[in] buffer_size
+		 *	The size of buffer.
+		 * @param[in] digest
+		 *	The digest to use.  Any digest supported by OpenSSL
+		 *	is valid, and the default is MD5.
+		 *
+		 * @return
+		 *	An ASCII representation of the hex digits composing
+		 *	the digest.
+		 */
+		string
+		digest(
+		    const void *buffer,
+		    const size_t buffer_size,
+		    const string &digest = "md5")
+		    throw (Error::StrategyError);
+
+		/**
+		 * @brief
 		 * Return tokens bound by delimiters and the beginning and end
 		 * of a string.
 		 * 
