@@ -112,7 +112,7 @@ BiometricEvaluation::Image::JPEG2000::decode_raw(
 }
 
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::JPEG2000::getRawData()
     const
     throw (Error::DataError)
@@ -124,7 +124,7 @@ BiometricEvaluation::Image::JPEG2000::getRawData()
 	return (_raw_data);
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::JPEG2000::getRawGrayscaleData(
     uint8_t depth)
     const
@@ -156,7 +156,7 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_message(
 	throw Error::StrategyError("libopenjpeg: " + string(msg));
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::JPEG2000::find_marker(
     const uint8_t *marker,
     uint64_t marker_size,
@@ -178,14 +178,14 @@ BiometricEvaluation::Image::JPEG2000::find_marker(
 	if ((step + marker_size + value_size) > buffer_size)
 		throw Error::ObjectDoesNotExist();
 	
-	Utility::AutoArray<uint8_t> ret(value_size);
+	Memory::AutoArray<uint8_t> ret(value_size);
 	ret.copy(buffer, value_size);
 	return (ret);
 }
 
 BiometricEvaluation::Image::Resolution
 BiometricEvaluation::Image::JPEG2000::parse_resd(
-    const BiometricEvaluation::Utility::AutoArray<uint8_t> &resd)
+    const BiometricEvaluation::Memory::AutoArray<uint8_t> &resd)
     throw (Error::DataError)
 {
 	/* Sanity check */

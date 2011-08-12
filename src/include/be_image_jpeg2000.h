@@ -51,12 +51,12 @@ namespace BiometricEvaluation
 
 			~JPEG2000();
 
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawData()
 			    const
 			    throw (Error::DataError);
 			    
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawGrayscaleData(
 			    uint8_t depth = 8)
 			    const
@@ -128,7 +128,7 @@ namespace BiometricEvaluation
 			 * @throw Error::ObjectDoesNotExist
 			 *	marker not found within buffer.
 			 */
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			static find_marker(
 			    const uint8_t *marker,
 			    uint64_t marker_size,
@@ -157,7 +157,7 @@ namespace BiometricEvaluation
 			 */
 			Resolution
 			parse_resd(
-			    const Utility::AutoArray<uint8_t> &resd)
+			    const Memory::AutoArray<uint8_t> &resd)
 			    throw (Error::DataError);
 			    
 			/**

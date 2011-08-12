@@ -78,7 +78,7 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	setDepth(8);
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::WSQ::getRawData()
     const
     throw (Error::DataError)
@@ -101,7 +101,7 @@ BiometricEvaluation::Image::WSQ::getRawData()
 	return (_raw_data);
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::WSQ::getRawGrayscaleData(
     uint8_t depth)
     const

@@ -12,7 +12,7 @@
 #define __BE_IMAGE_RAWIMAGE_H__
 
 #include <be_image_image.h>
-#include <be_utility_autoarray.h>
+#include <be_memory_autoarray.h>
 
 namespace BiometricEvaluation
 {
@@ -35,16 +35,16 @@ namespace BiometricEvaluation
 			/*
 			 * Implementations of the Image interface.
 			 */
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getData()
 			    const;
 
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawData()
 			    const
 			    throw (Error::DataError);
 			    
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawGrayscaleData(
 			    uint8_t depth = 8)
 			    const

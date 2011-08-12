@@ -71,7 +71,7 @@ BiometricEvaluation::Image::Image::getDepth()
 	return (_depth);
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::Image::getRawGrayscaleData(
     uint8_t depth)
     const
@@ -81,8 +81,8 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 	if (depth != 8 && depth != 1)
 		throw Error::ParameterError("Invalid value for bit depth");
 
-	Utility::AutoArray<uint8_t> raw_color = getRawData();
-	Utility::AutoArray<uint8_t> raw_gray(getDimensions().xSize * 
+	Memory::AutoArray<uint8_t> raw_color = getRawData();
+	Memory::AutoArray<uint8_t> raw_gray(getDimensions().xSize * 
 	    getDimensions().ySize);
 	
 	/* Constants from ITU-R BT.601 */
@@ -112,7 +112,7 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 	return (raw_gray);
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::Image::getData()
     const
 {

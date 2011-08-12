@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 #include <be_image.h>
-#include <be_utility_autoarray.h>
+#include <be_memory_autoarray.h>
 
 namespace BiometricEvaluation
 {
@@ -128,7 +128,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Image data.
 			 */
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getData() 
 			    const;
 
@@ -143,7 +143,7 @@ namespace BiometricEvaluation
 			 * @throw Error::DataError
 			 *	Error decompressing image data.
 			 */
-			virtual Utility::AutoArray<uint8_t>
+			virtual Memory::AutoArray<uint8_t>
 			getRawData() 
 			    const
 			    throw (Error::DataError) = 0;
@@ -178,7 +178,7 @@ namespace BiometricEvaluation
 			 *	currently 1 (2 gray levels) or 8 (256 gray 
 			 *	levels).
 			 */
-			virtual Utility::AutoArray<uint8_t>
+			virtual Memory::AutoArray<uint8_t>
 			getRawGrayscaleData(
 			    uint8_t depth = 8)
 			    const
@@ -251,7 +251,7 @@ namespace BiometricEvaluation
 			    const uint32_t depth);
 
 			/** Raw image data, populated on demand */
-			mutable Utility::AutoArray<uint8_t> _raw_data;
+			mutable Memory::AutoArray<uint8_t> _raw_data;
 
 		private: 
 			/** Image dimensions (width and height) in pixels */
@@ -264,7 +264,7 @@ namespace BiometricEvaluation
 			Resolution _resolution;
 
 			/** Encoded image data */
-			Utility::AutoArray<uint8_t> _data;
+			Memory::AutoArray<uint8_t> _data;
 
 			/** Compression algorithm of _data */
 			CompressionAlgorithm::Kind _compressionAlgorithm;

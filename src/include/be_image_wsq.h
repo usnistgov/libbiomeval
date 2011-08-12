@@ -32,12 +32,12 @@ namespace BiometricEvaluation
 
 			~WSQ();
 
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawData()
 			    const
 			    throw (Error::DataError);
 			    
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawGrayscaleData(
 			    uint8_t depth = 8)
 			    const

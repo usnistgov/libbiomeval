@@ -23,7 +23,7 @@
 #include <be_io_properties.h>
 #include <be_io_recordstore.h>
 #include <be_io_utility.h>
-#include <be_utility_autoarray.h>
+#include <be_memory_autoarray.h>
 
 /*
  * The name of the control file use by all RecordStores.
@@ -494,7 +494,7 @@ void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 	bool exhausted;
 	uint64_t record_size;
 	string key;
-	BiometricEvaluation::Utility::AutoArray<uint8_t> buf;
+	BiometricEvaluation::Memory::AutoArray<uint8_t> buf;
 	for (uint32_t i = 0; i < numRecordStores; i++) {
 		exhausted = false;
 		while (!exhausted) {

@@ -13,8 +13,8 @@
  * Stroustrup.
  */
  
-#ifndef __BE_UTILITY_AUTOARRAY_H__
-#define __BE_UTILITY_AUTOARRAY_H__
+#ifndef __BE_MEMORY_AUTOARRAY_H__
+#define __BE_MEMORY_AUTOARRAY_H__
 
 #include <cstddef>
 #include <cstring>
@@ -22,7 +22,7 @@
 #include <be_error_exception.h>
  
 namespace BiometricEvaluation {
-	namespace Utility {
+	namespace Memory {
 		/**
 		 * @brief
 		 * A class to represent a C-style array with C++ features like
@@ -281,14 +281,14 @@ namespace BiometricEvaluation {
 /******************************************************************************/
 
 template<class T>
-size_t BiometricEvaluation::Utility::AutoArray<T>::size() const 
+size_t BiometricEvaluation::Memory::AutoArray<T>::size() const 
 { 
 	return _size;
 }
 
 template<class T>
 void
-BiometricEvaluation::Utility::AutoArray<T>::resize(
+BiometricEvaluation::Memory::AutoArray<T>::resize(
     size_t new_size,
     bool free)
     throw (Error::StrategyError)
@@ -317,7 +317,7 @@ BiometricEvaluation::Utility::AutoArray<T>::resize(
 
 template<class T>
 void
-BiometricEvaluation::Utility::AutoArray<T>::copy(
+BiometricEvaluation::Memory::AutoArray<T>::copy(
     const T *buffer)
 {
 	for (size_t i = 0; i < _size; i++)
@@ -326,7 +326,7 @@ BiometricEvaluation::Utility::AutoArray<T>::copy(
 
 template<class T>
 void
-BiometricEvaluation::Utility::AutoArray<T>::copy(
+BiometricEvaluation::Memory::AutoArray<T>::copy(
     const T *buffer,
     size_t size)
 {
@@ -339,38 +339,38 @@ BiometricEvaluation::Utility::AutoArray<T>::copy(
  * Operators.
  */
 template<class T>
-BiometricEvaluation::Utility::AutoArray<T>::operator T*() 
+BiometricEvaluation::Memory::AutoArray<T>::operator T*() 
 {
 	return _data; 
 }
 
 template<class T>
-BiometricEvaluation::Utility::AutoArray<T>::operator T*()
+BiometricEvaluation::Memory::AutoArray<T>::operator T*()
     const
 {
 	return (_data); 
 }
 
 template<class T>
-typename BiometricEvaluation::Utility::AutoArray<T>::reference 
-BiometricEvaluation::Utility::AutoArray<T>::operator[] (
+typename BiometricEvaluation::Memory::AutoArray<T>::reference 
+BiometricEvaluation::Memory::AutoArray<T>::operator[] (
     ptrdiff_t i) 
 { 
 	return _data[i];
 }
 
 template<class T>
-typename BiometricEvaluation::Utility::AutoArray<T>::const_reference
-BiometricEvaluation::Utility::AutoArray<T>::operator[] (
+typename BiometricEvaluation::Memory::AutoArray<T>::const_reference
+BiometricEvaluation::Memory::AutoArray<T>::operator[] (
     ptrdiff_t i) const 
 { 
 	return _data[i];
 }
 
 template<class T>
-BiometricEvaluation::Utility::AutoArray<T>&
-BiometricEvaluation::Utility::AutoArray<T>::operator= (
-    const BiometricEvaluation::Utility::AutoArray<T>& copy) 
+BiometricEvaluation::Memory::AutoArray<T>&
+BiometricEvaluation::Memory::AutoArray<T>::operator= (
+    const BiometricEvaluation::Memory::AutoArray<T>& copy) 
 {
 	if (this != &copy) {
 		_size = _max_size = copy._size; 
@@ -390,29 +390,29 @@ BiometricEvaluation::Utility::AutoArray<T>::operator= (
  * Iterator methods.
  */
 template<class T>
-typename BiometricEvaluation::Utility::AutoArray<T>::iterator 
-BiometricEvaluation::Utility::AutoArray<T>::begin()
+typename BiometricEvaluation::Memory::AutoArray<T>::iterator 
+BiometricEvaluation::Memory::AutoArray<T>::begin()
 {
 	return _data;
 }
 
 template<class T>
-typename BiometricEvaluation::Utility::AutoArray<T>::const_iterator
-BiometricEvaluation::Utility::AutoArray<T>::begin() const 
+typename BiometricEvaluation::Memory::AutoArray<T>::const_iterator
+BiometricEvaluation::Memory::AutoArray<T>::begin() const 
 { 
 	return _data;
 }
 
 template<class T>
-typename BiometricEvaluation::Utility::AutoArray<T>::iterator 
-BiometricEvaluation::Utility::AutoArray<T>::end() 
+typename BiometricEvaluation::Memory::AutoArray<T>::iterator 
+BiometricEvaluation::Memory::AutoArray<T>::end() 
 {
 	return _data + _size; 
 }
 
 template<class T>
-typename BiometricEvaluation::Utility::AutoArray<T>::const_iterator
-BiometricEvaluation::Utility::AutoArray<T>::end() const 
+typename BiometricEvaluation::Memory::AutoArray<T>::const_iterator
+BiometricEvaluation::Memory::AutoArray<T>::end() const 
 {
 	return _data + _size;
 }
@@ -421,14 +421,14 @@ BiometricEvaluation::Utility::AutoArray<T>::end() const
 /* Constructors.                                                              */
 /******************************************************************************/
 template<class T>
-BiometricEvaluation::Utility::AutoArray<T>::AutoArray() {
+BiometricEvaluation::Memory::AutoArray<T>::AutoArray() {
 	_data = NULL;
 	_size = 0;
 	_max_size = 0;
 }
 
 template<class T>
-BiometricEvaluation::Utility::AutoArray<T>::AutoArray(
+BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
     size_t size) {
 	if (size > 0)
 		_size = _max_size = size;
@@ -441,7 +441,7 @@ BiometricEvaluation::Utility::AutoArray<T>::AutoArray(
 }
 
 template<class T>
-BiometricEvaluation::Utility::AutoArray<T>::AutoArray(
+BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
     const AutoArray& copy) {
 	_size = _max_size = copy._size; 
 	_data = new T[_size];
@@ -455,10 +455,10 @@ BiometricEvaluation::Utility::AutoArray<T>::AutoArray(
 /* Destructor.                                                                */
 /******************************************************************************/
 template<class T>
-BiometricEvaluation::Utility::AutoArray<T>::~AutoArray() {
+BiometricEvaluation::Memory::AutoArray<T>::~AutoArray() {
 	if (_data != NULL)
 		delete [] _data;
 }
 
-#endif /* __BE_UTILITY_AUTOARRAY_H__ */
+#endif /* __BE_MEMORY_AUTOARRAY_H__ */
 

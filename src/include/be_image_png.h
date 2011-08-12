@@ -34,12 +34,12 @@ namespace BiometricEvaluation
 
 			~PNG();
 
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawData()
 			    const
 			    throw (Error::DataError);
 			    
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawGrayscaleData(
 			    uint8_t depth = 8)
 			    const
@@ -70,9 +70,11 @@ namespace BiometricEvaluation
 			 */
 			typedef struct {
 				/** PNG-encoded buffer */
-				Utility::AutoArray<uint8_t> data;
+				Memory::AutoArray<uint8_t> data;
+
 				/** Number of bytes currently read by libpng */
 				png_size_t offset;
+
 			} png_buffer;
 		
 			/**

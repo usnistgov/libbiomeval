@@ -38,14 +38,14 @@ namespace BiometricEvaluation
 
 			~JPEG();
 
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawGrayscaleData(
 			    uint8_t depth = 8)
 			    const
 			    throw (Error::DataError,
 			    Error::ParameterError);
 
-			Utility::AutoArray<uint8_t>
+			Memory::AutoArray<uint8_t>
 			getRawData()
 			    const
 			    throw (Error::DataError);

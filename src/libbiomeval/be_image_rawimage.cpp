@@ -9,7 +9,7 @@
  */
 
 #include <be_image_rawimage.h>
-#include <be_utility_autoarray.h>
+#include <be_memory_autoarray.h>
 
 BiometricEvaluation::Image::RawImage::RawImage(
     const uint8_t *data, 
@@ -27,7 +27,7 @@ BiometricEvaluation::Image::RawImage::RawImage(
 
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::RawImage::getRawData()
     const
     throw (Error::DataError)
@@ -35,7 +35,7 @@ BiometricEvaluation::Image::RawImage::getRawData()
 	return (Image::getData());
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::RawImage::getRawGrayscaleData(
     uint8_t depth)
     const

@@ -16,7 +16,7 @@
 #include <vector>
 
 #include <be_text.h>
-#include <be_utility_autoarray.h>
+#include <be_memory_autoarray.h>
 
 void
 BiometricEvaluation::Text::removeLeadingTrailingWhitespace(string &s)
@@ -121,7 +121,7 @@ string
 BiometricEvaluation::Text::filename(
     const string &path)
 {
-	static Utility::AutoArray<char> buf;
+	static Memory::AutoArray<char> buf;
 	buf.resize(strlen(path.c_str()) + 1);
 	strncpy(buf, path.c_str(), strlen(path.c_str()) + 1);
 
@@ -132,7 +132,7 @@ string
 BiometricEvaluation::Text::dirname(
     const string &path)
 {
-	static Utility::AutoArray<char> buf;
+	static Memory::AutoArray<char> buf;
 	buf.resize(strlen(path.c_str()) + 1);
 	strncpy(buf, path.c_str(), strlen(path.c_str()) + 1);
 

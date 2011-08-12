@@ -18,7 +18,7 @@
 
 #include <be_image_image.h>
 #include <be_io_utility.h>
-#include <be_utility_autoarray.h>
+#include <be_memory_autoarray.h>
 
 #if defined RAWIMAGETEST
 #include <be_image_rawimage.h>
@@ -136,7 +136,7 @@ static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPI;
 /* Write buffer */
 int
 write_buf(
-    Utility::AutoArray<uint8_t> data,
+    Memory::AutoArray<uint8_t> data,
     uint64_t orig_sz)
 {
 	FILE *fp = fopen(filename.c_str(), "w");
@@ -157,7 +157,7 @@ write_buf(
 	return (EXIT_SUCCESS);
 }
 
-Utility::AutoArray<uint8_t>
+Memory::AutoArray<uint8_t>
 read_image(
     const string &name)
     throw (Error::ObjectDoesNotExist,
@@ -166,7 +166,7 @@ read_image(
 	static const string test_dir = "test_data";
 	string path = test_dir + '/' + name;
 	
-	Utility::AutoArray<uint8_t> buf(IO::Utility::getFileSize(path));
+	Memory::AutoArray<uint8_t> buf(IO::Utility::getFileSize(path));
 	FILE *fp = fopen(path.c_str(), "rb");
 	if (fp == NULL)
 		throw Error::StrategyError("Could not open " + path);
@@ -205,7 +205,7 @@ main(int argc, char* argv[])
 	}
 	#elif defined JPEG2000TEST
 	try {
-		Utility::AutoArray<uint8_t> img = read_image(filename);
+		Memory::AutoArray<uint8_t> img = read_image(filename);
 		if (Image::JPEG2000::isJPEG2000(img))
 			image = new Image::JPEG2000(img, img.size());
 		else {
@@ -230,7 +230,7 @@ main(int argc, char* argv[])
 	}
 	#elif defined WSQTEST
 	try {
-		Utility::AutoArray<uint8_t> wsq_img = read_image(filename);
+		Memory::AutoArray<uint8_t> wsq_img = read_image(filename);
 		if (Image::WSQ::isWSQ(wsq_img))
 			image = new Image::WSQ(wsq_img, wsq_img.size());
 		else {

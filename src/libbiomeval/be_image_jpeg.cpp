@@ -31,7 +31,7 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Utility::AutoArray<uint8_t> buffer = getData();
+	Memory::AutoArray<uint8_t> buffer = getData();
 
 #if JPEG_LIB_VERSION >= 80
 	::jpeg_mem_src(&dinfo, buffer, buffer.size());
@@ -51,7 +51,7 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	jpeg_destroy_decompress(&dinfo);
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::JPEG::getRawData()
     const
     throw (Error::DataError)
@@ -69,7 +69,7 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Utility::AutoArray<uint8_t> jpeg_data = getData();
+	Memory::AutoArray<uint8_t> jpeg_data = getData();
 
 #if JPEG_LIB_VERSION >= 80
 	::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
@@ -100,7 +100,7 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	return (_raw_data);
 }
 
-BiometricEvaluation::Utility::AutoArray<uint8_t>
+BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
     uint8_t depth)
     const
@@ -119,7 +119,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Utility::AutoArray<uint8_t> jpeg_data = getData();
+	Memory::AutoArray<uint8_t> jpeg_data = getData();
 
 #if JPEG_LIB_VERSION >= 80
 	::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
@@ -147,7 +147,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 		throw Error::StrategyError("jpeg_start_decompress()");
 
 	uint64_t row_stride = dinfo.output_width * dinfo.output_components;
-	Utility::AutoArray<uint8_t> raw_gray(dinfo.output_height * row_stride);
+	Memory::AutoArray<uint8_t> raw_gray(dinfo.output_height * row_stride);
 
 	JSAMPARRAY buffer = (*dinfo.mem->alloc_sarray)(
 	    (j_common_ptr)&dinfo, JPOOL_IMAGE, row_stride, 1);
