@@ -161,6 +161,10 @@ namespace BiometricEvaluation
 		};
 		typedef struct Resolution Resolution;
 		std::ostream& operator<< (std::ostream&, const Resolution&);
+		std::ostream&
+		operator<< (
+		    std::ostream &stream,
+		    const Resolution::Kind &kind);
 		
 		/**
 		 * @brief

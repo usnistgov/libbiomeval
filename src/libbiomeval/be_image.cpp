@@ -81,17 +81,26 @@ BiometricEvaluation::Image::operator<< (std::ostream &s,
 
 std::ostream&
 BiometricEvaluation::Image::operator<< (std::ostream &s,
-    const Image::Resolution& res)
+    const Image::Resolution::Kind& kind)
 {
 	std::string str;
-	switch (res.units) {
+
+	switch (kind) {
 	case Resolution::NA: str = "NA"; break;
 	case Resolution::PPI: str = "PPI"; break;
 	case Resolution::PPMM: str = "PPMM"; break;
 	case Resolution::PPCM: str = "PPCM"; break;
 	default: str = "Unknown"; break;
 	}
-	return (s << res.xRes << "x" << res.yRes << " " << str);
+
+	return (s << str);
+}
+
+std::ostream&
+BiometricEvaluation::Image::operator<< (std::ostream &s,
+    const Image::Resolution& res)
+{
+	return (s << res.xRes << "x" << res.yRes << " " << res.units);
 }
 
 float
