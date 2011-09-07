@@ -117,10 +117,6 @@ BiometricEvaluation::Image::JPEG2000::getRawData()
     const
     throw (Error::DataError)
 {
-	/* Check for cached version */
-	if (_raw_data.size() != 0)
-		return (_raw_data);
-
 	return (_raw_data);
 }
 
