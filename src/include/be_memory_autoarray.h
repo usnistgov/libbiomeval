@@ -18,6 +18,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <stdexcept>
 
 #include <be_error_exception.h>
  
@@ -118,6 +119,48 @@ namespace BiometricEvaluation {
 				 *	Reference to a new AutoArray object.
 				 */
 				AutoArray& operator= (const AutoArray& other);
+
+				/**
+				 * @brief
+				 * Offset into the AutoArray with bounds
+				 * checking.
+				 *
+				 * @param offset
+				 *	Index into the AutoArray.
+				 *
+				 * @return
+				 *	Const reference to an element at offset.
+				 *
+				 * @throw out_of_range
+				 *	Offset offset is not valid given the
+				 *	size of this AutoArray.
+				 */
+				const_reference
+				at(
+				    size_t offset)
+				    throw (out_of_range);
+
+				/**
+				 * @brief
+				 * Offset into the AutoArray with bounds
+				 * checking.
+				 *
+				 * @param offset
+				 *	Index into the AutoArray.
+				 *
+				 * @return
+				 *	Const reference to an element at offset.
+				 *
+				 * @throw out_of_range
+				 *	Offset offset is not valid given the
+				 *	size of this AutoArray.
+				 */
+				const_reference
+				at(
+				    size_t offset)
+				    const
+				    throw (out_of_range);
+				 
 			
 				/**
 				 * @brief
@@ -365,6 +408,31 @@ BiometricEvaluation::Memory::AutoArray<T>::operator[] (
     ptrdiff_t i) const 
 { 
 	return _data[i];
+}
+
+template<class T>
+typename BiometricEvaluation::Memory::AutoArray<T>::const_reference
+BiometricEvaluation::Memory::AutoArray<T>::at(
+    size_t offset)
+    const
+    throw (out_of_range)
+{
+	if (offset < _size)
+		return (_data[offset]);
+	
+	throw out_of_range("offset");
+}
+
+template<class T>
+typename BiometricEvaluation::Memory::AutoArray<T>::const_reference
+BiometricEvaluation::Memory::AutoArray<T>::at(
+    size_t offset)
+    throw (out_of_range)
+{
+	if (offset < _size)
+		return (_data[offset]);
+	
+	throw out_of_range("offset");
 }
 
 template<class T>
