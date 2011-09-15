@@ -60,6 +60,7 @@ BiometricEvaluation::Image::operator<< (std::ostream &s,
 	case CompressionAlgorithm::JPEGL: str = "JPEGL"; break;
 	case CompressionAlgorithm::JP2: str = "JP2"; break;
 	case CompressionAlgorithm::JP2L: str = "JP2L"; break;
+	case CompressionAlgorithm::NetPBM: str = "NetPBM"; break;
 	case CompressionAlgorithm::PNG: str = "PNG"; break;
 	}
 	return (s << str);

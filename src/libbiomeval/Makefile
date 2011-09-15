@@ -16,7 +16,7 @@ CORE = be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp
 
 IO = be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp 
 
-IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_rawimage.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp
+IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_netpbm.cpp be_image_rawimage.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp
 
 SOURCES = $(CORE) $(IO) $(IMAGE)
 OBJECTS = $(SOURCES:%.cpp=%.o)

@@ -41,7 +41,8 @@ namespace BiometricEvaluation
 				JPEGL		= 4,
 				JP2		= 5,
 				JP2L		= 6,
-				PNG		= 7
+				PNG		= 7,
+				NetPBM		= 8
 			} Kind;
 		private:
 			CompressionAlgorithm() {}
