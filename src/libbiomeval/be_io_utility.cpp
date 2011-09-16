@@ -16,6 +16,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <fstream>
+
 #include <be_error.h>
 #include <be_text.h>
 #include <be_io_utility.h>
@@ -196,4 +198,65 @@ BiometricEvaluation::IO::Utility::makePath(
 		}
 	}
 	return (0);
+}
+
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::IO::Utility::readFile(
+    const string &path,
+    ios_base::openmode mode)
+    throw (Error::ObjectDoesNotExist,
+    Error::StrategyError)
+{	
+	Memory::uint8Array contents(getFileSize(path));
+	
+	ifstream file(path.c_str(), mode | ios_base::in);
+	if (file.good() == false)
+		throw Error::StrategyError("Error while opening");
+		
+	file.read((char *)&(*contents), contents.size());
+	if (file.good() == false)
+		throw Error::StrategyError("Error while reading");
+	
+	file.close();
+	
+	return (contents);
+}
+
+void
+BiometricEvaluation::IO::Utility::writeFile(
+    const uint8_t *data,
+    const size_t size,
+    const string &path,
+    ios_base::openmode mode)
+    throw (Error::ObjectExists,
+    Error::StrategyError)
+{
+	/* Throw exception if truncate not set and file exists */
+	if ((mode & ios_base::trunc) == 0)
+		if (fileExists(path))
+			throw Error::ObjectExists("Truncate disabled");
+	/* Throw exception is path exists and is directory */
+	if (pathIsDirectory(path))
+		throw Error::ObjectExists(path + " is a directory");
+	
+	ofstream file(path.c_str(), mode | ios_base::out);
+	if (file.good() == false)
+		throw Error::StrategyError("Error while opening");
+
+	file.write((char *)data, size);
+	if (file.good() == false)
+		throw Error::StrategyError("Error while writing");
+	
+	file.close();
+}
+
+void
+BiometricEvaluation::IO::Utility::writeFile(
+    const Memory::uint8Array data,
+    const string &path,
+    ios_base::openmode mode)
+    throw (Error::ObjectExists,
+    Error::StrategyError)
+{
+	writeFile(data, data.size(), path, mode);
 }

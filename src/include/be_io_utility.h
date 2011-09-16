@@ -14,8 +14,12 @@
 
 #include <stdint.h>
 
+#include <fstream>
 #include <string>
+
 #include <be_error_exception.h>
+#include <be_memory_autoarray.h>
+
 using namespace std;
 
 namespace BiometricEvaluation
@@ -154,6 +158,90 @@ namespace BiometricEvaluation
 			 *	can be checked.
 			 */
 			int makePath(const string &path, const mode_t mode);
+			
+			/**
+			 * @brief
+			 * Read the contents of a file into a buffer.
+			 *
+			 * @param path
+			 *	Path to a file to be read.
+			 * @param mode
+			 *	Bitwise OR'd arguments to send to the 
+			 *	file stream constructor.
+			 *
+			 * @return
+			 *	Contents of path in a buffer.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	path does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying 
+			 *	storage system.
+			 */
+			Memory::uint8Array
+			readFile(
+			    const string &path,
+			    ios_base::openmode = ios_base::binary)
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
+			
+			/**
+			 * @brief
+			 * Write the contents of a buffer to a file.
+			 *
+			 * @param data
+			 *	Data buffer to write.
+			 * @param size
+			 *	Size of data.
+			 * @param path
+			 *	Path to file to create with contents of data.
+			 * @param mode
+			 *	Bitwise OR'd arguments to send to the
+			 *	file stream constructor.
+			 *
+			 * @throw ObjectExists
+			 *	path exists but truncate not set, or path
+			 *	exists and is a directory.
+			 * @throw StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			void
+			writeFile(
+			    const uint8_t *data,
+			    const size_t size,
+			    const string &path,
+			    ios_base::openmode mode = ios_base::binary)
+			    throw (Error::ObjectExists,
+			    Error::StrategyError);
+
+			/**
+			 * @brief
+			 * Write the contents of a buffer to a file.
+			 *
+			 * @param data
+			 *	Data buffer to write.
+			 * @param path
+			 *	Path to file to create with contents of data.
+			 * @param mode
+			 *	Bitwise OR'd arguments to send to the
+			 *	file stream constructor.
+			 *
+			 * @throw ObjectExists
+			 *	path exists but truncate not set, or path
+			 *	exists and is a directory.
+			 * @throw StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+    			void
+			writeFile(
+			    const Memory::uint8Array data,
+			    const string &path,
+			    ios_base::openmode mode = ios_base::binary)
+			    throw (Error::ObjectExists,
+			    Error::StrategyError);
+			    
 		}
 	}
 }
