@@ -27,7 +27,8 @@ BiometricEvaluation::Image::WSQ::WSQ(
     size,
     CompressionAlgorithm::WSQ20)
 {
-	uint8_t *marker_buf = getData(); /* Will be manipulated by libwsq */
+	Memory::uint8Array wsqData = getData();
+	uint8_t *marker_buf = wsqData;	/* Will be manipulated by libwsq */
 	uint8_t *wsq_buf = marker_buf;
 
 	/* Read to the "start of image" marker */
@@ -89,8 +90,9 @@ BiometricEvaluation::Image::WSQ::getRawData()
 
 	uint8_t *rawbuf = NULL;
 	int32_t depth, height, lossy, ppi, rv, width;
+	Memory::uint8Array wsqData = getData();
 	if ((rv = wsq_decode_mem(&rawbuf, &width, &height, &depth, &ppi,
-	    &lossy, getData(), getData().size())))
+	    &lossy, wsqData, wsqData.size())))
 		throw Error::DataError("Could not convert WSQ to raw.");
 	
 	/* rawbuf allocated within libwsq.  Copy to manage with AutoArray. */

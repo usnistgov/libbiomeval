@@ -61,8 +61,9 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	}
 	
 	opj_setup_decoder(dinfo, &parameters);
-	opj_cio_t *cio = opj_cio_open((opj_common_ptr)dinfo, getData(),
-	    getData().size());
+	Memory::uint8Array jpegData = getData();
+	opj_cio_t *cio = opj_cio_open((opj_common_ptr)dinfo, jpegData,
+	    jpegData.size());
 	opj_codestream_info_t cstr_info;
 	opj_image_t *image = opj_decode_with_info(dinfo, cio, &cstr_info);
 	if (image == NULL) {
@@ -81,8 +82,8 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	try {
 		static const uint8_t resd[4] = { 0x72, 0x65, 0x73, 0x63 };
 		static const uint8_t resd_box_size = 10;
-		setResolution(parse_resd(find_marker(resd, 4, getData(),
-		    getData().size(), resd_box_size)));
+		setResolution(parse_resd(find_marker(resd, 4, jpegData,
+		    jpegData.size(), resd_box_size)));
 	} catch (Error::ObjectDoesNotExist) {
 		setResolution(Resolution(72, 72, Resolution::PPI));
 	}
