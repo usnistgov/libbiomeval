@@ -51,18 +51,21 @@ namespace BiometricEvaluation
 			    throw (Error::DataError);
 	
 			/**
-			 * Whether or not data is a JPEG image.
+			 * Whether or not data is a Lossy JPEG image.
 			 *
 			 * @param[in] data
 			 *	The buffer to check.
+			 * @param[in] size
+			 *	The size of data.
 			 *
 			 * @return
-			 *	true if data appears to be a JPEG image, false
-			 *	otherwise
+			 *	true if data appears to be a Lossy JPEG image,
+			 *	false otherwise
 			 */
 			static bool
 			isJPEG(
-			    const uint8_t *data);
+			    const uint8_t *data,
+			    const size_t size);
 
 		protected:
 

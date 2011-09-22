@@ -10,6 +10,11 @@
 
 #include <sstream>
 
+extern "C" {
+	#include <computil.h>
+	#include <dataio.h>
+}
+
 #include <be_image_jpeg.h>
 
 BiometricEvaluation::Image::JPEG::JPEG(
@@ -180,10 +185,49 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 
 bool
 BiometricEvaluation::Image::JPEG::isJPEG(
-    const uint8_t *data)
+    const uint8_t *data,
+    const size_t size)
 {
-	static const uint8_t JPEG_SOI = 0xD8;
-	return (data[0] == 0xFF && data[1] == JPEG_SOI);
+	/* 
+	 * Based on NBIS/imgtools/src/lib/image/imgtype.c:jpeg_type()
+	 */
+	
+	Memory::uint8Array jpegData;
+	jpegData.copy(data, size);
+	uint8_t *markerBuf = jpegData;	/* Manipulated by libjpegl */
+	uint8_t *endPtr = jpegData + jpegData.size();
+	
+	/* JPEG markers */
+	static const uint16_t startOfScan = 0xFFDA;
+	static const uint16_t startOfImage = 0xFFD8;
+	static const uint16_t startOfLossyJPEG = 0xFFC0;
+	static const uint16_t startOfLosslessJPEG = 0xFFC3;
+	
+	uint16_t marker;
+	if (getc_ushort(&marker, &markerBuf, endPtr) && 
+	    (marker != startOfImage))
+		return (false);
+	
+	/* Read markers until end of buffer or an identifying marker is found */
+	for (;;) {
+		if (getc_ushort(&marker, &markerBuf, endPtr) &&
+		    ((marker & 0xff00) != 0xff00))
+			return (false);
+		
+		switch (marker) {
+		case startOfLossyJPEG:
+			return (true);
+		case startOfScan:
+			/* FALLTHROUGH */
+		case startOfLosslessJPEG:
+			return (false);
+		}
+		
+		if (getc_skip_marker_segment(marker, &markerBuf, endPtr))
+			return (false);
+	}
+	
+	return (false);
 }
 
 BiometricEvaluation::Image::JPEG::~JPEG()
