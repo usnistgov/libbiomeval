@@ -8,8 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#ifndef __BE_IMAGE_JPEG__
-#define __BE_IMAGE_JPEG__
+#ifndef __BE_IMAGE_JPEGL__
+#define __BE_IMAGE_JPEGL__
 
 #include <cstdio>
 
@@ -75,5 +75,5 @@ namespace BiometricEvaluation
 	}
 }
 
-#endif /* __BE_IMAGE_JPEG__ */
+#endif /* __BE_IMAGE_JPEGL__ */
 
