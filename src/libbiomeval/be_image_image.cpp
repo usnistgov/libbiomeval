@@ -8,6 +8,9 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cmath>
+#include <stdexcept>
+
 #include <be_image_image.h>
 
 BiometricEvaluation::Image::Image::Image(
@@ -80,36 +83,109 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 {
 	if (depth != 8 && depth != 1)
 		throw Error::ParameterError("Invalid value for bit depth");
+		
+	/* Images that are 8-bit depth are already grayscale */
+	if (getDepth() == 8 && depth == 8)
+		return (getRawData());
 
-	Memory::AutoArray<uint8_t> raw_color = getRawData();
-	Memory::AutoArray<uint8_t> raw_gray(getDimensions().xSize * 
+	Memory::AutoArray<uint8_t> rawColor = getRawData();
+	Memory::AutoArray<uint8_t> rawGray(getDimensions().xSize * 
 	    getDimensions().ySize);
 	
 	/* Constants from ITU-R BT.601 */
-	static const float red_factor = 0.299;
-	static const float green_factor = 0.587;
-	static const float blue_factor = 0.114;
+	static const float redFactor = 0.299;
+	static const float greenFactor = 0.587;
+	static const float blueFactor = 0.114;
 	
-	/* Pull Y' component from Y'CbCr, as seen in JPEG */		
-	for (uint32_t i = 0, j = 0; i < raw_color.size() && j < raw_gray.size(); 
-	    i += 3, j++)
-		raw_gray[j] = (uint8_t)((raw_color[i] * red_factor) +
-		    (raw_color[i + 1] * green_factor) +
-		    (raw_color[i + 2] * blue_factor));
+	uint8_t twoBytes[2];
+	uint16_t rValue, bValue, gValue;
+	
+	for (uint32_t i = 0, j = 0; i < rawColor.size() && j < rawGray.size(); 
+	    j++) {
+		switch (getDepth()) {
+		case 1:
+			/* Bitmap images are upped to 8-bit in getRawData() */
+			/* FALLTHROUGH */
+		case 8:
+			/* No conversion needed */
+			rawGray[j] = rawColor[i];
+			
+			i += 1;
+			break;
+		case 16:
+			/* Extract 16-bit value */
+			twoBytes[0] = rawColor[i];
+			twoBytes[1] = rawColor[i + 1];
+			rValue = ((twoBytes[0] << 8) | (twoBytes[1]));
+			
+			/* Interpolate color in 8-bit depth colorspace */
+			rawGray[j] = (uint8_t)valueInColorspace(rValue,
+			    max16BitColor, 8);
+			
+			i += 2;
+			break;
+		case 24:
+			/* Pull Y' component from Y'CbCr */
+			rawGray[j] = (uint8_t)((rawColor[i] * redFactor) +
+			    (rawColor[i + 1] * greenFactor) +
+			    (rawColor[i + 2] * blueFactor));
+			    
+			i += 3;
+			break;
+		case 32:
+			/* Pull Y' component from Y'CbCr */
+			rawGray[j] = (uint8_t)((rawColor[i] * redFactor) +
+			    (rawColor[i + 1] * greenFactor) +
+			    (rawColor[i + 2] * blueFactor));
+			    
+			/* Skip alpha channel */
+			i += 4;
+			break;
+		case 48:
+			/* Extract 16-bit values */
+			twoBytes[0] = rawColor[i];
+			twoBytes[1] = rawColor[i + 1];
+			rValue = ((twoBytes[0] << 8) | (twoBytes[1]));
+		
+			twoBytes[0] = rawColor[i + 2];
+			twoBytes[1] = rawColor[i + 3];
+			gValue = ((twoBytes[0] << 8) | (twoBytes[1]));
+		
+			twoBytes[0] = rawColor[i + 4];
+			twoBytes[1] = rawColor[i + 5];
+			bValue = ((twoBytes[0] << 8) | (twoBytes[1]));
+						
+			/* Interpolate colors in 8-bit depth colorspace */
+			rValue = (uint8_t)valueInColorspace(rValue,
+			    max48BitColor, 8);
+    			gValue = (uint8_t)valueInColorspace(rValue,
+			    max48BitColor, 8);
+    			bValue = (uint8_t)valueInColorspace(rValue,
+			    max48BitColor, 8);
+			
+			/* Pull Y' component from Y'CbCr */
+			rawGray[j] = (uint8_t)(((uint8_t)rValue * redFactor) +
+			    ((uint8_t)gValue * greenFactor) +
+			    ((uint8_t)bValue * blueFactor));
+
+			i += 6;
+			break;
+		}
+	}
 	
 	switch (depth) {
 	case 1:
 		/* Quantize down to black and white */
-		for (uint32_t i = 0; i < raw_gray.size(); i++) {
-			if (raw_gray[i] <= 127)
-				raw_gray[i] = 0x00;
+		for (uint32_t i = 0; i < rawGray.size(); i++) {
+			if (rawGray[i] <= 127)
+				rawGray[i] = 0x00;
 			else
-				raw_gray[i] = 0xFF;
+				rawGray[i] = 0xFF;
 		}
 		break;
 	}
 
-	return (raw_gray);
+	return (rawGray);
 }
 
 BiometricEvaluation::Memory::AutoArray<uint8_t>
@@ -143,5 +219,22 @@ BiometricEvaluation::Image::Image::setDepth(
 BiometricEvaluation::Image::Image::~Image()
 {
 
+}
+
+inline uint64_t
+BiometricEvaluation::Image::Image::valueInColorspace(
+    uint64_t color,
+    uint64_t maxColorValue,
+    uint8_t depth)
+{
+	/*
+	 * Solve for X in:
+	 *
+	 *          color             X
+	 *      ------------- = -------------
+	 *      maxColorValue   2^(depth) - 1
+	 */
+
+	return ((((uint64_t)pow(2.0, depth) - 1) * color) / maxColorValue);
 }
 

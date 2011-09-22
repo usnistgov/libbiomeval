@@ -193,7 +193,7 @@ main(int argc, char* argv[])
 	    _resolutionUnits));
 	#elif defined JPEGBTEST
 	try {
-		if (Image::JPEG::isJPEG(_img))
+		if (Image::JPEG::isJPEG(_img, _size))
 			image = new Image::JPEG(_img, _size);
 		else {
 			cerr << "FAIL: Not a JPEG image." << endl;

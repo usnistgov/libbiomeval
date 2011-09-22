@@ -166,27 +166,6 @@ namespace BiometricEvaluation
 			/*
 			 * Buffer type conversions.
 			 */
-
-			/**
-			 * @brief
-			 * Calculate an equivalent color value for a color in
-			 * an alternate colorspace.
-			 *
-			 * @param color
-			 *	Value for color in original colorspace.
-			 * @param maxColorValue
-			 *	Maximum value for colors in original colorspace.
-			 * @param depth
-			 *	Desired bit-depth of the new colorspace.
-			 *
-			 * @return
-			 *	A value equivalent to color in depth-bit space.
-			 */
-			static inline uint16_t
-			valueInColorspace(
-			    uint16_t color,
-			    uint16_t maxColorValue,
-			    uint8_t depth);
 			    
 			/**
 			 * @brief

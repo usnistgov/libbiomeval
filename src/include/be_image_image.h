@@ -11,6 +11,8 @@
 #ifndef __BE_IMAGE_IMAGE_H__
 #define __BE_IMAGE_IMAGE_H__
 
+#include <stdexcept>
+
 #include <stdint.h>
 
 #include <be_image.h>
@@ -211,10 +213,46 @@ namespace BiometricEvaluation
 			virtual ~Image();
 			
 			/*
+			 * Buffer type conversions.
+			 */
+			
+			/**
+			 * @brief
+			 * Calculate an equivalent color value for a color in
+			 * an alternate colorspace.
+			 *
+			 * @param color
+			 *	Value for color in original colorspace.
+			 * @param maxColorValue
+			 *	Maximum value for colors in original colorspace.
+			 * @param depth
+			 *	Desired bit-depth of the new colorspace.
+			 *
+			 * @return
+			 *	A value equivalent to color in depth-bit space.
+			 */
+			static uint64_t
+			valueInColorspace(
+			    uint64_t color,
+			    uint64_t maxColorValue,
+			    uint8_t depth);
+			    
+			/*
 			 * Useful constants 
 			 */
-			/* Number of bits per color component */
+
+			/** Number of bits per color component */
 			static const uint32_t bitsPerComponent = 8;
+			/** Maximum value for a color for 8-bit depth */
+			static const uint8_t max8BitColor = 255;
+			/** Maximum value for a color for 16-bit depth */
+			static const uint16_t max16BitColor = 65535;
+			/** Maximum value for a color in 24-bit depth */
+			static const uint32_t max24BitColor = 16777215;
+			/** Maximum value for a color in 32-bit depth */
+			static const uint32_t max32BitColor = 4294967295;
+			/** Maximum value for a color in 48-bit depth */
+			static const uint64_t max48BitColor = 281474976710655;
 
 		protected:
 			/**
