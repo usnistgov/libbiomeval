@@ -80,7 +80,27 @@ namespace BiometricEvaluation {
 			    uint8_t mode = IO::READWRITE)
 			    throw (Error::StrategyError, 
 				   Error::FileError);
-
+			
+			/**
+			 * Construct a new Properties object from the contents
+			 * of a buffer.
+			 *
+			 * @param[in] buffer
+			 *	A buffer that contains the contents of a 
+			 *	Property file.
+			 * @param[in] size
+			 * 	The size of buffer.
+			 *
+			 * @return
+			 *      An object representing the properties set.
+			 *
+			 * @throw Error::StrategyError
+			 *	A line in the properties file is malformed.
+			 */
+			Properties(
+			    const uint8_t *buffer,
+			    const size_t size)
+			    throw (Error::StrategyError);
 			/**
 			 * Set a property with a value. Both the property and
 			 * value will have leading and trailing whitespace

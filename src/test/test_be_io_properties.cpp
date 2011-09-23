@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <be_io_properties.h>
+#include <be_io_utility.h>
 #include <be_error_exception.h>
 
 #include <sys/stat.h>
@@ -328,6 +329,22 @@ main(int argc, char* argv[]) {
 	}
 
 	delete props;
+	
+	/* Read properties from a buffer */
+	cout << "Testing Properties read from a buffer: ";
+	try {
+		Memory::uint8Array data = IO::Utility::readFile(fname);
+		IO::Properties propsBuf(data, data.size());
+		/* Retrieve last property that was saved */
+		if (propsBuf.getProperty("string Prop") != "John   Smith")
+			throw Error::DataError("Retrieved wrong data");
+		else
+			cout << "Success" << endl;
+	} catch (Error::Exception &e) {
+		cout << "FAILURE: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+	
 
 	return(EXIT_SUCCESS);
 }

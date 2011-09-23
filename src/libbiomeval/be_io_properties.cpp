@@ -74,6 +74,44 @@ BiometricEvaluation::IO::Properties::Properties(
 	ifs.close();
 }
 
+BiometricEvaluation::IO::Properties::Properties(
+    const uint8_t *buffer,
+    const size_t size)
+    throw (Error::StrategyError)
+{
+	bool eof = false;
+	size_t offset = 0;
+	string::size_type idx;
+	string oneline, property, value;
+	for (;;) {
+		oneline = "";
+		/* Read one line */
+		for (;;) {
+			if (offset > size) {
+				eof = true;
+				break;
+			}
+			
+			char c = buffer[offset++];
+			if (c == '\n') break;
+			oneline += c;
+		}
+		if (eof) break;
+				
+		/* Each line must contain a '=' separator*/
+		idx = oneline.find("=");
+		if ((idx == string::npos) || (idx == 0))
+			throw Error::StrategyError("Properties file has "
+			    "invalid line");
+		property = oneline.substr(0, idx);
+		Text::removeLeadingTrailingWhitespace(property);
+		value = oneline.substr(idx + 1, oneline.length());
+		Text::removeLeadingTrailingWhitespace(value);
+		
+		_properties[property] = value;
+	}
+}
+
 void
 BiometricEvaluation::IO::Properties::setProperty(
     const string &property,
