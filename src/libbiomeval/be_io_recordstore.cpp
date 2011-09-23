@@ -237,13 +237,14 @@ BiometricEvaluation::IO::RecordStore::changeDescription(const string &descriptio
 	writeControlFile();
 }
 
-std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore::RecordStore>
+std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore>
 BiometricEvaluation::IO::RecordStore::openRecordStore(
     const string &name,
     const string &parentDir,
     uint8_t mode)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
+
 	string path;
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
@@ -287,7 +288,7 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 }
 
 
-std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore::RecordStore>
+std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore>
 BiometricEvaluation::IO::RecordStore::createRecordStore(
     const string &name,
     const string &description,

@@ -9,6 +9,7 @@
  */
 
 #include <sstream>
+#include <stdio.h>		/* Needed for NBIS headers */
 
 extern "C" {
 	#include <computil.h>
