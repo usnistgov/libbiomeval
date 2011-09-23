@@ -87,7 +87,7 @@ BiometricEvaluation::IO::Properties::Properties(
 		oneline = "";
 		/* Read one line */
 		for (;;) {
-			if (offset > size) {
+			if (offset >= size) {
 				eof = true;
 				break;
 			}
