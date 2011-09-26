@@ -8,283 +8,441 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <sys/stat.h>
-
-#include <cstddef>
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
 #include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
+#include <tr1/memory>
 
 #include <be_image_image.h>
+#include <be_io_properties.h>
+#include <be_io_recordstore.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
 
 #if defined RAWIMAGETEST
 #include <be_image_rawimage.h>
+static const string imageType = "Raw";
 #elif defined JPEG2000TEST
 #include <be_image_jpeg2000.h>
+static const string imageType = "JPEG2000";
 #elif defined JPEGBTEST
 #include <be_image_jpeg.h>
+static const string imageType = "JPEG";
+#elif defined JPEGLTEST
+#include <be_image_jpegl.h>
+static const string imageType = "JPEGL";
+#elif defined NETPBMTEST
+#include <be_image_netpbm.h>
+static const string imageType = "NetPBM";
 #elif defined PNGTEST
 #include <be_image_png.h>
+static const string imageType = "PNG";
 #elif defined WSQTEST
 #include <be_image_wsq.h>
+static const string imageType = "WSQ";
 #endif
 
 using namespace BiometricEvaluation;
 using namespace std;
 
-/* Image data */
-#if defined RAWIMAGETEST
-static const uint64_t _size = 16;
-static const uint64_t _gray_size = 16;
-static const uint64_t _raw_size = 16;
-static uint8_t _img[_size] = {
-    0xFF, 0x00, 0xFF, 0x00, 
-    0x00, 0xFF, 0x00, 0xFF,
-    0xFF, 0x00, 0xFF, 0x00, 
-    0x00, 0xFF, 0x00, 0xFF
-};
-static unsigned int _XResolution = 28;
-static unsigned int _YResolution = 28;
-static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPCM;
-static uint64_t _width = 4;
-static uint64_t _height = 4;
-static unsigned int _depth = 8;
-static string filename("img_test");
+static const string ImageRSName = "ImageRS";
+static const string ImagePropRSName = "ImagePropertiesRS";
+static const string RSParentDir = "test_data";
+static const string RawSuffix = ".raw";
+static const string RawGraySuffix = ".gray.raw";
+
+
+/**
+ * @brief
+ * Convert strings to an Image::Resolution::Kind enumeration.
+ *
+ * @param unitString
+ *	A string representation of a Resolution::Kind.
+ *
+ * @return
+ *	The Resolution::Kind representation of unitString.
+ */
+static Image::Resolution::Kind
+stringToResUnits(
+    const string &unitString)
+{
+	if (unitString == "PPI") return (Image::Resolution::PPI);
+	else if (unitString == "PPCM") return (Image::Resolution::PPCM);
+	else if (unitString == "PPMM") return (Image::Resolution::PPMM);
+	
+	return (Image::Resolution::NA);
+}
+
+/**
+ * @brief
+ * Convert Image::Resolution::Kind enumerations to a string.
+ *
+ * @param unitKind
+ *	The Resolution::Kind enumeration to convert.
+ *
+ * @return
+ *	A string representation of unitKind.
+ */
+static string
+resUnitsToString(
+    Image::Resolution::Kind unitKind)
+{
+	switch (unitKind) {
+	case Image::Resolution::PPI: return ("PPI");
+	case Image::Resolution::PPCM: return("PPCM");
+	case Image::Resolution::PPMM: return("PPMM");
+	}
+	
+	return ("NA");
+}
+
+/**
+ * @brief
+ * Compare previously recorded Image properties with properties generated
+ * on the fly from the Image object.
+ *
+ * @param image
+ *	The Image from which generated properties come from.
+ * @param properties
+ *	Previously recorded properties for image.
+ * @param imageRS
+ *	The RecordStore of Images for this test program (used to grab recorded
+ *	raw versions).
+ *
+ * @notes
+ * Writes success to stdout and errors to stderr.
+ */
+static void
+compareProperties(
+    const string key,
+    tr1::shared_ptr<Image::Image> image,
+    tr1::shared_ptr<IO::Properties> properties,
+    tr1::shared_ptr<IO::RecordStore> imageRS)
+{
+	bool passed = true, rawSizeDiffers = false, rawGraySizeDiffers = false;
+	
+	/*
+	 * Integer properties.
+	 */
+	if (image->getDimensions().xSize != 
+	    properties->getPropertyAsInteger("xSize")) {
+		passed = false;
+		cerr << "\t*** xSize differs -- Image: " << 
+		    image->getDimensions().xSize << ", Recorded: " <<
+		    properties->getPropertyAsInteger("xSize") << endl;
+	}
+	if (image->getDimensions().ySize !=
+	    properties->getPropertyAsInteger("ySize")) {
+		passed = false;
+		cerr << "\t*** ySize differs -- Image: " << 
+		    image->getDimensions().xSize << ", Recorded: " <<
+		    properties->getPropertyAsInteger("ySize") << endl;
+	}
+	if (image->getDepth() != properties->getPropertyAsInteger("depth")) {
+		passed = false;
+		cerr << "\t*** depth differs -- Image: " << 
+		    image->getDepth() << ", Recorded: " <<
+		    properties->getPropertyAsInteger("depth") << endl;
+	}
+	Memory::uint8Array genRawData, genRawGrayData;
+	if (imageType != "Raw") {
+		genRawData = image->getRawData();
+		if (genRawData.size() != 
+		    properties->getPropertyAsInteger("rawSize")) {
+			passed = false;
+			rawSizeDiffers = true;
+			cerr << "\t*** raw size differs -- Image: " << 
+			genRawData.size() <<  ", Recorded: " << 
+			properties->getPropertyAsInteger("rawSize") << endl;
+		}
+		genRawGrayData = image->getRawGrayscaleData();
+		if (genRawGrayData.size() != 
+		properties->getPropertyAsInteger("rawGraySize")) {
+			passed = false;
+			rawGraySizeDiffers = true;
+			cerr << "\t*** raw gray size differs -- Image: " << 
+			genRawGrayData.size() <<  ", Recorded: " << 
+			properties->getPropertyAsInteger("rawGraySize") << endl;
+		}
+	}
+	
+	/*
+	 * Double properties.
+	 */
+	if (image->getResolution().xRes != 
+	    properties->getPropertyAsDouble("xRes")) {
+		passed = false;
+		cerr << "\t*** xRes differs -- Image: " << 
+		    image->getResolution().xRes <<  ", Recorded: " << 
+		    properties->getPropertyAsDouble("xRes") << endl;
+	}
+	if (image->getResolution().yRes != 
+	    properties->getPropertyAsDouble("yRes")) {
+		passed = false;
+		cerr << "\t*** yRes differs -- Image: " << 
+		    image->getResolution().yRes <<  ", Recorded: " << 
+		    properties->getPropertyAsDouble("yRes") << endl;
+	}
+	
+	/*
+	 * String properties
+	 */
+
+	if (resUnitsToString(image->getResolution().units) != 
+	    properties->getProperty("resUnits")) {
+		passed = false;
+		cerr << "\t*** resolution units differ -- Image: " << 
+		    resUnitsToString(image->getResolution().units) <<
+		    ", Recorded: " << properties->getProperty("resUnits") <<
+		    endl;
+	}	
+
+	/* It does not make sense to diff raw versions with themselves */
+	if (imageType == "Raw") {
+		if (passed)
+			cout << "\t>> All Properties Validated" << endl;
+		return;
+	}
+
+	/*
+	 * Diff raw versions.
+	 */
+	Memory::uint8Array storedRawData;
+	if (rawSizeDiffers == false) {
+		try {
+			storedRawData.resize(imageRS->length(key + RawSuffix));
+			if (imageRS->read(key + RawSuffix, storedRawData) != 
+			    storedRawData.size())
+				throw Error::DataError("Invalid size read");
+				
+			for (size_t i = 0; i < storedRawData.size(); i++)
+				if (storedRawData.at(i) != genRawData.at(i))
+					throw Error::DataError("raw files "
+					    "differ");
+		} catch (Error::ObjectDoesNotExist) {
+			cerr << "\t*** raw version missing" << endl;
+			passed = false;
+		} catch (Error::Exception &e) {
+			cerr << "\t*** " << e.getInfo() << endl;
+			passed = false;
+		}
+	}
+	if (rawGraySizeDiffers == false) {
+		try {
+			storedRawData.resize(imageRS->length(key + 
+			    RawGraySuffix));
+			if (imageRS->read(key + RawGraySuffix, storedRawData) != 
+			    storedRawData.size())
+				throw Error::DataError("Invalid size read");
+				
+			for (size_t i = 0; i < storedRawData.size(); i++)
+				if (storedRawData.at(i) != genRawGrayData.at(i))
+					throw Error::DataError("raw gray files "
+					    "differ");
+		} catch (Error::ObjectDoesNotExist) {
+			cerr << "\t*** raw gray version missing" << endl;
+			passed = false;
+		} catch (Error::Exception &e) {
+			cerr << "\t*** " << e.getInfo() << endl;
+			passed = false;
+		}
+	}
+
+	if (passed)
+		cout << "\t>> All Properties Validated" << endl;
+}
+
+int
+main(
+    int argc,
+    char *argv[])
+{
+	/* Define file extensions and which class should deal with each */
+	map<string, string> extensions;
+	extensions["pbm"] = "NetPBM";
+	extensions["pgm"] = "NetPBM";
+	extensions["ppm"] = "NetPBM";
+	extensions["png"] = "PNG";
+	extensions["raw"] = "Raw";
+	extensions["jpg"] = "JPEG";
+	extensions["jpb"] = "JPEG";
+	extensions["jpl"] = "JPEGL";
+	extensions["jp2"] = "JPEG2000";
+	extensions["j2k"] = "JPEG2000";
+	extensions["jp2"] = "JPEG2000";
+	extensions["wsq"] = "WSQ";
+
+	/* Load images */
+	tr1::shared_ptr<IO::RecordStore> imageRS;
+	try {
+		imageRS = IO::RecordStore::openRecordStore(ImageRSName, 
+		    RSParentDir, IO::READONLY);
+	} catch (Error::Exception &e) {
+		cerr << "Could not open " << RSParentDir << "/" <<
+		    ImageRSName << ": " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+	
+	/* Load image properties */
+	tr1::shared_ptr<IO::RecordStore> imagePropRS;
+	try {
+		imagePropRS = IO::RecordStore::openRecordStore(ImagePropRSName, 
+		    RSParentDir, IO::READONLY);
+	} catch (Error::Exception &e) {
+		cerr << "Could not open " << RSParentDir << "/" <<
+		    ImageRSName << ": " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+
+	bool doPropertyCompare;
+	string key, rawKey, extension;
+	Memory::uint8Array imageData, propertyData;
+	tr1::shared_ptr<IO::Properties> properties;
+	for (;;) {		
+		/* Read in image */
+		try {
+			imageData.resize(imageRS->sequence(key, NULL));
+			rawKey = key;
+		} catch (Error::ObjectDoesNotExist) {
+			/* Exhausted sample images */
+			return (EXIT_SUCCESS);
+		} catch (Error::Exception &e) {
+			cerr << e.getInfo() << endl;
+			continue;
+		}
+			
+		/* Only evaluate those images in the RS we can handle */
+		extension = key.substr(key.length() - 3, 3);
+		if (extensions[extension] != imageType)
+			continue;
+			
+		/* Check if we can verify the properties of the image */
+		try {
+			/*
+			 * For raw images, use the parameters of the
+			 * compressed version,
+			 */
+			if (imageType == "Raw")
+				rawKey = key.substr(0, 
+				    key.find_first_of(".") + 4);
+
+			propertyData.resize(imagePropRS->length(rawKey));
+			if (imagePropRS->read(rawKey, propertyData) != 
+			    propertyData.size())
+				throw Error::DataError("Invalid size read");
+			properties.reset(new IO::Properties(propertyData,
+			    propertyData.size()));
+			doPropertyCompare = true;
+		} catch (Error::ObjectDoesNotExist) {
+			doPropertyCompare = false;
+		} catch (Error::Exception &e) {
+			cerr << e.getInfo() << endl;
+			continue;
+		}
+		
+		/* Read the image */
+		try {
+			if (imageRS->read(key, imageData) != imageData.size())
+				throw Error::DataError("Invalid size read");
+		} catch (Error::Exception &e) {
+			cerr << e.getInfo() << endl;
+			continue;
+		}
+		
+		tr1::shared_ptr<Image::Image> image;
+#if defined WSQTEST
+		if (Image::WSQ::isWSQ(imageData) == false) {
+			cerr << key << " is not a WSQ image." << endl;
+			continue;
+		}
+		image.reset(new Image::WSQ(imageData, imageData.size()));
 #elif defined JPEGBTEST
-static const uint64_t _size = 206;
-static const uint64_t _gray_size = 16;
-static const uint64_t _raw_size = 16;
-static uint8_t _img[_size] = {
-	0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00,
-	0x01, 0x01, 0x01, 0x00, 0x48, 0x00, 0x48, 0x00, 0x00, 0xff, 0xdb,
-	0x00, 0x43, 0x00, 0x08, 0x06, 0x06, 0x07, 0x06, 0x05, 0x08, 0x07,
-	0x07, 0x07, 0x09, 0x09, 0x08, 0x0a, 0x0c, 0x14, 0x0d, 0x0c, 0x0b, 
-	0x0b, 0x0c, 0x19, 0x12, 0x13, 0x0f, 0x14, 0x1d, 0x1a, 0x1f, 0x1e,
-	0x1d, 0x1a, 0x1c, 0x1c, 0x20, 0x24, 0x2e, 0x27, 0x20, 0x22, 0x2c,
-	0x23, 0x1c, 0x1c, 0x28, 0x37, 0x29, 0x2c, 0x30, 0x31, 0x34, 0x34,
-	0x34, 0x1f, 0x27, 0x39, 0x3d, 0x38, 0x32, 0x3c, 0x2e, 0x33, 0x34, 
-	0x32, 0xff, 0xc0, 0x00, 0x0b, 0x08, 0x00, 0x04, 0x00, 0x04, 0x01,
-	0x01, 0x11, 0x00, 0xff, 0xc4, 0x00, 0x14, 0x00, 0x01, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x05, 0xff, 0xc4, 0x00, 0x21, 0x10, 0x00, 0x02, 0x01,
-	0x03, 0x03, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x02, 0x04, 0x03, 0x01, 0x06, 0x12, 0x05, 0x11, 0x21,
-	0x13, 0x14, 0x22, 0x32, 0x33, 0xff, 0xda, 0x00, 0x08, 0x01, 0x01,
-	0x00, 0x00, 0x3f, 0x00, 0x7e, 0xd1, 0xb4, 0x51, 0xbc, 0xb4, 0xb3,
-	0x7d, 0xf9, 0x30, 0x94, 0x3a, 0x1b, 0x53, 0xb4, 0x59, 0x8f, 0xaa,
-	0xd0, 0xb2, 0x5e, 0x4c, 0x45, 0x21, 0x7b, 0xce, 0x74, 0xe2, 0xbc,
-	0xed, 0x91, 0x65, 0x21, 0x19, 0x9f, 0xff, 0xd9
-};
-static unsigned int _XResolution = 72;
-static unsigned int _YResolution = 72;
-static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPI;
-static uint64_t _width = 4;
-static uint64_t _height = 4;
-static unsigned int _depth = 8;
-static string filename("img_test");
+		if (Image::JPEG::isJPEG(imageData, imageData.size()) == false) {
+			cerr << key << " is not a Lossy JPEG image." << endl;
+			continue;
+		}
+		image.reset(new Image::JPEG(imageData, imageData.size()));
+#elif defined JPEGLTEST
+		if (Image::JPEGL::isJPEGL(imageData, imageData.size()) == 
+		    false) {
+			cerr << key << " is not a Lossless JPEG image." << endl;
+			continue;
+		}
+		image.reset(new Image::JPEGL(imageData, imageData.size()));
 #elif defined JPEG2000TEST
-static const uint64_t _size = 446994;
-static const uint64_t _gray_size = 0;
-static const uint64_t _raw_size = 914356;
-static double _XResolution = 393.7;
-static double _YResolution = 393.7;
-static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPCM;
-static uint64_t _width = 908;
-static uint64_t _height = 1007;
-static unsigned int _depth = 8;
-static string filename("img.jp2");
+		if (Image::JPEG2000::isJPEG2000(imageData) == false) {
+			cerr << key << " is not a JPEG2000 image." << endl;
+			continue;
+		}
+		image.reset(new Image::JPEG2000(imageData, imageData.size()));
 #elif defined PNGTEST
-static const uint64_t _size = 117;
-static const uint64_t _gray_size = 0;
-static const uint64_t _raw_size = 64;
-static uint8_t _img[_size] = {
-    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00,
-    0x0d, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00,
-    0x00, 0x04, 0x08, 0x06, 0x00, 0x00, 0x00, 0xa9, 0xf1, 0x9e, 0x7e,
-    0x00, 0x00, 0x00, 0x09, 0x70, 0x48, 0x59, 0x73, 0x00, 0x00, 0x0b,
-    0x13, 0x00, 0x00, 0x0b, 0x13, 0x01, 0x00, 0x9a, 0x9c, 0x18, 0x00,
-    0x00, 0x00, 0x27, 0x49, 0x44, 0x41, 0x54, 0x08, 0x1d, 0x35, 0x8a,
-    0xb9, 0x0d, 0x00, 0x00, 0x08, 0x02, 0x0f, 0xf7, 0xdf, 0x59, 0x41,
-    0x23, 0x05, 0xbf, 0x80, 0x36, 0x2c, 0x20, 0x89, 0xfa, 0xb0, 0x8d,
-    0xa9, 0xde, 0x64, 0x0d, 0xc2, 0xf7, 0xdf, 0x08, 0x03, 0x9a, 0xa2,
-    0x08, 0x05, 0x50, 0xea, 0xae, 0x8e, 0x00, 0x00, 0x00, 0x00, 0x49,
-    0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
-};
-static double _XResolution = 28.35;
-static double _YResolution = 28.35;
-static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPCM;
-static uint64_t _width = 4;
-static uint64_t _height = 4;
-static unsigned int _depth = 32;
-static string filename("img_test");
-#elif defined WSQTEST
-static const uint64_t _size = 8256;
-static const uint64_t _gray_size = 0;
-static const uint64_t _raw_size = 65536;
-static unsigned int _XResolution = 500;
-static unsigned int _YResolution = 500;
-static uint64_t _width = 256;
-static uint64_t _height = 256;
-static unsigned int _depth = 8;
-static string filename("img.wsq");
-static Image::Resolution::Kind _resolutionUnits = Image::Resolution::PPI;
+		if (Image::PNG::isPNG(imageData) == false) {
+			cerr << key << " is not a PNG image." << endl;
+			continue;
+		}
+		image.reset(new Image::PNG(imageData, imageData.size()));
+#elif defined NETPBMTEST
+		if (Image::NetPBM::isNetPBM(imageData, imageData.size()) == 
+		    false) {
+			cerr << key << " is not a NetPBM image." << endl;
+			continue;
+		}
+		image.reset(new Image::NetPBM(imageData,imageData.size()));
+#elif defined RAWIMAGETEST
+		/* We can't construct a raw image without properties */
+		if (doPropertyCompare == false) {
+			cerr << key << " skipped (missing properties)" << endl;
+			continue;
+		}
+		
+		image.reset(new Image::RawImage(imageData, imageData.size(),
+		    Image::Size(properties->getPropertyAsInteger("xSize"), 
+		    properties->getPropertyAsInteger("ySize")),
+		    properties->getPropertyAsInteger("depth"),
+		    Image::Resolution(properties->getPropertyAsDouble("xRes"),
+		    properties->getPropertyAsDouble("yRes"),
+		    stringToResUnits(properties->getProperty("resUnits")))));
 #endif
 
-/* Write buffer */
-int
-write_buf(
-    Memory::AutoArray<uint8_t> data,
-    uint64_t orig_sz)
-{
-	FILE *fp = fopen(filename.c_str(), "w");
-	if (fp == NULL) {
-		cerr << "Could not open " << filename << " for writing" << endl;
-		return (EXIT_FAILURE);
+		/* Print all the metadata for the Image */
+		cout << key << ':' << endl;
+		cout << "\tDimensions: " << image->getDimensions() << endl;
+		cout << "\tBit-Depth: " << image->getDepth() << endl;
+		cout << "\tResolution: " << image->getResolution() << endl;
+		cout << "\tNative Size: " << image->getData().size() << endl;
+		
+		/* Write a raw and grayscale raw version of the image */
+		try {
+			IO::Utility::writeFile(image->getRawData(),
+			    rawKey + RawSuffix, ios_base::trunc);
+			cout << "\tRaw Size: " << image->getRawData().size() << 
+			    " (" << rawKey << RawSuffix << ")" << endl;
+		} catch (Error::Exception &e) {
+			cerr << "Error getRawData()/writeFile() for " << key <<
+			    endl;
+		}
+		
+		try {
+			IO::Utility::writeFile(image->getRawGrayscaleData(),
+			    rawKey + RawGraySuffix, ios_base::trunc);
+			cout << "\tRaw 8-bit Grayscale Size: " <<
+			    image->getRawGrayscaleData().size() << " (" << 
+			    rawKey << RawGraySuffix << ")" << endl;
+		} catch (Error::Exception &e) {
+			cerr << "Error getRawGrayscaleData()/writeFile() " <<
+			   "for " << key << endl;
+		}
+		
+		/* 
+		 * Compare all properties of the Image as parsed to those 
+		 * generated by the constructor, including a difference of the
+		 * generated raw images.
+		 */
+		if (doPropertyCompare)
+			compareProperties(key, image, properties, imageRS);
 	}
-	if (fwrite(data, 1, data.size(), fp) != orig_sz) {
-		cerr << "Could not write " << filename << endl;
-		return (EXIT_FAILURE);
-	} else {
-		cout << "Wrote " << filename << endl;
-		fclose(fp);
-		if (unlink(filename.c_str()) == 0)
-			cout << "Removed " << filename << endl;
-	}
-
+	
 	return (EXIT_SUCCESS);
 }
-
-Memory::AutoArray<uint8_t>
-read_image(
-    const string &name)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
-{
-	static const string test_dir = "test_data";
-	string path = test_dir + '/' + name;
-	
-	Memory::AutoArray<uint8_t> buf(IO::Utility::getFileSize(path));
-	FILE *fp = fopen(path.c_str(), "rb");
-	if (fp == NULL)
-		throw Error::StrategyError("Could not open " + path);
-	if (fread(buf, 1, buf.size(), fp) != buf.size())
-		throw Error::StrategyError("Could not read " + name);
-	fclose(fp);
-	
-	return (buf);
-}
-
-int
-main(int argc, char* argv[])
-{
-	struct stat sb;
-	if (stat(filename.c_str(), &sb) == 0) {
-		cerr << filename << " already exists" << endl;	
-		return (EXIT_FAILURE);
-	}
-
-	Image::Image *image;
-	#if defined RAWIMAGETEST
-	image = new Image::RawImage(_img, _size, Image::Size(_width, _height),
-	    _depth, Image::Resolution(_XResolution, _YResolution,
-	    _resolutionUnits));
-	#elif defined JPEGBTEST
-	try {
-		if (Image::JPEG::isJPEG(_img, _size))
-			image = new Image::JPEG(_img, _size);
-		else {
-			cerr << "FAIL: Not a JPEG image." << endl;
-			return (EXIT_FAILURE);
-		}
-	} catch (Error::Exception &e) {
-		cout << e.getInfo() << endl;
-		return (EXIT_FAILURE);
-	}
-	#elif defined JPEG2000TEST
-	try {
-		Memory::AutoArray<uint8_t> img = read_image(filename);
-		if (Image::JPEG2000::isJPEG2000(img))
-			image = new Image::JPEG2000(img, img.size());
-		else {
-			cerr << "FAIL: Not a JPEG-2000 image." << endl;
-			return (EXIT_FAILURE);
-		}
-	} catch (Error::Exception &e) {
-		cout << e.getInfo() << endl;
-		return (EXIT_FAILURE);
-	}
-	#elif defined PNGTEST
-	try {
-		if (Image::PNG::isPNG(_img))
-			image = new Image::PNG(_img, _size);
-		else {
-			cerr << "FAIL: Not a PNG image." << endl;
-			return (EXIT_FAILURE);
-		}
-	} catch (Error::Exception &e) {
-		cout << e.getInfo() << endl;
-		return (EXIT_FAILURE);
-	}
-	#elif defined WSQTEST
-	try {
-		Memory::AutoArray<uint8_t> wsq_img = read_image(filename);
-		if (Image::WSQ::isWSQ(wsq_img))
-			image = new Image::WSQ(wsq_img, wsq_img.size());
-		else {
-			cerr << "FAIL: Not a WSQ image." << endl;
-			return (EXIT_FAILURE);
-		}
-	} catch (Error::Exception &e) {
-		cout << e.getInfo() << endl;
-		return (EXIT_FAILURE);
-	}
-	#endif
-
-	cout << "Compression Algorithm: " <<
-	    image->getCompressionAlgorithm() << endl;
-	if (image->getCompressionAlgorithm() !=
-	#if defined RAWIMAGETEST
-	    Image::CompressionAlgorithm::None)
-	#elif defined JPEGBTEST
-	    Image::CompressionAlgorithm::JPEGB)
-	#elif defined PNGTEST
-	    Image::CompressionAlgorithm::PNG)
-	#elif defined JPEG2000TEST
-	    Image::CompressionAlgorithm::JP2)
-	#elif defined WSQTEST
-	    Image::CompressionAlgorithm::WSQ20)
-	#endif
-	    	cout << "\tError in compression algorithm" << endl;
-
-	cout << "Dimensions: " << image->getDimensions() << endl;
-	if (_width != image->getDimensions().xSize)
-		cerr << "\tError in width" << endl;
-	if (_height != image->getDimensions().ySize)
-		cerr << "\tError in height" << endl;
-	cout << "Depth: " << image->getDepth() << endl;
-	if (_depth != image->getDepth())
-		cerr << "\tError in depth" << endl;
-	cout << "Resolution: " << image->getResolution() << endl;
-	if (_XResolution != image->getResolution().xRes)
-		cerr << "\tError in XResolution" << endl;
-	if (_YResolution != image->getResolution().yRes)
-		cerr << "\tError in YResolution" << endl;
-	if (_resolutionUnits != image->getResolution().units)
-		cerr << "\tError in Resolution Units" << endl;
-
-	if (write_buf(image->getRawData(), _raw_size) != EXIT_SUCCESS)
-		cerr << "\tError in getRawData()" << endl;
-	if (write_buf(image->getData(), _size) != EXIT_SUCCESS)
-		cerr << "\tError in getData()" << endl;
-	if (write_buf(image->getRawGrayscaleData(), _gray_size) != EXIT_SUCCESS)
-		cerr << "\tError in getRawGrayscaleData()" << endl;
-
-	if (image != NULL)
-		delete image;
-
-	return (EXIT_SUCCESS);
-}
-
+    
