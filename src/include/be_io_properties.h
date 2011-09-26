@@ -138,6 +138,25 @@ namespace BiometricEvaluation {
 			    const string &property,
 			    int64_t value)
 			    throw (Error::StrategyError);
+			
+			/**
+			 * Set a property with a double value. The property
+			 * will have leading and trailing whitespace removed.
+			 * If the property already exists in the set, its
+			 * value will be replaced with the new value; otherwise
+			 * the property will be created.
+			 *
+			 * @param[in] property
+			 *	The name of the property to set.
+			 * @param[in] value
+			 *	The value associated with the property.
+			 * @throw Error::StrategyError
+			 *	The Properties object is read-only.
+			 */
+			void setPropertyFromDouble(
+			    const string &property,
+			    double value)
+			    throw (Error::StrategyError);
 
 			/**
 			 * Remove a property.
@@ -187,6 +206,20 @@ namespace BiometricEvaluation {
 			    const string &property)
 			    throw (Error::ObjectDoesNotExist,
 				   Error::ConversionError);
+				   
+			/**
+			 * Retrieve a property value as a double value.
+			 *
+			 * @param[in] property
+			 *	The name of the property to get.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	The named property does not exist.
+			 */
+			double
+			getPropertyAsDouble(
+			    const string &property)
+			    throw (Error::ObjectDoesNotExist);
 
 			/**
 			 * Write the properties to the underlying file,

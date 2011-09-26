@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <sys/types.h>
 #include <errno.h>
 #include <limits.h>
@@ -146,6 +147,17 @@ BiometricEvaluation::IO::Properties::setPropertyFromInteger(
 }
 
 void
+BiometricEvaluation::IO::Properties::setPropertyFromDouble(
+    const string &property,
+    double value)
+    throw (Error::StrategyError)
+{
+	stringstream convert;
+	convert << value;
+	setProperty(property, convert.str());
+}
+
+void
 BiometricEvaluation::IO::Properties::removeProperty(
     const string &property)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
@@ -210,6 +222,18 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 		throw Error::ConversionError("Value out of range");
 
 	return ((int64_t)conVal);
+}
+
+double
+BiometricEvaluation::IO::Properties::getPropertyAsDouble(
+    const string &property)
+    throw (Error::ObjectDoesNotExist)
+{
+	stringstream converter(getProperty(property));
+	double doubleValue;
+	
+	converter >> doubleValue;
+	return (doubleValue);
 }
 
 void
