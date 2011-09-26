@@ -199,8 +199,10 @@ BiometricEvaluation::Image::NetPBM::getRawData()
 	if (_raw_data.size() != 0)
 		return (_raw_data);
 	
+	Memory::uint8Array dataWithHeader = getData();
 	Memory::uint8Array data;
-	data.copy(getData() + _headerLength, getData().size() - _headerLength);
+	data.copy(dataWithHeader + _headerLength, 
+	    dataWithHeader.size() - _headerLength);
 
 	switch (_kind) {
 	case ASCIIPortableBitmap:
