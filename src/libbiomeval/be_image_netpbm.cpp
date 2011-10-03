@@ -263,26 +263,30 @@ BiometricEvaluation::Image::NetPBM::ASCIIPixmapToBinaryPixmap(
     Error::ParameterError)
 {
 	/* Ensure valid bit depth */
-	if ((depth % Image::bitsPerComponent) != 0)
+	if (((depth % Image::bitsPerComponent) != 0) || (depth > 48))
 		throw Error::ParameterError("Invalid depth");
 	uint8_t bytesPerPixel = (depth / Image::bitsPerComponent);
 
 	Memory::uint8Array binaryBuf(width * height * bytesPerPixel);
 	
 	size_t ASCIIOffset = 0, binaryOffset = 0;
-	string decimal;
-	stringstream converter;
+	uint32_t decimal;
 	while (ASCIIOffset < ASCIIBuf.size()) {
-		converter.str("");
-		
 		/* Read space separated ASCII integer and scale to colorspace */
 		decimal = valueInColorspace(atoi(getNextValue(ASCIIBuf, 
 		    ASCIIOffset).c_str()), maxColor, depth);
-		    
-		/* Use a stringstream to convert decimal to hex */
-		converter.str(decimal);
-		converter >> hex >> binaryBuf[binaryOffset];
-		binaryOffset += bytesPerPixel;
+
+		if (maxColor <= 255) {
+			/* One byte per component */
+			binaryBuf[binaryOffset] = decimal;
+			binaryOffset++;
+		} else {
+			/* Two bytes per component (max color limited) */
+			binaryBuf[binaryOffset] = (decimal >> 8);
+			binaryOffset++;
+			binaryBuf[binaryOffset] = decimal;
+			binaryOffset++;
+		}
 	}
 
 	return (binaryBuf);
