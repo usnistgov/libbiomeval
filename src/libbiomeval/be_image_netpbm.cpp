@@ -9,6 +9,7 @@
  */
 
 #include <cmath>
+#include <cstdlib>
 #include <sstream>
 
 #include <be_image_netpbm.h>

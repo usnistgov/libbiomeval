@@ -119,6 +119,9 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 			rValue = ((twoBytes[0] << 8) | (twoBytes[1]));
 			
 			/* Interpolate color in 8-bit depth colorspace */
+			
+			static uint16_t max16BitColor = 
+			    ((uint16_t)pow(2.0, 16)) - 1;
 			rawGray[j] = (uint8_t)valueInColorspace(rValue,
 			    max16BitColor, 8);
 			
@@ -156,6 +159,8 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 			bValue = ((twoBytes[0] << 8) | (twoBytes[1]));
 						
 			/* Interpolate colors in 8-bit depth colorspace */
+			static uint64_t max48BitColor = 
+			    ((uint64_t)pow(2.0, 48)) - 1;
 			rValue = (uint8_t)valueInColorspace(rValue,
 			    max48BitColor, 8);
     			gValue = (uint8_t)valueInColorspace(rValue,

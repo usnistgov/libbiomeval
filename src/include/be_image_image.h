@@ -243,16 +243,6 @@ namespace BiometricEvaluation
 
 			/** Number of bits per color component */
 			static const uint32_t bitsPerComponent = 8;
-			/** Maximum value for a color for 8-bit depth */
-			static const uint8_t max8BitColor = 255;
-			/** Maximum value for a color for 16-bit depth */
-			static const uint16_t max16BitColor = 65535;
-			/** Maximum value for a color in 24-bit depth */
-			static const uint32_t max24BitColor = 16777215;
-			/** Maximum value for a color in 32-bit depth */
-			static const uint32_t max32BitColor = 4294967295;
-			/** Maximum value for a color in 48-bit depth */
-			static const uint64_t max48BitColor = 281474976710655;
 
 		protected:
 			/**
