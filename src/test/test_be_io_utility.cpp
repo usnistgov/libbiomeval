@@ -80,7 +80,7 @@ main(int argc, char* argv[])
 		cout << "ERROR (sizes differ)" << endl;
 		return (EXIT_FAILURE);
 	}
-	for (int i = 0; i < textFile.size(); i++) {
+	for (size_t i = 0; i < textFile.size(); i++) {
 		if (textFile.at(i) != textFile2.at(i)) {
 			cout << "ERROR (data differs)" << endl;
 			return (EXIT_FAILURE);

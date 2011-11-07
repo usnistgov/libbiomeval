@@ -86,6 +86,8 @@ testNonMutable(IO::Properties &props)
 		cout << "Constructor succeeded when it should not have!" << endl;
 		rv = -1;
 	}
+	
+	return (rv);
 }
 
 int

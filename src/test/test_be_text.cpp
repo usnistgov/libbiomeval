@@ -65,15 +65,15 @@ main(int argc, char* argv[])
 	string split_str2 = "Semicolons are bad form; avoid them.";
 	cout << "Split \"" << split_str1 << "\" on ','" << endl;
 	vector<string> str1_components = Text::split(split_str1, ',');
-	for (int i = 0; i < str1_components.size(); i++)
+	for (size_t i = 0; i < str1_components.size(); i++)
 		cout << "\t* \"" << str1_components[i] << "\"" << endl;
 	cout << "Split \"" << split_str2 << "\" on ';'" << endl;
 	vector<string> str2_components = Text::split(split_str2, ';');
-	for (int i = 0; i < str2_components.size(); i++)
+	for (size_t i = 0; i < str2_components.size(); i++)
 		cout << "\t* \"" << str2_components[i] << "\"" << endl;
 	cout << "Split \"" << split_str2 << "\" on 'z'" << endl;
 	vector<string> failed_split = Text::split(split_str2, 'z');
-	for (int i = 0; i < failed_split.size(); i++)
+	for (size_t i = 0; i < failed_split.size(); i++)
 		cout << "\t* \"" << failed_split[i] << "\"" << endl;
 
 	cout << endl;

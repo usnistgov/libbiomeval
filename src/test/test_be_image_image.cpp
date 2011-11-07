@@ -52,7 +52,7 @@ static const string RSParentDir = "test_data";
 static const string RawSuffix = ".raw";
 static const string RawGraySuffix = ".gray.raw";
 
-
+#if defined RAWIMAGETEST
 /**
  * @brief
  * Convert strings to an Image::Resolution::Kind enumeration.
@@ -73,6 +73,7 @@ stringToResUnits(
 	
 	return (Image::Resolution::NA);
 }
+#endif
 
 /**
  * @brief
@@ -92,6 +93,7 @@ resUnitsToString(
 	case Image::Resolution::PPI: return ("PPI");
 	case Image::Resolution::PPCM: return("PPCM");
 	case Image::Resolution::PPMM: return("PPMM");
+	case Image::Resolution::NA: return ("NA");
 	}
 	
 	return ("NA");
@@ -149,7 +151,7 @@ compareProperties(
 	if (imageType != "Raw") {
 		genRawData = image->getRawData();
 		if (genRawData.size() != 
-		    properties->getPropertyAsInteger("rawSize")) {
+		    (size_t)properties->getPropertyAsInteger("rawSize")) {
 			passed = false;
 			rawSizeDiffers = true;
 			cerr << "\t*** raw size differs -- Image: " << 
@@ -158,7 +160,7 @@ compareProperties(
 		}
 		genRawGrayData = image->getRawGrayscaleData();
 		if (genRawGrayData.size() != 
-		properties->getPropertyAsInteger("rawGraySize")) {
+		    (size_t)properties->getPropertyAsInteger("rawGraySize")) {
 			passed = false;
 			rawGraySizeDiffers = true;
 			cerr << "\t*** raw gray size differs -- Image: " << 

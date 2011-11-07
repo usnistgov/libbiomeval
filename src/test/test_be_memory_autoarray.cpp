@@ -66,7 +66,7 @@ int main (int argc, char* argv[]) {
 	size_t size = 20;
 	cout << "Creating AutoArray size " << size << endl;
 	Memory::AutoArray<unsigned int> aa(size);
-	for (int i = 0; i < size; i++)
+	for (size_t i = 0; i < size; i++)
 		aa[i] = (i + 1);
 	for (Memory::AutoArray<unsigned int>::iterator it = aa.begin(); 
 	    it != aa.end(); it++)
@@ -75,15 +75,15 @@ int main (int argc, char* argv[]) {
 	
 	cout << "Cutting the array in half to " << (size / 2) << endl;
 	aa.resize(size / 2);
-	for (int i = 0; i < aa.size(); i++)
+	for (size_t i = 0; i < aa.size(); i++)
 		cout << aa[i] << " ";
 	cout << endl << endl;
 
 	cout << "Expanding the array to " << (size * 2) << endl;
 	aa.resize(size * 2);
-	for (int i = 0; i < (size * 2); i++)
+	for (size_t i = 0; i < (size * 2); i++)
 		aa[i] = (i + 1);
-	for (int i = 0; i < aa.size(); i++)
+	for (size_t i = 0; i < aa.size(); i++)
 		cout << aa[i] << " ";
 	cout << endl;
 

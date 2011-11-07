@@ -25,6 +25,7 @@ using namespace BiometricEvaluation;
 			cout << "." << flush;				\
 		}							\
 		int j = i*i;						\
+		j--;							\
 	}								\
 }
 
@@ -32,6 +33,7 @@ static void*
 child(void *)
 {
 	sleep(2);
+	return (NULL);
 }
 
 static int

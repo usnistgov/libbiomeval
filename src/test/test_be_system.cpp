@@ -23,6 +23,7 @@ using namespace BiometricEvaluation;
 			cout << "." << flush;				\
 		}							\
 		int j = i*i;						\
+		j--;							\
 	}								\
 }
 

@@ -87,7 +87,7 @@ doLogCabinetTests()
 
 	tr1::shared_ptr<LogSheet> ls;
 	string lsname;
-	for (int i = 0; i < LOGSHEETCOUNT; i++) {
+	for (size_t i = 0; i < LOGSHEETCOUNT; i++) {
 		ostringstream sbuf;
 		sbuf << "logsheet" << i;
 		lsname = sbuf.str();
