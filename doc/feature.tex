@@ -1,0 +1,28 @@
+%
+% Feature API
+%
+\chapter{Feature}
+\label{chp-feature}
+The Feature package contains those items that relate to the representation of
+biometric features, such as fingerprint minutiae, facial features (eyes, etc.),
+and related information. Objects of these class types are typically associated
+with View~(\chpref{chp-view}) or
+DataInterchange~(\chpref{chp-datainterchange})
+objects. For example, a minutiae object is usually obtained from a finger view,
+which may have been obtained from a data interchange object representing an
+entire biometric record for an individual.
+
+The data contained within a Feature object is represented as the ``native''
+format as it was extracted from the underlying data record. There is no
+translation to a common format and it is the application's responsibility to
+interpret or translate the data as necessary.
+
+\section{ANSI/NIST Features}
+\label{sec-ansinistfeatures}
+The ANSI/NIST~\cite{std:an2k} standard defines several features represented
+as data elements within a record. Fingerprint and palm minutiae is contained
+within Type-9 record. The AN2K7Minutiae class, contained in the Feature
+package, represents a single Type-9 record. An object of this class can be
+constructed directly from a complete ANSI/NIST record. However, it is more
+common for an application to retrieve these objects from the AN2KView object
+defined in the Finger package~(\chpref{chp-finger}).

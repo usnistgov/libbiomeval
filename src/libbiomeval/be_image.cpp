@@ -74,6 +74,19 @@ BiometricEvaluation::Image::operator<< (std::ostream &s,
 }
 
 std::ostream&
+BiometricEvaluation::Image::operator<<(
+    std::ostream &stream,
+    const Image::CoordinateSet& coordinates)
+{
+	stream << '[';
+	for (size_t i = 0; i < coordinates.size() - 1; i++)
+		stream << coordinates.at(i) << ", ";
+	stream << coordinates.at(coordinates.size() - 1) << ']';
+	
+	return (stream);
+}
+
+std::ostream&
 BiometricEvaluation::Image::operator<< (std::ostream &s,
     const Image::Size& size)
 {

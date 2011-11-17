@@ -16,7 +16,7 @@ application itself to gather statistics related to the current amount of memory
 being used, the number of threads, and other items. Biometric evaluation test
 drivers are linked against a third party library, and therefore, the application
 writer does not control the thread count or memory usage for much of the
-processing. Listing~\ref{processstatisticsuse} shows how an application can
+processing. \lstref{processstatisticsuse} shows how an application can
 use the Statistics API.
 
 \lstset{language=c++}
@@ -51,10 +51,10 @@ int main(int argc, char *argv[])
 In addition to using the Process API to gather statistics to be returned from
 the function call, the API provides a means to have a ``standard'' set of
 statistics logged either synchronously or asynchronously to a 
-LogSheet (See Section~\ref{sec-logging}) contained within a LogCabinet.
+LogSheet (See~\secref{sec-logging}) contained within a LogCabinet.
 Applications can
-start and stop logging at will to this LogSheet. Post-postmortem analysis can then
-be done on the entries in the LogSheet. Listing~\ref{processstatisticslogging}
+start and stop logging at will to this LogSheet. Post-postmortem analysis can
+then be done on the entries in the LogSheet. \lstref{processstatisticslogging}
 shows the use of logging.
 
 The LogSheet will have a file name constructed from the process name (i.e.

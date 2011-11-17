@@ -1,0 +1,38 @@
+%
+% Framework API
+%
+\chapter{Framework}
+The Framework package is used to retrieve information about the \lname\ itself.
+Framework version, compiler, and other information can be queried by
+applications, mostly
+for logging so runtime information can be captured. The intent at this time
+is {\em not} to control the linkage of applications against specific
+versions of the framework.
+\label{chp-framework}
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Using a the Framework API}, label=frameworkuse]
+#include <iostream>
+#include <be_framework.h>
+
+using namespace BiometricEvaluation;
+using namespace std;
+
+int
+main(int argc, char* argv[])
+{
+    cout << "Framework Version: ";
+    cout << Framework::getMajorVersion() << "." <<
+        Framework::getMinorVersion() << endl;
+
+    cout << "Compiler Used: ";
+    cout << Framework::getCompiler() << " v" <<
+        Framework::getCompilerVersion() << endl;
+
+    cout << "Date/Time Compiled: ";
+    cout << Framework::getCompileDate() << " " <<
+        Framework::getCompileTime() << endl;
+
+    return (EXIT_SUCCESS);
+}
+\end{lstlisting}

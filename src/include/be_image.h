@@ -88,6 +88,24 @@ namespace BiometricEvaluation
 
 		std::ostream& operator<< (std::ostream&, const Coordinate&);
 		typedef std::vector<Image::Coordinate> CoordinateSet;
+		/**
+		 * @brief
+		 * Output stream overload for CoordinateSet.
+		 *
+		 * @param[in] stream
+		 *	Stream on which to append formatted
+		 *	CoordinateSet information.
+		 * @param[in] coordinates
+		 *	CoordinateSet information to append to stream.
+		 *
+		 * @return
+		 *	stream with a coordinates textual representation 
+		 *	appended.
+		 */
+		std::ostream&
+		operator<<(
+		    std::ostream &stream,
+		    const CoordinateSet &coordinates);
 
 		/**
 		 * @brief

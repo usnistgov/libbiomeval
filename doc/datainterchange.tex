@@ -1,0 +1,289 @@
+%
+% Data Interchange API
+%
+\chapter{Data Interchange}
+\label{chp-datainterchange}
+The Data Interchange package consists of classes and other elements used to
+process an entire biometric data record. For example, a single ANSI/NIST 
+record, consisting of many smaller records (fingerprint images, latent data,
+etc.) can be accessed by instantiating a single object. Classes in this
+package typically use has-a relationships to classes in the Finger and other
+packages that process individual biometric samples.
+
+The design of classes in the Data Interchange package allows applications to
+create a single object from a biometric record, such as an ANSI/NIST file.
+After creating this object, the application can retrieve the needed information
+(such as fingerprint images) from this object, or objects returned by methods
+of the Data Interchange object. A typical example would be to retrieve all
+images from the record and pass them into a function that extracts a biometric
+template or some other image processing.
+
+\section{ANSI/NIST Data Records}
+\label{sec-ansinistdatarecords}
+
+The ANSI/NIST Data Interchange package contains the classes used to represent
+ANSI/NIST~\cite{std:an2k} records. One class, DataInterchange::AN2KRecord,
+is used to represent the entire ANSI/NIST record. An object of this class
+will contain objects of the Finger:: classes, as well as other packages. By
+instantiating the AN2KRecord object, the application can retrieve all the
+information and images contained in the ANSI/NIST record.
+
+The AN2KMinutiaeDataRecord class represents an entire Type-9 record from an
+ANSI/NIST file. However, some components of this class are represented by
+classes in other packages. For example, the AN2K7Minutiae class in the Feature
+package represents the ``standard'' format minutiae in the Type-9 record.
+
+\lstref{an2kviewuse} shows how an application can retrieve all finger
+captures (Type-4 records) from an ANSI/NIST record. Once the Views are
+retrieved, the application obtains the set of minutiae records associated with
+that View.
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Retrieving ANSI/NIST Records}, label=an2kviewuse]
+#include <iostream>
+#include <be_error_exception.h>
+#include <be_finger_an2kview_capture.h>
+
+int
+main(int argc, char* argv[])
+{
+    /*
+     * Call the constructor that will open an existing AN2K file and
+     * retrieve the first finger capture (Type-14) record.
+     */
+    std::auto_ptr<Finger::AN2KViewCapture> an2kv;
+    try {
+        an2kv.reset(new Finger::AN2KViewCapture("type9-14.an2k", 1));
+    } catch (Error::DataError &e) {
+        cout << "Caught " << e.getInfo()  << endl;
+        return (EXIT_FAILURE);
+    } catch (Error::FileError& e) {
+        cout << "A file error occurred: " << e.getInfo() << endl;
+        return (EXIT_FAILURE);
+    }
+
+    cout << "Get the set of minutiae data records: ";
+    vector<Finger::AN2KMinutiaeDataRecord> records =
+        an2kv->getMinutiaeDataRecordSet();
+    cout << "There are " << records.size() << " minutiae records." << endl;
+
+    /*
+     * Get the info from the first minutiae record in the View.
+     */
+    DataInterchange::AN2KMinutiaeDataRecord type9 = records[0];
+
+    /*
+     * Get the "standard" set of minutiae.
+     */
+    Feature::AN2K7Minutiae an2k7m = type9.getAN2K7Minutiae();
+
+    /*
+     * Obtain the minutiae points, ridge counts, cores, and deltas.
+     */
+    Feature::MinutiaPointSet mps;
+    Feature::RidgeCountItemSet rcs;
+    Feature::CorePointSet cps;
+    Feature::DeltaPointSet dps;
+    try {
+        mps = an2k7m->getMinutiaPoints();
+        rcs = an2k7m->getRidgeCountItems();
+        cps = an2k7m->getCores();
+        dps = an2k7m->getDeltas();
+
+    } catch (Error::DataError &e) {
+        cout << "Caught " << e.getInfo()  << endl;
+        return (EXIT_FAILURE);
+    }
+
+    cout << "There are " << mps.size() << " minutiae points:" << endl;
+    /*
+     * Print out the minutiae points.
+     */
+    for (int i = 0; i < mps.size(); i++) {
+        printf("(%u,%u,%u)\n", mps[i].coordinate.x, mps[i].coordinate.y,
+             mps[i].theta);
+    }
+    cout << "There are " << rcs.size() << " ridge counts:" << endl;
+    for (int i = 0; i < rcs.size(); i++) {
+        printf("(%u,%u,%u)\n", rcs[i].index_one, rcs[i].index_two,
+        rcs[i].count);
+    }
+    cout << "There are " << cps.size() << " cores." << endl;
+    cout << "There are " << dps.size() << " deltas." << endl;
+
+    cout << "Fingerprint Reader: " << endl;
+    try { cout << an2k7m->getOriginatingFingerprintReadingSystem() << endl; }
+    catch (Error::ObjectDoesNotExist) { cout << "<Omitted>" << endl; }
+
+    cout << "Pattern (primary): " <<
+    Feature::AN2K7Minutiae::convertPatternClassification(
+    an2k7m->getPatternClassificationSet().at(0)) << endl;
+
+    return(EXIT_SUCCESS);
+}
+\end{lstlisting}
+
+\lstref{an2klatentuse} shows how an application can retrieve all latent
+finger images from a set of ANSI/NIST record retrieved from a record store.
+Using the Image object, the image's ``raw'' data can be retrieved and passed
+to another function for processing. Note that the image data may be stored
+in a compressed format inside the ANSI/NIST record, but is converted to raw
+format by the Image object.
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Retrieving ANSI/NIST Records}, label=an2klatentuse]
+#include <be_io_recordstore.h>
+#include <be_data_interchange_an2k.h>
+using namespace BiometricEvaluation;
+
+void
+processImageData(uint8_t *buf, uint32_t size)
+{
+    :
+    :
+    :
+    :
+}
+
+int
+main(int argc, char* argv[]) {
+
+    std::tr1::shared_ptr<IO::RecordStore> rs;
+    try {
+        rs = IO::RecordStore::openRecordStore(rsname, datadir, IO::READONLY);
+    } catch (Error::Exception &e) {
+        cerr << "Could not open record store: " << e.getInfo() << endl;
+        return (EXIT_FAILURE);
+    }
+
+    /*
+     * Read some AN2K records and construct the View objects.
+     */
+    Utility::uint8Array data;
+    string key;
+    while (true) {          // Loop through all records in store
+        uint64_t rlen;
+        try {
+            rlen = rs->sequence(key, NULL);
+        } catch (Error::ObjectDoesNotExist &e) {
+            break;
+        } catch (Error::Exception &e) {
+            cout << "Failed sequence: " << e.getInfo() << endl;
+            return (EXIT_FAILURE);
+        }
+        data.resize(rlen);
+        try {
+            rs->read(key, data);
+            DataInterchange::AN2KRecord an2k(data);
+            std::vector<Finger::AN2KViewLatent> latents = an2k.getFingerLatents();
+            for (int i = 0; i < latents.size(); i++) {
+                tr1::shared_ptr<Image::Image> img = latents[i].getImage();
+                if (img != NULL) {
+                    cout << "\tCompression: " << img->getCompressionAlgorithm() << endl;
+                    cout << "\tDimensions: " << img->getDimensions() << endl;
+                    cout << "\tResolution: " << img->getResolution() << endl;
+                    cout << "\tDepth: " << img->getDepth() << endl;
+                    processImageData(img->getRawData(), img->getRawData().size());
+                }
+            }
+        } catch (Error::Exception &e) {
+            return (EXIT_FAILURE);
+        }
+    }
+    return(EXIT_SUCCESS);
+}
+\end{lstlisting}
+
+\section{INCITS Data Records}
+\label{sec-incitsdatarecords}
+
+This INCITS class of data records covers all those record formats that are
+derived from the standards defined by the InterNational Committee for
+Information Technology Standards~\cite{incits}. These formats include the
+ANSI-2004 Finger Minutiae Record Format~\cite{std:ansi378-2004}, the ISO
+equivalent~\cite{std:iso19794-2}, and other data formats, including finger
+images.
+
+\subsection{Finger Views}
+\label{sec-incitsfingerviews}
+Within the \sname, finger view objects (Section \ref{sec-fingerviews}) can be 
+created from a combination of finger minutiae and image records. However, it
+is not necessary to have both records in order to create the view because each
+record contains enough information to represent the finger (image size, for
+example). However, if a view is contructed using only the minutiae record, then
+the image itself will not be present. Alternatively, if a view is made from
+an image record, no minutiae data would be available. It is possible to
+construct a view without any information.
+
+Listing~\ref{incitsfingerviewuse} shows an example of accessing the information
+in an ANSI 378-2004 Finger Minutiae Record by creating an ANSI2004View object
+from the record file.
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={INCITS Finger Views}, label=incitsfingerviewuse]
+#include <be_finger_ansi2004view.h>
+using namespace BiometricEvaluation;
+
+int
+main(int argc, char* argv[])
+{
+    /*
+     * Create a finger view from a file containing an ANSI-2004 finger
+     * minutiae record, and without the finger view record. Read the
+     * third finger view from the file.
+     */
+    Finger::ANSI2004View fngv;
+    try {
+        fngv = Finger::ANSI2004View("fmr.ansi2004", "", 3);
+    } catch (Error::DataError &e) {
+        cout << "Caught " << e.getInfo()  << endl;
+        exit (EXIT_FAILURE);
+    } catch (Error::FileError& e) {
+        cout << "A file error occurred: " << e.getInfo() << endl;
+        exit (EXIT_FAILURE);
+    }
+
+    /*
+     * The ANSI2004View implementation of the View::View interface.
+     */
+    cout << "Image resolution is " << fngv.getImageResolution() << endl;
+    cout << "Image size is " << fngv.getImageSize() << endl;
+    cout << "Image depth is " << fngv.getImageDepth() << endl;
+    cout << "Compression is " << fngv.getCompressionAlgorithm() << endl;
+    cout << "Scan resolution is " << fngv.getScanResolution() << endl;
+
+    /*
+     * Test the ANSI2004View implementation of the Finger::INCITSVIEW
+     * interface.
+     */
+    cout << "Finger position is " << fngv.getPosition() << endl;
+    cout << "Impression type is " << fngv.getImpressionType() << endl;
+    cout << "Quality is " << fngv.getQuality() << endl;
+    cout << "Eqpt ID is " << hex << showbase << fngv.getCaptureEquipmentID() << endl;
+    cout << dec;
+
+    Feature::INCITSMinutiae fmd = fngv.getMinutiaeData();
+    cout << "Minutiae format is " << fmd.getFormat() << endl;
+    Feature::MinutiaPointSet mps = fmd.getMinutiaPoints();
+    cout << "There are " << mps.size() << " minutiae points:" << endl;
+    for (int i = 0; i < mps.size(); i++)
+        cout << mps[i];
+
+    Feature::RidgeCountItemSet rcs = fmd.getRidgeCountItems();
+    cout << "There are " << rcs.size() << " ridge count items:" << endl;
+    for (int i = 0; i < rcs.size(); i++)
+        cout << "\t" << rcs[i];
+
+    Feature::CorePointSet cores = fmd.getCores();
+    cout << "There are " << cores.size() << " cores:" << endl;
+    for (int i = 0; i < cores.size(); i++)
+        cout << "\t" << cores[i];
+
+    Feature::DeltaPointSet deltas = fmd.getDeltas();
+    cout << "There are " << deltas.size() << " deltas:" << endl;
+    for (int i = 0; i < deltas.size(); i++)
+        cout << "\t" << deltas[i];
+
+    exit (EXIT_SUCCESS);
+}
+\end{lstlisting}

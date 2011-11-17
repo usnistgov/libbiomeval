@@ -4,7 +4,7 @@
 \chapter{Time and Timing}
 \label{chp-time}
 
-The Time package within the \lname provides a set of classes for performing
+The Time package within the \lname\ provides a set of classes for performing
 timing-related operations, such as elapsed time and limiting execution time.
 
 \section{Elapsed Time}
@@ -13,7 +13,7 @@ The {\em Timer} class provides applications a method to determine how long
 a block of code takes to execute. On many systems (e.g. Linux) the timer
 resolution is in microseconds.
 
-Listing~\ref{timeruse} shows how an application can use a {\em Timer}
+\lstref{timeruse} shows how an application can use a {\em Timer}
 object to limit obtain the amount of time used for the execution of a block
 of code.
 
@@ -54,7 +54,7 @@ signal management ({\em signal(3)}, {\em sigaction(2)}, etc.) cannot be
 invoked inside of the watchdog block. This restriction includes calls to
 {\em sleep(3)} because it is based on signal handling as well.
 
-Listing~\ref{watchdoguse} shows how an application can use a {\em Watchdog}
+\lstref{watchdoguse} shows how an application can use a {\em Watchdog}
 object to limit the about of process time for a block of code.
 
 \lstset{language=c++}
@@ -62,15 +62,21 @@ object to limit the about of process time for a block of code.
 #include <be_time_watchdog.h>
 int main(int argc, char *argv[])
 
-	Time::Watchdog theDog = new Time::Watchdog(Time::Watchdog::PROCESSTIME);
-	theDog->setInterval(300);	// 300 microseconds
-	BEGIN_WATCHDOG_BLOCK(theDog, watchdogblock1);
-		// Do something that may take more than 300 usecs
-	END_WATCHDOG_BLOCK(theDog, watchdogblock1);
-	if (theDog->expired()) {
-		cout << "That took too long." << endl;
-		// further processing
-	}
+    Time::Watchdog theDog = new Time::Watchdog(Time::Watchdog::PROCESSTIME);
+    theDog->setInterval(300);	// 300 microseconds
+
+    Time::Timer timer;
+
+    BEGIN_WATCHDOG_BLOCK(theDog, watchdogblock1);
+        timer.start();
+        // Do something that may take more than 300 usecs
+        timer.stop();
+        cout << "Total time was " <<  timer.elapsed() << endl;
+    END_WATCHDOG_BLOCK(theDog, watchdogblock1);
+    if (theDog->expired()) {
+        timer.stop();
+        cerr << "That took too long." << endl;
+    }
 {
 }
 \end{lstlisting}
@@ -82,3 +88,14 @@ for each watch dog block.  The use of these macros greatly simplifies
 watchdog timers for the application, and it is recommended that applications
 use these macros instead of directly invoking the methods of the
 {\em Watchdog} class, except for setting the timeout value.
+
+Any processing that is normally done at the end of the Watchdog block must also
+be done within the expired() check
+due to the fact that process control jumps to the end of the Watchdog block
+in the event of a timeout.
+A typical example is the use of the Timer
+object inside a Watchdog block, as the example in \lstref{watchdoguse}
+shows. In most cases, however, careful application design can remove the need
+for duplicate code. In the example, placing the Timer start()/stop() calls
+outside of the Watchdog block simplifies the coding, although the small amount
+of time for the Watchdog setup and tear down would be included in the time.

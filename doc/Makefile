@@ -8,7 +8,7 @@
 # about its quality, reliability, or any other characteristic.
 #
 ROOTNAME = BECommonFramework
-SOURCETEX = intro.tex overview.tex error.tex io.tex time.tex utility.tex image.tex process.tex system.tex
+SOURCETEX = intro.tex overview.tex framework.tex error.tex io.tex time.tex image.tex process.tex system.tex memory.tex text.tex feature.tex finger.tex view.tex datainterchange.tex
 SOURCEBIB = $(ROOTNAME).bib
 BUILDDIR = build
 LATEXBUILDDIR = $(BUILDDIR)/latex
@@ -55,7 +55,7 @@ endif
 # want.
 # Also copy the non-Doxygen generated source files to the build directory.
 #
-$(LATEXBUILDDIR)/$(LATEXPDF): $(SOURCECODE) $(SOURCETEX) $(LATEXMAIN) $(DOXYCONFIG)
+$(LATEXBUILDDIR)/$(LATEXPDF): $(SOURCECODE) $(SOURCETEX) $(SOURCEBIB) $(LATEXMAIN) $(DOXYCONFIG)
 	cp -f $(SOURCEBIB) $(LATEXBUILDDIR)/$(LATEXBIB)
 	cp -f $(SOURCETEX) $(LATEXBUILDDIR)
 	doxygen $(DOXYCONFIG)

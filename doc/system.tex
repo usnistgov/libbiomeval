@@ -3,3 +3,46 @@
 %
 \chapter{System}
 \label{chp-system}
+The System package provides a set of functions in the that
+return information about the hardware and operating system. This information
+can be used by applications to determine the amount of real memory, number of
+central processing units, or current load average. This information can be
+used to dynamically tailor the application behavior, or simply to provide
+additional information in a runtime log.
+
+\lstref{cpucountuse} shows how an application can spawn several child
+processes based on the number of CPUs and memory available. Note that this
+information may not be available on all platforms, and therefore, the
+application must be prepared to handle that situation.
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Using the System CPU Count Information}, label=cpucountuse]
+#include <iostream>
+#include <be_system.h>
+
+using namespace BiometricEvaluation;
+
+int
+main(int argc, char* argv[]) {
+
+    // perform some application setup ...
+
+    uint32_t cpuCount;
+    uint64_t memSize, vmSize;
+    try {
+        cpuCount =  System::getCPUCount();
+        cpuCount--;    // subtract one CPU for the parent process
+        memSize = System::getRealMemorySize();
+        Process::Statistics::getMemorySizes(NULL, &vmSize, NULL, NULL, NULL);
+        memSize -= vmSize;   // subtract off memory used by parent
+
+        // Give each child a fraction of the memory
+        spawnChildren(cpuCount, memSize / cpuCount);
+    } catch (Error::NotImplemented) {
+            cout << "Running a single process only." << endl;
+    }
+
+    // processing done by parent ...
+}
+
+\end{lstlisting}

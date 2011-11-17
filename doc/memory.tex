@@ -1,0 +1,183 @@
+%
+% Memory API
+%
+\chapter{Memory}
+\label{chp-memory}
+To assist applications with memory management, the Memory package provides
+classes to wrap C memory allocations, and other dynamically-sized objects.
+
+\section{AutoBuffer}
+\label{sec-autobuffer}
+The \lname\ is designed to interoperate with existing C code that has its own
+memory management techniques, e.g. \nbis~\cite{nbis}. In these cases, functions
+exist to allocate and free blocks of memory, and these calls must be made by
+the applications which use those libraries. To assist \sname\ clients that
+use these existing libraries, the AutoBuffer class wraps the C memory
+management functions, guaranteeing the release of C objects when the
+AutoBuffer goes out of scope.
+
+The AutoBuffer constructor takes three function pointers as parameters: one for
+C object construction, one for destruction, and a third, optional, function
+for copying the C object. If the latter is passed a NULL, the AutoBuffer and
+the underlying C object cannot be copied, and an exception will be thrown.
+
+\lstref{autobufferuse} shows the use of AutoBuffer to wrap the memory
+allocation routines that are part of the \nbis\ ANSI/NIST library.
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Using the AutoBuffer}, label=autobufferuse]
+#include <be_memory_autobuffer.h>
+#include <iostream>
+extern "C" {
+  #include <an2k.h>
+}
+
+int
+main(int argc, char* argv[]) {
+
+
+    /*
+     * alloc_ANSI_NIST(), free_ANSI_NIST(), and copy_ANSI_NIST()
+     * are functions in the NBIS AN2K library.
+     */
+    Memory::AutoBuffer<ANSI_NIST> an2k =
+        Memory::AutoBuffer<ANSI_NIST>(&alloc_ANSI_NIST,
+            &free_ANSI_NIST, &copy_ANSI_NIST);
+    if (read_ANSI_NIST(fp, an2k) != 0) {
+            cerr << "Could not read AN2K file." << endl;
+            return (EXIT_FAILURE);
+    }
+
+    for (int i = 1; i < an2k->num_records; i++) {
+        // process the ANSI/NIST record ...
+    }
+}
+
+\end{lstlisting}
+
+\section{AutoArray}
+\label{sec-autoarray}
+At its simplest level, AutoArray is a C-style array with numerous convenience 
+methods, such as being able to query the number of elements.  C++ iterators
+can be used over the contents of the array.  The array can be resized without
+the need to create a new object.  C++ operator overloading allows AutoArray
+objects to be passed to C-style functions that expect pointers to AutoArray's
+template type.
+
+AutoArray is used extensively in \sname\ to help eliminate mistakes when
+manually allocating memory.  The AutoArray constructor will allocate needed
+memory using {\tt new} and the destructor will {\tt delete} it.  This ensures
+that any allocated memory will be appropriately freed when the AutoArray goes
+out of scope.  Copy constructors and methods as well as the assignment operator
+all correctly manage memory so the client does not have to.  Several objects in
+\sname\ return AutoArray objects to assist clients in proper memory management.
+
+A common use of AutoArray is to deal with records sequenced from a
+RecordStore. \lstref{autoarrayrsuse} demonstrates this.  Notice the
+omission of memory management statements -- they are completely unnecessary.
+
+\lstset{language=c++}
+\begin{lstlisting}[caption={Using \nameref{sec-autoarray} with RecordStores}, label=autoarrayrsuse]
+#include <be_io_dbrecstore.h>
+#include <be_memory_autoarray.h>
+
+#include <iostream>
+
+using namespace BiometricEvaluation;
+
+int
+main(
+    int argc,
+    char *argv[])
+{
+	IO::DBRecordStore rs("db_recstore", ".", IO::READONLY);
+
+	uint64_t value_size = 0;
+	string key("");
+	Memory::AutoArray<uint8_t> value;
+	for (bool stop = false; stop == false; ) {
+		try {
+			// Non-destructively resize the AutoArray to hold
+			// the next record.
+			value.resize(rs.sequence(key, NULL));
+
+			// Read the record into the AutoArray (treats the
+			// AutoArray as a pointer).
+			rs.read(key, value);
+
+			// Do something with value.
+			std::cout << "Key " << key << " has a value of " <<
+			    value.size() << " bytes" << std::endl;
+		} catch (Error::ObjectDoesNotExist) {
+			stop = true;
+		}
+	}
+
+	return (0);
+}
+\end{lstlisting}
+
+AutoArray is adapted from "c\_array"~\cite[496]{cpp:plguide}.
+
+\section{IndexedBuffer}
+\label{sec-indexedbuffer}
+Many applications have a need to read items from a data record and take
+action based on the value of the item read. For example, when reading a
+biometric data record, the number of finger minutiae points in the record
+is indicated by a value in the record header. Furthermore, the record format
+may be of a different endianess than the application's host platform.
+
+The IndexedBuffer class is used to access data from a buffer in fixed-size
+amounts in sequence. Objects of this class maintain an index into the buffer
+as internal state and reads out of the buffer, when using certain methods,
+adjust the index. In addition, standard subscript access can be done on
+on the buffer (reads and writes) without affecting the index. The basic element
+type is an unsigned eight-bit value.
+The IndexedBuffer object can be created to either manage the buffer memory
+directly, or to ``wrap'' an existing buffer. 
+
+Methods to retrieve elements from the buffer are defined in the class's
+interface. These functions are used to retrieve 8/16/32/64-bit values while
+moving the internal index. Several functions are also provided to take into
+account the endianess of the underlying data.
+
+\lstref{indexedbufferuse} shows how an application can read a data record in
+big-endian format.
+
+\begin{lstlisting}[caption={Using the IndexedBuffer}, label=indexedbufferuse]
+#include <be_memory_autoarray.h>
+#include <be_memory_indexedbuffer.h>
+
+int
+main(int argc, char* argv[]) {
+
+	uint64_t size = IO::Utility::getFileSize("BiometricRecord");
+	FILE *fp = std::fopen("BiometricRecord", "rb");
+	Memory::IndexedBuffer iBuf(size);
+	fread(iBuf, 1, size, fp);
+	fclose(fp);
+	Memory::IndexedBuffer iBuf(recordData, recordData.size());
+
+	uint32_t lval;
+        uint16_t sval;
+
+	/*
+	 * Record is big-endian:
+	 * ---------------------------------
+	 * | NAME | LENGTH | ID |    ...   |
+	 * ---------------------------------
+	 *     4      4      2
+	 */
+
+	/* Read a 4-byte C string */
+        lval = iBuf.scanU32Val();        /* Format ID */
+        char *cptr = (char *)&lval;
+        string s(cptr);
+
+	/* Read a 4-byte length */
+	lval = iBuf.scanBeU32Val()
+
+	/* Read a 2-byte ID */
+	sval = iBuf.scanBeU16Val();
+}
+\end{lstlisting}

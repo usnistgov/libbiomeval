@@ -1,24 +1,103 @@
 \chapter{Overview}
 
-The \lname (\sname)
+The \lname\ (\sname)
 is a set of C++\cite{cpp:plguide} classes, error codes, and design
 patterns used to create a common environment to provide logging, data
 management, error handling, and other functionality that is needed for many
 applications used in the testing of biometric software. The goals of the
 framework include:
 \begin{itemize}
-\item Reduce the amount of I/O error handling implemented by applications;
+\item Reduce the amount of I/O error handling implemented by applications.
 \item Provide standard interfaces for data management and logging;
 \item Remove the need for applications to handle low-level events from the
 operating system (signals, etc.);
 \item Provide services for timing the execution of code blocks;
-\item Allow appications to constrain the amount of processing time used
+\item Allow applications to constrain the amount of processing time used
 by a block of code.
 \end{itemize}
 
-\sname is divided into several packages, each providing a set of
+The experience of the \nistig\ when running many software evaluations has led
+to the need of a common code for dealing with recurring software issues. One
+issue is the large amounts of data consumed, and created, by the software
+under test. Input data sets are typically biometric images, while output sets
+contain derived information. Both sets of data often contain millions of
+items, and storing each item as a file creates a tremendous burden on the file
+system. The {\em IO} package provides a solution to
+managing large amounts of records in a portable, efficient manner, as well as 
+facilities for logging and maintaining runtime settings.
+
+\sname\ is divided into several packages, each providing a set of
 related functionality, such as error handling and timing operations. The
 packages are an informal concept, mapped to formal C++ name spaces, e.g.
-{\em IO} and {\em Time}.
-All classes within \sname belong to the top-level {\em BiometricEvaluation}
+{\em IO} and {\em Time}. A namespace contains classes, constants, and 
+non-class functions that relate to concepts grouped in the namespace.
+All classes within \sname\ belong to the top-level {\em BiometricEvaluation}
 name space.
+
+Biometric image data is often supplied in a compressed format (e.g. WSQ, JPEG)
+and must be converted to a ``raw'' format. The {\em Image} package contains
+classes to represent compressed image data as an object, storing the image
+size and other attributes, in addition to the raw image.
+
+Memory management issues are addressed by the {\em Memory} package. The use
+of classes and templates in this package can relieve applications of the need
+to directly manage memory for dynamically sized arrays, or call functions
+that are already provided to allocate and free C library objects.
+
+While a program is running, it is often necessary to record certain statistics
+about the process, such as memory and processor usage. The {\em Process}
+package provides methods to obtain this information, as well as the capability
+to log to a file periodically, in an asynchronous manner.
+
+In addition to its own statistics, a program may need to query some
+information about the environment under which it is running. The{\em System}
+package provides a count of CPUs, memory size, other system characteristics
+that an application can use to tailor its behavior.
+
+Many aspects of software performance evaluation involve the use of timers. The
+{\em Time} package provides for the calculation of a time interval in a manner
+that is consistent across platforms, abstracting the underlying operating
+system's timing facility. Also, included is a ``watchdog'' facility, providing
+a solution to the problem of non-returning function calls. By using a watchdog
+timer, an application can abort a call to a function that doesn't return in
+the required interval.
+
+The {\em Text} package provides a set of utility functions for operating on
+strings. The {\em digest} functions are of interest to
+those applications that must mask any information contained in a string before
+passing that information to another function. For example, often the biometric
+image file (or record) names contain information about the image, such as the
+finger position.
+
+Error propagation and handling are addressed by the {\em Error} package. A set
+of exception objects are defined within this package, allowing for communication
+of error conditions out of the framework to the application, along with an
+explanatory string. Signal handling is related to error propagation in that
+when a process receives a signal, often it is due to software bug. Divide by
+zero, for example. The Error package provides for simple handling of the signal 
+by the process.
+
+Many packages in \sname\ deal with biometric data record formats, including
+ANSI/NIST~\cite{std::an2k} records. In order to provide a general interface
+to several formats, \sname\ represents the biometric data as derived from
+a source. For example, the {\em Finger} package contains classes that represent
+all information about a finger, including the source image and derived
+minutiae points. The {\em View} package combines the notions of a source
+image and derived information together into a single abstraction.
+
+\sname\ is designed to be used in a modular fashion, and it is possible to
+compile several packages independently. However, several packages do make use
+of other packages in the framework, and therefore, are less flexible in their
+reuse. However, \sname\ is designed to reduce the intra-framework
+dependencies.
+
+A set of test programs is included with the framework. These programs not only
+exercise the functions provided by the packages, but also can be used as
+example programs on how to use framework.
+
+The chapters that follow this overview describe each package in detail,
+along with some code examples.
+The final set of chapters of this document contain the application programming
+interfaces for the types, methods, and classes that make up \sname. However,
+the framework is under development, and other packages, classes, etc. will be
+added over time to address the needs of the \nistig.

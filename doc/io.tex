@@ -19,10 +19,12 @@ application.
 
 \section{Utility}
 
-The {\em IO::Utility} class provides static methods that are used to
-manipulate the file system and other low-level mechanisms. These methods
+The {\em IO::Utility} namespace provides functions that are used to
+manipulate the file system and other low-level mechanisms. These functions
 can be used by applications in addition to being used by other classes 
 within the Biometric Evaluation framework.
+The functions in this package are used to directly manipulate objects in the
+POSIX file system, or to check whether a file object exists.
 
 \section{Record Management}
 
@@ -55,7 +57,7 @@ Keys must
 be unique and are associated with a single record. Attempts to insert multiple
 records with the same key result in an exception being thrown.
 
-Listing~\ref{recordstoreuse} illustrates the use of a database RecordStore
+\lstref{recordstoreuse} illustrates the use of a database RecordStore
 within an application.
 
 \lstset{language=c++}
@@ -121,7 +123,7 @@ contains a set of {\em LogSheet}s.
 
 A {\em LogSheet} is an output stream (subclass of {\em std::ostringstream}),
 and therefore can handle built-in types and any class that supports streaming.
-The example code in \ref{logcabinetuse} shows how an application can use a
+The example code in \lstref{logcabinetuse} shows how an application can use a
 {\em LogSheet}, contained within a {\em LogCabinet}, to record operational
 information.
 
@@ -136,7 +138,7 @@ can directly commit an entry to the log file by calling the {\em write()}
 method, thereby not disrupting the entry that is being formed. After an entry
 is committed, the entry number is automatically incremented.
 
-The example in Listing~\ref{logcabinetuse} shows application use of the
+The example in \lstref{logcabinetuse} shows application use of the
 logging facility.
 
 \lstset{language=c++}
@@ -176,10 +178,44 @@ return;			// The LogCabinet is destructed by the auto_ptr
 
 \section{Properties}
 \label{sec-properties}
+The Properties class is used to store simple key-value string pairs, with the
+option to save to a file. Applications can use a Properties object to manage
+runtime settings that are persistent across invocations, or to simply store
+some settings in memory only.
 
 \lstset{language=c++}
 \begin{lstlisting}[caption={Using a Properties Object}, label=propertiesuse]
+IO::Properties *props;
+string fname = "test.prop";
+try {
+    props = new IO::Properties(fname);
+} catch (Error::StrategyError &e) {
+    cerr << "Caught " << e.getInfo()  << endl;
+    return;
+} catch (Error::FileError& e) {
+    cerr << "A file error occurred: " << e.getInfo() << endl;
+    return;
+}
+props->setProperty("foo", "bar");
+props->setProperty("theAnswer", "42");
+    :
+    :
+    :
+try {
+    int64_t theAnswer = props->getProperty("theAnswer");
+    cout << "The answer is " << theAnswer << endl;
+} catch (Error::ObjectDoesNotExist &e) {
+    cerr << "The answer is elusive." << endl;
+    return;
+}
+string fooProp = props->getProperty("foo");
+cout << "Foo is set to " << fooProp << endl;
+    :
+    :
+    :
+try {
+    props->removeProperty("foo");
+} catch (Error::ObjectDoesNotExist &e) {
+    cerr << "Failed to remove property." << endl;
+}
 \end{lstlisting}
-
-\section{IO Factory}
-\label{sec-iofactory}

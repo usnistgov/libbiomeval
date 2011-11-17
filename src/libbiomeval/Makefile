@@ -8,17 +8,26 @@
 # about its quality, reliability, or any other characteristic.
 #
 COMMONINCOPT = -I/usr/local/nbis/include
-NBISLIB = -L/usr/local/nbis/lib -ljpegb -lwsq -ljpegl -lfet -lioutil -lutil -lpng -lz -lopenjpeg
+NBISLIB = -L/usr/local/nbis/lib -lan2k -ljpegb -lwsq -ljpegl -lfet -lioutil -lutil -lpng -lz -lopenjpeg
 
 include ../common.mk
 
-CORE = be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
+CORE = be_memory_indexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
 
 IO = be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp 
 
 IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_netpbm.cpp be_image_rawimage.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp
 
-SOURCES = $(CORE) $(IO) $(IMAGE)
+FEATURE = be_feature_minutiae.cpp be_feature_an2k7minutiae.cpp be_feature_incitsminutiae.cpp
+
+VIEW = be_view_an2kview.cpp be_view_an2kview_varres.cpp
+
+FINGER = be_finger.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_finger_incitsview.cpp be_finger_ansi2004view.cpp be_finger_ansi2007view.cpp be_finger_iso2005view.cpp
+
+DATA = be_data_interchange_an2k.cpp
+
+SOURCES = $(CORE) $(IO) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(DATA)
+
 OBJECTS = $(SOURCES:%.cpp=%.o)
 LIBRARY = libbiomeval
 LOCALLIB = ../../lib

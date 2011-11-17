@@ -1,0 +1,4 @@
+Count = 11
+Description = <Description>
+Name = AN2KRecordStore
+Type = BerkeleyDB
