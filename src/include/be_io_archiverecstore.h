@@ -164,7 +164,7 @@ namespace BiometricEvaluation {
 			
 			uint64_t sequence(
 			    string &key,
-			    void *const data,
+			    void *const data = NULL,
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
