@@ -224,7 +224,7 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 			return (false);
 		}
 		
-		if (getc_skip_marker_segment(marker, &markerBuf, endPtr))
+		if (JPEG::getc_skip_marker_segment(marker, &markerBuf, endPtr))
 			return (false);
 	}
 	
@@ -247,6 +247,32 @@ BiometricEvaluation::Image::JPEG::error_exit(
 
 	throw Error::StrategyError(error.str());
 }
+
+int
+BiometricEvaluation::Image::JPEG::getc_skip_marker_segment(
+    const unsigned short marker,
+    unsigned char **cbufptr,
+    unsigned char *ebufptr)
+{
+	int ret;
+	unsigned short length;
+
+	/* Get ushort Length. */
+	if((ret = getc_ushort(&length, cbufptr, ebufptr)))
+		return(ret);
+
+	length -= 2;
+
+	/* Check for EOB ... */
+	if ((((*cbufptr) + length) >= ebufptr))
+		return (-2);
+
+	/* Bump buffer pointer. */
+	(*cbufptr) += length;
+
+	return (0);
+}
+
 
 #if JPEG_LIB_VERSION < 80
 void

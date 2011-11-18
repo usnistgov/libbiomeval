@@ -15,6 +15,7 @@ extern "C" {
 	#include <dataio.h>
 }
 
+#include <be_image_jpeg.h>
 #include <be_image_jpegl.h>
 
 using namespace std;
@@ -162,7 +163,7 @@ BiometricEvaluation::Image::JPEGL::isJPEGL(
 			return (true);
 		}
 		
-		if (getc_skip_marker_segment(marker, &markerBuf, endPtr))
+		if (JPEG::getc_skip_marker_segment(marker, &markerBuf, endPtr))
 			return (false);
 	}
 	

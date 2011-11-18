@@ -66,6 +66,12 @@ namespace BiometricEvaluation
 			isJPEG(
 			    const uint8_t *data,
 			    const size_t size);
+			
+			static int
+			getc_skip_marker_segment(
+			    const unsigned short marker,
+			    unsigned char **cbufptr,
+			    unsigned char *ebufptr);
 
 		protected:
 
