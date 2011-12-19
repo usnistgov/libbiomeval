@@ -20,7 +20,7 @@ using namespace BiometricEvaluation;
 /******************************************************************************/
 set<int>
 BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
-    const Memory::uint8Array &buf,
+    Memory::uint8Array &buf,
     int recordType)
     throw (Error::DataError)
 {
@@ -49,7 +49,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
 
 void
 BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
-    const Memory::uint8Array &buf)
+    Memory::uint8Array &buf)
     throw (Error::DataError)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k(&alloc_ANSI_NIST,
@@ -167,7 +167,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
 
 void
 BiometricEvaluation::DataInterchange::AN2KRecord::readFingerCaptures(
-    const Memory::uint8Array &buf)
+    Memory::uint8Array &buf)
 {
 	int i = 1;
 	while(true) {
@@ -183,7 +183,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readFingerCaptures(
 
 void
 BiometricEvaluation::DataInterchange::AN2KRecord::readFingerLatents(
-    const Memory::uint8Array &buf)
+    Memory::uint8Array &buf)
 {
 	int i = 1;
 	while(true) {
@@ -199,7 +199,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readFingerLatents(
 
 void
 BiometricEvaluation::DataInterchange::AN2KRecord::readMinutiaeData(
-    const Memory::uint8Array &buf)
+    Memory::uint8Array &buf)
 {
 	set<int> loc = recordLocations(buf, TYPE_9_ID);
 	for (set<int>::const_iterator it = loc.begin(); it != loc.end(); it++) {
@@ -240,7 +240,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::AN2KRecord(
 }
 
 BiometricEvaluation::DataInterchange::AN2KRecord::AN2KRecord(
-    const Memory::uint8Array &buf)
+    Memory::uint8Array &buf)
     throw (
 	Error::DataError)
 {
@@ -249,7 +249,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::AN2KRecord(
 
 void
 BiometricEvaluation::DataInterchange::AN2KRecord::readAN2KRecord(
-    const Memory::uint8Array &buf)
+    Memory::uint8Array &buf)
     throw (Error::DataError)
 {
 	readType1Record(buf);

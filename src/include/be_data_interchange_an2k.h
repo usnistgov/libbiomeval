@@ -126,7 +126,7 @@ namespace BiometricEvaluation
 			 */
 			static set<int>
 			recordLocations(
-			    const Memory::uint8Array &buf,
+			    Memory::uint8Array &buf,
 			    int recordType)
 			    throw (Error::DataError);
 			    
@@ -181,7 +181,7 @@ namespace BiometricEvaluation
 			 *	record.
 			 */
 			AN2KRecord(
-			    const Memory::uint8Array &buf)
+			    Memory::uint8Array &buf)
 			    throw (
 				Error::DataError);
 
@@ -377,9 +377,9 @@ namespace BiometricEvaluation
 			 * @param[in] buf
 			 *	AN2K buffer.
 			 */
-			void readAN2KRecord(const Memory::uint8Array &buf)
+			void readAN2KRecord(Memory::uint8Array &buf)
 			    throw (Error::DataError);
-			void readType1Record(const Memory::uint8Array &buf)
+			void readType1Record(Memory::uint8Array &buf)
 			    throw (Error::DataError);
 			    
 			/**
@@ -389,9 +389,9 @@ namespace BiometricEvaluation
 			 * @param[in] buf
 			 *	AN2K buffer.
 			 */
-    			void readMinutiaeData(const Memory::uint8Array &buf);
-			void readFingerCaptures(const Memory::uint8Array &buf);
-			void readFingerLatents(const Memory::uint8Array &buf);
+    			void readMinutiaeData(Memory::uint8Array &buf);
+			void readFingerCaptures(Memory::uint8Array &buf);
+			void readFingerLatents(Memory::uint8Array &buf);
 		};
 	}
 }

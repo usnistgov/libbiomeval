@@ -25,7 +25,7 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
 }
 
 BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
-    const Memory::uint8Array &buf,
+    Memory::uint8Array &buf,
     const uint8_t typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError) :

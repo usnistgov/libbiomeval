@@ -47,7 +47,7 @@ BiometricEvaluation::Feature::AN2K7Minutiae::getFormat() const
 }
 
 BiometricEvaluation::Feature::AN2K7Minutiae::AN2K7Minutiae(
-    const Memory::uint8Array &buf,
+    Memory::uint8Array &buf,
     int recordNumber)
     throw (Error::DataError)
 {
@@ -374,7 +374,7 @@ BiometricEvaluation::Feature::AN2K7Minutiae::convertCoordinate(
 
 void
 BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
-    const Memory::uint8Array &buf,
+    Memory::uint8Array &buf,
     int recordNumber)
     throw (Error::DataError)
 {

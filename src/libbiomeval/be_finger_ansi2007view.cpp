@@ -34,8 +34,8 @@ Finger::ANSI2007View::ANSI2007View(
 }
 
 Finger::ANSI2007View::ANSI2007View(
-    const Memory::uint8Array &fmrBuffer,
-    const Memory::uint8Array &firBuffer,
+    Memory::uint8Array &fmrBuffer,
+    Memory::uint8Array &firBuffer,
     const uint32_t viewNumber)
     throw (Error::DataError) :
     INCITSView(fmrBuffer, firBuffer, viewNumber)

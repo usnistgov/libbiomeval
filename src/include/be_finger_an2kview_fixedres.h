@@ -56,7 +56,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 */
 			AN2KViewFixedResolution(
-			    const Memory::uint8Array &buf,
+			    Memory::uint8Array &buf,
 			    const uint8_t typeID,
 			    const uint32_t recordNumber)
 			    throw (

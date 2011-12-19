@@ -81,7 +81,7 @@ namespace BiometricEvaluation {
 				 * of the underlying array storage of the
 				 * AutoArray.
 				 */
-				operator T*()
+				operator const T*()
 				    const;
 		
 				/**
@@ -388,7 +388,7 @@ BiometricEvaluation::Memory::AutoArray<T>::operator T*()
 }
 
 template<class T>
-BiometricEvaluation::Memory::AutoArray<T>::operator T*()
+BiometricEvaluation::Memory::AutoArray<T>::operator const T*()
     const
 {
 	return (_data); 

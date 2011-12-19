@@ -83,7 +83,7 @@ namespace BiometricEvaluation {
 			 *	for the requested number.
 			 */
 			AN2KMinutiaeDataRecord(
-			    const Memory::uint8Array &buf,
+			    Memory::uint8Array &buf,
 			    int recordNumber)
 			    throw (Error::DataError);
 		
@@ -161,7 +161,7 @@ namespace BiometricEvaluation {
 			 */
 			void
 			readType9Record(
-			    const Memory::uint8Array &buf,
+			    Memory::uint8Array &buf,
 			    int recordNumber)
 			    throw (Error::DataError);
 			

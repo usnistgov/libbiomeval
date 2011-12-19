@@ -224,7 +224,7 @@ namespace BiometricEvaluation
 			 *	for the requested number.
 			 */
 			AN2K7Minutiae(
-			    const Memory::uint8Array &buf,
+			    Memory::uint8Array &buf,
 			    int recordNumber)
 			    throw (Error::DataError);
 
@@ -286,7 +286,7 @@ namespace BiometricEvaluation
 		protected:
 		private:
 			void readType9Record(
-			    const Memory::uint8Array &buf,
+			    Memory::uint8Array &buf,
     			    int recordNumber)
 			    throw (Error::DataError);
 

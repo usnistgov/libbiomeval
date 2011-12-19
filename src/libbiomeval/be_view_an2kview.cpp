@@ -50,7 +50,7 @@ BiometricEvaluation::View::AN2KView::AN2KView(
 }
 
 BiometricEvaluation::View::AN2KView::AN2KView(
-    const Memory::uint8Array &buf,
+    Memory::uint8Array &buf,
     const uint8_t typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError)
@@ -408,7 +408,7 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
 
 void
 BiometricEvaluation::View::AN2KView::associateMinutiaeData(
-    const Memory::uint8Array &buf)
+    Memory::uint8Array &buf)
 {
 	FIELD *field;
 	int idx;

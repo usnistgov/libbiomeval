@@ -24,7 +24,7 @@ BiometricEvaluation::Finger::AN2KView::AN2KView(
 }
 
 BiometricEvaluation::Finger::AN2KView::AN2KView(
-    const Memory::uint8Array &buf,
+    Memory::uint8Array &buf,
     const uint8_t typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError) :

@@ -40,7 +40,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::AN2KMinutiaeDataRecord(
 }
 
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::AN2KMinutiaeDataRecord(
-    const Memory::uint8Array &buf,
+    Memory::uint8Array &buf,
     int recordNumber)
     throw (Error::DataError)
 {
@@ -216,7 +216,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readRegisteredVendorBlock(
 
 void
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
-    const Memory::uint8Array &buf,
+    Memory::uint8Array &buf,
     int recordNumber)
     throw (Error::DataError)
 {

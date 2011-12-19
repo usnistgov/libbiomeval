@@ -99,8 +99,8 @@ namespace BiometricEvaluation
 			 * The finger view number to use.
 			 */
 			ANSI2007View(
-			    const Memory::uint8Array &fmrBuffer,
-			    const Memory::uint8Array &firBuffer,
+			    Memory::uint8Array &fmrBuffer,
+			    Memory::uint8Array &firBuffer,
 			    const uint32_t viewNumber)
 			    throw (Error::DataError);
 

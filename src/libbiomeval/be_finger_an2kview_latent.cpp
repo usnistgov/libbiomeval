@@ -22,7 +22,7 @@ BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
 }
 
 BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
-    const Memory::uint8Array &buf,
+    Memory::uint8Array &buf,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError) :
     AN2KViewVariableResolution(buf, TYPE_13_ID, recordNumber)

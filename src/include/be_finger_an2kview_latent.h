@@ -44,7 +44,7 @@ namespace BiometricEvaluation
 			 * just the finger image and/or minutiae records.
 			 */
 			AN2KViewLatent(
-			    const Memory::uint8Array &buf,
+			    Memory::uint8Array &buf,
 			    const uint32_t recordNumber)
 			    throw (Error::ParameterError, Error::DataError);
 			
