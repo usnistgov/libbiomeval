@@ -129,13 +129,13 @@ namespace BiometricEvaluation {
 				 *	Index into the AutoArray.
 				 *
 				 * @return
-				 *	Const reference to an element at offset.
+				 *	Reference to an element at offset.
 				 *
 				 * @throw out_of_range
 				 *	Offset offset is not valid given the
 				 *	size of this AutoArray.
 				 */
-				const_reference
+				reference
 				at(
 				    size_t offset)
 				    throw (out_of_range);
@@ -424,7 +424,7 @@ BiometricEvaluation::Memory::AutoArray<T>::at(
 }
 
 template<class T>
-typename BiometricEvaluation::Memory::AutoArray<T>::const_reference
+typename BiometricEvaluation::Memory::AutoArray<T>::reference
 BiometricEvaluation::Memory::AutoArray<T>::at(
     size_t offset)
     throw (out_of_range)
