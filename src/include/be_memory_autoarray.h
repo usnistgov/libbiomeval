@@ -9,7 +9,7 @@
  */
 
 /*
- * Adapted from "c_array" in "The C++ Programming Language," by Bjarne 
+ * Adapted from "c_array" from "The C++ Programming Language" by Bjarne 
  * Stroustrup (ISBN: 0201700735).
  */
  
