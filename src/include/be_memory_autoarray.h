@@ -10,7 +10,7 @@
 
 /*
  * Adapted from "c_array" in "The C++ Programming Language," by Bjarne 
- * Stroustrup.
+ * Stroustrup (ISBN: 0201700735).
  */
  
 #ifndef __BE_MEMORY_AUTOARRAY_H__
@@ -22,156 +22,141 @@
 
 #include <be_error_exception.h>
  
-namespace BiometricEvaluation {
-	namespace Memory {
+namespace BiometricEvaluation
+{
+	namespace Memory
+	{
 		/**
 		 * @brief
-		 * A class to represent a C-style array with C++ features like
-		 * iterators and benefits like knowledge of the size.
+		 * A C-style array wrapped in the facade of a C++ STL container.
 		 */
 		template<class T> 
-		class AutoArray {
+		class AutoArray
+		{
 			public:
-			
-				/**
-				 * @brief
-				 * Convenience typedef for the templated type.
-				 */
+				/** Type of element */
 				typedef T value_type;
-				/**
-				 * @brief
-				 * Convenience typedef for a pointer to the
-				 * templated type.
-				 */
+				/** Type of subscripts, counts, etc. */
+				typedef size_t size_type;
+				
+				/** Iterator of element */
 				typedef T* iterator;
-				/**
-				 * @brief
-				 * Convenience typedef for a pointer to a 
-				 * const templated type.
-				 */
+				/** Const iterator of element */
 				typedef const T* const_iterator;
-				/**
-				 * @brief
-				 * Convenience typedef for a reference to the
-				 * templated type.
-				 */
+
+				/** Reference to element */
 				typedef T& reference;
-				/**
-				 * @brief
-				 * Convenience typedef for a reference to 
-				 * a const templated type.
-				 */
+				/** Const reference element */
 				typedef const T& const_reference;
 		
 				/**
 				 * @brief
-				 * Dereference operator overload.
-				 * @details
-				 * Resolves to a pointer to the beginning
-				 * of the underlying array storage of the
-				 * AutoArray.
+				 * Convert AutoArray to T array.
+				 *
+				 * @return
+				 *	Pointer to the beginning of the
+				 *	underlying array storage.
 				 */
 				operator T*();
 				
 				/**
 				 * @brief
-				 * Const dereference operator overload.
-				 * @details
-				 * Resolves to a pointer to the beginning
-				 * of the underlying array storage of the
-				 * AutoArray.
+				 * Convert AutoArray to const T array.
+				 *
+				 * @return
+				 *	Const pointer to the beginning of the
+				 *	underlying array storage.
 				 */
 				operator const T*()
 				    const;
 		
 				/**
 				 * @brief
-				 * Indexing operator overload.
+				 * Subscripting operator overload with
+				 * unchecked access.
 				 *
-				 * @param[in] i
-				 * 	Index
+				 * @param[in] index
+				 * 	Subscript into underlying storage.
 				 *
 				 * @return
-				 *	Reference to element at index i.
+				 *	Reference to the element at the
+				 *	specified index.
 				 */
-				reference operator[] (ptrdiff_t i);
+				reference
+				operator[](
+				    ptrdiff_t index);
+				    
 				/**
 				 * @brief
-				 * Const indexing operator overload.
+				 * Const subscripting operator overload with
+				 * unchecked access.
 				 *
-				 * @param[in] i
-				 * 	Index
+				 * @param[in] index
+				 * 	Subscript into underlying storage.
 				 *
 				 * @return
-				 *	Reference to const element at index i.
+				 *	Const reference to the element at the
+				 *	specified index.
 				 */
-				const_reference operator[] (ptrdiff_t i) const;
+				const_reference
+				operator[](
+				    ptrdiff_t i)
+				    const;
 
 				/**
 				 * @brief
-				 * Assignment operator overload performing a
-				 * deep copy.
-				 * 
-				 * @param[in] other
-				 *	AutoArray to be copied
+				 * Subscript into the AutoArray with checked
+				 * access.
+				 *
+				 * @param[in] index
+				 *	Subscript into underlying storage.
 				 *
 				 * @return
-				 *	Reference to a new AutoArray object.
-				 */
-				AutoArray& operator= (const AutoArray& other);
-
-				/**
-				 * @brief
-				 * Offset into the AutoArray with bounds
-				 * checking.
-				 *
-				 * @param offset
-				 *	Index into the AutoArray.
-				 *
-				 * @return
-				 *	Reference to an element at offset.
+				 *	Reference to the element at the
+				 *	specified index.
 				 *
 				 * @throw out_of_range
-				 *	Offset offset is not valid given the
-				 *	size of this AutoArray.
+				 *	Specified index is outside the bounds
+				 *	of this AutoArray.
 				 */
 				reference
 				at(
-				    size_t offset)
+				    ptrdiff_t index)
 				    throw (out_of_range);
 
 				/**
 				 * @brief
-				 * Offset into the AutoArray with bounds
-				 * checking.
+				 * Subscript into the AutoArray with checked
+				 * access.
 				 *
-				 * @param offset
-				 *	Index into the AutoArray.
+				 * @param index
+				 *	Subscript into underlying storage.
 				 *
 				 * @return
-				 *	Const reference to an element at offset.
+				 *	Const reference to the element at the
+				 *	specified index.
 				 *
 				 * @throw out_of_range
-				 *	Offset offset is not valid given the
-				 *	size of this AutoArray.
+				 *	Specified index is outside the bounds
+				 *	of this AutoArray.
 				 */
 				const_reference
 				at(
-				    size_t offset)
+				    ptrdiff_t index)
 				    const
 				    throw (out_of_range);
 				 
-			
 				/**
 				 * @brief
 				 * Obtain an iterator to the beginning of the
 				 * AutoArray.
 				 *
 				 * @return
-				 *	Pointer to the first element of the
-				 *	AutoArray.
+				 *	Iterator positioned at the first 
+				 *	element of the AutoArray.
 				 */
-				iterator begin();
+				iterator
+				begin();
 
 				/**
 				 * @brief
@@ -179,10 +164,12 @@ namespace BiometricEvaluation {
 				 * AutoArray.
 				 *
 				 * @return
-				 *	Pointer to the const first element of
-				 *	the AutoArray.
+				 *	Const iterator positioned at the first 
+				 *	element of the AutoArray.
 				 */
-				const_iterator begin() const;
+				const_iterator
+				begin()
+				    const;
 
 				/**
 				 * @brief
@@ -190,10 +177,11 @@ namespace BiometricEvaluation {
 				 * AutoArray.
 				 *
 				 * @return
-				 *	Pointer to the const last element of
-				 *	the AutoArray.
+				 *	Iterator positioned at the one-past-last 
+				 *	element of the AutoArray.
 				 */
-				iterator end();
+				iterator
+				end();
 
 				/**
 				 * @brief
@@ -201,43 +189,65 @@ namespace BiometricEvaluation {
 				 * AutoArray.
 				 *
 				 * @return
-				 *	Pointer to the const last element of
-				 *	the AutoArray.
+				 *	Iterator positioned at the one-past-last 
+				 *	element of the AutoArray.
 				 */
-				const_iterator end() const;
+				const_iterator
+				end()
+				    const;
 		
 				/**
 				 * @brief
-				 * Obtain the number of elements allocated
-				 * for this AutoArray.
+				 * Obtain the number of accessible elements.
 				 *
 				 * @return
-				 *	Number of allocated elements.
+				 *	Number of accessible elements.
+				 *
+				 * @note
+				 *	If resize() has been called, the
+				 *	value returned from size() may be
+				 *	smaller than the actual allocated
+				 *	size of the underlying storage.
 				 */
-				size_t size() const;
+				size_type
+				size()
+				    const;
 
 				/**
 				 * @brief
-				 * Add/subtract the number of elements this 
-				 * AutoArray can hold.
-				 * @details
-				 * This method can grow or shrink the number
-				 * of allocated elements.
+				 * Change the number of accessible elements.
 				 *
-				 * @param new_size
+				 * @param[in] new_size
 				 *	The number of elements the AutoArray
 				 *	should have allocated.
-				 * @param free
+				 * @param[in] free
 				 *	Whether or not excess memory should be
-				 *	freed, in the case that new_size is
-				 *	smaller than the current AutoArray size.
+				 *	freed if the new size is smaller than
+				 *	the current size.
 				 *
 				 * @throw Error::StrategyError
 				 *	Problem allocating memory.
 				 */
-				void resize(size_t new_size, bool free=false)
+				void
+				resize(
+				    size_type new_size,
+				    bool free = false)
     				    throw (Error::StrategyError);
-				
+				    
+				/**
+				 * @brief
+				 * Deep-copy the contents of a buffer into
+				 * this AutoArray.
+				 *
+				 * @param[in] buffer
+				 *	An allocated buffer whose contents
+				 *	will be deep-copied into this object.
+				 *	Only size() bytes will be copied.
+				 */
+				void
+				copy(
+				    const_iterator buffer);
+				    
 				/**
 				 * @brief
 				 * Deep-copy the contents of a buffer into
@@ -252,22 +262,8 @@ namespace BiometricEvaluation {
 				 */
 				void
 				copy(
-				    const T *buffer,
-				    size_t size);
-
-				/**
-				 * @brief
-				 * Deep-copy the contents of a buffer into
-				 * this AutoArray.
-				 *
-				 * @param[in] buffer
-				 *	An allocated buffer whose contents
-				 *	will be deep-copied into this object.
-				 *	Only size() bytes will be copied.
-				 */
-				void
-				copy(
-				    const T *buffer);
+				    const_iterator buffer,
+				    size_type size);
 		
 				/**
 				 * @brief
@@ -283,9 +279,10 @@ namespace BiometricEvaluation {
 				 * 
 				 * @param[in] size
 				 *	The number of elements this AutoArray
-				 *	should hold.
+				 *	should initially hold.
 				 */
-				AutoArray(size_t size);
+				AutoArray(
+				    size_type size);
 
 				/**
 				 * @brief
@@ -295,15 +292,35 @@ namespace BiometricEvaluation {
 				 *	An AutoArray whose contents will be 
 				 *	deep copied into the new AutoArray.
 				 */
-				AutoArray(const AutoArray& copy);
+				AutoArray(
+				    const AutoArray& copy);
+				
+				/**
+				 * @brief
+				 * Assignment operator overload performing a
+				 * deep copy.
+				 * 
+				 * @param[in] other
+				 *	AutoArray to be copied.
+				 *
+				 * @return
+				 *	Reference to a new AutoArray object,
+				 *	the lvalue AutoArray.
+				 */
+				AutoArray&
+				operator=(
+				    const AutoArray& other);
 		
+				/** Destructor */
 				~AutoArray();
 								
 			private:
-			
-				T* _data;
-				size_t _size;
-				size_t _max_size;
+				/** The underlying C-array */
+				value_type *_data;
+				/** Advertised size of _data */
+				size_type _size;
+				/** Actual size of _data */
+				size_type _capacity;
 		};
 
 		/**************************************************************/
@@ -314,30 +331,27 @@ namespace BiometricEvaluation {
 		typedef AutoArray<uint32_t> uint32Array;
 	}
 }
-
-/******************************************************************************/
-/* Implementation.                                                            */
-/******************************************************************************/
 	
 /******************************************************************************/
 /* Method implementations.                                                    */
 /******************************************************************************/
-
 template<class T>
-size_t BiometricEvaluation::Memory::AutoArray<T>::size() const 
+typename BiometricEvaluation::Memory::AutoArray<T>::size_type
+BiometricEvaluation::Memory::AutoArray<T>::size()
+    const 
 { 
-	return _size;
+	return (_size);
 }
 
 template<class T>
 void
 BiometricEvaluation::Memory::AutoArray<T>::resize(
-    size_t new_size,
+    size_type new_size,
     bool free)
     throw (Error::StrategyError)
 {
 	/* If we've already allocated at least new_size space, then bail */
-	if (!free && (new_size <= _max_size)) {
+	if (!free && (new_size <= _capacity)) {
 		_size = new_size;
 		return;
 	}
@@ -348,14 +362,14 @@ BiometricEvaluation::Memory::AutoArray<T>::resize(
 		throw Error::StrategyError("Could not allocate data");
 
 	/* Copy as much data as will fit into the new buffer */
-	for (size_t i = 0; i < ((new_size < _size) ? new_size : _size); i++)
+	for (size_type i = 0; i < ((new_size < _size) ? new_size : _size); i++)
 		new_data[i] = _data[i];
 
 	/* Delete the old buffer and assign the new buffer to this object */
 	if (_data != NULL)
 		delete [] _data;
 	_data = new_data;
-	_size = _max_size = new_size;
+	_size = _capacity = new_size;
 }
 
 template<class T>
@@ -363,7 +377,7 @@ void
 BiometricEvaluation::Memory::AutoArray<T>::copy(
     const T *buffer)
 {
-	for (size_t i = 0; i < _size; i++)
+	for (size_type i = 0; i < _size; i++)
 		_data[i] = buffer[i];
 }
 
@@ -371,135 +385,147 @@ template<class T>
 void
 BiometricEvaluation::Memory::AutoArray<T>::copy(
     const T *buffer,
-    size_t size)
+    size_type size)
 {
-	resize(size);
-	for (size_t i = 0; i < size; i++)
+	this->resize(size);
+	for (size_type i = 0; i < size; i++)
 		_data[i] = buffer[i];
 }
 
-/*
- * Operators.
- */
+template<class T>
+typename BiometricEvaluation::Memory::AutoArray<T>::const_reference
+BiometricEvaluation::Memory::AutoArray<T>::at(
+    ptrdiff_t index)
+    const
+    throw (out_of_range)
+{
+	if (index < 0)
+		throw out_of_range("index");
+	if ((size_type)index < _size)
+		return (_data[index]);
+	
+	throw out_of_range("index");
+}
+
+template<class T>
+typename BiometricEvaluation::Memory::AutoArray<T>::reference
+BiometricEvaluation::Memory::AutoArray<T>::at(
+    ptrdiff_t index)
+    throw (out_of_range)
+{
+	if (index < 0)
+		throw out_of_range("index");
+	if ((size_type)index < _size)
+		return (_data[index]);
+	
+	throw out_of_range("index");
+}
+
+/******************************************************************************/
+/* Conversion Operators.                                                      */
+/******************************************************************************/
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::operator T*() 
 {
-	return _data; 
+	return (_data);
 }
 
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::operator const T*()
     const
 {
-	return (_data); 
+	return (_data);
 }
 
-template<class T>
-typename BiometricEvaluation::Memory::AutoArray<T>::reference 
-BiometricEvaluation::Memory::AutoArray<T>::operator[] (
-    ptrdiff_t i) 
-{ 
-	return _data[i];
-}
-
-template<class T>
-typename BiometricEvaluation::Memory::AutoArray<T>::const_reference
-BiometricEvaluation::Memory::AutoArray<T>::operator[] (
-    ptrdiff_t i) const 
-{ 
-	return _data[i];
-}
-
-template<class T>
-typename BiometricEvaluation::Memory::AutoArray<T>::const_reference
-BiometricEvaluation::Memory::AutoArray<T>::at(
-    size_t offset)
-    const
-    throw (out_of_range)
-{
-	if (offset < _size)
-		return (_data[offset]);
-	
-	throw out_of_range("offset");
-}
-
+/******************************************************************************/
+/* Operator Overloads.                                                        */
+/******************************************************************************/
 template<class T>
 typename BiometricEvaluation::Memory::AutoArray<T>::reference
-BiometricEvaluation::Memory::AutoArray<T>::at(
-    size_t offset)
-    throw (out_of_range)
-{
-	if (offset < _size)
-		return (_data[offset]);
-	
-	throw out_of_range("offset");
+BiometricEvaluation::Memory::AutoArray<T>::operator[](
+    ptrdiff_t index) 
+{ 
+	return (_data[index]);
+}
+
+template<class T>
+typename BiometricEvaluation::Memory::AutoArray<T>::const_reference
+BiometricEvaluation::Memory::AutoArray<T>::operator[](
+    ptrdiff_t index)
+    const
+{ 
+	return (_data[index]);
 }
 
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>&
-BiometricEvaluation::Memory::AutoArray<T>::operator= (
+BiometricEvaluation::Memory::AutoArray<T>::operator=(
     const BiometricEvaluation::Memory::AutoArray<T>& copy) 
 {
 	if (this != &copy) {
-		_size = _max_size = copy._size; 
+		_size = _capacity = copy._size; 
 		if (_data != NULL)
 			delete [] _data;
 		_data = new T[_size];
 		if (_data == NULL)
 			throw Error::StrategyError("Could not allocate data");
-		for (size_t i = 0; i < _size; i++)
+		for (size_type i = 0; i < _size; i++)
 			_data[i] = copy._data[i];
 	}
 
-	return *this;
+	return (*this);
 }
 
-/* 
- * Iterator methods.
- */
+/******************************************************************************/
+/* Iterators.                                                                 */
+/******************************************************************************/
 template<class T>
 typename BiometricEvaluation::Memory::AutoArray<T>::iterator 
 BiometricEvaluation::Memory::AutoArray<T>::begin()
 {
-	return _data;
+	return (_data);
 }
 
 template<class T>
 typename BiometricEvaluation::Memory::AutoArray<T>::const_iterator
-BiometricEvaluation::Memory::AutoArray<T>::begin() const 
+BiometricEvaluation::Memory::AutoArray<T>::begin()
+    const 
 { 
-	return _data;
+	return (_data);
 }
 
 template<class T>
 typename BiometricEvaluation::Memory::AutoArray<T>::iterator 
 BiometricEvaluation::Memory::AutoArray<T>::end() 
 {
-	return _data + _size; 
+	return (_data + _size); 
 }
 
 template<class T>
 typename BiometricEvaluation::Memory::AutoArray<T>::const_iterator
-BiometricEvaluation::Memory::AutoArray<T>::end() const 
+BiometricEvaluation::Memory::AutoArray<T>::end()
+    const 
 {
-	return _data + _size;
+	return (_data + _size);
 }
 
 /******************************************************************************/
 /* Constructors.                                                              */
 /******************************************************************************/
 template<class T>
-BiometricEvaluation::Memory::AutoArray<T>::AutoArray() {
+BiometricEvaluation::Memory::AutoArray<T>::AutoArray()
+{
 	_data = NULL;
 	_size = 0;
-	_max_size = 0;
+	_capacity = 0;
 }
 
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
-    size_t size) {
+    size_type size)
+{
 	if (size > 0)
-		_size = _max_size = size;
+		_size = _capacity = size;
 	else
 		throw Error::StrategyError("Invalid size");
 
@@ -510,12 +536,13 @@ BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
 
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
-    const AutoArray& copy) {
-	_size = _max_size = copy._size; 
+    const AutoArray& copy)
+{
+	_size = _capacity = copy._size; 
 	_data = new T[_size];
 	if (_data == NULL)
 		throw Error::StrategyError("Could not allocate data");
-	for (size_t i = 0; i < _size; i++)
+	for (size_type i = 0; i < _size; i++)
 		_data[i] = copy._data[i];
 }
 
@@ -523,7 +550,8 @@ BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
 /* Destructor.                                                                */
 /******************************************************************************/
 template<class T>
-BiometricEvaluation::Memory::AutoArray<T>::~AutoArray() {
+BiometricEvaluation::Memory::AutoArray<T>::~AutoArray()
+{
 	if (_data != NULL)
 		delete [] _data;
 }
