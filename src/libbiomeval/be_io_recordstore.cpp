@@ -462,7 +462,7 @@ void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
     size_t numRecordStores)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	RecordStore *rs[numRecordStores];
+	Memory::AutoArray<RecordStore *> rs(numRecordStores);
 	for (uint32_t i = 0; i < numRecordStores; i++)
 		rs[i] = recordStores[i].get();
 

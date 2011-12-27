@@ -110,7 +110,7 @@ BiometricEvaluation::Image::PNG::getRawData()
 	/* Resize _raw_data to hold decompressed PNG data */
 	png_uint_32 rowbytes = png_get_rowbytes(png_ptr, png_info_ptr);
 	uint32_t height = getDimensions().ySize;
-	png_bytep row_pointers[height];
+	Memory::AutoArray<png_bytep> row_pointers(height);
 	_raw_data.resize(rowbytes * height);
 	
 	/* Tell libpng to store decompressed PNG data directly into AutoArray */
