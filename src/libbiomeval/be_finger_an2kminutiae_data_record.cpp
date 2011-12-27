@@ -97,10 +97,6 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readRegisteredVendorBlock(
     BiometricEvaluation::Feature::MinutiaeFormat::Kind vendor)
     throw (Error::NotImplemented)
 {
-	/* First field of standard format features */
-	static const uint16_t AN2K7FieldStart = 5;
-	/* Last field of standard format features */
-	static const uint16_t AN2K7FieldEnd = 12;
 	/* First field of IAFIS format features */
 	static const uint16_t IAFISFieldStart = 13;
 	/* Last field of IAFIS format features */

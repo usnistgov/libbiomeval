@@ -23,7 +23,6 @@ openAN2KFile(const string filename)
 {
 	/* Any exceptions from calls below just float out. */
 	uint64_t sz = IO::Utility::getFileSize(filename);
-	uint8_t *ptr = (uint8_t *)malloc(sz);
 
 	FILE *fp = fopen(filename.c_str(), "r");
 	if (fp == NULL)
