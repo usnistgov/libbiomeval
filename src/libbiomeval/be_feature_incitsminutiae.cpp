@@ -15,6 +15,9 @@
 using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::Feature;
 
+const uint16_t INCITSMinutiae::FMD_ISO_ANGLE_UNIT = (360.0 / 256.0);
+const uint16_t INCITSMinutiae::FMD_ISOCC_ANGLE_UNIT = (360.0 / 64.0);
+
 BiometricEvaluation::Feature::INCITSMinutiae::INCITSMinutiae()
 {
 }

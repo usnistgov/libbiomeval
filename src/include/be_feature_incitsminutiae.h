@@ -92,10 +92,8 @@ namespace BiometricEvaluation
 			 * degrees.
 			 */
 			static const uint16_t FMD_ANSI_ANGLE_UNIT = 2;
-			static const uint16_t FMD_ISO_ANGLE_UNIT
-			    = (360.0 / 256.0);
-			static const uint16_t FMD_ISOCC_ANGLE_UNIT
-			    = (360.0 / 64.0);
+			static const uint16_t FMD_ISO_ANGLE_UNIT;
+			static const uint16_t FMD_ISOCC_ANGLE_UNIT;
 
 			/* Types of Minutia */
 			static const uint16_t FMD_MINUTIA_TYPE_OTHER = 0;
