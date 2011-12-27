@@ -98,7 +98,7 @@ main(int argc, char* argv[]) {
 	}
 	img_out.close();
 	
-	Finger::PositionSet positions = an2kv->getPositions();;
+	Finger::PositionSet positions = an2kv->getPositions();
 	cout << "There are " << positions.size() << " positions:" << endl;
 	for (size_t i = 0; i < positions.size(); i++)
 		cout << "\t" << positions[i] << endl;
