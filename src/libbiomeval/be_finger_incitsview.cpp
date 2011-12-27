@@ -474,7 +474,7 @@ Finger::INCITSView::readMinutiaeDataPoints(
     throw (Error::DataError)
 {
 	Feature::MinutiaPointSet mps(count);
-	for (int i = 0; i < count; i++) {
+	for (uint32_t i = 0; i < count; i++) {
 		Feature::MinutiaPoint mp = scanFMD(buf);
 		mp.index = i;
 		mps[i] = mp;

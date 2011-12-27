@@ -46,22 +46,22 @@ printViewInfo(Finger::INCITSView &fngv)
 	cout << "Minutiae format is " << fmd.getFormat() << endl;
 	Feature::MinutiaPointSet mps = fmd.getMinutiaPoints();
 	cout << "There are " << mps.size() << " minutiae points:" << endl;
-	for (int i = 0; i < mps.size(); i++)
+	for (size_t i = 0; i < mps.size(); i++)
 		cout << mps[i];
 
 	Feature::RidgeCountItemSet rcs = fmd.getRidgeCountItems();
 	cout << "There are " << rcs.size() << " ridge count items:" << endl;
-	for (int i = 0; i < rcs.size(); i++)
+	for (size_t i = 0; i < rcs.size(); i++)
 		cout << "\t" << rcs[i];
 
 	Feature::CorePointSet cores = fmd.getCores();
 	cout << "There are " << cores.size() << " cores:" << endl;
-	for (int i = 0; i < cores.size(); i++)
+	for (size_t i = 0; i < cores.size(); i++)
 		cout << "\t" << cores[i];
 
 	Feature::DeltaPointSet deltas = fmd.getDeltas();
 	cout << "There are " << deltas.size() << " deltas:" << endl;
-	for (int i = 0; i < deltas.size(); i++)
+	for (size_t i = 0; i < deltas.size(); i++)
 		cout << "\t" << deltas[i];
 
 	cout << "------------------------------------------" << endl;

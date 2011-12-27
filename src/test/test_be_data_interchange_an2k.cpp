@@ -90,7 +90,7 @@ printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
 	cout << "\tImpression Type: " << an2kv.getImpressionType() << endl;
 	Finger::PositionSet positions = an2kv.getPositions();;
 	cout << "\tPositions: ";
-	for (int i = 0; i < positions.size(); i++)
+	for (size_t i = 0; i < positions.size(); i++)
 		cout << positions[i] << " ";
 	cout << endl;
 	cout << "\tSource Agency: " << an2kv.getSourceAgency() << endl;
@@ -160,12 +160,12 @@ main(int argc, char* argv[]) {
 
 			std::vector<Finger::AN2KViewCapture> captures =
 			    an2k.getFingerCaptures();
-			for (int i = 0; i < captures.size(); i++) {
+			for (size_t i = 0; i < captures.size(); i++) {
 				printViewInfo(captures[i], key + ".cap", i);
 			}
 			std::vector<Finger::AN2KViewLatent> latents =
 			    an2k.getFingerLatents();
-			for (int i = 0; i < latents.size(); i++) {
+			for (size_t i = 0; i < latents.size(); i++) {
 				printViewInfo(latents[i], key + ".lat", i);
 			}
 			std::vector<Finger::AN2KMinutiaeDataRecord> minutiae = 
@@ -173,7 +173,7 @@ main(int argc, char* argv[]) {
 			cout << minutiae.size() << " minutiae data record(s)";
 			if (minutiae.size() > 0) cout << " containing:" << endl;
 			else cout << "." << endl;
-			for (int i = 0; i < minutiae.size(); i++) {
+			for (size_t i = 0; i < minutiae.size(); i++) {
 				if (minutiae.at(i).getAN2K7Minutiae().get() != 
 				    NULL)
 					cout << "\t* " << minutiae.at(i).

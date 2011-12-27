@@ -27,7 +27,7 @@ Finger::ISO2005View::ISO2005View(
 	Memory::uint8Array recordData = Finger::INCITSView::getFMRData();
 	Memory::IndexedBuffer iBuf(recordData, recordData.size());
 	this->readFMRHeader(iBuf, Finger::INCITSView::FMR_ISO2005_STANDARD);
-	for (int i = 0; i < viewNumber; i++)
+	for (uint32_t i = 0; i < viewNumber; i++)
 		this->readFVMR(iBuf);
 }
 
@@ -40,7 +40,7 @@ Finger::ISO2005View::ISO2005View(
 {
 	Memory::IndexedBuffer iBuf(fmrBuffer, fmrBuffer.size());
 	this->readFMRHeader(iBuf, Finger::INCITSView::FMR_ISO2005_STANDARD);
-	for (int i = 0; i < viewNumber; i++)
+	for (uint32_t i = 0; i < viewNumber; i++)
 		this->readFVMR(iBuf);
 }
 

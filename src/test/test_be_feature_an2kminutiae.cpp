@@ -54,12 +54,12 @@ main(int argc, char* argv[]) {
 	}
 	
 	cout << "There are " << mps.size() << " minutiae points:" << endl;
-	for (int i = 0; i < mps.size(); i++) {
+	for (size_t i = 0; i < mps.size(); i++) {
 		printf("(%u,%u,%u)\n", mps[i].coordinate.x, mps[i].coordinate.y,
 		    mps[i].theta);
 	}
 	cout << "There are " << rcs.size() << " ridge counts:" << endl;
-	for (int i = 0; i < rcs.size(); i++) {
+	for (size_t i = 0; i < rcs.size(); i++) {
 		printf("(%u,%u,%u)\n", rcs[i].index_one, rcs[i].index_two,
 		    rcs[i].count);
 	}

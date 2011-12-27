@@ -177,7 +177,7 @@ readMRC(
 	/* Minutiae and Ridge Count data */
 	if (lookup_ANSI_NIST_field(&field, &idx, MRC_ID, type9) == FALSE)
 		throw Error::DataError("Field MRC not found");	
-	for (unsigned int i = 0; i < count; i++) {
+	for (int i = 0; i < count; i++) {
 		Feature::MinutiaPoint mp;
 		
 		int numItems = field->subfields[i]->num_items;
@@ -417,7 +417,7 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
 	
 	if (lookup_ANSI_NIST_field(&field, &idx, FPC_ID, type9) == FALSE)
 		throw Error::DataError("Field FPC not found");
-	for (unsigned int i = 0; i < field->num_subfields; i++)
+	for (int i = 0; i < field->num_subfields; i++)
 		_fpc.push_back(PatternClassification::Entry(
 		    (string((char*)field->subfields[i]->items[0]->
 		    value) == "T"), (char *)field->subfields[i]->

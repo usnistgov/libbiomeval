@@ -22,7 +22,7 @@ printBuf(string name, Memory::IndexedBuffer &buf)
 {
 	cout << "Buffer Contents of " << name << endl;
 
-	for (int i = 0; i != buf.getSize(); i++)
+	for (uint32_t i = 0; i != buf.getSize(); i++)
 		cout << (buf[i]) << " ";
 	cout << endl;
 } 

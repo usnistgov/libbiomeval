@@ -21,7 +21,7 @@ using namespace BiometricEvaluation;
 set<int>
 BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
     Memory::uint8Array &buf,
-    int recordType)
+    unsigned int recordType)
     throw (Error::DataError)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k(&alloc_ANSI_NIST,
@@ -37,7 +37,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
 set<int>
 BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
     const ANSI_NIST *an2k,
-    int recordType)
+    unsigned int recordType)
 {
 	set<int> locations;
 	for (int i = 0; i < an2k->num_records; i++)

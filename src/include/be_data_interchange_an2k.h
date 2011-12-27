@@ -127,7 +127,7 @@ namespace BiometricEvaluation
 			static set<int>
 			recordLocations(
 			    Memory::uint8Array &buf,
-			    int recordType)
+			    unsigned int recordType)
 			    throw (Error::DataError);
 			    
 			/**
@@ -147,7 +147,7 @@ namespace BiometricEvaluation
 			static set<int>
 			recordLocations(
 			    const ANSI_NIST *an2k,
-			    int recordType);
+			    unsigned int recordType);
 			    
 			/**
 			 * @brief

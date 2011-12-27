@@ -129,7 +129,7 @@ parsePositionDescriptors(
 	PositionDescriptors pd;
 	if (lookup_ANSI_NIST_field(&field, &idx, field_num, record) != TRUE)
 		throw Error::DataError("Position descriptor field not found");
-	for (unsigned int i = 0; i < field->num_subfields; i++) {
+	for (int i = 0; i < field->num_subfields; i++) {
 		if (field->subfields[i]->num_items != 2)
 			throw Error::DataError("Not enough SPD info fields.");
 		pd[Finger::AN2KView::convertPosition(atoi((char *)field->

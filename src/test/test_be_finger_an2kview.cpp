@@ -100,7 +100,7 @@ main(int argc, char* argv[]) {
 	
 	Finger::PositionSet positions = an2kv->getPositions();;
 	cout << "There are " << positions.size() << " positions:" << endl;
-	for (int i = 0; i < positions.size(); i++)
+	for (size_t i = 0; i < positions.size(); i++)
 		cout << "\t" << positions[i] << endl;
 
 	/*

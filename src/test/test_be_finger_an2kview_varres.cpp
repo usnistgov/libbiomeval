@@ -48,7 +48,7 @@ printViewInfo(Finger::AN2KViewVariableResolution *an2kv) {
 	cout << "Impression Type: " << an2kv->getImpressionType() << endl;
 	Finger::PositionSet positions = an2kv->getPositions();;
 	cout << "There are " << positions.size() << " position(s): ";
-	for (int i = 0; i < positions.size(); i++)
+	for (size_t i = 0; i < positions.size(); i++)
 		cout << positions[i] << " " << endl;
 	cout << "----------------------------------------------" << endl;
 }
