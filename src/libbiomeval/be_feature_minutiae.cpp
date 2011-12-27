@@ -128,7 +128,8 @@ BiometricEvaluation::Feature::operator<< (std::ostream& s,
 	s << "Index One: " << rci.index_one << "; ";
 	s << "Index Two: " << rci.index_two << "; ";
 	s << "Count: " << rci.count << endl;
-
+	
+	return (s);
 }
 
 std::ostream&
@@ -139,6 +140,8 @@ BiometricEvaluation::Feature::operator<< (std::ostream& s,const CorePoint& cp)
 		s << "Angle: " << cp.angle << endl;
 	else
 		s << "No angle" << endl;
+	
+	return (s);
 }
 
 std::ostream&
@@ -151,6 +154,8 @@ BiometricEvaluation::Feature::operator<< (std::ostream& s,const DeltaPoint& dp)
 	} else {
 		s << "No angles" << endl;
 	}
+	
+	return (s);
 }
 
 /******************************************************************************/
