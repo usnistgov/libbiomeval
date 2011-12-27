@@ -141,9 +141,9 @@ BiometricEvaluation::IO::Properties::setPropertyFromInteger(
 	string p = property;
 	Text::removeLeadingTrailingWhitespace(p);
 
-	char buf[32];			/* Plenty for log10(2^64) + nul */
-	sprintf(buf, "%jd", (intmax_t)value);
-	_properties[p] = buf;
+	stringstream buf;
+	buf << value;
+	_properties[p] = buf.str();
 }
 
 void

@@ -10,6 +10,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 #include <be_error_exception.h>
 #include <be_memory_indexedbuffer.h>
@@ -114,8 +115,14 @@ main (int argc, char* argv[])
 		for (i = 0; i < buf3.getSize()/8; i++) {
 			uint64_t val = buf3.scanU64Val();
 			uint8_t *p = (uint8_t*)&val;
-			printf("0x%016llx (0x%02x%02x%02x%02x%02x%02x%02x%02x); ",
-			    val, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+			stringstream output;
+			output << "0x" << hex << setfill('0') << setw(16) <<
+			    val;
+			output << " (0x";
+			for (unsigned int j = 0; j < 8; j++)
+				output << setw(2) << hex << (uint16_t)p[j];
+			output << "); ";
+			cout << output.str();
 		}
 		cout << endl;
 	} catch (Error::DataError &e) {
