@@ -189,21 +189,36 @@ BiometricEvaluation::Image::JPEG::isJPEG(
     const uint8_t *data,
     const size_t size)
 {
-	/* 
-	 * Based on NBIS/imgtools/src/lib/image/imgtype.c:jpeg_type()
-	 */
-	
 	Memory::uint8Array jpegData;
 	jpegData.copy(data, size);
-	uint8_t *markerBuf = jpegData;	/* Manipulated by libjpegl */
+	uint8_t *markerBuf = jpegData;	/* Manipulated by libjpeg */
 	uint8_t *endPtr = jpegData + jpegData.size();
 	
-	/* JPEG markers */
+	/*
+	 * JPEG markers (ISO/IEC 10918-1:1993)
+	 */
 	static const uint16_t startOfScan = 0xFFDA;
 	static const uint16_t startOfImage = 0xFFD8;
-	static const uint16_t startOfLossyJPEG = 0xFFC0;
-	static const uint16_t startOfLosslessJPEG = 0xFFC3;
 	
+	/* Start of frame, non-differential, Huffman coding */
+	static const uint16_t SOFBaselineDCT = 0xFFC0;
+	static const uint16_t SOFExtendedSequentialDCT = 0xFFC1;
+	static const uint16_t SOFProgressiveDCT = 0xFFC2;
+	static const uint16_t SOFLosslessSequential = 0xFFC3;
+	/* Start of frame, differential, Huffman coding */
+	static const uint16_t SOFDifferentialSequentialDCT = 0xFFC5;
+	static const uint16_t SOFDifferentialProgressiveDCT = 0xFFC6;
+	static const uint16_t SOFDifferentialLossless = 0xFFC7;
+	/* Start of frame, non-differential, arithmetic coding */
+	static const uint16_t SOFExtendedSequentialDCTArith = 0xFFC9;
+	static const uint16_t SOFProgressiveDCTArith = 0xFFCA;
+	static const uint16_t SOFLosslessArith = 0xFFCB;
+	/* Start of frame, differential, arithmetic coding */
+	static const uint16_t SOFDifferentialSequentialDCTArith = 0xFFCD;
+	static const uint16_t SOFDifferentialProgressiveDCTArith = 0xFFCE;
+	static const uint16_t SOFDifferentialLosslessArith = 0xFFCF;
+	
+	/* First marker should be start of image */
 	uint16_t marker;
 	if (getc_ushort(&marker, &markerBuf, endPtr) && 
 	    (marker != startOfImage))
@@ -211,19 +226,53 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 	
 	/* Read markers until end of buffer or an identifying marker is found */
 	for (;;) {
-		if (getc_ushort(&marker, &markerBuf, endPtr) &&
-		    ((marker & 0xff00) != 0xff00))
+		/* Get next 16 bits */
+		if (getc_ushort(&marker, &markerBuf, endPtr))
 			return (false);
+			
+		/* 16-bit markers start with 0xFF but aren't 0xFF00 or 0xFFFF */ 
+		while (((marker >> 8) != 0xFF) &&
+		    ((marker == 0xFF00) || (marker == 0xFFFF)))
+			if (getc_ushort(&marker, &markerBuf, endPtr))
+				return (false);
 		
 		switch (marker) {
-		case startOfLossyJPEG:
-			return (true);
-		case startOfScan:
+		/* Lossy start of frame markers */
+		case SOFBaselineDCT:
 			/* FALLTHROUGH */
-		case startOfLosslessJPEG:
+		case SOFExtendedSequentialDCT:
+			/* FALLTHROUGH */
+		case SOFProgressiveDCT:
+			/* FALLTHROUGH */
+		case SOFDifferentialSequentialDCT:
+			/* FALLTHROUGH */
+		case SOFDifferentialProgressiveDCT:
+			/* FALLTHROUGH */
+		case SOFExtendedSequentialDCTArith:
+			/* FALLTHROUGH */
+		case SOFProgressiveDCTArith:
+			/* FALLTHROUGH */
+		case SOFDifferentialSequentialDCTArith:
+			/* FALLTHROUGH */
+		case SOFDifferentialProgressiveDCTArith:
+			return (true);
+
+		/* Lossless start of frame markers */
+		case SOFLosslessSequential:
+			/* FALLTHROUGH */
+		case SOFDifferentialLossless:
+			/* FALLTHROUGH */
+		case SOFLosslessArith:
+			/* FALLTHROUGH */
+		case SOFDifferentialLosslessArith:
+			/* FALLTHROUGH */
+					
+		/* Start of scan found before a start of frame */
+		case startOfScan:
 			return (false);
 		}
 		
+		/* Reposition marker pointer after current marker segment */
 		if (JPEG::getc_skip_marker_segment(marker, &markerBuf, endPtr))
 			return (false);
 	}
