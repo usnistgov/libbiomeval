@@ -6,18 +6,25 @@
 % config file) and then copying that back into this file.
 %--------------------------------------------------------------------------
 \documentclass[letterpaper]{book}
+\usepackage[margin=1.2in]{geometry}
 \usepackage{makeidx}
 \usepackage{graphicx}
 \usepackage{multicol}
 \usepackage{float}
 \usepackage{listings}
-\usepackage{color}
+\usepackage[usenames,dvipsnames]{color}
 \usepackage[table]{xcolor}
 \usepackage{textcomp}
 \usepackage{alltt}
 \usepackage{times}
 \usepackage{ifpdf}
 \usepackage{varioref}
+% Caption headers for code listings
+\usepackage{caption}
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35, 0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,normalsize}}
+%
 \ifpdf
 \usepackage[pdftex,
             pagebackref=true,
@@ -36,7 +43,20 @@
 \fi
 \usepackage[utf8]{inputenc}
 \usepackage{doxygen}
-\lstset{language=C++,inputencoding=utf8,basicstyle=\footnotesize,breaklines=true,breakatwhitespace=true,tabsize=8,numbers=left }
+\lstset{
+	language=c++,
+	tabsize=8,
+	frame=leftline,
+	keywordstyle=\color{MidnightBlue},
+	commentstyle=\color{Brown}\textit,
+	stringstyle=\color{BrickRed},
+	numbers=left,
+	numberstyle=\scriptsize,
+	numbersep=5pt,
+	breaklines=false,
+	showstringspaces=false,
+	basicstyle=\small\ttfamily
+}
 \makeindex
 \setcounter{tocdepth}{3}
 \renewcommand{\footrulewidth}{0.4pt}

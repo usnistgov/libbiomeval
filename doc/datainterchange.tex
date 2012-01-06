@@ -38,7 +38,6 @@ captures (Type-4 records) from an ANSI/NIST record. Once the Views are
 retrieved, the application obtains the set of minutiae records associated with
 that View.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Retrieving ANSI/NIST Records}, label=an2kviewuse]
 #include <iostream>
 #include <be_error_exception.h>
@@ -130,7 +129,6 @@ to another function for processing. Note that the image data may be stored
 in a compressed format inside the ANSI/NIST record, but is converted to raw
 format by the Image object.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Retrieving ANSI/NIST Records}, label=an2klatentuse]
 #include <be_io_recordstore.h>
 #include <be_data_interchange_an2k.h>
@@ -219,7 +217,6 @@ Listing~\ref{incitsfingerviewuse} shows an example of accessing the information
 in an ANSI 378-2004 Finger Minutiae Record by creating an ANSI2004View object
 from the record file.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={INCITS Finger Views}, label=incitsfingerviewuse]
 #include <be_finger_ansi2004view.h>
 using namespace BiometricEvaluation;

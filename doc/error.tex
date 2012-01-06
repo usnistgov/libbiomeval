@@ -64,7 +64,6 @@ invoked inside of the signal handler block.
 The example in \lstref{signalmanageruse} shows application use of the
 {\em SignalManager} class.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Using the SignalManger}, label=signalmanageruse]
 #include <be_error_signal_manager.h>
 using namespace BiometricEvaluation;
@@ -104,7 +103,6 @@ reduce the amount of code replication, however.
 signals to handle. In this example, only the {\tt SIGUSR1} signal would
 be handled.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Specifying Signals to the SignalManger}, label=signalmanageruse2]
 #include <be_error_signal_manager.h>
 using namespace BiometricEvaluation;

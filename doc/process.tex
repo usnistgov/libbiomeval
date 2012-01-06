@@ -19,7 +19,6 @@ writer does not control the thread count or memory usage for much of the
 processing. \lstref{processstatisticsuse} shows how an application can
 use the Statistics API.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Gathering Process Statistics}, label=processstatisticsuse]
 #include <be_error_exception.h>
 #include <be_process_statistics.h>
@@ -72,7 +71,6 @@ The Statistics object creates the LogSheet with an appropriate description
 and comment entry with column headers. Each gathering of the statistics results
 in a single log entry.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Logging Process Statistics}, label=processstatisticslogging]
 #include <be_error_exception.h>
 #include <be_io_logcabinet.h>

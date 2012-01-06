@@ -60,7 +60,6 @@ records with the same key result in an exception being thrown.
 \lstref{recordstoreuse} illustrates the use of a database RecordStore
 within an application.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Using a RecordStore}, label=recordstoreuse]
 #include <iostream>
 #include <be_io_dbrecstore.h>
@@ -141,7 +140,6 @@ is committed, the entry number is automatically incremented.
 The example in \lstref{logcabinetuse} shows application use of the
 logging facility.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Using a LogSheet within a LogCabinet}, label=logcabinetuse]
 #include <be_io_logcabinet.h>
 using namespace BiometricEvaluation;
@@ -183,7 +181,6 @@ option to save to a file. Applications can use a Properties object to manage
 runtime settings that are persistent across invocations, or to simply store
 some settings in memory only.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Using a Properties Object}, label=propertiesuse]
 IO::Properties *props;
 string fname = "test.prop";

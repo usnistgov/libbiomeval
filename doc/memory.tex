@@ -24,7 +24,6 @@ the underlying C object cannot be copied, and an exception will be thrown.
 \lstref{autobufferuse} shows the use of AutoBuffer to wrap the memory
 allocation routines that are part of the \nbis\ ANSI/NIST library.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Using the AutoBuffer}, label=autobufferuse]
 #include <be_memory_autobuffer.h>
 #include <iostream>
@@ -76,7 +75,6 @@ A common use of AutoArray is to deal with records sequenced from a
 RecordStore. \lstref{autoarrayrsuse} demonstrates this.  Notice the
 omission of memory management statements -- they are completely unnecessary.
 
-\lstset{language=c++}
 \begin{lstlisting}[caption={Using \nameref{sec-autoarray} with RecordStores}, label=autoarrayrsuse]
 #include <be_io_dbrecstore.h>
 #include <be_memory_autoarray.h>
