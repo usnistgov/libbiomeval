@@ -7,110 +7,148 @@
 The Image package maintains the classes and other information related to images
 and image processing. Within the \lname, many classes refer to images, such as
 when dealing with fingerprint data. Many biometric data standards supply the
-actual image in several forms, either compressed or not. Applications can
+actual image encoded in one of several standard formats. Applications can
 retrieve the image as stored in the record, or decompressed by the Image class
-into a ``raw'' format. Therefore, within the \sname\ several of the common
+into a ``raw'' format. Therefore, within the \sname, several of the common
 compression formats are supported, removing the need for applications to
 decompress the image directly, while maintaining access to the as-recorded
 image format.
 
 \section{The Image Namespace}
 \label{sec-imagenamespace}
-The Image namespace contains several enumerations and types used to represent
-aspects of an image. Compression algorithm and resolution scale are examples
-of enumerations and represent some information about the image. Types include
-structures to contain a coordinate on the image, or the image size. The
-\sname\ does not perform any translation (within the Image classes) of scale
-units, or sizing, however, as each set of attributes is copied directly from
-the image itself, or the biometric record that contains the image.
+The Image namespace contains several data types used to represent
+aspects of an image.  The types defined are chiefly used to retrieve common
+information from images stored in an Image class (section
+\ref{sec-imageclass}).  Data types in the Image namespace do not perform
+any translation of scale units or sizing, as each set of attributes is copied 
+directly from the image data itself when possible.
 
-The data types containing size and other information are used in the Image
-classes, as well as other classes, such as finger views, because those classes
-manage information taken directly from the biometric record. In many cases, the
-source image attributes are part of the biometric record. Applications can
-compare those values against those directly from the Image object, as in most
-cases those values are taken directly from the underlying image data.
-See~\chpref{chp-view} for more information on image-based biometric records.
+The same applies to images encapsulated in biometric records.  Although some 
+biometic records have fields for image attributes like dimensions and 
+resolution, the corresponding fields of an Image class are {\bf not} populated 
+with their contents.  The Image namespace data types {\em are} used outside of 
+the  namespace, such as in finger views, to retrieve image attributes stored as 
+part of the biometric record.  Applications can compare those values against 
+the values within the Image object, as in most cases those values are taken 
+directly from the underlying image data.  See~\chpref{chp-view} for more 
+information on image-based biometric records.
 
 The Image namespace contains all of the Image classes that are used to
-represent an image in raw or compressed form. These classes are described in
-the following sections.
+represent an image. These classes are described in the following sections.
 
 \section{The Image Class}
 \label{sec-imageclass}
-The Image class is a base class that defines a set of minimum functionality for
-all supported image formats.  Once an Image has been constructed, it may not
-be changed.  For any supported image format, the following information is
-required to be accessible:
+The Image class is an abstract base class that defines a set of minimum 
+functionality for all supported image formats.  Once an Image has been 
+constructed, it may not be modified.  For any supported image format, the 
+following information is required to be accessible:
+
 \begin{itemize}
-\item As-recorded format binary data
+\item Original binary data
 \item Compression algorithm
-\item Decompressed ("raw") format binary data, grayscale/full color
+\item Decompressed (``raw'') format binary data (grayscale, full color)
 \item Depth
-\item Dimensions, width/height
-\item Resolution
+\item Dimensions (width, height)
+\item Resolution (horizontal, vertical)
 \end{itemize}
+
 A rudimentary implementation of generating a grayscale image is provided by the
-Image class.  This implementation calculates the luminance value Y (of YCbCr)
-for each pixel of a color image.  Image subclasses may implement their own
-grayscale conversion methods.
+Image class in \texttt{get\allowbreak Raw\allowbreak Grayscale\allowbreak 
+Data()}.  This implementation calculates the luminance value Y (of YCbCr) for 
+each pixel of a color image.  The resulting image always uses 8-bits to 
+represent a pixel, but can return a raw image using 2 gray levels (1-bit) or 256 
+gray levels (8-bit).  The 1-bit algorithm quantizes to black when the 8-bit 
+color value is \ensuremath{\leq}127.  Image subclasses  may override and 
+implement their own grayscale conversion methods.
+
+Also of interest in the Image class is 
+\texttt{value\allowbreak In\allowbreak Colorspace()}, a static function to 
+convert color values between bit depths.
 
 \section{Raw Image}
 \label{sec-rawimage}
-The Raw Image class represents a decompressed image.  Raw Image has no special 
-implementation or additional methods.
+The \texttt{RawImage} class represents a decompressed image, or an image where
+\texttt{get\allowbreak Raw\allowbreak Data()} would return the exact same data
+as \texttt{get\allowbreak Data()}.  \texttt{RawImage} has no special implementation or additional methods.
 
-\section{JPEG Image}
-\label{sec-jpegimage}
-The JPEG Image class represents an image encoded according to the JPEG image 
+\section{JPEG}
+\label{sec-image-jpeg}
+The \texttt{JPEG} class represents an image encoded according to the JPEG image 
 standard~\cite{jpeg}.  Decompression and grayscale conversion are accomplished
-via libjpeg~\cite{libjpeg}.
+via \texttt{libjpeg}~\cite{libjpeg}.
 
-As of version 8.0, libjpeg provided a way to handle JPEG images existing within
-in-memory buffers, as opposed to on-disk files.  Because the Image class
-requires in-memory buffers, JPEG Image includes a JPEG memory source manager
-implementation, but it is built only if a version of libjpeg older than 8.0
-is detected.
+As of version 8.0, \texttt{libjpeg} provided a way to handle JPEG images 
+existing within in-memory buffers, as opposed to on-disk files.  Because the 
+Image class requires in-memory buffers, \texttt{JPEG} includes a JPEG memory
+source manager implementation, but it is built only if a version of 
+\texttt{libjpeg} older than 8.0 is detected at compile-time.
 
-JPEG Image provides a static function to determine whether or not a
+\texttt{JPEG} provides a static function to determine whether or not a
 data buffer appears to be encoded in the JPEG image standard format.  Errors
-within libjpeg will be caught and rethrown as Exceptions.
-\section{JPEG2000 Image}
-\label{sec-jpeg2000image}
-The JPEG2000 Image class provides Image class functionality to JPEG 2000-encoded
-images~\cite{jpeg2000}.  The class makes an attempt to support the following
-JPEG 2000 codecs:
+within libjpeg will be caught and rethrown as \texttt{Exceptions}.
+
+\section{JPEGL}
+\label{sec-image-jpeg}
+Similar to \texttt{JPEG}, the \texttt{JPEGL} class performs \texttt{Image} class
+services for lossless JPEG encoded images.  JPEGL decompression is performed
+by NBIS's \texttt{libjpegl}~\cite{nbis}.
+
+\section{JPEG2000}
+\label{sec-image-jpeg2000}
+The \texttt{JPEG2000} class provides Image class functionality to JPEG 
+2000-encoded images~\cite{jpeg2000}.  The class makes an attempt to support the 
+following JPEG 2000 codecs:
 \begin{itemize}
-\item JPEG 2000 codestream (.J2K)
-\item JPEG 2000 compressed image data (.JP2)
-\item JPEG 2000 interactive protocol (.JPT)
+\item JPEG 2000 codestream (.j2k)
+\item JPEG 2000 compressed image data (.jp2)
+\item JPEG 2000 interactive protocol (.jpt)
 \end{itemize}
-Decompression is provided by the OpenJPEG library (libopenjpeg)
-~\cite{libopenjpeg}.  JPEG2000 Image also provides a static function to test
+Decompression is provided by the OpenJPEG library (\texttt{libopenjpeg})
+~\cite{libopenjpeg}.  \texttt{JPEG2000} also provides a static function to test
 whether or not an image appears to be JPEG 2000-encoded.
 
-Not all information required by the Image class is present in a JPEG 
-2000-encoded image.  In particular, some codecs and encoders omit the Display
-Resolution Box.  It is generally accepted that the resolution will be 72 pixels
-per inch when the Display Resolution Box is not present.
+Not all information required by the \texttt{Image} class is present in a JPEG 
+2000-encoded image.  In particular, some codecs and encoders omit the ``Display
+Resolution Box.''  It is generally accepted that the resolution will be 72
+pixels-per-inch when the ``Display Resolution Box'' is not present.
 
-Errors within libopenjpeg will be caught and rethrown as Exceptions.
+Errors within \texttt{libopenjpeg} will be caught and rethrown as 
+\texttt{Exceptions}.
 
-\section{PNG Image}
-\label{sec-pngimage}
-The PNG Image class represents an image encoded according to the PNG image 
-standard~\cite{png}.  Decompression is provided by libpng~\cite{libpng}.
+\section{NetPBM}
+\label{sec-image-netpbm}
+The \texttt{NetPBM} class provides Image class functionality to all types of 
+NetPBM formatted images, up to 48-bit depth.  This includes the following 
+formats:
 
-PNG Image provides a static function to test whether or not an image appears
-to be encoded in the PNG image standard format.  Errors within libpng are
-caught and rethrown as Exceptions.
+\begin{itemize}
+\item ASCII Portable Bitmap (P1, .pbm)
+\item ASCII Portable Graymap (P2, .pgm)
+\item ASCII Portable Pixmap (P3, .ppm)
+\item Binary Portable Bitmap (P4, .pbm)
+\item Binary Portable Graymap (P5, .pgm)
+\item Binary Portable Pixmap (P6, .ppm)
+\end{itemize}
 
-\section{WSQ Image}
-\label{sec-wsqimage}
-Images encoded in the WSQ-image standard~\cite{wsq} are represented by the WSQ
-Image class.  The WSQ decompressor found in NBIS~\cite{nbis} is used by this
-class.  The class provides a static function to determine whether or not an
-image appears to be encoded in the WSQ format.
+\texttt{NetPBM} provides some of its more general use parsing algorithms as
+static functions for use outside of the class.  This includes ASCII to binary
+pixel conversion.  A function to test for NetPBM formats is also provided.
 
-Errors from the NBIS libwsq will propagate through stderr and will not be
-rethrown as exceptions.
+\section{PNG}
+\label{sec-image-png}
+The \texttt{PNG} class represents an image encoded according to the PNG image 
+standard~\cite{png}.  Decompression is provided by 
+\texttt{libpng}~\cite{libpng}.
+
+\texttt{PNG} provides a static function to test whether or not an image appears
+to be encoded in the PNG image standard format.  Errors within \texttt{libpng}
+are caught and rethrown as \texttt{Exceptions}.
+
+\section{WSQ}
+\label{sec-image-wsq}
+Images encoded in the WSQ-image standard~\cite{wsq} are represented by the 
+\texttt{WSQ} class.  The WSQ decompressor found in NBIS~\cite{nbis}, 
+\texttt{libwsq}, is used by this class.  The class provides a static function to determine whether or not an image appears to be encoded in the WSQ format.
+
+Errors from the \texttt{libwsq} will be displayed through \texttt{stderr}
+and will {\bf not} be rethrown as \texttt{Exceptions}.
