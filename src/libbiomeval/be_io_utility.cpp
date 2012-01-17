@@ -95,7 +95,6 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 	}
 }
 
-
 bool
 BiometricEvaluation::IO::Utility::fileExists(
     const string &pathname)
@@ -105,7 +104,6 @@ BiometricEvaluation::IO::Utility::fileExists(
 		return (true);
 	else
 		return (false);
-
 }
 
 bool
@@ -260,3 +258,36 @@ BiometricEvaluation::IO::Utility::writeFile(
 {
 	writeFile(data, data.size(), path, mode);
 }
+
+bool
+BiometricEvaluation::IO::Utility::isReadable(
+    const string &pathname)
+{
+	bool rv = true;
+	
+	FILE *fp = fopen(pathname.c_str(), "r");
+	if (errno == EACCES)
+		rv = false;
+
+	if (fp != NULL)
+		fclose(fp);
+	
+	return (rv);
+}
+
+bool
+BiometricEvaluation::IO::Utility::isWritable(
+    const string &pathname)
+{
+	bool rv = true;
+	
+	FILE *fp = fopen(pathname.c_str(), "r+");
+	if (errno == EACCES)
+		rv = false;
+
+	if (fp != NULL)
+		fclose(fp);
+	
+	return (rv);
+}
+

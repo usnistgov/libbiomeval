@@ -241,7 +241,52 @@ namespace BiometricEvaluation
 			    ios_base::openmode mode = ios_base::binary)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError);
-			    
+			
+			/**
+			 * @brief
+			 * Determine if a file can be opened with read
+			 * permission.
+			 *
+			 * @param[in] pathname
+			 *	Path to the file to check.
+			 *
+			 * @return
+			 *	true if the file can be opened with read
+			 *	permission, false otherwise.
+			 *
+			 * @note
+			 *	Could return true if the file does not exist,
+			 *	though fileExists() will return false if you
+			 *	do not have read permission.
+			 *
+ 			 * @see BiometricEvaluation::IO::Utility::fileExists()
+			 */
+			bool
+			isReadable(
+			    const string &pathname);
+			
+			/**
+			 * @brief
+			 * Determine if a file can be opened with read/write
+			 * permission.
+			 *
+			 * @param[in] pathname
+			 *	Path to the file to check.
+			 *
+			 * @return
+			 *	true if the file can be opened with write
+			 *	permission, false otherwise.
+			 *
+			 * @note
+			 *	Could return true if the file does not exist,
+			 *	though fileExists() will return false if you
+			 *	do not have read permission.
+			 *
+			 * @see BiometricEvaluation::IO::Utility::fileExists()
+			 */
+			bool
+			isWritable(
+			    const string &pathname);
 		}
 	}
 }
