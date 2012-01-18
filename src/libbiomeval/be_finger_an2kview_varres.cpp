@@ -7,6 +7,9 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
+
+#include <algorithm> 
+
 #include <be_finger_an2kview_varres.h>
 #include <be_image_rawimage.h>
 #include <be_memory_autobuffer.h>
