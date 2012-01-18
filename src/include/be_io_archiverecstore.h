@@ -280,9 +280,17 @@ namespace BiometricEvaluation {
 			bool _dirty;
 			
 			/**
+			 * @brief
 			 * Read the manifest.
+			 *
+			 * @throw Error::ConversionError
+			 *	Size or offset in manifest couldn't be parsed.
+			 * @throw Error::FileError
+			 *	Manifest is malformed or could not be read.
 			 */
-			void read_manifest() throw (Error::FileError);
+			void read_manifest()
+			    throw (Error::ConversionError,
+			    Error::FileError);
 		
 			/**
 			 * @brief
@@ -354,19 +362,16 @@ namespace BiometricEvaluation {
 	
 			/**
 			 * @brief
-			 * Check to see if a key exists in the manifest's map
+			 * Check to see if a key exists entry map.
 			 *
-			 * @param[in] m
-			 *	Map to check
 			 * @param[in] k
-			 *	The key to look for
+			 *	The key to look for.
 			 *
 			 * @return
-			 *	true if key exists, otherwise false
+			 *	true if key exists, otherwise false.
 			 */
 			bool
-			key_exists(
-			    ManifestMap &m,
+			keyExists(
 			    const ManifestMap::key_type &k);
 		};
 	}

@@ -16,13 +16,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <cstdio>
 #include <map>
 #include <string>
-#include <cstdio>
 
 #include <be_error.h>
 #include <be_io_utility.h>
 #include <be_io_archiverecstore.h>
+#include <be_text.h>
 
 using namespace std;
 
@@ -55,6 +56,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
 
 	try {
 		read_manifest();
+	} catch (Error::ConversionError &e) {
+		throw Error::StrategyError(e.getInfo());
 	} catch (Error::FileError& e) {
 		throw Error::StrategyError(e.getInfo());
 	}
@@ -191,7 +194,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::length(
 
 void
 BiometricEvaluation::IO::ArchiveRecordStore::read_manifest()
-    throw (Error::FileError)
+    throw (Error::ConversionError,
+    Error::FileError)
 {
 	string key;
 	char linebuf[MAXLINELEN], keybuf[MAXLINELEN];
@@ -205,7 +209,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::read_manifest()
 		}
 	}
 	rewind(_manifestfp);
-
+	vector<string> pieces;
 	while (1) {
 		if (fgets(linebuf, MAXLINELEN, _manifestfp) == NULL) {
 			if (std::feof(_manifestfp))
@@ -213,13 +217,27 @@ BiometricEvaluation::IO::ArchiveRecordStore::read_manifest()
 			throw Error::FileError("Error reading entry from "
 			    "manifest.");
 		}
-		if (sscanf(linebuf, "%s %llu %ld", keybuf, &entry.size, 
-		    &entry.offset) != 3)
-		    	break;
+		
+		pieces = Text::split(linebuf, ' ');
+		if (pieces.size() < 3)
+			throw Error::FileError(keybuf);
+		key.clear();
+		for (size_t i = 0; i < pieces.size() - 2; i++) {
+			if (i != 0 && key.empty() == false)
+				key += ' ';
+			key += pieces[i];
+		}
+		
+		entry.size = (uint64_t)strtoll(
+		    pieces[pieces.size() - 2].c_str(), NULL, 10);
+		if (errno == ERANGE)
+			throw Error::ConversionError("Value out of range");
+		entry.offset = (long)strtol(pieces[pieces.size() - 1].c_str(),
+		    NULL, 10);
+    		if (errno == ERANGE)
+			throw Error::ConversionError("Value out of range");
 
-		key.assign(keybuf);
-		if (entry.offset != ARCHIVE_RECORD_REMOVED)
-			efficient_insert(_entries, key, entry);
+		efficient_insert(_entries, key, entry);
 
 		if (!_dirty && entry.offset == ARCHIVE_RECORD_REMOVED)
 			_dirty = true;
@@ -268,6 +286,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::insert(
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
+	
+	if (this->keyExists(key))
+		throw Error::ObjectExists(key);
 
 	long offset = -1;
 
@@ -328,10 +349,10 @@ BiometricEvaluation::IO::ArchiveRecordStore::remove(const string &key)
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	ManifestMap::iterator lb = _entries.find(key);
-	if (lb == _entries.end())
+	if (this->keyExists(key) == false)
 		throw Error::ObjectDoesNotExist(key);
 
+	ManifestMap::iterator lb = _entries.find(key);
 	ManifestEntry entry = lb->second;
 	entry.offset = -1;
 	
@@ -590,6 +611,15 @@ BiometricEvaluation::IO::ArchiveRecordStore::needsVacuum(
 
 	ArchiveRecordStore rs = ArchiveRecordStore(name, parentDir);
 	return rs.needsVacuum();
+}
+
+inline bool
+BiometricEvaluation::IO::ArchiveRecordStore::keyExists(
+    const ManifestMap::key_type &k)
+{
+	ManifestMap::iterator lb = _entries.lower_bound(k);
+	return (lb != _entries.end() && !(_entries.key_comp()(k, lb->first)) &&
+	    (lb->second.offset != ARCHIVE_RECORD_REMOVED));
 }
 
 BiometricEvaluation::IO::ArchiveRecordStore::~ArchiveRecordStore()
