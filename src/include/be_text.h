@@ -86,17 +86,25 @@ namespace BiometricEvaluation {
 		 * @param[in] str
 		 *	String to tokenize.
 		 * @param[in] delimiter
-		 *	Character that defines the end of a token.
+		 *	Character that defines the end of a token.  Any are
+		 *	valid, except '\\'.
+		 * @param[in] escape
+		 *	If the delimiter is prefixed with '\\' in the string,
+		 *	do not split at that point and remove the '\\'.
 		 * 
 		 * @return
-		 *	vector<string>	Vector of tokens, in order of appearance
+		 *	Vector of string tokens, in order of appearance.
 		 *
 		 * @note
 		 * If delimiter does not appear in string, the returned vector
 		 * vector will still contain one item, str.
 		 */
 		vector<string>
-		split(const string &str, const char delimiter);
+		split(
+		    const string &str,
+		    const char delimiter,
+		    bool escape = true)
+		    throw (Error::ParameterError);
 
 		/**
 		 * @brief

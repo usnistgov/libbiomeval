@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
@@ -75,6 +76,11 @@ main(int argc, char* argv[])
 	vector<string> failed_split = Text::split(split_str2, 'z');
 	for (size_t i = 0; i < failed_split.size(); i++)
 		cout << "\t* \"" << failed_split[i] << "\"" << endl;
+	split_str1 = "/path/to/file\\ with\\ spaces.jpg 500 500";
+	cout << split_str1 << " -- split with escaping:" << endl;
+	str1_components = Text::split(split_str1, ' ', true);
+	for (size_t i = 0; i < str1_components.size(); i++)
+		cout << "\t* \"" << str1_components[i] << "\"" << endl;
 
 	cout << endl;
 

@@ -91,8 +91,15 @@ BiometricEvaluation::Text::digest(const string &s, const string &digest)
 }
 
 std::vector<string>
-BiometricEvaluation::Text::split(const string &str, const char delimiter)
+BiometricEvaluation::Text::split(
+    const string &str,
+    const char delimiter,
+    bool escape)
+    throw (Error::ParameterError)
 {
+	if (delimiter == '\\')
+		throw Error::ParameterError("Cannot use \\ as delimiter");
+		
 	std::vector<string> ret;
 
 	string cur_str("");
@@ -102,11 +109,23 @@ BiometricEvaluation::Text::split(const string &str, const char delimiter)
 			/* Don't insert empy tokens */
 			if (cur_str == "")
 				continue;
+			
+			/* Check for normal escaped delimiter */
+			if (escape && i != 0 && str[i - 1] == '\\') {
+				cur_str = cur_str.substr(0,
+				    cur_str.length() - 1);
+				cur_str.push_back(str[i]);
+				continue;
+			}
+			
+			/* Non-escaped delimiter reached: add token */
 			ret.push_back(cur_str);
 			cur_str = "";
 		} else
 			cur_str.push_back(str[i]);
 	}
+	
+	/* Add partially formed token if not empty */
 	if (cur_str != "")
 		ret.push_back(cur_str);
 
@@ -114,7 +133,7 @@ BiometricEvaluation::Text::split(const string &str, const char delimiter)
 	if (ret.size() == 0)
 		ret.push_back(str);
 
-	return ret;
+	return (ret);
 }
 
 string
