@@ -215,6 +215,24 @@ main(int argc, char* argv[])
 	cout << "success." << endl;
 	als.reset(ls);
 
+	cout << "Sequence all entries: ";
+	int sequenceCounter = 0;
+	for (;;) {
+		try {
+			als->sequence();
+			sequenceCounter++;
+		} catch (Error::ObjectDoesNotExist) {
+			break;
+		} catch (Error::Exception &e) {
+			cerr << "failed! (" << e.getInfo() << ')' << endl;
+		}
+	}
+	if (sequenceCounter != 19) {
+		cerr << "failed!" << endl;
+		return (EXIT_FAILURE);
+	} else
+		cout << "success." << endl;
+
 	cout << "Writing more entries... ";
 	try {
 		ostringstream test;
@@ -231,6 +249,23 @@ main(int argc, char* argv[])
 		cout << "Caught " << e.getInfo() << endl;
 		return (-1);
 	}
+	
+	cout << endl << "Sequence last written entries: ";
+	for (;;) {
+		try {
+			als->sequence();
+			sequenceCounter++;
+		} catch (Error::ObjectDoesNotExist) {
+			break;
+		} catch (Error::Exception &e) {
+			cerr << "failed! (" << e.getInfo() << ')' << endl;
+		}
+	}
+	if (sequenceCounter != 29) {
+		cerr << "failed!" << endl;
+		return (EXIT_FAILURE);
+	} else 
+		cout << "success." << endl;
 
 	cout << endl << "LogCabinet tests: " << endl;
 	if (doLogCabinetTests() != 0)

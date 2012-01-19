@@ -14,7 +14,7 @@ include ../common.mk
 
 CORE = be_memory_indexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
 
-IO = be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logcabinet.cpp 
+IO = be_io_properties.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_sqliterecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_sharedlogsheet.cpp be_io_logcabinet.cpp 
 
 IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_netpbm.cpp be_image_rawimage.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp
 
@@ -36,18 +36,18 @@ LOCALLIB = ../../lib
 all: $(OBJECTS)
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
 ifeq ($(OS), Darwin)
-	$(CXX) $(CXXFLAGS) $(NBISLIB) -dynamiclib $(OBJECTS) -lcrypto -o $(LIBRARY).dylib
+	$(CXX) $(CXXFLAGS) $(NBISLIB) -dynamiclib $(OBJECTS) -lcrypto -lsqlite3 -o $(LIBRARY).dylib
 	$(CP) $(LIBRARY).dylib $(LOCALLIB)
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	ar rs $(LIBRARY).a $(OBJECTS)
 	ranlib $(LIBRARY).a
-	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--start-group $(NBISLIB) -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -lcrypto -ldb -Wl,--end-group
+	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--start-group $(NBISLIB) -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -lcrypto -ldb -lsqlite3 -Wl,--end-group
 	$(CP) $(LIBRARY).a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(CXX) $(CXXFLAGS) -Wl,--start-group $(NBISLIB) $(OBJECTS) -Wl,--end-group -shared -ldb -lcrypto -o $(LIBRARY).so
+	$(CXX) $(CXXFLAGS) -Wl,--start-group $(NBISLIB) $(OBJECTS) -Wl,--end-group -shared -ldb -lcrypto -lsqlite3 -o $(LIBRARY).so
 	$(CP) $(LIBRARY).so $(LOCALLIB)
 endif
 endif
