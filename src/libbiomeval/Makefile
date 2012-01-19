@@ -20,14 +20,15 @@ IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_
 
 FEATURE = be_feature_minutiae.cpp be_feature_an2k7minutiae.cpp be_feature_incitsminutiae.cpp
 
+PROCESS_MANAGEMENT = be_process_worker.cpp be_process_workercontroller.cpp be_process_manager.cpp be_process_forkmanager.cpp be_process_posixthreadmanager.cpp
+
 VIEW = be_view_an2kview.cpp be_view_an2kview_varres.cpp
 
 FINGER = be_finger.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_finger_incitsview.cpp be_finger_ansi2004view.cpp be_finger_ansi2007view.cpp be_finger_iso2005view.cpp
 
 DATA = be_data_interchange_an2k.cpp
 
-SOURCES = $(CORE) $(IO) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(DATA)
-
+SOURCES = $(CORE) $(IO) $(PROCESS_MANAGEMENT) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(DATA)
 OBJECTS = $(SOURCES:%.cpp=%.o)
 LIBRARY = libbiomeval
 LOCALLIB = ../../lib

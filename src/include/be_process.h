@@ -11,6 +11,12 @@
 #ifndef __BE_PROCESS_H__
 #define __BE_PROCESS_H__
 
+#include <map>
+#include <string>
+#include <tr1/memory>
+
+using namespace std;
+
 namespace BiometricEvaluation 
 {
 	/**
@@ -22,6 +28,8 @@ namespace BiometricEvaluation
 	 */
 	namespace Process
 	{
+		/** Convenience typedef for parameter lists to child routines */
+		typedef map< string, tr1::shared_ptr<void> > ParameterList;
 	}
 }
 #endif /* __BE_PROCESS_H__ */

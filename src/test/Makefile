@@ -18,11 +18,13 @@ IMAGE = test_be_image_rawimage test_be_image_jpeg test_be_image_jpegl test_be_im
 
 FINGER = test_be_finger_an2kview test_be_finger_an2kview_varres test_be_finger_incitsviews
 
+PROCESS_MANAGEMENT = test_be_process_forkmanager test_be_process_posixthreadmanager
+
 FEATURE = test_be_feature_an2kminutiae
 
 OTHER = test_be_data_interchange_an2k
 
-PROGS = $(CORE) $(IO) $(IMAGE) $(FINGER) $(FEATURE) $(OTHER)
+PROGS = $(CORE) $(IO) $(IMAGE) $(PROCESS_MANAGEMENT) $(FINGER) $(FEATURE) $(OTHER)
 
 all: CXXFLAGS += -g
 all: $(PROGS)
@@ -97,6 +99,11 @@ test_be_data_interchange_an2k: test_be_data_interchange_an2k.cpp
 	$(CXX) $(CXXFLAGS) $^ -pg -o $@ $(LDFLAGS) -lbiomeval
 test_be_memory_indexedbuffer: test_be_memory_indexedbuffer.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_process_forkmanager: test_be_process_manager.cpp
+	$(CXX) $(CXXFLAGS) -DFORKTEST $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_process_posixthreadmanager: test_be_process_manager.cpp
+	$(CXX) $(CXXFLAGS) -DPOSIXTHREADTEST $^ -o $@ $(LDFLAGS) -lbiomeval
+
 clean:
 	$(RM) $(DISPOSABLEFILES) $(PROGS)
 	$(RM) -r $(DISPOSABLEDIRS)
