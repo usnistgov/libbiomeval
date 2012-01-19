@@ -36,11 +36,11 @@ the ``black box'' library dereferences a bad pointer, resulting in a
 segmentation violation signal being sent by the operating system.
 
 To prevent termination of the application process, signal handling must be
-installed. The \lname\ provides a class, {\em SignalManager}, to simplify
+installed. The \lname\ provides a class, \class{SignalManager}, to simplify
 the installation of a signal handler in order to allow the program to
 continue running. For example, when extracting a fingerprint minutia template
 from an image, often the library call will fault on a certain image. By using
-the {\em SignalManager}, the application can log that fault, and continue on
+the \class{SignalManager}, the application can log that fault, and continue on
 to the next image.
 
 Signal handling in a POSIX environment covers the bare essentials, and one of
@@ -48,23 +48,23 @@ two actions is usually taken. The signal can be handled and processing
 continues at the location the signal was generated. The second action is
 that, in addition to signal handling, the process continues from a different
 location. It is the second action that is implemented by the
-{\em SignalManager} class. The rationale for this type of signal handling is
+\class{SignalManager} class. The rationale for this type of signal handling is
 so the call to the faulting function can be aborted, but the caller can
 detect that the signal was handled and take action, usually by logging the
 fault.
 
-By default, the {\em SignalManager} class installs a handler for the
+By default, the \class{SignalManager} class installs a handler for the
 {\tt SIGSEGV} and {\tt SIGBUS} signals. However, other signals can be
 handled as desired.
 
-One restriction on the use of {\em SignalManager} is that the POSIX calls for
-signal management ({\em signal(3)}, {\em sigaction(2)}, etc.) cannot be
+One restriction on the use of \class{SignalManager} is that the POSIX calls for
+signal management (\code{signal(3)}, \code{sigaction(2)}, etc.) cannot be
 invoked inside of the signal handler block.
 
 The example in \lstref{signalmanageruse} shows application use of the
-{\em SignalManager} class.
+\class{SignalManager} class.
 
-\begin{lstlisting}[caption={Using the SignalManger}, label=signalmanageruse]
+\begin{lstlisting}[caption={Using the \class{SignalManger}}, label=signalmanageruse]
 #include <be_error_signal_manager.h>
 using namespace BiometricEvaluation;
 
@@ -81,29 +81,29 @@ int main(int argc, char *argv[])
 }
 \end{lstlisting}
 
-Within the {\em SignalManager} header file, two macros are defined:
-{\tt BEGIN\_SIGNAL\_BLOCK()} and {\tt END\_SIGNAL\_BLOCK()}, each taking the
-{\em SignalManager} object and label as parameters. The label must be unique
+Within the \class{SignalManager} header file, two macros are defined:
+\code{BEGIN\_SIGNAL\_BLOCK()} and \code{END\_SIGNAL\_BLOCK()}, each taking the
+\class{SignalManager} object and label as parameters. The label must be unique
 for each signal block. These macros insert the
 jump buffer into the code, which is the location where the signal handler will
 jump to after handling the signal. The use of these macros greatly simplifies
 signal handling for the application, and it is recommended that applications
 use these macros instead of directly invoking the methods of the
-{\em SignalManger} class, except for changing the set of handled signals.
+\class{SignalManger} class, except for changing the set of handled signals.
 
 If a signal does occur, process control jumps to the end of the signal block,
-and the sigHandled() method of the signal manager can be called. The
-application may need to have the same statements inside the sigHandled() check
+and the \code{sig\allowbreak Handled()} method of the signal manager can be called. The
+application may need to have the same statements inside the \code{sig\allowbreak Handled()} check
 as those outside of the signal handling block. For example, if a file needs
 to be closed before the end of the block, the same call to the close function
-must be made within the sigHandled() check. Careful application design can
+must be made within the \code{sig\allowbreak Handled()} check. Careful application design can
 reduce the amount of code replication, however.
 
 \lstref{signalmanageruse2} shows how an application can indicate what
-signals to handle. In this example, only the {\tt SIGUSR1} signal would
+signals to handle. In this example, only the \code{SIGUSR1} signal would
 be handled.
 
-\begin{lstlisting}[caption={Specifying Signals to the SignalManger}, label=signalmanageruse2]
+\begin{lstlisting}[caption={Specifying Signals to the \class{SignalManger}}, label=signalmanageruse2]
 #include <be_error_signal_manager.h>
 using namespace BiometricEvaluation;
 

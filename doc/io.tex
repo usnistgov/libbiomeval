@@ -4,12 +4,12 @@
 \chapter{Input/Output}
 \label{chp-io}
 
-The {\em BiometricEvaluation::IO} package is used
+The \namespace{IO} package is used
 by applications for the common types of input and output: managing stores of
-data, log files, and individual file management. The goal of using the IO API 
+data, log files, and individual file management. The goal of using the \namespace{IO} API 
 is to relieve applications of the need to manage low-level I/O operations such
 as file opening, writing, and error handling. Furthermore, by using the classes
-defined in {\em IO}, the actual storage mechanism used for data can be managed 
+defined in \namespace{IO}, the actual storage mechanism used for data can be managed 
 efficiently and placed in a consistent location for all applications.
 
 Many classes manage persistent storage within the file system,
@@ -19,7 +19,7 @@ application.
 
 \section{Utility}
 
-The {\em IO::Utility} namespace provides functions that are used to
+The \namespace{IO::Utility} namespace provides functions that are used to
 manipulate the file system and other low-level mechanisms. These functions
 can be used by applications in addition to being used by other classes 
 within the Biometric Evaluation framework.
@@ -28,9 +28,9 @@ POSIX file system, or to check whether a file object exists.
 
 \section{Record Management}
 
-The {\em IO::RecordStore} class provides an abstraction for performing
+The \class{IO::RecordStore} class provides an abstraction for performing
 record-oriented input and output to an underlying storage system. Each
-implementation of the {\em RecordStore} provides a self-contained entity to
+implementation of the \class{RecordStore} provides a self-contained entity to
 manage data on behalf of the application in a reliable, efficient manner.
 
 Many biometric evaluations generate thousands of files in the form of processed
@@ -39,28 +39,28 @@ as input. In many file systems, managing large numbers of files in not
 efficient, and leads to longer run times as well as difficulty in backing up
 and processing these files outside of the actual evaluation.
 
-The {\em RecordStore} abstraction de-couples the application from
+The \class{RecordStore} abstraction de-couples the application from
 the underlying storage, enabling the implementation of different strategies for
 data management. One simple strategy is to store each record into a separate
 file, reproducing what has typically been done in the evaluation software
 itself. Archive files and small databases are other implementation strategies
 that have been used.
 
-Use of the {\em RecordStore} abstraction allows applications to switch
+Use of the \class{RecordStore} abstraction allows applications to switch
 storage strategy by changing a few lines of code. Furthermore, error handling
 is consistent for all strategies by the use of common exceptions.
 
-Record stores provide no semantic meaning to the nature of the data that passes
+\class{RecordStore}s provide no semantic meaning to the nature of the data that passes
 through the store. Each record is an opaque object, given to the store as a
 pointer and data length, and is associated with a string the which is the key.
 Keys must
 be unique and are associated with a single record. Attempts to insert multiple
 records with the same key result in an exception being thrown.
 
-\lstref{recordstoreuse} illustrates the use of a database RecordStore
+\lstref{recordstoreuse} illustrates the use of a database \class{RecordStore}
 within an application.
 
-\begin{lstlisting}[caption={Using a RecordStore}, label=recordstoreuse]
+\begin{lstlisting}[caption={Using a \class{RecordStore}}, label=recordstoreuse]
 #include <iostream>
 #include <be_io_dbrecstore.h>
 int
@@ -113,34 +113,34 @@ call to the software under test. There is a need for the log entries to be
 consistent, yet any logging facility must be flexible in accepting the type of
 data that is to be written to the log file.
 
-The logging classes in the {\em IO} package provide a straight-forward method
+The logging classes in the \namespace{IO} package provide a straight-forward method
 for applications to record their progress without the need to manage the
 low-level output details.
-There are two classes, {\em IO::LogCabinet} and {\em IO::LogSheet} that are used
-to perform consistent logging of information by applications. A {\em LogCabinet}
-contains a set of {\em LogSheet}s.
+There are two classes, \class{IO::LogCabinet} and \class{IO::LogSheet} that are used
+to perform consistent logging of information by applications. A \class{LogCabinet}
+contains a set of \class{LogSheet}s.
 
-A {\em LogSheet} is an output stream (subclass of {\em std::ostringstream}),
+A \class{LogSheet} is an output stream (subclass of \class{std::ostringstream}),
 and therefore can handle built-in types and any class that supports streaming.
 The example code in \lstref{logcabinetuse} shows how an application can use a
-{\em LogSheet}, contained within a {\em LogCabinet}, to record operational
+\class{LogSheet}, contained within a \class{LogCabinet}, to record operational
 information.
 
-Log sheets are simple text files, with each entry numbered by the {\em LogSheet}
+Log sheets are simple text files, with each entry numbered by the \class{LogSheet}
 class when written to the file. The description of the sheet is placed at the
 top of the file during construction of the {\em LogSheet} object. A call to the
-{\em newEntry()} method commits the current entry to the log file, and resets
+\code{new\allowbreak Entry()} method commits the current entry to the log file, and resets
 the write position to the beginning of the entry buffer.
 
-In addition to streaming by using the {\em LogSheet::<<} operator, applications
-can directly commit an entry to the log file by calling the {\em write()}
+In addition to streaming by using the \code{LogSheet::\allowbreak <<} operator, applications
+can directly commit an entry to the log file by calling the \code{write()}
 method, thereby not disrupting the entry that is being formed. After an entry
 is committed, the entry number is automatically incremented.
 
 The example in \lstref{logcabinetuse} shows application use of the
 logging facility.
 
-\begin{lstlisting}[caption={Using a LogSheet within a LogCabinet}, label=logcabinetuse]
+\begin{lstlisting}[caption={Using a \class{LogSheet} within a \class{LogCabinet}}, label=logcabinetuse]
 #include <be_io_logcabinet.h>
 using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::IO;
@@ -176,12 +176,12 @@ return;			// The LogCabinet is destructed by the auto_ptr
 
 \section{Properties}
 \label{sec-properties}
-The Properties class is used to store simple key-value string pairs, with the
-option to save to a file. Applications can use a Properties object to manage
+The \class{Properties} class is used to store simple key-value string pairs, with the
+option to save to a file. Applications can use a \class{Properties} object to manage
 runtime settings that are persistent across invocations, or to simply store
 some settings in memory only.
 
-\begin{lstlisting}[caption={Using a Properties Object}, label=propertiesuse]
+\begin{lstlisting}[caption={Using a \class{Properties} Object}, label=propertiesuse]
 IO::Properties *props;
 string fname = "test.prop";
 try {

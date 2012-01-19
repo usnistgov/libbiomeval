@@ -4,20 +4,20 @@
 \chapter{Time and Timing}
 \label{chp-time}
 
-The Time package within the \lname\ provides a set of classes for performing
+The \namespace{Time} package within the \lname\ provides a set of classes for performing
 timing-related operations, such as elapsed time and limiting execution time.
 
 \section{Elapsed Time}
 
-The {\em Timer} class provides applications a method to determine how long
+The \class{Timer} class provides applications a method to determine how long
 a block of code takes to execute. On many systems (e.g. Linux) the timer
 resolution is in microseconds.
 
-\lstref{timeruse} shows how an application can use a {\em Timer}
+\lstref{timeruse} shows how an application can use a \class{Timer}
 object to limit obtain the amount of time used for the execution of a block
 of code.
 
-\begin{lstlisting}[caption={Using the Timer}, label=timeruse]
+\begin{lstlisting}[caption={Using the \class{Timer}}, label=timeruse]
 #include <be_time_timer.h>
 
 int main(int argc, char *argv[])
@@ -37,26 +37,26 @@ int main(int argc, char *argv[])
 
 \section{Limiting Execution Time}
 
-The {\em Watchdog} class allows applications to control the amount of time
+The \class{Watchdog} class allows applications to control the amount of time
 that a block of code has to execute. The time can be {\em real} (i.e. ``wall'')
 time, or {\em process} time (not available on Windows). One typical usage for
-a watchdog timer is when a call is made to a function that may never return,
+a \class{Watchdog} timer is when a call is made to a function that may never return,
 due to problems processing an input biometric image.
 
-Watch dog timers can be used in conjunction with {\em SignalManager} in
+\class{Watchdog} timers can be used in conjunction with \class{SignalManager} in
 order to both limit the processing time of a call, and handle all signals
 generated as a result of that call. See~\ref{sec-signalhandling} for
-information on the {\em SignalManager} class.
+information on the \class{SignalManager} class.
 
-One restriction on the use of {\em Watchdog} is that the POSIX calls for
-signal management ({\em signal(3)}, {\em sigaction(2)}, etc.) cannot be
-invoked inside of the watchdog block. This restriction includes calls to
-{\em sleep(3)} because it is based on signal handling as well.
+One restriction on the use of \class{Watchdog} is that the POSIX calls for
+signal management (\code{signal(3)}, \code{sigaction(2)}, etc.) cannot be
+invoked inside of the \code{WATCHDOG} block. This restriction includes calls to
+\code{sleep(3)} because it is based on signal handling as well.
 
-\lstref{watchdoguse} shows how an application can use a {\em Watchdog}
+\lstref{watchdoguse} shows how an application can use a \class{Watchdog}
 object to limit the about of process time for a block of code.
 
-\begin{lstlisting}[caption={Using the Watchdog}, label=watchdoguse]
+\begin{lstlisting}[caption={Using the \class{Watchdog}}, label=watchdoguse]
 #include <be_time_watchdog.h>
 int main(int argc, char *argv[])
 
@@ -79,21 +79,21 @@ int main(int argc, char *argv[])
 }
 \end{lstlisting}
 
-Within the {\em Watchdog} header file, two macros are defined:
-{\tt BEGIN\_WATCHDOG\_BLOCK()} and {\tt END\_WATCHDOG\_BLOCK()}, each taking
-the {\em Watchdog} object and label as parameters. The label must be unique
-for each watch dog block.  The use of these macros greatly simplifies
-watchdog timers for the application, and it is recommended that applications
+Within the \class{Watchdog} header file, two macros are defined:
+\code{BEGIN\_\allowbreak WATCH\allowbreak DOG\_\allowbreak BLOCK()} and \code{END\_\allowbreak WATCH\allowbreak DOG\_\allowbreak BLOCK()}, each taking
+the \class{Watchdog} object and label as parameters. The label must be unique
+for each \code{WATCHDOG} block.  The use of these macros greatly simplifies
+\class{Watchdog} timers for the application, and it is recommended that applications
 use these macros instead of directly invoking the methods of the
-{\em Watchdog} class, except for setting the timeout value.
+\class{Watchdog} class, except for setting the timeout value.
 
-Any processing that is normally done at the end of the Watchdog block must also
-be done within the expired() check
-due to the fact that process control jumps to the end of the Watchdog block
+Any processing that is normally done at the end of the \code{WATCHDOG} block must also
+be done within the \code{expired()} check
+due to the fact that process control jumps to the end of the \code{WATCHDOG} block
 in the event of a timeout.
-A typical example is the use of the Timer
-object inside a Watchdog block, as the example in \lstref{watchdoguse}
+A typical example is the use of the \class{Timer}
+object inside a \code{WATCHDOG} block, as the example in \lstref{watchdoguse}
 shows. In most cases, however, careful application design can remove the need
-for duplicate code. In the example, placing the Timer start()/stop() calls
-outside of the Watchdog block simplifies the coding, although the small amount
-of time for the Watchdog setup and tear down would be included in the time.
+for duplicate code. In the example, placing the \class{Timer} \code{start()}/\code{stop()} calls
+outside of the \code{WATCHDOG} block simplifies the coding, although the small amount
+of time for the \code{WATCHDOG} setup and tear down would be included in the time.

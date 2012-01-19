@@ -3,14 +3,14 @@
 %
 \chapter{Data Interchange}
 \label{chp-datainterchange}
-The Data Interchange package consists of classes and other elements used to
+The \namespace{DataInterchange} package consists of classes and other elements used to
 process an entire biometric data record. For example, a single ANSI/NIST 
 record, consisting of many smaller records (fingerprint images, latent data,
 etc.) can be accessed by instantiating a single object. Classes in this
 package typically use has-a relationships to classes in the Finger and other
 packages that process individual biometric samples.
 
-The design of classes in the Data Interchange package allows applications to
+The design of classes in the \namespace{DataInterchange} package allows applications to
 create a single object from a biometric record, such as an ANSI/NIST file.
 After creating this object, the application can retrieve the needed information
 (such as fingerprint images) from this object, or objects returned by methods
@@ -22,15 +22,15 @@ template or some other image processing.
 \label{sec-ansinistdatarecords}
 
 The ANSI/NIST Data Interchange package contains the classes used to represent
-ANSI/NIST~\cite{std:an2k} records. One class, DataInterchange::AN2KRecord,
+ANSI/NIST~\cite{std:an2k} records. One class, \class{AN2KRecord},
 is used to represent the entire ANSI/NIST record. An object of this class
-will contain objects of the Finger:: classes, as well as other packages. By
-instantiating the AN2KRecord object, the application can retrieve all the
+will contain objects of the \class{Finger} classes, as well as other packages. By
+instantiating the \class{AN2KRecord} object, the application can retrieve all the
 information and images contained in the ANSI/NIST record.
 
-The AN2KMinutiaeDataRecord class represents an entire Type-9 record from an
+The \class{AN2KMinutiaeDataRecord} class represents an entire Type-9 record from an
 ANSI/NIST file. However, some components of this class are represented by
-classes in other packages. For example, the AN2K7Minutiae class in the Feature
+classes in other packages. For example, the \class{AN2K7Minutiae} class in the \namespace{Feature}
 package represents the ``standard'' format minutiae in the Type-9 record.
 
 \lstref{an2kviewuse} shows how an application can retrieve all finger
@@ -123,11 +123,11 @@ main(int argc, char* argv[])
 \end{lstlisting}
 
 \lstref{an2klatentuse} shows how an application can retrieve all latent
-finger images from a set of ANSI/NIST record retrieved from a record store.
-Using the Image object, the image's ``raw'' data can be retrieved and passed
+finger images from a set of ANSI/NIST record retrieved from a \class{RecordStore}.
+Using the \class{Image} object, the image's ``raw'' data can be retrieved and passed
 to another function for processing. Note that the image data may be stored
 in a compressed format inside the ANSI/NIST record, but is converted to raw
-format by the Image object.
+format by the \class{Image} object.
 
 \begin{lstlisting}[caption={Retrieving ANSI/NIST Records}, label=an2klatentuse]
 #include <be_io_recordstore.h>
@@ -214,7 +214,7 @@ an image record, no minutiae data would be available. It is possible to
 construct a view without any information.
 
 Listing~\ref{incitsfingerviewuse} shows an example of accessing the information
-in an ANSI 378-2004 Finger Minutiae Record by creating an ANSI2004View object
+in an ANSI 378-2004 Finger Minutiae Record by creating an \class{ANSI2004View} object
 from the record file.
 
 \begin{lstlisting}[caption={INCITS Finger Views}, label=incitsfingerviewuse]

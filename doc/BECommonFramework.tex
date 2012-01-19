@@ -76,8 +76,9 @@
 \clearemptydoublepage
 \pagenumbering{arabic}
 \hypersetup{pageanchor=true}
+
 %--------------------------------------------------------------------------
-% The actual document sections, added independent of Doxygen
+% Macros
 %--------------------------------------------------------------------------
 \newcommand{\sname}{BECommon}
 \newcommand{\lname}{Biometric Evaluation Framework}
@@ -86,6 +87,15 @@
 \newcommand{\chpref}[1]{Chapter~\vref{#1}}
 \newcommand{\secref}[1]{Section~\vref{#1}}
 \newcommand{\lstref}[1]{Listing~\vref{#1}}
+
+\newcommand{\class}[1]{\texttt{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\lib}[1]{\texttt{#1}}
+\newcommand{\namespace}[1]{\texttt{#1}}
+
+%--------------------------------------------------------------------------
+% The actual document sections, added independent of Doxygen
+%--------------------------------------------------------------------------
 \bibliographystyle{plain}
 \input{intro}
 \input{overview}

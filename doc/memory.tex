@@ -3,7 +3,7 @@
 %
 \chapter{Memory}
 \label{chp-memory}
-To assist applications with memory management, the Memory package provides
+To assist applications with memory management, the \namespace{Memory} package provides
 classes to wrap C memory allocations, and other dynamically-sized objects.
 
 \section{AutoBuffer}
@@ -12,19 +12,19 @@ The \lname\ is designed to interoperate with existing C code that has its own
 memory management techniques, e.g. \nbis~\cite{nbis}. In these cases, functions
 exist to allocate and free blocks of memory, and these calls must be made by
 the applications which use those libraries. To assist \sname\ clients that
-use these existing libraries, the AutoBuffer class wraps the C memory
+use these existing libraries, the \class{AutoBuffer} class wraps the C memory
 management functions, guaranteeing the release of C objects when the
 AutoBuffer goes out of scope.
 
-The AutoBuffer constructor takes three function pointers as parameters: one for
+The \class{AutoBuffer} constructor takes three function pointers as parameters: one for
 C object construction, one for destruction, and a third, optional, function
-for copying the C object. If the latter is passed a NULL, the AutoBuffer and
+for copying the C object. If the latter is passed a NULL, the \class{AutoBuffer} and
 the underlying C object cannot be copied, and an exception will be thrown.
 
-\lstref{autobufferuse} shows the use of AutoBuffer to wrap the memory
+\lstref{autobufferuse} shows the use of \class{AutoBuffer} to wrap the memory
 allocation routines that are part of the \nbis\ ANSI/NIST library.
 
-\begin{lstlisting}[caption={Using the AutoBuffer}, label=autobufferuse]
+\begin{lstlisting}[caption={Using the \class{AutoBuffer}}, label=autobufferuse]
 #include <be_memory_autobuffer.h>
 #include <iostream>
 extern "C" {
@@ -56,26 +56,26 @@ main(int argc, char* argv[]) {
 
 \section{AutoArray}
 \label{sec-autoarray}
-At its simplest level, AutoArray is a C-style array with numerous convenience 
+At its simplest level, \class{AutoArray} is a C-style array with numerous convenience 
 methods, such as being able to query the number of elements.  C++ iterators
 can be used over the contents of the array.  The array can be resized without
-the need to create a new object.  C++ operator overloading allows AutoArray
-objects to be passed to C-style functions that expect pointers to AutoArray's
+the need to create a new object.  C++ operator overloading allows \class{AutoArray}
+objects to be passed to C-style functions that expect pointers to \class{AutoArray}'s
 template type.
 
-AutoArray is used extensively in \sname\ to help eliminate mistakes when
-manually allocating memory.  The AutoArray constructor will allocate needed
-memory using {\tt new} and the destructor will {\tt delete} it.  This ensures
-that any allocated memory will be appropriately freed when the AutoArray goes
+\class{AutoArray} is used extensively in \sname\ to help eliminate mistakes when
+manually allocating memory.  The \class{AutoArray} constructor will allocate needed
+memory using {\tt new} and the destructor will \code{delete} it.  This ensures
+that any allocated memory will be appropriately freed when the \class{AutoArray} goes
 out of scope.  Copy constructors and methods as well as the assignment operator
 all correctly manage memory so the client does not have to.  Several objects in
-\sname\ return AutoArray objects to assist clients in proper memory management.
+\sname\ \code{return} \class{AutoArray} objects to assist clients in proper memory management.
 
-A common use of AutoArray is to deal with records sequenced from a
-RecordStore. \lstref{autoarrayrsuse} demonstrates this.  Notice the
+A common use of \class{AutoArray} is to deal with records sequenced from a
+\class{RecordStore}. \lstref{autoarrayrsuse} demonstrates this.  Notice the
 omission of memory management statements -- they are completely unnecessary.
 
-\begin{lstlisting}[caption={Using \nameref{sec-autoarray} with RecordStores}, label=autoarrayrsuse]
+\begin{lstlisting}[caption={Using \class{AutoArray}s with \class{RecordStore}s}, label=autoarrayrsuse]
 #include <be_io_dbrecstore.h>
 #include <be_memory_autoarray.h>
 
@@ -115,7 +115,7 @@ main(
 }
 \end{lstlisting}
 
-AutoArray is adapted from "c\_array"~\cite[496]{cpp:plguide}.
+\class{AutoArray} is adapted from "\class{c\_array}"~\cite[496]{cpp:plguide}.
 
 \section{IndexedBuffer}
 \label{sec-indexedbuffer}
@@ -125,13 +125,13 @@ biometric data record, the number of finger minutiae points in the record
 is indicated by a value in the record header. Furthermore, the record format
 may be of a different endianess than the application's host platform.
 
-The IndexedBuffer class is used to access data from a buffer in fixed-size
+The \class{IndexedBuffer} class is used to access data from a buffer in fixed-size
 amounts in sequence. Objects of this class maintain an index into the buffer
 as internal state and reads out of the buffer, when using certain methods,
 adjust the index. In addition, standard subscript access can be done on
 on the buffer (reads and writes) without affecting the index. The basic element
 type is an unsigned eight-bit value.
-The IndexedBuffer object can be created to either manage the buffer memory
+The \class{IndexedBuffer} object can be created to either manage the buffer memory
 directly, or to ``wrap'' an existing buffer. 
 
 Methods to retrieve elements from the buffer are defined in the class's
@@ -142,7 +142,7 @@ account the endianess of the underlying data.
 \lstref{indexedbufferuse} shows how an application can read a data record in
 big-endian format.
 
-\begin{lstlisting}[caption={Using the IndexedBuffer}, label=indexedbufferuse]
+\begin{lstlisting}[caption={Using the \class{IndexedBuffer}}, label=indexedbufferuse]
 #include <be_memory_autoarray.h>
 #include <be_memory_indexedbuffer.h>
 

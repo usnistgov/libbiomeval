@@ -3,26 +3,26 @@
 %
 \chapter{View}
 \label{chp-view}
-Within the \lname\ a View represents all the information that was derived from
+Within the \lname\ a \class{View} represents all the information that was derived from
 an image of a biometric sample. For example, with a fingerprint image, any
 minutiae that were extracted from that image, as well as the image itself,
 are contained within a single View object. In many cases the image may not
 be present, however the image size and other information is contained within
-a biometric record, along with the derived information. A View is used to
+a biometric record, along with the derived information. A \class{View} is used to
 represent these records as well.
 
-View objects are created with information taken from a biometric data record,
+\class{View} objects are created with information taken from a biometric data record,
 an ANSI/NIST 2007 file, for example. Most record formats contain information
-about the image itself, such as the resolution and size. The View object can
+about the image itself, such as the resolution and size. The \class{View} object can
 be used to retrieve this information. However, the data may differ from that
 contained in the image itself, and applications can compare the corresponding
-values taken from the Image object (when available) to those taken from the
-View object.
+values taken from the \class{Image} object (when available) to those taken from the
+\class{View} object.
 
-In the case where a raw image is part of the biometric record, the View object's
-related Image object will have identical size, resolution, etc. values because
-the View class sets the Image attributes directly. For other image types
-(e.g. JPEG) the Image object will return attribute values taken from the image
+In the case where a raw image is part of the biometric record, the \class{View} object's
+related \class{Image} object will have identical size, resolution, etc. values because
+the \class{View} class sets the Image attributes directly. For other image types
+(e.g. \class{JPEG}) the \class{Image} object will return attribute values taken from the image
 data.
 
 \section{Finger Views}
@@ -37,10 +37,10 @@ desired information, including the source finger image. The internals of
 record processing and error handling are encapsulated within the class.
 
 The \sname\ provides several classes that are derived from a base View class,
-contained within the Finger package. See~\chpref{chp-finger} for more
+contained within the \namespace{Finger} package. See~\chpref{chp-finger} for more
 information
 on the types associated with fingers and fingerprints. This section discusses
-finger views, the classes which are derived from the general View class.
+finger views, the classes which are derived from the general \class{View} class.
 These subclasses represent specific biometric file types, such as ANSI/NIST
 or INCITS/M1. In the latter case, two files must be provided when constructing
 the object because INCITS finger image and finger minutiae records are defined

@@ -5,19 +5,19 @@
 \label{chp-finger}
 One of the most commonly used biometric source is the fingerprint. Multiple
 types of information can be derived from a fingerprint, including minutiae
-and the pattern, such as whorl, etc. The Finger package contains the types,
+and the pattern, such as whorl, etc. The \namespace{Finger} package contains the types,
 classes, and other items that are related to fingers and fingerprints. Objects
-of the Finger classes are typically not used in a stand-alone fashion, but are
-usually obtained from an object in the DataInterchage~\ref{chp-datainterchange} 
+of the \namespace{Finger} classes are typically not used in a stand-alone fashion, but are
+usually obtained from an object in the \namespace{DataInterchage}~\ref{chp-datainterchange} 
 package.
 
-Several enumerated types are defined in the Finger package. The types are used
+Several enumerated types are defined in the \namespace{Finger} package. The types are used
 to represent those elements related to fingers and fingerprints that are common
 across all data formats. Types that represent finger position, impression type,
 and others are included in the package. Stream operators are defined for these
 types so they can be printed in human-readable format.
 
-Most of the classes in the Finger package represent data taken directly from
+Most of the classes in the \namespace{Finger} package represent data taken directly from
 a record in a standard format (e.g. ANSI/NIST~\cite{std:an2k}). In addition
 to general information, such as finger position, other information may be
 represented: The source of the finger image; the quality of the image, etc.
@@ -25,7 +25,7 @@ In addition to this descriptive information, the finger object will provide
 the set of derived minutiae or other data sets.
 
 When representing the information about a finger (and fingerprint), the class
-in the Finger package implements the interface defined in the View package.
+in the \namespace{Finger} package implements the interface defined in the \namespace{View} package.
 A finger is a specific type of view in that it represents all the available
 information about the finger, including the source image, minutiae (often in
 several formats), as well as the capture data (date, location, etc.)
@@ -33,6 +33,6 @@ Finger views are documented in~\secref{sec-fingerviews}.
 
 \section{ANSI/NIST Minutiae Data Record}
 \label{sec-an2kminutiaedatarecord}
-The {\em AN2KMinutiaeDataRecord} class represents all of the information taken
+The \class{AN2KMinutiaeDataRecord} class represents all of the information taken
 from a ANSI/NIST Type-9 record. A Type-9 record may include minutiae data items
 in several formats (standard and proprietary) and the impression type code.

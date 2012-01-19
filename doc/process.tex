@@ -4,7 +4,7 @@
 \chapter{Process Information}
 \label{chp-process}
 
-The Process package is a set of APIs used to gather information on a process,
+The \namespace{Process} package is a set of APIs used to gather information on a process,
 or to limit the capabilities of a process.
 
 \section{Process Statistics}
@@ -17,7 +17,7 @@ being used, the number of threads, and other items. Biometric evaluation test
 drivers are linked against a third party library, and therefore, the application
 writer does not control the thread count or memory usage for much of the
 processing. \lstref{processstatisticsuse} shows how an application can
-use the Statistics API.
+use the \class{Statistics} API.
 
 \begin{lstlisting}[caption={Gathering Process Statistics}, label=processstatisticsuse]
 #include <be_error_exception.h>
@@ -47,17 +47,17 @@ int main(int argc, char *argv[])
 }
 \end{lstlisting}
 
-In addition to using the Process API to gather statistics to be returned from
+In addition to using the \namespace{Process} API to gather statistics to be returned from
 the function call, the API provides a means to have a ``standard'' set of
 statistics logged either synchronously or asynchronously to a 
-LogSheet (See~\secref{sec-logging}) contained within a LogCabinet.
+\class{LogSheet} (See~\secref{sec-logging}) contained within a \class{LogCabinet}.
 Applications can
-start and stop logging at will to this LogSheet. Post-postmortem analysis can
-then be done on the entries in the LogSheet. \lstref{processstatisticslogging}
+start and stop logging at will to this \class{LogSheet}. Post-mortem analysis can
+then be done on the entries in the \class{LogSheet}. \lstref{processstatisticslogging}
 shows the use of logging.
 
-The LogSheet will have a file name constructed from the process name (i.e.
-the application executable) and the process ID. An example LogSheet contains
+The \class{LogSheet} will have a file name constructed from the process name (i.e.
+the application executable) and the process ID. An example \class{LogSheet} contains
 this information at the start:
 
 \begin{verbatim}
@@ -67,7 +67,7 @@ E0000000001 728889 6998 1788 57472 62612 31020 84 1
 E0000000002 1300802 6998 1792 57472 62612 31020 84 1
 \end{verbatim}
 
-The Statistics object creates the LogSheet with an appropriate description
+The \class{Statistics} object creates the \class{LogSheet} with an appropriate description
 and comment entry with column headers. Each gathering of the statistics results
 in a single log entry.
 
