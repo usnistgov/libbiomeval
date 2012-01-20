@@ -58,6 +58,7 @@ endif
 $(LATEXBUILDDIR)/$(LATEXPDF): $(SOURCECODE) $(SOURCETEX) $(SOURCEBIB) $(LATEXMAIN) $(DOXYCONFIG)
 	cp -f $(SOURCEBIB) $(LATEXBUILDDIR)/$(LATEXBIB)
 	cp -f $(SOURCETEX) $(LATEXBUILDDIR)
+	$(foreach texdoc, $(SOURCETEX), perl -pe 's|(\\.*?doxyref){(.*?)}({([1-9]*?)})?|`scripts/$$1 $$2 $$4`|ge' -i $(LATEXBUILDDIR)/$(texdoc);)
 	doxygen $(DOXYCONFIG)
 	cd $(LATEXBUILDDIR) && pdflatex $(LATEXROOTNAME)
 	cd $(LATEXBUILDDIR) && ln -sf $(LATEXBIB) $(SOURCEBIB)
