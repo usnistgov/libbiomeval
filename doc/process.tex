@@ -5,7 +5,7 @@
 \label{chp-process}
 
 The \namespace{Process} package is a set of APIs used to gather information on a process,
-or to limit the capabilities of a process.
+limit the capabilities of a process, and create manage processes.
 
 \section{Process Statistics}
 \label{sec-process_statistics}
@@ -115,4 +115,206 @@ int main(int argc, char *argv[])
     logstats->stopAutoLogging();
     delete logstats;
 }
+\end{lstlisting}
+
+\section{Process Management}
+\label{sec-process_management}
+
+During a biometric evaluation or other long-running CPU-bound task, it's 
+beneficial to make efficient use of all the hardware available on the system.
+If your application is running on a multi-core machine, why not make use of
+more than one core?  \sname\ aims to simply this by abstracting the usage of
+\code{fork(2)} and \lib{libpthread} to run multiple instances of the same
+function simultaneously.
+
+\subsection{Manager}
+\label{subsec-process_manager}
+
+There are three class hierarchies involved in the abstraction.  
+The \classdoxyref{BiometricEvaluation::Process::Manager} classes control the
+technique of process manipulation that will be used.  \sname\ provides two
+example abstractions: \class{Fork\allowbreak Manager} and
+\class{POSIX\allowbreak Thread\allowbreak Manager}.  When
+using \class{Fork\allowbreak Manager}, new processes will be created with 
+\code{fork(2)}, with mediated access to these new processes through the
+\class{Manager}.  Likewise, \class{POSIX\allowbreak Thread\allowbreak Manager}
+creates new POSIX threads.  Because both of theses classes inherit from
+\class{Manager}, it is as trivial as changing the \class{Manager} object type
+to change how the workload is parallelized.
+
+\subsection{Worker}
+\label{subsec-process_worker}
+
+In the application using a \class{Manager}, a \class{Worker} subclass must be
+implemented.  An example \class{Worker} is shown in \lstref{process_worker-example}.
+The entry-point for a \class{Worker} is the \code{worker\allowbreak Main()} method,
+which must be implemented by the client application.  Although
+\code{worker\allowbreak Main()} takes no arguments, data may be transmitted
+into the object through
+\class{Worker\allowbreak Controller}'s~(\ref{subsec-process_workercontroller})
+\code{set\allowbreak Parameter()} method.  Within the \class{Worker} instance,
+the parameters are then retrieved with \code{get\allowbreak Parameter()} when
+provided with the unique parameter name.
+
+A responsible \class{Worker} performs its operations as fast as it can,
+however, at any given time, the \class{Manager} may ask the \class{Worker} to
+stop.  It then becomes the {\em responsibility of the \class{Worker}} to 
+stop as soon as possible.  The \class{Worker} is notified of the stop request
+through its \code{stop\allowbreak Requested()} method.  Note that the
+\class{Manager} does \textbf{not} force the \class{Worker} to stop, though
+prolonged work or cleanup in the \class{Worker} would likely produce
+undesired results in the client application.  As such, a responsible
+\class{Worker} checkpoints itself to prepare for premature stops requested by
+the \class{Manager}.  While it is important for \class{Worker}s to stop as soon
+as possible after the request is received, it is also important not to leave
+work in an unsynchronized state.  In \lstref{process_worker-example}, notice how
+the \class{Employee} must continue the interaction with the \class{Customer}
+before a stop request is handled, even if the \class{Employee}'s shift has
+ended.  Leaving the method before the \class{Customer}'s order has been
+delivered would leave the \class{Customer} object in an unsafe state (hungry). 
+
+\begin{lstlisting}[caption={A Responsible \class{Worker} Implementation}, label=process_worker-example]
+#include <cstdlib>
+#include <tr1/memory>
+#include <queue>
+
+#include <restaurant.h>
+
+#include <be_process_forkmanager.h>
+
+using namespace std;
+using namespace BiometricEvaluation;
+using namespace Restaurant;
+
+class ResponsibleEmployeeTask : public Process::Worker
+{
+public:
+	int32_t
+	workerMain()
+	{
+		int32_t status = EXIT_FAILURE;
+		
+		/* Retrieve objects assigned to this Task */
+		tr1::shared_ptr<Employee> employee =
+		    tr1::static_pointer_cast<Employee>(
+		    this->getParameter("employee"));
+		tr1::shared_ptr< queue<Customer*> > customers = 
+		    tr1::static_pointer_cast< queue<Customer*> >(
+		    this->getParameter("customers")
+		
+		employee->clockIn();
+		
+		Customer *customer;
+		/* Checkpoint after each customer */
+		while (this->stopRequested() == false ||
+		    employee->isShiftOver() == false) {
+			customer = customers->front();
+			
+			if (customer != NULL) {
+				employee->takeOrder(customer);
+				employee->cookFood(customer);
+				employee->deliverOrder(customer);
+				
+				customers->pop();
+			}
+		}
+		
+		employee->settleCashDrawer();
+		employee->clockOut();
+		
+		status = EXIT_SUCCESS;
+		return (status);
+	}
+	~ResponsibleEmployeeTask() {}
+};
+\end{lstlisting}
+
+After a \class{Manager} starts its \class{Worker}s, the \class{Manager} has the
+option of waiting until all \class{Worker}s exit \code{worker\allowbreak Main()}
+before continuing code execution.  If not waiting,
+there are several methods the \class{Manager} can perform to keep track of the status of the
+\class{Worker}s.  Even if not waiting for \class{Worker}s to return,
+a responsible \class{Manager} will wait a reasonable amount of time for
+\class{Worker}s to \code{return} before application termination.  An example of this
+reasonable waiting period can be seen in \lstref{process_manager-example}.
+
+\subsection{WorkerController}
+\label{subsec-process_workercontroller}
+
+The final piece of the process management puzzle is the
+\class{Worker\allowbreak Controller} hierarchy.  This class decorates and
+mediates communication between the \class{Manager} and the \class{Worker}.  
+\class{Worker\allowbreak Controller} objects may only be instantiated by
+a \class{Manager} object.  All communications to the \class{Worker}
+(e.g. \code{is\allowbreak Working()}) should be delegated through the
+\class{Worker\allowbreak Controller}.  If defining a new \class{Manager}, note
+that the \class{Worker\allowbreak Controller} may seem unnecessary for the
+parallelization technique being employed.  It's true
+that some parallelization techniques may not require this ``middle-man''
+approach, but others do.  Do not be concerned if a \class{Worker\allowbreak
+Controller} implementation ends up being nothing more than a ``pass-thru'' to
+the \class{Worker}.
+
+\lstref{process_manager-example} is a continuation of
+\lstref{process_worker-example} demonstraiting the use of \class{Manager}s and
+\class{Worker\allowbreak Controller}s.
+
+\begin{lstlisting}[caption={Using \class{Manager}s and \class{WorkerController}s}, label=process_manager-example]
+int
+main(
+    int argc,
+    char *argv[])
+{
+	static const uint32_t numEmployees = 3;
+	int status = EXIT_FAILURE;
+	
+	tr1::shared_ptr<Process::Manager> shiftLeader(new Process::ForkManager);
+	queue<Customer*> *customers = new queue<Customer*>();
+	
+	/* Create Employees (Workers/WorkerControllers) */
+	tr1::shared_ptr<Process::WorkerController> employees[numEmployees];
+	for (uint32_t i = 0; i < numEmployees; i++) {
+		employees[i] = shiftLeader->addWorker(
+		    tr1::shared_ptr<ResponsibleEmployeeTask>(
+		    new ResponsibleEmployeeTask()));
+		
+		/* Assign employees to each Task */
+		employees[i]->setParameter("employee",
+		    tr1::shared_ptr<Employee>(new Employee()));
+		employees[i]->setParameter("customers",
+		    tr1::shared_ptr< queue<Customer*> >(customers);
+	}
+	
+	/* Employees start serving customers while shift leader manages */
+	shiftLeader->startWorkers(false);
+	
+	/* Customers enter the queue ... */
+	queue<Restaurant::AdministrativeTasks> adminTasks;
+	adminTasks.push("Inventory");
+	adminTasks.push("Customer Complaints");
+	adminTasks.push("Clean Dining Room");
+	
+	while (shiftLeader->getNumActiveWorkers() != 0) {
+		shiftLeader->doTask(adminTasks.front());
+		adminTasks.pop();
+	}
+	
+	/* ...end of the day */
+	for (uint32_t i = 0; i < numEmployees; i++)
+		if (employees[i]->isWorking()
+			shiftLeader->stopWorker(employees[i]);
+	
+	/* 
+	 * Wait a reasonable amount of time before locking up for the night
+	 * (in this case, indefinitely).
+	 */
+	while (shiftLeader->getNumActiveWorkers() > 0)
+		sleep(1);
+		
+	shiftLeader->armAlarmAndExit();
+	
+	status = EXIT_SUCCESS;	
+	return (status);
+}
+
 \end{lstlisting}
