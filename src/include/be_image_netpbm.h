@@ -101,8 +101,10 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Skip an entire line of input, placing offset
-			 * at the first character after the newline
+			 * at the first character after the newline.
 			 *
+			 * @param data
+			 *	Buffer with line to be skipped.
 			 * @param offset
 			 *	Position within data from which the rest of the
 			 *	line should be read.
@@ -121,13 +123,11 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Skip a block of comments in input.
 			 *
+			 * @param data
+			 *	Buffer with comment to be skipped.
  			 * @param offset
 			 *	Position within data from which the rest of the
 			 *	line should be read.
-			 * @param sizeOfValue
-			 *	If non-zero, the expected size of the next
-			 *	value.  Useful for payload that does not need
-			 *	to be white-space separated.
 			 *
 			 * @throw out_of_range
 			 *	End of line not encountered before end of data

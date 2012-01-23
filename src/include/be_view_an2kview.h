@@ -110,7 +110,16 @@ namespace BiometricEvaluation
 			 * Convert a compression algorithm indicator from
 			 * an AN2K finger image record.
 			 *
-			 * @throws
+			 * @param recordType
+			 *	The AN2K record type.
+			 * @param an2kValue
+			 *	Compression type data as read from an
+			 *	AN2K record.
+			 *
+			 * @throws Error::DataError
+			 *	Invalid compression algorithm for record type.
+			 * @throws Error::ParameterError
+			 *	Invalid record type.
 			 */
 			static Image::CompressionAlgorithm::Kind
 			    convertCompressionAlgorithm(

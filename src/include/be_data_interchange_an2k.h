@@ -172,7 +172,7 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Constructor taking an AN2K record from a buffer.
-			 * @param[in] filename
+			 * @param[in] buf
 			 *	The memory buffer containing the complete
 			 *	ANSI/NIST record.
 			 *

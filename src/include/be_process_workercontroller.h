@@ -43,10 +43,10 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Set the parameter to be passed to the Worker.
 			 *
-			 * @param name[in]
+			 * @param[in] name
 			 *	The name representing the argument in the
 			 *	Worker.
-			 * @param argument[in]
+			 * @param[in] argument
 			 *	The argument to be passed to the Worker.
 			 *
 			 * @note

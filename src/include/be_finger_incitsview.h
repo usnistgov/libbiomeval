@@ -80,13 +80,16 @@ namespace BiometricEvaluation
 			 * Convert a impression type code from an INCITS
 			 * finger record to the common code.
 			 *
-			 * @param[in] incitsFGP
+			 * @param[in] incitsIMP
 			 *	A finger impression type code as defined by the
 			 *	INCITS standard.
+			 *
 			 * @throws Error::DataError
 			 *	The impression type code is invalid.
+			 *
 			 * @return
-			 * The finger impression type code in common notation.
+			 *	The finger impression type code in common
+			 *	notation.
 			 */
 			static Finger::Impression::Kind
 			    convertImpression(int incitsIMP)
@@ -170,6 +173,11 @@ namespace BiometricEvaluation
 			 * image record.
 			 * @param[in] viewNumber
 			 * The finger view number to use.
+			 *
+ 			 * @throw Error::DataError
+			 *	Invalid record format.
+			 * @throw Error::FileError
+			 *	Could not open or read from file.
 			 */
 			INCITSView(
 			    const std::string &fmrFilename,
@@ -185,14 +193,17 @@ namespace BiometricEvaluation
 			 * See documentation in child classes of INCITS for
 			 * information on constructing INCITS-derived finger
 			 * views.
-			 * @param[in] fmrFilename
-			 * The buffer containing the complete finger minutiae
-			 * record.
-			 * @param[in] firFilename
-			 * The buffer containing the complete finger image
-			 * record.
+			 * @param[in] fmrBuffer
+			 *	The buffer containing the complete finger
+			 *	minutiae record.
+			 * @param[in] firBuffer
+			 *	The buffer containing the complete finger image
+			 *	record.
 			 * @param[in] viewNumber
-			 * The finger view number to use.
+			 *	The finger view number to use.
+			 *
+			 * @throw Error::DataError
+			 *	Invalid record format.
 			 */
 			INCITSView(
 			    const Memory::uint8Array &fmrBuffer,
@@ -270,9 +281,9 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Mutator for the CBEFF Product ID owner and type.
-			 * @param[in] Owner
+			 * @param[in] owner
 			 * The CBEFF ID of the product owner.
-			 * @param[in] Type
+			 * @param[in] type
 			 * The CBEFF ID of the product type.
 			 */
 			void setCBEFFProductIDs(uint16_t owner, uint16_t type);
@@ -383,6 +394,8 @@ namespace BiometricEvaluation
 			 * The index of the buffer will be changed to the
 			 * location after the finger view, including the
 			 * extended data.
+			 * @param[in] count
+			 * Number of minutiae data points to read.
 			 * @throw DataError
 			 * The INCITS record has invalid or missing data.
 			 */

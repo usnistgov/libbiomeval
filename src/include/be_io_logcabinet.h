@@ -60,8 +60,6 @@ namespace BiometricEvaluation {
 			 * Open an existing LogCabinet.
 			 * @param[in] name
 			 *	The name of the LogCabinet to be created.
-			 * @param[in] description
-			 *	The text used to describe the cabinet.
 			 * @param[in] parentDir
 			 *	Where, in the file system, the cabinet is to
 			 *	be stored. This directory must exist.
@@ -90,9 +88,7 @@ namespace BiometricEvaluation {
 			 *	The text used to describe the sheet.
 			 *	This text is written into the log file
 			 *	prior to any entries.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the sheet is to
-			 *	be stored. This directory must exist.
+			 * 
 			 * @return
 			 *	An object pointer to the new log sheet.
 			 * @throw Error::ObjectExists

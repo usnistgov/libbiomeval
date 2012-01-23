@@ -70,6 +70,9 @@ namespace BiometricEvaluation
 			 * image record.
 			 * @param[in] viewNumber
 			 * The finger view number to use.
+			 *
+ 			 * @throw Error::DataError
+			 *	Invalid record format.
 			 */
 			ANSI2007View(
 			    const std::string &fmrFilename,
@@ -81,6 +84,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Construct an ANSI-2007 finger view from records
 			 * contained in buffers.
+			 *
 			 * @details
 			 * A view can be constructed from a single record,
 			 * with information missing as appropriate. For
@@ -89,14 +93,18 @@ namespace BiometricEvaluation
 			 * view. However, the image size etc. would be
 			 * present because that information is also present
 			 * in the minutiae record.
-			 * @param[in] fmrFilename
-			 * The buffer containing the complete finger minutiae
-			 * record.
-			 * @param[in] firFilename
-			 * The buffer containing the complete finger image
-			 * record.
+			 *
+			 * @param[in] fmrBuffer
+			 *	The buffer containing the complete finger
+			 *	minutiae record.
+			 * @param[in] firBuffer
+			 *	The buffer containing the complete finger image
+			 *	record.
 			 * @param[in] viewNumber
-			 * The finger view number to use.
+			 *	The finger view number to use.
+			 *
+			 * @throw Error::DataError
+			 *	Invalid record format.
 			 */
 			ANSI2007View(
 			    Memory::uint8Array &fmrBuffer,

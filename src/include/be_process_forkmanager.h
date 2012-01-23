@@ -82,7 +82,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Adds a Worker to be managed by this Manager.
 			 *
-			 * @param child
+			 * @param worker
 			 *	A Worker instance to run.
 			 *
 			 * @return
@@ -96,7 +96,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Begin Worker's work.
 			 *
-			 * @param wait[in]
+			 * @param[in] wait
 			 *	Whether or not to wait for all Workers to
 			 *	return before returning.
 			 *
@@ -401,7 +401,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Begin Worker's work.
 			 *
-			 * @param wait[in]
+			 * @param[in] wait
 			 *	Whether or not to wait for all Workers to
 			 *	return before returning.
 			 *
@@ -468,7 +468,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Adds a Worker to be managed by this Manager.
 			 *
-			 * @param child
+			 * @param worker
 			 *	A Worker instance to run.
 			 *
 			 * @return

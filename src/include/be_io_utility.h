@@ -181,7 +181,7 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			readFile(
 			    const string &path,
-			    ios_base::openmode = ios_base::binary)
+			    ios_base::openmode mode = ios_base::binary)
 			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError);
 			

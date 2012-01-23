@@ -100,7 +100,7 @@ namespace BiometricEvaluation
 				 */
 				const_reference
 				operator[](
-				    ptrdiff_t i)
+				    ptrdiff_t index)
 				    const;
 
 				/**

@@ -172,7 +172,7 @@ namespace BiometricEvaluation
 			    throw (Error::StrategyError);
 
 			/**
-			 * @brief.
+			 * @brief
 			 * Start a new entry, causing the existing entry
 			 * to be closed.
 			 * @details

@@ -206,7 +206,7 @@ namespace BiometricEvaluation
 			    const;
 			    
 			/**
-			 * @bried
+			 * @brief
 			 * Obtain the segmentation quality metric for all
 			 * segmented finger images.
 			 *

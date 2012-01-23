@@ -90,14 +90,15 @@ namespace BiometricEvaluation
 			 * view. However, the image size etc. would be
 			 * present because that information is also present
 			 * in the minutiae record.
-			 * @param[in] fmrFilename
-			 * The buffer containing the complete finger minutiae
-			 * record.
-			 * @param[in] firFilename
-			 * The buffer containing the complete finger image
-			 * record.
+			 *
+			 * @param[in] fmrBuffer
+			 *	The buffer containing the complete finger
+			 *	minutiae record.
+			 * @param[in] firBuffer
+			 *	The buffer containing the complete finger image
+			 *	record.
 			 * @param[in] viewNumber
-			 * The finger view number to use.
+			 *	The finger view number to use.
 			 */
 			ANSI2004View(
 			    Memory::uint8Array &fmrBuffer,

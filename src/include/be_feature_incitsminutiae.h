@@ -164,7 +164,7 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Mutator for the minutiae point set.
-			 * @param[mps] The minutiae points.
+			 * @param[in] mps The minutiae points.
 			 */
 			 void setMinutiaPoints(
 			     const MinutiaPointSet& mps);

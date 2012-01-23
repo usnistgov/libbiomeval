@@ -78,8 +78,8 @@ namespace BiometricEvaluation
 			 * Convert a print position coordinate AN2K subfield
 			 * to a PrintPositionCoordinate object.
 			 *
-			 * @param[in] field
-			 *	A print position coordinate AN2K field
+			 * @param[in] subfield
+			 *	A print position coordinate AN2K subfield
 			 *
 			 * @return
 			 *	Object representation of field.

@@ -65,7 +65,8 @@ namespace BiometricEvaluation
 			 *
 			 * @param[in] field
 			 *	A pointer to the field within the AN2K record.
-			 * @thows Error::DataError
+			 *
+			 * @throws Error::DataError
 			 *	The data contains an invalid value.
 			 */
 			static QualityMetricSet

@@ -180,14 +180,17 @@ namespace BiometricEvaluation {
 			 * @brief
 			 * Obtain the next 'n' elements of the buffer and
 			 * increment the current index value by n.
+			 *
 			 * @param[in] buf
-			 * Buffer to store the copied data.
-			 * @param size
-			 * The number of elements to copy.
+			 *	Buffer to store the copied data.
+			 * @param[in] len
+			 *	The number of elements to copy.
+			 *
 			 * @throw Error::DataError
-			 * The buffer is exhausted.
-			 * @returns
-			 * The number of elements copied.
+			 *	The buffer is exhausted.
+			 *
+			 * @return
+			 *	The number of elements copied.
 			 */
 			uint32_t scan(
 			    void *buf,
