@@ -2,36 +2,42 @@
 % Framework API
 %
 \chapter{Framework}
-The \namespace{Framework} package is used to retrieve information about the \lname\ itself.
-Framework version, compiler, and other information can be queried by
-applications, mostly
-for logging so runtime information can be captured. The intent at this time
-is {\em not} to control the linkage of applications against specific
-versions of the framework.
+The \namespace{Framework} package is used to retrieve information about the
+\lname\ itself.  Version numbers, the compiler used, and other information
+can be queried by applications.  Versioning information is recorded in the
+\sname\ \code{Makefile} and populated in the function implentation at 
+compile-time.
+
 \label{chp-framework}
 
 \begin{lstlisting}[caption={Using the \namespace{Framework} API}, label=frameworkuse]
 #include <iostream>
+
 #include <be_framework.h>
 
 using namespace BiometricEvaluation;
 using namespace std;
 
 int
-main(int argc, char* argv[])
+main(
+    int argc,
+    char* argv[])
 {
-    cout << "Framework Version: ";
-    cout << Framework::getMajorVersion() << "." <<
-        Framework::getMinorVersion() << endl;
+	cout << "Framework Version: ";
+	cout << Framework::getMajorVersion() << "." <<
+	    Framework::getMinorVersion() << endl;
+	/* "Framework Version: 0.4" */
 
-    cout << "Compiler Used: ";
-    cout << Framework::getCompiler() << " v" <<
-        Framework::getCompilerVersion() << endl;
+	cout << "Compiler Used: ";
+	cout << Framework::getCompiler() << " v" <<
+	    Framework::getCompilerVersion() << endl;
+	/* "Compiler Used: clang v3.0.0" */
 
-    cout << "Date/Time Compiled: ";
-    cout << Framework::getCompileDate() << " " <<
-        Framework::getCompileTime() << endl;
+	cout << "Date/Time Compiled: ";
+	cout << Framework::getCompileDate() << " " <<
+	    Framework::getCompileTime() << endl;
+	/* "Date/Time Compiled: Jan 24 2012 12:16:01" */
 
-    return (EXIT_SUCCESS);
+	return (EXIT_SUCCESS);
 }
 \end{lstlisting}
