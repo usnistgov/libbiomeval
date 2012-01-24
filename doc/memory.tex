@@ -65,7 +65,7 @@ template type.
 
 \class{AutoArray} is used extensively in \sname\ to help eliminate mistakes when
 manually allocating memory.  The \class{AutoArray} constructor will allocate needed
-memory using {\tt new} and the destructor will \code{delete} it.  This ensures
+memory using \code{new} and the destructor will \code{delete} it.  This ensures
 that any allocated memory will be appropriately freed when the \class{AutoArray} goes
 out of scope.  Copy constructors and methods as well as the assignment operator
 all correctly manage memory so the client does not have to.  Several objects in
