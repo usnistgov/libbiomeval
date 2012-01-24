@@ -3,76 +3,81 @@
 %
 \chapter{Text}
 \label{chp-text}
-The \namespace{Text} package consists of utility functions for string and character-based
-information. Examples include removing whitespace and calculating a digest over
-a string. \lstref{textuse} shows how to use the Text package's utility
-functions.
+The \namespace{Text} package consists of functions to perform common operations
+on \class{string}s and \code{char} arrays.  Many of the operations may be
+considered ``trivial,'' but are used often enough within the \lname\ and
+other applications that a common implementation in \sname\ is more
+than warranted.  A complete listing of functions is available in the
+documentation appendix for \namespacedoxyref{BiometricEvaluation::Text}{2}.
 
-\begin{lstlisting}[caption={Using the \namespace{Text} Package}, label=textuse]
-#include <iostream>
-#include <vector>
-#include <be_text.h>
+\lstref{text-split} shows how to use the \code{split()} function from the
+\namespace{Text} package.  \code{split()} can separate a \class{string} into
+tokens delimited by a character, useful for processing comma- or
+space-separated text files (such files could be produced by a
+\class{LogSheet} (\secref{sec-logging}), for instance).  Here, a text file
+containing metadata for an image is being parsed, perhaps to be passed to 
+the \class{RawImage} constructor (\secref{sec-rawimage}).
 
-using namespace BiometricEvaluation;
-using namespace std;
 
-int
-main(int argc, char* argv[])
-{
-    cout << "Text::removeLeadingTrailingWhitespace()" << endl;
-    string whitespace = "     foo   bar      ";
-    cout << "\"" << whitespace << "\" = \"";
-    Text::removeLeadingTrailingWhitespace(whitespace);
-    cout << "\"" << whitespace << "\" = \"" << endl;
+\begin{lstlisting}[caption={Tokenizing a \class{string}}, label=text-split]
+/* Definition of input strings */
+static const vector<string>::size_type filenameToken = 0;
+static const vector<string>::size_type widthToken = 1;
+static const vector<string>::size_type heightToken = 2;
+static const vector<string>::size_type depthToken = 3;
 
-    string secret_str = "secret_file_name.wsq";
-    cout << "MD5 (\"" << secret_str << "\") = " << Text::digest(secret_str) << endl;
+/* Split the string, presumably input from a file */
+string input = "/mnt/raw\\ images/1.raw 500 500 8";
+vector<string> tokens = Text::split(input, ' ', true);
+
+/* Assign the retrieved tokens */
+string filename;
+uint32_t width, height, depth;
+try {
+	filename = tokens.at(filenameToken);	/* "/mnt/raw images/1.raw" */
+	width = atoi(tokens.at(widthToken).c_str());	/* "500" */
+	height = atoi(tokens.at(heightToken).c_str());	/* "500" */
+	depth = atoi(tokens.at(depthToken).c_str());	/* "8" */
+} catch (out_of_range) {
+	throw Error::FileError("Malformed input");
 }
-
-    string split_str1 = "This is, a string, split on commas.";
-    string split_str2 = "Semicolons are bad form; avoid them.";
-    cout << "Split \"" << split_str1 << "\" on ','" << endl;
-    vector<string> str1_components = Text::split(split_str1, ',');
-    for (int i = 0; i < str1_components.size(); i++)
-        cout << "\t* \"" << str1_components[i] << "\"" << endl;
-
-    cout << "Split \"" << split_str2 << "\" on ';'" << endl;
-    vector<string> str2_components = Text::split(split_str2, ';');
-    for (int i = 0; i < str2_components.size(); i++)
-        cout << "\t* \"" << str2_components[i] << "\"" << endl;
-
-    cout << "Split \"" << split_str2 << "\" on 'z'" << endl;
-    vector<string> failed_split = Text::split(split_str2, 'z');
-    for (int i = 0; i < failed_split.size(); i++)
-        cout << "\t* \"" << failed_split[i] << "\"" << endl;
-    cout << endl;
-
-    string path = "/this/portion/is/the/dirname/and_this_is_the_filename";
-    cout << "Path: " << path << endl;
-    cout << "Dirname: " << Text::dirname(path) << endl;
-    cout << "Filename: " << Text::filename(path) << endl;
-
 \end{lstlisting}
 
-The output from the program shown in \lstref{textuse} is shown below:
-\begin{verbatim}
-Text::removeLeadingTrailingWhitespace()
-"     foo   bar      " = "foo   bar"
+Notice the \code{true} parameter to \code{split()} in \lstref{text-split}.
+This instructs \code{split()} to not tokenize based on an escaped delimiter.
+If \code{false}, the first token would be split into two at the presence of the
+delimiter.
 
-MD5 ("secret_file_name.wsq") = 169a337d3689cbcfe508778a89419fa6
+\namespace{Text} also contains functions to perform  hashing via \lib{OpenSSL}.
+A two-line program that emulates the command-line \code{md5sum} program is
+shown in \lstref{text-digest}.  Changing the digest parameter to
+\code{"sha1"} would make the program emulate \code{`openssl sha1`}.
 
-Split "This is, a string, split on commas." on ','
-	* "This is"
-	* " a string"
-	* " split on commas."
-Split "Semicolons are bad form; avoid them." on ';'
-	* "Semicolons are bad form"
-	* " avoid them."
-Split "Semicolons are bad form; avoid them." on 'z'
-	* "Semicolons are bad form; avoid them."
+\begin{lstlisting}[caption={\code{md5sum} via \sname}, label=text-digest]
+#include <cstdlib>
+#include <iostream>
 
-Path: /this/portion/is/the/dirname/and_this_is_the_filename
-Dirname: /this/portion/is/the/dirname
-Filename: and_this_is_the_filename
+#include <be_io_utility.h>
+#include <be_text.h>
+#include <be_memory_autoarray.h>
 
-\end{verbatim}
+using namespace std;
+using namespace BiometricEvaluation;
+
+int main (int argc, char **argv)
+{
+	if (argc == 0)
+		return (EXIT_FAILURE);
+	
+	try {
+	        Memory::uint8Array file = IO::Utility::readFile(argv[1]);
+	        cout << Text::digest(file, file.size(), "md5") << "  " <<
+		    argv[1] << endl;
+	} catch (Error::Exception) {
+		return (EXIT_FAILURE);
+	}
+
+        return (EXIT_SUCCESS);
+}
+\end{lstlisting}
+
