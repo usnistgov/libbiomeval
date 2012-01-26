@@ -42,6 +42,8 @@ static const string imageType = "PNG";
 #elif defined WSQTEST
 #include <be_image_wsq.h>
 static const string imageType = "WSQ";
+#elif defined FACTORYTEST
+static const string imageType = "Raw";
 #endif
 
 using namespace BiometricEvaluation;
@@ -317,8 +319,14 @@ main(
 			
 		/* Only evaluate those images in the RS we can handle */
 		extension = key.substr(key.length() - 3, 3);
+#ifdef FACTORYTEST
+		if (extension == "raw")
+			continue;
+#else
 		if (extensions[extension] != imageType)
 			continue;
+#endif
+
 			
 		/* Check if we can verify the properties of the image */
 		try {
@@ -406,10 +414,16 @@ main(
 		    Image::Resolution(properties->getPropertyAsDouble("xRes"),
 		    properties->getPropertyAsDouble("yRes"),
 		    stringToResUnits(properties->getProperty("resUnits")))));
+#elif defined FACTORYTEST
+		image = Image::Image::openImage(imageData);
 #endif
 
 		/* Print all the metadata for the Image */
 		cout << key << ':' << endl;
+#if defined FACTORYTEST
+		cout << "\tCompression Algorithm: " <<
+		    Image::Image::getCompressionAlgorithm(imageData) << endl;
+#endif
 		cout << "\tDimensions: " << image->getDimensions() << endl;
 		cout << "\tBit-Depth: " << image->getDepth() << endl;
 		cout << "\tResolution: " << image->getResolution() << endl;

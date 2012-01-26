@@ -10,8 +10,16 @@
 
 #include <cmath>
 #include <stdexcept>
+#include <tr1/memory>
 
 #include <be_image_image.h>
+#include <be_image_jpeg.h>
+#include <be_image_jpeg2000.h>
+#include <be_image_jpegl.h>
+#include <be_image_netpbm.h>
+#include <be_image_png.h>
+#include <be_image_wsq.h>
+#include <be_io_utility.h>
 
 BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
@@ -241,5 +249,91 @@ BiometricEvaluation::Image::Image::valueInColorspace(
 	 */
 
 	return ((((uint64_t)pow(2.0, depth) - 1) * color) / maxColorValue);
+}
+
+tr1::shared_ptr<BiometricEvaluation::Image::Image>
+BiometricEvaluation::Image::Image::openImage(
+    const uint8_t *data,
+    const uint64_t size)
+    throw (Error::DataError,
+    Error::StrategyError)
+{
+	switch (Image::getCompressionAlgorithm(data, size)) {
+	case CompressionAlgorithm::JPEGB:
+		return (tr1::shared_ptr<Image>(new JPEG(data, size)));
+	case CompressionAlgorithm::JPEGL:
+		return (tr1::shared_ptr<Image>(new JPEGL(data, size)));
+	case CompressionAlgorithm::JP2:
+		/* FALLTHROUGH */
+	case CompressionAlgorithm::JP2L:
+		return (tr1::shared_ptr<Image>(new JPEG2000(data, size)));
+	case CompressionAlgorithm::PNG:
+		return (tr1::shared_ptr<Image>(new PNG(data, size)));
+	case CompressionAlgorithm::NetPBM:
+		return (tr1::shared_ptr<Image>(new NetPBM(data, size)));
+	case CompressionAlgorithm::WSQ20:
+		return (tr1::shared_ptr<Image>(new WSQ(data, size)));
+	default:
+		throw Error::StrategyError("Could not determine compression "
+		    "algorithm");
+	}
+}
+
+tr1::shared_ptr<BiometricEvaluation::Image::Image>
+BiometricEvaluation::Image::Image::openImage(
+    const Memory::uint8Array &data)
+    throw (Error::DataError,
+    Error::StrategyError)
+{
+	return (Image::openImage(data, data.size()));
+}
+
+tr1::shared_ptr<BiometricEvaluation::Image::Image>
+BiometricEvaluation::Image::Image::openImage(
+    const string &path)
+    throw (Error::DataError,
+    Error::ObjectDoesNotExist,
+    Error::StrategyError)
+{
+	Memory::uint8Array data = IO::Utility::readFile(path);
+	return (Image::openImage(data));
+}
+
+BiometricEvaluation::Image::CompressionAlgorithm::Kind
+BiometricEvaluation::Image::Image::getCompressionAlgorithm(
+    const uint8_t *data,
+    const uint64_t size)
+{
+	if (NetPBM::isNetPBM(data, size))
+		return (CompressionAlgorithm::NetPBM);
+	else if (JPEG2000::isJPEG2000(data))
+		return (CompressionAlgorithm::JP2);
+	else if (JPEG::isJPEG(data, size))
+		return (CompressionAlgorithm::JPEGB);
+	else if (JPEGL::isJPEGL(data, size))
+		return (CompressionAlgorithm::JPEGL);
+	else if (PNG::isPNG(data))
+		return (CompressionAlgorithm::PNG);
+	else if (WSQ::isWSQ(data))
+		return (CompressionAlgorithm::WSQ20);
+		
+	return (CompressionAlgorithm::None);
+}
+
+BiometricEvaluation::Image::CompressionAlgorithm::Kind
+BiometricEvaluation::Image::Image::getCompressionAlgorithm(
+    const Memory::uint8Array &data)
+{
+	return (Image::getCompressionAlgorithm(data, data.size()));
+}
+
+BiometricEvaluation::Image::CompressionAlgorithm::Kind
+BiometricEvaluation::Image::Image::getCompressionAlgorithm(
+    const string &path)
+    throw (Error::ObjectDoesNotExist,
+    Error::StrategyError)
+{
+	Memory::uint8Array data = IO::Utility::readFile(path);
+	return (Image::getCompressionAlgorithm(data));
 }
 

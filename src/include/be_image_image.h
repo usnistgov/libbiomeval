@@ -12,6 +12,7 @@
 #define __BE_IMAGE_IMAGE_H__
 
 #include <stdexcept>
+#include <tr1/memory>
 
 #include <stdint.h>
 
@@ -237,6 +238,152 @@ namespace BiometricEvaluation
 			    uint64_t maxColorValue,
 			    uint8_t depth);
 			    
+			/*
+			 * Static functions.
+			 */
+			    
+			/**
+			 * @brief
+			 * Determine the image type of a buffer of image data
+			 * and create an Image object.
+			 *
+ 			 * @param[in] data
+			 *	The image data.
+			 * @param[in] size
+			 *	The size of the image data, in bytes.
+			 *
+			 * @return
+			 *	Image representation of the input data buffer.
+			 *
+			 * @throw Error::DataError
+			 *	Error manipulating data.
+			 * @throw Error::StrategyError
+			 *	Error while creating Image.
+			 */
+			static tr1::shared_ptr<Image>
+			openImage(
+			    const uint8_t *data,
+			    const uint64_t size)
+			    throw (Error::DataError,
+			    Error::StrategyError);
+			    
+			/**
+			 * @brief
+			 * Determine the image type of a buffer of image data
+			 * and create an Image object.
+			 *
+ 			 * @param[in] data
+			 *	The image data.
+			 *
+			 * @return
+			 *	Image representation of the input data buffer.
+ 			 *
+			 * @throw Error::DataError
+			 *	Error manipulating data.
+			 * @throw Error::StrategyError
+			 *	Error while creating Image.
+			 */
+			static tr1::shared_ptr<Image>
+			openImage(
+			    const Memory::uint8Array &data)
+			    throw (Error::DataError,
+			    Error::StrategyError);
+			    
+			/**
+			 * @brief
+			 * Determine the image type of an image file and create
+			 * an Image object.
+			 *
+ 			 * @param[in] path
+			 *	Path to image data.
+			 *
+			 * @return
+			 *	Image representation of the input data buffer.
+ 			 *
+			 * @throw Error::DataError
+			 *	Error manipulating data.
+			 * @throw Error::ObjectDoesNotExist
+			 *	No file at specified path.
+			 * @throw Error::StrategyError
+			 *	Error while creating Image.
+			 */
+			static tr1::shared_ptr<Image>
+			openImage(
+			    const string &path)
+			    throw (Error::DataError,
+			    Error::ObjectDoesNotExist,
+			    Error::StrategyError);
+			    
+			/**
+			 * @brief
+			 * Determine the compression algorithm of a buffer
+			 * of image data.
+			 *
+  			 * @param[in] data
+			 *	The image data.
+			 * @param[in] size
+			 *	The size of the image data, in bytes.
+			 *
+			 * @return
+			 *	Compression algorithm used in the buffer.
+			 *
+			 * @attention
+			 *	CompressionAlgorithm::None is returned if
+			 *	no compression algorithm known to the
+			 *	Biometric Evaluation Framework is found.
+			 */
+			static CompressionAlgorithm::Kind
+			getCompressionAlgorithm(
+			    const uint8_t *data,
+			    const uint64_t size);
+			  
+			/**
+			 * @brief
+			 * Determine the compression algorithm of a buffer
+			 * of image data.
+			 *
+  			 * @param[in] data
+			 *	The image data.
+			 *
+			 * @return
+			 *	Compression algorithm used in the buffer.
+			 *
+			 * @attention
+			 *	CompressionAlgorithm::None is returned if
+			 *	no compression algorithm known to the
+			 *	Biometric Evaluation Framework is found.
+			 */
+			static CompressionAlgorithm::Kind
+			getCompressionAlgorithm(
+			    const Memory::uint8Array &data);
+			
+			/**
+			 * @brief
+			 * Determine the compression algorithm of a file.
+			 *
+  			 * @param[in] path
+			 *	Path to file.
+			 *
+			 * @return
+			 *	Compression algorithm used in the file.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	path does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying 
+			 *	storage system.
+			 *
+			 * @attention
+			 *	CompressionAlgorithm::None is returned if
+			 *	no compression algorithm known to the
+			 *	Biometric Evaluation Framework is found.
+			 */
+			static CompressionAlgorithm::Kind
+			getCompressionAlgorithm(
+			    const string &path)
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
+			
 			/*
 			 * Useful constants 
 			 */
