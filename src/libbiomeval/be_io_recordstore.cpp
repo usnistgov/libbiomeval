@@ -162,6 +162,7 @@ BiometricEvaluation::IO::RecordStore::setCursor(int cursor)
 
 uint64_t
 BiometricEvaluation::IO::RecordStore::getSpaceUsed() 
+    const
     throw (Error::StrategyError)
 {
 	struct stat sb;
@@ -173,6 +174,7 @@ BiometricEvaluation::IO::RecordStore::getSpaceUsed()
 
 void
 BiometricEvaluation::IO::RecordStore::sync()
+    const
     throw (Error::StrategyError)
 {
 	if (_mode == IO::READONLY)
@@ -420,6 +422,7 @@ BiometricEvaluation::IO::RecordStore::readControlFile()
 
 void
 BiometricEvaluation::IO::RecordStore::writeControlFile()
+    const
     throw (Error::StrategyError)
 {
 	if (_mode == IO::READONLY)

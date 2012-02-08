@@ -179,6 +179,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual uint64_t getSpaceUsed()
+			    const
 			    throw (Error::StrategyError);
 			
 			/**
@@ -190,6 +191,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual void sync()
+			    const
 			    throw (Error::StrategyError);
 
 			/**
@@ -251,6 +253,7 @@ namespace BiometricEvaluation {
 			virtual uint64_t read(
 			    const string &key,
 			    void *const data)
+			    const
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
@@ -291,6 +294,7 @@ namespace BiometricEvaluation {
 			 */
 			virtual uint64_t length(
 			    const string &key)
+			    const
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
@@ -306,6 +310,7 @@ namespace BiometricEvaluation {
 			 */
 			virtual void flush(
 			    const string &key)
+			    const
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
 
@@ -595,7 +600,10 @@ namespace BiometricEvaluation {
 			 * Write the contents of the common control file format
 			 * for all RecordStores.
 			 */
-			void writeControlFile() throw (Error::StrategyError);
+			void
+			writeControlFile()
+			    const
+			    throw (Error::StrategyError);
 		};
 	}
 }

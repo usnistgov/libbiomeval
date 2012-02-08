@@ -124,6 +124,7 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
 
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::getSpaceUsed()
+    const
     throw (Error::StrategyError)
 {
 	struct stat sb;
@@ -137,6 +138,7 @@ BiometricEvaluation::IO::DBRecordStore::getSpaceUsed()
 
 void
 BiometricEvaluation::IO::DBRecordStore::sync()
+    const
     throw (Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
@@ -221,6 +223,7 @@ uint64_t
 BiometricEvaluation::IO::DBRecordStore::read(
     const string &key,
     void *const data)
+    const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	DBT dbtdata;
@@ -284,6 +287,7 @@ BiometricEvaluation::IO::DBRecordStore::replace(
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::length(
     const string &key)
+    const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	DBT dbtdata;
@@ -301,6 +305,7 @@ BiometricEvaluation::IO::DBRecordStore::length(
 void
 BiometricEvaluation::IO::DBRecordStore::flush(
     const string &key)
+    const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
@@ -418,6 +423,7 @@ void
 BiometricEvaluation::IO::DBRecordStore::internalRead(
     const string &key,
     DBT *dbtdata)
+    const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	DBT dbtkey;

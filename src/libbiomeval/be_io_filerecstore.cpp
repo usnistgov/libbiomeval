@@ -64,6 +64,7 @@ BiometricEvaluation::IO::FileRecordStore::changeName(
 
 uint64_t
 BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
+    const
     throw (Error::StrategyError)
 {
 	DIR *dir;
@@ -148,6 +149,7 @@ uint64_t
 BiometricEvaluation::IO::FileRecordStore::read(
     const string &key,
     void *const data)
+    const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!validateKeyString(key))
@@ -197,6 +199,7 @@ BiometricEvaluation::IO::FileRecordStore::replace(
 uint64_t
 BiometricEvaluation::IO::FileRecordStore::length(
     const string &key)
+    const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!validateKeyString(key))
@@ -211,6 +214,7 @@ BiometricEvaluation::IO::FileRecordStore::length(
 void
 BiometricEvaluation::IO::FileRecordStore::flush(
     const string &key)
+    const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
@@ -372,6 +376,7 @@ BiometricEvaluation::IO::FileRecordStore::canonicalName(
 
 bool
 BiometricEvaluation::IO::FileRecordStore::validateKeyString(const string &key)
+    const
 {
 	bool validity = true;
 

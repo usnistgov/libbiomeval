@@ -120,13 +120,15 @@ namespace BiometricEvaluation {
 			 */
 			~ArchiveRecordStore();
 			
-			uint64_t getSpaceUsed() 
+			uint64_t getSpaceUsed()
+			    const
 			    throw (Error::StrategyError);
 
 			/*
 			 * Implementations of RecordStore methods.
 			 */
 			void sync()
+			    const
 			    throw (Error::StrategyError);
 
 			void insert(
@@ -143,6 +145,7 @@ namespace BiometricEvaluation {
 			uint64_t read(
 			    const string &key,
 			    void *const data)
+			    const
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
@@ -154,11 +157,13 @@ namespace BiometricEvaluation {
 			    Error::StrategyError);
 	
 			uint64_t length(
-			    const string &key) 
+			    const string &key)
+			    const
 			    throw (Error::ObjectDoesNotExist);
 
 			void flush(
 			    const string &key)
+			    const
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 			

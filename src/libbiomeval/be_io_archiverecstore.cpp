@@ -138,6 +138,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::close_streams()
 
 uint64_t
 BiometricEvaluation::IO::ArchiveRecordStore::getSpaceUsed()
+    const
     throw (Error::StrategyError)
 {
 	struct stat sb;
@@ -160,6 +161,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::getSpaceUsed()
 
 void
 BiometricEvaluation::IO::ArchiveRecordStore::sync()
+    const
     throw (Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
@@ -182,10 +184,11 @@ BiometricEvaluation::IO::ArchiveRecordStore::sync()
 
 uint64_t
 BiometricEvaluation::IO::ArchiveRecordStore::length(
-    const string &key) 
+    const string &key)
+    const 
     throw (Error::ObjectDoesNotExist)
 {
-	ManifestMap::iterator lb = _entries.find(key);
+	ManifestMap::const_iterator lb = _entries.find(key);
 	if (lb == _entries.end())
 		throw Error::ObjectDoesNotExist(key);
 
@@ -248,10 +251,11 @@ uint64_t
 BiometricEvaluation::IO::ArchiveRecordStore::read(
     const string &key,
     void *const data)
+    const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	/* Check for existance */
-	ManifestMap::iterator lb = _entries.find(key);
+	ManifestMap::const_iterator lb = _entries.find(key);
 	if (lb == _entries.end())
 		throw Error::ObjectDoesNotExist(key);
 
@@ -260,13 +264,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::read(
 	if (entry.offset == ARCHIVE_RECORD_REMOVED)
 		throw Error::ObjectDoesNotExist(key + " was removed");
 
-	if (_archivefp == NULL) {
-		try {
-			open_streams();
-		} catch (Error::FileError& e) {
-			throw Error::StrategyError(e.getInfo());
-		}
-	}
+	if (_archivefp == NULL)
+		throw Error::StrategyError("Streams are closed");
 	if (fseek(_archivefp, entry.offset, SEEK_SET))
 		throw Error::StrategyError("Archive cannot seek (" +
 		    Error::errorStr() + ")");
@@ -395,6 +394,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::replace(
 void
 BiometricEvaluation::IO::ArchiveRecordStore::flush(
     const string &key)
+    const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)

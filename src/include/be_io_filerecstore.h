@@ -84,6 +84,7 @@ namespace BiometricEvaluation {
 			 * Methods that implement the RecordStore interface.
 			 */
 			uint64_t getSpaceUsed()
+			    const
 			    throw (Error::StrategyError);
 
 			void insert(
@@ -100,6 +101,7 @@ namespace BiometricEvaluation {
 			uint64_t read(
 			    const string &key,
 			    void *const data)
+			    const
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
@@ -112,11 +114,13 @@ namespace BiometricEvaluation {
 
 			virtual uint64_t length(
 			    const string &key)
+			    const
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
 			void flush(
 			    const string &key)
+			    const
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
@@ -150,7 +154,8 @@ namespace BiometricEvaluation {
 			    const uint64_t size)
 			    throw (Error::StrategyError);
 			bool validateKeyString(
-			    const string &key);
+			    const string &key)
+			    const;
 			uint64_t _cursorPos;
 			string _theFilesDir;
 		};
