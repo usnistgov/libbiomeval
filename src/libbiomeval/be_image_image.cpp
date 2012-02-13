@@ -234,7 +234,7 @@ BiometricEvaluation::Image::Image::~Image()
 
 }
 
-inline uint64_t
+uint64_t
 BiometricEvaluation::Image::Image::valueInColorspace(
     uint64_t color,
     uint64_t maxColorValue,

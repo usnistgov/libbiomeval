@@ -17,7 +17,7 @@ using namespace BiometricEvaluation;
 
 const string BiometricEvaluation::IO::LogSheet::DescriptionTag("Description:");
 
-static inline bool
+static bool
 lineIsLogEntry(
     string line)
 {
@@ -25,14 +25,14 @@ lineIsLogEntry(
 	     std::isdigit(line[1]));
 }
 
-static inline bool
+static bool
 lineIsComment(
     string line)
 {
 	return (line[0] == IO::LogSheet::CommentDelimiter);
 }
 
-inline void
+void
 BiometricEvaluation::IO::LogSheet::updateCursor()
     throw (Error::FileError)
 {
@@ -40,7 +40,7 @@ BiometricEvaluation::IO::LogSheet::updateCursor()
 		throw Error::FileError("Updating sequence cursor");
 }
 
-inline string
+string
 BiometricEvaluation::IO::LogSheet::trim(
     const string &entry)
 {

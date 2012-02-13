@@ -613,7 +613,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::needsVacuum(
 	return rs.needsVacuum();
 }
 
-inline bool
+bool
 BiometricEvaluation::IO::ArchiveRecordStore::keyExists(
     const ManifestMap::key_type &k)
 {
