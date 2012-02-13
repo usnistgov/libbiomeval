@@ -60,6 +60,63 @@ namespace BiometricEvaluation
 			    
 			/**
 			 * @brief
+			 * Obtain a parameter passed to this Worker as a
+			 * double.
+			 *
+			 * @param name
+			 *	The parameter name to retrieve.
+			 * 
+			 * @return
+			 *	Parameter as a double.
+			 *
+			 * @attention
+			 * If name does not exist, a new shared_ptr<double>
+			 * will be set for name.
+			 */
+			double
+			getParameterAsDouble(
+			    const string &name);
+			    
+			/**
+			 * @brief
+			 * Obtain a parameter passed to this Worker as an
+			 * integer.
+			 *
+			 * @param name
+			 *	The parameter name to retrieve.
+			 * 
+			 * @return
+			 *	Parameter as an integer.
+			 *
+			 * @attention
+			 * If name does not exist, a new shared_ptr<int64_t>
+			 * will be set for name.
+			 */
+			int64_t
+			getParameterAsInteger(
+			    const string &name);
+			    
+			/**
+			 * @brief
+			 * Obtain a parameter passed to this Worker as a
+			 * string.
+			 *
+			 * @param name
+			 *	The parameter name to retrieve.
+			 * 
+			 * @return
+			 *	Parameter as a string.
+			 *
+			 * @attention
+			 * If name does not exist, a new shared_ptr<string>
+			 * will be set for name.
+			 */
+			string
+			getParameterAsString(
+			    const string &name);
+			    
+			/**
+			 * @brief
 			 * Pass a parameter to this Worker.
 			 *
 			 * @param name
@@ -79,7 +136,8 @@ namespace BiometricEvaluation
 			 * @attention
 			 * This method should not be overridden.
 			 */
-			void stop();
+			void
+			stop();
 			
 			/**
 			 * @brief

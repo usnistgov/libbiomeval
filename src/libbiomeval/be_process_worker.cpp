@@ -39,6 +39,33 @@ BiometricEvaluation::Process::Worker::getParameter(
 	return (_parameters[name]);
 }
 
+double
+BiometricEvaluation::Process::Worker::getParameterAsDouble(
+    const string &name)
+{
+	tr1::shared_ptr<double> parameterPtr = 
+	    tr1::static_pointer_cast<double>(this->getParameter(name));
+	return (*parameterPtr);
+}
+
+int64_t
+BiometricEvaluation::Process::Worker::getParameterAsInteger(
+    const string &name)
+{
+	tr1::shared_ptr<int64_t> parameterPtr = 
+	    tr1::static_pointer_cast<int64_t>(this->getParameter(name));
+	return (*parameterPtr);
+}
+
+string
+BiometricEvaluation::Process::Worker::getParameterAsString(
+    const string &name)
+{
+	tr1::shared_ptr<string> parameterPtr = 
+	    tr1::static_pointer_cast<string>(this->getParameter(name));
+	return (*parameterPtr);
+}
+
 void
 BiometricEvaluation::Process::Worker::stop()
 {

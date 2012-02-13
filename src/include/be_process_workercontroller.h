@@ -60,6 +60,63 @@ namespace BiometricEvaluation
 			    
 			/**
 			 * @brief
+			 * Set a double parameter to be passed to the Worker.
+			 *
+			 * @param[in] name
+			 *	The name representing the argument in the
+			 *	Worker.
+			 * @param[in] argument
+			 *	The double to be passed to the Worker.
+			 *
+			 * @note
+			 *	Subsequent calls to setParameter*() with the 
+			 *	same name will overwrite any exiting argument.
+			 */
+			virtual void
+			setParameterFromDouble(
+			    const string &name, 
+			    double argument);
+			
+			/**
+			 * @brief
+			 * Set an integer parameter to be passed to the Worker.
+			 *
+			 * @param[in] name
+			 *	The name representing the argument in the
+			 *	Worker.
+			 * @param[in] argument
+			 *	The integer to be passed to the Worker.
+			 *
+			 * @note
+			 *	Subsequent calls to setParameter*() with the 
+			 *	same name will overwrite any exiting argument.
+			 */
+			virtual void
+			setParameterFromInteger(
+			    const string &name, 
+			    int64_t argument);
+			    
+			/**
+			 * @brief
+			 * Set a string parameter to be passed to the Worker.
+			 *
+			 * @param[in] name
+			 *	The name representing the argument in the
+			 *	Worker.
+			 * @param[in] argument
+			 *	The string to be passed to the Worker.
+			 *
+			 * @note
+			 *	Subsequent calls to setParameter*() with the 
+			 *	same name will overwrite any exiting argument.
+			 */
+			virtual void
+			setParameterFromString(
+			    const string &name, 
+			    const string &argument);
+			    
+			/**
+			 * @brief
 			 * Reuse the Worker.
 			 *
 			 * @throw Error::ObjectExists

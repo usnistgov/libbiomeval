@@ -35,6 +35,10 @@ workerMain()
 {
 	int status = EXIT_FAILURE;
 
+	string message = this->getParameterAsString("message");
+	uint32_t instance = this->getParameterAsInteger("instance");
+	cout << message << " from instance #" << instance + 1 << endl;
+	
 	tr1::shared_ptr<IO::RecordStore> rs =
 	    tr1::static_pointer_cast<IO::RecordStore>(getParameter("rs"));
 
@@ -81,8 +85,15 @@ workerMain()
 #endif
 	tr1::shared_ptr<Process::WorkerController> worker = procMgr->addWorker(
 	    tr1::shared_ptr<TestDriverWorker>(new TestDriverWorker()));
-	    
+	
+	string message = this->getParameterAsString("message");
+	uint32_t instance = this->getParameterAsInteger("instance");
+	cout << message << " from instance #" << instance + 1 << endl;
+	
 	worker->setParameter("rs", getParameter("rs"));
+	worker->setParameterFromInteger("instance", instance);
+	worker->setParameterFromString("message", message +
+	    "-->Working");
 	cout << ">>>> Starting one Worker from within Worker." << endl;
 	procMgr->startWorkers(false);
 	
@@ -132,14 +143,19 @@ main(
 		stringstream name;
 		name << "procMgr_rs" << i << "_test";
 
-		if (i < (numWorkers - 1))
+		if (i < (numWorkers - 1)) {
 			workers[i] = procMgr->addWorker(
 			    tr1::shared_ptr<TestDriverWorker>(
 			    new TestDriverWorker()));
-		else
+			workers[i]->setParameterFromString("message",
+			    "Working");
+		} else {
 			workers[i] = procMgr->addWorker(
 			    tr1::shared_ptr<ManagingWorker>(
 			    new ManagingWorker()));
+			workers[i]->setParameterFromString("message",
+			    "Managing");
+		}
 		try {
 			/* Delete any existing test RecordStores */
 			if (IO::Utility::fileExists("./" + name.str()))
@@ -148,6 +164,7 @@ main(
 			workers[i]->setParameter("rs",
 			    IO::RecordStore::createRecordStore(name.str(),
 			    "Test RS", IO::RecordStore::BERKELEYDBTYPE, "."));
+			workers[i]->setParameterFromInteger("instance", i);
 		} catch (Error::Exception &e) {
 			cout << e.getInfo() << endl;
 		}

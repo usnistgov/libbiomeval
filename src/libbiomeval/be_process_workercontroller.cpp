@@ -33,6 +33,33 @@ BiometricEvaluation::Process::WorkerController::setParameter(
 	_worker->setParameter(name, argument);
 }
 
+void
+BiometricEvaluation::Process::WorkerController::setParameterFromDouble(
+    const string &name, 
+    double argument)
+{
+	this->setParameter(name,
+	    tr1::shared_ptr<double>(new double(argument)));
+}
+
+void
+BiometricEvaluation::Process::WorkerController::setParameterFromInteger(
+    const string &name, 
+    int64_t argument)
+{
+	this->setParameter(name,
+	    tr1::shared_ptr<int64_t>(new int64_t(argument)));
+}
+
+void
+BiometricEvaluation::Process::WorkerController::setParameterFromString(
+    const string &name, 
+    const string &argument)
+{
+	this->setParameter(name,
+	    tr1::shared_ptr<string>(new string(argument)));
+}
+
 tr1::shared_ptr<BiometricEvaluation::Process::Worker>
 BiometricEvaluation::Process::WorkerController::getWorker()
     const
