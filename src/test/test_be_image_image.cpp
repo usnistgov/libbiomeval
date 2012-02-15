@@ -21,8 +21,8 @@
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
 
-#if defined RAWIMAGETEST
-#include <be_image_rawimage.h>
+#if defined RAWTEST
+#include <be_image_raw.h>
 static const string imageType = "Raw";
 #elif defined JPEG2000TEST
 #include <be_image_jpeg2000.h>
@@ -55,7 +55,7 @@ static const string RSParentDir = "test_data";
 static const string RawSuffix = ".raw";
 static const string RawGraySuffix = ".gray.raw";
 
-#if defined RAWIMAGETEST
+#if defined RAWTEST
 /**
  * @brief
  * Convert strings to an Image::Resolution::Kind enumeration.
@@ -400,14 +400,14 @@ main(
 			continue;
 		}
 		image.reset(new Image::NetPBM(imageData,imageData.size()));
-#elif defined RAWIMAGETEST
+#elif defined RAWTEST
 		/* We can't construct a raw image without properties */
 		if (doPropertyCompare == false) {
 			cerr << key << " skipped (missing properties)" << endl;
 			continue;
 		}
 		
-		image.reset(new Image::RawImage(imageData, imageData.size(),
+		image.reset(new Image::Raw(imageData, imageData.size(),
 		    Image::Size(properties->getPropertyAsInteger("xSize"), 
 		    properties->getPropertyAsInteger("ySize")),
 		    properties->getPropertyAsInteger("depth"),

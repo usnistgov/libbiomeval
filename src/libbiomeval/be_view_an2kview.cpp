@@ -13,7 +13,7 @@
 #include <be_data_interchange_an2k.h>
 #include <be_finger_an2kminutiae_data_record.h>
 #include <be_image_jpeg.h>
-#include <be_image_rawimage.h>
+#include <be_image_raw.h>
 #include <be_image_wsq.h>
 #include <be_io_utility.h>
 #include <be_view_an2kview.h>
@@ -79,7 +79,7 @@ BiometricEvaluation::View::AN2KView::getImage() const
 		    new Image::JPEG(_imageData, _imageData.size())));
 	case Image::CompressionAlgorithm::None:
 		return (tr1::shared_ptr<Image::Image>(
-		    new Image::RawImage(_imageData, _imageData.size(),
+		    new Image::Raw(_imageData, _imageData.size(),
 		    _imageSize, _imageDepth, _imageResolution)));
 	case Image::CompressionAlgorithm::WSQ20:
 		return (tr1::shared_ptr<Image::Image>(

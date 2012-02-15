@@ -9,7 +9,7 @@
  */
  
 #include <be_data_interchange_an2k.h>
-#include <be_image_rawimage.h>
+#include <be_image_raw.h>
 #include <be_io_utility.h>
 #include <be_memory_autobuffer.h>
 #include <be_view_an2kview_varres.h>

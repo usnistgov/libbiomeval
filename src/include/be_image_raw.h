@@ -8,8 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#ifndef __BE_IMAGE_RAWIMAGE_H__
-#define __BE_IMAGE_RAWIMAGE_H__
+#ifndef __BE_IMAGE_RAW_H__
+#define __BE_IMAGE_RAW_H__
 
 #include <be_image_image.h>
 #include <be_memory_autoarray.h>
@@ -22,15 +22,15 @@ namespace BiometricEvaluation
 		 * @brief
 		 * An image with no encoding or compression.
 		 */
-		class RawImage : public Image {
+		class Raw : public Image {
 		public:
-			RawImage(
+			Raw(
 			    const uint8_t *data,
 			    const uint64_t size,
 			    const Size dimensions,
 			    const unsigned int depth,
 			    const Resolution resolution);
-			~RawImage();
+			~Raw();
 
 			/*
 			 * Implementations of the Image interface.
@@ -59,4 +59,4 @@ namespace BiometricEvaluation
 	}
 }
 
-#endif /* __BE_IMAGE_RAWIMAGE_H__ */
+#endif /* __BE_IMAGE_RAW_H__ */

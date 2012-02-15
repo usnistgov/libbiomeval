@@ -8,10 +8,10 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <be_image_rawimage.h>
+#include <be_image_raw.h>
 #include <be_memory_autoarray.h>
 
-BiometricEvaluation::Image::RawImage::RawImage(
+BiometricEvaluation::Image::Raw::Raw(
     const uint8_t *data, 
     const uint64_t size, 
     const Size dimensions,
@@ -28,7 +28,7 @@ BiometricEvaluation::Image::RawImage::RawImage(
 }
 
 BiometricEvaluation::Memory::AutoArray<uint8_t>
-BiometricEvaluation::Image::RawImage::getRawData()
+BiometricEvaluation::Image::Raw::getRawData()
     const
     throw (Error::DataError)
 {
@@ -36,7 +36,7 @@ BiometricEvaluation::Image::RawImage::getRawData()
 }
 
 BiometricEvaluation::Memory::AutoArray<uint8_t>
-BiometricEvaluation::Image::RawImage::getRawGrayscaleData(
+BiometricEvaluation::Image::Raw::getRawGrayscaleData(
     uint8_t depth)
     const
     throw (Error::DataError,
@@ -45,7 +45,7 @@ BiometricEvaluation::Image::RawImage::getRawGrayscaleData(
 	return (Image::getRawGrayscaleData(depth));
 }
 
-BiometricEvaluation::Image::RawImage::~RawImage()
+BiometricEvaluation::Image::Raw::~Raw()
 {
 
 }
