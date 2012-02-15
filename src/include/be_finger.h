@@ -32,6 +32,39 @@ namespace BiometricEvaluation
 	{
 		/**
 		 * @brief
+		 * Pattern classification codes.
+		 */
+		class PatternClassification {
+		public:
+			typedef enum {
+				PlainArch = 0,
+				TentedArch,
+				RadialLoop,
+				UlnarLoop,
+				PlainWhorl,
+				CentralPocketLoop,
+				DoubleLoop,
+				AccidentalWhorl,
+				Whorl,
+				RightSlantLoop,
+				LeftSlantLoop,
+				Scar,
+				Amputation,
+				Unknown
+			} Kind;
+		};
+		
+		/**
+		 * @brief
+		 * Output stream overload for PatternClassification::Kind.
+		 */
+		std::ostream&
+		operator<<(
+		    std::ostream&,
+		    const Finger::PatternClassification::Kind&);
+		    
+		/**
+		 * @brief
 		 * Finger position codes.
 		 * @details
 		 * These codes match those in ANSI/NIST. Other minutiae

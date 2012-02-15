@@ -8,8 +8,48 @@
  * about its quality, reliability, or any other characteristic.
  */
 #include <be_finger.h>
+
 using namespace BiometricEvaluation;
-using namespace Finger;
+
+std::ostream&
+BiometricEvaluation::Finger::operator<<(
+    std::ostream &s,
+    const Finger::PatternClassification::Kind& fpc)
+{
+	std::string str;
+	switch (fpc) {
+	case Finger::PatternClassification::PlainArch:
+		str = "Plain Arch"; break;
+	case Finger::PatternClassification::TentedArch:
+		str = "Tented Arch"; break;
+	case Finger::PatternClassification::RadialLoop:
+		str = "Radial Loop"; break;
+	case Finger::PatternClassification::UlnarLoop:
+		str = "Ulnar Loop"; break;
+	case Finger::PatternClassification::PlainWhorl:
+		str = "Plain Whorl"; break;
+	case Finger::PatternClassification::CentralPocketLoop:
+		str = "Central Pocket Loop"; break;
+	case Finger::PatternClassification::DoubleLoop:
+		str = "Double Loop"; break;
+	case Finger::PatternClassification::AccidentalWhorl:
+		str = "Accidental Whorl"; break;
+	case Finger::PatternClassification::Whorl:
+		str = "Whorl (type not designated)"; break;
+	case Finger::PatternClassification::RightSlantLoop:
+		str = "Right slant loop"; break;
+	case Finger::PatternClassification::LeftSlantLoop:
+		str = "Left slant loop"; break;
+	case Finger::PatternClassification::Scar:
+		str = "Scar"; break;
+	case Finger::PatternClassification::Amputation:
+		str = "Amputation"; break;
+	case Finger::PatternClassification::Unknown:
+		str = "Unknown or unclassifiable"; break;
+	}
+	
+	return (s << str);
+}
 
 std::ostream &
 BiometricEvaluation::Finger::operator<< (std::ostream &s,

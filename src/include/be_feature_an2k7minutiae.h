@@ -16,7 +16,9 @@
 extern "C" {
 #include <an2k.h>
 }
+
 #include <be_feature_minutiae.h>
+#include <be_finger.h>
 #include <be_memory_autoarray.h>
 
 using namespace std;
@@ -41,23 +43,6 @@ namespace BiometricEvaluation
 			 */
 			class PatternClassification {
 			public:
-				typedef enum {
-					PlainArch = 0,
-					TentedArch,
-					RadialLoop,
-					UlnarLoop,
-					PlainWhorl,
-					CentralPocketLoop,
-					DoubleLoop,
-					AccidentalWhorl,
-					Whorl,
-					RightSlantLoop,
-					LeftSlantLoop,
-					Scar,
-					Amputation,
-					Unknown
-				} Kind;
-				
 				struct Entry {
 					/**
 					 * Create an Entry struct.	
@@ -104,7 +89,7 @@ namespace BiometricEvaluation
 			 * @throw Error::DataError
 			 *	Invalid value for fpc.
 			 */
-			static PatternClassification::Kind
+			static Finger::PatternClassification::Kind
 			convertPatternClassification(
 			    const char *fpc)
 			    throw (Error::DataError);
@@ -120,7 +105,7 @@ namespace BiometricEvaluation
 			 * @throw Error::DataError
 			 *	Non-standard pattern classification entry.
 			 */
-			static PatternClassification::Kind
+			static Finger::PatternClassification::Kind
 			convertPatternClassification(
 			    const PatternClassification::Entry &entry)
 			    throw (Error::DataError);
@@ -319,15 +304,6 @@ namespace BiometricEvaluation
 		operator<<(
 		    std::ostream&,
 		    const AN2K7Minutiae::FingerprintReadingSystem&);
-	
-		/**
-		 * @brief
-		 * Output stream overload for PatternClassification::Kind.
-		 */
-		std::ostream&
-		operator<<(
-		    std::ostream&,
-		    const AN2K7Minutiae::PatternClassification::Kind&);
 	}
 }
 

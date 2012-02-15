@@ -242,70 +242,46 @@ BiometricEvaluation::Feature::operator<< (std::ostream &s,
 	return (s << str);
 }
 
-std::ostream&
-BiometricEvaluation::Feature::operator<<(
-    std::ostream &s,
-    const Feature::AN2K7Minutiae::PatternClassification::Kind& fpc)
-{
-	string str;
-	switch (fpc) {
-	case Feature::AN2K7Minutiae::PatternClassification::PlainArch:
-		str = "Plain Arch"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::TentedArch:
-		str = "Tented Arch"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::RadialLoop:
-		str = "Radial Loop"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::UlnarLoop:
-		str = "Ulnar Loop"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::PlainWhorl:
-		str = "Plain Whorl"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::CentralPocketLoop:
-		str = "Central Pocket Loop"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::DoubleLoop:
-		str = "Double Loop"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::AccidentalWhorl:
-		str = "Accidental Whorl"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::Whorl:
-		str = "Whorl (type not designated)"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::RightSlantLoop:
-		str = "Right slant loop"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::LeftSlantLoop:
-		str = "Left slant loop"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::Scar:
-		str = "Scar"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::Amputation:
-		str = "Amputation"; break;
-	case Feature::AN2K7Minutiae::PatternClassification::Unknown:
-		str = "Unknown or unclassifiable"; break;
-	}
-	
-	return (s << str);
-}
-
-BiometricEvaluation::Feature::AN2K7Minutiae::PatternClassification::Kind
+BiometricEvaluation::Finger::PatternClassification::Kind
 BiometricEvaluation::Feature::AN2K7Minutiae::convertPatternClassification(
     const char *fpc)
     throw (Error::DataError)
 {
 	string str(fpc);
-	if (str == "PA") return (PatternClassification::PlainArch);
-	else if (str == "TA") return (PatternClassification::TentedArch);
-	else if (str == "RL") return (PatternClassification::RadialLoop);
-	else if (str == "UL") return (PatternClassification::UlnarLoop);
-	else if (str == "PW") return (PatternClassification::PlainWhorl);
-	else if (str == "CP") return (PatternClassification::CentralPocketLoop);
-	else if (str == "DL") return (PatternClassification::DoubleLoop);
-	else if (str == "AW") return (PatternClassification::AccidentalWhorl);
-	else if (str == "WN") return (PatternClassification::Whorl);
-	else if (str == "RS") return (PatternClassification::RightSlantLoop);
-	else if (str == "LS") return (PatternClassification::LeftSlantLoop);
-	else if (str == "SR") return (PatternClassification::Scar);
-	else if (str == "XX") return (PatternClassification::Amputation);
-	else if (str == "UN") return (PatternClassification::Unknown);
-	else throw Error::DataError("Invalid value for pattern classification");	
+	if (str == "PA")
+		return (Finger::PatternClassification::PlainArch);
+	else if (str == "TA")
+		return (Finger::PatternClassification::TentedArch);
+	else if (str == "RL")
+		return (Finger::PatternClassification::RadialLoop);
+	else if (str == "UL")
+		return (Finger::PatternClassification::UlnarLoop);
+	else if (str == "PW")
+		return (Finger::PatternClassification::PlainWhorl);
+	else if (str == "CP")
+		return (Finger::PatternClassification::CentralPocketLoop);
+	else if (str == "DL")
+		return (Finger::PatternClassification::DoubleLoop);
+	else if (str == "AW")
+		return (Finger::PatternClassification::AccidentalWhorl);
+	else if (str == "WN")
+		return (Finger::PatternClassification::Whorl);
+	else if (str == "RS")
+		return (Finger::PatternClassification::RightSlantLoop);
+	else if (str == "LS") 
+		return (Finger::PatternClassification::LeftSlantLoop);
+	else if (str == "SR")
+		return (Finger::PatternClassification::Scar);
+	else if (str == "XX")
+		return (Finger::PatternClassification::Amputation);
+	else if (str == "UN")
+		return (Finger::PatternClassification::Unknown);
+	else
+		throw Error::DataError("Invalid value for "
+		    "pattern classification");	
 }
 
-BiometricEvaluation::Feature::AN2K7Minutiae::PatternClassification::Kind
+BiometricEvaluation::Finger::PatternClassification::Kind
 BiometricEvaluation::Feature::AN2K7Minutiae::convertPatternClassification(
     const PatternClassification::Entry &entry)
     throw (Error::DataError)
@@ -313,7 +289,7 @@ BiometricEvaluation::Feature::AN2K7Minutiae::convertPatternClassification(
 	if (entry.standard == false)
 		throw Error::DataError("Non-standard pattern classification");
 		
-	return convertPatternClassification(entry.code.c_str());
+	return (convertPatternClassification(entry.code.c_str()));
 }
 
 BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod::Kind
