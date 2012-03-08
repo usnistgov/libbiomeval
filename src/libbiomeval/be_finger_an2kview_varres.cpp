@@ -186,7 +186,7 @@ BiometricEvaluation::Finger::AN2KViewVariableResolution::readImageRecord(
 		throw Error::DataError("Field IMP not found");
 	_imp = Finger::AN2KView::convertImpression(
 	    field->subfields[0]->items[0]->value);
-	if (lookup_ANSI_NIST_field(&field, &idx, FGP_ID, record) != TRUE)
+	if (lookup_ANSI_NIST_field(&field, &idx, FGP3_ID, record) != TRUE)
 		throw Error::DataError("Field FGP not found");
 	_positions = Finger::AN2KView::populateFGP(field);
 	
