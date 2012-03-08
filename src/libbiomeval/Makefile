@@ -7,6 +7,8 @@
 # its use by other parties, and makes no guarantees, expressed or implied,
 # about its quality, reliability, or any other characteristic.
 #
+.PHONY: all
+
 COMMONINCOPT = -I/usr/local/nbis/include
 NBISLIB = -L/usr/local/nbis/lib -lan2k -ljpegb -lwsq -ljpegl -lfet -lioutil -lutil -lpng -lz -lopenjpeg
 
@@ -33,11 +35,17 @@ OBJECTS = $(SOURCES:%.cpp=%.o)
 LIBRARY = libbiomeval
 LOCALLIB = ../../lib
 
+#
+# For OS-X, we need a later version of Berkeley DB than what comes
+# with the system. A check for the DB include directory is performed below.
+#
 all: $(OBJECTS)
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
+
 ifeq ($(OS), Darwin)
-	$(CXX) $(CXXFLAGS) $(NBISLIB) -dynamiclib $(OBJECTS) -lcrypto -o $(LIBRARY).dylib
+	$(CXX) $(CXXFLAGS) $(NBISLIB) -L$(DBLIBS) -ldb -dynamiclib $(OBJECTS) -lcrypto -o $(LIBRARY).dylib
 	$(CP) $(LIBRARY).dylib $(LOCALLIB)
+   
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	ar rs $(LIBRARY).a $(OBJECTS)
@@ -55,9 +63,14 @@ endif
 #
 # The default make rule is OK for most files.
 #
+DBINCLUDE = /opt/local/include/db44
+DBLIBS = /opt/local/lib/db44
 be_io_dbrecstore.o: be_io_dbrecstore.cpp
 ifeq ($(OS), Darwin)
-	$(CXX) -c $(CXXFLAGS) $<
+	$(if $(wildcard $(DBINCLUDE)),\
+	,\
+	$(error Berkeley DB include directory not found!))
+	$(CXX) -c -DDB1X -I $(DBINCLUDE) $(CXXFLAGS) $<
 else
 	$(CXX) -c -DDB1X $(CXXFLAGS) $<
 endif
