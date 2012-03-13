@@ -42,7 +42,8 @@ BiometricEvaluation::Memory::IndexedBuffer::scan(void *buf, const uint32_t len)
 {
 	if (_index + len > _size)
 		throw (Error::DataError("Can't read beyond end of buffer"));
-	(void)memcpy(buf, _data + _index, len);
+	if (buf != NULL)
+		(void)memcpy(buf, _data + _index, len);
 	_index += len;
 	return (len);
 }

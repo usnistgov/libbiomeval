@@ -182,7 +182,8 @@ namespace BiometricEvaluation {
 			 * increment the current index value by n.
 			 *
 			 * @param[in] buf
-			 *	Buffer to store the copied data.
+			 *	Buffer to store the copied data. Can be NULL.
+			 *	The current index is incremented.
 			 * @param[in] len
 			 *	The number of elements to copy.
 			 *
