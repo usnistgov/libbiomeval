@@ -11,6 +11,8 @@
 #ifndef __BE_PROCESS_WORKER_H__
 #define __BE_PROCESS_WORKER_H__
 
+#include <stdint.h>
+
 #include <be_error_exception.h>
 #include <be_process.h>
 

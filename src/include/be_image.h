@@ -11,6 +11,8 @@
 #ifndef __BE_IMAGE_H__
 #define __BE_IMAGE_H__
 
+#include <stdint.h>
+
 #include <iostream>
 #include <vector>
 

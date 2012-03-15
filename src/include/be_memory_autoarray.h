@@ -16,6 +16,8 @@
 #ifndef __BE_MEMORY_AUTOARRAY_H__
 #define __BE_MEMORY_AUTOARRAY_H__
 
+#include <stdint.h>
+
 #include <cstddef>
 #include <cstring>
 #include <stdexcept>
