@@ -226,7 +226,7 @@ runTests(IO::RecordStore *rs)
 	}
 	cout << endl;
 	cout << "Count of records is " << rs->getCount() << endl;
-	cout << "Space usage is ";
+	cout << "\nSpace usage is ";
 	try {
 		cout << rs->getSpaceUsed() << endl;
 	} catch (Error::StrategyError& e) {
@@ -285,7 +285,7 @@ runTests(IO::RecordStore *rs)
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (-1);
 	}
-	cout << "Space usage with no records is " << rs->getSpaceUsed() << endl;
+	cout << "\nSpace usage with no records is " << rs->getSpaceUsed() << endl;
 	cout << "Sequencing records..." << endl;
 	int i;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
@@ -337,7 +337,7 @@ runTests(IO::RecordStore *rs)
 	snprintf(rdata, RDATASIZE, "Bogus data for key%u", i);
 	rs->insert(theKey, rdata, RDATASIZE);
 	cout << "Name is now " << rs->getName() << endl;
-	cout << "Deleting all records..." << endl;
+	cout << "\nDeleting all records..." << endl;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
 		snprintf(rdata, RDATASIZE, "key%u", i);
 		theKey.assign(rdata);
@@ -347,12 +347,11 @@ runTests(IO::RecordStore *rs)
 			cout << "Caught: " << e.getInfo() << endl;
 		}
 	}
-	cout << "Sequencing empty store... ";
+	cout << "\nSequencing empty store... ";
 	testSequence(rs);
 	cout << "there should be no output." << endl;
 
-#ifdef FILERECORDSTORETEST
-	cout << "Insert with an invalid key into FileRecordStore..." << endl;
+	cout << "\nInsert with an invalid key..." << endl;
 	try {
 		string badKey("test/with/path/chars");
 		rs->insert(badKey, rdata, RDATASIZE);
@@ -362,9 +361,8 @@ runTests(IO::RecordStore *rs)
 		cout << "Caught: " << e.getInfo() << endl;
 		cout << "\tShould be invalid key." << endl;
 	}
-#endif
 
-	cout << "Return RecordStore to original name... ";
+	cout << "\nReturn RecordStore to original name... ";
 	try {
 		rs->changeName(rsname);
 	} catch (Error::ObjectExists &e) {
@@ -503,7 +501,7 @@ main(int argc, char* argv[]) {
 	} catch (Error::StrategyError &e) {
 		cout << "Caught: " << e.getInfo() << endl;
 	}
-	cout << "Space usage after vacuum is ";
+	cout << "\nSpace usage after vacuum is ";
 	try {
 		cout << rs->getSpaceUsed() << endl;
 	} catch (Error::StrategyError& e) {
@@ -529,13 +527,13 @@ main(int argc, char* argv[]) {
 	/*
 	 * Test merging many RecordStores
 	 */
-	cout << "Test merging many RecordStores... ";
+	cout << "\nTest merging many RecordStores... ";
 	testMerge();
 
 	/*
 	 * Test the deletion of a record store.
 	 */
-	cout << "Removing store... " << endl;
+	cout << "\nRemoving store... " << endl;
 	try {
 		IO::RecordStore::removeRecordStore(rsname, "");
 	} catch (Error::ObjectDoesNotExist &e) {

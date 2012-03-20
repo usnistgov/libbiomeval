@@ -35,6 +35,10 @@ namespace BiometricEvaluation {
 		 * operating system, such as files or databases, rooted in
 		 * the file system.
 		 *
+		 * Certain characters are prohibited in the key string.
+		 * See \ref IO::RecordStore::INVALIDKEYCHARS.
+		 * A key string cannot begin with the space character.
+		 *
 		 * \see
 		 * IO::ArchiveRecordStore, IO::DBRecordStore,
 		 * IO::FileRecordStore.
@@ -42,6 +46,12 @@ namespace BiometricEvaluation {
 		class RecordStore {
 		public:
 			
+			/**
+			 * The set of prohibited characters in a key:
+			 * '/', '\', '*', '&'
+			 */
+			static const string INVALIDKEYCHARS;
+ 
 			/** The name of the control file, a properties list */
 			static const string CONTROLFILENAME;
 
@@ -49,7 +59,7 @@ namespace BiometricEvaluation {
 			static const string NAMEPROPERTY;
 			/** Property key for description of the RecordStore */
 			static const string DESCRIPTIONPROPERTY;
-			/** Property key for the number of items in the store */
+			/** Property key for the number of store items */
 			static const string COUNTPROPERTY;
 			/** Property key for the type of RecordStore */
 			static const string TYPEPROPERTY;
@@ -198,7 +208,7 @@ namespace BiometricEvaluation {
 			 * Insert a record into the store.
 			 *
 			 * @param[in] key
-			 *	The key of the record to be flushed.
+			 *	The key of the record to be inserted.
 			 * @param[in] data
 			 *	The data for the record.
 			 * @param[in] size
@@ -547,6 +557,9 @@ namespace BiometricEvaluation {
 			string canonicalName(const string &name) const;
 			int getCursor() const;
 			void setCursor(int cursor);
+			bool validateKeyString(
+			    const string &key)
+			    const;
 
 		private:
 			/* The name of the RecordStore */

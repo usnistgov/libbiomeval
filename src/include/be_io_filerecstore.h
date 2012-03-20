@@ -153,9 +153,6 @@ namespace BiometricEvaluation {
 			    const void *data,
 			    const uint64_t size)
 			    throw (Error::StrategyError);
-			bool validateKeyString(
-			    const string &key)
-			    const;
 			uint64_t _cursorPos;
 			string _theFilesDir;
 		};

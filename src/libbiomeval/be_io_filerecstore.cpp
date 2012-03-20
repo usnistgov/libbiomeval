@@ -219,9 +219,9 @@ BiometricEvaluation::IO::FileRecordStore::flush(
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
-
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
+
 	string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw Error::ObjectDoesNotExist();
@@ -303,6 +303,9 @@ BiometricEvaluation::IO::FileRecordStore::setCursorAtKey(
     string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
+
 	DIR *dir;
 	dir = opendir(_theFilesDir.c_str());
 	if (dir == NULL)
@@ -374,20 +377,3 @@ BiometricEvaluation::IO::FileRecordStore::canonicalName(
 	return(_theFilesDir + '/' + name);
 }
 
-bool
-BiometricEvaluation::IO::FileRecordStore::validateKeyString(const string &key)
-    const
-{
-	bool validity = true;
-
-	if (key.empty())
-		validity = false;
-
-	if (key.find("/") != string::npos || key.find("\\") != string::npos)
-		validity = false;
-
-	if (isspace(key[0]))
-		validity = false;
-
-	return (validity);
-}

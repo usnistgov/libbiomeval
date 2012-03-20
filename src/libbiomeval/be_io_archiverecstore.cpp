@@ -188,6 +188,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::length(
     const 
     throw (Error::ObjectDoesNotExist)
 {
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
 	ManifestMap::const_iterator lb = _entries.find(key);
 	if (lb == _entries.end())
 		throw Error::ObjectDoesNotExist(key);
@@ -254,6 +256,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::read(
     const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
+
 	/* Check for existance */
 	ManifestMap::const_iterator lb = _entries.find(key);
 	if (lb == _entries.end())
@@ -285,6 +290,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::insert(
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
 	
 	if (this->keyExists(key))
 		throw Error::ObjectExists(key);
@@ -347,6 +354,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::remove(const string &key)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
 
 	if (this->keyExists(key) == false)
 		throw Error::ObjectDoesNotExist(key);
@@ -373,6 +382,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::replace(
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
 
 	try {
 		remove(key);
@@ -399,6 +410,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::flush(
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
 
 	/* Flush the streams, not necessarily for the key passed */
 	if (_manifestfp != NULL) {
@@ -470,6 +483,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::setCursorAtKey(
     string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
+
 	/* Check for existance */
 	ManifestMap::iterator lb = _entries.find(key);
 	if (lb == _entries.end())

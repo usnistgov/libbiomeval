@@ -25,6 +25,8 @@
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
 
+const string BiometricEvaluation::IO::RecordStore::INVALIDKEYCHARS("/\\*&");
+
 /*
  * The name of the control file use by all RecordStores.
  */
@@ -361,6 +363,24 @@ BiometricEvaluation::IO::RecordStore::canonicalName(
     const string &name) const
 {
 	return (_directory + '/' + name);
+}
+
+bool
+BiometricEvaluation::IO::RecordStore::validateKeyString(const string &key)
+    const
+{
+	if (key.empty())
+		return (false);
+	if (isspace(key[0]))
+		return (false);
+
+	string::const_iterator it = INVALIDKEYCHARS.begin();
+	while (it != INVALIDKEYCHARS.end()) {
+		if (key.find(*it) != string::npos)
+			return (false);
+		it++;
+	}
+	return (true);
 }
 
 /*

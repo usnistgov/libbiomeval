@@ -16,8 +16,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <iostream>
-
 #include <be_error.h>
 #include <be_io_dbrecstore.h>
 #include <be_io_utility.h>
@@ -160,6 +158,8 @@ BiometricEvaluation::IO::DBRecordStore::insert(
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
 
 	int rc;
 	DBT dbtkey, dbtdata;
@@ -194,6 +194,8 @@ BiometricEvaluation::IO::DBRecordStore::remove(
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
 
 	int rc;
 	DBT dbtkey;
@@ -310,6 +312,8 @@ BiometricEvaluation::IO::DBRecordStore::flush(
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
 
 	/*
 	 * Because we sync the entire database, we really don't care
@@ -333,7 +337,6 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 	    (cursor != BE_RECSTORE_SEQ_NEXT))
 		throw Error::StrategyError("Invalid cursor position as " 
 		    "argument");
-
 
 	u_int pos;
 	DBT dbtkey, dbtdata; 
@@ -372,6 +375,9 @@ BiometricEvaluation::IO::DBRecordStore::setCursorAtKey(
     string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
+
 	DBT dbtkey, dbtdata;
 
 	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
@@ -426,6 +432,9 @@ BiometricEvaluation::IO::DBRecordStore::internalRead(
     const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
+	if (!validateKeyString(key))
+		throw Error::StrategyError("Invalid key format");
+
 	DBT dbtkey;
 
 	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
