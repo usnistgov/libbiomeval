@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <iostream>
 #include <memory>
+#include <string>
 
 #include <stdlib.h>
 
@@ -34,6 +35,8 @@
 #ifdef TESTDEFINED
 using namespace BiometricEvaluation;
 #endif
+
+using namespace std;
 
 #define TIMEINTERVAL(__s, __f)                                          \
 	(__f.tv_sec - __s.tv_sec)*1000000+(__f.tv_usec - __s.tv_usec)

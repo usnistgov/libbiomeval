@@ -35,6 +35,8 @@
 using namespace BiometricEvaluation;
 #endif
 
+using namespace std;
+
 static const int SEQUENCECOUNT = 10;
 static const int RDATASIZE = 64;
 static string rsname;
