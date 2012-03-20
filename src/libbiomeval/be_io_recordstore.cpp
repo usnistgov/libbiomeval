@@ -22,6 +22,7 @@
 #include <be_io_filerecstore.h>
 #include <be_io_properties.h>
 #include <be_io_recordstore.h>
+#include <be_io_sqliterecstore.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
 
@@ -43,6 +44,7 @@ const string BiometricEvaluation::IO::RecordStore::TYPEPROPERTY("Type");
 const string BiometricEvaluation::IO::RecordStore::BERKELEYDBTYPE("BerkeleyDB");
 const string BiometricEvaluation::IO::RecordStore::ARCHIVETYPE("Archive");
 const string BiometricEvaluation::IO::RecordStore::FILETYPE("File");
+const string BiometricEvaluation::IO::RecordStore::SQLITETYPE("SQLite");
 
 /*
  * Constructors
@@ -286,6 +288,8 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 		rs = new ArchiveRecordStore(name, parentDir, mode);
 	else if (type == RecordStore::FILETYPE)
 		rs = new FileRecordStore(name, parentDir, mode);
+	else if (type == RecordStore::SQLITETYPE)
+		rs = new SQLiteRecordStore(name, parentDir, mode);
 	else
 		throw Error::StrategyError("Unknown RecordStore type");
 	return (std::tr1::shared_ptr<RecordStore>(rs));
@@ -308,6 +312,8 @@ BiometricEvaluation::IO::RecordStore::createRecordStore(
 		rs = new ArchiveRecordStore(name, description, destDir);
 	else if (strcasecmp(type.c_str(), RecordStore::FILETYPE.c_str()) == 0)
 		rs = new FileRecordStore(name, description, destDir);
+	else if (strcasecmp(type.c_str(), RecordStore::SQLITETYPE.c_str()) == 0)
+		rs = new SQLiteRecordStore(name, description, destDir);
 	else
 		throw Error::StrategyError("Unknown RecordStore type");
 	return (std::tr1::shared_ptr<RecordStore>(rs));
@@ -511,6 +517,9 @@ void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 		    mergedDescription, parentDir));
 	else if (type == RecordStore::FILETYPE)
 		merged_rs.reset(new FileRecordStore(mergedName,
+		    mergedDescription, parentDir));
+	else if (type == RecordStore::SQLITETYPE)
+		merged_rs.reset(new SQLiteRecordStore(mergedName,
 		    mergedDescription, parentDir));
 	else
 		throw Error::StrategyError("Unknown RecordStore type");

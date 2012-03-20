@@ -31,6 +31,11 @@
 #define TESTDEFINED
 #endif
 
+#ifdef SQLITERECORDSTORETEST
+#include <be_io_sqliterecstore.h>
+#define TESTDEFINED
+#endif
+
 #ifdef TESTDEFINED
 using namespace BiometricEvaluation;
 #endif
@@ -112,6 +117,15 @@ testMerge()
 		merge_rs[2] = new IO::FileRecordStore(merge_rs_fn[2],
 		    "RS for merge", "");
 #endif
+#ifdef SQLITERECORDSTORETEST
+		merged_type = IO::RecordStore::SQLITETYPE;
+		merge_rs[0] = new IO::SQLiteRecordStore(merge_rs_fn[0],
+		    "RS for merge", "");
+		merge_rs[1] = new IO::SQLiteRecordStore(merge_rs_fn[1],
+		    "RS for merge", "");
+		merge_rs[2] = new IO::SQLiteRecordStore(merge_rs_fn[2],
+		    "RS for merge", "");
+#endif
 		merge_rs[0]->insert("0", "0", 2);
 		merge_rs[0]->insert("1", "1", 2);
 		merge_rs[0]->insert("2", "2", 2);
@@ -133,6 +147,9 @@ testMerge()
 #endif
 #ifdef FILERECORDSTORETEST
 		merged_rs = new IO::FileRecordStore(merged_rs_fn, "");
+#endif
+#ifdef SQLITERECORDSTORETEST
+		merged_rs = new IO::SQLiteRecordStore(merged_rs_fn, "");
 #endif
 		if (merged_rs->getCount() == (num_rs * 3))
 			cout << "success." << endl;
@@ -195,6 +212,16 @@ runTests(IO::RecordStore *rs)
 	}
 	cout << endl;
 	cout << "Count of records is " << rs->getCount() << endl;
+
+	/* RecordStores must not allow duplicate keys */
+	try {
+		cout << "insert(" << theKey << ") -- duplicate: ";
+		rs->insert(theKey, wdata.c_str(), wlen);
+		cout << "FAILED" << endl;
+		return (-1);
+	} catch (Error::ObjectExists) {
+		cout << "success" << endl;	
+	}
 
 	char rdata[RDATASIZE];
 	bzero(rdata, RDATASIZE);
@@ -357,6 +384,8 @@ runTests(IO::RecordStore *rs)
 	try {
 		string badKey("test/with/path/chars");
 		rs->insert(badKey, rdata, RDATASIZE);
+		cout << "failed" << endl;
+		return (-1);
 	} catch (Error::ObjectExists &e) {
 		cout << "Caught: " << e.getInfo() << endl;
 	} catch (Error::StrategyError &e)  {
@@ -433,6 +462,23 @@ main(int argc, char* argv[]) {
 	}
 	auto_ptr<IO::ArchiveRecordStore> ars(rs);
 #endif
+
+#ifdef SQLITERECORDSTORETEST
+	/* Call the constructor that will create a new ArchiveRecordStore. */
+	rsname = "srs_test";
+	IO::SQLiteRecordStore *rs;
+	try {
+		rs = new IO::SQLiteRecordStore(rsname, "RW Test Dir", "");
+	} catch (Error::ObjectExists &e) {
+		cout << "The SQLite Record Store exists; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (Error::StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+	auto_ptr<IO::SQLiteRecordStore> ars(rs);
+#endif
+
 #ifdef TESTDEFINED
 
 	cout << "Running tests with new record store:" << endl;
@@ -476,6 +522,20 @@ main(int argc, char* argv[]) {
 		rs = new IO::ArchiveRecordStore(rsname, "");
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Archive Record Store does not exist; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (Error::StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+#endif
+
+#ifdef SQLITERECORDSTORETEST
+	/* Call the constructor that will open an existing ArchiveRecordStore.*/
+	rsname = "srs_test";
+	try {
+		rs = new IO::SQLiteRecordStore(rsname, "");
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "The SQLite Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;

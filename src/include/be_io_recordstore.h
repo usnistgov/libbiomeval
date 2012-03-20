@@ -70,6 +70,8 @@ namespace BiometricEvaluation {
 			static const string ARCHIVETYPE;
 			/** FileRecordStore type */
 			static const string FILETYPE;
+			/** SQLiteRecordStore type */
+			static const string SQLITETYPE;
 
 			/**
 			 * Constructor to create a new RecordStore.

@@ -32,6 +32,11 @@
 #define TESTDEFINED
 #endif
 
+#ifdef SQLITERECORDSTORETEST
+#include <be_io_sqliterecstore.h>
+#define TESTDEFINED
+#endif
+
 #ifdef TESTDEFINED
 using namespace BiometricEvaluation;
 #endif
@@ -113,6 +118,10 @@ int main (int argc, char* argv[]) {
 	string rsname("ars_test");
 	IO::ArchiveRecordStore *rs;
 #endif
+#ifdef SQLITERECORDSTORETEST
+	string rsname("srs_test");
+	IO::SQLiteRecordStore *rs;
+#endif
 	for (int i = 1; i <= CREATEDESETROYCOUNT; i++) {
 		try {
 #ifdef FILERECORDSTORETEST
@@ -130,6 +139,11 @@ int main (int argc, char* argv[]) {
 			 * ArchiveRecordStore. */
 			rs = new IO::ArchiveRecordStore(rsname, descr, "");
 #endif
+#ifdef SQLITERECORDSTORETEST
+			/* Call the constructor that will create a new
+			 * SQLiteRecordStore. */
+			rs = new IO::SQLiteRecordStore(rsname, descr, "");
+#endif
 		} catch (Error::ObjectExists& e) {
 			cout << "The RecordStore already exists; exiting." << endl;
 			return (EXIT_FAILURE);
@@ -146,6 +160,9 @@ int main (int argc, char* argv[]) {
 #endif
 #ifdef ARCHIVERECORDSTORETEST
 			rs = new IO::ArchiveRecordStore(rsname, "");
+#endif
+#ifdef SQLITERECORDSTORETEST
+			rs = new IO::SQLiteRecordStore(rsname, "");
 #endif
 		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Could not re-open RecordStore; exiting." << endl;
@@ -165,6 +182,9 @@ int main (int argc, char* argv[]) {
 #endif
 #ifdef ARCHIVERECORDSTORETEST
 	auto_ptr<IO::ArchiveRecordStore> ars(rs);
+#endif
+#ifdef SQLITERECORDSTORETEST
+	auto_ptr<IO::SQLiteRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED
