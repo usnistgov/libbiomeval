@@ -8,6 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
+#include <sstream>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -23,6 +25,15 @@
 static const mode_t DBRS_MODE_RW =
     S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 static const mode_t DBRS_MODE_R = S_IRUSR | S_IRGRP | S_IROTH;
+static const string SUBORDINATE_DBEXT = ".subordinate";
+
+/* The maximum record size supported by the underlying Berkeley DB is
+ * 2^32. This class will break larger records up into multiple key/value
+ * pairs, creating the new keys using a reserved key character.
+ */
+static const char KEY_SEGMENT_SEPARATOR = '&';
+static const int KEY_SEGMENT_START = 1;
+static const uint64_t MAX_REC_SIZE = (uint64_t)UINT32_MAX;
 
 static void setBtreeInfo(BTREEINFO *bti)
 {
@@ -43,17 +54,26 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     throw (Error::ObjectExists, Error::StrategyError) : 
     RecordStore(name, description, BERKELEYDBTYPE, parentDir)
 {
-	_dbname = getDirectory() + '/' + getName();
-	if (IO::Utility::fileExists(_dbname))
+	_dbnameP = getDirectory() + '/' + getName();
+	if (IO::Utility::fileExists(_dbnameP))
 		throw Error::ObjectExists("Database already exists");
 
+	/* Create the primary DB file */
 	BTREEINFO bti;
 	setBtreeInfo(&bti);
-	_db = dbopen(_dbname.c_str(), O_CREAT | O_RDWR, DBRS_MODE_RW,
+	_dbP = dbopen(_dbnameP.c_str(), O_CREAT | O_RDWR, DBRS_MODE_RW,
 	    DB_BTREE, &bti);
-	if (_db == NULL)
-		throw Error::StrategyError("Could not create database (" + 
+	if (_dbP == NULL)
+		throw Error::StrategyError("Could not create primary DB (" + 
 		    Error::errorStr() + ")");
+
+	/* Create the subordinate DB file */
+	_dbnameS = _dbnameP + SUBORDINATE_DBEXT;
+	_dbS = dbopen(_dbnameS.c_str(), O_CREAT | O_RDWR, DBRS_MODE_RW,
+	    DB_BTREE, &bti);
+	if (_dbS == NULL)
+		throw Error::StrategyError("Could not create subordinate DB (" 
+		    + Error::errorStr() + ")");
 }
 
 BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
@@ -63,27 +83,64 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     throw (Error::ObjectDoesNotExist, Error::StrategyError) : 
     RecordStore(name, parentDir, mode)
 { 
-	_dbname = getDirectory() + '/' + getName();
-	if (!IO::Utility::fileExists(_dbname))
+	_dbnameP = getDirectory() + '/' + getName();
+	if (!IO::Utility::fileExists(_dbnameP))
 		throw Error::ObjectDoesNotExist("Database does not exist");
 
 	BTREEINFO bti;
 	setBtreeInfo(&bti);
+	/* Open the primary DB file */
 	if (mode == READWRITE)
-		_db = dbopen(_dbname.c_str(), O_RDWR, DBRS_MODE_RW,
+		_dbP = dbopen(_dbnameP.c_str(), O_RDWR, DBRS_MODE_RW,
 		    DB_BTREE, &bti);
 	else
-		_db = dbopen(_dbname.c_str(), O_RDONLY, DBRS_MODE_R,
+		_dbP = dbopen(_dbnameP.c_str(), O_RDONLY, DBRS_MODE_R,
 		    DB_BTREE, &bti);
-	if (_db == NULL)
-		throw Error::StrategyError("Could not open database (" + 
+	if (_dbP == NULL)
+		throw Error::StrategyError("Could not open primary DB (" + 
+		    Error::errorStr() + ")");
+
+	/*
+	 * Open the subordinate DB file, creating if necessary in order
+	 * to migrate older DBRecordStores. If we can't open the file,
+	 * but the mode is READWRITE, throw an exception; otherwise we'll
+	 * just not use it later with the assumption there are no large
+	 * records in the existing record store.
+	 */
+	_dbnameS = _dbnameP + SUBORDINATE_DBEXT;
+	if (!IO::Utility::fileExists(_dbnameS)) {
+		_dbS = dbopen(_dbnameS.c_str(), O_CREAT | O_RDWR, DBRS_MODE_RW,
+		    DB_BTREE, &bti);
+		if (_dbS == NULL) {
+			if (mode == READWRITE) {
+				_dbS->close(_dbS);
+				throw Error::StrategyError(
+				"Could not upgrade database.");
+			} else {
+				return;
+			}
+		} else {
+			_dbS->close(_dbS);
+		}
+	}
+	if (mode == READWRITE)
+		_dbS = dbopen(_dbnameS.c_str(), O_RDWR, DBRS_MODE_RW,
+		    DB_BTREE, &bti);
+	else
+		_dbS = dbopen(_dbnameS.c_str(), O_RDONLY, DBRS_MODE_R,
+		    DB_BTREE, &bti);
+	if (_dbS == NULL)
+		throw Error::StrategyError(
+		    "Could not open subordinate DB (" + 
 		    Error::errorStr() + ")");
 }
 
 BiometricEvaluation::IO::DBRecordStore::~DBRecordStore()
 {
-	if (_db != NULL)
-		_db->close(_db);
+	if (_dbP != NULL)
+		_dbP->close(_dbP);
+	if (_dbS != NULL)
+		_dbS->close(_dbS);
 }
 
 void
@@ -93,8 +150,10 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	if (_db != NULL)
-		_db->close(_db);
+	if (_dbP != NULL)
+		_dbP->close(_dbP);
+	if (_dbS != NULL)
+		_dbS->close(_dbS);
 
 	string oldDBName, newDBName;
 	if (getParentDirectory().empty() || getParentDirectory() == ".") {
@@ -106,17 +165,34 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
 	}
 	RecordStore::changeName(name);
 	if (rename(oldDBName.c_str(), newDBName.c_str()))
-		throw Error::StrategyError("Could not rename database (" + 
+		throw Error::StrategyError(
+		    "Could not rename primary DB (" + 
 		    Error::errorStr() + ")");
 
-	_dbname = RecordStore::canonicalName(getName());
-	if (!IO::Utility::fileExists(_dbname))
-		throw Error::StrategyError("Database " + _dbname + 
+	oldDBName = oldDBName + SUBORDINATE_DBEXT;
+	newDBName = newDBName + SUBORDINATE_DBEXT;
+	if (rename(oldDBName.c_str(), newDBName.c_str()))
+		throw Error::StrategyError(
+		    "Could not rename subordinate DB (" + 
+		    Error::errorStr() + ")");
+
+	_dbnameP = RecordStore::canonicalName(getName());
+	if (!IO::Utility::fileExists(_dbnameP))
+		throw Error::StrategyError("Database " + _dbnameP + 
+		    "does not exist");
+	_dbnameS = _dbnameP + SUBORDINATE_DBEXT;
+	if (!IO::Utility::fileExists(_dbnameP))
+		throw Error::StrategyError("Database " + _dbnameS + 
 		    "does not exist");
 
-	_db = dbopen(_dbname.c_str(), O_RDWR, DBRS_MODE_RW, DB_BTREE, NULL);
-	if (_db == NULL)
-		throw Error::StrategyError("Could not open database (" +
+	_dbP = dbopen(_dbnameP.c_str(), O_RDWR, DBRS_MODE_RW, DB_BTREE, NULL);
+	if (_dbP == NULL)
+		throw Error::StrategyError("Could not open primary DB (" +
+		    Error::errorStr() + ")");
+
+	_dbS = dbopen(_dbnameS.c_str(), O_RDWR, DBRS_MODE_RW, DB_BTREE, NULL);
+	if (_dbS == NULL)
+		throw Error::StrategyError("Could not open subordinate DB (" +
 		    Error::errorStr() + ")");
 }
 
@@ -128,10 +204,27 @@ BiometricEvaluation::IO::DBRecordStore::getSpaceUsed()
 	struct stat sb;
 
 	sync();
-	if (stat(_dbname.c_str(), &sb) != 0)
-		throw Error::StrategyError("Could not find database file");
-	return (RecordStore::getSpaceUsed() + (sb.st_blocks * S_BLKSIZE));
-	
+	if (stat(_dbnameP.c_str(), &sb) != 0)
+		throw Error::StrategyError("Could not find primary DB file");
+	uint64_t szP = (uint64_t)sb.st_blocks * (uint64_t)S_BLKSIZE;
+
+	/* The subordinate DB may not exist */
+	if (stat(_dbnameS.c_str(), &sb) != 0)
+		sb.st_blocks = 0;
+
+	return (RecordStore::getSpaceUsed() +
+		szP + ((uint64_t)sb.st_blocks * (uint64_t)S_BLKSIZE));
+}
+
+/*
+ * Local function for generating key segment names as strings.
+ */
+static string
+genKeySegName(const string &key, const int segnum)
+{
+	ostringstream keyseg;
+	keyseg << key << KEY_SEGMENT_SEPARATOR << segnum;
+	return (keyseg.str());
 }
 
 void
@@ -143,10 +236,19 @@ BiometricEvaluation::IO::DBRecordStore::sync()
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::sync();
-	int rc = _db->sync(_db, 0);
+	int rc = _dbP->sync(_dbP, 0);
 	if (rc != 0)
-		throw Error::StrategyError("Could not synchronize database (" +
+		throw Error::StrategyError("Could not sync primary DB (" +
 		    Error::errorStr() + ")");
+
+	if (_dbS != NULL) {
+		rc = _dbS->sync(_dbS, 0);
+		if (rc != 0) {
+			throw Error::StrategyError(
+			    "Could not sync subordinate DB (" +
+			    Error::errorStr() + ")");
+		}
+	}
 }
 
 void
@@ -161,30 +263,7 @@ BiometricEvaluation::IO::DBRecordStore::insert(
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
 
-	int rc;
-	DBT dbtkey, dbtdata;
-
-	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
-	dbtkey.size = key.length();
-	dbtdata.data = (void *)data;
-	dbtdata.size = size;
-	rc = _db->put(_db, &dbtkey, &dbtdata, R_NOOVERWRITE);
-	switch (rc) {
-		case 0:
-			RecordStore::insert(key, data, size);
-			break;
-		case 1:
-			throw Error::ObjectExists("Key already in database");
-			break;		/* not reached */
-		case -1:
-			throw Error::StrategyError("Could not insert into "
-			    "database (" + Error::errorStr() + ")");
-			break;		/* not reached */
-		default:
-			throw Error::StrategyError("Unknown error inserting " 
-			    "into database");
-			break;		/* not reached */
-	}
+	insertRecordSegments(key, data, size);
 }
 
 void
@@ -197,28 +276,8 @@ BiometricEvaluation::IO::DBRecordStore::remove(
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
 
-	int rc;
-	DBT dbtkey;
-
-	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
-	dbtkey.size = key.length();
-	rc = _db->del(_db, &dbtkey, 0);
-	switch (rc) {
-		case 0:
-			RecordStore::remove(key);
-			break;
-		case 1:
-			throw Error::ObjectDoesNotExist("Key not in database");
-			break;		/* not reached */
-		case -1:
-			throw Error::StrategyError("Could not delete from " 
-			    "database (" + Error::errorStr() + ")");
-			break;		/* not reached */
-		default:
-			throw Error::StrategyError("Unknown error deleting " 
-			    "from database");
-			break;		/* not reached */
-	}
+	/* Allow exceptions to float out of this function. */
+	removeRecordSegments(key);
 }
 
 uint64_t
@@ -228,16 +287,13 @@ BiometricEvaluation::IO::DBRecordStore::read(
     const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	DBT dbtdata;
-
 	/*
-	 * All exceptions from internalRead float out of this
+	 * All exceptions from readRecordSegments float out of this
 	 * routine because the exceptions in the method signature
 	 * are the same.
 	 */
-	internalRead(key, &dbtdata);
-	memcpy(data, dbtdata.data, dbtdata.size);
-	return (dbtdata.size);
+	uint64_t size = readRecordSegments(key, data);
+	return (size);
 }
 
 void
@@ -250,39 +306,17 @@ BiometricEvaluation::IO::DBRecordStore::replace(
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	int rc;
-	DBT dbtkey, dbtdata;
-
 	/*
-	 * Try to read the data; if it does not exist, or some other error
-	 * occurs, let the exception float out of this routine. Otherwise,
-	 * perform the replace.
+	 * All exceptions from called function float out of this function.
 	 */
-	internalRead(key, &dbtdata);
-
-	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
-	dbtkey.size = key.length();
-	dbtdata.data = (void *)data;
-	dbtdata.size = size;
-	rc = _db->put(_db, &dbtkey, &dbtdata, 0);
-	switch (rc) {
-		case 0:
-			break;
-		case 1:
-			/* We should never get here; if we do, something
-			 * is wrong because we asking for replacement above.
-			 */
-			throw Error::StrategyError("Should never happen: " 
-			    "Key already in database");
-			break;		/* not reached */
-		case -1:
-			throw Error::StrategyError("Could not replace in " 
-			    "database (" + Error::errorStr() + ")");
-			break;		/* not reached */
-		default:
-			throw Error::StrategyError("Unknown error replacing " 
-			    "in database");
-			break;		/* not reached */
+	removeRecordSegments(key);
+	try {
+		insertRecordSegments(key, data, size);
+	} catch (Error::ObjectExists) {	/* This should never happen */
+		throw Error::StrategyError("Should never happen: " 
+		    "Key in database after removal.");
+	} catch (Error::StrategyError &e) {
+			throw (e);
 	}
 }
 
@@ -292,16 +326,12 @@ BiometricEvaluation::IO::DBRecordStore::length(
     const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	DBT dbtdata;
-
 	/*
 	 * Try to read the data; if it does not exist, or some other error
 	 * occurs, let the exception float out of this routine. Otherwise,
 	 * return the length.
 	 */
-	internalRead(key, &dbtdata);
-	return ((uint64_t)dbtdata.size);
-
+	return (readRecordSegments(key, NULL));
 }
 
 void
@@ -320,9 +350,13 @@ BiometricEvaluation::IO::DBRecordStore::flush(
 	 * whether the key exists. If we do, then we'd have to attempt
 	 * a read of the record, and that's not really needed.
 	 */
-	int rc = _db->sync(_db, 0);
+	int rc = _dbP->sync(_dbP, 0);
 	if (rc != 0)
-		throw Error::StrategyError("Could not synchronize database (" +
+		throw Error::StrategyError("Could not flush primary DB (" +
+		    Error::errorStr() + ")");
+	rc = _dbS->sync(_dbS, 0);
+	if (rc != 0)
+		throw Error::StrategyError("Could not flush subordinate DB (" +
 		    Error::errorStr() + ")");
 }
 
@@ -338,36 +372,19 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 		throw Error::StrategyError("Invalid cursor position as " 
 		    "argument");
 
-	u_int pos;
-	DBT dbtkey, dbtdata; 
-
 	/* If the current cursor position is START, then it doesn't matter
 	 * what the client requests; we start at the first record.
 	*/
+	u_int pos;
 	if ((getCursor() == BE_RECSTORE_SEQ_START) ||
 	    (cursor == BE_RECSTORE_SEQ_START))
 		pos = R_FIRST;
 	else
 		pos = R_NEXT;
 
-	int rc = _db->seq(_db, &dbtkey, &dbtdata, pos);
-	switch (rc) {
-		case 0:
-			break;
-		case 1:
-			throw Error::ObjectDoesNotExist("No record at "
-			    "position");
-			break;
-		default:
-			throw Error::StrategyError("Could not read from " 
-			    "database (" + Error::errorStr() + ")");
-			break;		/* not reached */
-	}
+	uint64_t size = sequenceRecordSegments(key, data, pos);
 	setCursor(cursor);
-	if (data != NULL)
-		memcpy(data, dbtdata.data, dbtdata.size);
-	key.assign((const char *)dbtkey.data, dbtkey.size);
-	return (dbtdata.size);
+	return (size);
 }
 
 void 
@@ -382,7 +399,18 @@ BiometricEvaluation::IO::DBRecordStore::setCursorAtKey(
 
 	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
 	dbtkey.size = key.length();
-	int rc = _db->seq(_db, &dbtkey, &dbtdata, R_CURSOR);
+
+	/*
+	 * There is no need to be concerned about subordinate record
+	 * segments here because the sequence is maintained entirely
+	 * within the primary DB file.
+	 * We sequence to the key, which places the cursor at the record
+	 * after, which may be either the next record, or the second
+	 * segment of the key'd record. Either way, we then back up one
+	 * position, which, in both cases, places the cursor back before
+	 * the key'd data.
+	 */
+	int rc = _dbP->seq(_dbP, &dbtkey, &dbtdata, R_CURSOR);
 	switch (rc) {
 		case 0:
 			break;
@@ -402,7 +430,7 @@ BiometricEvaluation::IO::DBRecordStore::setCursorAtKey(
 	/* Access the previous record, so that this record is returned first. */
 	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
 	dbtkey.size = key.length();
-	rc = _db->seq(_db, &dbtkey, &dbtdata, R_PREV);
+	rc = _dbP->seq(_dbP, &dbtkey, &dbtdata, R_PREV);
 	switch (rc) {
 		case 0:
 			setCursor(BE_RECSTORE_SEQ_NEXT);
@@ -424,36 +452,248 @@ BiometricEvaluation::IO::DBRecordStore::setCursorAtKey(
 /*
  * Private method implementations.
  */
-
+/*
+ * Function to insert all components of a record to the database.
+ */
 void
-BiometricEvaluation::IO::DBRecordStore::internalRead(
+BiometricEvaluation::IO::DBRecordStore::insertRecordSegments(
     const string &key,
-    DBT *dbtdata)
+    const void *data,
+    const uint64_t size)
+    throw (Error::ObjectExists, Error::StrategyError)
+{
+	/*
+	 * Insert all segments.
+	 * There is no danger of not having the subordinate DB here
+	 * because when the store is opened READWRITE, the upgrade
+	 * to create the subordinate DB is done.
+	 */
+	int rc;
+	DBT dbtkey;
+	DBT dbtdata;
+	int segnum = KEY_SEGMENT_START;
+	uint64_t remsize = size;
+	string keyseg = key;	/* First segment key is same as input key */
+	uint8_t *ptr = (uint8_t*)data;
+	DB *DBin = _dbP;	/* Start with primary DB file */
+	while (remsize > 0) {
+		dbtkey.data = (void *)keyseg.data();
+		dbtkey.size = keyseg.length();
+		if (remsize < MAX_REC_SIZE) {
+			dbtdata.size = remsize;
+			remsize = 0;
+		} else {
+			dbtdata.size = MAX_REC_SIZE;
+			remsize = remsize - MAX_REC_SIZE;
+		}
+		dbtdata.data = ptr;
+		ptr += dbtdata.size;
+		rc = DBin->put(DBin, &dbtkey, &dbtdata, R_NOOVERWRITE);
+		switch (rc) {
+			case 0:
+				keyseg = genKeySegName(key, segnum);
+				segnum++;
+				DBin = _dbS; /* Switch to subordinate DB */
+				break;
+			case 1:
+				throw Error::ObjectExists(
+				    "Key already in database");
+			case -1:
+				throw Error::StrategyError("Could not insert " 
+				"to database (" + Error::errorStr() + ")");
+			default:
+				throw Error::StrategyError("Unknown error "
+				"inserting into database");
+		}
+	}
+	RecordStore::insert(key, data, size);
+}
+
+/*
+ * Function to read all components of a record from the database.
+ */
+uint64_t
+BiometricEvaluation::IO::DBRecordStore::readRecordSegments(
+    const string &key,
+    void *const data)
     const
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
 
+	/*
+	 * Read all segments.
+	 */
 	DBT dbtkey;
+	DBT dbtdata;
+	uint64_t totlen = 0;
+	int segnum = KEY_SEGMENT_START;
+	string keyseg = key;	/* First segment key is same as input key */
+	uint8_t *ptr = (uint8_t*)data;
+	DB *DBin = _dbP;	/* Start with the primary DB file */
+	do {
+		dbtkey.data = (void *)keyseg.data();
+		dbtkey.size = keyseg.length();
+		int rc = DBin->get(DBin, &dbtkey, &dbtdata, 0);
+		switch (rc) {
+			case 0:
+				if (ptr != NULL) {
+					memcpy(ptr,dbtdata.data,dbtdata.size);
+					ptr += dbtdata.size;
+				}
+				totlen += dbtdata.size;
+				keyseg = genKeySegName(key, segnum);
+				segnum++;
+				DBin = _dbS; /* Switch to the subordinate DB */
+				break;
+			case 1:
+				if (DBin == _dbP) /* first time through */
+					throw Error::ObjectDoesNotExist(
+					    "Key not in database");
+				else
+					DBin = NULL;
+				break;
+			case -1:
+				throw Error::StrategyError(
+				    "Could not read from " "database (" +
+				     Error::errorStr() + ")");
+			default:
+				throw Error::StrategyError(
+				    "Unknown error reading database");
+		}
+	} while (DBin != NULL);
+	return (totlen);
+}
 
-	dbtkey.data = (void *)key.data();  /* string.data() allocates memory */
-	dbtkey.size = key.length();
-	int rc = _db->get(_db, &dbtkey, dbtdata, 0);
+/*
+ * Function to sequence all components of a record from the database.
+ */
+uint64_t
+BiometricEvaluation::IO::DBRecordStore::sequenceRecordSegments(
+    string &key,
+    void *const data,
+    u_int pos)
+    const
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	DBT dbtkey;
+	DBT dbtdata;
+
+	/*
+	 * The strategy here is:
+	 *
+	 * Perform a primary DB sequence operation, reading the key and
+	 * data at the current cursor position.
+	 * Based on the returned key, perform a DB get operation to
+	 * retrieve the data for the subordinate record segments (key&n);
+	 * When no more segments are found for the record, we are done; the
+	 * cursor will be sitting at the first segment of the next record
+	 * in the primary DB.
+	 *
+	 * NOTE that we do not use the R_CURSOR sequencing because that
+	 * may return a partial match and we don't support that. See
+	 * DBOPEN(3).
+	 */
+
+	/*
+	 * Read the first segment of the record at the cursor, which
+	 * also gives us the key at the cursor.
+	 */
+	int rc = _dbP->seq(_dbP, &dbtkey, &dbtdata, pos);
 	switch (rc) {
 		case 0:
-			return;
 			break;
 		case 1:
-			throw Error::ObjectDoesNotExist("Key not in database");
-			break;		/* not reached */
-		case -1:
-			throw Error::StrategyError("Could not read from "
-			    "database (" + Error::errorStr() + ")");
-			break;		/* not reached */
+			throw Error::ObjectDoesNotExist("No record at "
+			    "position");
 		default:
-			throw Error::StrategyError("Unknown error reading "
-			    "database");
-			break;		/* not reached */
+			throw Error::StrategyError("Could not read from " 
+			    "primary DB (" + Error::errorStr() + ")");
 	}
+	key.assign((const char *)dbtkey.data, dbtkey.size);
+	if (data != NULL)
+		memcpy(data ,dbtdata.data, dbtdata.size);
+	if (_dbS == NULL)
+		return (dbtdata.size);
+
+	/*
+	 * Read the remaining segments of the record.
+	 */
+	uint8_t *ptr = (uint8_t*)data + dbtdata.size;
+	uint64_t totlen = dbtdata.size;
+	int segnum = KEY_SEGMENT_START;
+	string keyseg;
+	bool done = false;
+	while (!done) {
+		keyseg = genKeySegName(key, segnum);
+		dbtkey.data = (void *)keyseg.data();
+		dbtkey.size = keyseg.length();
+		int rc = _dbS->get(_dbS, &dbtkey, &dbtdata, 0);
+		switch (rc) {
+			case 0:
+				if (ptr != NULL) {
+					memcpy(ptr,dbtdata.data,dbtdata.size);
+					ptr += dbtdata.size;
+				}
+				totlen += dbtdata.size;
+				segnum++;
+				break;
+			case 1:
+				done = true;
+				break;
+			case -1:
+				throw Error::StrategyError(
+				    "Could not read from subordinate DB (" +
+				     Error::errorStr() + ")");
+			default:
+				throw Error::StrategyError(
+				    "Unknown error reading subordinate DB");
+		}
+	}
+	return (totlen);
 }
+
+/*
+ * Function to remove all components of a record from the record store.
+ * This function can be called during a normal remove operations, or
+ * during a parital insert or replace operation, where inserting any given
+ * segment of the record fails and there's a need to revert a partial
+ * insertion.
+ */
+void
+BiometricEvaluation::IO::DBRecordStore::removeRecordSegments(const string &key)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	/*
+	 * Remove all segments.
+	 */
+	int rc;
+	DBT dbtkey;
+	int segnum = KEY_SEGMENT_START;
+	string keyseg = key;	/* First segment key is same as input key */
+	DB *DBin = _dbP;	/* Start with the primary DB file */
+	do {
+		dbtkey.data = (void *)keyseg.data();
+		dbtkey.size = keyseg.length();
+		rc = DBin->del(DBin, &dbtkey, 0);
+		switch (rc) {
+			case 0:
+				keyseg = genKeySegName(key, segnum);
+				segnum++;
+				DBin = _dbS; /* Switch to the subordinate DB */
+				break;
+			case 1:
+				DBin = NULL;
+				break;
+			case -1:
+				throw Error::StrategyError("Could not delete " 
+				"from DB (" + Error::errorStr() + ")");
+			default:
+				throw Error::StrategyError("Unknown error "
+				"deleting from DB");
+		}
+	} while (DBin != NULL);
+	RecordStore::remove(key);
+}
+

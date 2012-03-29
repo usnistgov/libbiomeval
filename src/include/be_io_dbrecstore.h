@@ -159,15 +159,47 @@ namespace BiometricEvaluation {
 			DBRecordStore(const DBRecordStore&);
 			DBRecordStore& operator=(const DBRecordStore&);
 
-			/* The file name of the underlying database */
-			string _dbname;
-			/* The handle to the underlying database */
-			DB *_db;
-			void internalRead(
+			/* The file names of the underlying databases. */
+			string _dbnameP;
+			string _dbnameS;
+
+			/*
+			 * The handle to the underlying database for the
+			 * primary segments of a record.
+			 */
+			DB *_dbP;
+
+			/*
+			 * The handle for the underlying database for the
+			 * non-primary (subordinate) segments.
+			 */
+			DB *_dbS;
+
+			/*
+			 * Functions to insert/read/sequence/remove all
+			 * segments of a record. 
+			 */
+			void insertRecordSegments(const string &key,
+			    const void *data, const uint64_t size)
+			    throw (Error::ObjectExists, Error::StrategyError);
+
+			uint64_t readRecordSegments(
 			    const string &key,
-			    DBT *dbtdata)
+			    void *const data)
 			    const
 			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
+
+			uint64_t sequenceRecordSegments(
+			    string &key,
+			    void *const data,
+			    u_int pos)
+			    const
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
+
+			void removeRecordSegments(const string &key)
+			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError);
 		};
 	}
