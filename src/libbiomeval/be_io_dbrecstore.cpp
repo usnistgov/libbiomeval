@@ -33,7 +33,7 @@ static const string SUBORDINATE_DBEXT = ".subordinate";
  */
 static const char KEY_SEGMENT_SEPARATOR = '&';
 static const int KEY_SEGMENT_START = 1;
-static const uint64_t MAX_REC_SIZE = (uint64_t)UINT32_MAX;
+static const uint64_t MAX_REC_SIZE = (uint64_t)4294967295U;
 
 static void setBtreeInfo(BTREEINFO *bti)
 {
@@ -113,7 +113,6 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 		    DB_BTREE, &bti);
 		if (_dbS == NULL) {
 			if (mode == READWRITE) {
-				_dbS->close(_dbS);
 				throw Error::StrategyError(
 				"Could not upgrade database.");
 			} else {
