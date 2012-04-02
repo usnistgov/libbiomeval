@@ -8,7 +8,8 @@
 # about its quality, reliability, or any other characteristic.
 #
 ROOTNAME = BECommonFramework
-SOURCETEX = intro.tex overview.tex framework.tex error.tex io.tex time.tex image.tex process.tex system.tex memory.tex text.tex feature.tex finger.tex view.tex datainterchange.tex
+SOURCETEX = title.tex intro.tex overview.tex framework.tex error.tex io.tex time.tex image.tex process.tex system.tex memory.tex text.tex feature.tex finger.tex view.tex datainterchange.tex
+SOURCEIMAGES = nistident_cent_vec.pdf
 SOURCEBIB = $(ROOTNAME).bib
 BUILDDIR = build
 LATEXBUILDDIR = $(BUILDDIR)/latex
@@ -58,6 +59,7 @@ endif
 $(LATEXBUILDDIR)/$(LATEXPDF): $(SOURCECODE) $(SOURCETEX) $(SOURCEBIB) $(LATEXMAIN) $(DOXYCONFIG)
 	cp -f $(SOURCEBIB) $(LATEXBUILDDIR)/$(LATEXBIB)
 	cp -f $(SOURCETEX) $(LATEXBUILDDIR)
+	cp -f $(SOURCEIMAGES) $(LATEXBUILDDIR)
 	$(foreach texdoc, $(SOURCETEX), perl -pe 's|(\\.*?doxyref){(.*?)}({([1-9]*?)})?|`scripts/$$1 $$2 $$4`|ge' -i $(LATEXBUILDDIR)/$(texdoc);)
 	doxygen $(DOXYCONFIG)
 	cd $(LATEXBUILDDIR) && pdflatex $(LATEXROOTNAME)
