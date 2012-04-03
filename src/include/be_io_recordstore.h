@@ -51,6 +51,11 @@ namespace BiometricEvaluation {
 			 * '/', '\', '*', '&'
 			 */
 			static const string INVALIDKEYCHARS;
+			/** Character used to separate key segments */
+			static const char KEY_SEGMENT_SEPARATOR = '&';
+			/** First segment number of a segmented record */
+			static const uint64_t KEY_SEGMENT_START = 1;
+			
  
 			/** The name of the control file, a properties list */
 			static const string CONTROLFILENAME;
@@ -563,6 +568,23 @@ namespace BiometricEvaluation {
 			    const string &key)
 			    const;
 
+			/**
+			 * @brief
+			 * Generate key segment names.
+			 * 
+			 * @param key
+			 *	Base key name.
+			 * @param segnum
+			 *	Segment number for key (zero based).
+			 *
+			 * @return
+			 *	Key segment name.
+			 */
+			static string
+			genKeySegName(
+			    const string &key,
+			    const uint64_t segnum);
+				      
 		private:
 			/* The name of the RecordStore */
 			string _name;

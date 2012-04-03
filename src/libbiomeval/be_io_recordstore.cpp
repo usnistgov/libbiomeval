@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <sstream>
 
 #include <be_error.h>
 #include <be_io_archiverecstore.h>
@@ -387,6 +388,19 @@ BiometricEvaluation::IO::RecordStore::validateKeyString(const string &key)
 		it++;
 	}
 	return (true);
+}
+
+string
+BiometricEvaluation::IO::RecordStore::genKeySegName(
+    const string &key,
+    const uint64_t segnum)
+{
+	if (segnum == 0)
+		return (key);
+		
+	ostringstream keyseg;
+	keyseg << key << KEY_SEGMENT_SEPARATOR << segnum;
+	return (keyseg.str());
 }
 
 /*

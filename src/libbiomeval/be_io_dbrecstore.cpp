@@ -31,8 +31,6 @@ static const string SUBORDINATE_DBEXT = ".subordinate";
  * 2^32. This class will break larger records up into multiple key/value
  * pairs, creating the new keys using a reserved key character.
  */
-static const char KEY_SEGMENT_SEPARATOR = '&';
-static const int KEY_SEGMENT_START = 1;
 static const uint64_t MAX_REC_SIZE = (uint64_t)4294967295U;
 
 static void setBtreeInfo(BTREEINFO *bti)
@@ -213,17 +211,6 @@ BiometricEvaluation::IO::DBRecordStore::getSpaceUsed()
 
 	return (RecordStore::getSpaceUsed() +
 		szP + ((uint64_t)sb.st_blocks * (uint64_t)S_BLKSIZE));
-}
-
-/*
- * Local function for generating key segment names as strings.
- */
-static string
-genKeySegName(const string &key, const int segnum)
-{
-	ostringstream keyseg;
-	keyseg << key << KEY_SEGMENT_SEPARATOR << segnum;
-	return (keyseg.str());
 }
 
 void
@@ -555,7 +542,7 @@ BiometricEvaluation::IO::DBRecordStore::readRecordSegments(
 				break;
 			case -1:
 				throw Error::StrategyError(
-				    "Could not read from " "database (" +
+				    "Could not read from database (" +
 				     Error::errorStr() + ")");
 			default:
 				throw Error::StrategyError(
