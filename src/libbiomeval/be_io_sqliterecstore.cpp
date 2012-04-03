@@ -286,12 +286,18 @@ BiometricEvaluation::IO::SQLiteRecordStore::remove(
 		sqlite3_finalize(statement);
 		sqliteError(rv);
 	}
-	RecordStore::remove(key);
 	
 	/* Free the statement */
 	rv = sqlite3_finalize(statement);
 	if (rv != SQLITE_OK)
 		sqliteError(rv);
+	
+	/* Check if any rows were actually deleted */
+	if (sqlite3_changes(_db) == 0)
+		throw Error::ObjectDoesNotExist(key);
+
+	/* Propagate changes to parent */		
+	RecordStore::remove(key);
 }
 
 uint64_t
@@ -395,6 +401,10 @@ BiometricEvaluation::IO::SQLiteRecordStore::replace(
 	rv = sqlite3_finalize(statement);
 	if (rv != SQLITE_OK)
 		sqliteError(rv);
+	
+	/* Check if any rows were actually deleted */
+	if (sqlite3_changes(_db) == 0)
+		throw Error::ObjectDoesNotExist(key);
 }
 
 uint64_t
@@ -453,7 +463,12 @@ BiometricEvaluation::IO::SQLiteRecordStore::flush(
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
 
-	/* nop */
+	/* 
+	 * SQLite performs an fsync() at the end of every transaction and this
+	 * cannot be forced at other times.  We can create another transaction
+	 * and ensure the key exists by checking its length.
+	 */
+	this->length(key);
 }
 
 uint64_t

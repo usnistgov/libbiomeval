@@ -333,9 +333,10 @@ BiometricEvaluation::IO::DBRecordStore::flush(
 
 	/*
 	 * Because we sync the entire database, we really don't care
-	 * whether the key exists. If we do, then we'd have to attempt
-	 * a read of the record, and that's not really needed.
+	 * whether the key exists, but check anyway with a read.
 	 */
+	this->length(key);
+	
 	int rc = _dbP->sync(_dbP, 0);
 	if (rc != 0)
 		throw Error::StrategyError("Could not flush primary DB (" +
@@ -670,6 +671,8 @@ BiometricEvaluation::IO::DBRecordStore::removeRecordSegments(const string &key)
 				DBin = _dbS; /* Switch to the subordinate DB */
 				break;
 			case 1:
+				if (DBin == _dbP)
+					throw Error::ObjectDoesNotExist(key);
 				DBin = NULL;
 				break;
 			case -1:

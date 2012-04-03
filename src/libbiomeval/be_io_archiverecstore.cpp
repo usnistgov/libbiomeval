@@ -191,7 +191,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::length(
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
 	ManifestMap::const_iterator lb = _entries.find(key);
-	if (lb == _entries.end())
+	if (lb == _entries.end() ||
+	    (lb->second).offset == ARCHIVE_RECORD_REMOVED)
 		throw Error::ObjectDoesNotExist(key);
 
 	return (lb->second).size;
@@ -412,6 +413,12 @@ BiometricEvaluation::IO::ArchiveRecordStore::flush(
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
+
+	/* Fulfill the RecordStore contract */
+	ManifestMap::const_iterator lb = _entries.find(key);
+	if (lb == _entries.end() ||
+	    (lb->second).offset == ARCHIVE_RECORD_REMOVED)
+		throw Error::ObjectDoesNotExist(key);
 
 	/* Flush the streams, not necessarily for the key passed */
 	if (_manifestfp != NULL) {

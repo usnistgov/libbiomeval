@@ -380,6 +380,56 @@ runTests(IO::RecordStore *rs)
 	testSequence(rs);
 	cout << "there should be no output." << endl;
 
+	/* Nonexistent key checks */
+	cout << "\nRemoving nonexistent key, catching exception... ";
+	try {
+		rs->remove(theKey);
+		cout << "failed." << endl;
+		return (-1);
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "success." << endl;
+	}
+	cout << "Replacing nonexistent key, catching exception... ";
+	try {
+		rs->replace(theKey, rdata, RDATASIZE);
+		cout << "failed." << endl;
+		return (-1);
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "success." << endl;
+	}
+	cout << "Read nonexistent key, catching exception... ";
+	try {
+		rs->read(theKey, rdata);
+		cout << "failed." << endl;
+		return (-1);
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "success." << endl;
+	}
+	cout << "Length of nonexistent key, catching exception... ";
+	try {
+		rs->length(theKey);
+		cout << "failed." << endl;
+		return (-1);
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "success." << endl;
+	}
+	cout << "Flush nonexistent key, catching exception... ";
+	try {
+		rs->flush(theKey);
+		cout << "failed." << endl;
+		return (-1);
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "success." << endl;
+	}
+	cout << "Set cursor at nonexistent key, catching exception... ";
+	try {
+		rs->setCursorAtKey(theKey);
+		cout << "failed." << endl;
+		return (-1);
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "success." << endl;
+	}
+
 	cout << "\nInsert with an invalid key..." << endl;
 	try {
 		string badKey("test/with/path/chars");
