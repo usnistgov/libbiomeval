@@ -402,6 +402,8 @@ autoLogger(void *ptr)
 			}
 		}
 	}
+	
+	return (NULL);
 }
 
 void
