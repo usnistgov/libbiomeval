@@ -152,6 +152,42 @@ namespace BiometricEvaluation
 			    
 			/**
 			 * @brief
+			 * Confirm that a key->value table exists with the
+			 * proper schema.
+			 *
+			 * @param table
+			 *	Name of the table to check.
+			 *
+			 * @return
+			 *	Whether or not the table exists with the proper
+			 *	schema.
+			 *
+			 * @throw Error::StrategyError
+			 *	Error compiling SQL.
+			 */
+			bool
+			validateKeyValueTable(
+			    const string &table)
+			    throw (Error::StrategyError);
+			
+			/**
+			 * @brief
+			 * Create a tables needed to store key->value pairs
+			 * in SQLite.
+			 *
+			 * @param table
+			 *	Name of the table to create.
+			 *
+			 * @throw Error::StrategyError
+			 *	Error executing SQL commands.
+			 */
+			void
+			createKeyValueTable(
+			    const string &table)
+			    throw (Error::StrategyError);
+			    
+			/**
+			 * @brief
 			 * Confirm that the schema of the opened SQLite 
 			 * database is compatible.
 			 *
@@ -165,6 +201,32 @@ namespace BiometricEvaluation
 			bool
 			validateSchema()
 			    throw (Error::StrategyError);
+			
+			/**
+			 * @brief
+			 * Select a row from the RecordStore.
+			 *
+			 * @param key
+			 *	Key of the row to select.
+			 * @param data
+			 *	If not NULL, deep copy the record for key
+			 *	into data.
+			 * 
+			 * @throw Error::ObjectDoesNotExist
+			 *	Key does not exist in RecordStore.
+			 * @throw Error::StrategyError
+			 *	Error executing SQL commands.
+			 *
+			 * @return
+			 *	Size of key's record.
+			 */
+			uint64_t
+			readSegments(
+			    const string &key,
+			    void * const data)
+			    const
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			/**
 			 * @brief
@@ -192,12 +254,14 @@ namespace BiometricEvaluation
 			/** Row for key in setCursorForKey() */
 			uint64_t _cursorRow;
 			
-			/** Name given to all SQLiteRecordStore tables */
-			static const string tableName;
+			/** Name given to the primate SQLite table */
+			static const string PRIMARY_KV_TABLE;
+			/** Name given to the subordinate SQLite table */
+			static const string SUBORDINATE_KV_TABLE;
 			/* Name given to the column that stores keys */
-			static const string keyCol;
+			static const string KEY_COL;
 			/* Name given to the column that stores values */
-			static const string valueCol;
+			static const string VALUE_COL;
 		};
 	}
 }

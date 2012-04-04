@@ -25,10 +25,28 @@
 
 using namespace std;
 
-const string BiometricEvaluation::IO::SQLiteRecordStore::keyCol = "key";
-const string BiometricEvaluation::IO::SQLiteRecordStore::valueCol = "value";
-const string BiometricEvaluation::IO::SQLiteRecordStore::tableName =
+const string BiometricEvaluation::IO::SQLiteRecordStore::KEY_COL = "key";
+const string BiometricEvaluation::IO::SQLiteRecordStore::VALUE_COL = "value";
+const string BiometricEvaluation::IO::SQLiteRecordStore::PRIMARY_KV_TABLE =
     "RecordStore";
+const string BiometricEvaluation::IO::SQLiteRecordStore::SUBORDINATE_KV_TABLE =
+    "SubordinateRecordStore";
+
+/* 
+ * The maximum record size supported by the underlying SQLite file is
+ * 2^30 by default, and never larger than 2^31. This class will break
+ * larger records up into multiple key/value pairs, creating the new 
+ * keys using a reserved key character.
+ *
+ * NOTE:
+ * The maximum size of a record can change when SQLite is compiled, so
+ * the value below is set at the default.  V2 allows one to lookup the maximum,
+ * but this will be different system to system.  Examine the maximum for your
+ * system if SQLiteRecordStore appears to be truncating data read from
+ * large records created on another system.
+ */
+static const uint64_t MAX_REC_SIZE = (uint64_t)1000000000U;
+
 
 BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
     const string &name,
@@ -207,46 +225,74 @@ BiometricEvaluation::IO::SQLiteRecordStore::insert(
 	} catch (Error::ObjectDoesNotExist) {}
 	
 	sqlite3_stmt *statement = NULL;
-	string sqlCommand = "INSERT INTO " + tableName + " " +  "VALUES ('" + 
-	    key + "', $value)";
+	string activeTable = PRIMARY_KV_TABLE;
+	uint64_t segnum = 0;
+	uint64_t remSize = size, bindSize = 0;
+	uint8_t *bindData = (uint8_t *)data;
+	while (remSize > 0) {
+		string sqlCommand = "INSERT INTO " + activeTable + " " + 
+		    "VALUES ('" + genKeySegName(key, segnum) +
+		    "', $value)";
 	
-	/* Prepare the statement */
+		/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
-	int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+		int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
+		    sqlCommand.length(), &statement, NULL);
 #else
-	int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+		int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
+		    sqlCommand.length(), &statement, NULL);
 #endif
-	if (rv != SQLITE_OK) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
+		if (rv != SQLITE_OK) {
+			sqlite3_finalize(statement);
+			sqliteError(rv);
+		}
+		if (statement == NULL)
+			throw Error::StrategyError("SQLite: Could not allocate "
+			    "statement");
+	
+		/* Bind data to the statement, segmenting if necessary */
+		if (remSize < MAX_REC_SIZE) {
+			bindSize = remSize;
+			remSize = 0;
+		} else {
+			bindSize = MAX_REC_SIZE;
+			remSize -= MAX_REC_SIZE;
+		}
+		rv = sqlite3_bind_blob(statement,
+		    sqlite3_bind_parameter_index(statement, "$value"),
+		    bindData, bindSize, SQLITE_STATIC);
+		if (rv != SQLITE_OK) {
+			sqlite3_finalize(statement);
+			sqliteError(rv);
+		}
+			
+		/* Execute the statement */
+		rv = sqlite3_step(statement);
+		if (rv != SQLITE_DONE) {
+			sqlite3_finalize(statement);
+			sqliteError(rv);
+		}
+			
+		/* Free the statement */
+		rv = sqlite3_finalize(statement);
+		if (rv != SQLITE_OK)
+			sqliteError(rv);
+			
+		/* Increment data position and segment */
+		bindData += bindSize;
+		switch (segnum) {
+		case 0:
+			segnum = KEY_SEGMENT_START;
+			activeTable = SUBORDINATE_KV_TABLE;
+			break;
+		default:
+			segnum++;
+			break;
+		}
 	}
-	if (statement == NULL)
-		throw Error::StrategyError("SQLite: Could not allocate "
-		    "statement");
-
-	/* Bind data to the statement */
-	rv = sqlite3_bind_blob(statement,
-	    sqlite3_bind_parameter_index(statement, "$value"), (void *)data,
-	    size, SQLITE_STATIC);
-	if (rv != SQLITE_OK) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
-	}
-		
-	/* Execute the statement */
-	rv = sqlite3_step(statement);
-	if (rv != SQLITE_DONE) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
-	}
+	
+	/* Propagate to parent class */
 	RecordStore::insert(key, data, size);
-		
-	/* Free the statement */
-	rv = sqlite3_finalize(statement);
-	if (rv != SQLITE_OK)
-		sqliteError(rv);
 }
 
 void
@@ -261,41 +307,65 @@ BiometricEvaluation::IO::SQLiteRecordStore::remove(
 		throw Error::StrategyError("Invalid key format");
 
 	sqlite3_stmt *statement;
-	string sqlCommand = "DELETE FROM " + tableName + " " +  "WHERE " + 
-	    keyCol + " = '" + key + "'";
-	
-	/* Prepare the statement */
+	string activeTable = PRIMARY_KV_TABLE;
+	int64_t segnum = 0;
+	bool moreSegments = true;
+	while (moreSegments) {
+		string sqlCommand = "DELETE FROM " + activeTable + " " + 
+		    "WHERE " + KEY_COL + " = '" + genKeySegName(key, segnum) + 
+		    "'";
+		
+		/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
-	int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+		int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
+		    sqlCommand.length(), &statement, NULL);
 #else
-	int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+		int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
+		    sqlCommand.length(), &statement, NULL);
 #endif
-	if (rv != SQLITE_OK) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
-	}
-	if (statement == NULL)
-		throw Error::StrategyError("SQLite: Could not allocate "
-		    "statement");
-
-	/* Execute the statement */
-	rv = sqlite3_step(statement);
-	if (rv != SQLITE_DONE) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
+		if (rv != SQLITE_OK) {
+			sqlite3_finalize(statement);
+			sqliteError(rv);
+		}
+		if (statement == NULL)
+			throw Error::StrategyError("SQLite: Could not allocate "
+			    "statement");
+	
+		/* Execute the statement */
+		rv = sqlite3_step(statement);
+		if (rv != SQLITE_DONE) {
+			sqlite3_finalize(statement);
+			sqliteError(rv);
+		}
+		
+		/* Free the statement */
+		rv = sqlite3_finalize(statement);
+		if (rv != SQLITE_OK)
+			sqliteError(rv);
+		
+		/* Increment segment number */
+		switch (segnum) {
+		case 0:
+			/* Check if any rows were actually deleted */
+			if (sqlite3_changes(_db) == 0)
+				throw Error::ObjectDoesNotExist(key);
+				
+			segnum = KEY_SEGMENT_START;
+			activeTable = SUBORDINATE_KV_TABLE;
+			break;
+		default:
+			/* Check if there could be more segments */
+			if (sqlite3_changes(_db) == 0)
+				moreSegments = false;
+			else {
+				moreSegments = true;
+				segnum++;
+			}
+				
+			break;
+		}
 	}
 	
-	/* Free the statement */
-	rv = sqlite3_finalize(statement);
-	if (rv != SQLITE_OK)
-		sqliteError(rv);
-	
-	/* Check if any rows were actually deleted */
-	if (sqlite3_changes(_db) == 0)
-		throw Error::ObjectDoesNotExist(key);
-
 	/* Propagate changes to parent */		
 	RecordStore::remove(key);
 }
@@ -308,44 +378,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::read(
     throw (Error::ObjectDoesNotExist, 
     Error::StrategyError)
 {
-	if (!validateKeyString(key))
-		throw Error::StrategyError("Invalid key format");
-
-	sqlite3_stmt *statement = NULL;
-	string sqlCommand = "SELECT " + valueCol + " FROM " + tableName + 
-	    " WHERE " + keyCol + " = '" + key + "'";
-	
-	/* Prepare the statement */
-#ifdef	SQLITE_V2_SUPPORT
-	int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
-#else
-	int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
-#endif
-	if (rv != SQLITE_OK) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
-	}
-	if (statement == NULL)
-		throw Error::StrategyError("sqlite3: Could not allocate "
-		    "statement");
-		
-	/* Execute the statement */
-	rv = sqlite3_step(statement);
-	if (rv != SQLITE_ROW) {
-		sqlite3_finalize(statement);
-		throw Error::ObjectDoesNotExist(key);
-	}
-	uint64_t bytes = sqlite3_column_bytes(statement, 0);
-	memcpy(data, sqlite3_column_blob(statement, 0), bytes);
-		
-	/* Free the statement */
-	rv = sqlite3_finalize(statement);
-	if (rv != SQLITE_OK)
-		sqliteError(rv);
-		
-	return (bytes);
+	return (this->readSegments(key, data));
 }
 
 void
@@ -361,50 +394,12 @@ BiometricEvaluation::IO::SQLiteRecordStore::replace(
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
 	
-	sqlite3_stmt *statement = NULL;
-	string sqlCommand = "UPDATE " + tableName +  " SET " + valueCol +
-	    " = $value WHERE " + keyCol + " = '" + key + "'";
-	
-	/* Prepare the statement */
-#ifdef	SQLITE_V2_SUPPORT
-	int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
-#else
-	int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
-#endif
-	if (rv != SQLITE_OK) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
-	}
-	if (statement == NULL)
-		throw Error::StrategyError("SQLite: Could not allocate "
-		    "statement");
-			
-	/* Bind data to the statement */
-	rv = sqlite3_bind_blob(statement,
-	    sqlite3_bind_parameter_index(statement, "$value"), (void *)data,
-	    size, SQLITE_STATIC);
-	if (rv != SQLITE_OK) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
-	}
-		
-	/* Execute the statement */
-	rv = sqlite3_step(statement);
-	if (rv != SQLITE_DONE) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
-	}
-		
-	/* Free the statement */
-	rv = sqlite3_finalize(statement);
-	if (rv != SQLITE_OK)
-		sqliteError(rv);
-	
-	/* Check if any rows were actually deleted */
-	if (sqlite3_changes(_db) == 0)
-		throw Error::ObjectDoesNotExist(key);
+	/* 
+	 * Could perform an UPDATE, but with segmented records, it is much
+	 * simpler to remove() all old bits and insert() new ones.
+	 */
+	this->remove(key);
+	this->insert(key, data, size);
 }
 
 uint64_t
@@ -413,44 +408,92 @@ BiometricEvaluation::IO::SQLiteRecordStore::length(
     const
     throw (Error::ObjectDoesNotExist, 
     Error::StrategyError)
+{
+	return (this->readSegments(key, NULL));
+}
+    
+uint64_t
+BiometricEvaluation::IO::SQLiteRecordStore::readSegments(
+    const string &key,
+    void * const data)
+    const
+    throw (Error::ObjectDoesNotExist, 
+    Error::StrategyError)
 {	
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
 
 	sqlite3_stmt *statement;
-	string sqlCommand = "SELECT " + valueCol + " FROM " + tableName + 
-	    " WHERE " + keyCol + " = '" + key + "'";
-	
-	/* Prepare the statement */
+	uint64_t segnum = 0;
+	uint64_t totalBytes = 0, segBytes;
+	string activeTable = PRIMARY_KV_TABLE;
+	uint8_t *dataPtr = (uint8_t *)data;
+	bool moreSegments = true;
+	while (moreSegments) {
+		string sqlCommand = "SELECT " + VALUE_COL + " FROM " + 
+		    activeTable + " WHERE " + KEY_COL + " = '" + 
+		    genKeySegName(key, segnum) + "' LIMIT 1";
+		    
+		/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
-	int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+		int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
+		    sqlCommand.length(), &statement, NULL);
 #else
-	int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+		int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
+		    sqlCommand.length(), &statement, NULL);
 #endif
-	if (rv != SQLITE_OK) {
-		sqlite3_finalize(statement);
-		sqliteError(rv);
+		if (rv != SQLITE_OK) {
+			sqlite3_finalize(statement);
+			sqliteError(rv);
+		}
+		if (statement == NULL)
+			throw Error::StrategyError("SQLite: Could not allocate "
+			    "statement");
+			
+		/* Execute the statement */
+		rv = sqlite3_step(statement);
+		switch (segnum) {
+		case 0:
+			if (rv != SQLITE_ROW) {
+				sqlite3_finalize(statement);
+				throw Error::ObjectDoesNotExist(key);
+			}
+			/* FALLTHROUGH */
+		default:
+			segBytes = sqlite3_column_bytes(statement, 0);
+			totalBytes += segBytes;
+			
+			if (data != NULL) {
+				memcpy(dataPtr,
+				    sqlite3_column_blob(statement, 0),
+				    segBytes);
+				dataPtr += segBytes;
+				break;
+			}
+		}
+
+		/* Free the statement */
+		rv = sqlite3_finalize(statement);
+		if (rv != SQLITE_OK)
+			sqliteError(rv);
+			
+		/* Increment segment number if there's more data */
+		if (segBytes == MAX_REC_SIZE) {
+			switch (segnum) {
+			case 0:
+				segnum = KEY_SEGMENT_START;
+				activeTable = SUBORDINATE_KV_TABLE;
+				break;
+			default:
+				segnum++;
+				break;
+			}
+			moreSegments = true;
+		} else
+			moreSegments = false;
 	}
-	if (statement == NULL)
-		throw Error::StrategyError("SQLite: Could not allocate "
-		    "statement");
 		
-	/* Execute the statement */
-	rv = sqlite3_step(statement);
-	if (rv != SQLITE_ROW) {
-		sqlite3_finalize(statement);
-		throw Error::ObjectDoesNotExist(key);
-	}
-	uint64_t bytes = sqlite3_column_bytes(statement, 0);
-		
-	/* Free the statement */
-	rv = sqlite3_finalize(statement);
-	if (rv != SQLITE_OK)
-		sqliteError(rv);
-		
-	return (bytes);
+	return (totalBytes);
 }
 			    
 void
@@ -486,8 +529,8 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 		    
 	int32_t rv;
 	if ((cursor == BE_RECSTORE_SEQ_START) || (_sequencer == NULL)) {
-		string sqlCommand = "SELECT *,ROWID FROM " + tableName + " " +
-		    "ORDER BY ROWID";
+		string sqlCommand = "SELECT *,ROWID FROM " + 
+		    PRIMARY_KV_TABLE + " " + "ORDER BY ROWID";
 		
 		/* Finalize previous statement */
 		rv = sqlite3_finalize(_sequencer);
@@ -522,8 +565,9 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 			sqliteError(rv);
 	
 		stringstream sqlCommand;
-		sqlCommand << "SELECT *,ROWID FROM " << tableName << " " <<
-		    "WHERE ROWID >= " << _cursorRow << " ORDER BY ROWID";
+		sqlCommand << "SELECT *,ROWID FROM " <<
+		    PRIMARY_KV_TABLE << " " << "WHERE ROWID >= " << 
+		    _cursorRow << " ORDER BY ROWID";
 		_cursorRow = 0;
 	
 		/* Prepare the statement */
@@ -579,8 +623,8 @@ BiometricEvaluation::IO::SQLiteRecordStore::setCursorAtKey(
 	int32_t rv;
 	
 	sqlite3_stmt *statement;
-	string sqlCommand = "SELECT ROWID FROM " + tableName + " WHERE " +
-	    keyCol + " = '" + key + "'";
+	string sqlCommand = "SELECT ROWID FROM " + PRIMARY_KV_TABLE + " " + 
+	    "WHERE " + KEY_COL + " = '" + key + "'";
 	
 	/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
@@ -664,12 +708,24 @@ void
 BiometricEvaluation::IO::SQLiteRecordStore::createStructure()
     throw (Error::StrategyError)
 {
+	this->createKeyValueTable(PRIMARY_KV_TABLE);
+	this->createKeyValueTable(SUBORDINATE_KV_TABLE);
+	
+	if (this->validateSchema() == false)
+		throw Error::StrategyError("SQLite: Could not validate schema");
+}
+
+void
+BiometricEvaluation::IO::SQLiteRecordStore::createKeyValueTable(
+    const string &table)
+    throw (Error::StrategyError)
+{
 	sqlite3_stmt *statement;
 	
 	/* Compile the SQL statement */
-	string sqlCommand = "CREATE TABLE " + tableName + " " + 
-	    "(" + keyCol + " VARCHAR(1024) UNIQUE PRIMARY KEY NOT NULL, " +
-	    valueCol + " BLOB)";
+	string sqlCommand = "CREATE TABLE " + table + " " + 
+	    "(" + KEY_COL + " VARCHAR(1024) UNIQUE PRIMARY KEY NOT NULL, " +
+	    VALUE_COL + " BLOB)";
 #ifdef	SQLITE_V2_SUPPORT
 	int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
 	    sqlCommand.length(), &statement, NULL);
@@ -696,20 +752,26 @@ BiometricEvaluation::IO::SQLiteRecordStore::createStructure()
 	rv = sqlite3_finalize(statement);
 	if (rv != SQLITE_OK)
 		sqliteError(rv);
-	
-	if (this->validateSchema() == false)
-		throw Error::StrategyError("SQLite: Could not validate schema");
 }
 
 bool
 BiometricEvaluation::IO::SQLiteRecordStore::validateSchema()
     throw (Error::StrategyError)
 {
+	return (this->validateKeyValueTable(PRIMARY_KV_TABLE) &&
+	    this->validateKeyValueTable(SUBORDINATE_KV_TABLE));
+}
+
+bool
+BiometricEvaluation::IO::SQLiteRecordStore::validateKeyValueTable(
+    const string &table)
+    throw (Error::StrategyError)
+{
 	sqlite3_stmt *statement;
 
 	/* Schema is good if there exists key and value columns */
-	string sqlCommand = "SELECT " + keyCol + "," + valueCol + 
-	    " FROM " + tableName + " LIMIT 1";
+	string sqlCommand = "SELECT " + KEY_COL + "," + VALUE_COL + 
+	    " FROM " + table + " LIMIT 1";
 #ifdef	SQLITE_V2_SUPPORT
 	int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
 	    sqlCommand.length(), &statement, NULL);
