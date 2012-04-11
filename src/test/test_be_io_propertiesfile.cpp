@@ -8,22 +8,37 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <sys/stat.h>
+
 #include <cstdlib>
 #include <iostream>
-#include <be_io_properties.h>
-#include <be_io_utility.h>
-#include <be_error_exception.h>
 
-#include <sys/stat.h>
+#include <be_error_exception.h>
+#include <be_io_propertiesfile.h>
+#include <be_io_utility.h>
+
 
 using namespace std;
 using namespace BiometricEvaluation;
 
 static int
-testNonMutable(IO::Properties &props)
+testNonMutable(IO::PropertiesFile &props)
 {
 	bool success = false;
+	cout << "\n\tsync(): ";
 	int rv = 0;
+	try {
+		props.sync();
+	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.getInfo() << "; success." << endl;
+		success = true;
+	} catch (Error::FileError &e) {
+		cout << "A file error occurred during sync and that should not happen!" << endl;
+	}
+	if (!success) {
+		cout << "sync() succeeded when it should not have!" << endl;
+		rv = -1;
+	}
 	cout << "\tsetProperty(): ";
 	success = false;
 	try {
@@ -48,7 +63,32 @@ testNonMutable(IO::Properties &props)
 		cout << "setPropertyFromInteger() succeeded when it should not have!" << endl;
 		rv = -1;
 	}
+	cout << "\tchangeName(): ";
+	success = false;
+	try {
+		props.changeName("foo");
+	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.getInfo() << "; success." << endl;
+		success = true;
+	}
+	if (!success) {
+		cout << "changeName() succeeded when it should not have!" << endl;
+		rv = -1;
+	}
 
+	cout << "\tConstructor(): ";
+	success = false;
+	try {
+		IO::PropertiesFile newProp("nonexistent", IO::READONLY);
+	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.getInfo() << "; success." << endl;
+		success = true;
+	}
+	if (!success) {
+		cout << "Constructor succeeded when it should not have!" << endl;
+		rv = -1;
+	}
+	
 	return (rv);
 }
 
@@ -58,9 +98,10 @@ main(int argc, char* argv[]) {
 	/* Call the constructor that will open an existing Properties file,
 	 * or create a new file.
 	 */
-	IO::Properties *props;
+	IO::PropertiesFile *props;
+	string fname = "test.prop";
 	try {
-		props = new IO::Properties();
+		props = new IO::PropertiesFile(fname);
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.getInfo()  << endl;
 		return (EXIT_FAILURE);
@@ -215,12 +256,42 @@ main(int argc, char* argv[]) {
 	}
 
 	/*
+	 * Test sync.
+	 */
+	try {
+		props->sync();
+	} catch (Error::FileError &e) {
+		cout << "A file error occurred during sync.\n";
+		return (EXIT_FAILURE);
+	}
+
+	/* Test the renaming of the properties file */
+	cout << "Testing rename of file: ";
+	string newfn = "newtest.prop";
+	props->changeName(newfn);
+	try {
+		props->sync();
+	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.getInfo() << "; failed." << endl;
+		return (EXIT_FAILURE);
+	} catch (Error::FileError &e) {
+		cout << "A file error occurred during sync.\n";
+		return (EXIT_FAILURE);
+	}
+	struct stat sb;
+	if (stat(newfn.c_str(), &sb) != 0) {
+		cout << "failed; file not stat'd." << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << "success." << endl;
+
+	/*
 	 * Tests of a read-only properties object.
 	 */
 	cout << "Testing read-only properties object: ";
 	delete props;
 	try {
-		props = new IO::Properties(IO::READONLY);
+		props = new IO::PropertiesFile(fname, IO::READONLY);
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.getInfo()  << endl;
 	cout << "success." << endl;
@@ -233,24 +304,21 @@ main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 
 	success = false;
-	delete props;
-	
-	/* Read properties from a buffer */
-	cout << "Testing Properties read from a buffer: ";
 	try {
-		string fname = "test.prop";
-		Memory::uint8Array data = IO::Utility::readFile(fname);
-		IO::Properties propsBuf(data, data.size());
-		/* Retrieve last property that was saved */
-		if (propsBuf.getProperty("string Prop") != "John   Smith")
-			throw Error::DataError("Retrieved wrong data");
-		else
-			cout << "Success" << endl;
-	} catch (Error::Exception &e) {
-		cout << "FAILURE: " << e.getInfo() << endl;
+		props->sync();
+	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.getInfo() << "; success." << endl;
+		success = true;
+	} catch (Error::FileError &e) {
+		cout << "A file error occurred during sync.\n";
+		cout << "That should not happen!" << endl;
+	}
+	if (!success) {
+		cout << "sync() succeeded when it should not have!" << endl;
 		return (EXIT_FAILURE);
 	}
-	
 
+	delete props;
+	
 	return(EXIT_SUCCESS);
 }

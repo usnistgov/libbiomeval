@@ -18,6 +18,7 @@
 
 #include <cstdio>
 #include <map>
+#include <sstream>
 #include <string>
 
 #include <be_error.h>
@@ -330,7 +331,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::write_manifest_entry(
     ManifestEntry entry)
     throw (Error::StrategyError)
 {
-	char linebuf[MAXLINELEN];
+	stringstream linebuf("");
 
 	if (_manifestfp == NULL) {
 		try {
@@ -340,9 +341,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::write_manifest_entry(
 		}
 	}
 
-	snprintf(linebuf, MAXLINELEN, "%s %llu %ld\n", key.c_str(), 
-	    entry.size, entry.offset);
-	if (fwrite(linebuf, 1, strlen(linebuf), _manifestfp) != strlen(linebuf))
+	linebuf << key << " " << entry.size << " " << entry.offset;
+	string::size_type size = linebuf.str().size();
+	if (fwrite(linebuf.str().c_str(), 1, size, _manifestfp) != size)
 		throw Error::StrategyError("Could write manifest entry for " + 
 		key + " (" + Error::errorStr() + ")");
 

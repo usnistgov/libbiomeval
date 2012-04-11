@@ -21,7 +21,7 @@
 #include <be_io_archiverecstore.h>
 #include <be_io_dbrecstore.h>
 #include <be_io_filerecstore.h>
-#include <be_io_properties.h>
+#include <be_io_propertiesfile.h>
 #include <be_io_recordstore.h>
 #include <be_io_sqliterecstore.h>
 #include <be_io_utility.h>
@@ -263,16 +263,16 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 		throw Error::StrategyError(path + " is not a "
 		    "RecordStore");
 
-	Properties *props;
+	PropertiesFile *props;
 	try {
-		props = new Properties(path + '/' +
+		props = new PropertiesFile(path + '/' +
 		    RecordStore::RecordStore::CONTROLFILENAME, IO::READONLY);
 	} catch (Error::StrategyError &e) {
                 throw Error::StrategyError("Could not read properties");
         } catch (Error::FileError& e) {
                 throw Error::StrategyError("Could not open properties");
 	}
-	std::auto_ptr<Properties> aprops(props);
+	std::auto_ptr<PropertiesFile> aprops(props);
 
 	string type;
 	try {
@@ -420,16 +420,17 @@ BiometricEvaluation::IO::RecordStore::readControlFile()
 	 * from the Properties object, checking for errors.
 	 * _directory must be set before calling this method.
 	 */
-	Properties *props;
+	PropertiesFile *props;
 	try {
-		props = new Properties(RecordStore::canonicalName(CONTROLFILENAME));
+		props = new PropertiesFile(
+		    RecordStore::canonicalName(CONTROLFILENAME));
 	} catch (Error::StrategyError &e) {
                 throw Error::StrategyError("Could not read properties");
         } catch (Error::FileError& e) {
                 throw Error::StrategyError("Could not open properties");
 	}
 
-	auto_ptr<Properties> aprops(props);
+	auto_ptr<PropertiesFile> aprops(props);
 
 	/* Don't change any object state until all properties are read */
 	string tname, tdescription, ttype;
@@ -468,16 +469,17 @@ BiometricEvaluation::IO::RecordStore::writeControlFile()
 	if (_mode == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	Properties *props;
+	PropertiesFile *props;
 	try {
-		props = new Properties(RecordStore::canonicalName(CONTROLFILENAME));
+		props = new PropertiesFile(
+		    RecordStore::canonicalName(CONTROLFILENAME));
 	} catch (Error::FileError &e) {
                 throw Error::StrategyError("Could not write properties");
 	} catch (Error::StrategyError &e) {
                 throw Error::StrategyError("Could not write properties");
 	}
 
-	auto_ptr<Properties> aprops(props);
+	auto_ptr<PropertiesFile> aprops(props);
 	aprops->setProperty(NAMEPROPERTY, _name);
 	aprops->setProperty(DESCRIPTIONPROPERTY, _description);
 	aprops->setProperty(TYPEPROPERTY, _type);

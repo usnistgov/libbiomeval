@@ -10,80 +10,52 @@
 #ifndef __BE_IO_PROPERTIES_H__
 #define __BE_IO_PROPERTIES_H__
 
-#include <string>
 #include <map>
-#include <be_io.h>
+#include <string>
+
 #include <be_error_exception.h>
+#include <be_io.h>
+#include <be_memory_autoarray.h>
 
 using namespace std;
 
-namespace BiometricEvaluation {
-
-	namespace IO {
-
+namespace BiometricEvaluation
+{
+	namespace IO
+	{
+		/** Internal structure used for storing property keys/values */
 		typedef map<string, string> PropertiesMap;
 
-/**
- * @brief
- * A Properties class is used to maintain key/value pairs of strings, with
- * each property matched to one value.
- * @details
- * The properties are read from a file that is specified in the constructor,
- * and will be created if it does not exist.
- *
- * An example file might look like this:
- * \verbatim
- *     Name = John Smith
- *     Age = 32
- *     Favorite Hex Number = 0xffff
- * \endverbatim
- *
- * For property keys and values, leading and trailing whitespace is removed,
- * therefore a the call 
- * \code
- *     props->setProperty("  My property   ", "   A Value  ");
- * \endcode
- * results in an entry in the property file as
- * \verbatim
- *     My property = A value
- * \endverbatim
- *
- * Therefore, the property names "Foo", "  Foo", "Foo  " are equivalent.
- */
+		/**
+		* @brief
+		* Maintain key/value pairs of strings, with each property
+		* matched to one value.
+		*/
 		class Properties {
 		public:
+			/** Convenience const iterator over a Properties */
 			typedef PropertiesMap::const_iterator Properties_iter;
 			
 			/**
-			 * Construct a new Properties object from an existing
-			 * or to be created properties file. The constructor
-			 * will create the file when it does not exist.
+			 * @brief
+			 * Construct a new Properties object.
 			 *
-			 * @param[in] filename
-			 *	The name of the file to store the properties.
-			 *	This can be the empty string, meaning the
-			 *	properties are to be stored in memory only.
 			 * @param[in] mode
 			 * 	The read/write mode of the object.
 			 *
 			 * @return
 			 *      An object representing the properties set.
-			 *
-			 * @throw Error::StrategyError
-			 *	A line in the properties file is malformed.
-			 * @throw Error::FileError
-			 *	An error occurred when using the underlying
-			 *	storage system.
 			 */
 			Properties(
-			    const string &filename,
-			    uint8_t mode = IO::READWRITE)
-			    throw (Error::StrategyError, 
-				   Error::FileError);
+			    uint8_t mode = IO::READWRITE);
 			
 			/**
+			 * @brief
 			 * Construct a new Properties object from the contents
 			 * of a buffer.
+			 * @details
+			 * The format of the buffer can be seen in
+			 * PropertiesFile.
 			 *
 			 * @param[in] buffer
 			 *	A buffer that contains the contents of a 
@@ -99,66 +71,82 @@ namespace BiometricEvaluation {
 			 */
 			Properties(
 			    const uint8_t *buffer,
-			    const size_t size)
+			    const size_t size,
+			    uint8_t mode = IO::READWRITE)
 			    throw (Error::StrategyError);
+			    
 			/**
-			 * Set a property with a value. Both the property and
-			 * value will have leading and trailing whitespace
-			 * removed. If the property already exists in the set,
-			 * its value will be replaced with the new value;
-			 * otherwise, the property will be created.
+			 * @brief
+			 * Set a property with a value.
+			 * @details
+			 * Both the property and value will have leading and
+			 * trailing whitespace removed. If the property already
+			 * exists in the set, its value will be replaced with
+			 * the new value; otherwise, the property will be
+			 * created.
 			 *
 			 * @param[in] property
 			 *	The name of the property to set.
 			 * @param[in] value
 			 *	The value associated with the property.
+			 *
 			 * @throw Error::StrategyError
 			 *	The Properties object is read-only.
 			 */
-			void setProperty(
+			virtual void
+			setProperty(
 			    const string &property,
 			    const string &value)
 			    throw (Error::StrategyError);
 
 			/**
-			 * Set a property with an integer value. The property
-			 * will have leading and trailing whitespace removed.
-			 * If the property already exists in the set, its
-			 * value will be replaced with the new value; otherwise
-			 * the property will be created.
+			 * @brief
+			 * Set a property with an integer value.
+			 * @details
+			 * The property will have leading and trailing
+			 * whitespace removed.  If the property already exists
+			 * in the set, its value will be replaced with the new
+			 * value; otherwise the property will be created.
 			 *
 			 * @param[in] property
 			 *	The name of the property to set.
 			 * @param[in] value
 			 *	The value associated with the property.
+			 *
 			 * @throw Error::StrategyError
 			 *	The Properties object is read-only.
 			 */
-			void setPropertyFromInteger(
+			virtual void
+			setPropertyFromInteger(
 			    const string &property,
 			    int64_t value)
 			    throw (Error::StrategyError);
 			
 			/**
-			 * Set a property with a double value. The property
-			 * will have leading and trailing whitespace removed.
-			 * If the property already exists in the set, its
-			 * value will be replaced with the new value; otherwise
-			 * the property will be created.
+			 * @brief
+			 * Set a property with a double value.
+			 * @details
+			 * The property will have leading and trailing
+			 * whitespace removed.  If the property already exists
+			 * in the set, its value will be replaced with the new
+			 * value; otherwise the property will be created.
 			 *
 			 * @param[in] property
 			 *	The name of the property to set.
 			 * @param[in] value
 			 *	The value associated with the property.
+			 *
 			 * @throw Error::StrategyError
 			 *	The Properties object is read-only.
 			 */
-			void setPropertyFromDouble(
+			virtual void
+			setPropertyFromDouble(
 			    const string &property,
 			    double value)
 			    throw (Error::StrategyError);
 
 			/**
+			 * @brief
 			 * Remove a property.
 			 *
 			 * @param[in] property
@@ -169,12 +157,14 @@ namespace BiometricEvaluation {
 			 * @throw Error::StrategyError
 			 *	The Properties object is read-only.
 			 */
-			void removeProperty(
+			virtual void
+			removeProperty(
 			    const string &property)
 			    throw (Error::ObjectDoesNotExist,
-				   Error::StrategyError);
+			    Error::StrategyError);
 
 			/**
+			 * @brief
 			 * Retrieve a property value as a string object.
 			 *
 			 * @param[in] property
@@ -183,12 +173,16 @@ namespace BiometricEvaluation {
 			 * @throw Error::ObjectDoesNotExist
 			 *	The named property does not exist.
 			 */
-			string getProperty(
+			virtual string
+			getProperty(
 			    const string &property)
+			    const
 			    throw (Error::ObjectDoesNotExist);
 
 			/**
+			 * @brief
 			 * Retrieve a property value as an integer value.
+			 * @details
 			 * Integer value strings for properties can represent
 			 * either decimal or hexadecimal values, which must be
 			 * preceded with either "0x" or "0X".
@@ -202,12 +196,15 @@ namespace BiometricEvaluation {
 			 *	The property value cannot be converted, usually
 			 *	 due to non-numeric characters in the string.
 			 */
-			int64_t getPropertyAsInteger(
+			virtual int64_t
+			getPropertyAsInteger(
 			    const string &property)
+			    const
 			    throw (Error::ObjectDoesNotExist,
-				   Error::ConversionError);
+			    Error::ConversionError);
 				   
 			/**
+			 * @brief
 			 * Retrieve a property value as a double value.
 			 *
 			 * @param[in] property
@@ -216,60 +213,95 @@ namespace BiometricEvaluation {
 			 * @throw Error::ObjectDoesNotExist
 			 *	The named property does not exist.
 			 */
-			double
+			virtual double
 			getPropertyAsDouble(
 			    const string &property)
+			    const
 			    throw (Error::ObjectDoesNotExist);
-
-			/**
-			 * Write the properties to the underlying file,
-			 * synchronizing the in-memory and on-disk versions.
-			 *
-			 * @throw Error::FileError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 * @throw Error::StrategyError
-			 *	The object was constructed with NULL as the
-			 *	file name, or is read-only.
-			 */
-			void sync()
-			    throw (Error::FileError,
-				   Error::StrategyError);
-
-			/**
-			 * Change the name of the Properties, which means
-			 * changing the name of the underlying file that stores
-			 * the properties. The empty string ("") can be used
-			 * to indicate no backing file.
-			 * @note
-			 * No check is made that the file is writeable at this
-			 * time.
-			 *
-			 * @param[in] filename
-			 *	The name of the properties file.
-			 * @throw Error::StrategyError
-			 *	The object is read-only.
-			 */
-			void changeName(
-			    const string &filename)
-			    throw (Error::StrategyError);
+			
+			/** Destructor */
+			virtual ~Properties();
 
 		protected:
+			/**
+			 * @brief
+			 * Obtain the mode of the Properties object.
+			 *
+			 * @return
+			 *	Mode (IO::READONLY or IO::READWRITE)
+			 */
+			uint8_t
+			getMode()
+			    const;
+			    
+			/**
+			 * @brief
+			 * Initialize the PropertiesMap with the contents
+			 * of a properly formatted buffer.
+			 * @details
+			 * This method ensures that the PropertiesMap contains
+			 * only the properties found within the buffer.
+			 *
+			 * @param buffer
+			 *	Contents of a properties file.
+			 *
+ 			 * @throw Error::StrategyError
+			 *	A line of the buffer is malformed.
+			 */
+			void
+			initWithBuffer(
+			    const Memory::uint8Array &buffer)
+			    throw (Error::StrategyError);
+			    
+			/**
+			 * @brief
+			 * Initialize the PropertiesMap with the contents
+			 * of a properly formatted buffer.
+			 * @details
+			 * This method ensures that the PropertiesMap contains
+			 * only the properties found within the buffer.
+			 *
+			 * @param buffer
+			 *	Contents of a properties file.
+			 * @param size
+			 *	Size of the buffer.
+			 *
+ 			 * @throw Error::StrategyError
+			 *	A line of the buffer is malformed.
+			 */
+			void
+			initWithBuffer(
+			    const uint8_t *const buffer,
+			    size_t size)
+			    throw (Error::StrategyError);
+			
+			/**
+			 * @brief
+			 * Obtain iterator to the first property.
+			 *
+			 * @return
+			 *	Iterator to first property.
+			 */
+			Properties_iter
+			begin()
+			    const;
+			
+			/**
+			 * @brief
+			 * Obtain iterator to one past the last property.
+			 *
+			 * @return
+			 *	Iterator one past the last property.
+			 */
+			Properties_iter
+			end()
+			    const;
 
 		private:
-			/* Prevent copying of Properties objects */
-			Properties(const Properties&);
-			Properties& operator=(const Properties&);
-
-			/* The file name of the underlying properties file */
-			string _filename;
-			/* Flag indicating properties are in memory only */
-			bool _noFile;
-			/* The map containing the property/value pairs */
+			/** The map containing the property/value pairs */
 			PropertiesMap _properties;
-			/*
-			 * Mode in which the Properties object was opened.
-			 */
+			
+			/** Mode in which the Properties object was opened */
 			uint8_t _mode;
 		};
 	}

@@ -8,14 +8,17 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <sys/types.h>
+
+#include <fstream>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+
 #include <errno.h>
 #include <limits.h>
-#include <math.h>
-#include <stdlib.h>
+
 #include <be_io_properties.h>
 #include <be_io_utility.h>
 #include <be_text.h>
@@ -23,63 +26,39 @@
 static string RO_ERR_MSG = "Object is read-only";
 
 BiometricEvaluation::IO::Properties::Properties(
-	const string &filename,
-	uint8_t mode)
-	throw (Error::StrategyError, Error::FileError)
+    uint8_t mode) :
+    _mode(mode)
 {
-	_mode = mode;
-	_noFile = false;
-	if (filename == "") {
-		_noFile = true;
-		return;
-	}
-	_filename = filename;
-	if (!IO::Utility::fileExists(_filename)) {
-		if (mode == IO::READONLY)
-			throw Error::StrategyError("Properties file does not "
-			    "exist and mode is read-only");
 
-		FILE *fp = fopen(_filename.c_str(), "w");
-		if (fp == NULL)
-			throw Error::FileError("Could not create new properties file");
-		fclose(fp);
-		return;
-	}
-
-	std::ifstream ifs(_filename.c_str());
-	if (!ifs)
-		throw Error::FileError("Could not open properties file");
-
-	string oneline;
-	string property, value;
-	string::size_type idx;
-
-	while (!ifs.eof()) {
-		std::getline(ifs, oneline);
-		if (oneline.length() == 0)
-			continue;
-
-		/*
-		 * Each line must contain a '=' separator
-		 */
-		idx = oneline.find("=");
-		if ((idx == string::npos) || (idx == 0))
-			throw Error::StrategyError("Properties file has invalid line");
-		property = oneline.substr(0, idx);
-		Text::removeLeadingTrailingWhitespace(property);
-		value = oneline.substr(idx + 1, oneline.length());
-		Text::removeLeadingTrailingWhitespace(value);
-		
-		_properties[property] = value;
-	}
-	ifs.close();
 }
 
 BiometricEvaluation::IO::Properties::Properties(
     const uint8_t *buffer,
-    const size_t size)
+    const size_t size,
+    uint8_t mode)
+    throw (Error::StrategyError) :
+    _mode(mode)
+{
+	this->initWithBuffer(buffer, size);
+}
+
+void
+BiometricEvaluation::IO::Properties::initWithBuffer(
+    const Memory::uint8Array &buffer)
     throw (Error::StrategyError)
 {
+	this->initWithBuffer(buffer, buffer.size());
+}
+
+void
+BiometricEvaluation::IO::Properties::initWithBuffer(
+    const uint8_t *const buffer,
+    size_t size)
+    throw (Error::StrategyError)
+{
+	/* Initialize the PropertiesMap */
+	_properties.clear();
+
 	bool eof = false;
 	size_t offset = 0;
 	string::size_type idx;
@@ -174,27 +153,31 @@ BiometricEvaluation::IO::Properties::removeProperty(
 
 string
 BiometricEvaluation::IO::Properties::getProperty(
-	const string &property)
-	throw (Error::ObjectDoesNotExist)
+    const string &property)
+    const
+    throw (Error::ObjectDoesNotExist)
 {
 	string p = property;
 	Text::removeLeadingTrailingWhitespace(p);
-	if (_properties.find(p) == _properties.end())
+	PropertiesMap::const_iterator it = _properties.find(p);
+	if (it == _properties.end())
 		throw Error::ObjectDoesNotExist();
-	return(_properties[p]);
+	return(it->second);
 }
 
 int64_t
 BiometricEvaluation::IO::Properties::getPropertyAsInteger(
-	const string &property)
-	throw (Error::ObjectDoesNotExist, Error::ConversionError)
+    const string &property)
+    const
+    throw (Error::ObjectDoesNotExist, Error::ConversionError)
 {
 	string p = property;
 	Text::removeLeadingTrailingWhitespace(p);
-	if (_properties.find(p) == _properties.end())
+	PropertiesMap::const_iterator it = _properties.find(p);
+	if (it == _properties.end())
 		throw Error::ObjectDoesNotExist();
 
-	string value = _properties[p];	/* Whitespace already removed */
+	string value = it->second;	/* Whitespace already removed */
 
 	int base = 10;
 	/* Check for hexadecimal value */
@@ -227,6 +210,7 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 double
 BiometricEvaluation::IO::Properties::getPropertyAsDouble(
     const string &property)
+    const
     throw (Error::ObjectDoesNotExist)
 {
 	stringstream converter(getProperty(property));
@@ -236,37 +220,28 @@ BiometricEvaluation::IO::Properties::getPropertyAsDouble(
 	return (doubleValue);
 }
 
-void
-BiometricEvaluation::IO::Properties::sync()
-    throw (Error::FileError, Error::StrategyError)
+uint8_t
+BiometricEvaluation::IO::Properties::getMode()
+    const
 {
-	if (_mode == IO::READONLY)
-		throw Error::StrategyError(RO_ERR_MSG);
-
-	if (_noFile)
-		throw Error::StrategyError("Object has no properties file");
-
-	std::ofstream ofs(_filename.c_str());
-	if (!ofs)
-		throw Error::FileError("Could not write properties file");
-
-	for (Properties_iter p = _properties.begin(); p != _properties.end();
-	     ++p)
-		ofs << p->first << " = " << p->second << '\n';
-	ofs.close();
+	return (_mode);
 }
 
-void
-BiometricEvaluation::IO::Properties::changeName(
-    const string &filename)
-    throw (Error::StrategyError)
+BiometricEvaluation::IO::Properties::Properties_iter
+BiometricEvaluation::IO::Properties::begin()
+    const
 {
-	if (_mode == IO::READONLY)
-		throw Error::StrategyError(RO_ERR_MSG);
+	return (_properties.begin());
+}
 
-	_filename = filename;
-	if (filename == "")
-		_noFile = true;
-	else
-		_noFile = false;
+BiometricEvaluation::IO::Properties::Properties_iter
+BiometricEvaluation::IO::Properties::end()
+    const
+{
+	return (_properties.end());
+}
+
+BiometricEvaluation::IO::Properties::~Properties()
+{
+	
 }
