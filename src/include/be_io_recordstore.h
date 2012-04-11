@@ -13,8 +13,11 @@
 #include <string>
 #include <tr1/memory>
 #include <vector>
-#include <be_io.h>
+
 #include <be_error_exception.h>
+#include <be_io.h>
+#include <be_memory_autoarray.h>
+
 using namespace std;
 
 /*
@@ -233,6 +236,28 @@ namespace BiometricEvaluation {
 			    const uint64_t size)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError) = 0;
+			
+			/**
+			 * Insert a record into the store.
+			 *
+			 * @param[in] key
+			 *	The key of the record to be inserted.
+			 * @param[in] data
+			 *	The data for the record.
+			 *
+			 * @throw Error::ObjectExists
+			 *	A record with the given key is already
+			 *	present.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			void
+			insert(
+			    const string &key,
+			    const Memory::uint8Array &data)
+			    throw (Error::ObjectExists,
+			    Error::StrategyError);
 
 			/**
 			 * Remove a record from the store.

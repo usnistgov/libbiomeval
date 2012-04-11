@@ -146,6 +146,16 @@ BiometricEvaluation::IO::RecordStore::insert(
 }
 
 void
+BiometricEvaluation::IO::RecordStore::insert(
+    const string &key,
+    const Memory::uint8Array &data)
+    throw (Error::ObjectExists,
+    Error::StrategyError)
+{
+	this->insert(key, data, data.size());
+}
+
+void
 BiometricEvaluation::IO::RecordStore::remove(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)

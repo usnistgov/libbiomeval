@@ -364,7 +364,9 @@ runTests(IO::RecordStore *rs)
 
 	/* Reinsert the record for the key that was deleted above */
 	snprintf(rdata, RDATASIZE, "Bogus data for key%u", i);
-	rs->insert(theKey, rdata, RDATASIZE);
+	Memory::uint8Array aardata;
+	aardata.copy((uint8_t *)rdata, RDATASIZE);
+	rs->insert(theKey, aardata);
 	cout << "Name is now " << rs->getName() << endl;
 	cout << "\nDeleting all records..." << endl;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
