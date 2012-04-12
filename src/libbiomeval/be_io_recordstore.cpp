@@ -155,6 +155,32 @@ BiometricEvaluation::IO::RecordStore::insert(
 	this->insert(key, data, data.size());
 }
 
+uint64_t 
+BiometricEvaluation::IO::RecordStore::read(
+    const string &key,
+    Memory::uint8Array &data)
+    const
+    throw (Error::ObjectDoesNotExist, 
+    Error::StrategyError)
+{
+	data.resize(this->length(key));
+	/* Cast to avoid undesired recursion */
+	return (this->read(key, static_cast<void *>(data)));
+}
+
+uint64_t
+BiometricEvaluation::IO::RecordStore::sequence(
+    string &key,
+    Memory::uint8Array &data,
+    int cursor)
+    throw (Error::ObjectDoesNotExist, 
+    Error::StrategyError)
+{
+	data.resize(this->sequence(key, NULL));
+	/* Cast to avoid undesired recursion */
+	return (this->read(key, static_cast<void *>(data)));
+}
+
 void
 BiometricEvaluation::IO::RecordStore::remove(
     const string &key)

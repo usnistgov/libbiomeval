@@ -298,6 +298,35 @@ namespace BiometricEvaluation {
 			    const
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
+			
+			/**
+			 * @brief
+			 * Read a complete record from a store.
+			 * @details
+			 * The AutoArray will be resized to match the 
+			 * size of the data.
+			 *
+			 * @param[in] key
+			 *	The key of the record to be read.
+			 * @param[in] data
+			 *	Pointer to where the data is to be written.
+			 *
+			 * @return
+			 * 	The size of the record.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */	
+			virtual uint64_t
+			read(
+			    const string &key,
+			    Memory::uint8Array &data)
+			    const
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			/**
 			 * Replace a complete record in a store.
@@ -361,15 +390,18 @@ namespace BiometricEvaluation {
 			/** Tell sequence to sequence from current position */
 			static const int BE_RECSTORE_SEQ_NEXT = 2;
 			/**
+			 * @brief
 			 * Sequence through a RecordStore, returning the
-			 * key/data pairs. Sequencing means to start at some
-			 * point in the store and return the record, then
-			 * repeatedly calling the sequencor to return the
-			 * next record. The starting point is typically the 
-			 * the first record, and is set to that when the
-			 * RecordStore object is created. The starting point
-			 * can be reset by calling this method with the
-			 * cursor parameter set to BE_RECSTORE_SEQ_START.
+			 * key/data pairs.
+			 * @details
+			 * Sequencing means to start at some point in the
+			 * store and return the record, then repeatedly
+			 * calling the sequencor to return the next record.
+			 * The starting point is typically the first record, 
+			 * and is set to that when the RecordStore object is
+			 * created. The starting point can be reset by calling
+			 * this method with the cursor parameter set to 
+			 * BE_RECSTORE_SEQ_START.
 			 *
 			 * @param[out] key
 			 *	The key of the currently sequenced record.
@@ -394,6 +426,44 @@ namespace BiometricEvaluation {
 			    int cursor = BE_RECSTORE_SEQ_NEXT)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
+			    
+			/**
+			 * @brief
+			 * Sequence through a RecordStore, returning the
+			 * key/data pairs.
+			 * @details
+			 * Sequencing means to start at some point in the
+			 * store and return the record, then repeatedly
+			 * calling the sequencor to return the next record.
+			 * The starting point is typically the first record, 
+			 * and is set to that when the RecordStore object is
+			 * created. The starting point can be reset by calling
+			 * this method with the cursor parameter set to 
+			 * BE_RECSTORE_SEQ_START.
+			 *
+			 * @param[out] key
+			 *	The key of the currently sequenced record.
+			 * @param[in] data
+			 *	Pointer to where the data is to be written.
+			 * @param[in] cursor
+			 *	The location within the sequence of the
+			 *	key/data pair to return.
+			 *
+			 * @return
+			 *	The length of the record currently in sequence.
+			 * @throw Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			virtual uint64_t
+			sequence(
+			    string &key,
+			    Memory::uint8Array &data,
+			    int cursor = BE_RECSTORE_SEQ_NEXT)
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			/**
 			 * Set the sequence cursor to an arbitrary position
