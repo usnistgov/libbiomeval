@@ -252,7 +252,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
-			void
+			virtual void
 			insert(
 			    const string &key,
 			    const Memory::uint8Array &data)
