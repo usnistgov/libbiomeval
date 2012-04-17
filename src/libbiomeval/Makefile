@@ -24,7 +24,7 @@ FEATURE = be_feature_minutiae.cpp be_feature_an2k7minutiae.cpp be_feature_incits
 
 PROCESS_MANAGEMENT = be_process_worker.cpp be_process_workercontroller.cpp be_process_manager.cpp be_process_forkmanager.cpp be_process_posixthreadmanager.cpp
 
-VIEW = be_view_an2kview.cpp be_view_an2kview_varres.cpp
+VIEW = be_view_view.cpp be_view_an2kview.cpp be_view_an2kview_varres.cpp
 
 FINGER = be_finger.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_finger_incitsview.cpp be_finger_ansi2004view.cpp be_finger_ansi2007view.cpp be_finger_iso2005view.cpp
 

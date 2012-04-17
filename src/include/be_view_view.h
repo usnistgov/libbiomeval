@@ -30,7 +30,7 @@ namespace BiometricEvaluation
 		 */
 		class View {
 		public:
-			virtual ~View() {};
+			virtual ~View() = 0;
 
 			/**
 			 * @brief
