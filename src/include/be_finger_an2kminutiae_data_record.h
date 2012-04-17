@@ -17,6 +17,10 @@
 #include <be_feature_an2k7minutiae.h>
 #include <be_memory_autoarray.h>
 
+/* an2k.h forward declares */
+struct record;
+typedef record RECORD;
+
 using namespace std;
 
 namespace BiometricEvaluation {

@@ -45,7 +45,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewFixedResolution(
 			    const std::string filename,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (
 				Error::ParameterError,
@@ -57,7 +57,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewFixedResolution(
 			    Memory::uint8Array &buf,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (
 				Error::ParameterError,
@@ -78,7 +78,7 @@ namespace BiometricEvaluation
 			 *	The AN2K record has invalid or missing data.
 			 */
 			void readImageRecord(
-			    const uint8_t typeID)
+			    const RecordType::Kind typeID)
 			    throw (Error::DataError);
 
 		};

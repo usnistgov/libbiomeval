@@ -9,6 +9,9 @@
  */
 #include <be_finger_an2kview_latent.h>
 #include <be_io_utility.h>
+extern "C" {
+#include <an2k.h>
+}
 
 using namespace BiometricEvaluation;
 
@@ -16,7 +19,7 @@ BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
     const std::string &filename,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError, Error::FileError) :
-    AN2KViewVariableResolution(filename, TYPE_13_ID, recordNumber)
+    AN2KViewVariableResolution(filename, RecordType::Type_13, recordNumber)
 {
 	readImageRecord();
 }
@@ -25,7 +28,7 @@ BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
     Memory::uint8Array &buf,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError) :
-    AN2KViewVariableResolution(buf, TYPE_13_ID, recordNumber)
+    AN2KViewVariableResolution(buf, RecordType::Type_13, recordNumber)
 {
 	readImageRecord();
 }
@@ -60,7 +63,7 @@ void
 BiometricEvaluation::Finger::AN2KViewLatent::readImageRecord()
     throw (Error::DataError)
 {
-	Memory::AutoArray<RECORD> record = AN2KView::getAN2KRecord();
+	RECORD *record = AN2KView::getAN2KRecord();
 
 	/*********************************************************************/
 	/* Required Fields.                                                  */

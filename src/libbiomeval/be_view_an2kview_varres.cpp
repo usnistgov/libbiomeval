@@ -13,12 +13,15 @@
 #include <be_io_utility.h>
 #include <be_memory_autobuffer.h>
 #include <be_view_an2kview_varres.h>
+extern "C" {
+#include <an2k.h>
+}
 
 using namespace BiometricEvaluation;
 
 BiometricEvaluation::View::AN2KViewVariableResolution::AN2KViewVariableResolution(
     const std::string &filename,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError, Error::FileError) :
     AN2KView(filename, typeID, recordNumber)
@@ -28,7 +31,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::AN2KViewVariableResolutio
 
 BiometricEvaluation::View::AN2KViewVariableResolution::AN2KViewVariableResolution(
     Memory::uint8Array &buf,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError) :
     AN2KView(buf, typeID, recordNumber)
@@ -113,19 +116,19 @@ BiometricEvaluation::View::AN2KViewVariableResolution::getQualityMetric()
 
 void
 BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
-    const uint8_t typeID)
+    const RecordType::Kind typeID)
     throw (Error::DataError)
 {
 	switch (typeID) {
-		case TYPE_13_ID:
-		case TYPE_14_ID:	
-		case TYPE_15_ID:	
+		case RecordType::Type_13:
+		case RecordType::Type_14:	
+		case RecordType::Type_15:	
 			break;
 		default:
 			throw Error::ParameterError("Invalid Record Type ID");
 	}
 
-	Memory::AutoArray<RECORD> record = AN2KView::getAN2KRecord();
+	RECORD* record = AN2KView::getAN2KRecord();
 
 	/*********************************************************************/
 	/* Required Fields.                                                  */
@@ -201,10 +204,10 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 	/* Latent/finger/palm quality metric */
 	int quality_id;
 	switch (typeID) {
-	case TYPE_13_ID:
+	case RecordType::Type_13:
 		quality_id = LQM_ID;
 		break;
-	case TYPE_14_ID:
+	case RecordType::Type_14:
 	default:
 		quality_id = FQM_ID;
 		break;
@@ -215,7 +218,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 
 Memory::uint8Array
 BiometricEvaluation::View::AN2KViewVariableResolution::parseUserDefinedField(
-    const Memory::AutoArray<RECORD> &record,
+    const RECORD* const record,
     int fieldID)
     throw (Error::ParameterError)
 {

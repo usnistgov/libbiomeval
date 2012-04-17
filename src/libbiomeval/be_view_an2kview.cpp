@@ -18,6 +18,9 @@
 #include <be_io_utility.h>
 #include <be_view_an2kview.h>
 #include <be_memory_autobuffer.h>
+extern "C" {
+#include <an2k.h>
+}
 
 using namespace BiometricEvaluation;
 
@@ -26,9 +29,10 @@ const double BiometricEvaluation::View::AN2KView::HalfMinimumScanResolutionPPMM 
 
 BiometricEvaluation::View::AN2KView::AN2KView(
     const std::string filename,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError, Error::FileError)
+    throw (Error::ParameterError, Error::DataError, Error::FileError) :
+	_an2kRecord(NULL)
 {
 	if (!IO::Utility::fileExists(filename))
 		throw (Error::FileError("File not found."));
@@ -51,9 +55,10 @@ BiometricEvaluation::View::AN2KView::AN2KView(
 
 BiometricEvaluation::View::AN2KView::AN2KView(
     Memory::uint8Array &buf,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError)
+    throw (Error::ParameterError, Error::DataError) :
+	_an2kRecord(NULL)
 {
 	_an2k = Memory::AutoBuffer<ANSI_NIST>(&alloc_ANSI_NIST,
 		&free_ANSI_NIST, &copy_ANSI_NIST);
@@ -64,6 +69,10 @@ BiometricEvaluation::View::AN2KView::AN2KView(
 		throw Error::DataError("Could not read AN2K buffer");
 	readImageCommon(_an2k, typeID, recordNumber);
 	associateMinutiaeData(buf);
+}
+
+BiometricEvaluation::View::AN2KView::~AN2KView()
+{
 }
 
 /*****************************************************************************/
@@ -121,13 +130,13 @@ BiometricEvaluation::View::AN2KView::getScanResolution() const
 
 Image::CompressionAlgorithm::Kind
 BiometricEvaluation::View::AN2KView::convertCompressionAlgorithm(
-    int recordType,
+    const uint16_t recordType,
     const unsigned char *an2kValue)
     throw(Error::ParameterError, Error::DataError)
 {
 	switch (recordType) {
-	case TYPE_14_ID:
-	case TYPE_13_ID:
+	case RecordType::Type_14:
+	case RecordType::Type_13:
 		if (!strcmp((const char*)an2kValue, "NONE"))
 			return (Image::CompressionAlgorithm::None);
 		else if (!strcmp((const char*)an2kValue, "WSQ20"))
@@ -146,8 +155,8 @@ BiometricEvaluation::View::AN2KView::convertCompressionAlgorithm(
 			throw Error::DataError("Invalid compression algorithm");
 		break;
 
-	case TYPE_3_ID:
-	case TYPE_4_ID:
+	case RecordType::Type_3:
+	case RecordType::Type_4:
 		/* ANSI/NIST-ITL 1-2007, Page 9 */
 		switch (atoi((const char*)an2kValue)) {
 		case 0: return (Image::CompressionAlgorithm::None);
@@ -156,8 +165,8 @@ BiometricEvaluation::View::AN2KView::convertCompressionAlgorithm(
 			throw Error::DataError("Invalid compression algorithm");
 		}
 		break;
-	case TYPE_5_ID:
-	case TYPE_6_ID:
+	case RecordType::Type_5:
+	case RecordType::Type_6:
 		/* ANSI/NIST-ITL 1-2007, Page 7 */
 		switch (atoi((const char*)an2kValue)) {
 		case 0: return (Image::CompressionAlgorithm::None);
@@ -286,7 +295,7 @@ BiometricEvaluation::View::AN2KView::getAN2K()
 	return (_an2k);
 }
 
-Memory::AutoArray<RECORD>
+RECORD*
 BiometricEvaluation::View::AN2KView::getAN2KRecord()
     const
 {
@@ -304,7 +313,7 @@ BiometricEvaluation::View::AN2KView::getAN2KRecord()
 void
 BiometricEvaluation::View::AN2KView::readImageCommon(
     const ANSI_NIST *an2k,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError)
 {
@@ -312,13 +321,13 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
 		throw Error::ParameterError("Null pointer passed in");
 
 	switch (typeID) {
-		case TYPE_3_ID:
-		case TYPE_4_ID:	
-		case TYPE_5_ID:
-		case TYPE_6_ID:
-		case TYPE_13_ID:
-		case TYPE_14_ID:
-		case TYPE_15_ID:
+		case RecordType::Type_3:
+		case RecordType::Type_4:	
+		case RecordType::Type_5:
+		case RecordType::Type_6:
+		case RecordType::Type_13:
+		case RecordType::Type_14:
+		case RecordType::Type_15:
 			break;
 		default:
 			throw Error::ParameterError("Invalid Record Type ID");
@@ -329,19 +338,23 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
 	 * Find the nth record of the requested type in the file, throwing
 	 * an exception if not present. The 0th record in an AN2K
 	 * file is always the Type-1, so skip that one.
+	 * The pointer is set to an object inside the complete ANSI-NIST 
+	 * record, and that object is free'd in the destructor by the
+	 * AutoBuffer that wraps it. Therefore the single RECORD object
+	 * is not explicitly destroyed.
 	 */
 	uint32_t count = 1;
 	for (int i = 1; i < an2k->num_records; i++) {
 		if (an2k->records[i]->type == typeID) {
 			if (count == recordNumber) {
-				_an2kRecord.copy(_an2k->records[i],
-				    sizeof(_an2k->records[i]));
+				_an2kRecord = _an2k->records[i];
 				break;
 			}
 			count++;
 		}
 	}
-	if (_an2kRecord.size() == 0)
+
+	if (_an2kRecord == NULL)
 		throw (Error::DataError("Could not find image record in AN2K"));
 
 	FIELD *field;
@@ -360,17 +373,17 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
 	_imageSize.ySize = atoi((char *)field->subfields[0]->items[0]->value);
 	
 	switch (typeID) {
-	case TYPE_3_ID:
-	case TYPE_4_ID:	
-	case TYPE_5_ID:
-	case TYPE_6_ID:
+	case RecordType::Type_3:
+	case RecordType::Type_4:	
+	case RecordType::Type_5:
+	case RecordType::Type_6:
 		if (lookup_ANSI_NIST_field(&field, &idx, BIN_CA_ID,
 		    _an2kRecord) != TRUE)
 			throw Error::DataError("Field CA not found");
 		break;
-	case TYPE_13_ID:
-	case TYPE_14_ID:
-	case TYPE_15_ID:
+	case RecordType::Type_13:
+	case RecordType::Type_14:
+	case RecordType::Type_15:
 		if (lookup_ANSI_NIST_field(&field, &idx, TAG_CA_ID,
 		    _an2kRecord) != TRUE)
     			throw Error::DataError("Field CA not found");
@@ -383,17 +396,17 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
 	    field->subfields[0]->items[0]->value);
 	
 	switch (typeID) {
-	case TYPE_3_ID:
-	case TYPE_4_ID:	
-	case TYPE_5_ID:
-	case TYPE_6_ID:
+	case RecordType::Type_3:
+	case RecordType::Type_4:	
+	case RecordType::Type_5:
+	case RecordType::Type_6:
 		if (lookup_ANSI_NIST_field(&field, &idx, BIN_IMAGE_ID,
 		    _an2kRecord) != TRUE)
 			throw Error::DataError("Field DATA not found");
 		break;
-	case TYPE_13_ID:
-	case TYPE_14_ID:
-	case TYPE_15_ID:
+	case RecordType::Type_13:
+	case RecordType::Type_14:
+	case RecordType::Type_15:
 		if (lookup_ANSI_NIST_field(&field, &idx, DAT2_ID,
 		    _an2kRecord) != TRUE)
     			throw Error::DataError("Field DATA not found");
@@ -413,7 +426,7 @@ BiometricEvaluation::View::AN2KView::associateMinutiaeData(
 	FIELD *field;
 	int idx;
 	set<int> type9Recs =
-	    DataInterchange::AN2KRecord::recordLocations(buf, TYPE_9_ID);
+	    DataInterchange::AN2KRecord::recordLocations(buf, RecordType::Type_9);
 	for (set<int>::const_iterator it = type9Recs.begin(); 
 	    it != type9Recs.end(); it++) {
 		if (lookup_ANSI_NIST_field(&field, &idx, IDC_ID, 

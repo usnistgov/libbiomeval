@@ -20,9 +20,9 @@
 #include <be_error_exception.h>
 #include <be_finger_an2kminutiae_data_record.h>
 
-extern "C" {
-#include <an2k.h>
-}
+/* an2k.h forward declares */
+struct field;
+typedef field FIELD;
 
 using namespace std;
 namespace BiometricEvaluation 
@@ -123,7 +123,7 @@ namespace BiometricEvaluation
 			 * Read raw bytes from a user-defined AN2K field.
 			 *
 			 * @param[in] record
-			 *	Reference to a RECORD containing the
+			 *	Pointer to a RECORD containing the
 			 *	user-defined field.
 			 * @param[in] fieldID
 			 *	The user-defined field number.
@@ -136,7 +136,7 @@ namespace BiometricEvaluation
 			 */
 			static Memory::uint8Array
 			parseUserDefinedField(
-			    const Memory::AutoArray<RECORD> &record,
+			    const RECORD* const record,
 			    int fieldID)
 		            throw (Error::ParameterError);
 
@@ -150,7 +150,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewVariableResolution(
 			    const std::string &filename,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (
 				Error::ParameterError,
@@ -167,7 +167,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewVariableResolution(
 			    Memory::uint8Array &buf,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (Error::ParameterError, Error::DataError);
 
@@ -184,7 +184,7 @@ namespace BiometricEvaluation
 
 		private:
 			void readImageRecord(
-			    const uint8_t typeID)
+			    const RecordType::Kind typeID)
 			    throw (Error::DataError);
 
 			string _sourceAgency;

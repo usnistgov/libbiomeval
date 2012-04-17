@@ -19,6 +19,10 @@
 #include <be_view_an2kview_varres.h>
 #include <be_finger_an2kview.h>
 
+/* an2k.h forward declares */
+struct subfield;
+typedef subfield SUBFIELD;
+
 namespace BiometricEvaluation 
 {
 	namespace Finger
@@ -136,7 +140,7 @@ namespace BiometricEvaluation
 			 */
 			static PositionDescriptors
 			parsePositionDescriptors(
-			    int typeID,
+			    const RecordType::Kind typeID,
 			    const RECORD *record)
 			    throw (Error::DataError);
 			    
@@ -161,7 +165,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewVariableResolution(
 			    const std::string &filename,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (
 				Error::ParameterError,
@@ -178,13 +182,13 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewVariableResolution(
 			    Memory::uint8Array &buf,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (Error::ParameterError, Error::DataError);
 
 		private:
 			void readImageRecord(
-			    const uint8_t typeID)
+			    const RecordType::Kind typeID)
 			    throw (Error::DataError);
 			Finger::PositionSet _positions;
 			Finger::Impression::Kind _imp;

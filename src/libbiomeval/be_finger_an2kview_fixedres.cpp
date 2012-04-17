@@ -11,12 +11,15 @@
 #include <be_image_raw.h>
 #include <be_memory_autobuffer.h>
 #include <be_io_utility.h>
+extern "C" {
+#include <an2k.h>
+}
 
 using namespace BiometricEvaluation;
 
 BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
     const std::string filename,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError, Error::FileError) :
     Finger::AN2KView(filename, typeID, recordNumber)
@@ -26,7 +29,7 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
 
 BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
     Memory::uint8Array &buf,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError) :
     Finger::AN2KView(buf, typeID, recordNumber)
@@ -48,14 +51,14 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
 
 void
 BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
-    const uint8_t typeID)
+    const RecordType::Kind typeID)
     throw (Error::DataError)
 {
 	switch (typeID) {
-		case TYPE_3_ID:
-		case TYPE_4_ID:	
-		case TYPE_5_ID:
-		case TYPE_6_ID:
+		case RecordType::Type_3:
+		case RecordType::Type_4:	
+		case RecordType::Type_5:
+		case RecordType::Type_6:
 			break;
 		default:
 			throw Error::ParameterError("Invalid Record Type ID");
@@ -72,7 +75,7 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
 	double nsr =
 	    strtod((char *)field->subfields[0]->items[0]->value, NULL);
 
-	Memory::AutoArray<RECORD> record = AN2KView::getAN2KRecord();
+	RECORD *record = AN2KView::getAN2KRecord();
 
 	/*
 	 * Using the ISR field, set the X/Y resolutions based on the 

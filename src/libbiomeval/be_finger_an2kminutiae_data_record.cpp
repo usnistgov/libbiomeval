@@ -12,6 +12,9 @@
 #include <be_finger_an2kminutiae_data_record.h>
 #include <be_io_utility.h>
 #include <be_memory_autobuffer.h>
+extern "C" {
+#include <an2k.h>
+}
 
 using namespace std;
 

@@ -12,6 +12,9 @@
 #include <set>
 
 #include <be_data_interchange_an2k.h>
+extern "C" {
+#include <an2k.h>
+}
 
 using namespace BiometricEvaluation;
 
@@ -21,7 +24,7 @@ using namespace BiometricEvaluation;
 set<int>
 BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
     Memory::uint8Array &buf,
-    unsigned int recordType)
+    View::AN2KView::RecordType::Kind recordType)
     throw (Error::DataError)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k(&alloc_ANSI_NIST,
@@ -37,7 +40,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
 set<int>
 BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
     const ANSI_NIST *an2k,
-    unsigned int recordType)
+    View::AN2KView::RecordType::Kind recordType)
 {
 	set<int> locations;
 	for (int i = 0; i < an2k->num_records; i++)
@@ -201,7 +204,7 @@ void
 BiometricEvaluation::DataInterchange::AN2KRecord::readMinutiaeData(
     Memory::uint8Array &buf)
 {
-	set<int> loc = recordLocations(buf, TYPE_9_ID);
+	set<int> loc = recordLocations(buf, View::AN2KView::RecordType::Type_9);
 	for (set<int>::const_iterator it = loc.begin(); it != loc.end(); it++) {
 		try {
 			_minutiaeDataRecordSet.push_back(

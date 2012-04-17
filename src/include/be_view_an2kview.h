@@ -22,9 +22,11 @@
 #include <be_view_view.h>
 #include <be_image_image.h>
 
-extern "C" {
-#include <an2k.h>
-}
+/* an2k.h forward declares */
+struct record;
+typedef record RECORD;
+struct ansi_nist;
+typedef ansi_nist ANSI_NIST;
 
 namespace BiometricEvaluation 
 {
@@ -47,6 +49,36 @@ namespace BiometricEvaluation
 		 */
 		class AN2KView : public View::View {
 		public:
+			/**
+			 * @brief
+			 * The type of AN2K record.
+			 */
+			class RecordType {
+			public:
+				typedef enum {
+					Type_1 = 1,
+					Type_2 = 2,
+					Type_3 = 3,
+					Type_4 = 4,
+					Type_5 = 5,
+					Type_6 = 6,
+					Type_7 = 7,
+					Type_8 = 8,
+					Type_9 = 9,
+					Type_10 = 10,
+					Type_11 = 11,
+					Type_12 = 12,
+					Type_13 = 13,
+					Type_14 = 14,
+					Type_15 = 15,
+					Type_16 = 16,
+					Type_17 = 17,
+					Type_99 = 99,
+				} Kind;
+			private:
+				RecordType() {};
+			};
+
 			/**
 			 * @brief
 			 * The level of human monitoring for the image
@@ -111,7 +143,9 @@ namespace BiometricEvaluation
 			 * an AN2K finger image record.
 			 *
 			 * @param recordType
-			 *	The AN2K record type.
+			 *	The AN2K record type as an integer, allowing
+			 *	the value taken directly from the AN2K record
+			 *	or a RecordType::Kind to be passed in.
 			 * @param an2kValue
 			 *	Compression type data as read from an
 			 *	AN2K record.
@@ -123,7 +157,7 @@ namespace BiometricEvaluation
 			 */
 			static Image::CompressionAlgorithm::Kind
 			    convertCompressionAlgorithm(
-			    int recordType,
+			    const uint16_t recordType,
 			    const unsigned char *an2kValue)
 			    throw (Error::ParameterError, Error::DataError);
 
@@ -150,7 +184,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KView(
 			    const std::string filename,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (
 				Error::ParameterError,
@@ -159,14 +193,20 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Construct an AN2K view from a buffer.
+			 * @details
+			 * The buffer must contain the entire AN2K record, not
+			 * just the image and other view-related records.
 			 */
 			AN2KView(
 			    Memory::uint8Array &buf,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (
 				Error::ParameterError,
 				Error::DataError);
+
+			~AN2KView();
 
 			/*
 			 * View::View implementations.
@@ -194,8 +234,6 @@ namespace BiometricEvaluation
 
 		protected:
 
-			AN2KView() { }
-
 			/**
 			 * @brief
 			 * Obtain the complete ANSI/NIST record set.
@@ -206,13 +244,13 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Obtain the single ANSI/NIST record.
+			 * Obtain a pointer to the single ANSI/NIST record.
 			 * @details
 			 * Child classes use this method to obtain a pointer
 			 * to the specific ANSI/NIST record that was searched
 			 * for by this class object.
 			 */
-			Memory::AutoArray<RECORD>
+			RECORD*
 			getAN2KRecord()
 			    const;
 
@@ -252,11 +290,15 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Read the common image informatin from an AN2K file.
+			 * Read the common image information from an AN2K file.
 			 * @details
-			 * For Type-3/4/5/6/13/14 image records, read the fields
-			 * that are present in all of these types of records.
-			 * This method can be called by child classes.	
+			 * For Type-3/4/5/6/13/14 image records, read the 
+			 * fields that are present in all of these types of
+			 * records.
+			 * This method is called during object construction
+			 * and guarantees that the AN2KView common data is
+			 * present and the RECORD pointer is set, else an
+			 * exception is thrown.
 			 * @param[in] record
 			 *	The AN2K record.
 			 * @throw ParameterError
@@ -266,7 +308,7 @@ namespace BiometricEvaluation
 			 */
 			void readImageCommon(
 			    const ANSI_NIST *an2k,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (Error::ParameterError, Error::DataError);
 
@@ -321,8 +363,8 @@ namespace BiometricEvaluation
 			 * constructed and may be referenced by subclasses.
 			 */
 			Memory::AutoBuffer<ANSI_NIST> _an2k;
-			Memory::AutoArray<RECORD> _an2kRecord;
-			int _recordType;
+			RECORD *_an2kRecord;
+			RecordType::Kind _recordType;
 			int _idc;
 			
 			/** 

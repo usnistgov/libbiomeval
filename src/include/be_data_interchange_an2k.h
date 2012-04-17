@@ -22,10 +22,6 @@
 #include <be_io_utility.h>
 #include <be_memory_autobuffer.h>
 
-extern "C" {
-#include <an2k.h>
-}
-
 namespace BiometricEvaluation 
 {
 	namespace DataInterchange
@@ -127,7 +123,7 @@ namespace BiometricEvaluation
 			static set<int>
 			recordLocations(
 			    Memory::uint8Array &buf,
-			    unsigned int recordType)
+			    const View::AN2KView::RecordType::Kind recordType)
 			    throw (Error::DataError);
 			    
 			/**
@@ -147,7 +143,7 @@ namespace BiometricEvaluation
 			static set<int>
 			recordLocations(
 			    const ANSI_NIST *an2k,
-			    unsigned int recordType);
+			    const View::AN2KView::RecordType::Kind recordType);
 			    
 			/**
 			 * @brief

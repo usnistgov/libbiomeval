@@ -13,6 +13,9 @@
 #include <be_feature_an2k7minutiae.h>
 #include <be_memory_autobuffer.h>
 #include <be_io_utility.h>
+extern "C" {
+#include <an2k.h>
+}
 
 using namespace BiometricEvaluation;
 

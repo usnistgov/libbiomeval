@@ -28,7 +28,7 @@ main(int argc, char* argv[]) {
 	bool success = false;
 	try {
 		_an2kv = new Finger::AN2KViewFixedResolution(
-		    "test_data/type9.an2k", TYPE_3_ID, 1);
+		    "test_data/type9.an2k", View::AN2KView::RecordType::TYPE_3, 1);
 	} catch (Error::DataError &e) {
 		cout << "Caught " << e.getInfo() << "; success." << endl;
 		success = true;
@@ -45,7 +45,7 @@ main(int argc, char* argv[]) {
 	success = false;
 	try {
 		_an2kv = new Finger::AN2KViewFixedResolution(
-		    "nbv5425GHdfsdfad", TYPE_3_ID, 1);
+		    "nbv5425GHdfsdfad", View::AN2KView::RecordType::TYPE_3, 1);
 	} catch (Error::FileError& e) {
 		cout << "Caught " << e.getInfo() << "; success." << endl;
 		success = true;
@@ -58,7 +58,8 @@ main(int argc, char* argv[]) {
 
 	try {
 		_an2kv = new Finger::AN2KViewFixedResolution(
-		    "test_data/type9-3.an2k", TYPE_3_ID, 1);
+		    "test_data/type9-3.an2k",
+		    View::AN2KView::RecordType::TYPE_3, 1);
 	} catch (Error::DataError &e) {
 		cout << "Caught " << e.getInfo()  << endl;
 		return (EXIT_FAILURE);

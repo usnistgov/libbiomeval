@@ -10,12 +10,15 @@
 #include <be_finger_an2kview.h>
 #include <be_memory_autobuffer.h>
 #include <be_io_utility.h>
+extern "C" {
+#include <an2k.h>
+}
 
 using namespace BiometricEvaluation;
 
 BiometricEvaluation::Finger::AN2KView::AN2KView(
     const std::string filename,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError, Error::FileError) :
     BiometricEvaluation::View::AN2KView(filename, typeID, recordNumber)
@@ -25,7 +28,7 @@ BiometricEvaluation::Finger::AN2KView::AN2KView(
 
 BiometricEvaluation::Finger::AN2KView::AN2KView(
     Memory::uint8Array &buf,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError) :
     BiometricEvaluation::View::AN2KView(buf, typeID, recordNumber)
@@ -182,20 +185,20 @@ BiometricEvaluation::Finger::AN2KView::addMinutiaeDataRecord(
 
 void
 BiometricEvaluation::Finger::AN2KView::readImageRecord(
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::DataError)
 {
 	switch (typeID) {
-		case TYPE_3_ID:
-		case TYPE_4_ID:	
-		case TYPE_5_ID:
-		case TYPE_6_ID:
+		case RecordType::Type_3:
+		case RecordType::Type_4:	
+		case RecordType::Type_5:
+		case RecordType::Type_6:
 			break;
 		default:
 			throw Error::ParameterError("Invalid Record Type ID");
 	}
-	Memory::AutoArray<RECORD> record = AN2KView::getAN2KRecord();
+	RECORD *record = AN2KView::getAN2KRecord();
 
 	FIELD *field;
 	int idx;

@@ -13,10 +13,6 @@
 
 #include <iostream>
 
-extern "C" {
-#include <an2k.h>
-}
-
 #include <be_feature_minutiae.h>
 #include <be_finger.h>
 #include <be_memory_autoarray.h>

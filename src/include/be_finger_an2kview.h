@@ -15,6 +15,10 @@
 #include <be_feature_an2k7minutiae.h>
 #include <be_finger_an2kminutiae_data_record.h>
 
+/* an2k.h forward declares */
+struct field;
+typedef field FIELD;
+
 namespace BiometricEvaluation 
 {
 	namespace Finger
@@ -132,7 +136,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KView(
 			    const std::string filename,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (
 				Error::ParameterError,
@@ -144,7 +148,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KView(
 			    Memory::uint8Array &buf,
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (
 				Error::ParameterError,
@@ -183,7 +187,7 @@ namespace BiometricEvaluation
 			 *	The AN2K record has invalid or missing data.
 			 */
 			void readImageRecord(
-			    const uint8_t typeID,
+			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (Error::DataError);
 

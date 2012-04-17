@@ -14,12 +14,15 @@
 #include <be_image_raw.h>
 #include <be_memory_autobuffer.h>
 #include <be_io_utility.h>
+extern "C" {
+#include <an2k.h>
+}
 
 using namespace BiometricEvaluation;
 
 BiometricEvaluation::Finger::AN2KViewVariableResolution::AN2KViewVariableResolution(
     const std::string &filename,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError, Error::FileError) :
     BiometricEvaluation::View::AN2KViewVariableResolution(
@@ -30,7 +33,7 @@ BiometricEvaluation::Finger::AN2KViewVariableResolution::AN2KViewVariableResolut
 
 BiometricEvaluation::Finger::AN2KViewVariableResolution::AN2KViewVariableResolution(
     Memory::uint8Array &buf,
-    const uint8_t typeID,
+    const RecordType::Kind typeID,
     const uint32_t recordNumber)
     throw (Error::ParameterError, Error::DataError) :
     BiometricEvaluation::View::AN2KViewVariableResolution(
@@ -115,14 +118,14 @@ Finger::AN2KViewVariableResolution::getPrintPositionCoordinates()
 BiometricEvaluation::Finger::PositionDescriptors
 BiometricEvaluation::Finger::AN2KViewVariableResolution::
 parsePositionDescriptors(
-    int typeID,
+    const RecordType::Kind typeID,
     const RECORD *record)
     throw (Error::DataError)
 {
 	unsigned int field_num;
 	switch (typeID) {
-	case TYPE_13_ID: field_num = SPD_ID; break;
-	case TYPE_14_ID: field_num = PPD_ID; break;
+	case RecordType::Type_13: field_num = SPD_ID; break;
+	case RecordType::Type_14: field_num = PPD_ID; break;
 	default: throw Error::DataError("Invalid type -- no position "
 	    "descriptor field");
 	}
@@ -163,18 +166,18 @@ BiometricEvaluation::Finger::operator<<(
 
 void
 BiometricEvaluation::Finger::AN2KViewVariableResolution::readImageRecord(
-    const uint8_t typeID)
+    const RecordType::Kind typeID)
     throw (Error::DataError)
 {
 	switch (typeID) {
-		case TYPE_13_ID:
-		case TYPE_14_ID:	
+		case RecordType::Type_13:
+		case RecordType::Type_14:	
 			break;
 		default:
 			throw Error::ParameterError("Invalid Record Type ID");
 	}
 
-	Memory::AutoArray<RECORD> record = AN2KView::getAN2KRecord();
+	RECORD *record = AN2KView::getAN2KRecord();
 
 	/*********************************************************************/
 	/* Required Fields.                                                  */
@@ -199,10 +202,10 @@ BiometricEvaluation::Finger::AN2KViewVariableResolution::readImageRecord(
 		/* Print Position Descriptors */
 		int pd_id;
 		switch (typeID) {
-		case TYPE_13_ID:
+		case RecordType::Type_13:
 			pd_id = PPD_ID;
 			break;
-		case TYPE_14_ID:
+		case RecordType::Type_14:
 		default:
 			pd_id = SPD_ID;
 			break;
