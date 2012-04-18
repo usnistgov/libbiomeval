@@ -29,10 +29,6 @@ PROGS = $(CORE) $(IO) $(IMAGE) $(PROCESS_MANAGEMENT) $(FINGER) $(FEATURE) $(OTHE
 all: CXXFLAGS += -g
 all: $(PROGS)
 
-test_be_netserver: test_be_netserver.c
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
-test_be_netclient: test_be_netclient.c
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_construct_be_io_filerecstore: test_be_io_filerecstore.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_filerecordstore: test_be_io_recordstore.cpp
