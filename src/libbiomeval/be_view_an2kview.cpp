@@ -157,16 +157,6 @@ BiometricEvaluation::View::AN2KView::convertCompressionAlgorithm(
 
 	case RecordType::Type_3:
 	case RecordType::Type_4:
-		/* ANSI/NIST-ITL 1-2007, Page 9 */
-		switch (atoi((const char*)an2kValue)) {
-		case 0: return (Image::CompressionAlgorithm::None);
-		case 1: return (Image::CompressionAlgorithm::Facsimile);
-		default:
-			throw Error::DataError("Invalid compression algorithm");
-		}
-		break;
-	case RecordType::Type_5:
-	case RecordType::Type_6:
 		/* ANSI/NIST-ITL 1-2007, Page 7 */
 		switch (atoi((const char*)an2kValue)) {
 		case 0: return (Image::CompressionAlgorithm::None);
@@ -180,6 +170,18 @@ BiometricEvaluation::View::AN2KView::convertCompressionAlgorithm(
 			throw Error::DataError("Invalid compression algorithm");
 		}
 		break;
+
+	case RecordType::Type_5:
+	case RecordType::Type_6:
+		/* ANSI/NIST-ITL 1-2007, Page 9 */
+		switch (atoi((const char*)an2kValue)) {
+		case 0: return (Image::CompressionAlgorithm::None);
+		case 1: return (Image::CompressionAlgorithm::Facsimile);
+		default:
+			throw Error::DataError("Invalid compression algorithm");
+		}
+		break;
+
 	default:
 		throw Error::ParameterError("Invalid Record Type");
 		break;

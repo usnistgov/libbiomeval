@@ -92,19 +92,19 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
 		case TYPE_3_ID:
 		case TYPE_5_ID:
 			if (isr == 0) {
-				ir.xRes =
+				ir.xRes = ir.yRes =
 				    AN2KView::HalfMinimumScanResolutionPPMM;
 			} else {
-				ir.xRes = 0.5 * nsr;
+				ir.xRes = ir.yRes = 0.5 * nsr;
 			}
 			break;
 		case TYPE_4_ID:	
 		case TYPE_6_ID:
 			if (isr == 0) {
-				ir.xRes =
+				ir.xRes = ir.yRes =
 				    AN2KView::MinimumScanResolutionPPMM;
 			} else {
-				ir.xRes = nsr;
+				ir.xRes = ir.yRes = nsr;
 			}
 			break;
 	}
