@@ -217,6 +217,12 @@ BiometricEvaluation::View::AN2KView::convertDeviceMonitoringMode(
 	throw Error::DataError("Unrecognized device monitoring mode");
 }
 
+BiometricEvaluation::View::AN2KView::RecordType::Kind
+BiometricEvaluation::View::AN2KView::getRecordType() const
+{
+	return (this->_recordType);
+}
+
 /******************************************************************************/
 /* Local functions.                                                           */
 /******************************************************************************/

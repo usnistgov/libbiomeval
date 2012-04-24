@@ -82,6 +82,7 @@ printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
     const string &name, const int idx)
 {
 	cout << "[Start of View]" << endl;
+	cout << "\tRecord Type: " << an2kv.getRecordType() << endl;
 	cout << "\tImage resolution: " << an2kv.getImageResolution() << endl;
 	cout << "\tImage size: " << an2kv.getImageSize() << endl;
 	cout << "\tImage depth: " << an2kv.getImageDepth() << endl;

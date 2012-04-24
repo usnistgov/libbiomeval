@@ -149,7 +149,8 @@ namespace BiometricEvaluation
 			 * @param an2kValue
 			 *	Compression type data as read from an
 			 *	AN2K record.
-			 *
+			 * @return
+			 *	The compression algorithm.
 			 * @throws Error::DataError
 			 *	Invalid compression algorithm for record type.
 			 * @throws Error::ParameterError
@@ -226,11 +227,21 @@ namespace BiometricEvaluation
 			 * Each AN2KViewVariableResolution may have more than
 			 * one associated Type-9 record and each Type-9 record
 			 * may have more than one minutiae format.
+			 * @return
+			 * A vector of minutiae data records.
 		 	 */
 			vector<Finger::AN2KMinutiaeDataRecord>
 			getMinutiaeDataRecordSet()
 			    const
 			    throw (Error::DataError);
+
+			/**
+			 * @brief
+			 * Obtain the ANSI-NIST record type.
+			 * @return
+			 * The type of record used to construct this object.
+			 */
+			RecordType::Kind getRecordType() const;
 
 		protected:
 
