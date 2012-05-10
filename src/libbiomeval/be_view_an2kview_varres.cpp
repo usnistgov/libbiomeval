@@ -136,13 +136,14 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 	FIELD *field;
 	int idx;
 
-	 if (lookup_ANSI_NIST_field(&field, &idx, SRC_ID, record) != TRUE)
-		throw Error::DataError("Field SRC not found");
-	_sourceAgency = (char *)field->subfields[0]->items[0]->value;
+	/* For some required fields, where no other information is dependent
+	 * on them, we'll allow them to be missing.
+	 */
+	 if (lookup_ANSI_NIST_field(&field, &idx, SRC_ID, record) == TRUE)
+		_sourceAgency = (char *)field->subfields[0]->items[0]->value;
 
-	 if (lookup_ANSI_NIST_field(&field, &idx, CD_ID, record) != TRUE)
-		throw Error::DataError("Field CD not found");
-	_captureDate = (char *)field->subfields[0]->items[0]->value;
+	 if (lookup_ANSI_NIST_field(&field, &idx, CD_ID, record) == TRUE)
+		_captureDate = (char *)field->subfields[0]->items[0]->value;
 
 	/*
 	 * Convert the Horizontal/Vertical pixel scale to the image

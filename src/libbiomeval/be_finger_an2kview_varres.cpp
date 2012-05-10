@@ -137,7 +137,8 @@ parsePositionDescriptors(
 		throw Error::DataError("Position descriptor field not found");
 	for (int i = 0; i < field->num_subfields; i++) {
 		if (field->subfields[i]->num_items != 2)
-			throw Error::DataError("Not enough SPD info fields.");
+			throw Error::DataError(
+			    "Not enough position descriptor fields.");
 		pd[Finger::AN2KView::convertPosition(atoi((char *)field->
 		    subfields[i]->items[0]->value))] =
 		    Finger::AN2KView::convertFingerImageCode((char *)field->
@@ -203,11 +204,11 @@ BiometricEvaluation::Finger::AN2KViewVariableResolution::readImageRecord(
 		int pd_id;
 		switch (typeID) {
 		case RecordType::Type_13:
-			pd_id = PPD_ID;
+			pd_id = SPD_ID;
 			break;
 		case RecordType::Type_14:
 		default:
-			pd_id = SPD_ID;
+			pd_id = PPD_ID;
 			break;
 		}
 		if (lookup_ANSI_NIST_field(&field, &idx, pd_id, record) == 

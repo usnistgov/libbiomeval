@@ -190,6 +190,14 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Return search position descriptors.
+			 */
+			PositionDescriptors
+			getPrintPositionDescriptors()
+			    const;
+
+			/**
+			 * @brief
 			 * Obtain the NIST quality metric for all segmented
 			 * finger images.
 			 *

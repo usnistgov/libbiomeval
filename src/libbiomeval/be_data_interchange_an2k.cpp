@@ -69,39 +69,34 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
 		throw Error::DataError("Invalid AN2K Record");
 
 	/*
-	 * Retrieve the mandatory information from the Type-1 record,
-	 * throwing an exception if any mandatory field is not present.
+	 * Retrieve the mandatory information from the Type-1 record.
+	 * If a required field is not present, then the object string
+	 * will be empty, but applications might want to open a record
+	 * that is non-conformant.
 	 */
 	FIELD *field;
 	int field_idx;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, VER_ID, rec) != TRUE)
-		throw Error::DataError("Field VER not found");
-	_version = (char *)field->subfields[0]->items[0]->value;
+	if (lookup_ANSI_NIST_field(&field, &field_idx, VER_ID, rec) == TRUE)
+		_version = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, DAT_ID, rec) != TRUE)
-		throw Error::DataError("Field DAT not found");
-	_date = (char *)field->subfields[0]->items[0]->value;
+	if (lookup_ANSI_NIST_field(&field, &field_idx, DAT_ID, rec) == TRUE)
+		_date = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, DAI_ID, rec) != TRUE)
-		throw Error::DataError("Field DAI not found");
-	_dai = (char *)field->subfields[0]->items[0]->value;
+	if (lookup_ANSI_NIST_field(&field, &field_idx, DAI_ID, rec) == TRUE)
+		_dai = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, ORI_ID, rec) != TRUE)
-		throw Error::DataError("Field ORI not found");
-	_ori = (char *)field->subfields[0]->items[0]->value;
+	if (lookup_ANSI_NIST_field(&field, &field_idx, ORI_ID, rec) == TRUE)
+		_ori = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, TCN_ID, rec) != TRUE)
-		throw Error::DataError("Field TCN not found");
-	_tcn = (char *)field->subfields[0]->items[0]->value;
+	if (lookup_ANSI_NIST_field(&field, &field_idx, TCN_ID, rec) == TRUE)
+		_tcn = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, NSR_ID, rec) != TRUE)
-		throw Error::DataError("Field NSR not found");
-	_nsr = (char *)field->subfields[0]->items[0]->value;
+	if (lookup_ANSI_NIST_field(&field, &field_idx, NSR_ID, rec) == TRUE)
+		_nsr = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, NTR_ID, rec) != TRUE)
-		throw Error::DataError("Field NTR not found");
-	_ntr = (char *)field->subfields[0]->items[0]->value;
+	if (lookup_ANSI_NIST_field(&field, &field_idx, NTR_ID, rec) == TRUE)
+		_ntr = (char *)field->subfields[0]->items[0]->value;
 
 	/*
 	 * Optional fields.

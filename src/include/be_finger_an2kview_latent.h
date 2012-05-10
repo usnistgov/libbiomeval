@@ -70,8 +70,6 @@ namespace BiometricEvaluation
 
 		protected:
 		private:
-			void readImageRecord()
-			    throw (Error::DataError);
 		};
 	}
 }

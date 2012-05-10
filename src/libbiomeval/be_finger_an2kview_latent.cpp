@@ -21,7 +21,7 @@ BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
     throw (Error::ParameterError, Error::DataError, Error::FileError) :
     AN2KViewVariableResolution(filename, RecordType::Type_13, recordNumber)
 {
-	readImageRecord();
+	/* Parent classes handle all fields */
 }
 
 BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
@@ -30,7 +30,7 @@ BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
     throw (Error::ParameterError, Error::DataError) :
     AN2KViewVariableResolution(buf, RecordType::Type_13, recordNumber)
 {
-	readImageRecord();
+	/* Parent classes handle all fields */
 }
 
 /******************************************************************************/
@@ -49,26 +49,5 @@ BiometricEvaluation::Finger::AN2KViewLatent::getLatentQualityMetric()
     const
 {
 	return (getQualityMetric());
-}
-
-/******************************************************************************/
-/* Local functions.                                                           */
-/******************************************************************************/
-
-/******************************************************************************/
-/* Private functions.                                                         */
-/******************************************************************************/
-
-void
-BiometricEvaluation::Finger::AN2KViewLatent::readImageRecord()
-    throw (Error::DataError)
-{
-	RECORD *record = AN2KView::getAN2KRecord();
-
-	/*********************************************************************/
-	/* Required Fields.                                                  */
-	/*********************************************************************/
-
-
 }
 

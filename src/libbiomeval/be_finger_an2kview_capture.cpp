@@ -172,6 +172,13 @@ BiometricEvaluation::Finger::AN2KViewCapture::getFingerprintQualityMetric()
 	return (getQualityMetric());
 }
 
+BiometricEvaluation::Finger::PositionDescriptors
+BiometricEvaluation::Finger::AN2KViewCapture::getPrintPositionDescriptors()
+    const
+{
+	return (getPositionDescriptors());
+}
+
 /******************************************************************************/
 /* Local functions.                                                           */
 /******************************************************************************/

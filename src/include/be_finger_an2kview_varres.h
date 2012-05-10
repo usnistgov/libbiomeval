@@ -79,26 +79,6 @@ namespace BiometricEvaluation
 			    
 			/**
 			 * @brief
-			 * Convert a print position coordinate AN2K subfield
-			 * to a PrintPositionCoordinate object.
-			 *
-			 * @param[in] subfield
-			 *	A print position coordinate AN2K subfield
-			 *
-			 * @return
-			 *	Object representation of field.
-			 *
-			 * @throw Error::DataError
-			 *	Invalid data for a print position coordinate
-			 *	AN2K field.
-			 */
-			static PrintPositionCoordinate
-			convertPrintPositionCoordinate(
-			    SUBFIELD *subfield)
-			    throw (Error::DataError);
-
-			/**
-			 * @brief
 			 * Obtain the set of finger positions.
 			 * @details
 			 * An AN2K finger image record contains a set of
@@ -116,34 +96,6 @@ namespace BiometricEvaluation
 			 */
 			Finger::Impression::Kind getImpressionType() const;
 			
-			/**
-			 * @brief
-			 * Obtain the set of position descriptors.
-			 * @details
-			 */
-			PositionDescriptors
-			getPositionDescriptors()
-			    const;
-			
-			/**
-			 * @brief
-			 * Parse position descriptors from a record.
-			 * 
-			 * @param[in] typeID
-			 *	The logical record type.
-			 * @param[in] record
-			 *	The opened AN2K record.
-			 *
-			 * @return
-			 *	Mapping of finger position codes to 
-			 *	finger image code.
-			 */
-			static PositionDescriptors
-			parsePositionDescriptors(
-			    const RecordType::Kind typeID,
-			    const RECORD *record)
-			    throw (Error::DataError);
-			    
 			/**
 			 * @brief
 			 * Obtain print position coordinates
@@ -185,6 +137,54 @@ namespace BiometricEvaluation
 			    const RecordType::Kind typeID,
 			    const uint32_t recordNumber)
 			    throw (Error::ParameterError, Error::DataError);
+
+			/**
+			 * @brief
+			 * Convert a print position coordinate AN2K subfield
+			 * to a PrintPositionCoordinate object.
+			 *
+			 * @param[in] subfield
+			 *	A print position coordinate AN2K subfield
+			 *
+			 * @return
+			 *	Object representation of field.
+			 *
+			 * @throw Error::DataError
+			 *	Invalid data for a print position coordinate
+			 *	AN2K field.
+			 */
+			static PrintPositionCoordinate
+			convertPrintPositionCoordinate(
+			    SUBFIELD *subfield)
+			    throw (Error::DataError);
+
+			/**
+			 * @brief
+			 * Obtain the set of position descriptors.
+			 * @details
+			 */
+			PositionDescriptors
+			getPositionDescriptors()
+			    const;
+			
+			/**
+			 * @brief
+			 * Parse position descriptors from a record.
+			 * 
+			 * @param[in] typeID
+			 *	The logical record type.
+			 * @param[in] record
+			 *	The opened AN2K record.
+			 *
+			 * @return
+			 *	Mapping of finger position codes to 
+			 *	finger image code.
+			 */
+			static PositionDescriptors
+			parsePositionDescriptors(
+			    const RecordType::Kind typeID,
+			    const RECORD *record)
+			    throw (Error::DataError);
 
 		private:
 			void readImageRecord(
