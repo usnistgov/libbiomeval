@@ -216,3 +216,45 @@ try {
     cerr << "Failed to remove property." << endl;
 }
 \end{lstlisting}
+
+\section{Compressor}
+\label{sec-compressor}
+
+Support for data compression and decompression can be found in the
+\lname~ through the \class{Compressor} class hierarchy.  \class{Compressor} is
+an abstract base class defining several pure-virtual methods for compression
+and decompression of buffers and files.  Derived classes implement these methods
+and can be instantiated through the factory method in the base class.
+As such, children should also be enumaterated within \class{Compressor::Kind}. 
+The \lname~ comes with an example, \class{GZIP}, which compresses and
+decompresses the \lib{gzip} format through interaction with
+\lib{zlib}~\cite{zlib}.
+
+\begin{lstlisting}[caption={Using a \class{Compressor} Object}, label=compressoruse]
+tr1::shared_ptr<IO::Compressor> compressor;
+Memory::uint8Array compressedBuffer, largeBuffer = /* ... */;
+try {
+	compressor = IO::Compressor::createCompressor(Compressor::Kind::GZIP);
+	/* Overloaded for all combination of buffer and file */
+	compressor->compress("largeInputFile", "compressedOutputFile");
+	compressedBuffer = compressor->compress(largeBuffer);
+} catch (Error::Exception &e) {
+	cerr << "Could not compress (" << e.getInfo() << ')' << endl;
+}
+\end{lstlisting}
+
+Different \class{Compressor}s may be able to respond to options that tune their
+operations.  These options (and approved values) should be well-documented
+in the child class, however, a no-argument constructor of a child
+\class{Compressor} should automatically set any required options to default
+values.  Setting and retrieving these options is very similar to interacting
+with a \class{Properties} object (see \secref{sec-properties}).
+
+\begin{lstlisting}[caption={Setting \class{Compressor} Options}, label=compressoroptions]
+tr1::shared_ptr<IO::Compressor> compressor =
+    IO::Compressor::createCompressor(Compressor::Kind::GZIP);
+
+/* A large GZIP chunk size can speed operations on systems with copious RAM */
+compressor->setOption(IO::GZIP::CHUNK_SIZE, 32768);
+
+\end{lstlisting}

@@ -91,7 +91,7 @@ namespace BiometricEvaluation
 			 *	Uncompressed data buffer to compress.
 			 * @param uncompressedDataSize
 			 *	Size of uncompressedData.
-			 * @param outputPath
+			 * @param outputFile
 			 *	Location to save compressed file.
 			 *
 			 * @throw Error::ObjectExists
@@ -114,7 +114,7 @@ namespace BiometricEvaluation
 			 *
 			 * @param uncompressedData
 			 *	Uncompressed data buffer to compress.
-			 * @param outputPath
+			 * @param outputFile
 			 *	Location to save compressed file.
 			 *
 			 * @throw Error::ObjectExists
@@ -222,9 +222,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Decompress a compressed buffer into a file.
 			 *
-			 * @param compressedData
-			 *	Compressed data buffer to decompress.
-			 * @param outputPath
+			 * @param inputFile
 			 *	Location to save compressed file.
 			 *
 			 * @return

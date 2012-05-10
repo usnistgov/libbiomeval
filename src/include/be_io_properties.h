@@ -62,6 +62,8 @@ namespace BiometricEvaluation
 			 *	Property file.
 			 * @param[in] size
 			 * 	The size of buffer.
+ 			 * @param[in] mode
+			 * 	The read/write mode of the object.
 			 *
 			 * @return
 			 *      An object representing the properties set.
