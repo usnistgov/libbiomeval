@@ -104,7 +104,7 @@ namespace BiometricEvaluation
 				operator[](
 				    ptrdiff_t index)
 				    const;
-
+				
 				/**
 				 * @brief
 				 * Subscript into the AutoArray with checked
@@ -227,14 +227,14 @@ namespace BiometricEvaluation
 				 *	freed if the new size is smaller than
 				 *	the current size.
 				 *
-				 * @throw Error::StrategyError
+				 * @throw Error::MemoryError
 				 *	Problem allocating memory.
 				 */
 				void
 				resize(
 				    size_type new_size,
 				    bool free = false)
-    				    throw (Error::StrategyError);
+    				    throw (Error::MemoryError);
 				    
 				/**
 				 * @brief
@@ -245,6 +245,13 @@ namespace BiometricEvaluation
 				 *	An allocated buffer whose contents
 				 *	will be deep-copied into this object.
 				 *	Only size() bytes will be copied.
+				 *
+				 * @warning
+				 * If buffer is smaller in size than the 
+				 * current size of the AutoArray, you MUST call
+				 * copy(const_iterator, size_type).  This method 
+				 * must only be used when buffer is larger than 
+				 * or equal to the size of the AutoArray.
 				 */
 				void
 				copy(
@@ -261,19 +268,15 @@ namespace BiometricEvaluation
 				 * @param[in] size
 				 *	The number of bytes from buffer
 				 *	that will be deep-copied.
+				 *
+				 * @warning
+				 * size must be less than or equal to the size
+				 * of buffer.
 				 */
 				void
 				copy(
 				    const_iterator buffer,
 				    size_type size);
-		
-				/**
-				 * @brief
-				 * Construct an AutoArray.
-				 * @details
-				 * The AutoArray will be of size 0.
-				 */
-				AutoArray();
 				
 				/**
 				 * @brief
@@ -282,9 +285,13 @@ namespace BiometricEvaluation
 				 * @param[in] size
 				 *	The number of elements this AutoArray
 				 *	should initially hold.
+				 *				 
+				 * @throw Error::MemoryError
+				 *	Could not allocate new memory.
 				 */
 				AutoArray(
-				    size_type size);
+				    size_type size = 0)
+				    throw (Error::MemoryError);
 
 				/**
 				 * @brief
@@ -293,9 +300,13 @@ namespace BiometricEvaluation
 				 * @param[in] copy
 				 *	An AutoArray whose contents will be 
 				 *	deep copied into the new AutoArray.
+				 *
+				 * @throw Error::MemoryError
+				 *	Could not allocate new memory.
 				 */
 				AutoArray(
-				    const AutoArray& copy);
+				    const AutoArray& copy)
+				    throw (Error::MemoryError);
 				
 				/**
 				 * @brief
@@ -308,10 +319,14 @@ namespace BiometricEvaluation
 				 * @return
 				 *	Reference to a new AutoArray object,
 				 *	the lvalue AutoArray.
+				 *
+				 * @throw Error::MemoryError
+				 *	Could not allocate new memory.
 				 */
 				AutoArray&
 				operator=(
-				    const AutoArray& other);
+				    const AutoArray& other)
+				    throw (Error::MemoryError);
 		
 				/** Destructor */
 				~AutoArray();
@@ -350,7 +365,7 @@ void
 BiometricEvaluation::Memory::AutoArray<T>::resize(
     size_type new_size,
     bool free)
-    throw (Error::StrategyError)
+    throw (Error::MemoryError)
 {
 	/* If we've already allocated at least new_size space, then bail */
 	if (!free && (new_size <= _capacity)) {
@@ -359,9 +374,11 @@ BiometricEvaluation::Memory::AutoArray<T>::resize(
 	}
 
 	T* new_data = NULL;
-	new_data = new T[new_size];
-	if (new_data == NULL)
-		throw Error::StrategyError("Could not allocate data");
+	if (new_size != 0) {
+		new_data = new (nothrow) T[new_size];
+		if (new_data == NULL)
+			throw Error::MemoryError("Could not allocate data");
+	}
 
 	/* Copy as much data as will fit into the new buffer */
 	for (size_type i = 0; i < ((new_size < _size) ? new_size : _size); i++)
@@ -463,16 +480,20 @@ template<class T>
 BiometricEvaluation::Memory::AutoArray<T>&
 BiometricEvaluation::Memory::AutoArray<T>::operator=(
     const BiometricEvaluation::Memory::AutoArray<T>& copy) 
+    throw (Error::MemoryError)
 {
 	if (this != &copy) {
 		_size = _capacity = copy._size; 
 		if (_data != NULL)
 			delete [] _data;
-		_data = new T[_size];
-		if (_data == NULL)
-			throw Error::StrategyError("Could not allocate data");
-		for (size_type i = 0; i < _size; i++)
-			_data[i] = copy._data[i];
+		if (_size != 0) {
+			_data = new (nothrow) T[_size];
+			if (_data == NULL)
+				throw Error::MemoryError("Could not "
+				    "allocate data");
+			for (size_type i = 0; i < _size; i++)
+				_data[i] = copy._data[i];
+		}
 	}
 
 	return (*this);
@@ -515,37 +536,35 @@ BiometricEvaluation::Memory::AutoArray<T>::end()
 /* Constructors.                                                              */
 /******************************************************************************/
 template<class T>
-BiometricEvaluation::Memory::AutoArray<T>::AutoArray()
-{
-	_data = NULL;
-	_size = 0;
-	_capacity = 0;
-}
-
-template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
     size_type size)
+    throw (Error::MemoryError) :
+    _data(NULL),
+    _size(size),
+    _capacity(size)
 {
-	if (size > 0)
-		_size = _capacity = size;
-	else
-		throw Error::StrategyError("Invalid size");
-
-	_data = new T[_size];
-	if (_data == NULL)
-		throw Error::StrategyError("Could not allocate data");
+	if (_size != 0) {
+		_data = new (nothrow) T[_size];
+		if (_data == NULL)
+			throw Error::MemoryError("Could not allocate data");
+	}
 }
 
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
     const AutoArray& copy)
+    throw (Error::MemoryError) :
+    _data(NULL),
+    _size(copy._size),
+    _capacity(copy._size)
 {
-	_size = _capacity = copy._size; 
-	_data = new T[_size];
-	if (_data == NULL)
-		throw Error::StrategyError("Could not allocate data");
-	for (size_type i = 0; i < _size; i++)
-		_data[i] = copy._data[i];
+	if (_size != 0) {
+		_data = new (nothrow) T[_size];
+		if (_data == NULL)
+			throw Error::MemoryError("Could not allocate data");
+		for (size_type i = 0; i < _size; i++)
+			_data[i] = copy._data[i];
+	}
 }
 
 /******************************************************************************/
