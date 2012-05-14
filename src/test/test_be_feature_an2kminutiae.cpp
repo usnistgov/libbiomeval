@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <stdio.h>
 #include <cstdlib>
 #include <iostream>
 #include <be_feature_an2k7minutiae.h>

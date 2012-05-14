@@ -41,7 +41,7 @@ handleAN2KView(Finger::AN2KView &an2kv)
 		return (-1);
 	}
 	char tmpl[32];
-	sprintf(tmpl, "Type-%u_imgXXX", an2kv.getRecordType());
+	sprintf(tmpl, "Type-%u_imgXXXXXX", an2kv.getRecordType());
 	string filename = mktemp(tmpl);
 	filename += ".pgm";
 
