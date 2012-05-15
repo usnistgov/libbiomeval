@@ -10,6 +10,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
@@ -89,9 +90,65 @@ main(int argc, char* argv[])
 	}
 	cout << "success" << endl;
 	
+	/* Test the set aside of a file */
+	cout << "Set aside file " << tempFileName << ": ";
+	ostringstream sstr;
+	for (int i = 1; i < 6; i++) {
+		try {
+			IO::Utility::setAsideName(tempFileName);
+			sstr.str("");
+			sstr << tempFileName << "." << i;
+			if (!IO::Utility::fileExists(sstr.str())) {
+				cout << "Failed to set aside to " <<
+				    sstr.str() << endl;
+				return (EXIT_FAILURE);
+			}
+			IO::Utility::writeFile(textFile, tempFileName);
+		} catch (Error::Exception &e) {
+			cout << "Caught " + e.getInfo() << endl;
+			return (EXIT_FAILURE);
+		}
+	}
+	cout << "Success." << endl;
+
+	/* Test the set aside of a directory */
+	string tempDirName = "temp_dir";
+	cout << "Set aside directory " << tempDirName << ": ";
+	if (mkdir(tempDirName.c_str(), 0777) != 0) {
+		cout << "Failed to make temp directory" << endl;
+		return (EXIT_FAILURE);
+	}
+	for (int i = 1; i < 6; i++) {
+		try {
+			IO::Utility::setAsideName(tempDirName);
+			sstr.str("");
+			sstr << tempDirName << "." << i;
+			if (!IO::Utility::fileExists(sstr.str())) {
+				cout << "Failed to set aside to " <<
+				    sstr.str() << endl;
+				return (EXIT_FAILURE);
+			}
+			mkdir(tempDirName.c_str(), 0777);
+		} catch (Error::Exception &e) {
+			cout << "Caught " + e.getInfo() << endl;
+			return (EXIT_FAILURE);
+		}
+	}
+	cout << "Success." << endl;
+
 	/* Clean up */
 	if (unlink(tempFileName.c_str()))
 		cout << "Could not remove " << tempFileName << endl;
+	if (rmdir(tempDirName.c_str()))
+		cout << "Could not remove " << tempDirName << endl;
+	for (int i = 1; i < 6; i++) {
+		sstr.str("");
+		sstr << tempFileName << "." << i;
+		unlink(sstr.str().c_str());
+		sstr.str("");
+		sstr << tempDirName << "." << i;
+		rmdir(sstr.str().c_str());
+	}
 		
 	return (EXIT_SUCCESS);
 }

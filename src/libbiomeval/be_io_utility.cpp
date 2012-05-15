@@ -13,16 +13,45 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
 #include <fstream>
+#include <sstream>
 
 #include <be_error.h>
 #include <be_text.h>
 #include <be_io_utility.h>
 
 using namespace BiometricEvaluation;
+
+bool
+BiometricEvaluation::IO::Utility::fileExists(
+    const string &pathname)
+    throw (Error::StrategyError)
+{
+	if (access(pathname.c_str(), F_OK) == 0)
+		return (true);
+	else
+		return (false);
+}
+
+bool
+BiometricEvaluation::IO::Utility::pathIsDirectory(
+    const string &pathname)
+    throw (Error::StrategyError)
+{
+	struct stat sb;
+
+	if (stat(pathname.c_str(), &sb) != 0)
+		return (false);
+	
+	if (S_ISDIR(sb.st_mode))
+		return (true);
+
+	return (false);
+}
 
 void
 BiometricEvaluation::IO::Utility::removeDirectory(
@@ -95,31 +124,30 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 	}
 }
 
-bool
-BiometricEvaluation::IO::Utility::fileExists(
-    const string &pathname)
-    throw (Error::StrategyError)
+void
+BiometricEvaluation::IO::Utility::setAsideName(
+    const string &path)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	if (access(pathname.c_str(), F_OK) == 0)
-		return (true);
-	else
-		return (false);
-}
+	if (!fileExists(path))
+		throw Error::ObjectDoesNotExist(path + " does not exist");
 
-bool
-BiometricEvaluation::IO::Utility::pathIsDirectory(
-    const string &pathname)
-    throw (Error::StrategyError)
-{
-	struct stat sb;
+	/* Find the next index available for the set aside name */
+	uint32_t idx;
+	ostringstream sstr;
+	for (idx = 1; idx <= UINT16_MAX; idx++) {
+		sstr << path << "." << idx;
+		if (!fileExists(sstr.str()))
+			break;
+		sstr.str("");
+	}
+	if (idx > UINT16_MAX)
+		throw (Error::StrategyError("All possible names in use"));
 
-	if (stat(pathname.c_str(), &sb) != 0)
-		return (false);
-	
-	if (S_ISDIR(sb.st_mode))
-		return (true);
-
-	return (false);
+	int rc = rename(path.c_str(), sstr.str().c_str());
+	if (rc != 0)
+		throw (Error::StrategyError("Could not rename " + path + ": " +
+		    Error::errorStr()));
 }
 
 uint64_t

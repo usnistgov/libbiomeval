@@ -33,6 +33,7 @@ namespace BiometricEvaluation
 		namespace Utility {
 			
 			/**
+			 * @brief
 			 * Remove a directory.
 			 *
 			 * @param[in] directory
@@ -50,6 +51,33 @@ namespace BiometricEvaluation
 			void removeDirectory(
 			    const string &directory,
 			    const string &prefix)
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
+
+			/**
+			 * @brief
+			 * Set aside a file or directory name.
+			 * @details
+			 * A file or directory is renamed in a sequential
+			 * manner. For example, if directory foo is set aside,
+			 * it will be renamed foo.1. If foo is recreated by the
+			 * application, and again set aside, it will be renamed
+			 * foo.2. There is a limit of uint16_t max attempts
+			 * at creating a set aside name.
+			 *
+			 * @param[in] path
+			 *	The path name of the file or directory to be
+			 *	set aside.
+			 * @throw Error::ObjectDoesNotExist
+			 *	The named object does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, the name or prefix is
+			 *	malformed, or the maximum number of attempts
+			 *	was reached.
+			 */
+			void setAsideName(
+			    const string &name)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 
