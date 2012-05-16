@@ -459,7 +459,7 @@ BiometricEvaluation::IO::RecordStore::readControlFile()
 	PropertiesFile *props;
 	try {
 		props = new PropertiesFile(
-		    RecordStore::canonicalName(CONTROLFILENAME));
+		    RecordStore::canonicalName(CONTROLFILENAME), _mode);
 	} catch (Error::StrategyError &e) {
                 throw Error::StrategyError("Could not read properties");
         } catch (Error::FileError& e) {
@@ -508,7 +508,7 @@ BiometricEvaluation::IO::RecordStore::writeControlFile()
 	PropertiesFile *props;
 	try {
 		props = new PropertiesFile(
-		    RecordStore::canonicalName(CONTROLFILENAME));
+		    RecordStore::canonicalName(CONTROLFILENAME), _mode);
 	} catch (Error::FileError &e) {
                 throw Error::StrategyError("Could not write properties");
 	} catch (Error::StrategyError &e) {
