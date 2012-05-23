@@ -19,6 +19,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 
@@ -321,3 +322,50 @@ BiometricEvaluation::IO::Utility::isWritable(
 	return (rv);
 }
 
+string
+BiometricEvaluation::IO::Utility::createTemporaryFile(
+    const string &prefix,
+    const string &parentDir)
+    throw (Error::FileError,
+    Error::MemoryError)
+{
+	string path;
+	FILE *fp = IO::Utility::createTemporaryFile(path, prefix, parentDir);
+	fclose(fp);
+
+	return (path);
+}
+
+FILE*
+BiometricEvaluation::IO::Utility::createTemporaryFile(
+    string &path,
+    const string &prefix,
+    const string &parentDir)
+    throw (Error::FileError,
+    Error::MemoryError)
+{
+	string tmpl = "";
+	constructAndCheckPath(((prefix == "") ? "libbiomeval" : prefix) + 
+	    "-XXXXXX", parentDir, tmpl);
+
+	char *name = strdup(tmpl.c_str());
+	if (name == NULL)
+		throw Error::MemoryError();
+	
+	int fildes = mkstemp(name);
+	if (fildes == -1) {
+		free(name);
+		throw Error::FileError("Could not create temporary file (" +
+		    Error::errorStr() + ')');
+	}
+	
+	path = name;
+	free(name);
+	
+	FILE *fp = fdopen(fildes, "w+x");
+	if (fp == NULL)
+		throw Error::FileError("Could not wrap with stream (" + 
+		    Error::errorStr() + ')');
+		    
+	return (fp);
+}

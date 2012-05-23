@@ -8,6 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <unistd.h>
+
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -149,7 +151,49 @@ main(int argc, char* argv[])
 		sstr << tempDirName << "." << i;
 		rmdir(sstr.str().c_str());
 	}
-		
+	
+	/*
+	 * Test temporary files.
+	 */
+	
+	cout << "Temporary file name: ";
+	string testTempFile;
+	try {
+		testTempFile = IO::Utility::createTemporaryFile("test");
+	} catch (Error::Exception &e) {
+		cout << "FAIL - Caught " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << testTempFile << endl;
+	unlink(testTempFile.c_str());
+	
+	cout << "Write to exclusive temporary file: ";
+	FILE *tempFp = NULL;
+	try {
+		tempFp = IO::Utility::createTemporaryFile(testTempFile,
+		    "test");
+	} catch (Error::Exception &e) {
+		cout << "FAIL - Caught " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+	string testContents = "This is a test entry for the temp file";
+	if (fwrite(testContents.c_str(), 1, testContents.size(), tempFp) != 
+	    testContents.size()) {
+		cout << "FAIL - Couldn't write" << endl;
+		return (EXIT_FAILURE);
+	}
+	Memory::uint8Array tempContentsRead = 
+	    IO::Utility::readFile(testTempFile);
+	for (size_t i = 0; i < tempContentsRead.size(); i++) {
+		if (tempContentsRead[i] != testContents[i]) {
+			cout << "FAIL - Contents differ" << endl;
+			return (EXIT_FAILURE);
+		}
+	}
+	cout << "Success." << endl;
+	fclose(tempFp);
+	unlink(testTempFile.c_str());
+			
 	return (EXIT_SUCCESS);
 }
 

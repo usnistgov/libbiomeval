@@ -315,6 +315,70 @@ namespace BiometricEvaluation
 			bool
 			isWritable(
 			    const string &pathname);
+			    
+			/**
+			 * @brief
+			 * Create a temporary file.
+			 *
+			 * @param[in] prefix
+			 *	String to be prefixed to the random temporary
+			 *	name.
+			 * @param[in] parentDir
+			 *	Where to place the temporary file.
+			 *
+			 * @throw Error::FileError
+			 *	Could not create or close temporary file.
+			 * @throw Error::MemoryError
+			 *	Error allocating memory for file name.
+			 *
+			 * @return
+			 *	Path to temporary file.
+			 *
+			 * @note
+			 * Exclusivity is not guaranteed for the path returned,
+			 * since the exclusive descriptor is closed before
+			 * returning.
+			 */
+			string
+			createTemporaryFile(
+			    const string &prefix = "",
+			    const string &parentDir = "/tmp")
+			    throw (Error::FileError,
+			    Error::MemoryError);
+			    
+			/**
+			 * @brief
+			 * Create a temporary file.
+			 * @details
+			 * Exclusivity to the file stream is guaranteed.
+			 *
+ 			 * @param[out] path
+			 *	Reference to a string that will hold the path
+			 *	to the opened temporary file.
+			 * @param[in] prefix
+			 *	String to be prefixed to the random temporary
+			 *	name.
+			 * @param[in] parentDir
+			 *	Where to place the temporary file.
+			 *
+			 * @throw Error::FileError
+			 *	Could not create or close temporary file.
+			 * @throw Error::MemoryError
+			 *	Error allocating memory for file name.
+			 *
+			 * @return
+			 *	Open file stream to path.
+			 *
+			 * @note
+			 * Caller must fclose(3) the returned stream.
+			 */
+			FILE*
+			createTemporaryFile(
+			    string &path,
+			    const string &prefix = "",
+			    const string &parentDir = "/tmp")
+			    throw (Error::FileError,
+			    Error::MemoryError);
 		}
 	}
 }
