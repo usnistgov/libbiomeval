@@ -73,7 +73,7 @@ namespace BiometricEvaluation
 					Type_15 = 15,
 					Type_16 = 16,
 					Type_17 = 17,
-					Type_99 = 99,
+					Type_99 = 99
 				} Kind;
 			private:
 				RecordType() {};
