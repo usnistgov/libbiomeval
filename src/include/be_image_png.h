@@ -11,9 +11,20 @@
 #ifndef __BE_IMAGE_PNG__
 #define __BE_IMAGE_PNG__
 
-#include <png.h>
-
 #include <be_image_image.h>
+
+/* png.h forward-declares */
+extern "C" {
+	typedef size_t png_size_t;
+	typedef unsigned char png_byte;
+	typedef png_byte * png_bytep;
+	
+	struct png_struct_def;
+	typedef struct png_struct_def png_struct;
+	typedef png_struct * png_structp;
+	
+	typedef const char * png_const_charp;
+}
 
 namespace BiometricEvaluation
 {

@@ -8,6 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <png.h>
+
 #include <be_image_png.h>
 #include <be_memory_autoarray.h>
 

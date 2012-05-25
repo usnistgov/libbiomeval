@@ -11,12 +11,6 @@
 #ifndef __BE_IMAGE_JPEGL__
 #define __BE_IMAGE_JPEGL__
 
-#include <cstdio>
-
-extern "C" {
-	#include <jpegl.h>
-}
-
 #include <be_image_image.h>
 
 namespace BiometricEvaluation

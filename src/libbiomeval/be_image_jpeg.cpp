@@ -14,6 +14,7 @@
 extern "C" {
 	#include <computil.h>
 	#include <dataio.h>
+	#include <jpeglib.h>
 }
 
 #include <be_image_jpeg.h>

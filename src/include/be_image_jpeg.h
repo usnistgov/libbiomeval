@@ -13,11 +13,18 @@
 
 #include <cstdio>
 
-extern "C" {
-#include <jpeglib.h>
-}
-
 #include <be_image_image.h>
+
+/* jpeglib.h forward-declares */
+extern "C" {
+#ifndef HAVE_BOOLEAN
+	typedef int boolean;
+#endif
+	struct jpeg_decompress_struct;
+	struct jpeg_common_struct;
+	typedef struct jpeg_common_struct *j_common_ptr;
+	typedef struct jpeg_decompress_struct *j_decompress_ptr;
+}
 
 namespace BiometricEvaluation
 {
