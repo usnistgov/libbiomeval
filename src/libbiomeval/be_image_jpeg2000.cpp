@@ -8,6 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <openjpeg/openjpeg.h>
+
 #include <cmath>
 
 #include <be_image_jpeg2000.h>
@@ -15,7 +17,7 @@
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const uint8_t *data,
     const uint64_t size,
-    const OPJ_CODEC_FORMAT codec)
+    const int8_t codec)
     throw (Error::DataError,
     Error::StrategyError) : 
     Image::Image(

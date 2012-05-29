@@ -11,9 +11,10 @@
 #ifndef __BE_IMAGE_JPEG2000__
 #define __BE_IMAGE_JPEG2000__
 
-#include <openjpeg/openjpeg.h>
-
 #include <be_image_image.h>
+
+struct opj_image;
+typedef struct opj_image opj_image_t;
 
 namespace BiometricEvaluation
 {
@@ -45,7 +46,7 @@ namespace BiometricEvaluation
 			JPEG2000(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const OPJ_CODEC_FORMAT codec=CODEC_JP2)
+			    const int8_t codec = 2)
 			    throw (Error::DataError,
 			    Error::StrategyError);
 
