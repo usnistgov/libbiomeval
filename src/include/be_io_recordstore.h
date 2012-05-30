@@ -343,12 +343,33 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */	
-			virtual void replace(
+			virtual void
+			replace(
 			    const string &key,
 			    const void *const data,
 			    const uint64_t size)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError) = 0;
+			    
+			/**
+			 * Replace a complete record in a RecordStore.
+			 *
+			 * @param[in] key
+			 *	The key of the record to be replaced.
+			 * @param[in] data
+			 *	The data for the record.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */	
+			virtual void replace(
+			    const string &key,
+			    const Memory::uint8Array &data)
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
 
 			/**
 			 * Return the length of a record.
