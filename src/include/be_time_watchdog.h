@@ -24,22 +24,22 @@ using namespace std;
  */
 
 #define BEGIN_WATCHDOG_BLOCK(_watchdog, _blockname) do {		\
-	_watchdog->clearExpired();					\
-	_watchdog->clearCanSigJump();					\
+	(_watchdog)->clearExpired();					\
+	(_watchdog)->clearCanSigJump();					\
 	if (sigsetjmp(							\
 	    BiometricEvaluation::Time::Watchdog::_sigJumpBuf, 1) != 0) \
 	 {								\
-		_watchdog->setExpired();				\
+		(_watchdog)->setExpired();				\
 		goto _blockname ## _end;				\
 	}								\
-	_watchdog->setCanSigJump();					\
-	_watchdog->start();						\
+	(_watchdog)->setCanSigJump();					\
+	(_watchdog)->start();						\
 } while (0)
 
 #define END_WATCHDOG_BLOCK(_watchdog, _blockname) do {			\
 	_blockname ## _end:						\
-	_watchdog->clearCanSigJump();					\
-	_watchdog->stop();						\
+	(_watchdog)->clearCanSigJump();					\
+	(_watchdog)->stop();						\
 } while (0);
 
 namespace BiometricEvaluation {

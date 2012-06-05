@@ -21,20 +21,20 @@ using namespace std;
  * a signal handling block.
  */
 #define BEGIN_SIGNAL_BLOCK(_sigmgr, _blockname) do {			\
-	_sigmgr->clearSigHandled();					\
-	_sigmgr->stop();						\
+	(_sigmgr)->clearSigHandled();					\
+	(_sigmgr)->stop();						\
 	if (sigsetjmp(							\
 	    BiometricEvaluation::Error::SignalManager::_sigJumpBuf, 1) != 0) \
 	 {								\
-		_sigmgr->setSigHandled();				\
+		(_sigmgr)->setSigHandled();				\
 		goto _blockname ## _end;				\
 	}								\
-	_sigmgr->start();						\
+	(_sigmgr)->start();						\
 } while (0)
 
 #define END_SIGNAL_BLOCK(_sigmgr, _blockname) do {			\
 	_blockname ## _end:						\
-	_sigmgr->stop();						\
+	(_sigmgr)->stop();						\
 } while (0);
 
 namespace BiometricEvaluation {
