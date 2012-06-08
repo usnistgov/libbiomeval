@@ -349,7 +349,20 @@ runTests(IO::RecordStore *rs)
 	testSequence(rs);
 	cout << "Should sequence starting at key6" << endl;
 
-	cout << "Changing RecordStore name..." << endl;
+	/* Test sequencing from the start */
+	cout << endl << "\nSequencing from BE_RECSTORE_SEQ_START:" << endl;
+	rs->sequence(theKey, rdata, IO::RecordStore::BE_RECSTORE_SEQ_START);
+	testSequence(rs);
+	cout << "Should sequence starting at key0." << endl;
+
+	/* Reinsert the record for the key that was deleted above */
+	theKey.assign("key5");
+	snprintf(rdata, RDATASIZE, "Bogus data for key5");
+	Memory::uint8Array aardata;
+	aardata.copy((uint8_t *)rdata, RDATASIZE);
+	rs->insert(theKey, aardata);
+
+	cout << endl << "Changing RecordStore name..." << endl;
 	try {
 		string newName = tempnam(".", NULL);
 		newName = newName.substr(2, newName.length());
@@ -361,20 +374,15 @@ runTests(IO::RecordStore *rs)
 		cout << "failed: " << e.getInfo() << "." << endl;
 		return (-1);
 	}
-
-	/* Reinsert the record for the key that was deleted above */
-	snprintf(rdata, RDATASIZE, "Bogus data for key%u", i);
-	Memory::uint8Array aardata;
-	aardata.copy((uint8_t *)rdata, RDATASIZE);
-	rs->insert(theKey, aardata);
 	cout << "Name is now " << rs->getName() << endl;
+
 	cout << "\nDeleting all records..." << endl;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
 		snprintf(rdata, RDATASIZE, "key%u", i);
 		theKey.assign(rdata);
 		try { 
 			rs->remove(theKey);
-		} catch (Error::StrategyError &e) {
+		} catch (Error::Exception &e) {
 			cout << "Caught: " << e.getInfo() << endl;
 		}
 	}
