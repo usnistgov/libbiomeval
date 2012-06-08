@@ -341,19 +341,20 @@ runTests(IO::RecordStore *rs)
 	 * deleted.
 	 */
 	theKey.assign("key5");
-	cout << "Resetting cursor to \"" << theKey << "\"" << endl;
+	cout << endl << "Resetting cursor to \"" << theKey << "\"" << endl;
 	rs->setCursorAtKey(theKey);
 	cout << "Deleting \"" << theKey << "\"" << endl;
 	rs->remove(theKey);
 	cout << "Sequence, starting from deleted \"" << theKey << "\"" << endl;
 	testSequence(rs);
-	cout << "Should sequence starting at key6" << endl;
+	cout << "Should sequence starting at seventh key" << endl;
 
 	/* Test sequencing from the start */
-	cout << endl << "\nSequencing from BE_RECSTORE_SEQ_START:" << endl;
+	cout << endl << "Sequencing from BE_RECSTORE_SEQ_START:" << endl;
 	rs->sequence(theKey, rdata, IO::RecordStore::BE_RECSTORE_SEQ_START);
 	testSequence(rs);
-	cout << "Should sequence starting at key0." << endl;
+	cout << "Should sequence starting at the second key; compare "
+	    "list against the one above." << endl;
 
 	/* Reinsert the record for the key that was deleted above */
 	theKey.assign("key5");

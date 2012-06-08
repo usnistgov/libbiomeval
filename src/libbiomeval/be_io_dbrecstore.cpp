@@ -370,7 +370,7 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 		pos = R_NEXT;
 
 	uint64_t size = sequenceRecordSegments(key, data, pos);
-	setCursor(cursor);
+	setCursor(BE_RECSTORE_SEQ_NEXT);
 	return (size);
 }
 

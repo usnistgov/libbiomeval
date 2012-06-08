@@ -478,7 +478,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::sequence(
 	if (_cursorPos == _entries.end())	/* Client needs to start over */
 		throw Error::ObjectDoesNotExist("No record at position");
 
-	setCursor(cursor);
+	setCursor(BE_RECSTORE_SEQ_NEXT);
 	key.assign(_cursorPos->first);
 	if (data == NULL)
 		return length(key);
