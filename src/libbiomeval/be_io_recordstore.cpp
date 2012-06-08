@@ -187,7 +187,7 @@ BiometricEvaluation::IO::RecordStore::sequence(
     throw (Error::ObjectDoesNotExist, 
     Error::StrategyError)
 {
-	data.resize(this->sequence(key, NULL));
+	data.resize(this->sequence(key, NULL, cursor));
 	/* Cast to avoid undesired recursion */
 	return (this->read(key, static_cast<void *>(data)));
 }
