@@ -325,43 +325,52 @@ runTests(IO::RecordStore *rs)
 		rs->insert(theKey, rdata, RDATASIZE);
 	}
 	testSequence(rs);
-	theKey.assign("key5");
-	cout << "Sequence, starting from \"" << theKey << "\"" << endl;
+
+	/*
+	 * 'Need to sequence to a specific location as we can't just pick
+	 * assign a key because we need to start in the middle, and the key
+	 * name we hard-code may be the last key.
+	 */
+	string tempKey;
+	rlen = rs->sequence(tempKey, NULL,
+	    IO::RecordStore::BE_RECSTORE_SEQ_START);
+	for (int i = 0; i < 3; i++)
+		rlen = rs->sequence(tempKey, NULL);
+	cout << endl << "Sequence, starting from \"" << tempKey << "\"" << endl;
 	try {
-		rs->setCursorAtKey(theKey);
+		rs->setCursorAtKey(tempKey);
 	} catch (Error::Exception &e) {
 		cout << "Caught: " << e.getInfo() << endl;
 	}
 	testSequence(rs);
-	cout << "Sequencing from end; there should be no output." << endl;
+	cout << endl << "Sequencing from end; there should be no output." << endl;
 	testSequence(rs);
 
 	/*
 	 * Test that we can sequence when the key at the cursor has been
 	 * deleted.
 	 */
-	theKey.assign("key5");
-	cout << endl << "Resetting cursor to \"" << theKey << "\"" << endl;
-	rs->setCursorAtKey(theKey);
-	cout << "Deleting \"" << theKey << "\"" << endl;
-	rs->remove(theKey);
-	cout << "Sequence, starting from deleted \"" << theKey << "\"" << endl;
+	cout << endl << "Resetting cursor to \"" << tempKey << "\"" << endl;
+	rs->setCursorAtKey(tempKey);
+	cout << "Deleting \"" << tempKey << "\"" << endl;
+	rs->remove(tempKey);
+	cout << "Sequence, starting from deleted \"" << tempKey << "\"" << endl;
 	testSequence(rs);
-	cout << "Should sequence starting at seventh key" << endl;
+	cout << "Should sequence starting at 'Record 5' key from first list."
+	    << endl;
 
 	/* Test sequencing from the start */
 	cout << endl << "Sequencing from BE_RECSTORE_SEQ_START:" << endl;
 	rs->sequence(theKey, rdata, IO::RecordStore::BE_RECSTORE_SEQ_START);
 	testSequence(rs);
-	cout << "Should sequence starting at the second key; compare "
-	    "list against the one above." << endl;
+	cout << "Should sequence starting at 'Record 2' key from first list."
+	    << endl;
 
 	/* Reinsert the record for the key that was deleted above */
-	theKey.assign("key5");
-	snprintf(rdata, RDATASIZE, "Bogus data for key5");
+	snprintf(rdata, RDATASIZE, "Bogus data for %s ", tempKey.c_str());
 	Memory::uint8Array aardata;
 	aardata.copy((uint8_t *)rdata, RDATASIZE);
-	rs->insert(theKey, aardata);
+	rs->insert(tempKey, aardata);
 
 	cout << endl << "Changing RecordStore name..." << endl;
 	try {
