@@ -56,6 +56,34 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Copy the contents of a directory, optionally
+			 * deleting the source directory contents when done.
+			 *
+			 * @param[in] sourcepath
+			 *	The name of the directory whose contents are
+			 *	to be moved.
+			 * @param[in] targetpath
+			 *	The name of the directory where the contents
+			 *	of the sourcepath are to be moved.
+			 * @param[in] removesource
+			 * 	Flag indicating whether to remove the source
+			 * 	directory after the copy is complete.
+			 * @throw Error::ObjectDoesNotExist
+			 *	The source named directory does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or the directoy name or
+			 * 	prefix is malformed.
+			 */
+			void copyDirectoryContents(
+			    const string &sourcepath,
+			    const string &targetpath,
+			    const bool removesource = false)
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
+
+			/**
+			 * @brief
 			 * Set aside a file or directory name.
 			 * @details
 			 * A file or directory is renamed in a sequential

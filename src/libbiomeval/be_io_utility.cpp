@@ -57,6 +57,60 @@ BiometricEvaluation::IO::Utility::pathIsDirectory(
 }
 
 void
+BiometricEvaluation::IO::Utility::copyDirectoryContents(
+    const string &sourcepath,
+    const string &targetpath,
+    const bool removesource)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	struct stat sb;
+	struct dirent *entry;
+	DIR *dir = NULL;
+
+	if (!IO::Utility::pathIsDirectory(sourcepath))
+		throw Error::ObjectDoesNotExist(sourcepath + " is not a path");
+	if (IO::Utility::fileExists(targetpath)) {
+		if (!IO::Utility::pathIsDirectory(targetpath))
+			throw Error::ObjectDoesNotExist(targetpath +
+			    " is not a path");
+	} else {
+		/* Create the target dir with same perms as source */
+		stat(sourcepath.c_str(), &sb);
+		if(IO::Utility::makePath(targetpath, sb.st_mode) != 0)
+			throw Error::StrategyError(targetpath +
+			    " could not be created");
+	}
+
+	dir = opendir(sourcepath.c_str());
+	if (dir == NULL)
+		throw Error::StrategyError(sourcepath + " could not be opened");
+
+	while ((entry = readdir(dir)) != NULL) {
+		if (entry->d_ino == 0)
+			continue;
+		if ((strcmp(entry->d_name, ".") == 0) ||
+		    (strcmp(entry->d_name, "..") == 0))
+			continue;
+
+		string sourcefile = sourcepath + "/" + entry->d_name;
+		string targetfile = targetpath + "/" + entry->d_name;
+		/* Recursively copy subdirectories and files */
+		if (IO::Utility::pathIsDirectory(sourcefile)) {
+			copyDirectoryContents(sourcefile, targetfile);
+		} else {
+			/* copy the file */
+			IO::Utility::writeFile(
+			    IO::Utility::readFile(sourcefile),
+			    targetfile);
+		}
+	}
+	if (removesource)
+		IO::Utility::removeDirectory(
+		    Text::filename(sourcepath),
+		    Text::dirname(sourcepath));
+}
+
+void
 BiometricEvaluation::IO::Utility::removeDirectory(
     const string &directory,
     const string &prefix)
@@ -95,9 +149,9 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 		}
 
 		/* Recursively remove subdirectories and files */
-		if ((S_IFMT & sb.st_mode) == S_IFDIR)
+		if (S_ISDIR(sb.st_mode)) {
 			removeDirectory(entry->d_name, dirpath);
-		else {
+		} else {
 			if (unlink(filename.c_str())) {
 				if (dir != NULL) {
 					if (closedir(dir)) {
