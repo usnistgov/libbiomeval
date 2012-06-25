@@ -105,9 +105,7 @@ BiometricEvaluation::IO::Utility::copyDirectoryContents(
 		}
 	}
 	if (removesource)
-		IO::Utility::removeDirectory(
-		    Text::filename(sourcepath),
-		    Text::dirname(sourcepath));
+		IO::Utility::removeDirectory(sourcepath);
 }
 
 void
@@ -179,6 +177,16 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 			    dirpath + " (" + Error::errorStr() + ")");
 		}
 	}
+}
+
+void
+BiometricEvaluation::IO::Utility::removeDirectory(
+    const string &pathname)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+{
+	IO::Utility::removeDirectory(
+	    Text::filename(pathname),
+	    Text::dirname(pathname));
 }
 
 void

@@ -34,7 +34,8 @@ namespace BiometricEvaluation
 			
 			/**
 			 * @brief
-			 * Remove a directory.
+			 * Remove a directory using directory name and parent
+			 * pathname.
 			 *
 			 * @param[in] directory
 			 *	The name of the directory to be removed,
@@ -51,6 +52,24 @@ namespace BiometricEvaluation
 			void removeDirectory(
 			    const string &directory,
 			    const string &prefix)
+			    throw (Error::ObjectDoesNotExist, 
+			    Error::StrategyError);
+
+			/**
+			 * @brief
+			 * Remove a directory using a complete pathname.
+			 *
+			 * @param[in] pathname
+			 *	The complelte path name of the directory to
+			 *	be removed,
+			 * @throw Error::ObjectDoesNotExist
+			 *	The named directory does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or the path name is malformed.
+			 */
+			void removeDirectory(
+			    const string &pathname)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
 

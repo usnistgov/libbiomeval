@@ -7,7 +7,7 @@
 # its use by other parties, and makes no guarantees, expressed or implied,
 # about its quality, reliability, or any other characteristic.
 #
-COMMONINCOPT = -I/usr/local/nbis/include
+COMMONINCOPT = 
 include ../common.mk
 
 CORE = test_be_time test_be_time_timer test_be_time_watchdog test_be_error_signal_manager test_be_process_statistics test_be_system test_be_memory_autoarray test_be_text test_be_framework test_be_memory_indexedbuffer
