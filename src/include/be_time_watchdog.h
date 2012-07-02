@@ -109,10 +109,19 @@ namespace BiometricEvaluation {
 			 * @return
 			 *	The Watchdog object.
 			 *
-			 * @throw Error::ParameterError The type is invalid.
+			 * @throw Error::NotImplemented
+			 *	The type of watchdog requested is not
+			 *	implemented.
+			 * @throw Error::ParameterError
+			 *	The type is invalid.
+			 *
+			 * @warning
+			 *	Watchdog::PROCESSTIME is not supported under
+			 *	Cygwin.
 			 */
 			Watchdog(const uint8_t type)
-			    throw (Error::ParameterError);
+			    throw (Error::NotImplemented,
+			    Error::ParameterError);
 
 			/**
 			 * Set the interval for the timer, but don't start the

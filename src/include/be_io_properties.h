@@ -34,7 +34,7 @@ namespace BiometricEvaluation
 		class Properties {
 		public:
 			/** Convenience const iterator over a Properties */
-			typedef PropertiesMap::const_iterator Properties_iter;
+			typedef PropertiesMap::const_iterator const_iterator;
 			
 			/**
 			 * @brief
@@ -220,6 +220,28 @@ namespace BiometricEvaluation
 			    const string &property)
 			    const
 			    throw (Error::ObjectDoesNotExist);
+						
+			/**
+			 * @brief
+			 * Obtain iterator to the first property.
+			 *
+			 * @return
+			 *	Iterator to first property.
+			 */
+			const_iterator
+			begin()
+			    const;
+			
+			/**
+			 * @brief
+			 * Obtain iterator to one past the last property.
+			 *
+			 * @return
+			 *	Iterator one past the last property.
+			 */
+			const_iterator
+			end()
+			    const;
 			
 			/** Destructor */
 			virtual ~Properties();
@@ -276,28 +298,6 @@ namespace BiometricEvaluation
 			    const uint8_t *const buffer,
 			    size_t size)
 			    throw (Error::StrategyError);
-			
-			/**
-			 * @brief
-			 * Obtain iterator to the first property.
-			 *
-			 * @return
-			 *	Iterator to first property.
-			 */
-			Properties_iter
-			begin()
-			    const;
-			
-			/**
-			 * @brief
-			 * Obtain iterator to one past the last property.
-			 *
-			 * @return
-			 *	Iterator one past the last property.
-			 */
-			Properties_iter
-			end()
-			    const;
 
 		private:
 			/** The map containing the property/value pairs */

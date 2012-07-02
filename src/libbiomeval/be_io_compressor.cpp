@@ -13,6 +13,32 @@
 /* Include children for factory */
 #include <be_io_gzip.h>
 
+const string BiometricEvaluation::IO::Compressor::GZIPTYPE = "GZIP";
+
+BiometricEvaluation::IO::Compressor::Kind
+BiometricEvaluation::IO::Compressor::stringToKind(
+    const string &compressor)
+    throw (Error::ObjectDoesNotExist)
+{
+	if (strcasecmp(GZIPTYPE.c_str(), compressor.c_str()) == 0)
+		return (Compressor::GZIP);
+		
+	throw Error::ObjectDoesNotExist(compressor);
+}
+
+string
+BiometricEvaluation::IO::Compressor::kindToString(
+    Compressor::Kind compressor)
+    throw (Error::ObjectDoesNotExist)
+{
+	switch (compressor) {
+	case GZIP:
+		return (GZIPTYPE);
+	default:
+		throw Error::ObjectDoesNotExist();
+	}
+}
+
 BiometricEvaluation::IO::Compressor::Compressor() :
     _compressorOptions()
 {

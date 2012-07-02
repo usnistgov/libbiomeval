@@ -16,6 +16,7 @@
 
 #include <be_error_exception.h>
 #include <be_io.h>
+#include <be_io_propertiesfile.h>
 #include <be_memory_autoarray.h>
 
 using namespace std;
@@ -80,6 +81,13 @@ namespace BiometricEvaluation {
 			static const string FILETYPE;
 			/** SQLiteRecordStore type */
 			static const string SQLITETYPE;
+			/** CompressedRecordStore type */
+			static const string COMPRESSEDTYPE;
+			/** Default RecordStore */
+			static const string DEFAULTTYPE;
+			
+			/** Message for READONLY RecordStore modification */
+			static const string RSREADONLYERROR;
 
 			/**
 			 * Constructor to create a new RecordStore.
@@ -132,8 +140,6 @@ namespace BiometricEvaluation {
 			    uint8_t mode = READWRITE)
 			    throw (Error::ObjectDoesNotExist, 
 			    Error::StrategyError);
-
-			RecordStore();
 
 			virtual ~RecordStore();
 			
@@ -700,21 +706,44 @@ namespace BiometricEvaluation {
 			genKeySegName(
 			    const string &key,
 			    const uint64_t segnum);
-				      
+			
+			/**
+			 * @brief
+			 * Replace existing Properties in RecordStore Control
+			 * File.
+			 * @details
+			 * Existing properties will be updated.  RecordStore
+			 * core properties will be ignored.
+			 *
+			 * @param[in] properties
+			 *	Shared pointer to Properties object.
+			 *
+			 * @throw Error::StrategyError
+			 *	RecordStore was opened READONLY.
+			 */   
+			void
+			setProperties(
+			    const tr1::shared_ptr<IO::Properties> properties)
+			    throw (Error::StrategyError);
+			    
+			/**
+			 * @brief
+			 * Obtain a copy of the Properties object.
+			 * @details
+			 * RecordStore core properties will be excluded.
+			 *
+			 * @return
+			 *	Shared pointer to Properties object that may
+			 *	be modified.
+			 */
+			tr1::shared_ptr<IO::Properties>
+			getProperties()
+			    const;
+			
 		private:
-			/* The name of the RecordStore */
-			string _name;
-
-			/*
-			 * A textual description of the store.
-			 */
-			string _description;
-
-			/*
-			 * The RecordStore type.
-			 */
-			string _type;
-
+			/** Properties of the RecordStore */
+			tr1::shared_ptr<IO::PropertiesFile> _props;
+			
 			/*
 			 * The name directory where the store is rooted,
 			 * including _parentDir.
@@ -727,11 +756,6 @@ namespace BiometricEvaluation {
 			string _parentDir;
 
 			/*
-			 * Number of items in the store.
-			 */
-			unsigned int _count;
-
-			/*
 			 * The current record position cursor.
 			 */
 			int _cursor;
@@ -740,23 +764,47 @@ namespace BiometricEvaluation {
 			 * Mode in which the RecordStore was opened.
 			 */
 			uint8_t _mode;
-
-			/*
-			 * Read the contents of the common control file format
-			 * for all RecordStores.
+			
+			/**
+			 * @brief
+			 * Ensure all required RecordStore Property keys are
+			 * present.
+			 *
+			 * @throw Error::StrategyError
+			 *	Required key is missing or file not found.
 			 */
 			void
-			readControlFile()
+			validateControlFile()
 			    throw (Error::StrategyError);
-
-			/*
-			 * Write the contents of the common control file format
-			 * for all RecordStores.
+			
+			/**
+			 * @brief
+			 * Open/create the PropertiesFile for this RecordStore.
+			 *
+			 * @throws Error::StrategyError
+			 *	Control file doesn't exist and mode is
+			 *	READONLY, error with underlying file system, 
 			 */
 			void
-			writeControlFile()
-			    const
+			openControlFile()
 			    throw (Error::StrategyError);
+			    
+			/**
+			 * @brief
+			 * Detemine if a property key is a core RecordStore
+			 * property.
+			 * 
+			 * @param[in] key
+			 *	Key to check.
+			 *
+			 * @return
+			 *	true if key is a core RecordStore property,
+			 *	false otherwise.
+			 */
+			bool
+			isKeyCoreProperty(
+			    const string &key)
+			    const;
 		};
 	}
 }

@@ -52,6 +52,14 @@ testNonMutable(IO::Properties &props)
 	return (rv);
 }
 
+static void
+iterateProperties(
+    const IO::Properties &p)
+{
+	for (IO::Properties::const_iterator it = p.begin(); it != p.end(); it++)
+		cout << it->first << ": " << it->second << endl;
+}
+
 int
 main(int argc, char* argv[]) {
 
@@ -238,7 +246,7 @@ main(int argc, char* argv[]) {
 	/* Read properties from a buffer */
 	cout << "Testing Properties read from a buffer: ";
 	try {
-		string fname = "test.prop";
+		string fname = "test_data/test.prop";
 		Memory::uint8Array data = IO::Utility::readFile(fname);
 		IO::Properties propsBuf(data, data.size());
 		/* Retrieve last property that was saved */
@@ -246,6 +254,9 @@ main(int argc, char* argv[]) {
 			throw Error::DataError("Retrieved wrong data");
 		else
 			cout << "Success" << endl;
+			
+		cout << "\nTest iteration: " << endl;
+		iterateProperties(propsBuf);
 	} catch (Error::Exception &e) {
 		cout << "FAILURE: " << e.getInfo() << endl;
 		return (EXIT_FAILURE);

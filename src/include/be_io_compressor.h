@@ -33,6 +33,45 @@ namespace BiometricEvaluation
 			typedef enum {
 				GZIP
 			} Kind;
+			
+			/** String representations of the compressors */
+			static const string GZIPTYPE;
+			
+			/**
+			 * @brief
+			 * Convert Kind enumeration to string.
+			 *
+			 * @param[in] compressor
+			 *	The Compressor to convert.
+			 *
+			 * @return
+			 *	String representation of compressor.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	compressor is not a valid Compressor type.
+			 */
+			static string
+			kindToString(
+			    Compressor::Kind compressor)
+			    throw (Error::ObjectDoesNotExist);
+			
+			/**
+			 * @brief
+			 * Convert string to Kind enumeration.
+			 *
+			 * @param[in] compressor
+			 *	The Compressor to convert.
+			 *
+			 * @return
+			 *	Kind enumeration of compressor.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	compressor is not a valid Compressor type.
+			 */
+			static Compressor::Kind
+			stringToKind(
+			    const string &compressor)
+			    throw (Error::ObjectDoesNotExist);
 		
 			/**
 			 * @brief

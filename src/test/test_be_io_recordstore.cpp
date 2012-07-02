@@ -19,20 +19,30 @@
 #ifdef FILERECORDSTORETEST
 #include <be_io_filerecstore.h>
 #define TESTDEFINED
+#define MERGETESTDEFINED
 #endif
 
 #ifdef DBRECORDSTORETEST
 #include <be_io_dbrecstore.h>
 #define TESTDEFINED
+#define MERGETESTDEFINED
 #endif
 
 #ifdef ARCHIVERECORDSTORETEST
 #include <be_io_archiverecstore.h>
 #define TESTDEFINED
+#define MERGETESTDEFINED
 #endif
 
 #ifdef SQLITERECORDSTORETEST
 #include <be_io_sqliterecstore.h>
+#define TESTDEFINED
+#define MERGETESTDEFINED
+#endif
+
+#ifdef COMPRESSEDRECORDSTORETEST
+#include <be_io_compressedrecstore.h>
+#include <be_io_dbrecstore.h>
 #define TESTDEFINED
 #endif
 
@@ -76,6 +86,7 @@ testSequence(IO::RecordStore *rs)
 	}
 }
 
+#ifdef MERGETESTDEFINED
 /*
  * Test the ability to merge RecordStores of different types
  */
@@ -176,6 +187,7 @@ testMerge()
 		cout << "Caught " << e.getInfo() << endl;
 	}
 }
+#endif
 
 /*
  * Test the read and write operations of a RecordStore. This function will
@@ -549,6 +561,23 @@ main(int argc, char* argv[]) {
 	auto_ptr<IO::SQLiteRecordStore> ars(rs);
 #endif
 
+#ifdef COMPRESSEDRECORDSTORETEST
+	/* Call the constructor that will create a new ArchiveRecordStore. */
+	rsname = "comprs_test";
+	IO::CompressedRecordStore *rs;
+	try {
+		rs = new IO::CompressedRecordStore(rsname, "RW Test Dir",
+		    IO::RecordStore::BERKELEYDBTYPE, "", "GZIP");
+	} catch (Error::ObjectExists &e) {
+		cout << "The Compressed Record Store exists; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (Error::StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+	auto_ptr<IO::CompressedRecordStore> ars(rs);
+#endif
+
 #ifdef TESTDEFINED
 
 	cout << "Running tests with new record store:" << endl;
@@ -600,12 +629,26 @@ main(int argc, char* argv[]) {
 #endif
 
 #ifdef SQLITERECORDSTORETEST
-	/* Call the constructor that will open an existing ArchiveRecordStore.*/
+	/* Call the constructor that will open an existing SQLiteRecordStore.*/
 	rsname = "srs_test";
 	try {
 		rs = new IO::SQLiteRecordStore(rsname, "");
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The SQLite Record Store does not exist; exiting." << endl;
+		return (EXIT_FAILURE);
+	} catch (Error::StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+#endif
+
+#ifdef COMPRESSEDRECORDSTORETEST
+	/* Call the constructor that will open an existing CompressedRecordStore.*/
+	rsname = "comprs_test";
+	try {
+		rs = new IO::CompressedRecordStore(rsname, "");
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "The Compressed Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
@@ -647,6 +690,7 @@ main(int argc, char* argv[]) {
 		srs = IO::RecordStore::openRecordStore(rsname, "");
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Record Store could not be opened by the factory; exiting." << endl;
+		cout << e.getInfo() << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
 		cout << "A strategy error occurred: " << e.getInfo() << endl;
@@ -656,11 +700,13 @@ main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	srs.reset();		// Close the RecordStore
 
+#ifdef MERGETESTDEFINED
 	/*
 	 * Test merging many RecordStores
 	 */
 	cout << "\nTest merging many RecordStores... ";
 	testMerge();
+#endif
 
 	/*
 	 * Test the deletion of a record store.
@@ -673,12 +719,7 @@ main(int argc, char* argv[]) {
 	} catch (Error::StrategyError &e) {
 		cout << "Caught: " << e.getInfo() << endl;
 	}
-	/*
-	 * Should close the RecordStore by calling ars.reset(), before
-	 * deleting, but we want to see something, so let the failure
-	 * come through when the destructor closes the store.
-	 */
-	cout << "You should see a failure to write the properties file: ";
+
 	return(EXIT_SUCCESS);
 #endif
 }

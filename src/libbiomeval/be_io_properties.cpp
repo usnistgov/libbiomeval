@@ -227,14 +227,14 @@ BiometricEvaluation::IO::Properties::getMode()
 	return (_mode);
 }
 
-BiometricEvaluation::IO::Properties::Properties_iter
+BiometricEvaluation::IO::Properties::const_iterator
 BiometricEvaluation::IO::Properties::begin()
     const
 {
 	return (_properties.begin());
 }
 
-BiometricEvaluation::IO::Properties::Properties_iter
+BiometricEvaluation::IO::Properties::const_iterator
 BiometricEvaluation::IO::Properties::end()
     const
 {

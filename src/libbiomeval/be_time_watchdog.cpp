@@ -32,10 +32,15 @@ BiometricEvaluation::Time::WatchdogSignalHandler(
 
 BiometricEvaluation::Time::Watchdog::Watchdog(
     const uint8_t type)
-    throw (Error::ParameterError)
+    throw (Error::NotImplemented,
+    Error::ParameterError)
 {
 	if ((type != Watchdog::PROCESSTIME) && (type != Watchdog::REALTIME))
 		throw (Error::ParameterError());
+#ifdef __CYGWIN__
+	if (type == Watchdog::PROCESSTIME)
+		throw (Error::NotImplemented());
+#endif
 
 	_type = type;
 	_canSigJump = false;

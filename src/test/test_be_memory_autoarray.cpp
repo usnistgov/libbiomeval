@@ -28,7 +28,9 @@ void printBuf(string name, Memory::AutoArray<char> buf) {
 } 
 
 int main (int argc, char* argv[]) {
-	Memory::AutoArray<char> buf = Memory::AutoArray<char>(26);
+	Memory::AutoArray<char> buf = Memory::AutoArray<char>(0);
+	buf.resize(0);
+	buf.resize(26);
 	Memory::AutoArray<char> assign_copy;
 	
 	for (int c = 'a', i = 0; i < (char)buf.size(); i++, c++)
@@ -123,6 +125,18 @@ int main (int argc, char* argv[]) {
 		cout << "ERROR" << endl;
 	} catch (out_of_range) {
 		cout << "caught exception -- success" << endl;
+	}
+	
+	/* Test subscript, dereference, and addition operators */
+	cout << "\noperator+ test (values should be equal)" << endl;
+	for (size_t i = 0; i < auto_five_letters.size(); i++) {
+		if (i == 0)
+			cout << *auto_five_letters << " == " <<
+			    auto_five_letters[0] << endl;
+		else {
+			cout << *(auto_five_letters + i) << " == " <<
+			    auto_five_letters[i] << endl;
+		}
 	}
 	
 	return (0);

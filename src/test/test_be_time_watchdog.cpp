@@ -164,15 +164,20 @@ int main(int argc, char *argv[])
 	Time::Watchdog *Indy; // "We named the dog Indiana!"
 	try {
 		Indy = new Time::Watchdog(Time::Watchdog::PROCESSTIME);
+#ifdef __CYGWIN__
+	} catch (Error::NotImplemented) {
+#endif
 	} catch (Error::Exception &e) {
 		cout << "failed." << endl;
 		cout << "Caught " << e.getInfo() << ".\n";
 		return (EXIT_FAILURE);
 	}
 	cout << "success." << endl;
+#ifndef __CYGWIN__
 	if (testWatchdog(Indy) != 0)
 		return (EXIT_FAILURE);
 	delete Indy;
+#endif
 
 	/*
 	 * Test the real time watchdog.

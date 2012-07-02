@@ -19,6 +19,8 @@
 
 #include <be_error.h>
 #include <be_io_archiverecstore.h>
+#include <be_io_compressedrecstore.h>
+#include <be_io_compressor.h>
 #include <be_io_dbrecstore.h>
 #include <be_io_filerecstore.h>
 #include <be_io_propertiesfile.h>
@@ -46,35 +48,38 @@ const string BiometricEvaluation::IO::RecordStore::BERKELEYDBTYPE("BerkeleyDB");
 const string BiometricEvaluation::IO::RecordStore::ARCHIVETYPE("Archive");
 const string BiometricEvaluation::IO::RecordStore::FILETYPE("File");
 const string BiometricEvaluation::IO::RecordStore::SQLITETYPE("SQLite");
+const string BiometricEvaluation::IO::RecordStore::COMPRESSEDTYPE("Compressed");
+
+/* 
+ * Default RecordStore should be one of the above and never an 
+ * aggregated (like COMPRESSEDTYPE).
+ */
+const string BiometricEvaluation::IO::RecordStore::DEFAULTTYPE(BERKELEYDBTYPE);
+
+/** Error message when trying to change a core property */
+static const string COREPROPERTYERROR = "Cannot change core properties";
+
+const string BiometricEvaluation::IO::RecordStore::RSREADONLYERROR =
+    "RecordStore was opened read-only";
 
 /*
  * Constructors
  */
-BiometricEvaluation::IO::RecordStore::RecordStore()
-{
-	_count = 0;
-	_cursor = BE_RECSTORE_SEQ_START;
-}
 
 BiometricEvaluation::IO::RecordStore::RecordStore(
     const string &name,
     const string &description,
     const string &type,
     const string &parentDir)
-    throw (Error::ObjectExists, Error::StrategyError)
+    throw (Error::ObjectExists, Error::StrategyError) :
+    _parentDir(parentDir),
+    _cursor(BE_RECSTORE_SEQ_START),
+    _mode(IO::READWRITE)
 {
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
 	if (IO::Utility::constructAndCheckPath(name, parentDir, _directory))
 		throw Error::ObjectExists();
-
-	_count = 0;
-	_name = name;
-	_description = description;
-	_type = type;
-	_parentDir = parentDir;
-	_cursor = BE_RECSTORE_SEQ_START;
-	_mode = IO::READWRITE;
 
 	/*
 	 * The RecordStore is implemented as a directory in the current
@@ -86,32 +91,33 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 	if (mkdir(_directory.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
 		throw Error::StrategyError("Could not create directory (" +
 		    Error::errorStr() + ")");
-	try {
-		(void)writeControlFile();
-	} catch (Error::StrategyError& e) {
-		throw e;
-	}
+	
+	this->openControlFile();
+	_props->setPropertyFromInteger(COUNTPROPERTY, 0);
+	_props->setProperty(NAMEPROPERTY, name);
+	_props->setProperty(DESCRIPTIONPROPERTY, description);
+	_props->setProperty(TYPEPROPERTY, type);
 }
 
 BiometricEvaluation::IO::RecordStore::RecordStore(
     const string &name,
     const string &parentDir,
     uint8_t mode)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    throw (Error::ObjectDoesNotExist, Error::StrategyError) :
+    _parentDir(parentDir),
+    _cursor(BE_RECSTORE_SEQ_START),
+    _mode(mode)
 {
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, _directory))
 		throw Error::ObjectDoesNotExist();
 
-	_parentDir = parentDir;
-	_cursor = BE_RECSTORE_SEQ_START;
-	if (mode != IO::READWRITE && mode != IO::READONLY)
+	if (_mode != IO::READWRITE && _mode != IO::READONLY)
 		throw Error::StrategyError("Invalid mode");
-	_mode = mode;
 
 	try {
-		(void)readControlFile();
+		(void)validateControlFile();
 	} catch (Error::StrategyError& e) {
 		throw e;
 	}
@@ -122,13 +128,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
  */
 BiometricEvaluation::IO::RecordStore::~RecordStore()
 {
-	try {
-		if (_mode != IO::READONLY)
-			writeControlFile();
-	} catch (Error::StrategyError& e) {
-		if (!std::uncaught_exception())
-			cerr << e.getInfo() << endl;
-	}
+
 }
 
 /******************************************************************************/
@@ -142,7 +142,7 @@ BiometricEvaluation::IO::RecordStore::insert(
     const uint64_t size)
     throw (Error::ObjectExists, Error::StrategyError)
 {
-	_count++;
+	_props->setPropertyFromInteger(COUNTPROPERTY, this->getCount() + 1);
 }
 
 void
@@ -197,7 +197,7 @@ BiometricEvaluation::IO::RecordStore::remove(
     const string &key)
     throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-	_count--;
+	_props->setPropertyFromInteger(COUNTPROPERTY, this->getCount() - 1);
 }
 
 int
@@ -230,31 +230,31 @@ BiometricEvaluation::IO::RecordStore::sync()
     throw (Error::StrategyError)
 {
 	if (_mode == IO::READONLY)
-		throw Error::StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError(RSREADONLYERROR);
 
 	try {
-		(void)writeControlFile();
-	} catch (Error::StrategyError& e) {
-		throw e;
+		_props->sync();
+	} catch (Error::Exception& e) {
+		throw Error::StrategyError(e.getInfo());
 	}
 }
 
 unsigned int
 BiometricEvaluation::IO::RecordStore::getCount() const
 {
-	return _count;
+	return (_props->getPropertyAsInteger(COUNTPROPERTY));
 }
 
 string
 BiometricEvaluation::IO::RecordStore::getName() const
 {
-	return _name;
+	return (_props->getProperty(NAMEPROPERTY));
 }
 
 string
 BiometricEvaluation::IO::RecordStore::getDescription() const
 {
-	return _description;
+	return (_props->getProperty(DESCRIPTIONPROPERTY));
 }
 
 void
@@ -262,7 +262,7 @@ BiometricEvaluation::IO::RecordStore::changeName(const string &name)
     throw (Error::ObjectExists, Error::StrategyError)
 {
 	if (_mode == IO::READONLY)
-		throw Error::StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError(RSREADONLYERROR);
 
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
@@ -271,13 +271,18 @@ BiometricEvaluation::IO::RecordStore::changeName(const string &name)
 	if (IO::Utility::constructAndCheckPath(name, _parentDir, newDirectory))
 		throw Error::ObjectExists(newDirectory);
 
+	/* Sync the old data first */
+	_props->sync();
+
+	/* Rename the directory */
 	if (rename(_directory.c_str(), newDirectory.c_str()))
 		throw Error::StrategyError("Could not rename " + _directory + 
 		    " (" + Error::errorStr() + ")");
-	
-	_name = name;
 	_directory = newDirectory;
-	writeControlFile();
+	
+	this->openControlFile();
+	_props->setProperty(NAMEPROPERTY, name);
+	_props->sync();
 }
 
 void
@@ -285,10 +290,10 @@ BiometricEvaluation::IO::RecordStore::changeDescription(const string &descriptio
     throw (Error::StrategyError)
 {
 	if (_mode == IO::READONLY)
-		throw Error::StrategyError("RecordStore was opened read-only");
+		throw Error::StrategyError(RSREADONLYERROR);
 
-	_description = description;
-	writeControlFile();
+	_props->setProperty(DESCRIPTIONPROPERTY, description);
+	_props->sync();
 }
 
 std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore>
@@ -338,6 +343,8 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 		rs = new FileRecordStore(name, parentDir, mode);
 	else if (type == RecordStore::SQLITETYPE)
 		rs = new SQLiteRecordStore(name, parentDir, mode);
+	else if (type == RecordStore::COMPRESSEDTYPE)
+		rs = new CompressedRecordStore(name, parentDir, mode);
 	else
 		throw Error::StrategyError("Unknown RecordStore type");
 	return (std::tr1::shared_ptr<RecordStore>(rs));
@@ -362,6 +369,10 @@ BiometricEvaluation::IO::RecordStore::createRecordStore(
 		rs = new FileRecordStore(name, description, destDir);
 	else if (strcasecmp(type.c_str(), RecordStore::SQLITETYPE.c_str()) == 0)
 		rs = new SQLiteRecordStore(name, description, destDir);
+	else if (strcasecmp(type.c_str(), RecordStore::COMPRESSEDTYPE.c_str()) == 0)
+		rs = new CompressedRecordStore(name, description,
+		    RecordStore::DEFAULTTYPE, destDir,
+		    IO::Compressor::GZIPTYPE);
 	else
 		throw Error::StrategyError("Unknown RecordStore type");
 	return (std::tr1::shared_ptr<RecordStore>(rs));
@@ -450,12 +461,66 @@ BiometricEvaluation::IO::RecordStore::genKeySegName(
 	return (keyseg.str());
 }
 
-/*
- * Read/Write the control file. Write always writes a new file, overwriting an
- * existing file.
- */
+tr1::shared_ptr<BiometricEvaluation::IO::Properties>
+BiometricEvaluation::IO::RecordStore::getProperties()
+    const
+{
+	tr1::shared_ptr<IO::Properties> exportProps(new IO::Properties());
+	
+	/* Export all except core properties */
+	for (IO::Properties::const_iterator it = _props->begin();
+	    it != _props->end(); it++) {
+		if (isKeyCoreProperty(it->first) == false)
+			exportProps->setProperty(it->first, it->second);
+	}
+			
+	return (exportProps);
+}
+
 void
-BiometricEvaluation::IO::RecordStore::readControlFile()
+BiometricEvaluation::IO::RecordStore::setProperties(
+    const tr1::shared_ptr<IO::Properties> importProps)
+    throw (Error::StrategyError)
+{
+	if (this->getMode() == IO::READONLY)
+		throw Error::StrategyError(RSREADONLYERROR);
+	
+	/* Merge new properties */
+	for (IO::Properties::const_iterator it = importProps->begin();
+	    it != importProps->end(); it++)
+		if (isKeyCoreProperty(it->first) == false)
+			_props->setProperty(it->first, it->second);
+			
+	/* Remove existing properties that are not imported */
+	for (IO::Properties::const_iterator it = _props->begin();
+	    it != _props->end(); it++) {
+		if (isKeyCoreProperty(it->first) == false) {
+			try {
+				importProps->getProperty(it->first);
+			} catch (Error::ObjectDoesNotExist) {
+				_props->removeProperty(it->first);
+			}
+		}
+	}
+}
+
+/*
+ * Private methods.
+ */
+
+bool
+BiometricEvaluation::IO::RecordStore::isKeyCoreProperty(
+    const string &key)
+    const
+{
+	return ((key == NAMEPROPERTY) ||
+	    (key == DESCRIPTIONPROPERTY) ||
+	    (key == COUNTPROPERTY) ||
+	    (key == TYPEPROPERTY));
+}
+
+void
+BiometricEvaluation::IO::RecordStore::validateControlFile()
     throw (Error::StrategyError)
 {
 	if (!IO::Utility::fileExists(RecordStore::canonicalName(
@@ -467,83 +532,47 @@ BiometricEvaluation::IO::RecordStore::readControlFile()
 	 * from the Properties object, checking for errors.
 	 * _directory must be set before calling this method.
 	 */
-	PropertiesFile *props;
-	try {
-		props = new PropertiesFile(
-		    RecordStore::canonicalName(CONTROLFILENAME), _mode);
-	} catch (Error::StrategyError &e) {
-                throw Error::StrategyError("Could not read properties");
-        } catch (Error::FileError& e) {
-                throw Error::StrategyError("Could not open properties");
-	}
+	this->openControlFile();
 
-	auto_ptr<PropertiesFile> aprops(props);
-
-	/* Don't change any object state until all properties are read */
-	string tname, tdescription, ttype;
-	unsigned int tcount;
+	/* Ensure all required properties exist */
 	try {
-		tname = aprops->getProperty(NAMEPROPERTY);
+		_props->getProperty(NAMEPROPERTY);
         } catch (Error::ObjectDoesNotExist& e) {
                 throw Error::StrategyError("Name property is missing");
         }
 	try {
-		tdescription = aprops->getProperty(DESCRIPTIONPROPERTY);
+		_props->getProperty(DESCRIPTIONPROPERTY);
         } catch (Error::ObjectDoesNotExist& e) {
                 throw Error::StrategyError("Description property is missing");
         }
 	try {
-		ttype = aprops->getProperty(TYPEPROPERTY);
+		_props->getProperty(TYPEPROPERTY);
         } catch (Error::ObjectDoesNotExist& e) {
                 throw Error::StrategyError("Type property is missing");
         }
 	try {
-		tcount = (unsigned int)aprops->getPropertyAsInteger(COUNTPROPERTY);
+		_props->getPropertyAsInteger(COUNTPROPERTY);
         } catch (Error::ObjectDoesNotExist& e) {
                 throw Error::StrategyError("Count property is missing");
         }
-	_name = tname;
-	_type = ttype;
-	_description = tdescription;
-	_count = tcount;
 }
 
 void
-BiometricEvaluation::IO::RecordStore::writeControlFile()
-    const
+BiometricEvaluation::IO::RecordStore::openControlFile()
     throw (Error::StrategyError)
 {
-	if (_mode == IO::READONLY)
-		throw Error::StrategyError("RecordStore was opened read-only");
-
-	PropertiesFile *props;
 	try {
-		props = new PropertiesFile(
-		    RecordStore::canonicalName(CONTROLFILENAME), _mode);
-	} catch (Error::FileError &e) {
-                throw Error::StrategyError("Could not write properties");
-	} catch (Error::StrategyError &e) {
-                throw Error::StrategyError("Could not write properties");
+		_props.reset(new IO::PropertiesFile(
+		    RecordStore::canonicalName(CONTROLFILENAME), _mode));
+	} catch (Error::Exception &e) {
+                throw Error::StrategyError("Could not open properties (" +
+		    e.getInfo() + ')');
 	}
-
-	auto_ptr<PropertiesFile> aprops(props);
-	aprops->setProperty(NAMEPROPERTY, _name);
-	aprops->setProperty(DESCRIPTIONPROPERTY, _description);
-	aprops->setProperty(TYPEPROPERTY, _type);
-	aprops->setPropertyFromInteger(COUNTPROPERTY, _count);
-	try {
-		aprops->sync();
-	} catch (Error::StrategyError &e) {
-                throw Error::StrategyError("Control property state is bad; not written");
-        } catch (Error::FileError& e) {
-		/* This should never happen as the Properties object
-		 * is r/w, and has a file associated with it. However, if
-		 * some destructive operation on the directory or file occurs
-		 * outside of this class, we will have problems.
-		 */
-                throw Error::StrategyError("Could not write control file");
-        }
 }
+
+/*
+ * Factories.
+ */
 
 void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
     const string &mergedName,
@@ -584,6 +613,8 @@ void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 	else if (type == RecordStore::SQLITETYPE)
 		merged_rs.reset(new SQLiteRecordStore(mergedName,
 		    mergedDescription, parentDir));
+	else if (type == RecordStore::COMPRESSEDTYPE)
+		throw Error::StrategyError("Invalid RecordStore type");
 	else
 		throw Error::StrategyError("Unknown RecordStore type");
 

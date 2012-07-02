@@ -63,7 +63,7 @@ BiometricEvaluation::IO::PropertiesFile::sync()
 	if (!ofs)
 		throw Error::FileError("Could not write properties file");
 
-	for (Properties_iter p = this->begin(); p != this->end(); ++p)
+	for (const_iterator p = this->begin(); p != this->end(); ++p)
 		ofs << p->first << " = " << p->second << '\n';
 	ofs.close();
 }
