@@ -140,16 +140,24 @@ testMerge()
 		merge_rs[0]->insert("0", "0", 2);
 		merge_rs[0]->insert("1", "1", 2);
 		merge_rs[0]->insert("2", "2", 2);
+		merge_rs[0]->sync();
 		merge_rs[1]->insert("3", "3", 2);
 		merge_rs[1]->insert("4", "4", 2);
 		merge_rs[1]->insert("5", "5", 2);
+		merge_rs[1]->sync();
 		merge_rs[2]->insert("6", "6", 2);
 		merge_rs[2]->insert("7", "7", 2);
 		merge_rs[2]->insert("8", "8", 2);
+		merge_rs[2]->sync();
 
 		const string merged_rs_fn = "test_merged";
+		vector<string> path;
+		path.push_back(merge_rs_fn[0]);
+		path.push_back(merge_rs_fn[1]);
+		path.push_back(merge_rs_fn[2]);
+
 		IO::RecordStore::mergeRecordStores(merged_rs_fn,
-		    "A merge of 3 RS", "", merged_type, merge_rs, num_rs);
+		    "A merge of 3 RS", "", merged_type, path);
 #ifdef ARCHIVERECORDSTORETEST
 		merged_rs = new IO::ArchiveRecordStore(merged_rs_fn, "");
 #endif

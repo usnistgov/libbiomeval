@@ -603,8 +603,9 @@ namespace BiometricEvaluation {
 			    Error::StrategyError);
 			    
 			/**
+			 * @brief
 			 * Create a new RecordStore that contains the contents
-			 * of several RecordStores.
+			 * of several other RecordStores.
 			 *
 			 * @param[in] mergedName
 			 *	The name of the new RecordStore that will be
@@ -612,16 +613,15 @@ namespace BiometricEvaluation {
 			 * @param[in] mergedDescription
 			 *	The text used to describe the RecordStore.
 			 * @param[in] parentDir
-			 *	Where, in the file system, the new store should
-			 *	be rooted.
+			 *	Where the new RecordStore should be rooted.
 			 * @param[in] type
 			 *	The type of RecordStore that mergedName should
 			 *	be.
-			 * @param[in] recordStores
-			 *	An array of RecordStore* that should be merged
-			 *	into mergedName.
-			 * @param[in] numRecordStores
-			 *	The number of RecordStore* in recordStores.
+			 * @param[in] path
+			 *	Vector of string paths to RecordStores to open.
+			 *	These point to the RecordStores that will
+			 *	be merged.
+			 *
 			 * @throw Error::ObjectExists
 			 *	A RecordStore with mergedNamed in parentDir
 			 *	already exists.
@@ -634,45 +634,7 @@ namespace BiometricEvaluation {
 			    const string &mergedDescription,
 			    const string &parentDir,
 			    const string &type,
-			    RecordStore *recordStores[],
-			    size_t numRecordStores)
-			    throw (Error::ObjectExists, Error::StrategyError);
-
-			/**
-			 * Create a new RecordStore that contains the contents
-			 * of several RecordStores.
-			 *
-			 * @param[in] mergedName
-			 *	The name of the new RecordStore that will be
-			 *	created.
-			 * @param[in] mergedDescription
-			 *	The text used to describe the RecordStore.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the new store should
-			 *	be rooted.
-			 * @param[in] type
-			 *	The type of RecordStore that mergedName should
-			 *	be.
-			 * @param[in] recordStores
-			 *	An array of RecordStore shared pointers, such
-			 *	as those returned from IO::Factory, that 
-			 *	should be merged into mergedName.
-			 * @param[in] numRecordStores
-			 *	The number of RecordStore* in recordStores.
-			 * @throw Error::ObjectExists
-			 *	A RecordStore with mergedNamed in parentDir
-			 *	already exists.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 */
-			static void mergeRecordStores(
-			    const string &mergedName,
-			    const string &mergedDescription,
-			    const string &parentDir,
-			    const string &type,
-			    tr1::shared_ptr<RecordStore> recordStores[],
-			    size_t numRecordStores)
+			    const vector<string> &path)
 			    throw (Error::ObjectExists, Error::StrategyError);
 
 		protected:

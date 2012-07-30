@@ -28,6 +28,7 @@
 #include <be_io_sqliterecstore.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
+#include <be_text.h>
 
 const string BiometricEvaluation::IO::RecordStore::INVALIDKEYCHARS("/\\*&");
 
@@ -570,35 +571,15 @@ BiometricEvaluation::IO::RecordStore::openControlFile()
 	}
 }
 
-/*
- * Factories.
- */
-
-void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
+void
+BiometricEvaluation::IO::RecordStore::mergeRecordStores(
     const string &mergedName,
     const string &mergedDescription,
     const string &parentDir,
     const string &type,
-    tr1::shared_ptr<RecordStore> recordStores[],
-    size_t numRecordStores)
-    throw (Error::ObjectExists, Error::StrategyError)
-{
-	Memory::AutoArray<RecordStore *> rs(numRecordStores);
-	for (uint32_t i = 0; i < numRecordStores; i++)
-		rs[i] = recordStores[i].get();
-
-	RecordStore::mergeRecordStores(mergedName, mergedDescription, parentDir,
-	    type, rs, numRecordStores);
-}
-
-void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
-    const string &mergedName,
-    const string &mergedDescription,
-    const string &parentDir,
-    const string &type,
-    RecordStore *recordStores[],
-    size_t numRecordStores)
-    throw (Error::ObjectExists, Error::StrategyError)
+    const vector<string> &path)
+    throw (Error::ObjectExists,
+    Error::StrategyError)
 {
 	auto_ptr<RecordStore> merged_rs;
 	if (type == RecordStore::BERKELEYDBTYPE)
@@ -622,25 +603,31 @@ void BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 	uint64_t record_size;
 	string key;
 	BiometricEvaluation::Memory::AutoArray<uint8_t> buf;
-	for (uint32_t i = 0; i < numRecordStores; i++) {
+	tr1::shared_ptr<RecordStore> rs;
+	for (uint32_t i = 0; i < path.size(); i++) {
+		try {
+			rs = openRecordStore(Text::filename(path[i]),
+			    Text::dirname(path[i]), IO::READONLY);
+		} catch (Error::Exception &e) {
+			throw Error::StrategyError(e.getInfo());
+		}
+	
 		exhausted = false;
 		while (!exhausted) {
 			try {
-				record_size = recordStores[i]->sequence(key);
+				record_size = rs->sequence(key);
 				buf.resize(record_size);
+				try {
+					rs->read(key, buf);
+				} catch (Error::ObjectDoesNotExist) {
+					throw Error::StrategyError(
+					    "Could not read " + key +
+					    " from RecordStore");
+				}
+				merged_rs->insert(key, buf, record_size);
 			} catch (Error::ObjectDoesNotExist) {
 				exhausted = true;
-				continue;
 			}
-
-			try {
-				recordStores[i]->read(key, buf);
-			} catch (Error::ObjectDoesNotExist) {
-				throw Error::StrategyError("Could not read " +
-				    key + " from RecordStore");
-			}
-
-			merged_rs->insert(key, buf, record_size);
 		}
 	}
 }
