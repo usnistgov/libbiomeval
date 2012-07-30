@@ -33,11 +33,16 @@ namespace BiometricEvaluation
 		public:
 			/**
 			 * @brief
-			 * The method that will get called run by a 
-			 * ProcessManager.
+			 * The method that will get called to to start
+			 * execution by a ProcessManager.
 			 *
 			 * @return
 			 *	Status code.
+			 * @note
+			 * If an object of this class is added to a 
+			 * Process::ForkManager object, the implementation
+			 * of Process::Worker::workerMain() should release
+			 * all resources prior to returning. 
 			 */
 			virtual int32_t
 			workerMain() = 0;

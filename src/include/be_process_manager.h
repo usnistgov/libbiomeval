@@ -128,6 +128,12 @@ namespace BiometricEvaluation
 			 *	worker is already working.
 			 * @throw Error::StrategyError
 			 *	worker is not managed by this Manager instance.
+			 *
+			 * @note Some implementations of this interface may
+			 * call the system exit function from this routine.
+			 * Therefore, the application's implementation of
+			 * workerMain() should release all resources before
+			 * returning.
 			 */
 			virtual void
 			startWorker(
