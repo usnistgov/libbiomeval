@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <stdlib.h>
 #include <strings.h>
 
 #include <cstring>
