@@ -94,16 +94,23 @@ BiometricEvaluation::IO::Utility::copyDirectoryContents(
 
 		string sourcefile = sourcepath + "/" + entry->d_name;
 		string targetfile = targetpath + "/" + entry->d_name;
+
 		/* Recursively copy subdirectories and files */
-		if (IO::Utility::pathIsDirectory(sourcefile)) {
-			copyDirectoryContents(sourcefile, targetfile);
-		} else {
-			/* copy the file */
-			IO::Utility::writeFile(
-			    IO::Utility::readFile(sourcefile),
-			    targetfile);
+		try {
+			if (IO::Utility::pathIsDirectory(sourcefile)) {
+				copyDirectoryContents(sourcefile, targetfile);
+			} else {
+				/* copy the file */
+				IO::Utility::writeFile(
+				    IO::Utility::readFile(sourcefile),
+				    targetfile);
+			}
+		} catch (Error::Exception &e) {
+			closedir(dir);
+			throw (e);
 		}
 	}
+	closedir(dir);
 	if (removesource)
 		IO::Utility::removeDirectory(sourcepath);
 }
