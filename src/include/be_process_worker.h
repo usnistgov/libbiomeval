@@ -14,6 +14,7 @@
 #include <stdint.h>
 
 #include <be_error_exception.h>
+#include <be_memory_autoarray.h>
 #include <be_process.h>
 
 using namespace std;
@@ -33,7 +34,7 @@ namespace BiometricEvaluation
 		public:
 			/**
 			 * @brief
-			 * The method that will get called to to start
+			 * The method that will get called to start
 			 * execution by a ProcessManager.
 			 *
 			 * @return
@@ -148,6 +149,120 @@ namespace BiometricEvaluation
 			
 			/**
 			 * @brief
+			 * Perform initialization for communication from
+			 * Worker to Manager.
+			 *
+			 * @note
+			 * Behavior is undefined if called by a non-Manager.
+			 *
+			 * @throw Error::StrategyError
+			 *	Communications not enabled.
+			 */
+			void
+			_initManagerCommunication()
+			    throw (Error::StrategyError);
+			
+			/**
+			 * @brief
+			 * Perform initialization for communication from
+			 * Manager to Worker.
+			 *
+			 * @note
+			 * Behavior is undefined if called by a non-Worker.
+			 *
+			 * @throw Error::StrategyError
+			 *	Communications not enabled.
+			 */
+			void
+			_initWorkerCommunication()
+			    throw (Error::StrategyError);
+			
+			/**
+			 * @brief
+			 * Obtain the pipe used to send messages to
+			 * this Worker.
+			 *
+			 * @return
+			 *	Sending pipe.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	Worker exiting soon, communication disabled.
+			 * @throw Error::StrategyError
+			 *	Communications not enabled.
+			 */
+			int
+			getSendingPipe()
+			    const
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
+			
+			/**
+			 * @brief
+			 * Obtain the pipe used to receive messages to
+			 * this Worker.
+			 *
+			 * @return
+			 *	Receiving pipe.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	Worker exiting soon, communication disabled.
+			 * @throw Error::StrategyError
+			 *	Communications not enabled.
+			 */
+			int
+			getReceivingPipe()
+			    const
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
+			
+			/**
+			 * @brief
+			 * Send a message to the Manager.
+			 *
+			 * @param[in] message
+			 *	Message to send.
+			 *
+ 			 * @throw Error::StrategyError
+			 *	Communications not enabled.
+			 */
+			void
+			sendMessageToManager(
+			    const Memory::uint8Array &message)
+			    throw (Error::StrategyError);
+
+			/**
+			 * @brief
+			 * Receive a message from the Manager.
+			 *
+			 * @param[out] message
+			 *	Buffer to store the received message.
+			 * @param[in] block
+			 *	Whether or not to block for this message.
+			 *
+ 			 * @throw Error::StrategyError
+			 *	Communications not enabled.
+			 *
+			 * @see waitForMessage
+			 */
+			void
+			receiveMessageFromManager(
+			    Memory::uint8Array &message)
+			    throw (Error::StrategyError);
+			
+			/**
+			 * @brief
+			 * Perform general communication initialization from
+			 * Constructor.
+			 *
+			 * @throw Error::StrategyError
+			 *	Error in initialization.
+			 */
+			void
+			_initCommunication()
+			    throw (Error::StrategyError);
+			
+			/**
+			 * @brief
 			 * Worker destructor.
 			 */
 			virtual ~Worker();
@@ -173,13 +288,37 @@ namespace BiometricEvaluation
 			bool
 			stopRequested()
 			    const;
-		
+			
+			/**
+			 * @brief
+			 * Block while waiting for a message from the Manager.
+			 *
+			 * @param numSeconds
+			 *	Number of seconds to wait for a message, or any
+			 *	value < 0 to wait forever.
+			 *
+			 * @return
+			 *	true once a message is ready to be read or
+			 *	false if an error occured.
+			 */
+			bool
+			waitForMessage(
+			    int numSeconds = -1)
+			    const;
+
 		private:		
 			/** Whether or not the Manager has requested a stop. */
 			volatile bool _stopRequested;
 			
 			/** Formal parameter list passed to the Worker. */
 			ParameterList _parameters;
+			
+			/** Status of Worker/Manager communication. */
+			bool _communicationEnabled;
+			/** Pipes to send to self */
+			int _pipeToChild[2];
+			/** Pipes to receive from self */
+			int _pipeFromChild[2];
 		};
 	}
 }

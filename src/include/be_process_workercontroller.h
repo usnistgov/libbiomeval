@@ -14,6 +14,7 @@
 #include <tr1/memory>
 
 #include <be_error_exception.h>
+#include <be_memory_autoarray.h>
 #include <be_process.h>
 #include <be_process_worker.h>
 
@@ -38,6 +39,12 @@ namespace BiometricEvaluation
 			 */
 			WorkerController(
 			    tr1::shared_ptr<Worker> worker);
+			    
+			
+			virtual void
+			sendMessageToWorker(
+			    const Memory::uint8Array &message)
+			    throw (Error::StrategyError) = 0;
 		
 			/**
 			 * @brief
@@ -164,6 +171,10 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Start the Worker decorated by this instance.
 			 *
+			 * @param communicate
+			 *	Whether or not to enable communication
+			 *	between Worker and Manager.
+			 *
 			 * @throw Error::ObjectExists
 			 *	The decorated Worker is already working.
 			 * @throw Error::StrategyError
@@ -174,7 +185,8 @@ namespace BiometricEvaluation
 			 *	called from a friend Process::Manager.
 			 */
 			virtual void
-			start()
+			start(
+			    bool communicate = false)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError) = 0;
 			    

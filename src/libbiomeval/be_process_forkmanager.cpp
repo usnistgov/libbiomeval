@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
@@ -79,7 +80,8 @@ BiometricEvaluation::Process::ForkManager::addWorker(
 
 void
 BiometricEvaluation::Process::ForkManager::startWorkers(
-    bool wait)
+    bool wait,
+    bool communicate)
     throw (Error::ObjectExists,
     Error::StrategyError)
 {
@@ -87,7 +89,7 @@ BiometricEvaluation::Process::ForkManager::startWorkers(
 	reset();
 	
 	for (uint32_t i = 0; i < getTotalWorkers(); i++)
-		_workers[i]->start();
+		_workers[i]->start(communicate);
 	
 	/* In the child case, start() will eventually exit the child */
 	_parent = true;
@@ -111,7 +113,8 @@ BiometricEvaluation::Process::ForkManager::startWorkers(
 void
 BiometricEvaluation::Process::ForkManager::startWorker(
     tr1::shared_ptr<WorkerController> worker,
-    bool wait)
+    bool wait,
+    bool communicate)
     throw (Error::ObjectExists,
     Error::StrategyError)
 {
@@ -121,7 +124,7 @@ BiometricEvaluation::Process::ForkManager::startWorker(
 		throw Error::StrategyError("Worker is not being managed "
 		    "by this Manager");
 
-	(*it)->start();
+	(*it)->start(communicate);
 	
 	/* In the child case, start() will eventually exit the child */
 	_parent = true;
@@ -143,12 +146,15 @@ BiometricEvaluation::Process::ForkManager::startWorker(
 }
 
 void
-BiometricEvaluation::Process::ForkWorkerController::start()
+BiometricEvaluation::Process::ForkWorkerController::start(
+    bool communicate)
     throw (Error::ObjectExists,
     Error::StrategyError)
 {
 	this->reset();
-	
+
+	if (communicate)
+		getWorker()->_initCommunication();
 	int32_t pid = fork();
 	
 	switch (pid) {
@@ -156,7 +162,9 @@ BiometricEvaluation::Process::ForkWorkerController::start()
 		/* Update self references */
 		_pid = getpid();
 		ForkWorkerController::_this = getWorker();
-					
+		if (communicate)
+			_this->_initWorkerCommunication();
+
 		/* Catch SIGUSR1 to quit child on demand */
 		struct sigaction stopSignal;			
 		memset(&stopSignal, 0, sizeof(stopSignal));
@@ -175,6 +183,8 @@ BiometricEvaluation::Process::ForkWorkerController::start()
 		break;
 	default:	/* Parent */
 		_pid = pid;
+		if (communicate)
+			getWorker()->_initManagerCommunication();
 		break;
 	}
 }
@@ -193,7 +203,10 @@ BiometricEvaluation::Process::ForkManager::stopWorker(
 	if (it == _workers.end())
 		throw Error::StrategyError("Worker is not being managed "
 		    "by this Manager");
-
+	
+	/* FIXME: There has to be a better way to do this */
+	_pendingExit.push_back((*it)->getPID());
+		    
 	return ((*it)->stop());
 }
 
@@ -265,6 +278,117 @@ BiometricEvaluation::Process::ForkManager::defaultExitCallback(
 	cout << '.' << endl;
 }
 
+bool
+BiometricEvaluation::Process::ForkManager::waitForMessage(
+    int *nextFD,
+    int numSeconds)
+    const
+{
+	bool result = false;
+	fd_set set;
+	
+	/* Listen for all Worker receiving pipes */
+	FD_ZERO(&set);
+	int maxfd = 0, curfd;
+	uint64_t numActivePipes = 0;
+	int *fds = NULL;
+	
+	struct timeval timeout;
+	if (numSeconds >= 0) {
+		timeout.tv_sec = numSeconds;
+		timeout.tv_usec = 0;
+	}
+	
+	/* Round up all receiving pipes */
+	bool finished = false;
+	while (!finished) {
+		/* Make space for pipe descriptors */
+		if (fds != NULL)
+			delete [] fds;
+		fds = new int[_workers.size()];
+		if (fds == NULL)
+			throw Error::MemoryError();
+		
+		for (size_t i = 0; i < _workers.size(); i++) {
+			/* Add only active pipes to list */
+			if (find(_pendingExit.begin(), _pendingExit.end(),
+			    _workers[i]->getPID()) != _pendingExit.end())
+				continue;
+				
+			try {
+				curfd = _workers[i]->getWorker()->
+				    getReceivingPipe();
+				FD_SET(curfd, &set);
+				if (curfd > maxfd)
+					maxfd = curfd;
+				fds[numActivePipes++] = curfd;
+			} catch (Error::ObjectDoesNotExist) {
+				/* Don't add pipes for exiting Workers */
+			}
+		}
+		
+		int ret = select(maxfd + 1, &set, NULL, NULL, &timeout);
+		if (ret == 0) {
+			/* Nothing available */
+			result = false;
+			finished = true;
+		} else if (ret < 0) {
+			/* Could have been interrupted while blocking */
+			if (errno != EINTR) {
+				finished = true;
+				cout << " waitFM() Manager" << endl;
+			} else {
+				cout << "EINTR MANAGER " << endl;
+			}
+			
+		} else {
+			/* Something available -- check what */
+			for (size_t i = 0; i < numActivePipes; i++) {
+				if (FD_ISSET(fds[i], &set) == 0)
+					result = false;
+				else {
+					if (nextFD != NULL)
+						*nextFD = fds[i];
+					break;
+				}
+			}
+			result = true;
+			finished = true;
+		}
+	}
+	
+	for (size_t i = 0; i < _workers.size(); i++)
+		FD_CLR(fds[i], &set);
+	delete [] fds;
+	return (result);
+}
+
+bool
+BiometricEvaluation::Process::ForkManager::getNextMessage(
+    Memory::uint8Array &message,
+    int timeout)
+    const
+    throw (Error::StrategyError)
+{
+	int fd = 0;
+	if (this->waitForMessage(&fd, timeout) == false)
+		return (false);
+	
+	uint64_t length;
+	size_t sz = read(fd, &length, sizeof(length));
+	if (sz != sizeof(length))
+		throw (Error::StrategyError("Could not read message length: "
+		    + Error::errorStr()));
+
+	message.resize(length);
+	sz = read(fd, message, length);
+	if (sz != length)
+		throw (Error::StrategyError("Could not read message data: "
+			+ Error::errorStr()));
+
+	return (true);
+}
+
 BiometricEvaluation::Process::ForkManager::~ForkManager()
 {
 
@@ -329,6 +453,23 @@ BiometricEvaluation::Process::ForkWorkerController::stop()
 	int32_t status;
 	waitpid(_pid, &status, 0);
 	return (status);
+}
+
+void
+BiometricEvaluation::Process::ForkWorkerController::sendMessageToWorker(
+    const Memory::uint8Array &message)
+    throw (Error::StrategyError)
+{
+	uint64_t length = message.size();
+	size_t sz = write(getWorker()->getSendingPipe(), &length,
+	    sizeof(length));
+	if (sz != sizeof(length))
+		throw (Error::StrategyError("Could not write message length: "
+		    + Error::errorStr()));
+	sz = write(getWorker()->getSendingPipe(), message, length);
+	if (sz != length)
+		throw (Error::StrategyError("Could not write message data: "
+		    + Error::errorStr()));
 }
 
 void

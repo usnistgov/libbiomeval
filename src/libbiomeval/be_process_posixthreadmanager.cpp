@@ -60,7 +60,8 @@ BiometricEvaluation::Process::POSIXThreadManager::addWorker(
 
 void
 BiometricEvaluation::Process::POSIXThreadManager::startWorkers(
-    bool wait)
+    bool wait,
+    bool communicate)
     throw (Error::ObjectExists,
     Error::StrategyError)
 {
@@ -76,7 +77,8 @@ BiometricEvaluation::Process::POSIXThreadManager::startWorkers(
 void
 BiometricEvaluation::Process::POSIXThreadManager::startWorker(
     tr1::shared_ptr<WorkerController> worker,
-    bool wait)
+    bool wait,
+    bool communicate)
     throw (Error::ObjectExists,
     Error::StrategyError)
 {
@@ -124,6 +126,27 @@ BiometricEvaluation::Process::POSIXThreadManager::_wait()
 	    const_iterator it;
 	for (it = _workers.begin(); it != _workers.end(); it++)
 		pthread_join((*it)->_thread, NULL);
+}
+
+
+bool
+BiometricEvaluation::Process::POSIXThreadManager::waitForMessage(
+    int *nextFD,
+    int numSeconds)
+    const
+{
+	return (false);
+}
+			    
+			    
+bool
+BiometricEvaluation::Process::POSIXThreadManager::getNextMessage(
+    Memory::uint8Array &message,
+    int numSeconds)
+    const
+    throw (Error::StrategyError)
+{
+	return (false);
 }
 
 BiometricEvaluation::Process::POSIXThreadManager::~POSIXThreadManager()
@@ -189,9 +212,17 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::
 {
 
 }
+void
+BiometricEvaluation::Process::POSIXThreadWorkerController::sendMessageToWorker(
+    const Memory::uint8Array &message)
+    throw (Error::StrategyError)
+{
+
+}
 
 void
-BiometricEvaluation::Process::POSIXThreadWorkerController::start()
+BiometricEvaluation::Process::POSIXThreadWorkerController::start(
+    bool communicate)
     throw (Error::ObjectExists,
     Error::StrategyError)
 {

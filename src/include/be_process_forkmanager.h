@@ -99,15 +99,19 @@ namespace BiometricEvaluation
 			 * @param[in] wait
 			 *	Whether or not to wait for all Workers to
 			 *	return before returning.
+			 * @param[in] communicate
+			 *	Whether or not to enable communication
+			 *	among the Workers and Managers.
 			 *
- 			 * @throw Error::ObjectExists
-			 *	One or more of the Workers is already working.
+			 * @throw Error::ObjectExists
+			 *	At least one Worker is already working.
 			 * @throw Error::StrategyError
 			 *	Problem forking.
 			 */
 			void
 			startWorkers(
-			    bool wait = true)
+			    bool wait = true,
+			    bool communicate = false)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError);
 			    
@@ -121,6 +125,9 @@ namespace BiometricEvaluation
 			 * @param wait
 			 *	Whether or not to wait for this Worker to 
 			 *	exit before returning control to the caller.
+ 			 * @param[in] communicate
+			 *	Whether or not to enable communication
+			 *	among the Workers and Managers.
 			 *
 			 * @throw Error::ObjectExists
 			 *	worker is already working.
@@ -130,7 +137,8 @@ namespace BiometricEvaluation
 			void
 			startWorker(
 			    tr1::shared_ptr<WorkerController> worker,
-			    bool wait = true)
+			    bool wait = true,
+			    bool communicate = false)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError);
 			    
@@ -152,6 +160,13 @@ namespace BiometricEvaluation
 			 *	worker is not working.
 			 * @throw Error::StrategyError
 			 *	Problem sending the signal.
+			 *
+			 * @attention
+			 * Do not call stopWorker() when communication is
+			 * enabled unless you will be finished with
+			 * communication for all Workers at that point.  This
+			 * creates a race condition for reads()/writes() when
+			 * the Worker exits.
 			 */
 			int32_t
 			stopWorker(
@@ -170,6 +185,19 @@ namespace BiometricEvaluation
 			reset()
 			    throw (Error::ObjectExists);
 			    
+			bool
+			waitForMessage(
+			    int *nextFD = NULL,
+			    int numSeconds = -1)
+			    const;
+			
+			bool
+			getNextMessage(
+			    Memory::uint8Array &message,
+			    int numSeconds)
+			    const
+			    throw (Error::StrategyError);
+			   
 			/**
 			 * @brief
 			 * ForkManager destructor.
@@ -179,6 +207,9 @@ namespace BiometricEvaluation
 		protected:
 			/** Workers that have been added */
 			vector<tr1::shared_ptr<ForkWorkerController> > _workers;
+			
+			/** Workers PIDs thare are going to exit */
+			vector<pid_t> _pendingExit;
 			
 		private:
 			/**
@@ -316,6 +347,21 @@ namespace BiometricEvaluation
 			
 			/**
 			 * @brief
+			 * Send a message to this Worker.
+			 *
+			 * @param[in] message
+			 *	The message to send.
+			 *
+			 * @throw Error::StrategyError
+			 *	Communication is disabled.
+			 */
+			void
+			sendMessageToWorker(
+			    const Memory::uint8Array &message)
+			    throw (Error::StrategyError);
+			
+			/**
+			 * @brief
 			 * Tell _this to stop.
 			 * @details
 			 * Called by the child process instance when SIGUSR1
@@ -352,6 +398,10 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Start the Worker decorated by this instance.
 			 *
+			 * @param communicate
+			 *	Whether or not to enable communication between
+			 *	Worker and Manager.
+			 *
 			 * @throw Error::ObjectExists
 			 *	The decorated Worker is already working.
 			 * @throw Error::StrategyError
@@ -362,7 +412,8 @@ namespace BiometricEvaluation
 			 *	called from a friend Process::Manager.
 			 */
 			void
-			start()
+			start(
+			    bool communicate = false)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError);
 			    
@@ -404,6 +455,9 @@ namespace BiometricEvaluation
 			 * @param[in] wait
 			 *	Whether or not to wait for all Workers to
 			 *	return before returning.
+ 			 * @param[in] communicate
+			 *	Whether or not to enable communication
+			 *	among the Workers and Managers.
 			 *
  			 * @throw Error::ObjectExists
 			 *	One or more of the Workers is already working.
@@ -412,7 +466,8 @@ namespace BiometricEvaluation
 			 */
 			friend void
 			ForkManager::startWorkers(
-			    bool wait)
+			    bool wait,
+			    bool communicate)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError);
 			
@@ -426,6 +481,9 @@ namespace BiometricEvaluation
 			 * @param wait
 			 *	Whether or not to wait for this Worker to 
 			 *	exit before returning control to the caller.
+ 			 * @param[in] communicate
+			 *	Whether or not to enable communication
+			 *	among the Workers and Managers.
 			 *
 			 * @throw Error::ObjectExists
 			 *	worker is already working.
@@ -435,7 +493,8 @@ namespace BiometricEvaluation
 			friend void
 			ForkManager::startWorker(
 			    tr1::shared_ptr<WorkerController> worker,
-			    bool wait)
+			    bool wait,
+			    bool communicate)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError);
 			    

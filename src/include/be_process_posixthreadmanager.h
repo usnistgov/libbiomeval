@@ -102,15 +102,19 @@ namespace BiometricEvaluation
 			 * @param[in] wait
 			 *	Whether or not to wait for all Workers to
 			 *	return before returning.
+			 * @param[in] communicate
+			 *	Whether or not to enable communication
+			 *	among the Workers and Managers.
 			 *
 			 * @throw Error::ObjectExists
-			 *	One or more of the Workers is already working.
+			 *	At least one Worker is already working.
 			 * @throw Error::StrategyError
-			 *	Problem starting the Worker.
+			 *	Problem starting the Workers.
 			 */
 			void
 			startWorkers(
-			    bool wait = true)
+			    bool wait = true,
+			    bool communicate = false)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError);
 			    
@@ -133,7 +137,8 @@ namespace BiometricEvaluation
 			void
 			startWorker(
 			    tr1::shared_ptr<WorkerController> worker,
-			    bool wait = true)
+			    bool wait = true,
+			    bool communicate = false)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError);
 			    
@@ -169,6 +174,19 @@ namespace BiometricEvaluation
 			void
 			reset()
 			    throw (Error::ObjectExists);
+			
+			bool
+			waitForMessage(
+			    int *nextFD = NULL,
+			    int numSeconds = -1)
+			    const;
+			    
+			bool
+			getNextMessage(
+			    Memory::uint8Array &message,
+			    int numSeconds)
+			    const
+			    throw (Error::StrategyError);
 			    
 			/**
 			 * @brief
@@ -219,6 +237,11 @@ namespace BiometricEvaluation
 			bool
 			isWorking()
 			    const;
+			    
+			void
+			sendMessageToWorker(
+			    const Memory::uint8Array &message)
+			    throw (Error::StrategyError);
 			
 			/**
 			 * @brief
@@ -243,6 +266,10 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Start the Worker decorated by this instance.
 			 *
+			 * @param communicate
+			 *	Whether or not to enable communication between
+			 *	Worker and Manager.
+			 *
 			 * @throw Error::ObjectExists
 			 *	The decorated Worker is already working.
 			 * @throw Error::StrategyError
@@ -253,7 +280,8 @@ namespace BiometricEvaluation
 			 *	called from a friend Process::Manager.
 			 */
 			void
-			start()
+			start(
+			    bool communicate = false)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError);
 			    

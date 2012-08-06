@@ -38,13 +38,15 @@ workerMain()
 
 	string message = this->getParameterAsString("message");
 	uint32_t instance = this->getParameterAsInteger("instance");
-	cout << message << " from instance #" << instance + 1 << endl;
+	cout << "<< (W" << instance + 1 << ") " << message <<
+	    " from instance #" << instance + 1 << endl;
 	
 	tr1::shared_ptr<IO::RecordStore> rs =
 	    tr1::static_pointer_cast<IO::RecordStore>(getParameter("rs"));
 
 	stringstream key;
 	uint64_t counter = 1;
+	Memory::uint8Array communication;
 	while (this->stopRequested() == false) {
 		key.str("");
 		key << counter++;
@@ -54,10 +56,33 @@ workerMain()
 		} catch (Error::Exception &e) {
 			cout << e.getInfo() << endl;
 		}
+		
+		/* Receive message from server, or continue after 2 seconds */
+		if (this->waitForMessage(2)) {
+			try {
+				this->receiveMessageFromManager(communication);
+			
+				cout << "<< (W" << instance + 1 <<
+				    ") Received: " << communication << endl;
+			    
+				sprintf((char *)&(*communication), "RPLY from "
+				    "instance %d", instance + 1);
+				cout << "<< (W" << instance + 1 <<
+				    ") Sending: " << communication << endl;
+				    
+				this->sendMessageToManager(communication);
+				cout << "<< (W" << instance + 1 <<
+				    ") Messsage sent" << endl;
+			} catch (Error::Exception &e) {
+				cerr << "<< (W " << instance + 1 <<
+				    ") CAUGHT: " << e.getInfo() << endl;
+			}
+		}
 	}
 
 	rs->sync();
-	cout << "Last value of key was " << '"' << key.str() << '"' << endl;
+	cout << "<< (W" << instance + 1 << ") Last value of key was " << '"' <<
+	    key.str() << '"' << endl;
 	
 	status = EXIT_SUCCESS;
 	return (status);
@@ -171,12 +196,37 @@ main(
 		}
 	}
 
-	cout << ">> Starting " << numWorkers << " Workers, killed at " <<
+	cout << ">> (M) Starting " << numWorkers << " Workers, killed at " <<
 	    "one second intervals." << endl;
-	procMgr->startWorkers(false);
+	procMgr->startWorkers(false, true);
+	
+	/* 
+	 * Test communication.
+	 */
+	 
+	/* Send a message to every Worker, Worker should reply */
+	Memory::uint8Array message(100);
 	for (uint32_t i = 0; i < numWorkers; i++) {
-		sleep(1);
-		cout << ">> Stopping Worker #" << i + 1 << "..." << endl;
+		sprintf((char *)&(*message), "HELO to instance %d", i + 1);
+		try {
+			cout << ">> (M) Send message to " << i + 1 << endl;
+ 			workers[i]->sendMessageToWorker(message);
+		} catch (Error::Exception &e) {
+			cout << ">>>> (M) SND CAUGHT: " << e.getInfo() << endl;
+		}
+	}
+	
+	/* Get all messages until no messages received for 2 seconds */
+	try {
+		while (procMgr->getNextMessage(message, 2))
+			cout << ">> (M) Received: " << message << endl;
+	} catch (Error::Exception &f) {
+		cout << ">>>> (M) RCV CAUGHT: " << f.getInfo() << endl;
+	}
+	
+	/* Exit all workers */
+	for (uint32_t i = 0; i < numWorkers; i++) {
+		cout << ">> (M) Stopping Worker #" << i + 1 << "..." << endl;
 		try {
 			procMgr->stopWorker(workers[i]);
 		} catch (Error::ObjectDoesNotExist) {

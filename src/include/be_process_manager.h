@@ -101,6 +101,9 @@ namespace BiometricEvaluation
 			 * @param[in] wait
 			 *	Whether or not to wait for all Workers to
 			 *	return before returning.
+			 * @param[in] communicate
+			 *	Whether or not to enable communication
+			 *	among the Workers and Managers.
 			 *
 			 * @throw Error::ObjectExists
 			 *	At least one Worker is already working.
@@ -109,7 +112,8 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			startWorkers(
-			    bool wait = true)
+			    bool wait = true,
+			    bool communicate = false)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError) = 0;
 			    
@@ -123,6 +127,9 @@ namespace BiometricEvaluation
 			 * @param wait
 			 *	Whether or not to wait for this Worker to 
 			 *	exit before returning control to the caller.
+			 * @param[in] communicate
+			 *	Whether or not to enable communication
+			 *	among the Workers and Managers.
 			 *
 			 * @throw Error::ObjectExists
 			 *	worker is already working.
@@ -138,7 +145,8 @@ namespace BiometricEvaluation
 			virtual void
 			startWorker(
 			    tr1::shared_ptr<WorkerController> worker,
-			    bool wait = true)
+			    bool wait = true,
+			    bool communicate = false)
 			    throw (Error::ObjectExists,
 			    Error::StrategyError) = 0;
 			    
@@ -174,6 +182,49 @@ namespace BiometricEvaluation
 			    tr1::shared_ptr<WorkerController> worker)
 			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError) = 0;
+			
+			/**
+			 * @brief
+			 * Wait for a message from a Worker.
+			 *
+			 * @param[in/out] nextFD
+			 *	Location to store a pipe that has data to read.
+			 * @param[in] numSeconds
+			 *	Number of seconds to wait for a message, or
+			 *	< 0 to block.
+			 *
+			 * @return
+			 *	true if there is a Worker sending a message
+			 *	false otherwise or if an error occurred.
+			 */
+			virtual bool
+			waitForMessage(
+			    int *nextFD = NULL,
+			    int numSeconds = -1)
+			    const = 0;
+			
+			/**
+			 * @brief
+			 * Obtain a message from a Worker.
+			 *
+			 * @param[out] message
+			 *	Reference to a buffer to hold the message.
+			 * @param[in] numSeconds
+			 *	Number of seconds to wait for a message, or
+			 *	< 0 to block.
+			 *
+			 * @return
+			 *	true if there is a message, false otherwise.
+			 *
+			 * @throw Error::StrategyError
+			 *	Error receiving message.
+			 */
+			virtual bool
+			getNextMessage(
+			    Memory::uint8Array &message,
+			    int numSeconds = -1)
+			    const
+			    throw (Error::StrategyError) = 0;
 			    
 			/**
 			 * @brief
