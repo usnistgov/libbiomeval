@@ -147,7 +147,7 @@ BiometricEvaluation::IO::Properties::removeProperty(
 	string p = property;
 	Text::removeLeadingTrailingWhitespace(p);
 	if (_properties.find(p) == _properties.end())
-		throw Error::ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist(property);
 	_properties.erase(p);
 }
 
@@ -161,7 +161,7 @@ BiometricEvaluation::IO::Properties::getProperty(
 	Text::removeLeadingTrailingWhitespace(p);
 	PropertiesMap::const_iterator it = _properties.find(p);
 	if (it == _properties.end())
-		throw Error::ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist(property);
 	return(it->second);
 }
 
@@ -175,7 +175,7 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 	Text::removeLeadingTrailingWhitespace(p);
 	PropertiesMap::const_iterator it = _properties.find(p);
 	if (it == _properties.end())
-		throw Error::ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist(property);
 
 	string value = it->second;	/* Whitespace already removed */
 
