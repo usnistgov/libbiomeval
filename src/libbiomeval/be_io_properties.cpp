@@ -200,6 +200,7 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 	}
 
 	/* Convert the string value to integer */
+	errno = 0;
 	int64_t conVal = (int64_t)strtoll(value.c_str(), NULL, base);
 	if (errno == ERANGE)
 		throw Error::ConversionError("Value out of range");
