@@ -362,7 +362,7 @@ namespace BiometricEvaluation
 			
 			/**
 			 * @brief
-			 * Tell _this to stop.
+			 * Tell _staticWorker to stop.
 			 * @details
 			 * Called by the child process instance when SIGUSR1
 			 * is received.
@@ -442,7 +442,7 @@ namespace BiometricEvaluation
 			 * be one instance of a ForkedChild per Child, because
 			 * of the way fork() copies memory.
 			 */
-			static tr1::shared_ptr<Worker> _this;
+			static tr1::shared_ptr<Worker> _staticWorker;
 						
 			/*
 			 * Friends.

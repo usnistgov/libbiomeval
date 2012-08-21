@@ -161,9 +161,10 @@ BiometricEvaluation::Process::ForkWorkerController::start(
 	case 0: {	/* Child */
 		/* Update self references */
 		_pid = getpid();
-		ForkWorkerController::_this = getWorker();
+		/* Copy to a static var only for this process's instance */
+		_staticWorker = getWorker();
 		if (communicate)
-			_this->_initWorkerCommunication();
+			_staticWorker->_initWorkerCommunication();
 
 		/* Catch SIGUSR1 to quit child on demand */
 		struct sigaction stopSignal;			
@@ -399,7 +400,7 @@ BiometricEvaluation::Process::ForkManager::~ForkManager()
 /******************************************************************************/
 
 tr1::shared_ptr<BiometricEvaluation::Process::Worker>
-    BiometricEvaluation::Process::ForkWorkerController::_this;
+    BiometricEvaluation::Process::ForkWorkerController::_staticWorker;
 
 BiometricEvaluation::Process::ForkWorkerController::ForkWorkerController(
     tr1::shared_ptr<Worker> worker) :
@@ -476,7 +477,7 @@ void
 BiometricEvaluation::Process::ForkWorkerController::_stop(
     int signal)
 {
-	_this->stop();
+	_staticWorker->stop();
 }
 
 BiometricEvaluation::Process::ForkWorkerController::~ForkWorkerController()
