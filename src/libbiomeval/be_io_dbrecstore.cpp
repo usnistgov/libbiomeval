@@ -440,8 +440,33 @@ BiometricEvaluation::IO::DBRecordStore::setCursorAtKey(
  * Private method implementations.
  */
 /*
- * Function to insert all components of a record to the database.
+ * Functions to insert all components of a record to the database.
  */
+static void
+insertIntoDB(
+    DB *DB,
+    DBT dbtkey,
+    DBT dbtdata)
+    throw (BiometricEvaluation::Error::ObjectExists,
+    BiometricEvaluation::Error::StrategyError)
+{
+	int rc = DB->put(DB, &dbtkey, &dbtdata, R_NOOVERWRITE);
+	switch (rc) {
+		case 0:
+			break;
+		case 1:
+			throw BiometricEvaluation::Error::ObjectExists(
+			    "Key already in database");
+		case -1:
+			throw BiometricEvaluation::Error::StrategyError(
+			    "Could not insert to database (" +
+			     BiometricEvaluation::Error::errorStr() + ")");
+		default:
+			throw BiometricEvaluation::Error::StrategyError(
+			    "Unknown error inserting into database");
+	}
+}
+
 void
 BiometricEvaluation::IO::DBRecordStore::insertRecordSegments(
     const string &key,
@@ -458,39 +483,48 @@ BiometricEvaluation::IO::DBRecordStore::insertRecordSegments(
 	int rc;
 	DBT dbtkey;
 	DBT dbtdata;
-	int segnum = KEY_SEGMENT_START;
-	uint64_t remsize = size;
-	string keyseg = key;	/* First segment key is same as input key */
 	uint8_t *ptr = (uint8_t*)data;
-	DB *DBin = _dbP;	/* Start with primary DB file */
-	while (remsize > 0) {
-		dbtkey.data = (void *)keyseg.data();
-		dbtkey.size = keyseg.length();
-		if (remsize < MAX_REC_SIZE) {
-			dbtdata.size = remsize;
-			remsize = 0;
-		} else {
-			dbtdata.size = MAX_REC_SIZE;
-			remsize = remsize - MAX_REC_SIZE;
-		}
+
+	/* Handle the case of a zero-length record */
+	if (size == 0) {
+		dbtkey.data = (void *)key.data();
+		dbtkey.size = key.length();
+		dbtdata.size = 0;
 		dbtdata.data = ptr;
-		ptr += dbtdata.size;
-		rc = DBin->put(DBin, &dbtkey, &dbtdata, R_NOOVERWRITE);
-		switch (rc) {
-			case 0:
-				keyseg = genKeySegName(key, segnum);
-				segnum++;
-				DBin = _dbS; /* Switch to subordinate DB */
-				break;
-			case 1:
-				throw Error::ObjectExists(
-				    "Key already in database");
-			case -1:
-				throw Error::StrategyError("Could not insert " 
-				"to database (" + Error::errorStr() + ")");
-			default:
-				throw Error::StrategyError("Unknown error "
-				"inserting into database");
+		try {
+			insertIntoDB(_dbP, dbtkey, dbtdata);
+		} catch (Error::ObjectExists &e) {
+			throw e;
+		} catch (Error::StrategyError &e) {
+			throw e;
+		}
+	} else {
+		int segnum = KEY_SEGMENT_START;
+		uint64_t remsize = size;
+		string keyseg = key; /* First segment key same as input key */
+		DB *DBin = _dbP;	/* Start with primary DB file */
+		while (remsize > 0) {
+			dbtkey.data = (void *)keyseg.data();
+			dbtkey.size = keyseg.length();
+			if (remsize < MAX_REC_SIZE) {
+				dbtdata.size = remsize;
+				remsize = 0;
+			} else {
+				dbtdata.size = MAX_REC_SIZE;
+				remsize = remsize - MAX_REC_SIZE;
+			}
+			dbtdata.data = ptr;
+			ptr += dbtdata.size;
+			try {
+				insertIntoDB(DBin, dbtkey, dbtdata);
+			} catch (Error::ObjectExists &e) {
+				throw e;
+			} catch (Error::StrategyError &e) {
+				throw e;
+			}
+			keyseg = genKeySegName(key, segnum);
+			segnum++;
+			DBin = _dbS; /* Switch to subordinate DB */
 		}
 	}
 	RecordStore::insert(key, data, size);

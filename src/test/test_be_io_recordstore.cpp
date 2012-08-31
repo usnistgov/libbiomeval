@@ -241,6 +241,9 @@ runTests(IO::RecordStore *rs)
 		return (-1);
 	} catch (Error::ObjectExists) {
 		cout << "success" << endl;	
+	} catch (Error::Exception &e) {
+		cout << "FAILED; caught " << e.getInfo() << endl;
+		return (-1);
 	}
 
 	char rdata[RDATASIZE];
@@ -419,6 +422,35 @@ runTests(IO::RecordStore *rs)
 	cout << "\nSequencing empty store... ";
 	testSequence(rs);
 	cout << "there should be no output." << endl;
+
+	/* Zero-length data check */
+	theKey = "ZeroLength";
+	cout << "\nInserting zero-length record... ";
+	try {
+		rs->insert(theKey, wdata.c_str(), 0);
+		cout << "success." << endl;
+	} catch (Error::Exception &e) {
+		cout << "Caught: " << e.getInfo() << endl;
+	}
+	cout << "Read zero-length record... ";
+	try {
+		rlen = rs->read(theKey, rdata);
+		cout << "length is " << rlen << "; ";
+		if (rlen == 0)
+			cout << "success." << endl;
+		else
+			cout << "failure." << endl;
+	} catch (Error::Exception &e) {
+		cout << "Caught: " << e.getInfo() << endl;
+	}
+	cout << "Removing zero-length record...";
+	try {
+		rs->remove(theKey);
+		cout << "success." << endl;
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "failed." << endl;
+		return (-1);
+	}
 
 	/* Nonexistent key checks */
 	cout << "\nRemoving nonexistent key, catching exception... ";
