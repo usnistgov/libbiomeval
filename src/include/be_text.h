@@ -45,6 +45,13 @@ namespace BiometricEvaluation {
 		 *	The digest to use.  Any digest supported by OpenSSL
 		 *	is valid, and the default is MD5.
 		 *
+		 * @throw Error::MemoryError
+		 *	Could not allocate memory to store digest.
+		 * @throw Error::NotImplemented
+		 *	The value of digest is not a supported digest.
+		 * @throw Error::StrategyError
+		 *	An error occurred while obtaining the digest.
+		 *
 		 * @return
 		 *	An ASCII representation of the hex digits composing
 		 *	the digest.
@@ -53,8 +60,10 @@ namespace BiometricEvaluation {
 		digest(
 		    const string &s,
 		    const string &digest = "md5")
-		    throw (Error::StrategyError);
-
+		    throw (Error::MemoryError,
+		    Error::NotImplemented,
+		    Error::StrategyError);
+    
 		/**
 		 * @brief
 		 * Compute the digest of a memory buffer.
@@ -67,6 +76,13 @@ namespace BiometricEvaluation {
 		 *	The digest to use.  Any digest supported by OpenSSL
 		 *	is valid, and the default is MD5.
 		 *
+		 * @throw Error::MemoryError
+		 *	Could not allocate memory to store digest.
+		 * @throw Error::NotImplemented
+		 *	The value of digest is not a supported digest.
+		 * @throw Error::StrategyError
+		 *	An error occurred while obtaining the digest.
+		 *
 		 * @return
 		 *	An ASCII representation of the hex digits composing
 		 *	the digest.
@@ -76,8 +92,10 @@ namespace BiometricEvaluation {
 		    const void *buffer,
 		    const size_t buffer_size,
 		    const string &digest = "md5")
-		    throw (Error::StrategyError);
-
+		    throw (Error::MemoryError,
+		    Error::NotImplemented,
+		    Error::StrategyError);
+    
 		/**
 		 * @brief
 		 * Return tokens bound by delimiters and the beginning and end

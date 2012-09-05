@@ -9,7 +9,11 @@
  */
 
 #include <libgen.h>
+#ifdef Darwin
+#include <CommonCrypto/CommonDigest.h>
+#else
 #include <openssl/evp.h>
+#endif
 
 #include <iomanip>
 #include <sstream>
@@ -43,8 +47,64 @@ BiometricEvaluation::Text::digest(
     const void *buffer,
     const size_t buffer_size,
     const string &digest)
-    throw (Error::StrategyError)
+    throw (Error::MemoryError,
+    Error::NotImplemented,
+    Error::StrategyError)
 {
+#ifdef Darwin
+	/* Use CommonCrypto under OS X (10.4 or later) */
+	
+ 	/* Length of the resulting digest */
+	CC_LONG digestLength;
+	/* Function pointer to the CommonCrypto digest function */
+	unsigned char *
+	(*digestFunction)
+	    (const void *data,
+	    CC_LONG len,
+	    unsigned char *md);
+	
+	/* Determine the digest requested */
+	if (strcasecmp(digest.c_str(), "md5") == 0) {
+		digestFunction = CC_MD5;
+		digestLength = CC_MD5_DIGEST_LENGTH;
+	} else if (strcasecmp(digest.c_str(), "md4") == 0) {
+		digestFunction = CC_MD4;
+		digestLength = CC_MD4_DIGEST_LENGTH;
+	} else if (strcasecmp(digest.c_str(), "md2") == 0) {
+		digestFunction = CC_MD2;
+		digestLength = CC_MD2_DIGEST_LENGTH;
+	} else if (strcasecmp(digest.c_str(), "sha1") == 0) {
+		digestFunction = CC_SHA1;
+		digestLength = CC_SHA1_DIGEST_LENGTH;
+	} else if (strcasecmp(digest.c_str(), "sha224") == 0) {
+		digestFunction = CC_SHA224;
+		digestLength = CC_SHA224_DIGEST_LENGTH;
+	} else if (strcasecmp(digest.c_str(), "sha256") == 0) {
+		digestFunction = CC_SHA256;
+		digestLength = CC_SHA256_DIGEST_LENGTH;
+	} else if (strcasecmp(digest.c_str(), "sha384") == 0) {
+		digestFunction = CC_SHA384;
+		digestLength = CC_SHA384_DIGEST_LENGTH;
+	} else if (strcasecmp(digest.c_str(), "sha512") == 0) {
+		digestFunction = CC_SHA512;
+		digestLength = CC_SHA512_DIGEST_LENGTH;
+	} else
+		throw Error::NotImplemented(digest);
+	
+	/* Obtain the digest */
+	Memory::AutoArray<unsigned char> md(digestLength);
+	if (digestFunction(buffer, buffer_size, md) == NULL)
+		throw Error::StrategyError("Could not obtain digest");
+	
+	/* Stringify the digest */
+	stringstream ret;
+	for (CC_LONG i = 0; i < digestLength; i++)
+		ret << hex << setw(2) << setfill('0') << (int)md[i];
+		
+	return (ret.str());
+#else
+	/* Use OpenSSL everywhere else */
+	
 	/* This need only be called once per executable */
 	static bool digests_loaded = false;
 	if (!digests_loaded) {
@@ -80,11 +140,16 @@ BiometricEvaluation::Text::digest(
 		ret << hex << setw(2) << setfill('0') << (int)md_value[i];
 
 	return ret.str();
+#endif
 }
 
 string
-BiometricEvaluation::Text::digest(const string &s, const string &digest)
-    throw (Error::StrategyError)
+BiometricEvaluation::Text::digest(
+    const string &s,
+    const string &digest)
+    throw (Error::MemoryError,
+    Error::NotImplemented,
+    Error::StrategyError)
 {
 	return (BiometricEvaluation::Text::digest(s.c_str(), s.length(),
 	    digest));
