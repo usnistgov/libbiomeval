@@ -231,7 +231,7 @@ BiometricEvaluation::IO::RecordStore::sync()
     throw (Error::StrategyError)
 {
 	if (_mode == IO::READONLY)
-		throw Error::StrategyError(RSREADONLYERROR);
+		return;
 
 	try {
 		_props->sync();

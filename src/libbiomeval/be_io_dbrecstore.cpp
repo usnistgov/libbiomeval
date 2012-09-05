@@ -219,7 +219,7 @@ BiometricEvaluation::IO::DBRecordStore::sync()
     throw (Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
-		throw Error::StrategyError("RecordStore was opened read-only");
+		return;
 
 	RecordStore::sync();
 	int rc = _dbP->sync(_dbP, 0);

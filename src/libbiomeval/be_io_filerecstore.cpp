@@ -67,6 +67,8 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
     const
     throw (Error::StrategyError)
 {
+	this->sync();
+	
 	DIR *dir;
 	dir = opendir(_theFilesDir.c_str());
 	if (dir == NULL)

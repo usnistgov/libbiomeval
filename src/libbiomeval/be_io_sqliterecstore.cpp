@@ -194,16 +194,9 @@ BiometricEvaluation::IO::SQLiteRecordStore::getSpaceUsed()
     const
     throw (Error::StrategyError)
 {
+	this->sync();
 	return (RecordStore::getSpaceUsed() + 
 	    IO::Utility::getFileSize(_dbname));
-}
-			    
-void
-BiometricEvaluation::IO::SQLiteRecordStore::sync()
-    const
-    throw (Error::StrategyError)
-{
-	RecordStore::sync();
 }
 
 void

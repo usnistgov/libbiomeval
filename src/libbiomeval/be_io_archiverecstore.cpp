@@ -165,7 +165,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::sync()
     throw (Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
-		throw Error::StrategyError("RecordStore was opened read-only");
+		return;
 
 	/* Flush the streams, not necessarily for the key passed */
 	RecordStore::sync();

@@ -57,11 +57,6 @@ namespace BiometricEvaluation
 			getSpaceUsed()
 			    const
 			    throw (Error::StrategyError);
-			
-			void
-			sync()
-			    const
-			    throw (Error::StrategyError);
 
 			void
 			insert(

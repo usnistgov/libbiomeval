@@ -224,7 +224,7 @@ BiometricEvaluation::IO::CompressedRecordStore::sync()
     throw (Error::StrategyError)
 {
 	if (this->getMode() == IO::READONLY)
-		throw Error::StrategyError(RSREADONLYERROR);
+		return;
 		
 	_rs->sync();
 	_mdrs->sync();
