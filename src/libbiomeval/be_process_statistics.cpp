@@ -224,6 +224,13 @@ BiometricEvaluation::Process::Statistics::Statistics()
 
 BiometricEvaluation::Process::Statistics::~Statistics()
 {
+	/* If the client of this object doesn't call stopAutoLogging(),
+ 	 * we need to cancel the logging thread here.
+ 	 */
+	if (_autoLogging) {
+		pthread_cancel(_loggingThread);
+		pthread_join(_loggingThread, NULL);
+	}
 	pthread_mutex_destroy(&_logMutex);
 }
 
@@ -463,14 +470,16 @@ BiometricEvaluation::Process::Statistics::stopAutoLogging()
 {
 	if (!_autoLogging)
 		throw Error::ObjectDoesNotExist();
+	_autoLogging = false;
 	int retval = pthread_cancel(_loggingThread);
 	if (retval != 0)
 		throw Error::StrategyError("Cancel of logging thread failed: " +
 		    Error::errorStr());
 
+	/* Wait for the logging thread to exit */
+	pthread_join(_loggingThread, NULL);
 	ostringstream comment;
 	comment << StopAutologComment;
 	_logSheet->writeComment(comment.str());
-
-	_autoLogging = false;
 }
+
