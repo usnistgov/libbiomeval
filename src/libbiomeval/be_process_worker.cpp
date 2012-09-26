@@ -203,9 +203,13 @@ BiometricEvaluation::Process::Worker::_initCommunication()
 		if (pipe(_pipeToChild) != 0)
 			throw Error::StrategyError("Could not create send "
 			    "pipe ( " + Error::errorStr() + ")");
-		if (pipe(_pipeFromChild) != 0)
+		if (pipe(_pipeFromChild) != 0) {
+			close(_pipeToChild[0]);
+			close(_pipeToChild[1]);
+			
 			throw Error::StrategyError("Could not create receive "
 			    "pipe ( " + Error::errorStr() + ")");
+		}
 			    
 		_communicationEnabled = true;
 	}
@@ -235,8 +239,10 @@ BiometricEvaluation::Process::Worker::_initWorkerCommunication()
 
 BiometricEvaluation::Process::Worker::~Worker()
 {
-	close(_pipeFromChild[0]);
-	close(_pipeFromChild[1]);
-	close(_pipeToChild[0]);
-	close(_pipeToChild[1]);
+	if (_communicationEnabled == true) {
+		close(_pipeFromChild[0]);
+		close(_pipeFromChild[1]);
+		close(_pipeToChild[0]);
+		close(_pipeToChild[1]);
+	}
 }
