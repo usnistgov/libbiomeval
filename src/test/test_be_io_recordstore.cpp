@@ -724,8 +724,24 @@ main(int argc, char* argv[]) {
 	}
 #endif
 
-	cout << "Opening existing record store using factory method: " << endl;
+	cout << "Open non-existing record store using factory method: ";
 	std::tr1::shared_ptr<IO::RecordStore> srs;
+	bool success = false;
+	try {
+		srs = IO::RecordStore::openRecordStore("bbogusss", "/tmp");
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "Caught" << e.getInfo() << "; success." << endl;
+		success = true;
+	} catch (Error::StrategyError& e) {
+		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		return (EXIT_FAILURE);
+	}
+	if (!success) {
+		cout << "failed.";
+		return (EXIT_FAILURE);
+	}
+
+	cout << "Opening existing record store using factory method: " << endl;
 	try {
 		srs = IO::RecordStore::openRecordStore(rsname, "");
 	} catch (Error::ObjectDoesNotExist &e) {

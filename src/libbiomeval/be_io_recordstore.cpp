@@ -80,7 +80,8 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
 	if (IO::Utility::constructAndCheckPath(name, parentDir, _directory))
-		throw Error::ObjectExists();
+		throw Error::ObjectExists(name + " already exists in directory "
+		    + parentDir);
 
 	/*
 	 * The RecordStore is implemented as a directory in the current
@@ -112,7 +113,8 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, _directory))
-		throw Error::ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist("Could not find " + name
+		    + " in directory " + parentDir);
 
 	if (_mode != IO::READWRITE && _mode != IO::READONLY)
 		throw Error::StrategyError("Invalid mode");
@@ -309,7 +311,8 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, path))
-		throw Error::ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist("Could not find " + name
+		    + " in directory " + parentDir);
 
 	if (!IO::Utility::fileExists(path + '/' +
 	    RecordStore::RecordStore::CONTROLFILENAME))
@@ -389,7 +392,8 @@ BiometricEvaluation::IO::RecordStore::removeRecordStore(
 
 	string newDirectory;
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
-		throw Error::ObjectDoesNotExist();
+		throw Error::ObjectDoesNotExist("Could not find " + name
+		    + " in directory " + parentDir);
 
 	try {
 		if (parentDir.empty())
