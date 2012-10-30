@@ -55,7 +55,7 @@ ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(CXX) $(CXXFLAGS) -Wl,--start-group $(NBISLIB) $(OBJECTS) -Wl,--end-group -shared -ldb -lcrypto -lsqlite3 -o $(LIBRARY).so
+	$(CXX) $(CXXFLAGS) -Wl,--start-group $(NBISLIB) $(OBJECTS) -Wl,--end-group -shared -ldb -lcrypto -lsqlite3 -lrt -o $(LIBRARY).so
 	$(CP) $(LIBRARY).so $(LOCALLIB)
 endif
 endif

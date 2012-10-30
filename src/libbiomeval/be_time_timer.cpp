@@ -9,6 +9,7 @@
  */
 
 #include <sys/time.h>
+#include <time.h>
 
 #include <be_time_timer.h>
 
@@ -34,12 +35,17 @@ BiometricEvaluation::Time::Timer::start()
 		throw Error::StrategyError("QueryPerformanceCounter returned "
 		    "false");
 	_start = start.QuadPart;
+#elif defined(Darwin)
+	//XXX replace gettimeofday() with Mach calls
+	struct timeval tv;
+	gettimeofday(&tv, 0);
+	_start = (tv.tv_sec * MicrosecondsPerSecond) + tv.tv_usec;
 #else
-	struct timeval start;
-	gettimeofday(&start, 0);
-	_start = (start.tv_sec * MicrosecondsPerSecond) + start.tv_usec;
+	struct timespec tp;
+	clock_gettime(CLOCK_MONOTONIC, &tp);
+	_start = (tp.tv_sec * MicrosecondsPerSecond) +
+	     (tp.tv_nsec / NanosecondsPerMicrosecond);
 #endif
-
 	_inProgress = true;
 }
 
@@ -56,12 +62,17 @@ BiometricEvaluation::Time::Timer::stop()
 		throw Error::StrategyError("QueryPerformanceCounter returned "
 		    "false");
 	_finish = finish.QuadPart;
+#elif defined(Darwin)
+	//XXX replace gettimeofday() with Mach calls
+	struct timeval tv;
+	gettimeofday(&tv, 0);
+	_finish = (tv.tv_sec * MicrosecondsPerSecond)+ tv.tv_usec;
 #else
-	struct timeval finish;
-	gettimeofday(&finish, 0);
-	_finish = (finish.tv_sec * MicrosecondsPerSecond)+ finish.tv_usec;
+	struct timespec tp;
+	clock_gettime(CLOCK_MONOTONIC, &tp);
+	_finish = (tp.tv_sec * MicrosecondsPerSecond) +
+	     (tp.tv_nsec / NanosecondsPerMicrosecond);
 #endif
-
 	_inProgress = false;
 }
 
