@@ -30,7 +30,9 @@ namespace BiometricEvaluation
 		const uint64_t OneHalfSecond = 500000;
 		const uint64_t OneQuarterSecond = 250000;
 		const uint64_t OneEighthSecond = 125000;
+		const int NanosecondsPerMicrosecond = 1000;
 		const int MicrosecondsPerSecond = 1000000;
+		const int MicrosecondsPerMillisecond = 1000;
 		const int MillisecondsPerSecond = 1000;
 
 		/**
