@@ -17,6 +17,12 @@
 #include <windows.h>
 #endif
 
+/* For OS-X/Darwin */
+#if defined(Darwin)
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
+
 BiometricEvaluation::Time::Timer::Timer()
 {
 	_inProgress = false;
@@ -36,15 +42,18 @@ BiometricEvaluation::Time::Timer::start()
 		    "false");
 	_start = start.QuadPart;
 #elif defined(Darwin)
-	//XXX replace gettimeofday() with Mach calls
-	struct timeval tv;
-	gettimeofday(&tv, 0);
-	_start = (tv.tv_sec * MicrosecondsPerSecond) + tv.tv_usec;
+	clock_serv_t cclock;
+	mach_timespec_t mts;
+	host_get_clock_service(mach_host_self(), REALTIME_CLOCK, &cclock);
+	clock_get_time(cclock, &mts);
+	mach_port_deallocate(mach_task_self(), cclock);
+	_start = (mts.tv_sec * MicrosecondsPerSecond) +
+	     (mts.tv_nsec / NanosecondsPerMicrosecond);
 #else
-	struct timespec tp;
-	clock_gettime(CLOCK_MONOTONIC, &tp);
-	_start = (tp.tv_sec * MicrosecondsPerSecond) +
-	     (tp.tv_nsec / NanosecondsPerMicrosecond);
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	_start = (ts.tv_sec * MicrosecondsPerSecond) +
+	     (ts.tv_nsec / NanosecondsPerMicrosecond);
 #endif
 	_inProgress = true;
 }
@@ -63,10 +72,13 @@ BiometricEvaluation::Time::Timer::stop()
 		    "false");
 	_finish = finish.QuadPart;
 #elif defined(Darwin)
-	//XXX replace gettimeofday() with Mach calls
-	struct timeval tv;
-	gettimeofday(&tv, 0);
-	_finish = (tv.tv_sec * MicrosecondsPerSecond)+ tv.tv_usec;
+	clock_serv_t cclock;
+	mach_timespec_t mts;
+	host_get_clock_service(mach_host_self(), REALTIME_CLOCK, &cclock);
+	clock_get_time(cclock, &mts);
+	mach_port_deallocate(mach_task_self(), cclock);
+	_finish = (mts.tv_sec * MicrosecondsPerSecond) +
+	     (mts.tv_nsec / NanosecondsPerMicrosecond);
 #else
 	struct timespec tp;
 	clock_gettime(CLOCK_MONOTONIC, &tp);
