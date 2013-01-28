@@ -25,6 +25,7 @@ BiometricEvaluation::Error::errorStr()
 {
 	char msgbuf[BUFSIZ];
 	char *msgbufptr = NULL;
+	int lastErrno = errno;
 
 	/* 
 	 * Certain versions of Cygwin only support the GNU version of
@@ -41,9 +42,11 @@ BiometricEvaluation::Error::errorStr()
 	msgbufptr = (strerror_r(errno, msgbuf, BUFSIZ) == 0 ? msgbuf : NULL);
 #endif
 
+	/* Error message when failing to retrieve the error message */
 	if (msgbufptr == NULL)
-		strcpy(msgbuf, "Unable to retrieve system error message");
-
-	return msgbuf;
+		snprintf(msgbuf, BUFSIZ, "Unable to retrieve system error "
+		    "message for errno = %d (errno = %d)", lastErrno, errno);
+		    
+	return (msgbuf);
 }
 
