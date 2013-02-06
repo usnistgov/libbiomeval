@@ -484,8 +484,10 @@ BiometricEvaluation::Memory::AutoArray<T>::operator=(
 {
 	if (this != &copy) {
 		_size = _capacity = copy._size; 
-		if (_data != NULL)
+		if (_data != NULL) {
 			delete [] _data;
+			_data = NULL;
+		}
 		if (_size != 0) {
 			_data = new (nothrow) T[_size];
 			if (_data == NULL)
