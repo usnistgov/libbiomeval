@@ -150,6 +150,8 @@ int main (int argc, char* argv[]) {
 		} catch (Error::StrategyError& e) {
 			cout << "A strategy error occurred: " << e.getInfo() << endl;
 		}
+		delete rs;
+
 		/* Test the re-open of an existing RecordStore. */
 		try {
 #ifdef FILERECORDSTORETEST
