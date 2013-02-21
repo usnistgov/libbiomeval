@@ -339,12 +339,12 @@ BiometricEvaluation::Process::ForkManager::waitForMessage(
 				if (FD_ISSET(it->second, &set) != 0) {
 					if (nextFD != NULL)
 						*nextFD = it->second;
+					result = true;
 					sender = it->first;
-					finished = true;
 					break;
 				}
 			}
-			result = true;
+			finished = true;
 		}
 	}
 
