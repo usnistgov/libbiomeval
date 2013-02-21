@@ -189,7 +189,13 @@ namespace BiometricEvaluation
 			    int numSeconds = -1)
 			    const
 			    throw (Error::StrategyError);
-			    
+
+			void
+			broadcastMessage(
+			    Memory::uint8Array &message)
+			    const
+			    throw (Error::StrategyError);
+
 			/**
 			 * @brief
 			 * ~POSIXThreadManager destructor.

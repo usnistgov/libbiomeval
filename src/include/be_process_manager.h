@@ -233,6 +233,22 @@ namespace BiometricEvaluation
 			    int numSeconds = -1)
 			    const
 			    throw (Error::StrategyError) = 0;
+			
+			/**
+			 * @brief
+			 * Send one message to all Workers.
+			 *
+			 * @param message
+			 *	The message to send to all Workers.
+			 *
+			 * @throw Error::StrategyError
+			 *	Error propagated from the WorkerController.
+			 */
+			virtual void
+			broadcastMessage(
+			    Memory::uint8Array &message)
+			    const
+    			    throw (Error::StrategyError) = 0;
 			    
 			/**
 			 * @brief

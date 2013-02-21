@@ -203,9 +203,11 @@ main(
 	/* 
 	 * Test communication.
 	 */
+	Memory::uint8Array message(100);
+	sprintf((char *)&(*message), "HELO to ALL");
+	procMgr->broadcastMessage(message);
 	 
 	/* Send a message to every Worker, Worker should reply */
-	Memory::uint8Array message(100);
 	for (uint32_t i = 0; i < numWorkers; i++) {
 		sprintf((char *)&(*message), "HELO to instance %d", i + 1);
 		try {

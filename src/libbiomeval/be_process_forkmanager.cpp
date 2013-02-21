@@ -379,6 +379,17 @@ BiometricEvaluation::Process::ForkManager::getNextMessage(
 	return (true);
 }
 
+void
+BiometricEvaluation::Process::ForkManager::broadcastMessage(
+    Memory::uint8Array &message)
+    const
+    throw (Error::StrategyError)
+{
+	vector< tr1::shared_ptr<ForkWorkerController> >::const_iterator it;
+	for (it = _workers.begin(); it != _workers.end(); it++)
+		(*it)->sendMessageToWorker(message);
+}
+
 BiometricEvaluation::Process::ForkManager::~ForkManager()
 {
 

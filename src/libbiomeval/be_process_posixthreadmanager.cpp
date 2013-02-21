@@ -151,6 +151,18 @@ BiometricEvaluation::Process::POSIXThreadManager::getNextMessage(
 	return (false);
 }
 
+void
+BiometricEvaluation::Process::POSIXThreadManager::broadcastMessage(
+    Memory::uint8Array &message)
+    const
+    throw (Error::StrategyError)
+{
+	vector< tr1::shared_ptr<POSIXThreadWorkerController> >::
+	    const_iterator it;
+	for (it = _workers.begin(); it != _workers.end(); it++)
+		(*it)->sendMessageToWorker(message);
+}
+
 BiometricEvaluation::Process::POSIXThreadManager::~POSIXThreadManager()
 {
 
