@@ -295,10 +295,11 @@ BiometricEvaluation::Process::ForkManager::waitForMessage(
 	int maxfd = 0, curfd;
 	std::map<tr1::shared_ptr<WorkerController>, int> fds;
 	
-	struct timeval timeout;
+	struct timeval timeout, *timeoutptr = NULL;
 	if (numSeconds >= 0) {
 		timeout.tv_sec = numSeconds;
 		timeout.tv_usec = 0;
+		timeoutptr = &timeout;
 	}
 	
 	/* Round up all receiving pipes */
@@ -322,7 +323,7 @@ BiometricEvaluation::Process::ForkManager::waitForMessage(
 			}
 		}
 		
-		int ret = select(maxfd + 1, &set, NULL, NULL, &timeout);
+		int ret = select(maxfd + 1, &set, NULL, NULL, timeoutptr);
 		if (ret == 0) {
 			/* Nothing available */
 			result = false;
