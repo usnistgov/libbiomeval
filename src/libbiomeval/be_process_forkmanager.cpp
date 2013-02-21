@@ -336,7 +336,7 @@ BiometricEvaluation::Process::ForkManager::waitForMessage(
 			for (std::map<tr1::shared_ptr<WorkerController>, int>::
 			    const_iterator it = fds.begin(); it != fds.end();
 			    it++) {
-				if (FD_ISSET(it->second, &set) != 0)
+				if (FD_ISSET(it->second, &set) != 0) {
 					if (nextFD != NULL)
 						*nextFD = it->second;
 					sender = it->first;
