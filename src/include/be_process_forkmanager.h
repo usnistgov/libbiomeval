@@ -196,7 +196,7 @@ namespace BiometricEvaluation
 			getNextMessage(
 			    tr1::shared_ptr<WorkerController> &sender,
 			    Memory::uint8Array &message,
-			    int numSeconds)
+			    int numSeconds = -1)
 			    const
 			    throw (Error::StrategyError);
 			   
