@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <map>
 
 #include <be_error.h>
 #include <be_process_forkmanager.h>
@@ -281,6 +282,7 @@ BiometricEvaluation::Process::ForkManager::defaultExitCallback(
 
 bool
 BiometricEvaluation::Process::ForkManager::waitForMessage(
+    tr1::shared_ptr<WorkerController> &sender,
     int *nextFD,
     int numSeconds)
     const
@@ -291,8 +293,7 @@ BiometricEvaluation::Process::ForkManager::waitForMessage(
 	/* Listen for all Worker receiving pipes */
 	FD_ZERO(&set);
 	int maxfd = 0, curfd;
-	uint64_t numActivePipes = 0;
-	int *fds = NULL;
+	std::map<tr1::shared_ptr<WorkerController>, int> fds;
 	
 	struct timeval timeout;
 	if (numSeconds >= 0) {
@@ -302,14 +303,7 @@ BiometricEvaluation::Process::ForkManager::waitForMessage(
 	
 	/* Round up all receiving pipes */
 	bool finished = false;
-	while (!finished) {
-		/* Make space for pipe descriptors */
-		if (fds != NULL)
-			delete [] fds;
-		fds = new int[_workers.size()];
-		if (fds == NULL)
-			throw Error::MemoryError();
-		
+	while (!finished) {		
 		for (size_t i = 0; i < _workers.size(); i++) {
 			/* Add only active pipes to list */
 			if (find(_pendingExit.begin(), _pendingExit.end(),
@@ -322,7 +316,7 @@ BiometricEvaluation::Process::ForkManager::waitForMessage(
 				FD_SET(curfd, &set);
 				if (curfd > maxfd)
 					maxfd = curfd;
-				fds[numActivePipes++] = curfd;
+				fds[_workers[i]] = curfd;
 			} catch (Error::ObjectDoesNotExist) {
 				/* Don't add pipes for exiting Workers */
 			}
@@ -335,44 +329,38 @@ BiometricEvaluation::Process::ForkManager::waitForMessage(
 			finished = true;
 		} else if (ret < 0) {
 			/* Could have been interrupted while blocking */
-			if (errno != EINTR) {
+			if (errno != EINTR)
 				finished = true;
-				cout << " waitFM() Manager" << endl;
-			} else {
-				cout << "EINTR MANAGER " << endl;
-			}
-			
 		} else {
 			/* Something available -- check what */
-			for (size_t i = 0; i < numActivePipes; i++) {
-				if (FD_ISSET(fds[i], &set) == 0)
-					result = false;
-				else {
+			for (std::map<tr1::shared_ptr<WorkerController>, int>::
+			    const_iterator it = fds.begin(); it != fds.end();
+			    it++) {
+				if (FD_ISSET(it->second, &set) != 0)
 					if (nextFD != NULL)
-						*nextFD = fds[i];
+						*nextFD = it->second;
+					sender = it->first;
 					break;
 				}
+				result = true;
 			}
-			result = true;
 			finished = true;
 		}
 	}
-	
-	for (size_t i = 0; i < _workers.size(); i++)
-		FD_CLR(fds[i], &set);
-	delete [] fds;
+
 	return (result);
 }
 
 bool
 BiometricEvaluation::Process::ForkManager::getNextMessage(
+    tr1::shared_ptr<WorkerController> &sender,
     Memory::uint8Array &message,
     int timeout)
     const
     throw (Error::StrategyError)
 {
 	int fd = 0;
-	if (this->waitForMessage(&fd, timeout) == false)
+	if (this->waitForMessage(sender, &fd, timeout) == false)
 		return (false);
 	
 	uint64_t length;

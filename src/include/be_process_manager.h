@@ -187,6 +187,9 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Wait for a message from a Worker.
 			 *
+			 * @param[out] sender
+			 *	Reference to a shared pointer of the 
+			 *	WorkerController that sent the message.
 			 * @param[in/out] nextFD
 			 *	Location to store a pipe that has data to read.
 			 * @param[in] numSeconds
@@ -199,6 +202,7 @@ namespace BiometricEvaluation
 			 */
 			virtual bool
 			waitForMessage(
+			    tr1::shared_ptr<WorkerController> &sender,
 			    int *nextFD = NULL,
 			    int numSeconds = -1)
 			    const = 0;
@@ -207,6 +211,9 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Obtain a message from a Worker.
 			 *
+			 * @param[out] sender
+			 *	Reference to a shared pointer of the 
+			 *	WorkerController that sent the message.
 			 * @param[out] message
 			 *	Reference to a buffer to hold the message.
 			 * @param[in] numSeconds
@@ -221,6 +228,7 @@ namespace BiometricEvaluation
 			 */
 			virtual bool
 			getNextMessage(
+			    tr1::shared_ptr<WorkerController> &sender,
 			    Memory::uint8Array &message,
 			    int numSeconds = -1)
 			    const

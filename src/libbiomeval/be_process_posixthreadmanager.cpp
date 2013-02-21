@@ -131,6 +131,7 @@ BiometricEvaluation::Process::POSIXThreadManager::_wait()
 
 bool
 BiometricEvaluation::Process::POSIXThreadManager::waitForMessage(
+    tr1::shared_ptr<WorkerController> &sender,
     int *nextFD,
     int numSeconds)
     const
@@ -141,6 +142,7 @@ BiometricEvaluation::Process::POSIXThreadManager::waitForMessage(
 			    
 bool
 BiometricEvaluation::Process::POSIXThreadManager::getNextMessage(
+    tr1::shared_ptr<WorkerController> &sender,
     Memory::uint8Array &message,
     int numSeconds)
     const

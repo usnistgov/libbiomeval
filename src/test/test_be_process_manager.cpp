@@ -217,9 +217,13 @@ main(
 	}
 	
 	/* Get all messages until no messages received for 2 seconds */
+	tr1::shared_ptr<Process::WorkerController> sender;
 	try {
-		while (procMgr->getNextMessage(message, 2))
-			cout << ">> (M) Received: " << message << endl;
+		while (procMgr->getNextMessage(sender, message, 2))
+			cout << ">> (M) Received: " << message << " " <<
+			    "(from instance " << sender->getWorker()->
+			    getParameterAsInteger("instance") + 1 << ")" <<
+			    endl;
 	} catch (Error::Exception &f) {
 		cout << ">>>> (M) RCV CAUGHT: " << f.getInfo() << endl;
 	}

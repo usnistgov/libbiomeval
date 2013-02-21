@@ -187,12 +187,14 @@ namespace BiometricEvaluation
 			    
 			bool
 			waitForMessage(
+			    tr1::shared_ptr<WorkerController> &sender,
 			    int *nextFD = NULL,
 			    int numSeconds = -1)
 			    const;
 			
 			bool
 			getNextMessage(
+			    tr1::shared_ptr<WorkerController> &sender,
 			    Memory::uint8Array &message,
 			    int numSeconds)
 			    const
