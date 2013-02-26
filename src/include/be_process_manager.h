@@ -223,6 +223,8 @@ namespace BiometricEvaluation
 			 * @return
 			 *	true if there is a message, false otherwise.
 			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	(Unexpected) widowed pipe.
 			 * @throw Error::StrategyError
 			 *	Error receiving message.
 			 */
@@ -232,7 +234,8 @@ namespace BiometricEvaluation
 			    Memory::uint8Array &message,
 			    int numSeconds = -1)
 			    const
-			    throw (Error::StrategyError) = 0;
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError) = 0;
 			
 			/**
 			 * @brief

@@ -146,7 +146,8 @@ BiometricEvaluation::Process::POSIXThreadManager::getNextMessage(
     Memory::uint8Array &message,
     int numSeconds)
     const
-    throw (Error::StrategyError)
+    throw (Error::ObjectDoesNotExist,
+    Error::StrategyError)
 {
 	return (false);
 }
@@ -159,8 +160,13 @@ BiometricEvaluation::Process::POSIXThreadManager::broadcastMessage(
 {
 	vector< tr1::shared_ptr<POSIXThreadWorkerController> >::
 	    const_iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++)
-		(*it)->sendMessageToWorker(message);
+	for (it = _workers.begin(); it != _workers.end(); it++) {
+		try {
+			(*it)->sendMessageToWorker(message);
+		} catch (Error::ObjectDoesNotExist) {
+			/* Don't care if a single worker is gone */
+		}
+	}
 }
 
 BiometricEvaluation::Process::POSIXThreadManager::~POSIXThreadManager()
@@ -229,7 +235,8 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::
 void
 BiometricEvaluation::Process::POSIXThreadWorkerController::sendMessageToWorker(
     const Memory::uint8Array &message)
-    throw (Error::StrategyError)
+    throw (Error::ObjectDoesNotExist,
+    Error::StrategyError)
 {
 
 }

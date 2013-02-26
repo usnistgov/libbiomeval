@@ -40,11 +40,25 @@ namespace BiometricEvaluation
 			WorkerController(
 			    tr1::shared_ptr<Worker> worker);
 			    
-			
+			/**
+			 * @brief
+			 * Send a message to the Worker contained within this
+			 * WorkerController.
+			 *
+			 * @message
+			 *	Message to send to the Worker.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	Worker receive pipe is closed (Worker object
+			 *	likely destroyed).
+			 * @throw Error::StrategyError
+			 *	Message sending failed.
+			 */
 			virtual void
 			sendMessageToWorker(
 			    const Memory::uint8Array &message)
-			    throw (Error::StrategyError) = 0;
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError) = 0;
 		
 			/**
 			 * @brief

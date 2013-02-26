@@ -19,6 +19,7 @@
 #include <map>
 
 #include <be_error.h>
+#include <be_error_signal_manager.h>
 #include <be_process_forkmanager.h>
 
 using namespace std;
@@ -358,7 +359,8 @@ BiometricEvaluation::Process::ForkManager::getNextMessage(
     Memory::uint8Array &message,
     int timeout)
     const
-    throw (Error::StrategyError)
+    throw (Error::ObjectDoesNotExist,
+    Error::StrategyError)
 {
 	int fd = 0;
 	if (this->waitForMessage(sender, &fd, timeout) == false)
@@ -366,9 +368,12 @@ BiometricEvaluation::Process::ForkManager::getNextMessage(
 	
 	uint64_t length;
 	size_t sz = read(fd, &length, sizeof(length));
-	if (sz != sizeof(length))
+	if (sz != sizeof(length)) {
+		if (sz == 0)
+			throw Error::ObjectDoesNotExist("Widowed pipe");
 		throw (Error::StrategyError("Could not read message length: "
 		    + Error::errorStr()));
+	}
 
 	message.resize(length);
 	sz = read(fd, message, length);
@@ -386,8 +391,13 @@ BiometricEvaluation::Process::ForkManager::broadcastMessage(
     throw (Error::StrategyError)
 {
 	vector< tr1::shared_ptr<ForkWorkerController> >::const_iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++)
-		(*it)->sendMessageToWorker(message);
+	for (it = _workers.begin(); it != _workers.end(); it++) {
+		try {
+			(*it)->sendMessageToWorker(message);
+		} catch (Error::ObjectDoesNotExist) {
+			/* Don't care if a single worker is gone */
+		}
+	}
 }
 
 BiometricEvaluation::Process::ForkManager::~ForkManager()
@@ -459,15 +469,30 @@ BiometricEvaluation::Process::ForkWorkerController::stop()
 void
 BiometricEvaluation::Process::ForkWorkerController::sendMessageToWorker(
     const Memory::uint8Array &message)
-    throw (Error::StrategyError)
+    throw (Error::ObjectDoesNotExist,
+    Error::StrategyError)
 {
 	uint64_t length = message.size();
-	size_t sz = write(getWorker()->getSendingPipe(), &length,
-	    sizeof(length));
+	sigset_t sigset;
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGPIPE);
+	Error::SignalManager signalManager(sigset);
+	
+	size_t sz = 0;
+	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
+		sz = write(getWorker()->getSendingPipe(), &length,
+		    sizeof(length));
+	END_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
+	if (signalManager.sigHandled())
+		throw Error::ObjectDoesNotExist("Widowed pipe");
 	if (sz != sizeof(length))
 		throw (Error::StrategyError("Could not write message length: "
 		    + Error::errorStr()));
-	sz = write(getWorker()->getSendingPipe(), message, length);
+	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
+		sz = write(getWorker()->getSendingPipe(), message, length);
+	END_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
+	if (signalManager.sigHandled())
+		throw Error::ObjectDoesNotExist("Widowed pipe");
 	if (sz != length)
 		throw (Error::StrategyError("Could not write message data: "
 		    + Error::errorStr()));

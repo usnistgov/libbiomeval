@@ -248,8 +248,16 @@ main(
 		cout.flush();
 		sleep(1);
 	}
-	
 	cout << endl;
+	
+	cout << ">> Send message to dead worker...";
+	try {
+		workers[0]->sendMessageToWorker(message);
+		cout << "sent (FAIL)" << endl;
+	} catch (Error::ObjectDoesNotExist &e) {
+		cout << "caught ObjectDoesNotExist (success)" << endl;
+	}
+	
 	return (0);
 }
 

@@ -198,7 +198,8 @@ namespace BiometricEvaluation
 			    Memory::uint8Array &message,
 			    int numSeconds = -1)
 			    const
-			    throw (Error::StrategyError);
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
 			    
 			void
 			broadcastMessage(
@@ -353,20 +354,11 @@ namespace BiometricEvaluation
 			getPID()
 			    const;
 			
-			/**
-			 * @brief
-			 * Send a message to this Worker.
-			 *
-			 * @param[in] message
-			 *	The message to send.
-			 *
-			 * @throw Error::StrategyError
-			 *	Communication is disabled.
-			 */
 			void
 			sendMessageToWorker(
 			    const Memory::uint8Array &message)
-			    throw (Error::StrategyError);
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
 			
 			/**
 			 * @brief

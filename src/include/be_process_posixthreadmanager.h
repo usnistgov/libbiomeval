@@ -188,7 +188,8 @@ namespace BiometricEvaluation
 			    Memory::uint8Array &message,
 			    int numSeconds = -1)
 			    const
-			    throw (Error::StrategyError);
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
 
 			void
 			broadcastMessage(
@@ -249,7 +250,8 @@ namespace BiometricEvaluation
 			void
 			sendMessageToWorker(
 			    const Memory::uint8Array &message)
-			    throw (Error::StrategyError);
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
 			
 			/**
 			 * @brief
