@@ -222,13 +222,16 @@ namespace BiometricEvaluation
 			 * @param[in] message
 			 *	Message to send.
 			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	Widowed pipe.
  			 * @throw Error::StrategyError
 			 *	Communications not enabled.
 			 */
 			void
 			sendMessageToManager(
 			    const Memory::uint8Array &message)
-			    throw (Error::StrategyError);
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
 
 			/**
 			 * @brief
@@ -239,6 +242,8 @@ namespace BiometricEvaluation
 			 * @param[in] block
 			 *	Whether or not to block for this message.
 			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * 	Widowed pipe.
  			 * @throw Error::StrategyError
 			 *	Communications not enabled.
 			 *
@@ -247,7 +252,8 @@ namespace BiometricEvaluation
 			void
 			receiveMessageFromManager(
 			    Memory::uint8Array &message)
-			    throw (Error::StrategyError);
+			    throw (Error::ObjectDoesNotExist,
+			    Error::StrategyError);
 			
 			/**
 			 * @brief
