@@ -198,16 +198,16 @@ namespace BiometricEvaluation
 			 *	chunk.
 			 * @param[in] chunkSize
 			 *	Size of the chunk to write.
-			 * @param[in/out] totalCompressedBytes
+			 * @param[in,out] totalCompressedBytes
 			 *	Total number of bytes in the compressed buffer.
 			 *	Will be updated in this method.
-			 * @param[in/out] compressedBuf
+			 * @param[in,out] compressedBuf
 			 *	The compressed buffer, appended in this method.
 			 * @param[in] compressedBufIsChunk
 			 *	True if compressedBuf is a single chunk of
 			 *	data, false if it is the entire compressed
 			 *	buffer.
-			 * @param[in/out] strm
+			 * @param[in,out] strm
 			 *	Zlib struct, updated in this method.
 			 *
 			 * @return
@@ -241,17 +241,17 @@ namespace BiometricEvaluation
 			 *
 			 * @param[in] chunkSize
 			 *	Size of the chunk to write.
-			 * @param[in/out] totalCompressedBytes
+			 * @param[in,out] totalUncompressedBytes
 			 *	Total number of bytes in the uncompressed
 			 *	buffer.  Will be updated in this method.
-			 * @param[in/out] uncompressedBuf
+			 * @param[in,out] uncompressedBuf
 			 *	The uncompressed buffer, appended in this
 			 *	method.
 			 * @param[in] uncompressedBufIsChunk
 			 *	True if uncompressedBuf is a single chunk of
 			 *	data, false if it is the entire uncompressed
 			 *	buffer.
-			 * @param[in/out] strm
+			 * @param[in,out] strm
 			 *	Zlib struct, updated in this method.
 			 *
 			 * @return

@@ -35,8 +35,6 @@ namespace BiometricEvaluation {
 				 * Construct an Exception object without
 				 * an information string.
 				 *
-				 * @return
-				 *	The Exception object.
 				 */
 				Exception();
 
@@ -47,8 +45,6 @@ namespace BiometricEvaluation {
 				 * @param[in] info
 				 *	The information string associated
 				 *	with the exception.
-				 * @return
-				 *	The Exception object.
 				 */
 				Exception(string info);
 
@@ -75,9 +71,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a FileError object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The FileError object.
 				 */
 				FileError();
 
@@ -85,9 +78,6 @@ namespace BiometricEvaluation {
 				 * Construct a FileError object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The FileError object.
 				 */
 				FileError(string info);
 		};
@@ -101,9 +91,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a ParameterError object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The ParameterError object.
 				 */
 				ParameterError();
 
@@ -111,9 +98,6 @@ namespace BiometricEvaluation {
 				 * Construct a ParameterError object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The ParameterError object.
 				 */
 				ParameterError(string info);
 		};
@@ -128,9 +112,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a ConversionError object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The ConversionError object.
 				 */
 				ConversionError();
 
@@ -138,9 +119,6 @@ namespace BiometricEvaluation {
 				 * Construct a ConversionError object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The ConversionError object.
 				 */
 				ConversionError(string info);
 		};
@@ -158,9 +136,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a DataError object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The DataError object.
 				 */
 				DataError();
 
@@ -168,9 +143,6 @@ namespace BiometricEvaluation {
 				 * Construct a DataError object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The DataError object.
 				 */
 				DataError(string info);
 		};
@@ -184,9 +156,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a MemoryError object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The MemoryError object.
 				 */
 				MemoryError();
 
@@ -194,9 +163,6 @@ namespace BiometricEvaluation {
 				 * Construct a MemoryError object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The MemoryError object.
 				 */
 				MemoryError(string info);
 		};
@@ -210,9 +176,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a ObjectExists object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The ObjectExists object.
 				 */
 				ObjectExists();
 
@@ -220,9 +183,6 @@ namespace BiometricEvaluation {
 				 * Construct a ObjectExists object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The ObjectExists object.
 				 */
 				ObjectExists(string info);
 		};
@@ -236,9 +196,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a ObjectDoesNotExist object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The ObjectDoesNotExist object.
 				 */
 				ObjectDoesNotExist();
 
@@ -246,9 +203,6 @@ namespace BiometricEvaluation {
 				 * Construct a ObjectDoesNotExist object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The ObjectDoesNotExist object.
 				 */
 				ObjectDoesNotExist(string info);
 		};
@@ -262,9 +216,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a ObjectIsOpen object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The ObjectIsOpen object.
 				 */
 				ObjectIsOpen();
 
@@ -272,9 +223,6 @@ namespace BiometricEvaluation {
 				 * Construct a ObjectIsOpen object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The ObjectIsOpen object.
 				 */
 				ObjectIsOpen(string info);
 		};
@@ -288,9 +236,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a ObjectIsClosed object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The ObjectIsClosed object.
 				 */
 				ObjectIsClosed();
 
@@ -298,9 +243,6 @@ namespace BiometricEvaluation {
 				 * Construct a ObjectIsClosed object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The ObjectIsClosed object.
 				 */
 				ObjectIsClosed(string info);
 		};
@@ -315,9 +257,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a StrategyError object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The StrategyError object.
 				 */
 				StrategyError();
 
@@ -325,9 +264,6 @@ namespace BiometricEvaluation {
 				 * Construct a StrategyError object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The StrategyError object.
 				 */
 				StrategyError(string info);
 		};
@@ -343,9 +279,6 @@ namespace BiometricEvaluation {
 				/**
 				 * Construct a NotImplemented object with
 				 * the default information string.
-				 *
-				 * @return
-				 *	The NotImplemented object.
 				 */
 				NotImplemented();
 
@@ -353,9 +286,6 @@ namespace BiometricEvaluation {
 				 * Construct a NotImplemented object with
 				 * an information string appended to the
 				 * default information string.
-				 *
-				 * @return
-				 *	The NotImplemented object.
 				 */
 				NotImplemented(string info);
 		};

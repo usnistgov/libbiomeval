@@ -61,10 +61,6 @@ namespace BiometricEvaluation
 			 *	The name of the file to store the properties.
 			 * @param[in] mode
 			 * 	The read/write mode of the object.
-			 *
-			 * @return
-			 *      An object representing the properties set.
-			 *
 			 * @throw Error::StrategyError
 			 *	A line in the properties file is malformed.
 			 * @throw Error::FileError

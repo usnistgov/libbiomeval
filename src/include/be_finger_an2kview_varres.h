@@ -90,9 +90,8 @@ namespace BiometricEvaluation
 			Finger::PositionSet getPositions() const;
 
 			/**
-			 * @brief
-			 * Obtain the finger impression code.
-			 * @details
+			 * @return
+			 *	The finger impression code.
 			 */
 			Finger::Impression::Kind getImpressionType() const;
 			
@@ -114,6 +113,21 @@ namespace BiometricEvaluation
 			 * @details
 			 * The file must contain the entire AN2K record, not
 			 * just the finger image and/or minutiae records.
+			 * @param[in] filename
+			 *	The name of the file containing the AN2K record.
+			 * @param[in] typeID
+			 *	The type of AN2K finger view: Type-3/Type-4/etc.
+			 * @param[in] recordNumber
+			 *	Which finger record to read as there may be 
+			 *	multiple finger views of the same type within
+			 *	a single AN2K record.
+			 * @throw Error::ParameterError
+			 *	An invalid parameter was passed in.
+			 * @throw Error::DataError
+			 *	An error occurred when parsing the AN2K record.
+			 * @throw
+			 *	Error::FileError
+			 *	An error occurred when reading the file.
 			 */
 			AN2KViewVariableResolution(
 			    const std::string &filename,
@@ -126,11 +140,23 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Construct an AN2K finger view using from a memory
-			 * buffer.
+			 * Construct an AN2K finger view from a buffer.
 			 * @details
 			 * The buffer must contain the entire AN2K record, not
 			 * just the finger image and/or minutiae records.
+			 *
+			 * @param[in] buf
+			 *	The buffer containing the AN2K record.
+			 * @param[in] typeID
+			 *	The type of AN2K finger view: Type-3/Type-4/etc.
+			 * @param[in] recordNumber
+			 *	Which finger record to read as there may be 
+			 *	multiple finger views of the same type within
+			 *	a single AN2K record.
+			 * @throw Error::ParameterError
+			 *	An invalid parameter was passed in.
+			 * @throw Error::DataError
+			 *	An error occurred when parsing the AN2K record.
 			 */
 			AN2KViewVariableResolution(
 			    Memory::uint8Array &buf,
@@ -159,9 +185,8 @@ namespace BiometricEvaluation
 			    throw (Error::DataError);
 
 			/**
-			 * @brief
-			 * Obtain the set of position descriptors.
-			 * @details
+			 * @return
+			 *	The set of position descriptors.
 			 */
 			PositionDescriptors
 			getPositionDescriptors()
@@ -208,7 +233,7 @@ namespace BiometricEvaluation
 		 *	PrintPositionCoordinate information to append to stream.
 		 *
 		 * @return
-		 *	stream with a ppc textual representation appended.
+		 *	Stream with a ppc textual representation appended.
 		 */
 		std::ostream&
 		operator<<(

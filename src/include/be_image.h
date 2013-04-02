@@ -31,7 +31,6 @@ namespace BiometricEvaluation
 		/**
 		 * @brief
 		 * Image compression algorithms.
-		 * @details
 		 */
 		class CompressionAlgorithm {
 		public:

@@ -101,8 +101,6 @@ namespace BiometricEvaluation {
 			 * @param[in] parentDir
 			 *	Where, in the file system, the store is to
 			 *	be rooted. This directory must exist.
-			 * @return
-			 *	An object representing the new, empty store.
 			 * @throw Error::ObjectExists
 			 *	The store was previously created, or the
 			 *	directory where it would be created exists.
@@ -126,8 +124,6 @@ namespace BiometricEvaluation {
 			 * @param[in] mode
 			 *	The type of access a client of this 
 			 *	RecordStore has.
-			 * @return
-			 *	An object representing the existing store.
 			 * @throw Error::ObjectDoesNotExist
 			 *	The RecordStore does not exist.
 			 * @throw Error::StrategyError

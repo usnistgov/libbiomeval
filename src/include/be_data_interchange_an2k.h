@@ -182,53 +182,44 @@ namespace BiometricEvaluation
 				Error::DataError);
 
 			/**
-			 * @brief
-			 * Obtain the AN2K record version.
 			 * @return
 			 *	 The record version field in the Type-1 record.
 			 */
 			string getVersionNumber() const;
 
 			/**
-			 * @brief
-			 * Obtain the AN2K record date.
 			 * @return
-			 *	The date field in the Type-1 record.
+			 * The date field in the Type-1 record.
 			 */
 			string getDate() const;
 
 			/**
-			 * @brief
-			 * Obtain the destination agency ID.
 			 * @return
+			 * The destination agency ID.
 			 */
 			string getDestinationAgency() const;
 
 			/**
-			 * @brief
-			 * Obtain the originating agency ID.
 			 * @return
+			 * The originating agency ID.
 			 */
 			string getOriginatingAgency() const;
 
 			/**
-			 * @brief
-			 * Obtain the transcantion control number.
 			 * @return
+			 * The transcantion control number.
 			 */
 			string getTransactionControlNumber() const;
 
 			/**
-			 * @brief
-			 * Obtain the native scanning resolution.
 			 * @return
+			 * The native scanning resolution.
 			 */
 			string getNativeScanningResolution() const;
 
 			/**
-			 * @brief
-			 * Obtain the nominal transmitting resolution.
 			 * @return
+			 * The nominal transmitting resolution.
 			 */
 			string getNominalTransmittingResolution() const;
 
@@ -236,8 +227,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Obtain the count of latent (Type-13) finger views.
 			 * @return
-			 *	The number of latent finger views in the
-			 *	AN2K record.
+			 * The number of latents in the AN2K record.
 			 */
 			uint32_t getFingerLatentCount() const;
 
@@ -248,8 +238,8 @@ namespace BiometricEvaluation
 			 * The returned vector will be empty when no latent
 			 * views are present in the AN2KRecord.
 			 * @return
-			 *	A vector of AN2KViewLatent objects, each
-			 *	representing a single latent finger view.
+			 * A vector of AN2KViewLatent objects, each
+			 * representing a single latent finger view.
 			 */
 			std::vector<Finger::AN2KViewLatent>
 			    getFingerLatents() const;
@@ -258,8 +248,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Obtain the count of capture (Type-14) finger views.
 			 * @return
-			 * 	The number of latent finger views in the AN2K
-			 *	record.
+			 * The number of captures in the AN2K record.
 			 */
 			uint32_t getFingerCaptureCount() const;
 
@@ -270,8 +259,8 @@ namespace BiometricEvaluation
 			 * The returned vector will be empty when no capture
 			 * views are present in the AN2KRecord.
 			 * @return
-			 *	A vector of AN2KViewCapture objects, each
-			 *	representing a single capture finger view.
+			 * A vector of AN2KViewCapture objects, each
+			 * representing a single capture finger view.
 			 */
 			std::vector<Finger::AN2KViewCapture>
 			    getFingerCaptures() const;
@@ -279,10 +268,9 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Obtain all minutiae (Type-9) data.
-			 *
 			 * @return
-			 *	A vector of AN2KMinutiaeDataRecord objects,
-			 *	each represeting a single Type-9 Record.
+			 * A vector of AN2KMinutiaeDataRecord objects,
+			 * each represeting a single Type-9 Record.
 			 */
 			std::vector<Finger::AN2KMinutiaeDataRecord>
 			getMinutiaeDataRecordSet()
@@ -293,7 +281,7 @@ namespace BiometricEvaluation
 			 * Obtain the urgency with which a response is required.
 			 *
 			 * @return
-			 *	Priority (1:High - 9:Low)
+			 * Priority (1:High - 9:Low)
 			 */
 			uint8_t
 			getPriority()
@@ -305,8 +293,8 @@ namespace BiometricEvaluation
 			 * user-defined Type-2 logical record implementation.
 			 *
 			 * @return
-			 *	DomainName struct with identifier and version
-			 *	information (if defined).
+			 * DomainName struct with identifier and version
+			 * information (if defined).
 			 */
 			DomainName
 			getDomainName()
@@ -318,7 +306,7 @@ namespace BiometricEvaluation
 			 * GMT units.
 			 *
 			 * @return
-			 *	struct tm encoding of the GMT field.
+			 * struct tm encoding of the GMT field.
 			 */
 			struct tm
 			getGreenwichMeanTime()

@@ -41,8 +41,6 @@ namespace BiometricEvaluation {
 			 * @param[in] parentDir
 			 *	Where, in the file system, the cabinet is to
 			 *	be stored. This directory must exist.
-			 * @return
-			 *	An object representing the new log cabinet.
 			 * @throw Error::ObjectExists
 			 *	The cabinet was previously created.
 			 * @throw Error::StrategyError
@@ -63,8 +61,6 @@ namespace BiometricEvaluation {
 			 * @param[in] parentDir
 			 *	Where, in the file system, the cabinet is to
 			 *	be stored. This directory must exist.
-			 * @return
-			 *	An object representing the log cabinet.
 			 * @throw Error::ObjectDoesNotExist
 			 *	The cabinet does not exist in the file system.
 			 * @throw Error::StrategyError

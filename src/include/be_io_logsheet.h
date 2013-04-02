@@ -85,8 +85,6 @@ namespace BiometricEvaluation
 			 * @param[in] parentDir
 			 *	Where, in the file system, the sheet is to
 			 *	be stored. This directory must exist.
-			 * @return
-			 *	An object representing the new log sheet.
 			 * @throw Error::ObjectExists
 			 *	The sheet was previously created.
 			 * @throw Error::StrategyError
@@ -113,9 +111,6 @@ namespace BiometricEvaluation
 			 *	The name of the LogSheet to be opened.
 			 * @param[in] parentDir
 			 *	Where, in the file system, the sheet is stored.
-			 *
-			 * @return
-			 *	An object representing the existing log sheet.
 			 * @throw Error::ObjectDoesNotExist
 			 *	The sheet does not exist.
 			 * @throw Error::StrategyError

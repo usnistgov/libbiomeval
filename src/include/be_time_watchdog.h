@@ -105,10 +105,6 @@ namespace BiometricEvaluation {
 			 *
 			 * @param[in] type
 			 *	 The type of timer, ProcessTime or RealTime.
-			 *
-			 * @return
-			 *	The Watchdog object.
-			 *
 			 * @throw Error::NotImplemented
 			 *	The type of watchdog requested is not
 			 *	implemented.

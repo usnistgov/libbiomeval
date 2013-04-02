@@ -81,8 +81,6 @@ namespace BiometricEvaluation {
 			 * Construct a new SignalManager object with the default
 			 * signal handling: SIGSEGV and SIGBUS.
 			 *
-			 * @return
-			 *      The SignalManager.
 			 * @throw
 			 *      Error::StrategyError
 			 *		Could not register the signal handler.
@@ -98,9 +96,6 @@ namespace BiometricEvaluation {
 			 *	signalSet (in)
 			 *              The signal set; see sigaction(2),
 			 *		sigemptyset(3) and sigaddset(3).
-			 * @return
-			 *      The SignalManager.
-			 *
 			 * @throw
 			 *	Error::ParameterError
 			 *		One of the signals in signalSet cannot

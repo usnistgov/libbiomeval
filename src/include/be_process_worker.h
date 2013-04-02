@@ -239,9 +239,6 @@ namespace BiometricEvaluation
 			 *
 			 * @param[out] message
 			 *	Buffer to store the received message.
-			 * @param[in] block
-			 *	Whether or not to block for this message.
-			 *
 			 * @throw Error::ObjectDoesNotExist
 			 * 	Widowed pipe.
  			 * @throw Error::StrategyError

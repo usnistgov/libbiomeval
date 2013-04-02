@@ -190,7 +190,7 @@ namespace BiometricEvaluation
 			 * @param[out] sender
 			 *	Reference to a shared pointer of the 
 			 *	WorkerController that sent the message.
-			 * @param[in/out] nextFD
+			 * @param[in,out] nextFD
 			 *	Location to store a pipe that has data to read.
 			 * @param[in] numSeconds
 			 *	Number of seconds to wait for a message, or

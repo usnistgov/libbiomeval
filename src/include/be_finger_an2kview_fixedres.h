@@ -42,6 +42,22 @@ namespace BiometricEvaluation
 			 * @details
 			 * The file must contain the entire AN2K record, not
 			 * just the finger image and/or minutiae records.
+			 *
+			 * @param[in] filename
+			 *	The name of the file containing the AN2K record.
+			 * @param[in] typeID
+			 *	The type of AN2K finger view: Type-3/Type-4/etc.
+			 * @param[in] recordNumber
+			 *	Which finger record to read as there may be 
+			 *	multiple finger views of the same type within
+			 *	a single AN2K record.
+			 * @throw Error::ParameterError
+			 *	An invalid parameter was passed in.
+			 * @throw Error::DataError
+			 *	An error occurred when parsing the AN2K record.
+			 * @throw
+			 *	Error::FileError
+			 *	An error occurred when reading the file.
 			 */
 			AN2KViewFixedResolution(
 			    const std::string filename,
@@ -54,6 +70,23 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Construct an AN2K finger view from a buffer.
+			 * @details
+			 * The buffer must contain the entire AN2K record, not
+			 * just the finger image and/or minutiae records.
+			 *
+			 * @param[in] buf
+			 *	The buffer containing the AN2K record.
+			 * @param[in] typeID
+			 *	The type of AN2K finger view: Type-3/Type-4/etc.
+			 * @param[in] recordNumber
+			 *	Which finger record to read as there may be 
+			 *	multiple finger views of the same type within
+			 *	a single AN2K record.
+			 * @throw Error::ParameterError
+			 *	An invalid parameter was passed in.
+			 * @throw Error::DataError
+			 *	An error occurred when parsing the AN2K record.
 			 */
 			AN2KViewFixedResolution(
 			    Memory::uint8Array &buf,
@@ -69,18 +102,15 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Read a fixed resolution (Type-3/4/5/6) image record
-			 * from an AN2K file.
-			 * @param[in] record
-			 *	The AN2K record.
-			 * @throw ParameterError
-			 *	The record parameter is NULL.
+			 * from state data conaining the AN2K record.
+			 * @param[in] typeID
+			 *	The type of AN2K finger view: Type-3/Type-4/etc.
 			 * @throw DataError
 			 *	The AN2K record has invalid or missing data.
 			 */
 			void readImageRecord(
 			    const RecordType::Kind typeID)
 			    throw (Error::DataError);
-
 		};
 	}
 }

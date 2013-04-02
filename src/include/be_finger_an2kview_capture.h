@@ -29,7 +29,8 @@ namespace BiometricEvaluation
 		public:
 			/**
 			 * @brief
-			 * Amputated or bandaged code.
+			 * Enumeration of the finger amuptated or bandaged
+			 * code, a reason that a capture could not be made.
 			 */
 			class AmputatedBandaged {
 			public:

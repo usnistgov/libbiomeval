@@ -408,7 +408,6 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Read the common extended data block.
-			 * @details
 			 * @param[in, out] buf
 			 * The indexed buffer containing the record data.
 			 * The index of the buffer will be changed to the

@@ -303,12 +303,8 @@ namespace BiometricEvaluation {
 			 *
 			 * @param[in] key
 			 *	A unique key for the data chunk
-			 * @param[in] record
+			 * @param[in] entry
 			 *	Information about key, populated by caller
-			 *
-			 * @return
-			 * 	0 on success, -1 on failure
-			 *
 			 * @throw Error::StrategyError
 			 *	Problem with storage system
 			 */

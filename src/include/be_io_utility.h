@@ -112,7 +112,7 @@ namespace BiometricEvaluation
 			 * foo.2. There is a limit of uint16_t max attempts
 			 * at creating a set aside name.
 			 *
-			 * @param[in] path
+			 * @param[in] name
 			 *	The path name of the file or directory to be
 			 *	set aside.
 			 * @throw Error::ObjectDoesNotExist

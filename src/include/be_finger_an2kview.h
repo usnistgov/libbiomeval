@@ -100,6 +100,8 @@ namespace BiometricEvaluation
 			 * Type-9 record associated with a finger view,
 			 * this method returns a set of objects, each one
 			 * representing a single Type-9 record.
+			 * @return
+			 * The vector of minutiae data records.
 		 	 */
 			vector<AN2KMinutiaeDataRecord>
 			getMinutiaeDataRecordSet()
@@ -121,7 +123,8 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Obtain the finger impression code.
-			 * @details
+			 * @return
+			 * The finger impression code.
 			 */
 			Finger::Impression::Kind getImpressionType() const;
 
@@ -133,6 +136,22 @@ namespace BiometricEvaluation
 			 * @details
 			 * The file must contain the entire AN2K record, not
 			 * just the finger image and/or minutiae records.
+			 *
+			 * @param[in] filename
+			 *	The name of the file containing the AN2K record.
+			 * @param[in] typeID
+			 *	The type of AN2K finger view: Type-3/Type-4/etc.
+			 * @param[in] recordNumber
+			 *	Which finger record to read as there may be 
+			 *	multiple finger views of the same type within
+			 *	a single AN2K record.
+			 * @throw Error::ParameterError
+			 *	An invalid parameter was passed in.
+			 * @throw Error::DataError
+			 *	An error occurred when parsing the AN2K record.
+			 * @throw
+			 *	Error::FileError
+			 *	An error occurred when reading the file.
 			 */
 			AN2KView(
 			    const std::string filename,
@@ -145,6 +164,23 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Construct an AN2K finger view from a buffer.
+			 * @details
+			 * The buffer must contain the entire AN2K record, not
+			 * just the finger image and/or minutiae records.
+			 *
+			 * @param[in] buf
+			 *	The buffer containing the AN2K record.
+			 * @param[in] typeID
+			 *	The type of AN2K finger view: Type-3/Type-4/etc.
+			 * @param[in] recordNumber
+			 *	Which finger record to read as there may be 
+			 *	multiple finger views of the same type within
+			 *	a single AN2K record.
+			 * @throw Error::ParameterError
+			 *	An invalid parameter was passed in.
+			 * @throw Error::DataError
+			 *	An error occurred when parsing the AN2K record.
 			 */
 			AN2KView(
 			    Memory::uint8Array &buf,
@@ -156,7 +192,11 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Mutator for the AN2KMinutiaeDataRecord set.
+			 * Add a minutiae data record to the
+			 * AN2KMinutiaeDataRecord set.
+			 *
+			 * @param[in] mdr
+			 *	The minutiae data record to be added.
 			 */
 			void
 			addMinutiaeDataRecord(
@@ -164,13 +204,18 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Mutator for the position set.
+			 * Add a position set to the collection of
+			 * position sets.
+			 * @param[in] ps
+			 * The position set to be added.
 			 */
 			void setPositions(Finger::PositionSet &ps);
 
 			/**
 			 * @brief
 			 * Mutator for the impression type.
+			 * @param[in] imp
+			 * The impression type for this finger view.
 			 */
 			void setImpressionType(Finger::Impression::Kind &imp);
 
@@ -178,11 +223,9 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Read the common AN2K finger image record information
-			 * from an AN2K record: IMP and FGP
-			 * @param[in] record
-			 *	The AN2K record.
-			 * @throw ParameterError
-			 *	The record parameter is NULL.
+			 * from an AN2K record.
+			 * @param[in] typeID
+			 *	The type (3/4/5/6) of finger view.
 			 * @throw DataError
 			 *	The AN2K record has invalid or missing data.
 			 */

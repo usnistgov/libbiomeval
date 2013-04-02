@@ -74,16 +74,14 @@ namespace BiometricEvaluation
     			    throw (Error::DataError);
 			    
 			/**
-			 * @brief
-			 * Obtain the source agency.
-			 * @details
+			 * @return
+			 *	The source agency.
 			 */
 			string getSourceAgency() const;
 
 			/**
-			 * @brief
-			 * Obtain the capture date.
-			 * @details
+			 * @return
+			 *	The capture date.
 			 */
 			string getCaptureDate() const;
 

@@ -139,6 +139,7 @@ namespace BiometricEvaluation
 			    throw (Error::DataError);
 			
 			/**
+			 * @brief
 			 * Convert a compression algorithm indicator from
 			 * an AN2K finger image record.
 			 *
@@ -310,7 +311,7 @@ namespace BiometricEvaluation
 			 * and guarantees that the AN2KView common data is
 			 * present and the RECORD pointer is set, else an
 			 * exception is thrown.
-			 * @param[in] record
+			 * @param[in] an2k
 			 *	The AN2K record.
 			 * @throw ParameterError
 			 *	The record parameter is NULL.
@@ -340,7 +341,7 @@ namespace BiometricEvaluation
 			 * Create AN2KMinutiaeDataRecord objects that share
 			 * the IDC of this View.
 			 * 
-			 * @param buf
+			 * @param filename
 			 *	Filename of an AN2K file.
 			 */
     			void
