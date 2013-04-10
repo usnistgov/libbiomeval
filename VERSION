@@ -1,0 +1,31 @@
+# This software was developed at the National Institute of Standards and
+# Technology (NIST) by employees of the Federal Government in the course
+# of their official duties. Pursuant to title 17 Section 105 of the
+# United States Code, this software is not subject to copyright protection
+# and is in the public domain. NIST assumes no responsibility whatsoever for
+# its use by other parties, and makes no guarantees, expressed or implied,
+# about its quality, reliability, or any other characteristic.
+
+#
+# Framework versioning
+#
+
+# Major version number
+#
+# Increment this number when applications should be forced to relink with a
+# newer version of the library (changes to .h files).
+MAJOR_VERSION=0
+
+# Minor version number
+#
+# Increment this number as updates are made to the compiled library that
+# do not break existing applications (changes to .cpp files).
+MINOR_VERSION=4
+
+# Compatibility version number (OS X only)
+#
+# This number corresponds to the minimum MAJOR_VERSION supported by this
+# library.  Symbols may be deprecated, but their implementation must
+# still exist.
+COMPATIBILITY_VERSION=0
+

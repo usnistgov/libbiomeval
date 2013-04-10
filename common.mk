@@ -7,12 +7,7 @@
 # its use by other parties, and makes no guarantees, expressed or implied,
 # about its quality, reliability, or any other characteristic.
 #
-#
-# Framework versioning
-#
-MAJOR_VERSION=0
-MINOR_VERSION=4
-#
+
 # This set of directories is where the header files, libraries, programs,
 # and man pages are to be installed.
 INCPATH := /usr/local/include

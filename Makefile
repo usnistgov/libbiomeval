@@ -24,7 +24,14 @@ all:
 
 install: installpaths
 	install -m 644 -o $(ROOT) $(LOCALINC)/*.h $(INCPATH)
-	install -m 755 -o $(ROOT) $(LOCALLIB)/* $(LIBPATH)
+	for i in `ls $(LOCALLIB)`; do \
+		cp -R $(LOCALLIB)/$$i $(LIBPATH); \
+		chown root $(LIBPATH)/$$i; \
+		chown 755 $(LIBPATH)/$$i; \
+	done
+ifeq ($(OS), Linux)
+	ldconfig -n $(LIBPATH)
+endif
 
 installpaths: $(INCPATH) $(LIBPATH) $(BINPATH) $(MANPATH)
 $(INCPATH):

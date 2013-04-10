@@ -13,6 +13,7 @@ COMMONINCOPT = -I/usr/local/nbis/include
 NBISLIB = -L/usr/local/nbis/lib -lan2k -ljpegb -lwsq -ljpegl -lfet -lioutil -lutil -lpng -lz -lopenjpeg
 
 include ../common.mk
+include ../../VERSION
 
 CORE = be_memory_indexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
 
@@ -43,20 +44,23 @@ all: $(OBJECTS)
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
 
 ifeq ($(OS), Darwin)
-	$(CXX) $(CXXFLAGS) $(NBISLIB) -L$(DBLIBS) -ldb -lsqlite3 -dynamiclib $(OBJECTS) -lcrypto -o $(LIBRARY).dylib
-	$(CP) $(LIBRARY).dylib $(LOCALLIB)
-   
+	$(CXX) $(CXXFLAGS) $(NBISLIB) -L$(DBLIBS) -ldb -lsqlite3 -lcrypto -dynamiclib $(OBJECTS) -Wl,-current_version,$(MAJOR_VERSION).$(MINOR_VERSION) -Wl,-compatibility_version,$(COMPATIBILITY_VERSION) -Wl,-macosx_version_min,10.6 -Wl,-install_name,$(LIBRARY).$(MAJOR_VERSION).dylib -o $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
+	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).dylib
+	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).$(MAJOR_VERSION).dylib
+	$(CP) -R -P $(LIBRARY)*.dylib $(LOCALLIB)
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	ar rs $(LIBRARY).a $(OBJECTS)
 	ranlib $(LIBRARY).a
-	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--start-group $(NBISLIB) -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -lcrypto -ldb -lsqlite3 -Wl,--end-group
+	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--start-group $(NBISLIB) -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -lcrypto -ldb -lsqlite3 -Wl,--end-group -Wl,--major-image-version,$(MAJOR_VERSION) -Wl,--minor-image-version,$(MINOR_VERSION) -Wl,-soname=$(LIBRARY).dll.$(MAJOR_VERSION)
 	$(CP) $(LIBRARY).a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(CXX) $(CXXFLAGS) -Wl,--start-group $(NBISLIB) $(OBJECTS) -Wl,--end-group -shared -ldb -lcrypto -lsqlite3 -lrt -o $(LIBRARY).so
-	$(CP) $(LIBRARY).so $(LOCALLIB)
+	$(CXX) $(CXXFLAGS) -Wl,--start-group $(NBISLIB) $(OBJECTS) -Wl,--end-group -shared -ldb -lcrypto -lsqlite3 -lrt -Wl,-soname=$(LIBRARY).so.$(MAJOR_VERSION) -o $(LIBRARY).so.$(MAJOR_VERSION).$(MINOR_VERSION)
+	/sbin/ldconfig -n $(PWD)
+	ln -f -s $(LIBRARY).so.$(MAJOR_VERSION) $(LIBRARY).so
+	$(CP) -P $(LIBRARY).so* $(LOCALLIB)
 endif
 endif
 
