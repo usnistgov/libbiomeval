@@ -288,7 +288,7 @@ main(
 	/* Employees start serving customers while shift leader manages */
 	shiftLeader->startWorkers(false);
 	
-	/* Customers enter the queue ... */
+	/* Customers enter the queue... */
 	queue<Restaurant::AdministrativeTasks> adminTasks;
 	adminTasks.push("Inventory");
 	adminTasks.push("Customer Complaints");
@@ -301,7 +301,7 @@ main(
 	
 	/* ...end of the day */
 	for (uint32_t i = 0; i < numEmployees; i++)
-		if (employees[i]->isWorking()
+		if (employees[i]->isWorking())
 			shiftLeader->stopWorker(employees[i]);
 	
 	/* 
@@ -317,4 +317,74 @@ main(
 	return (status);
 }
 
+\end{lstlisting}
+
+\subsection{Communications}
+\label{subsec:communications}
+
+\class{Manager}s and \class{Worker}s might have good reason to communicate
+arbitrary messages directly.  A communications mechanism is built-in to the
+\nameref{sec-process_management} model to facilitate such communications. 
+The type and content of the message is completely up to the client
+implementation, since messages are sent as \class{AutoArray}s.
+A \class{Manager} does not directly send messages to a
+\class{Worker}.  This service is provided by the \class{Worker\-Controller}
+(via \texttt{send\-Message\-To\-Worker()}).
+
+\class{Manager}s can keep an eye on incoming messages by calling the
+(optionally blocking) \texttt{wait\-For\-Message()} method.  This method will
+return a handle to the \class{Worker} that sent a message.  Alternatively, the
+\class{Manager} can invoke \texttt{get\-Next\-Message()} (again, blocking 
+optional) to immediately receive the next message.
+
+\lstref{process-worker-communication-example} and 
+\lstref{process-manager-communication-example} are continuations of
+\lstref{process_worker-example} and \lstref{process_manager-example}
+respectively, showing an example of communication, using \texttt{std::string}
+messages.
+
+\begin{lstlisting}[caption={\class{Worker} Communication}, label=process-worker-communication-example]
+	Memory::uint8Array msg;
+
+	/* Deal with next customer unless Manager interrupts in next second */
+	if (this->waitForMessage(1)) {
+		if (this->getMessageFromManager(msg)) {
+			Action action = Restaurant::messageToAction(msg);
+			switch (action) {
+			case TAKE_BREAK:
+				employee->goOnBreak();
+				break;
+			/* ... */
+			}
+		}
+	}
+	
+	/* ... */
+	
+	if (customer->isComplaining()) {
+		sprintf((char *)&(*msg), "Customer Complant");
+		this->sendMessageToManager(msg);
+	}
+\end{lstlisting}
+\begin{lstlisting}[caption={\class{Manager} Communication}, label=process-manager-communication-example]
+	tr1::shared_ptr<Process::WorkerController> sender;
+	Memory::uint8Array msg;
+	
+	/* Do routine tasks unless employee has concern in the next 2 seconds */
+	while (this->getNextMessage(sender, msg, 2)) {
+		Action action = Restaurant::messageToAction(msg);
+		switch (action) {
+		case CUSTOMER_COMPLAINT:
+			sprintf((char *)&(*msg), "I'll take care of it.");
+			this->sendMessageToWorker(msg);
+			break;
+		/* ... */
+		}
+	}
+	
+	/* ... */
+	
+	/*  Closing Time */
+	sprintf((char *)&(*msg), "Clock out and go home.");
+	this->broadcastMessage(msg);
 \end{lstlisting}
