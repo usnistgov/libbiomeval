@@ -8,13 +8,13 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
+#define __STDC_LIMIT_MACROS
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
-#define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
