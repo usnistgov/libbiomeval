@@ -23,9 +23,12 @@
 #include <mach/mach.h>
 #endif
 
-BiometricEvaluation::Time::Timer::Timer()
+BiometricEvaluation::Time::Timer::Timer() :
+    _inProgress(false),
+    _start(0),
+    _finish(0)
 {
-	_inProgress = false;
+
 }
 
 void

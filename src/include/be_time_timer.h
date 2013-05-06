@@ -31,6 +31,10 @@ namespace BiometricEvaluation
 		 * Applcations wrap the block of code in the Timer::start()
 		 * and Timer::stop() calls, then use Timer::elapsed() to 
 		 * obtain the calculated time of the operation.
+		 *
+		 * @warning
+		 * Timers are not threadsafe and should only be used to time
+		 * operations within the same thread.
 		 */
 		class Timer
 		{
