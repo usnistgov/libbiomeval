@@ -223,7 +223,8 @@ BiometricEvaluation::IO::SQLiteRecordStore::insert(
 	uint64_t segnum = 0;
 	uint64_t remSize = size, bindSize = 0;
 	uint8_t *bindData = (uint8_t *)data;
-	while (remSize > 0) {
+	while ((remSize > 0) ||
+	    ((remSize == 0) && (segnum < KEY_SEGMENT_START))) {
 		string sqlCommand = "INSERT INTO " + activeTable + " " + 
 		    "VALUES ('" + genKeySegName(key, segnum) +
 		    "', $value)";
