@@ -78,9 +78,6 @@ BiometricEvaluation::IO::GZip::compress(
 			flush = Z_NO_FLUSH;
 		}
 		
-		if (strm.avail_in == 0)
-			break;
-		
 		/* Perform compression */
 		rv = this->compressChunk(flush, chunk, totalCompressedBytes,
 		    compressedBuf, false, strm);
@@ -157,9 +154,6 @@ BiometricEvaluation::IO::GZip::compress(
 			flush = Z_NO_FLUSH;
 		}
 		
-		if (strm.avail_in == 0)
-			break;
-		
 		/* Perform compression */
 		try {
 			rv = this->compressChunk(flush, chunk,
@@ -234,9 +228,6 @@ BiometricEvaluation::IO::GZip::compress(
 		flush = feof(fp) ? Z_FINISH : Z_NO_FLUSH;
 		strm.next_in = in;
 		
-		if (strm.avail_in == 0)
-			break;
-		
 		/* Perform compression */
 		try {
 			rv = this->compressChunk(flush, chunk,
@@ -307,9 +298,6 @@ BiometricEvaluation::IO::GZip::compress(
 		strm.avail_in = fread(in, 1, chunk, ifp);
 		flush = feof(ifp) ? Z_FINISH : Z_NO_FLUSH;
 		strm.next_in = in;
-		
-		if (strm.avail_in == 0)
-			break;
 		
 		/* Perform compression */
 		try {
@@ -452,9 +440,6 @@ BiometricEvaluation::IO::GZip::decompress(
 			remainingBytes -= chunk;
 		}
 		
-		if (strm.avail_in == 0)
-			break;
-		
 		/* Perform decompression */
 		rv = this->decompressChunk(chunk, totalUncompressedBytes,
 		    uncompressedBuf, false, strm);
@@ -508,9 +493,6 @@ BiometricEvaluation::IO::GZip::decompress(
 		/* Move compressed pointer */
 		strm.next_in = in;
 		strm.avail_in = fread(in, 1, chunk, fp);
-		
-		if (strm.avail_in == 0)
-			break;
 		
 		/* Perform decompression */
 		try {
@@ -576,9 +558,6 @@ BiometricEvaluation::IO::GZip::decompress(
 		/* Move compressed pointer */
 		strm.avail_in = fread(in, 1, chunk, ifp);
 		strm.next_in = in;
-		
-		if (strm.avail_in == 0)
-			break;
 		
 		/* Perform decompression */
 		try {
