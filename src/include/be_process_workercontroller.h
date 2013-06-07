@@ -45,7 +45,7 @@ namespace BiometricEvaluation
 			 * Send a message to the Worker contained within this
 			 * WorkerController.
 			 *
-			 * @message
+			 * @param message
 			 *	Message to send to the Worker.
 			 *
 			 * @throw Error::ObjectDoesNotExist

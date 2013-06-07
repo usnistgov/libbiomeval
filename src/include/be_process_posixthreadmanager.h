@@ -128,6 +128,9 @@ namespace BiometricEvaluation
 			 * @param wait
 			 *	Whether or not to wait for this Worker to 
 			 *	exit before returning control to the caller.
+			 * @param communicate
+			 *	Whether or not to enable communication
+			 *	among the Workers and Managers.
 			 *
 			 * @throw Error::ObjectExists
 			 *	worker is already working.
