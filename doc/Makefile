@@ -21,6 +21,7 @@ LATEXMAIN = $(ROOTNAME).tex
 PDFMAIN = $(ROOTNAME).pdf
 SOURCECODE = ../src/include/*.h
 DOXYCONFIG = $(ROOTNAME).dox
+export BIOMEVAL_VERSION = $(shell eval `cat ../VERSION | egrep ^[A-Z]`; echo $$MAJOR_VERSION.$$MINOR_VERSION)
 
 #
 # Check whether the main PDF file exists in the top-level doc directory, and

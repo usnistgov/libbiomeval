@@ -32,7 +32,7 @@ PROJECT_NAME           = "Biometric Evaluation Common Framework"
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         =
+PROJECT_NUMBER         = "$(BIOMEVAL_VERSION)"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer
@@ -642,7 +642,7 @@ WARN_IF_DOC_ERROR      = YES
 # wrong or incomplete parameter documentation, but not about the absence of
 # documentation.
 
-WARN_NO_PARAMDOC       = NO
+WARN_NO_PARAMDOC       = YES
 
 # The WARN_FORMAT tag determines the format of the warning messages that
 # doxygen can produce. The string should contain the $file, $line, and $text
@@ -1000,27 +1000,27 @@ HTML_INDEX_NUM_ENTRIES = 100
 # See http://developer.apple.com/tools/creatingdocsetswithdoxygen.html
 # for more information.
 
-GENERATE_DOCSET        = NO
+GENERATE_DOCSET        = YES
 
 # When GENERATE_DOCSET tag is set to YES, this tag determines the name of the
 # feed. A documentation feed provides an umbrella under which multiple
 # documentation sets from a single provider (such as a company or product suite)
 # can be grouped.
 
-DOCSET_FEEDNAME        = "Doxygen generated docs"
+DOCSET_FEEDNAME        = "NIGOS Documentation"
 
 # When GENERATE_DOCSET tag is set to YES, this tag specifies a string that
 # should uniquely identify the documentation set bundle. This should be a
 # reverse domain-name style string, e.g. com.mycompany.MyDocSet. Doxygen
 # will append .docset to the name.
 
-DOCSET_BUNDLE_ID       = nist.gov.BiometricEvaluation
+DOCSET_BUNDLE_ID       = gov.nist.nigos.BiometricEvaluation
 
 # When GENERATE_PUBLISHER_ID tag specifies a string that should uniquely
 # identify the documentation publisher. This should be a reverse domain-name
 # style string, e.g. com.mycompany.MyDocSet.documentation.
 
-DOCSET_PUBLISHER_ID    = nist.gov.IAD
+DOCSET_PUBLISHER_ID    = gov.nist.iad
 
 # The GENERATE_PUBLISHER_NAME tag identifies the documentation publisher.
 
