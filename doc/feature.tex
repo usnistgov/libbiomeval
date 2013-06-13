@@ -12,10 +12,14 @@ objects. For example, a minutiae object is usually obtained from a finger view,
 which may have been obtained from a data interchange object representing an
 entire biometric record for an individual.
 
-The data contained within a \class{Feature} object is represented as the ``native''
-format as it was extracted from the underlying data record. There is no
-translation to a common format and it is the application's responsibility to
-interpret or translate the data as necessary.
+The data contained within a \class{Feature} object is represented as the
+``native'' format as it was extracted from the underlying data record. There
+is no translation to a common format and it is the application's responsibility 
+to interpret or translate the data as necessary.
+
+Currently, fingerprint and palm print minutiae are the features supported within
+the \sname. As development continues, additional features contained within
+biometric data records will be supported.
 
 \section{ANSI/NIST Features}
 \label{sec-ansinistfeatures}
@@ -24,5 +28,17 @@ as data elements within a record. Fingerprint and palm minutiae is contained
 within Type-9 record. The \class{AN2K7Minutiae} class, contained in the Feature
 package, represents a single Type-9 record. An object of this class can be
 constructed directly from a complete ANSI/NIST record. However, it is more
-common for an application to retrieve these objects from the \class{AN2KView} object
-defined in the \namespace{Finger} package~(\chpref{chp-finger}).
+common for an application to retrieve these objects from the \class{AN2KView}
+object defined in the \namespace{Finger} package~(\chpref{chp-finger}).
+
+See \lstref{lst:an2kfingerviewuse} for a complete example of how to obtain
+the fingerprint minutiae data from an ANSI/NIST record.
+
+\section{ISO/INCITS Features}
+
+The ISO~\cite{std:iso19794-2} and INCITS~\cite{std:ansi378-2004} fingerprint
+minutiae standards are represented within \sname with the same class,
+\class{INCITSMinutiae}, as the minutiae format is identical in both standards.
+
+\lstref{lst:incitsfingerviewuse} shows how to create a view object for the
+fingerprint minutiae record contained in a file.

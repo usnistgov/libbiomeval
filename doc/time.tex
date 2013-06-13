@@ -13,11 +13,11 @@ The \class{Timer} class provides applications a method to determine how long
 a block of code takes to execute. On many systems (e.g. Linux) the timer
 resolution is in microseconds.
 
-\lstref{timeruse} shows how an application can use a \class{Timer}
+\lstref{lst:timeruse} shows how an application can use a \class{Timer}
 object to limit obtain the amount of time used for the execution of a block
 of code.
 
-\begin{lstlisting}[caption={Using the \class{Timer}}, label=timeruse]
+\begin{lstlisting}[caption={Using the \class{Timer}}, label=lst:timeruse]
 #include <be_time_timer.h>
 
 int main(int argc, char *argv[])
@@ -53,10 +53,10 @@ signal management (\code{signal(3)}, \code{sigaction(2)}, etc.) cannot be
 invoked inside of the \code{WATCHDOG} block. This restriction includes calls to
 \code{sleep(3)} because it is based on signal handling as well.
 
-\lstref{watchdoguse} shows how an application can use a \class{Watchdog}
+\lstref{lst:watchdoguse} shows how an application can use a \class{Watchdog}
 object to limit the about of process time for a block of code.
 
-\begin{lstlisting}[caption={Using the \class{Watchdog}}, label=watchdoguse]
+\begin{lstlisting}[caption={Using the \class{Watchdog}}, label=lst:watchdoguse]
 #include <be_time_watchdog.h>
 int main(int argc, char *argv[])
 
@@ -92,7 +92,7 @@ be done within the \code{expired()} check
 due to the fact that process control jumps to the end of the \code{WATCHDOG} block
 in the event of a timeout.
 A typical example is the use of the \class{Timer}
-object inside a \code{WATCHDOG} block, as the example in \lstref{watchdoguse}
+object inside a \code{WATCHDOG} block, as the example in \lstref{lst:watchdoguse}
 shows. In most cases, however, careful application design can remove the need
 for duplicate code. In the example, placing the \class{Timer} \code{start()}/\code{stop()} calls
 outside of the \code{WATCHDOG} block simplifies the coding, although the small amount

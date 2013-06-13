@@ -16,10 +16,10 @@ application itself to gather statistics related to the current amount of memory
 being used, the number of threads, and other items. Biometric evaluation test
 drivers are linked against a third party library, and therefore, the application
 writer does not control the thread count or memory usage for much of the
-processing. \lstref{processstatisticsuse} shows how an application can
+processing. \lstref{lst:processstatisticsuse} shows how an application can
 use the \class{Statistics} API.
 
-\begin{lstlisting}[caption={Gathering Process Statistics}, label=processstatisticsuse]
+\begin{lstlisting}[caption={Gathering Process Statistics}, label=lst:processstatisticsuse]
 #include <be_error_exception.h>
 #include <be_process_statistics.h>
 using namespace BiometricEvaluation;
@@ -53,8 +53,8 @@ statistics logged either synchronously or asynchronously to a
 \class{LogSheet} (See~\secref{sec-logging}) contained within a \class{LogCabinet}.
 Applications can
 start and stop logging at will to this \class{LogSheet}. Post-mortem analysis can
-then be done on the entries in the \class{LogSheet}. \lstref{processstatisticslogging}
-shows the use of logging.
+then be done on the entries in the \class{LogSheet}.
+\lstref{lst:processstatisticslogging} shows the use of logging.
 
 The \class{LogSheet} will have a file name constructed from the process name (i.e.
 the application executable) and the process ID. An example \class{LogSheet} contains
@@ -71,7 +71,7 @@ The \class{Statistics} object creates the \class{LogSheet} with an appropriate d
 and comment entry with column headers. Each gathering of the statistics results
 in a single log entry.
 
-\begin{lstlisting}[caption={Logging Process Statistics}, label=processstatisticslogging]
+\begin{lstlisting}[caption={Logging Process Statistics}, label=lst:processstatisticslogging]
 #include <be_error_exception.h>
 #include <be_io_logcabinet.h>
 #include <be_process_statistics.h>
@@ -146,9 +146,10 @@ to change how the workload is parallelized.
 \label{subsec-process_worker}
 
 In the application using a \class{Manager}, a \class{Worker} subclass must be
-implemented.  An example \class{Worker} is shown in \lstref{process_worker-example}.
-The entry-point for a \class{Worker} is the \code{worker\allowbreak Main()} method,
-which must be implemented by the client application.  Although
+implemented.  An example \class{Worker} is shown in
+\lstref{lst:process_worker-example}.
+The entry-point for a \class{Worker} is the \code{worker\allowbreak Main()}
+method, which must be implemented by the client application.  Although
 \code{worker\allowbreak Main()} takes no arguments, data may be transmitted
 into the object through
 \class{Worker\allowbreak Controller}'s~(\ref{subsec-process_workercontroller})
@@ -167,13 +168,14 @@ undesired results in the client application.  As such, a responsible
 \class{Worker} checkpoints itself to prepare for premature stops requested by
 the \class{Manager}.  While it is important for \class{Worker}s to stop as soon
 as possible after the request is received, it is also important not to leave
-work in an unsynchronized state.  In \lstref{process_worker-example}, notice how
+work in an unsynchronized state.  In \lstref{lst:process_worker-example},
+notice how
 the \class{Employee} must continue the interaction with the \class{Customer}
 before a stop request is handled, even if the \class{Employee}'s shift has
 ended.  Leaving the method before the \class{Customer}'s order has been
 delivered would leave the \class{Customer} object in an unsafe state (hungry). 
 
-\begin{lstlisting}[caption={A Responsible \class{Worker} Implementation}, label=process_worker-example]
+\begin{lstlisting}[caption={A Responsible \class{Worker} Implementation}, label=lst:process_worker-example]
 #include <cstdlib>
 #include <tr1/memory>
 #include <queue>
@@ -236,7 +238,7 @@ there are several methods the \class{Manager} can perform to keep track of the s
 \class{Worker}s.  Even if not waiting for \class{Worker}s to return,
 a responsible \class{Manager} will wait a reasonable amount of time for
 \class{Worker}s to \code{return} before application termination.  An example of this
-reasonable waiting period can be seen in \lstref{process_manager-example}.
+reasonable waiting period can be seen in \lstref{lst:process_manager-example}.
 
 \subsection{WorkerController}
 \label{subsec-process_workercontroller}
@@ -255,11 +257,11 @@ approach, but others do.  Do not be concerned if a \class{Worker\allowbreak
 Controller} implementation ends up being nothing more than a ``pass-thru'' to
 the \class{Worker}.
 
-\lstref{process_manager-example} is a continuation of
-\lstref{process_worker-example} demonstraiting the use of \class{Manager}s and
-\class{Worker\allowbreak Controller}s.
+\lstref{lst:process_manager-example} is a continuation of
+\lstref{lst:process_worker-example} demonstraiting the use of \class{Manager}s
+and \class{Worker\allowbreak Controller}s.
 
-\begin{lstlisting}[caption={Using \class{Manager}s and \class{WorkerController}s}, label=process_manager-example]
+\begin{lstlisting}[caption={Using \class{Manager}s and \class{WorkerController}s}, label=lst:process_manager-example]
 int
 main(
     int argc,
@@ -337,13 +339,13 @@ return a handle to the \class{Worker} that sent a message.  Alternatively, the
 \class{Manager} can invoke \texttt{get\-Next\-Message()} (again, blocking 
 optional) to immediately receive the next message.
 
-\lstref{process-worker-communication-example} and 
-\lstref{process-manager-communication-example} are continuations of
-\lstref{process_worker-example} and \lstref{process_manager-example}
-respectively, showing an example of communication, using \texttt{std::string}
+\lstref{lst:process-worker-communication-example} and 
+\lstref{lst:process-manager-communication-example} are continuations of
+\lstref{lst:process_worker-example} and \lstref{lst:process_manager-example}
+respectively, showing an example of communication, using \class{std::string}
 messages.
 
-\begin{lstlisting}[caption={\class{Worker} Communication}, label=process-worker-communication-example]
+\begin{lstlisting}[caption={\class{Worker} Communication}, label=lst:process-worker-communication-example]
 	Memory::uint8Array msg;
 
 	/* Deal with next customer unless Manager interrupts in next second */
@@ -366,7 +368,7 @@ messages.
 		this->sendMessageToManager(msg);
 	}
 \end{lstlisting}
-\begin{lstlisting}[caption={\class{Manager} Communication}, label=process-manager-communication-example]
+\begin{lstlisting}[caption={\class{Manager} Communication}, label=lst:process-manager-communication-example]
 	tr1::shared_ptr<Process::WorkerController> sender;
 	Memory::uint8Array msg;
 	

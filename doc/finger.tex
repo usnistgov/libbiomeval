@@ -8,8 +8,8 @@ types of information can be derived from a fingerprint, including minutiae
 and the pattern, such as whorl, etc. The \namespace{Finger} package contains the types,
 classes, and other items that are related to fingers and fingerprints. Objects
 of the \namespace{Finger} classes are typically not used in a stand-alone fashion, but are
-usually obtained from an object in the \namespace{DataInterchage}~\ref{chp-datainterchange} 
-package.
+usually obtained from an object in the
+\namespace{DataInterchage}~(\chpref{chp-datainterchange}) package.
 
 Several enumerated types are defined in the \namespace{Finger} package. The types are used
 to represent those elements related to fingers and fingerprints that are common
@@ -29,10 +29,163 @@ in the \namespace{Finger} package implements the interface defined in the \names
 A finger is a specific type of view in that it represents all the available
 information about the finger, including the source image, minutiae (often in
 several formats), as well as the capture data (date, location, etc.)
-Finger views are documented in~\secref{sec-fingerviews}.
 
 \section{ANSI/NIST Minutiae Data Record}
 \label{sec-an2kminutiaedatarecord}
+Finger views are objects that represent all the available information for a
+specific finger as contained in one or more biometric records. For example,
+an ANSI/NIST file may contain a Type-3 record (finger image) and an associated
+Type-9 record (finger minutiae). A finger view object based on the ANSI/NIST
+record can be instantiated and used by an application to retrieve all the
+desired information, including the source finger image. The internals of
+record processing and error handling are encapsulated within the class.
+
+The \sname provides several classes that are derived from a base View class,
+contained within the \namespace{Finger} package. See~\chpref{chp-finger} for
+more information
+on the types associated with fingers and fingerprints. This section discusses
+finger views, the classes which are derived from the general \class{View} class.
+These subclasses represent specific biometric file types, such as ANSI/NIST
+or INCITS/M1. In the latter case, two files must be provided when constructing
+the object because INCITS finger image and finger minutiae records are defined
+in two separate standards.
+
+\subsection{ANSI/NIST Finger Views}
+
+An ANSI/NIST record may contain one or more finger views, each based on a type
+of finger image. These Type-3, Type-4, etc. records contain the image and
+Type-9 minutiae data, among other information. These record types are grouped
+into either the fixed- or variable-resolution categories, and are represented
+as specific classes within \sname, \class{AN2KViewFixedResolution} and
+\class{AN2KViewVariableResolution}.
+
 The \class{AN2KMinutiaeDataRecord} class represents all of the information taken
 from a ANSI/NIST Type-9 record. A Type-9 record may include minutiae data items
 in several formats (standard and proprietary) and the impression type code.
+
+\lstref{lst:an2kfingerviewuse} shows how an application can use the
+\class{AN2KViewFixedResolution} to retrieve image information, image data, and
+derived minutiae information from a file containing an ANSI/NIST record with
+Type-3 (fixed resolution image) and Type-9 (fingerprint minutiae) records.
+
+\begin{lstlisting}[caption={Using an AN2K Finger View}, label=lst:an2kfingerviewuse]
+#include <fstream>
+#include <iostream>
+#include <be_finger_an2kview_fixedres.h>
+using namespace std;
+using namespace BiometricEvaluation;
+
+int
+main(int argc, char* argv[]) {
+
+    Finger::AN2KViewFixedResolution *_an2kv
+    try {
+        _an2kv = new Finger::AN2KViewFixedResolution("type9-3.an2k",
+	    TYPE_3_ID, 1);
+    } catch (Error::DataError &e) {
+        cerr << "Caught " << e.getInfo()  << endl;
+        return (EXIT_FAILURE);
+    } catch (Error::FileError& e) {
+        cerr << "A file error occurred: " << e.getInfo() << endl;
+        return (EXIT_FAILURE);
+    }
+    std::auto_ptr<Finger::AN2KView> an2kv(_an2kv);
+
+    cout << "Image resolution is " << an2kv->getImageResolution() << endl;
+    cout << "Image size is " << an2kv->getImageSize() << endl;
+    cout << "Image depth is " << an2kv->getImageDepth() << endl;
+    cout << "Compression is " << an2kv->getCompressionAlgorithm() << endl;
+    cout << "Scan resolution is " << an2kv->getScanResolution() << endl;
+
+    // Save the finger image to a file.
+    tr1::shared_ptr<Image::Image> img = an2kv->getImage();
+    if (img.get() == NULL) {
+       cerr << "Image was not present." << endl;
+       return (EXIT_FAILURE);
+    }
+    string filename = "rawimg";
+    ofstream img_out(filename.c_str(), ofstream::binary);
+    img_out.write((char *)&(img->getRawData()[0]),
+        img->getRawData().size());
+    if (img_out.good())
+            cout << "\tFile: " << filename << endl;
+    else {
+        img_out.close();
+        cerr << "Error occurred when writing " << filename << endl;
+        return (EXIT_FAILURE);
+    }
+    img_out.close();
+
+    // Get the finger minutiae sets. AN2K records can have more than one
+    // set of minutiae for a finger.
+
+    vector<Finger::AN2KMinutiaeDataRecord> mindata = an2kv->getMinutiaeDataRecordSet();
+}
+\end{lstlisting}
+
+\subsection{ISO/INCITS Finger Views}
+
+The ISO~\cite{isosc37} and INCITS~\cite{incits} standards typically use
+separate files for the source biometric data and the derived data. For example,
+the ISO 19794-2 standard is for fingerprint minutiae data, while 19794-4 is for
+finger image data. The corresponding \sname view objects are constructed with
+both files, although a view can be constructed with only one file. In the
+latter case, the view object will represent only that information contained in
+the single file.
+
+\lstref{lst:an2kfingerviewuse} shows how an application can create a view from
+a ANSI/INCTIS 378 finger minutiae format record~\cite{std:ansi378-2004}.
+
+\begin{lstlisting}[caption={Using an INCITS Finger View}, label=lst:incitsfingerviewuse]
+#include <stdlib.h>
+#include <fstream>
+#include <iostream>
+#include <be_finger_ansi2004view.h>
+#include <be_feature_incitsminutiae.h>
+using namespace std;
+using namespace BiometricEvaluation;
+
+int
+main(int argc, char* argv[]) {
+
+    Finger::ANSI2004View fngv;
+    try {
+        fngv = Finger::ANSI2004View("test_data/fmr.ansi2004", "", 3);
+    } catch (Error::DataError &e) {
+        cerr << "Caught " << e.getInfo()  << endl;
+        return (EXIT_FAILURE);
+    } catch (Error::FileError& e) {
+         cerr << "A file error occurred: " << e.getInfo() << endl;
+         return (EXIT_FAILURE);
+    }
+    cout << "Image resolution is " << fngv.getImageResolution() << endl;
+    cout << "Image size is " << fngv.getImageSize() << endl;
+    cout << "Image depth is " << fngv.getImageDepth() << endl;
+    cout << "Compression is " << fngv.getCompressionAlgorithm() << endl;
+    cout << "Scan resolution is " << fngv.getScanResolution() << endl;
+    
+    Feature::INCITSMinutiae fmd = fngv.getMinutiaeData();
+    cout << "Minutiae format is " << fmd.getFormat() << endl;
+    Feature::MinutiaPointSet mps = fmd.getMinutiaPoints();
+    cout << "There are " << mps.size() << " minutiae points:" << endl;
+    for (size_t i = 0; i < mps.size(); i++)
+        cout << mps[i];
+
+        Feature::RidgeCountItemSet rcs = fmd.getRidgeCountItems();
+    cout << "There are " << rcs.size() << " ridge count items:" << endl;
+    for (int i = 0; i < rcs.size(); i++)
+        cout << "\t" << rcs[i];
+
+    Feature::CorePointSet cores = fmd.getCores();
+    cout << "There are " << cores.size() << " cores:" << endl;
+    for (int i = 0; i < cores.size(); i++)
+        cout << "\t" << cores[i];
+
+    Feature::DeltaPointSet deltas = fmd.getDeltas();
+    cout << "There are " << deltas.size() << " deltas:" << endl;
+    for (int i = 0; i < deltas.size(); i++)
+        cout << "\t" << deltas[i];
+
+    exit (EXIT_SUCCESS);
+}
+\end{lstlisting}

@@ -57,10 +57,10 @@ Keys must
 be unique and are associated with a single record. Attempts to insert multiple
 records with the same key result in an exception being thrown.
 
-\lstref{recordstoreuse} illustrates the use of a database \class{RecordStore}
-within an application.
+\lstref{lst:recordstoreuse} illustrates the use of a database
+\class{RecordStore} within an application.
 
-\begin{lstlisting}[caption={Using a \class{RecordStore}}, label=recordstoreuse]
+\begin{lstlisting}[caption={Using a \class{RecordStore}}, label=lst:recordstoreuse]
 #include <iostream>
 #include <be_io_dbrecstore.h>
 int
@@ -122,8 +122,8 @@ contains a set of \class{LogSheet}s.
 
 A \class{LogSheet} is an output stream (subclass of \class{std::ostringstream}),
 and therefore can handle built-in types and any class that supports streaming.
-The example code in \lstref{logcabinetuse} shows how an application can use a
-\class{LogSheet}, contained within a \class{LogCabinet}, to record operational
+The example code in \lstref{lst:logcabinetuse} shows how an application can use 
+a \class{LogSheet}, contained within a \class{LogCabinet}, to record operational
 information.
 
 Log sheets are simple text files, with each entry numbered by the \class{LogSheet}
@@ -137,10 +137,10 @@ can directly commit an entry to the log file by calling the \code{write()}
 method, thereby not disrupting the entry that is being formed. After an entry
 is committed, the entry number is automatically incremented.
 
-The example in \lstref{logcabinetuse} shows application use of the
+The example in \lstref{lst:logcabinetuse} shows application use of the
 logging facility.
 
-\begin{lstlisting}[caption={Using a \class{LogSheet} within a \class{LogCabinet}}, label=logcabinetuse]
+\begin{lstlisting}[caption={Using a \class{LogSheet} within a \class{LogCabinet}}, label=lst:logcabinetuse]
 #include <be_io_logcabinet.h>
 using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::IO;
@@ -181,7 +181,7 @@ option to save to a file. Applications can use a \class{Properties} object to ma
 runtime settings that are persistent across invocations, or to simply store
 some settings in memory only.
 
-\begin{lstlisting}[caption={Using a \class{Properties} Object}, label=propertiesuse]
+\begin{lstlisting}[caption={Using a \class{Properties} Object}, label=lst:propertiesuse]
 IO::Properties *props;
 string fname = "test.prop";
 try {
@@ -230,7 +230,7 @@ The \lname~ comes with an example, \class{GZIP}, which compresses and
 decompresses the \lib{gzip} format through interaction with
 \lib{zlib}~\cite{zlib}.
 
-\begin{lstlisting}[caption={Using a \class{Compressor} Object}, label=compressoruse]
+\begin{lstlisting}[caption={Using a \class{Compressor} Object}, label=lst:compressoruse]
 tr1::shared_ptr<IO::Compressor> compressor;
 Memory::uint8Array compressedBuffer, largeBuffer = /* ... */;
 try {
@@ -250,7 +250,7 @@ in the child class, however, a no-argument constructor of a child
 values.  Setting and retrieving these options is very similar to interacting
 with a \class{Properties} object (see \secref{sec-properties}).
 
-\begin{lstlisting}[caption={Setting \class{Compressor} Options}, label=compressoroptions]
+\begin{lstlisting}[caption={Setting \class{Compressor} Options}, label=lst:compressoroptions]
 tr1::shared_ptr<IO::Compressor> compressor =
     IO::Compressor::createCompressor(Compressor::Kind::GZIP);
 

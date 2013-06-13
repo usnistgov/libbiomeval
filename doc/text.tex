@@ -10,7 +10,7 @@ other applications that a common implementation in \sname\ is more
 than warranted.  A complete listing of functions is available in the
 documentation appendix for \namespacedoxyref{BiometricEvaluation::Text}{2}.
 
-\lstref{text-split} shows how to use the \code{split()} function from the
+\lstref{lst:text-split} shows how to use the \code{split()} function from the
 \namespace{Text} package.  \code{split()} can separate a \class{string} into
 tokens delimited by a character, useful for processing comma- or
 space-separated text files (such files could be produced by a
@@ -19,7 +19,7 @@ containing metadata for an image is being parsed, perhaps to be passed to
 the \class{RawImage} constructor (\secref{sec-rawimage}).
 
 
-\begin{lstlisting}[caption={Tokenizing a \class{string}}, label=text-split]
+\begin{lstlisting}[caption={Tokenizing a \class{string}}, label=lst:text-split]
 /* Definition of input strings */
 static const vector<string>::size_type filenameToken = 0;
 static const vector<string>::size_type widthToken = 1;
@@ -43,17 +43,17 @@ try {
 }
 \end{lstlisting}
 
-Notice the \code{true} parameter to \code{split()} in \lstref{text-split}.
+Notice the \code{true} parameter to \code{split()} in \lstref{lst:text-split}.
 This instructs \code{split()} to not tokenize based on an escaped delimiter.
 If \code{false}, the first token would be split into two at the presence of the
 delimiter.
 
 \namespace{Text} also contains functions to perform  hashing via \lib{OpenSSL}.
 A two-line program that emulates the command-line \code{md5sum} program is
-shown in \lstref{text-digest}.  Changing the digest parameter to
+shown in \lstref{lst:text-digest}.  Changing the digest parameter to
 \code{"sha1"} would make the program emulate \code{`openssl sha1`}.
 
-\begin{lstlisting}[caption={\code{md5sum} via \sname}, label=text-digest]
+\begin{lstlisting}[caption={\code{md5sum} via \sname}, label=lst:text-digest]
 #include <cstdlib>
 #include <iostream>
 

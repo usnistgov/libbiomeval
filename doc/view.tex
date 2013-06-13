@@ -3,104 +3,34 @@
 %
 \chapter{View}
 \label{chp-view}
-Within the \lname\ a \class{View} represents all the information that was derived from
-an image of a biometric sample. For example, with a fingerprint image, any
+Within the \lname a \class{View} represents all the information that was derived
+from an image of a biometric sample. For example, with a fingerprint image, any
 minutiae that were extracted from that image, as well as the image itself,
-are contained within a single View object. In many cases the image may not
-be present, however the image size and other information is contained within
-a biometric record, along with the derived information. A \class{View} is used to
-represent these records as well.
+are contained within a single \class{View} object. In many cases the image may
+not be present, however the image size and other information is contained within
+a biometric record, along with the derived information. A \class{View} is used
+to represent these records as well.
 
-\class{View} objects are created with information taken from a biometric data record,
-an ANSI/NIST 2007 file, for example. Most record formats contain information
-about the image itself, such as the resolution and size. The \class{View} object can
+In the case where a raw image is part of the biometric record, the \class{View} 
+object's related \class{Image}~(\chpref{chp-image} object will have identical
+size,
+resolution, etc. values because the \class{View} class sets the \class{Image}
+attributes directly.
+For other image types (e.g. \class{JPEG}) the \class{Image} object will return
+attribute values taken from the image data.
+
+\class{View}s are high-level abstractions of the biometric sample, and concrete
+implementations of a \class{View} include finger, face, iris, etc. views based
+on a specific type of biometric. Therefore, \class{View} objects are not
+created directly, Subclasses, such as finger views (see~\chpref{chp-finger}),
+represent the specific type of biometric sample.
+
+Objects are created with information taken from a biometric data
+record, an ANSI/NIST 2007 file, for example. Most record formats contain 
+information about the image itself, such as the resolution and size. The 
+\class{View} object can
 be used to retrieve this information. However, the data may differ from that
 contained in the image itself, and applications can compare the corresponding
-values taken from the \class{Image} object (when available) to those taken from the
-\class{View} object.
+values taken from the \class{Image} object (when available) to those taken from 
+the \class{View} object.
 
-In the case where a raw image is part of the biometric record, the \class{View} object's
-related \class{Image} object will have identical size, resolution, etc. values because
-the \class{View} class sets the Image attributes directly. For other image types
-(e.g. \class{JPEG}) the \class{Image} object will return attribute values taken from the image
-data.
-
-\section{Finger Views}
-\label{sec-fingerviews}
-
-Finger views are objects that represent all the available information for a
-specific finger as contained in one or more biometric records. For example,
-an ANSI/NIST file may contain a Type-3 record (finger image) and an associated
-Type-9 record (finger minutiae). A finger view object based on these two
-records can be instantiated and used by an application to retrieve all the
-desired information, including the source finger image. The internals of
-record processing and error handling are encapsulated within the class.
-
-The \sname\ provides several classes that are derived from a base View class,
-contained within the \namespace{Finger} package. See~\chpref{chp-finger} for more
-information
-on the types associated with fingers and fingerprints. This section discusses
-finger views, the classes which are derived from the general \class{View} class.
-These subclasses represent specific biometric file types, such as ANSI/NIST
-or INCITS/M1. In the latter case, two files must be provided when constructing
-the object because INCITS finger image and finger minutiae records are defined
-in two separate standards.
-
-\subsection{ANSI/NIST Finger Views}
-
-\begin{lstlisting}[caption={Using an AN2K Finger View}, label=an2kfingerviewuse]
-#include <fstream>
-#include <iostream>
-#include <be_finger_an2kview_fixedres.h>
-using namespace std;
-using namespace BiometricEvaluation;
-
-int
-main(int argc, char* argv[]) {
-
-    Finger::AN2KViewFixedResolution *_an2kv
-    try {
-        _an2kv = new Finger::AN2KViewFixedResolution("type9-3.an2k",
-	    TYPE_3_ID, 1);
-    } catch (Error::DataError &e) {
-        cerr << "Caught " << e.getInfo()  << endl;
-        return (EXIT_FAILURE);
-    } catch (Error::FileError& e) {
-        cerr << "A file error occurred: " << e.getInfo() << endl;
-        return (EXIT_FAILURE);
-    }
-    std::auto_ptr<Finger::AN2KView> an2kv(_an2kv);
-
-    cout << "Image resolution is " << an2kv->getImageResolution() << endl;
-    cout << "Image size is " << an2kv->getImageSize() << endl;
-    cout << "Image depth is " << an2kv->getImageDepth() << endl;
-    cout << "Compression is " << an2kv->getCompressionAlgorithm() << endl;
-    cout << "Scan resolution is " << an2kv->getScanResolution() << endl;
-
-    // Save the finger image to a file.
-    tr1::shared_ptr<Image::Image> img = an2kv->getImage();
-    if (img.get() == NULL) {
-       cerr << "Image was not present." << endl;
-       return (EXIT_FAILURE);
-    }
-    string filename = "rawimg";
-    ofstream img_out(filename.c_str(), ofstream::binary);
-    img_out.write((char *)&(img->getRawData()[0]),
-        img->getRawData().size());
-    if (img_out.good())
-            cout << "\tFile: " << filename << endl;
-    else {
-        img_out.close();
-        cerr << "Error occurred when writing " << filename << endl;
-        return (EXIT_FAILURE);
-    }
-    img_out.close();
-
-    // Get the finger minutiae sets. AN2K records can have more than one
-    // set of minutiae for a finger.
-
-    vector<Finger::AN2KMinutiaeDataRecord> mindata = an2kv->getMinutiaeDataRecordSet();
-}
-\end{lstlisting}
-
-\subsection{ISO/INCITS Finger Views}

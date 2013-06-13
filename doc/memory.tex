@@ -21,10 +21,10 @@ C object construction, one for destruction, and a third, optional, function
 for copying the C object. If the latter is passed a NULL, the \class{AutoBuffer} and
 the underlying C object cannot be copied, and an exception will be thrown.
 
-\lstref{autobufferuse} shows the use of \class{AutoBuffer} to wrap the memory
-allocation routines that are part of the \nbis\ ANSI/NIST library.
+\lstref{lst:autobufferuse} shows the use of \class{AutoBuffer} to wrap the
+memory allocation routines that are part of the \nbis\ ANSI/NIST library.
 
-\begin{lstlisting}[caption={Using the \class{AutoBuffer}}, label=autobufferuse]
+\begin{lstlisting}[caption={Using the \class{AutoBuffer}}, label=lst:autobufferuse]
 #include <be_memory_autobuffer.h>
 #include <iostream>
 extern "C" {
@@ -72,10 +72,10 @@ all correctly manage memory so the client does not have to.  Several objects in
 \sname\ \code{return} \class{AutoArray} objects to assist clients in proper memory management.
 
 A common use of \class{AutoArray} is to deal with records sequenced from a
-\class{RecordStore}. \lstref{autoarrayrsuse} demonstrates this.  Notice the
+\class{RecordStore}. \lstref{lst:autoarrayrsuse} demonstrates this.  Notice the
 omission of memory management statements -- they are completely unnecessary.
 
-\begin{lstlisting}[caption={Using \class{AutoArray}s with \class{RecordStore}s}, label=autoarrayrsuse]
+\begin{lstlisting}[caption={Using \class{AutoArray}s with \class{RecordStore}s}, label=lst:autoarrayrsuse]
 #include <be_io_dbrecstore.h>
 #include <be_memory_autoarray.h>
 
@@ -139,10 +139,10 @@ interface. These functions are used to retrieve 8/16/32/64-bit values while
 moving the internal index. Several functions are also provided to take into
 account the endianess of the underlying data.
 
-\lstref{indexedbufferuse} shows how an application can read a data record in
+\lstref{lst:indexedbufferuse} shows how an application can read a data record in
 big-endian format.
 
-\begin{lstlisting}[caption={Using the \class{IndexedBuffer}}, label=indexedbufferuse]
+\begin{lstlisting}[caption={Using the \class{IndexedBuffer}}, label=lst:indexedbufferuse]
 #include <be_memory_autoarray.h>
 #include <be_memory_indexedbuffer.h>
 

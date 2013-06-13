@@ -20,7 +20,7 @@ class being called. The type of object caught indicates the nature of the
 error that occurred, while the string stored within that object
 provides more information on the error.
 
-\lstref{logcabinetuse} shows an example of exception handling when using
+\lstref{lst:logcabinetuse} shows an example of exception handling when using
 the logging classes described in \secref{sec-logging}.
 
 \section{Signal Handling}
@@ -61,10 +61,10 @@ One restriction on the use of \class{SignalManager} is that the POSIX calls for
 signal management (\code{signal(3)}, \code{sigaction(2)}, etc.) cannot be
 invoked inside of the signal handler block.
 
-The example in \lstref{signalmanageruse} shows application use of the
+The example in \lstref{lst:signalmanageruse} shows application use of the
 \class{SignalManager} class.
 
-\begin{lstlisting}[caption={Using the \class{SignalManger}}, label=signalmanageruse]
+\begin{lstlisting}[caption={Using the \class{SignalManger}}, label=lst:signalmanageruse]
 #include <be_error_signal_manager.h>
 using namespace BiometricEvaluation;
 
@@ -99,11 +99,11 @@ to be closed before the end of the block, the same call to the close function
 must be made within the \code{sig\allowbreak Handled()} check. Careful application design can
 reduce the amount of code replication, however.
 
-\lstref{signalmanageruse2} shows how an application can indicate what
+\lstref{lst:signalmanageruse2} shows how an application can indicate what
 signals to handle. In this example, only the \code{SIGUSR1} signal would
 be handled.
 
-\begin{lstlisting}[caption={Specifying Signals to the \class{SignalManger}}, label=signalmanageruse2]
+\begin{lstlisting}[caption={Specifying Signals to the \class{SignalManger}}, label=lst:signalmanageruse2]
 #include <be_error_signal_manager.h>
 using namespace BiometricEvaluation;
 

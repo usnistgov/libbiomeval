@@ -10,12 +10,12 @@ central processing units, or current load average. This information can be
 used to dynamically tailor the application behavior, or simply to provide
 additional information in a runtime log.
 
-\lstref{cpucountuse} shows how an application can spawn several child
+\lstref{lst:cpucountuse} shows how an application can spawn several child
 processes based on the number of CPUs and memory available. Note that this
 information may not be available on all platforms, and therefore, the
 application must be prepared to handle that situation.
 
-\begin{lstlisting}[caption={Using the \namespace{System} CPU Count Information}, label=cpucountuse]
+\begin{lstlisting}[caption={Using the \namespace{System} CPU Count Information}, label=lst:cpucountuse]
 #include <iostream>
 #include <be_system.h>
 
