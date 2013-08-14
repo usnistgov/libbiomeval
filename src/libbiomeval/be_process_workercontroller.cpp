@@ -7,7 +7,10 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
- 
+
+#include <be_error.h>
+#include <be_error_signal_manager.h>
+
 #include <be_process_workercontroller.h>
 
 BiometricEvaluation::Process::WorkerController::WorkerController(
@@ -70,4 +73,38 @@ BiometricEvaluation::Process::WorkerController::getWorker()
 BiometricEvaluation::Process::WorkerController::~WorkerController()
 {
 
+}
+
+#pragma mark - Communications
+
+void
+BiometricEvaluation::Process::WorkerController::sendMessageToWorker(
+    const Memory::uint8Array &message)
+    throw (Error::ObjectDoesNotExist,
+    Error::StrategyError)
+{
+	uint64_t length = message.size();
+	sigset_t sigset;
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGPIPE);
+	Error::SignalManager signalManager(sigset);
+	
+	size_t sz = 0;
+	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
+		sz = write(getWorker()->getSendingPipe(), &length,
+		    sizeof(length));
+	END_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
+	if (signalManager.sigHandled())
+		throw Error::ObjectDoesNotExist("Widowed pipe");
+	if (sz != sizeof(length))
+		throw (Error::StrategyError("Could not write message length: "
+		    + Error::errorStr()));
+	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
+		sz = write(getWorker()->getSendingPipe(), message, length);
+	END_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
+	if (signalManager.sigHandled())
+		throw Error::ObjectDoesNotExist("Widowed pipe");
+	if (sz != length)
+		throw (Error::StrategyError("Could not write message data: "
+		    + Error::errorStr()));
 }

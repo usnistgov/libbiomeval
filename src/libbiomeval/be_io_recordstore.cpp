@@ -23,6 +23,7 @@
 #include <be_io_compressor.h>
 #include <be_io_dbrecstore.h>
 #include <be_io_filerecstore.h>
+#include <be_io_listrecstore.h>
 #include <be_io_propertiesfile.h>
 #include <be_io_recordstore.h>
 #include <be_io_sqliterecstore.h>
@@ -50,6 +51,7 @@ const string BiometricEvaluation::IO::RecordStore::ARCHIVETYPE("Archive");
 const string BiometricEvaluation::IO::RecordStore::FILETYPE("File");
 const string BiometricEvaluation::IO::RecordStore::SQLITETYPE("SQLite");
 const string BiometricEvaluation::IO::RecordStore::COMPRESSEDTYPE("Compressed");
+const string BiometricEvaluation::IO::RecordStore::LISTTYPE("List");
 
 /* 
  * Default RecordStore should be one of the above and never an 
@@ -260,6 +262,21 @@ BiometricEvaluation::IO::RecordStore::getDescription() const
 	return (_props->getProperty(DESCRIPTIONPROPERTY));
 }
 
+bool
+BiometricEvaluation::IO::RecordStore::containsKey(
+    const string &key)
+    const
+{
+	/* Ask a core method to retrieve some data about a key */
+	try {
+		this->length(key);
+	} catch (Error::ObjectDoesNotExist) {
+		return (false);
+	}
+	
+	return (true);
+}
+
 void
 BiometricEvaluation::IO::RecordStore::changeName(const string &name)
     throw (Error::ObjectExists, Error::StrategyError)
@@ -349,7 +366,12 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 		rs = new SQLiteRecordStore(name, parentDir, mode);
 	else if (type == RecordStore::COMPRESSEDTYPE)
 		rs = new CompressedRecordStore(name, parentDir, mode);
-	else
+	else if (type == RecordStore::LISTTYPE) {
+		if (mode == IO::READWRITE)
+			throw Error::StrategyError("ListRecordStores cannot "
+			    "be opened read/write");
+		rs = new ListRecordStore(name, parentDir);
+	} else
 		throw Error::StrategyError("Unknown RecordStore type");
 	return (std::tr1::shared_ptr<RecordStore>(rs));
 }
@@ -377,6 +399,9 @@ BiometricEvaluation::IO::RecordStore::createRecordStore(
 		rs = new CompressedRecordStore(name, description,
 		    RecordStore::DEFAULTTYPE, destDir,
 		    IO::Compressor::GZIPTYPE);
+	else if (strcasecmp(type.c_str(), RecordStore::LISTTYPE.c_str()) == 0)
+		throw Error::StrategyError("ListRecordStores cannot be "
+		    "created with this function");
 	else
 		throw Error::StrategyError("Unknown RecordStore type");
 	return (std::tr1::shared_ptr<RecordStore>(rs));

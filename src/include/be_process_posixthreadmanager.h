@@ -37,50 +37,7 @@ namespace BiometricEvaluation
 			 * POSIXThreadManager constructor.
 			 */
 			POSIXThreadManager();
-			
-			/**
-			 * @brief
-			 * Obtain the number of Workers that have exited.
-			 *
-			 * @return
-			 *	The number of Workers that have exited.
-			 *
-			 * @throw Error::StrategyError
-			 *	No processes have been spawned yet.
-			 */
-			uint32_t
-			getNumCompletedWorkers()
-			    const
-			    throw (Error::StrategyError);
-			    
-			/**
-			 * @brief
-			 * Obtain the number of Workers that are still
-			 * running.
-			 *
-			 * @return
-			 *	The number of Workers that are still running.
-			 *
-			 * @throw Error::StrategyError
-			 *	No Workers have been spawned yet.
-			 */
-			uint32_t
-			getNumActiveWorkers()
-			    const
-			    throw (Error::StrategyError);
-			    
-			/**
-			 * @brief
-			 * Obtain the number of Workers this class is
-			 * handling.
-			 *
-			 * @return
-			 *	Number of Workers.
-			 */
-			uint32_t
-			getTotalWorkers()
-			    const;
-			    
+						    
 			/**
 			 * @brief
 			 * Adds a Worker to be managed by this Manager.
@@ -169,48 +126,10 @@ namespace BiometricEvaluation
 			    
 			/**
 			 * @brief
-			 * Reuse all Workers.
-			 *
-			 * @throw Error::ObjectExists
-			 *	At least one Worker is still working.
-			 */
-			void
-			reset()
-			    throw (Error::ObjectExists);
-			
-			bool
-			waitForMessage(
-			    tr1::shared_ptr<WorkerController> &sender,
-			    int *nextFD = NULL,
-			    int numSeconds = -1)
-			    const;
-			    
-			bool
-			getNextMessage(
-			    tr1::shared_ptr<WorkerController> &sender,
-			    Memory::uint8Array &message,
-			    int numSeconds = -1)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-
-			void
-			broadcastMessage(
-			    Memory::uint8Array &message)
-			    const
-			    throw (Error::StrategyError);
-
-			/**
-			 * @brief
 			 * ~POSIXThreadManager destructor.
 			 */
 			~POSIXThreadManager();
 
-		protected:
-			/** Workers that have been added */
-			vector< tr1::shared_ptr<POSIXThreadWorkerController> > 
-			    _workers;
-			
 		private:
 			/** 
 			 * @brief
@@ -249,12 +168,6 @@ namespace BiometricEvaluation
 			bool
 			isWorking()
 			    const;
-			    
-			void
-			sendMessageToWorker(
-			    const Memory::uint8Array &message)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
 			
 			/**
 			 * @brief

@@ -12,15 +12,11 @@
 #define __BE_ARCHIVERECSTORE_H__
 
 #include <exception>
-#include <map>
+#include <fstream>
 #include <string>
 
 #include <be_io_recordstore.h>
-
-#define ARCHIVE_RECORD_REMOVED	-1
-#ifndef MAXLINELEN
-#define MAXLINELEN 255
-#endif /* MAXLINELEN */
+#include <be_memory_orderedmap.h>
 
 using namespace std;
 
@@ -41,7 +37,7 @@ namespace BiometricEvaluation {
 		} ManifestEntry;
 	
 		/** Convenience typedef for storing the manifest */
-		typedef map<string, ManifestEntry> ManifestMap;
+		typedef Memory::OrderedMap<string, ManifestEntry> ManifestMap;
 	
 /**
  * @brief
@@ -257,6 +253,9 @@ namespace BiometricEvaluation {
 			 *	Path to manifest file.
 			 */
 			string getManifestName() const;
+			
+			/** Offset placeholder indicating a removed record */
+			static const long OFFSET_RECORD_REMOVED = -1;
 	
 		protected:
 		
@@ -266,9 +265,9 @@ namespace BiometricEvaluation {
 			ArchiveRecordStore& operator=(const ArchiveRecordStore&);
 
 			/** Manifest file handle */
-			FILE *_manifestfp;
+			mutable fstream _manifestfp;
 			/** Archive file handle */
-			FILE *_archivefp;
+			mutable fstream _archivefp;
 	
 			/*
 			 * Offsets and sizes of data chunks within the archive.
@@ -323,6 +322,7 @@ namespace BiometricEvaluation {
 			 */
 			void
 			open_streams()
+			    const
 			    throw (Error::FileError);
 	
 			/**
@@ -347,15 +347,8 @@ namespace BiometricEvaluation {
 			 *	The key value
 			 * @param[in] v
 			 *	The value relating to the key
-			 *
-			 * @return
-			 *	Iterator to the object you inserted/updated
-			 *
-			 * @note
-			 * Based on Scott Meyers's suggestions from Item 24 in
-			 * "Effective STL."
 			 */
-			ManifestMap::iterator
+			void
 			efficient_insert(
 			    ManifestMap &m,
 			    const ManifestMap::key_type &k,

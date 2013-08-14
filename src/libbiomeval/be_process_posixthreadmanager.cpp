@@ -8,44 +8,17 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cerrno>
 #include <algorithm>
+
+#include <be_error.h>
+#include <be_error_signal_manager.h>
 
 #include <be_process_posixthreadmanager.h>
 
 BiometricEvaluation::Process::POSIXThreadManager::POSIXThreadManager()
 {
 
-}
-
-uint32_t
-BiometricEvaluation::Process::POSIXThreadManager::getNumCompletedWorkers()
-    const
-    throw (Error::StrategyError)
-{
-	return (_workers.size() - getNumActiveWorkers());
-}
-
-uint32_t
-BiometricEvaluation::Process::POSIXThreadManager::getNumActiveWorkers()
-    const
-    throw (Error::StrategyError)
-{
-	uint32_t sum = 0;
-	
-	vector< tr1::shared_ptr<POSIXThreadWorkerController> >::
-	    const_iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++)
-		if ((*it)->isWorking())
-			sum++;
-			
-	return (sum);
-}
-
-uint32_t
-BiometricEvaluation::Process::POSIXThreadManager::getTotalWorkers()
-    const
-{
-	return (_workers.size());
 }
 
 tr1::shared_ptr<BiometricEvaluation::Process::WorkerController>
@@ -65,10 +38,10 @@ BiometricEvaluation::Process::POSIXThreadManager::startWorkers(
     throw (Error::ObjectExists,
     Error::StrategyError)
 {
-	vector< tr1::shared_ptr<POSIXThreadWorkerController> >::
-	    const_iterator it;
+	vector< tr1::shared_ptr<WorkerController> >::const_iterator it;
 	for (it = _workers.begin(); it != _workers.end(); it++)
-		(*it)->start();
+		tr1::static_pointer_cast<POSIXThreadWorkerController>(*it)->
+		    start(communicate);
 			
 	if (wait)
 		_wait();
@@ -82,13 +55,14 @@ BiometricEvaluation::Process::POSIXThreadManager::startWorker(
     throw (Error::ObjectExists,
     Error::StrategyError)
 {
-	vector< tr1::shared_ptr<POSIXThreadWorkerController> >::iterator it;
+	vector< tr1::shared_ptr<WorkerController> >::iterator it;
 	it = find(_workers.begin(), _workers.end(), worker);
 	if (it == _workers.end())
 		throw Error::StrategyError("Worker is not being managed "
 		    "by this Manager");
-		    
-	(*it)->start();
+
+	tr1::static_pointer_cast<POSIXThreadWorkerController>(*it)->
+	    start(communicate);
 				
 	if (wait)
 		_wait();
@@ -101,72 +75,25 @@ BiometricEvaluation::Process::POSIXThreadManager::stopWorker(
     throw (Error::ObjectDoesNotExist,
     Error::StrategyError)
 {
-	vector< tr1::shared_ptr<POSIXThreadWorkerController> >::iterator it;
+	vector< tr1::shared_ptr<WorkerController> >::iterator it;
 	it = find(_workers.begin(), _workers.end(), workerController);
 	if (it == _workers.end())
 		throw Error::StrategyError("Worker is not being managed "
 		    "by this Manager");
 		    
-	return ((*it)->stop());
-}
-
-void
-BiometricEvaluation::Process::POSIXThreadManager::reset()
-    throw (Error::ObjectExists)
-{
-	vector< tr1::shared_ptr<POSIXThreadWorkerController> >::iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++)
-		(*it)->reset();
+	_pendingExit.push_back(*it);
+	
+	return (tr1::static_pointer_cast<POSIXThreadWorkerController>(*it)->
+	    stop());
 }
 
 void
 BiometricEvaluation::Process::POSIXThreadManager::_wait()
 {
-	vector< tr1::shared_ptr<POSIXThreadWorkerController> >::
-	    const_iterator it;
+	vector< tr1::shared_ptr<WorkerController> >::const_iterator it;
 	for (it = _workers.begin(); it != _workers.end(); it++)
-		pthread_join((*it)->_thread, NULL);
-}
-
-
-bool
-BiometricEvaluation::Process::POSIXThreadManager::waitForMessage(
-    tr1::shared_ptr<WorkerController> &sender,
-    int *nextFD,
-    int numSeconds)
-    const
-{
-	return (false);
-}
-			    
-			    
-bool
-BiometricEvaluation::Process::POSIXThreadManager::getNextMessage(
-    tr1::shared_ptr<WorkerController> &sender,
-    Memory::uint8Array &message,
-    int numSeconds)
-    const
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
-{
-	return (false);
-}
-
-void
-BiometricEvaluation::Process::POSIXThreadManager::broadcastMessage(
-    Memory::uint8Array &message)
-    const
-    throw (Error::StrategyError)
-{
-	vector< tr1::shared_ptr<POSIXThreadWorkerController> >::
-	    const_iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++) {
-		try {
-			(*it)->sendMessageToWorker(message);
-		} catch (Error::ObjectDoesNotExist) {
-			/* Don't care if a single worker is gone */
-		}
-	}
+		pthread_join(tr1::static_pointer_cast<
+		    POSIXThreadWorkerController>(*it)->_thread, NULL);
 }
 
 BiometricEvaluation::Process::POSIXThreadManager::~POSIXThreadManager()
@@ -232,14 +159,6 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::
 {
 
 }
-void
-BiometricEvaluation::Process::POSIXThreadWorkerController::sendMessageToWorker(
-    const Memory::uint8Array &message)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
-{
-
-}
 
 void
 BiometricEvaluation::Process::POSIXThreadWorkerController::start(
@@ -249,7 +168,9 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::start(
 {
 	this->reset();
 	
-	if (::pthread_create(&this->_thread, NULL, 
+	if (communicate)
+		this->getWorker()->_initCommunication();
+	if (::pthread_create(&this->_thread, NULL,
 	    POSIXThreadWorkerController::workerMainWrapper, this) != 0)
 		throw Error::StrategyError("pthread_create() error");
 }

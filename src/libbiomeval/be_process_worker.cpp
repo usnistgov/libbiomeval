@@ -239,7 +239,7 @@ BiometricEvaluation::Process::Worker::_initCommunication()
 }
 
 void
-BiometricEvaluation::Process::Worker::_initManagerCommunication()
+BiometricEvaluation::Process::Worker::closeWorkerPipeEnds()
     throw (Error::StrategyError)
 {
  	if (_communicationEnabled == false)
@@ -250,7 +250,7 @@ BiometricEvaluation::Process::Worker::_initManagerCommunication()
 }
 
 void
-BiometricEvaluation::Process::Worker::_initWorkerCommunication()
+BiometricEvaluation::Process::Worker::closeManagerPipeEnds()
     throw (Error::StrategyError)
 {
  	if (_communicationEnabled == false)

@@ -31,45 +31,6 @@ BiometricEvaluation::Process::ForkManager::ForkManager() :
 
 }
 
-uint32_t
-BiometricEvaluation::Process::ForkManager::getNumCompletedWorkers()
-    const
-    throw (Error::StrategyError)
-{
-	return (_workers.size() - getNumActiveWorkers());
-}
-
-uint32_t
-BiometricEvaluation::Process::ForkManager::getNumActiveWorkers()
-    const
-    throw (Error::StrategyError)
-{
-	uint32_t sum = 0;
-	
-	vector< tr1::shared_ptr<ForkWorkerController> >::const_iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++)
-		if ((*it)->isWorking())
-			sum++;
-			
-	return (sum);
-}
-
-uint32_t
-BiometricEvaluation::Process::ForkManager::getTotalWorkers()
-    const
-{
-	return (_workers.size());
-}
-
-void
-BiometricEvaluation::Process::ForkManager::reset()
-    throw (Error::ObjectExists)
-{
-	vector< tr1::shared_ptr<ForkWorkerController> >::iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++)
-		(*it)->reset();
-}
-
 tr1::shared_ptr<BiometricEvaluation::Process::WorkerController>
 BiometricEvaluation::Process::ForkManager::addWorker(
     tr1::shared_ptr<Worker> worker)
@@ -88,10 +49,11 @@ BiometricEvaluation::Process::ForkManager::startWorkers(
     Error::StrategyError)
 {
 	/* Ensure all Workers have previous their finish assignments */
-	reset();
+	this->reset();
 	
 	for (uint32_t i = 0; i < getTotalWorkers(); i++)
-		_workers[i]->start(communicate);
+		tr1::static_pointer_cast<ForkWorkerController>(
+		    _workers[i])->start(communicate);
 	
 	/* In the child case, start() will eventually exit the child */
 	_parent = true;
@@ -120,13 +82,13 @@ BiometricEvaluation::Process::ForkManager::startWorker(
     throw (Error::ObjectExists,
     Error::StrategyError)
 {
-	vector< tr1::shared_ptr<ForkWorkerController> >::iterator it;
+	vector< tr1::shared_ptr<WorkerController> >::iterator it;
 	it = find(_workers.begin(), _workers.end(), worker);
 	if (it == _workers.end())
 		throw Error::StrategyError("Worker is not being managed "
 		    "by this Manager");
 
-	(*it)->start(communicate);
+	tr1::static_pointer_cast<ForkWorkerController>(*it)->start(communicate);
 	
 	/* In the child case, start() will eventually exit the child */
 	_parent = true;
@@ -166,7 +128,7 @@ BiometricEvaluation::Process::ForkWorkerController::start(
 		/* Copy to a static var only for this process's instance */
 		_staticWorker = getWorker();
 		if (communicate)
-			_staticWorker->_initWorkerCommunication();
+			_staticWorker->closeManagerPipeEnds();
 
 		/* Catch SIGUSR1 to quit child on demand */
 		struct sigaction stopSignal;			
@@ -187,7 +149,7 @@ BiometricEvaluation::Process::ForkWorkerController::start(
 	default:	/* Parent */
 		_pid = pid;
 		if (communicate)
-			getWorker()->_initManagerCommunication();
+			getWorker()->closeWorkerPipeEnds();
 		break;
 	}
 }
@@ -201,16 +163,15 @@ BiometricEvaluation::Process::ForkManager::stopWorker(
 	if (_parent == false)
 		throw Error::StrategyError("Only parent may stop children");
 
-	vector< tr1::shared_ptr<ForkWorkerController> >::iterator it;
+	vector< tr1::shared_ptr<WorkerController> >::iterator it;
 	it = find(_workers.begin(), _workers.end(), workerController);
 	if (it == _workers.end())
 		throw Error::StrategyError("Worker is not being managed "
 		    "by this Manager");
 	
-	/* FIXME: There has to be a better way to do this */
-	_pendingExit.push_back((*it)->getPID());
-		    
-	return ((*it)->stop());
+	_pendingExit.push_back(*it);
+
+	return (tr1::static_pointer_cast<ForkWorkerController>(*it)->stop());
 }
 
 tr1::shared_ptr<BiometricEvaluation::Process::ForkWorkerController>
@@ -218,10 +179,14 @@ BiometricEvaluation::Process::ForkManager::getProcessWithPID(
     pid_t pid)
     throw (Error::ObjectDoesNotExist)
 {
-	vector< tr1::shared_ptr<ForkWorkerController> >::iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++)
-		if (((*it)->getPID() == pid))
-			return (*it);
+	vector< tr1::shared_ptr<WorkerController> >::iterator it;
+	tr1::shared_ptr<ForkWorkerController> workerController;
+	for (it = _workers.begin(); it != _workers.end(); it++) {
+		workerController =
+		    tr1::static_pointer_cast<ForkWorkerController>(*it);
+		if ((workerController->getPID() == pid))
+			return (workerController);
+	}
 
 	throw Error::ObjectDoesNotExist();
 }
@@ -279,125 +244,6 @@ BiometricEvaluation::Process::ForkManager::defaultExitCallback(
 	} else
 		cout << "Exited with unknown status";
 	cout << '.' << endl;
-}
-
-bool
-BiometricEvaluation::Process::ForkManager::waitForMessage(
-    tr1::shared_ptr<WorkerController> &sender,
-    int *nextFD,
-    int numSeconds)
-    const
-{
-	bool result = false;
-	fd_set set;
-	
-	/* Listen for all Worker receiving pipes */
-	FD_ZERO(&set);
-	int maxfd = 0, curfd;
-	std::map<tr1::shared_ptr<WorkerController>, int> fds;
-	
-	struct timeval timeout, *timeoutptr = NULL;
-	if (numSeconds >= 0) {
-		timeout.tv_sec = numSeconds;
-		timeout.tv_usec = 0;
-		timeoutptr = &timeout;
-	}
-	
-	/* Round up all receiving pipes */
-	bool finished = false;
-	while (!finished) {		
-		for (size_t i = 0; i < _workers.size(); i++) {
-			/* Add only active pipes to list */
-			if (find(_pendingExit.begin(), _pendingExit.end(),
-			    _workers[i]->getPID()) != _pendingExit.end())
-				continue;
-				
-			try {
-				curfd = _workers[i]->getWorker()->
-				    getReceivingPipe();
-				FD_SET(curfd, &set);
-				if (curfd > maxfd)
-					maxfd = curfd;
-				fds[_workers[i]] = curfd;
-			} catch (Error::ObjectDoesNotExist) {
-				/* Don't add pipes for exiting Workers */
-			}
-		}
-		
-		int ret = select(maxfd + 1, &set, NULL, NULL, timeoutptr);
-		if (ret == 0) {
-			/* Nothing available */
-			result = false;
-			finished = true;
-		} else if (ret < 0) {
-			/* Could have been interrupted while blocking */
-			if (errno != EINTR)
-				finished = true;
-		} else {
-			/* Something available -- check what */
-			for (std::map<tr1::shared_ptr<WorkerController>, int>::
-			    const_iterator it = fds.begin(); it != fds.end();
-			    it++) {
-				if (FD_ISSET(it->second, &set) != 0) {
-					if (nextFD != NULL)
-						*nextFD = it->second;
-					result = true;
-					sender = it->first;
-					break;
-				}
-			}
-			finished = true;
-		}
-	}
-
-	return (result);
-}
-
-bool
-BiometricEvaluation::Process::ForkManager::getNextMessage(
-    tr1::shared_ptr<WorkerController> &sender,
-    Memory::uint8Array &message,
-    int timeout)
-    const
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
-{
-	int fd = 0;
-	if (this->waitForMessage(sender, &fd, timeout) == false)
-		return (false);
-	
-	uint64_t length;
-	size_t sz = read(fd, &length, sizeof(length));
-	if (sz != sizeof(length)) {
-		if (sz == 0)
-			throw Error::ObjectDoesNotExist("Widowed pipe");
-		throw (Error::StrategyError("Could not read message length: "
-		    + Error::errorStr()));
-	}
-
-	message.resize(length);
-	sz = read(fd, message, length);
-	if (sz != length)
-		throw (Error::StrategyError("Could not read message data: "
-			+ Error::errorStr()));
-
-	return (true);
-}
-
-void
-BiometricEvaluation::Process::ForkManager::broadcastMessage(
-    Memory::uint8Array &message)
-    const
-    throw (Error::StrategyError)
-{
-	vector< tr1::shared_ptr<ForkWorkerController> >::const_iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++) {
-		try {
-			(*it)->sendMessageToWorker(message);
-		} catch (Error::ObjectDoesNotExist) {
-			/* Don't care if a single worker is gone */
-		}
-	}
 }
 
 BiometricEvaluation::Process::ForkManager::~ForkManager()
@@ -464,38 +310,6 @@ BiometricEvaluation::Process::ForkWorkerController::stop()
 	int32_t status;
 	waitpid(_pid, &status, 0);
 	return (status);
-}
-
-void
-BiometricEvaluation::Process::ForkWorkerController::sendMessageToWorker(
-    const Memory::uint8Array &message)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
-{
-	uint64_t length = message.size();
-	sigset_t sigset;
-	sigemptyset(&sigset);
-	sigaddset(&sigset, SIGPIPE);
-	Error::SignalManager signalManager(sigset);
-	
-	size_t sz = 0;
-	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
-		sz = write(getWorker()->getSendingPipe(), &length,
-		    sizeof(length));
-	END_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
-	if (signalManager.sigHandled())
-		throw Error::ObjectDoesNotExist("Widowed pipe");
-	if (sz != sizeof(length))
-		throw (Error::StrategyError("Could not write message length: "
-		    + Error::errorStr()));
-	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
-		sz = write(getWorker()->getSendingPipe(), message, length);
-	END_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
-	if (signalManager.sigHandled())
-		throw Error::ObjectDoesNotExist("Widowed pipe");
-	if (sz != length)
-		throw (Error::StrategyError("Could not write message data: "
-		    + Error::errorStr()));
 }
 
 void

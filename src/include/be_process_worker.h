@@ -159,7 +159,7 @@ namespace BiometricEvaluation
 			 *	Communications not enabled.
 			 */
 			void
-			_initManagerCommunication()
+			closeWorkerPipeEnds()
 			    throw (Error::StrategyError);
 			
 			/**
@@ -174,7 +174,7 @@ namespace BiometricEvaluation
 			 *	Communications not enabled.
 			 */
 			void
-			_initWorkerCommunication()
+			closeManagerPipeEnds()
 			    throw (Error::StrategyError);
 			
 			/**

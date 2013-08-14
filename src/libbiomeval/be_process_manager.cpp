@@ -8,6 +8,13 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <sys/select.h>
+
+#include <algorithm>
+#include <cerrno>
+
+#include <be_error.h>
+
 #include <be_process_manager.h>
 
 BiometricEvaluation::Process::Manager::Manager()
@@ -18,4 +25,168 @@ BiometricEvaluation::Process::Manager::Manager()
 BiometricEvaluation::Process::Manager::~Manager()
 {
 
+}
+
+#pragma mark - Statistics
+
+uint32_t
+BiometricEvaluation::Process::Manager::getNumCompletedWorkers()
+    const
+    throw (Error::StrategyError)
+{
+	return (_workers.size() - getNumActiveWorkers());
+}
+
+uint32_t
+BiometricEvaluation::Process::Manager::getNumActiveWorkers()
+    const
+    throw (Error::StrategyError)
+{
+	uint32_t sum = 0;
+	
+	vector< tr1::shared_ptr<WorkerController> >::const_iterator it;
+	for (it = _workers.begin(); it != _workers.end(); it++)
+		if ((*it)->isWorking())
+			sum++;
+			
+	return (sum);
+}
+
+uint32_t
+BiometricEvaluation::Process::Manager::getTotalWorkers()
+    const
+{
+	return (_workers.size());
+}
+
+void
+BiometricEvaluation::Process::Manager::reset()
+    throw (Error::ObjectExists)
+{
+	vector< tr1::shared_ptr<WorkerController> >::iterator it;
+	for (it = _workers.begin(); it != _workers.end(); it++)
+		(*it)->reset();
+
+	_pendingExit.clear();
+}
+
+#pragma mark - Communications
+
+bool
+BiometricEvaluation::Process::Manager::waitForMessage(
+    tr1::shared_ptr<WorkerController> &sender,
+    int *nextFD,
+    int numSeconds)
+    const
+{
+	bool result = false;
+	fd_set set;
+	
+	/* Listen for all Worker receiving pipes */
+	FD_ZERO(&set);
+	int maxfd = 0, curfd;
+	std::map<tr1::shared_ptr<WorkerController>, int> fds;
+	
+	struct timeval timeout, *timeoutptr = NULL;
+	if (numSeconds >= 0) {
+		timeout.tv_sec = numSeconds;
+		timeout.tv_usec = 0;
+		timeoutptr = &timeout;
+	}
+	
+	/* Round up all receiving pipes */
+	bool finished = false;
+	while (!finished) {
+		for (size_t i = 0; i < _workers.size(); i++) {
+			/* Add only active pipes to list */
+			if (find(_pendingExit.begin(), _pendingExit.end(),
+			    _workers[i]) != _pendingExit.end())
+				continue;
+				
+			try {
+				curfd = _workers[i]->getWorker()->
+				    getReceivingPipe();
+				FD_SET(curfd, &set);
+				if (curfd > maxfd)
+					maxfd = curfd;
+				fds[_workers[i]] = curfd;
+			} catch (Error::ObjectDoesNotExist) {
+				/* Don't add pipes for exiting Workers */
+			}
+		}
+		
+		int ret = select(maxfd + 1, &set, NULL, NULL, timeoutptr);
+		if (ret == 0) {
+			/* Nothing available */
+			result = false;
+			finished = true;
+		} else if (ret < 0) {
+			/* Could have been interrupted while blocking */
+			if (errno != EINTR)
+				finished = true;
+		} else {
+			/* Something available -- check what */
+			for (std::map<tr1::shared_ptr<WorkerController>, int>::
+			    const_iterator it = fds.begin(); it != fds.end();
+			    it++) {
+				if (FD_ISSET(it->second, &set) != 0) {
+					if (nextFD != NULL)
+						*nextFD = it->second;
+					result = true;
+					sender = it->first;
+					break;
+				}
+			}
+			finished = true;
+		}
+	}
+
+	return (result);
+}
+
+bool
+BiometricEvaluation::Process::Manager::getNextMessage(
+    tr1::shared_ptr<WorkerController> &sender,
+    Memory::uint8Array &message,
+    int timeout)
+    const
+    throw (Error::ObjectDoesNotExist,
+    Error::StrategyError)
+{
+	int fd = 0;
+	if (this->waitForMessage(sender, &fd, timeout) == false)
+		return (false);
+	
+	uint64_t length;
+	size_t sz = read(fd, &length, sizeof(length));
+	if (sz != sizeof(length)) {
+		if (sz == 0)
+			throw Error::ObjectDoesNotExist("Widowed pipe");
+		throw (Error::StrategyError("Could not read message length: "
+		    + Error::errorStr()));
+	}
+
+	message.resize(length);
+	sz = read(fd, message, length);
+	if (sz != length)
+		throw (Error::StrategyError("Could not read message data: "
+			+ Error::errorStr()));
+
+	return (true);
+}
+
+void
+BiometricEvaluation::Process::Manager::broadcastMessage(
+    Memory::uint8Array &message)
+    const
+    throw (Error::StrategyError)
+{
+	vector< tr1::shared_ptr<WorkerController> >::const_iterator it;
+	for (it = _workers.begin(); it != _workers.end(); it++) {
+		try {
+			(*it)->sendMessageToWorker(message);
+		} catch (Error::ObjectDoesNotExist) {
+			/* Don't care if a single worker is gone */
+		}
+	}
 }

@@ -58,7 +58,7 @@ namespace BiometricEvaluation
 			sendMessageToWorker(
 			    const Memory::uint8Array &message)
 			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError) = 0;
+			    Error::StrategyError);
 		
 			/**
 			 * @brief

@@ -64,7 +64,7 @@ namespace BiometricEvaluation
 			virtual uint32_t
 			getNumCompletedWorkers()
 			    const
-			    throw (Error::StrategyError) = 0;
+			    throw (Error::StrategyError);
 			    
 			/**
 			 * @brief
@@ -80,7 +80,7 @@ namespace BiometricEvaluation
 			virtual uint32_t
 			getNumActiveWorkers()
 			    const
-			    throw (Error::StrategyError) = 0;
+			    throw (Error::StrategyError);
 			    
 			/**
 			 * @brief
@@ -92,7 +92,7 @@ namespace BiometricEvaluation
 			 */
 			virtual uint32_t
 			getTotalWorkers()
-			    const = 0;
+			    const;
 			    
 			/**
 			 * @brief
@@ -159,7 +159,7 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			reset()
-			    throw (Error::ObjectExists) = 0;
+			    throw (Error::ObjectExists);
 			    
 			/**
 			 * @brief
@@ -205,7 +205,7 @@ namespace BiometricEvaluation
 			    tr1::shared_ptr<WorkerController> &sender,
 			    int *nextFD = NULL,
 			    int numSeconds = -1)
-			    const = 0;
+			    const;
 			
 			/**
 			 * @brief
@@ -235,7 +235,7 @@ namespace BiometricEvaluation
 			    int numSeconds = -1)
 			    const
 			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError) = 0;
+			    Error::StrategyError);
 			
 			/**
 			 * @brief
@@ -251,7 +251,7 @@ namespace BiometricEvaluation
 			broadcastMessage(
 			    Memory::uint8Array &message)
 			    const
-    			    throw (Error::StrategyError) = 0;
+    			    throw (Error::StrategyError);
 			    
 			/**
 			 * @brief
@@ -266,6 +266,12 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			_wait() = 0;
+			
+			/** Workers that have been added. */
+			vector<tr1::shared_ptr<WorkerController> > _workers;
+			
+			/** Workers that are about to exit (stop requested). */
+			vector<tr1::shared_ptr<WorkerController> > _pendingExit;
 			
 		private:
 		

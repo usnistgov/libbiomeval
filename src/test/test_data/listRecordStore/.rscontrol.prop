@@ -1,0 +1,5 @@
+Type = List
+Name = listRecordStore
+Description = RecordStore for testing ListRecordStore methods.
+Source Record Store = test_data/AN2KRecordStore
+Count = 5

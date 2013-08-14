@@ -83,6 +83,8 @@ namespace BiometricEvaluation {
 			static const string SQLITETYPE;
 			/** CompressedRecordStore type */
 			static const string COMPRESSEDTYPE;
+			/** ListRecordStore type */
+			static const string LISTTYPE;
 			/** Default RecordStore */
 			static const string DEFAULTTYPE;
 			
@@ -632,6 +634,23 @@ namespace BiometricEvaluation {
 			    const string &type,
 			    const vector<string> &path)
 			    throw (Error::ObjectExists, Error::StrategyError);
+			    
+			/**
+			 * @brief
+			 * Determines whether the RecordStore contains an
+			 * element with the specified key.
+			 *
+			 * @param key
+			 *	The key to locate.
+			 *
+			 * @return
+			 *	True if the RecordStore contains an element
+			 *	with the key, false otherwise.
+			 */
+			virtual bool
+			containsKey(
+			    const string &key)
+			    const;
 
 		protected:
 			uint8_t getMode() const;
