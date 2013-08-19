@@ -480,7 +480,6 @@ BiometricEvaluation::IO::DBRecordStore::insertRecordSegments(
 	 * because when the store is opened READWRITE, the upgrade
 	 * to create the subordinate DB is done.
 	 */
-	int rc;
 	DBT dbtkey;
 	DBT dbtdata;
 	uint8_t *ptr = (uint8_t*)data;

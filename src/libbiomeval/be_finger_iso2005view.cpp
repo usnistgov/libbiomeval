@@ -84,7 +84,7 @@ Finger::ISO2005View::readCoreDeltaData(
 		uint16_t x = sval & Finger::ISO2005View::DELTA_X_COORD_MASK;
 		uint16_t y = buf.scanBeU16Val() &
 		    Finger::ISO2005View::DELTA_Y_COORD_MASK;
-		uint8_t angle1, angle2, angle3 = 0;
+		uint8_t angle1 = 0, angle2 = 0, angle3 = 0;
 		if (hasAngle) {
 			angle1 = buf.scanU8Val();
 			angle2 = buf.scanU8Val();
