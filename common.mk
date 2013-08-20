@@ -67,3 +67,14 @@ ifdef 32
 	CXXFLAGS += $(if $(or $(findstring 1, $(32)), $(findstring true, $(32)), $(findstring yes, $(32))),-m32)
 endif
 
+# Add additional flags on build/link without editing this file
+ifdef EXTRA_CFLAGS
+	CFLAGS += $(EXTRA_CFLAGS)
+endif
+ifdef EXTRA_CXXFLAGS
+	CXXFLAGS += $(EXTRA_CXXFLAGS)
+endif
+ifdef EXTRA_LDFLAGS
+	LDFLAGS += $(EXTRA_LDFLAGS)
+endif
+
