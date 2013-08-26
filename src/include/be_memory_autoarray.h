@@ -18,12 +18,14 @@
 
 #include <stdint.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
 #include <stdexcept>
+#include <utility>
 
 #include <be_error_exception.h>
- 
+
 namespace BiometricEvaluation
 {
 	namespace Memory
@@ -277,7 +279,37 @@ namespace BiometricEvaluation
 				copy(
 				    const_iterator buffer,
 				    size_type size);
-				
+
+				/**
+				 * @brief
+				 * Swap two AutoArrays.
+				 *
+				 * @param[in/out] first
+				 * 	AutoArray that will become second.
+				 * @param[in/out] second
+				 * 	AutoArray that will become first.
+				 *
+				 */
+				void
+				swap(
+				    AutoArray &first,
+				    AutoArray &second);
+
+				/**
+				 * @brief
+				 * Swap this AutoArray with other.
+				 *
+				 * @param[in/out] other
+				 *	AutoArray that will become this.
+				 *
+				 * @note
+				 * Mainly for use when called from std::swap
+				 * total template specialization.
+				 */
+				void
+				swap(
+				    AutoArray &other);
+
 				/**
 				 * @brief
 				 * Construct an AutoArray.
@@ -307,7 +339,7 @@ namespace BiometricEvaluation
 				AutoArray(
 				    const AutoArray& copy)
 				    throw (Error::MemoryError);
-				
+
 				/**
 				 * @brief
 				 * Assignment operator overload performing a
@@ -322,12 +354,18 @@ namespace BiometricEvaluation
 				 *
 				 * @throw Error::MemoryError
 				 *	Could not allocate new memory.
+				 *
+				 * @note
+				 * The signature for this operator overload
+				 * is different than a traditional pass by
+				 * constant reference to make use of the
+				 * "copy-and-swap" idiom.
 				 */
 				AutoArray&
 				operator=(
-				    const AutoArray& other)
+				    AutoArray other)
 				    throw (Error::MemoryError);
-		
+				    
 				/** Destructor */
 				~AutoArray();
 								
@@ -348,7 +386,22 @@ namespace BiometricEvaluation
 		typedef AutoArray<uint32_t> uint32Array;
 	}
 }
-	
+
+/**
+ * @brief
+ * std::swap total template specialization.
+ *
+ * @param[in/out] first
+ *	AutoArray that will become second.
+ * @param[in/out] second
+ *	AutoArray that will become first.
+ */
+template<class T>
+void
+swap(
+    BiometricEvaluation::Memory::AutoArray<T> &first,
+    BiometricEvaluation::Memory::AutoArray<T> &second);
+
 /******************************************************************************/
 /* Method implementations.                                                    */
 /******************************************************************************/
@@ -479,25 +532,10 @@ BiometricEvaluation::Memory::AutoArray<T>::operator[](
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>&
 BiometricEvaluation::Memory::AutoArray<T>::operator=(
-    const BiometricEvaluation::Memory::AutoArray<T>& copy) 
+    BiometricEvaluation::Memory::AutoArray<T> other)
     throw (Error::MemoryError)
 {
-	if (this != &copy) {
-		_size = _capacity = copy._size; 
-		if (_data != NULL) {
-			delete [] _data;
-			_data = NULL;
-		}
-		if (_size != 0) {
-			_data = new (nothrow) T[_size];
-			if (_data == NULL)
-				throw Error::MemoryError("Could not "
-				    "allocate data");
-			for (size_type i = 0; i < _size; i++)
-				_data[i] = copy._data[i];
-		}
-	}
-
+	swap(*this, other);
 	return (*this);
 }
 
@@ -567,6 +605,39 @@ BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
 		for (size_type i = 0; i < _size; i++)
 			_data[i] = copy._data[i];
 	}
+}
+
+/******************************************************************************/
+/* Swap.                                                                      */
+/******************************************************************************/
+template<class T>
+void
+BiometricEvaluation::Memory::AutoArray<T>::swap(
+    BiometricEvaluation::Memory::AutoArray<T> &first,
+    BiometricEvaluation::Memory::AutoArray<T> &second)
+{
+	using std::swap;
+
+	swap(first._data, second._data);
+	swap(first._size, second._size);
+	swap(first._capacity, second._capacity);
+}
+
+template<class T>
+void
+BiometricEvaluation::Memory::AutoArray<T>::swap(
+    BiometricEvaluation::Memory::AutoArray<T> &second)
+{
+	this->swap(*this, second);
+}
+
+template<class T>
+void
+swap(
+    BiometricEvaluation::Memory::AutoArray<T> &first,
+    BiometricEvaluation::Memory::AutoArray<T> &second)
+{
+	first.swap(second);
 }
 
 /******************************************************************************/
