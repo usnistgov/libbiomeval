@@ -22,13 +22,60 @@
 #include <be_error_signal_manager.h>
 #include <be_process_forkmanager.h>
 
-using namespace std;
+std::list<BiometricEvaluation::Process::ForkManager*>
+    BiometricEvaluation::Process::ForkManager::FORKMANAGERS =
+    std::list<BiometricEvaluation::Process::ForkManager*>();
 
 BiometricEvaluation::Process::ForkManager::ForkManager() :
     _exitCallback(NULL),
-    _parent(false)
+    _parent(false),
+    _wcStatus()
 {
+	BiometricEvaluation::Process::ForkManager::FORKMANAGERS.push_back(this);
+}
 
+bool
+BiometricEvaluation::Process::ForkManager::responsibleFor(
+    const pid_t pid)
+    const
+{
+	std::map<tr1::shared_ptr<ForkWorkerController>, Status>::
+	    const_iterator it;
+
+	for (it = _wcStatus.begin(); it != _wcStatus.end(); it++)
+		if (it->second.pid == pid)
+			return (true);
+
+	return (false);
+}
+
+void
+BiometricEvaluation::Process::ForkManager::setNotWorking(
+    const pid_t pid)
+{
+	std::map<tr1::shared_ptr<ForkWorkerController>, Status>::iterator it;
+	for (it = _wcStatus.begin(); it != _wcStatus.end(); it++) {
+		if (it->second.pid == pid) {
+			_wcStatus[it->first].isWorking = false;
+			return;
+		}
+	}
+
+	throw Error::ObjectDoesNotExist();
+}
+
+bool
+BiometricEvaluation::Process::ForkManager::getIsWorkingStatus(
+    const pid_t pid)
+    const
+{
+	std::map<tr1::shared_ptr<ForkWorkerController>, Status>::
+	    const_iterator it;
+	for (it = _wcStatus.begin(); it != _wcStatus.end(); it++)
+		if (it->second.pid == pid)
+			return (it->second.isWorking);
+
+	throw Error::ObjectDoesNotExist();
 }
 
 tr1::shared_ptr<BiometricEvaluation::Process::WorkerController>
@@ -48,12 +95,16 @@ BiometricEvaluation::Process::ForkManager::startWorkers(
     throw (Error::ObjectExists,
     Error::StrategyError)
 {
-	/* Ensure all Workers have previous their finish assignments */
+	/* Ensure all Workers have finished their previous assignments */
 	this->reset();
-	
-	for (uint32_t i = 0; i < getTotalWorkers(); i++)
-		tr1::static_pointer_cast<ForkWorkerController>(
-		    _workers[i])->start(communicate);
+
+	for (uint32_t i = 0; i < getTotalWorkers(); i++) {
+		tr1::shared_ptr<ForkWorkerController> fwc =
+		    tr1::static_pointer_cast<ForkWorkerController>(_workers[i]);
+		fwc->start(communicate);
+		_wcStatus[fwc].pid = fwc->getPID();
+		_wcStatus[fwc].isWorking = true;
+	}
 	
 	/* In the child case, start() will eventually exit the child */
 	_parent = true;
@@ -88,11 +139,15 @@ BiometricEvaluation::Process::ForkManager::startWorker(
 		throw Error::StrategyError("Worker is not being managed "
 		    "by this Manager");
 
-	tr1::static_pointer_cast<ForkWorkerController>(*it)->start(communicate);
+	tr1::shared_ptr<ForkWorkerController> fwc =
+	    tr1::static_pointer_cast<ForkWorkerController>(*it);
+	fwc->start(communicate);
 	
 	/* In the child case, start() will eventually exit the child */
 	_parent = true;
-	
+	_wcStatus[fwc].pid = fwc->getPID();
+	_wcStatus[fwc].isWorking = true;
+
 	/* Optionally wait for all processes to exit. */
 	if (wait)
 		_wait();
@@ -125,6 +180,12 @@ BiometricEvaluation::Process::ForkWorkerController::start(
 	case 0: {	/* Child */
 		/* Update self references */
 		_pid = getpid();
+		BiometricEvaluation::Process::ForkManager::FORKMANAGERS.erase(
+		    BiometricEvaluation::Process::ForkManager::
+		    FORKMANAGERS.begin(),
+		    BiometricEvaluation::Process::ForkManager::
+		    FORKMANAGERS.end());
+
 		/* Copy to a static var only for this process's instance */
 		_staticWorker = getWorker();
 		if (communicate)
@@ -246,7 +307,18 @@ BiometricEvaluation::Process::ForkManager::reap(
 	int32_t status;
 	
 	/* Reap the first available child without waiting */
-	::waitpid(-1, &status, WNOHANG);
+	pid_t pid = ::waitpid(-1, &status, WNOHANG);
+	if (pid == -1)
+		return;
+
+	/* Update the Status list */
+	std::list<ForkManager*>::iterator it;
+	for (it = BiometricEvaluation::Process::ForkManager::
+	    FORKMANAGERS.begin();
+	    it != BiometricEvaluation::Process::ForkManager::
+	    FORKMANAGERS.end(); it++)
+		if ((*it)->responsibleFor(pid))
+			(*it)->setNotWorking(pid);
 }
 
 void
@@ -281,9 +353,16 @@ BiometricEvaluation::Process::ForkManager::defaultExitCallback(
 	cout << '.' << endl;
 }
 
-BiometricEvaluation::Process::ForkManager::~ForkManager()
+BiometricEvaluation::Process::ForkManager::Status::Status() :
+    pid(0),
+    isWorking(false)
 {
 
+}
+
+BiometricEvaluation::Process::ForkManager::~ForkManager()
+{
+	BiometricEvaluation::Process::ForkManager::FORKMANAGERS.remove(this);
 }
 
 /******************************************************************************/
@@ -316,8 +395,16 @@ BiometricEvaluation::Process::ForkWorkerController::isWorking()
 {
 	if (_pid == 0)
 		return (false);
-	
-	return ((kill(_pid, 0) == 0));
+
+	std::list<ForkManager*>::const_iterator it;
+	for (it = BiometricEvaluation::Process::ForkManager::
+	    FORKMANAGERS.begin();
+	    it != BiometricEvaluation::Process::ForkManager::
+	    FORKMANAGERS.end(); it++)
+	    	if ((*it)->responsibleFor(getPID()))
+			return ((*it)->getIsWorkingStatus(getPID()));
+
+	throw Error::ObjectDoesNotExist();
 }
 
 pid_t
@@ -338,7 +425,7 @@ BiometricEvaluation::Process::ForkWorkerController::stop()
 	if (kill(_pid, SIGUSR1) != 0)
 		throw Error::StrategyError("Could not send stop signal");
 
-	/* 
+	/*
 	 * Clean up the child immediately. Should not hang w/o WNOHANG because
 	 * we know the process will exit.
 	 */

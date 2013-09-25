@@ -11,6 +11,8 @@
 #ifndef __BE_PROCESS_FORKMANAGER_H__
 #define __BE_PROCESS_FORKMANAGER_H__
 
+#include <list>
+
 #include <be_process_manager.h>
 
 using namespace std;
@@ -21,7 +23,7 @@ namespace BiometricEvaluation
 	{
 		/* Forward declaration */
 		class ForkWorkerController;
-		
+
 		/**
 		 * @brief
 		 * Manager implementation that starts Workers by calling
@@ -31,10 +33,23 @@ namespace BiometricEvaluation
 		{
 		public:
 			/**
+			 * @brief
+			 * List of all instantiated ForkManagers.
+			 * @details
+			 * This is not a list of managed pointers to
+			 * ForkManagers.  If it was, the smart pointer's
+			 * destructor would attempt to delete the object
+			 * being pointed to at program termination, which is
+			 * ultimately sometime after the destructor of the
+			 * ForkManager itself was called.
+			 */
+			static std::list<ForkManager*> FORKMANAGERS;
+
+			/**
 			 * ForkManager constructor.
 			 */
 			ForkManager();
-			
+
 			/**
 			 * @brief
 			 * Adds a Worker to be managed by this Manager.
@@ -130,6 +145,52 @@ namespace BiometricEvaluation
 			    tr1::shared_ptr<WorkerController> workerController)
 			    throw (Error::ObjectDoesNotExist,
 			    Error::StrategyError);
+
+			/**
+			 * @brief
+			 * Obtain whether or not this ForkManager is
+			 * responsbile for a particular PID.
+			 *
+			 * @param[in] pid
+			 *	PID in question
+			 *
+			 * @return
+			 *	true if this ForkManager spawned pid,
+			 *	false otherwise.
+			 */
+			bool
+			responsibleFor(
+			    const pid_t pid)
+			    const;
+
+			/**
+			 * @brief
+			 * Set Status.isWorking for PID to false.
+			 *
+			 * @param[in] pid
+			 *	PID whose inWorking flag should be set to false
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	PID not under this manager's control.
+			 */
+			void
+			setNotWorking(
+			    const pid_t pid);
+
+			/**
+			 * @brief
+			 * Get Status.isWorking for PID.
+			 *
+			 * @param[in] pid
+			 *	PID whose inWorking flag should be queried
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	PID not under this manager's control.
+			 */
+			bool
+			getIsWorkingStatus(
+			    const pid_t pid)
+			    const;
 			    
 			/**
 			 * @brief
@@ -201,7 +262,7 @@ namespace BiometricEvaluation
 			defaultExitCallback(
 			    tr1::shared_ptr<ForkWorkerController> worker,
 			    int status);
-			    
+
 			/**
 			 * @brief
 			 * Clean-up zombie children.
@@ -213,6 +274,25 @@ namespace BiometricEvaluation
 			static void
 			reap(
 			    int signal);
+
+			/**
+			 * @brief
+			 * Private wrapper containing details about the Worker.
+			 * @details
+			 * We need to record whether or not a process is
+			 * active based on the API activity, not by querying
+			 * the system, since PIDs can be reused, etc.
+			 */
+			class Status {
+			public:
+				/** Status default constructor */
+				Status();
+
+				/** PID of the process */
+				pid_t pid;
+				/** Whether or not the PID is active */
+				bool isWorking;
+			};
 			    
 			/**
 			 * @brief
@@ -234,6 +314,11 @@ namespace BiometricEvaluation
 		
 			/** Whether or not this process is a parent process */
 			bool _parent;
+
+			/** Map of WorkerController statuses */
+			std::map<
+			    tr1::shared_ptr<ForkWorkerController>, Status>
+			    _wcStatus;
 		};
 		
 		
@@ -366,7 +451,7 @@ namespace BiometricEvaluation
 			 * of the way fork() copies memory.
 			 */
 			static tr1::shared_ptr<Worker> _staticWorker;
-						
+
 			/*
 			 * Friends.
 			 */
