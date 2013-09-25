@@ -214,10 +214,22 @@ namespace BiometricEvaluation
 			reap(
 			    int signal);
 			    
-			/** Function pointer invoked when child exits */
+			/**
+			 * @brief
+			 * Function pointer invoked when child exits.
+			 *
+			 * @param wc
+			 *	Shared pointer to the WorkerController, 
+			 * 	or pointer to NULL if the WorkerController
+			 *	could not be identified.
+			 * @param stat_loc
+			 *	Termination information about the processs,
+			 *	which is undefined when wc is a pointer
+			 *	to NULL.
+			 */
 			void
 			(*_exitCallback)
-			    (tr1::shared_ptr<ForkWorkerController>,
+			    (tr1::shared_ptr<ForkWorkerController> wc,
 			    int stat_loc);
 		
 			/** Whether or not this process is a parent process */

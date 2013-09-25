@@ -198,14 +198,44 @@ BiometricEvaluation::Process::ForkManager::_wait()
 	if (_parent == false)
 		return;
 
-	pid_t process;
+	bool stop = false;
+	pid_t process = -1;
 	int status;
 	while (getNumActiveWorkers() > 0) {
-		process = ::wait(&status);
+		while (!stop) {
+			process = ::wait(&status);
+
+			if (process == -1) {
+				switch (errno) {
+				case ECHILD:	/* No child processes */
+					stop = true;
+					break;
+				case EINTR:	/* Interrupted */
+					/* 
+					 * Try to reap again.
+					 *
+					 * If SIGCHLD had the SA_RESTART flag
+					 * set, this should set errno to ECHILD
+					 * on the next iteration.
+					 */
+					continue;
+				default:
+					throw Error::StrategyError(
+					    Error::errorStr());
+				}
+			}
+		}
 		
 		/* Notify parent, if desired */
-		if (_exitCallback != NULL)
-			_exitCallback(getProcessWithPID(process), status);
+		if (_exitCallback != NULL) {
+			if (process == -1)
+				_exitCallback(
+				    tr1::shared_ptr<ForkWorkerController>(),
+				    0);
+			else
+				_exitCallback(getProcessWithPID(process),
+				    status);
+		}
 	}
 }
 
@@ -233,6 +263,11 @@ BiometricEvaluation::Process::ForkManager::defaultExitCallback(
     tr1::shared_ptr<ForkWorkerController> child,
     int status)
 {
+	if (child == NULL) {
+		cout << "Unknown child exited with unknown status." << endl;
+		return;
+	}
+
 	cout << "PID " << child->getPID() << ": ";
 	if (WIFEXITED(status))
 		cout << "Exited with status " << WEXITSTATUS(status);
