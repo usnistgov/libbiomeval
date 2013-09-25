@@ -150,6 +150,15 @@ workerMain()
 ~ManagingWorker(){};
 };
 
+/** A Worker that exits very fast */
+class QuickWorker : public Process::Worker
+{
+public:
+	int32_t workerMain() { return (0); }
+	QuickWorker(){}
+};
+
+
 int
 main(
     int argc,
@@ -257,6 +266,18 @@ main(
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "caught ObjectDoesNotExist (success)" << endl;
 	}
+
+	cout << ">> Testing quick worker exit... (no crash/hang if "
+	    "successful)" << endl;
+	tr1::shared_ptr<Process::Manager> quickMgr;
+#if defined FORKTEST
+	quickMgr.reset(new Process::ForkManager());
+#elif defined POSIXTHREADTEST
+	quickMgr.reset(new Process::POSIXThreadManager());
+#endif
+	quickMgr->addWorker(tr1::shared_ptr<QuickWorker>(new QuickWorker()));
+	quickMgr->addWorker(tr1::shared_ptr<QuickWorker>(new QuickWorker()));
+	quickMgr->startWorkers();
 	
 	return (0);
 }
