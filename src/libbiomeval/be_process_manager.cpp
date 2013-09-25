@@ -96,23 +96,38 @@ BiometricEvaluation::Process::Manager::waitForMessage(
 	
 	/* Round up all receiving pipes */
 	bool finished = false;
+	bool haveFD = false;
 	while (!finished) {
 		for (size_t i = 0; i < _workers.size(); i++) {
-			/* Add only active pipes to list */
+			/*
+                         * Add only active pipes to list: If the worker is
+                         * asked to stop, it will be in the pending exit list;
+                         * if it ended on its own, it won't be working anymore.
+                         */
 			if (find(_pendingExit.begin(), _pendingExit.end(),
 			    _workers[i]) != _pendingExit.end())
+				continue;
+			if (!_workers[i]->isWorking())
 				continue;
 				
 			try {
 				curfd = _workers[i]->getWorker()->
 				    getReceivingPipe();
 				FD_SET(curfd, &set);
+				haveFD = true;
 				if (curfd > maxfd)
 					maxfd = curfd;
 				fds[_workers[i]] = curfd;
 			} catch (Error::ObjectDoesNotExist) {
 				/* Don't add pipes for exiting Workers */
 			}
+		}
+
+		/* Don't hang in select if there are no file descriptors */
+		if (!haveFD) {
+			result = false;
+			finished = true;
+			break;
 		}
 		
 		int ret = select(maxfd + 1, &set, NULL, NULL, timeoutptr);
