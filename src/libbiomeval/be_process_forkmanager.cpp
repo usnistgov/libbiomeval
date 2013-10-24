@@ -284,7 +284,8 @@ BiometricEvaluation::Process::ForkManager::_wait()
 					throw Error::StrategyError(
 					    Error::errorStr());
 				}
-			}
+			} else
+				stop = true;
 		}
 		
 		/* Notify parent, if desired */
@@ -301,15 +302,46 @@ BiometricEvaluation::Process::ForkManager::_wait()
 }
 
 void
+BiometricEvaluation::Process::ForkManager::markAllFinished()
+{
+	std::map<tr1::shared_ptr<ForkWorkerController>, Status>::iterator it;
+	for (it = _wcStatus.begin(); it != _wcStatus.end(); it++)
+		it->second.isWorking = false;
+}
+
+void
 BiometricEvaluation::Process::ForkManager::reap(
     int signal)
 {
 	int32_t status;
-	
-	/* Reap the first available child without waiting */
-	pid_t pid = ::waitpid(-1, &status, WNOHANG);
-	if (pid == -1)
-		return;
+	bool stop = false;
+	pid_t pid = -1;
+
+	while (!stop) {
+		/* Reap the first available child without waiting */
+		pid_t pid = ::waitpid(-1, &status, WNOHANG);
+
+		if (pid == -1) {
+			switch (errno) {
+			case ECHILD:	/* No child processes */
+				stop = true;
+				break;
+			case EINTR:	/* Interrupted */
+				/*
+				 * Try to reap again.
+				 *
+				 * If SIGCHLD had the SA_RESTART flag
+				 * set, this should set errno to ECHILD
+				 * on the next iteration.
+				 */
+				continue;
+			default:
+				throw Error::StrategyError(
+				    Error::errorStr());
+			}
+		} else
+			stop = true;
+	}
 
 	/* Update the Status list */
 	std::list<ForkManager*>::iterator it;
