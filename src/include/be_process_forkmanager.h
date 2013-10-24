@@ -176,6 +176,14 @@ namespace BiometricEvaluation
 			void
 			setNotWorking(
 			    const pid_t pid);
+			
+			/**
+			 * @brief
+			 * Call setNotWorking() for all PIDs known to this
+			 * ForkManager.
+			 */    
+			void
+			markAllFinished();
 
 			/**
 			 * @brief
