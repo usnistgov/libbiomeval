@@ -148,6 +148,15 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Send a POSIX signal to all workers.
+			 *
+			 * @param[in] signo
+			 * 	The signal to send.
+			 */
+			void broadcastSignal(int signo);
+
+			/**
+			 * @brief
 			 * Obtain whether or not this ForkManager is
 			 * responsbile for a particular PID.
 			 *
@@ -176,12 +185,12 @@ namespace BiometricEvaluation
 			void
 			setNotWorking(
 			    const pid_t pid);
-			
+
 			/**
 			 * @brief
 			 * Call setNotWorking() for all PIDs known to this
 			 * ForkManager.
-			 */    
+			 */
 			void
 			markAllFinished();
 

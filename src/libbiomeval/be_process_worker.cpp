@@ -95,19 +95,40 @@ BiometricEvaluation::Process::Worker::waitForMessage(
 	FD_SET(_pipeToChild[0], &set);
 	
 	struct timeval timeout;
+	bool userTimeout;
 	if (numSeconds >= 0) {
 		timeout.tv_sec = numSeconds;
 		timeout.tv_usec = 0;
+		userTimeout = true;
+	} else {
+		timeout.tv_sec = 3;
+		timeout.tv_usec = 0;
+		userTimeout = false;
 	}
-	
+
+	/*
+	 * We need to handle the case where the signal that terminated
+	 * the child did not interrupt the select call, thereby creating
+	 * a race condition when the caller specified no timeout value
+	 * and we sit in select forever.
+	 * First, at the top of the loop, check whether we were
+	 * requested to stop;
+	 * Second, if there is no user timeout, set our own so the
+	 * stop reqested flag can be checked, closing a small race window.
+	 * In that case we don't exit the loop because the user wants to
+	 * wait forever for a message, forever meaning until this process
+	 * is told to stop asynchronously.
+	 */
 	bool finished = false;
-	while (!finished) {
-		int ret = select(_pipeToChild[0] + 1, &set, NULL, NULL,
-		    (numSeconds < 0) ? NULL : &timeout);
+	while (!finished && !_stopRequested) {
+		int ret = select(_pipeToChild[0] + 1, &set,
+		    NULL, NULL, &timeout);
 		if (ret == 0) {
 			/* Nothing available */
-			result = false;
-			finished = true;
+			if (userTimeout) {
+				result = false;
+				finished = true;
+			}
 		} else if (ret < 0) {
 			/* Could have been interrupted while blocking */
 			if (errno != EINTR)

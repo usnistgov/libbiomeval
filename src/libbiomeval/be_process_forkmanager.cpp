@@ -235,6 +235,18 @@ BiometricEvaluation::Process::ForkManager::stopWorker(
 	return (tr1::static_pointer_cast<ForkWorkerController>(*it)->stop());
 }
 
+void
+BiometricEvaluation::Process::ForkManager::broadcastSignal(int signo)
+{
+	vector< tr1::shared_ptr<WorkerController> >::iterator it;
+	tr1::shared_ptr<ForkWorkerController> workerController;
+	for (it = _workers.begin(); it != _workers.end(); it++) {
+		workerController =
+		    tr1::static_pointer_cast<ForkWorkerController>(*it);
+		kill(workerController->getPID(), signo);
+	}
+}
+
 tr1::shared_ptr<BiometricEvaluation::Process::ForkWorkerController>
 BiometricEvaluation::Process::ForkManager::getProcessWithPID(
     pid_t pid)
@@ -265,10 +277,16 @@ BiometricEvaluation::Process::ForkManager::_wait()
 	while (getNumActiveWorkers() > 0) {
 		while (!stop) {
 			process = ::wait(&status);
-
-			if (process == -1) {
+			switch (process) {
+			case -1:
 				switch (errno) {
 				case ECHILD:	/* No child processes */
+					if (_exitCallback != NULL) {
+						_exitCallback(
+						    tr1::shared_ptr<
+							ForkWorkerController>(),
+							 0);
+					}
 					stop = true;
 					break;
 				case EINTR:	/* Interrupted */
@@ -284,19 +302,23 @@ BiometricEvaluation::Process::ForkManager::_wait()
 					throw Error::StrategyError(
 					    Error::errorStr());
 				}
-			} else
+				break;
+			case 0:	/* Child exists but hasn't changed state */
+				break;
+			default:
+				try {
+					this->setNotWorking(process);
+				} catch (Error::ObjectDoesNotExist) {
+					throw Error::StrategyError(
+					    Error::errorStr());
+				}
+				if (_exitCallback != NULL) {
+					_exitCallback(
+					    getProcessWithPID(process), status);
+				}
 				stop = true;
-		}
-		
-		/* Notify parent, if desired */
-		if (_exitCallback != NULL) {
-			if (process == -1)
-				_exitCallback(
-				    tr1::shared_ptr<ForkWorkerController>(),
-				    0);
-			else
-				_exitCallback(getProcessWithPID(process),
-				    status);
+				break;
+			}
 		}
 	}
 }
@@ -319,7 +341,7 @@ BiometricEvaluation::Process::ForkManager::reap(
 
 	while (!stop) {
 		/* Reap the first available child without waiting */
-		pid_t pid = ::waitpid(-1, &status, WNOHANG);
+		pid = ::waitpid(-1, &status, WNOHANG);
 
 		if (pid == -1) {
 			switch (errno) {
@@ -458,12 +480,12 @@ BiometricEvaluation::Process::ForkWorkerController::stop()
 		throw Error::StrategyError("Could not send stop signal");
 
 	/*
-	 * Clean up the child immediately. Should not hang w/o WNOHANG because
-	 * we know the process will exit.
+	 * We don't wait for the child to exit because that is done
+	 * either in the signal handler for the case of the application
+	 * not waiting, or in the start of a worker when the application
+	 * does wait.
 	 */
-	int32_t status;
-	waitpid(_pid, &status, 0);
-	return (status);
+	return (0);
 }
 
 void
