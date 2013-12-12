@@ -80,7 +80,7 @@ else
 endif
 
 be_error.o: be_error.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ -D_XOPEN_SOURCE=600 $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 be_framework.o: be_framework.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION) $<

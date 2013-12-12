@@ -10,9 +10,22 @@
 
 #include <stdio.h>
 
-#ifdef __CYGWIN__
+/* 
+ * Certain versions of Cygwin only support the GNU version of
+ * strerror_r(), which returns a char *; other versions support
+ * both the BSD (returning int) and the GNU version. To support
+ * all platforms, use a pointer set to the buffer passed in, and
+ * #define _GNU_SOURCE above so we get the GNU version always on
+ * Cygwin.
+ * http://www.gnu.org/software/hello/manual/gnulib/strerror_005fr.html
+ * For Linux, there is also confusion, so in order to remove any
+ * dependency on the build system (-D_XOPEN_SOURCE=600, etc.) always
+ * use the GNU version of strerror_r().
+ */
+#if defined __CYGWIN__ || defined __linux__
 #define _GNU_SOURCE
 #endif
+
 #include <string.h>
 #include <errno.h>
 
@@ -27,26 +40,23 @@ BiometricEvaluation::Error::errorStr()
 	char *msgbufptr = NULL;
 	int lastErrno = errno;
 
-	/* 
-	 * Certain versions of Cygwin only support the GNU version of
-	 * strerror_r(), which returns a char *; other versions support
-	 * both the BSD (returning int) and the GNU version. To support
-	 * all platforms, use a pointer set to the buffer passed in, and
-	 * #define _GNU_SOURCE above so we get the GNU version always on
-	 * Cygwin.
-	 * http://www.gnu.org/software/hello/manual/gnulib/strerror_005fr.html
-	 */
-#ifdef __CYGWIN__
+#if defined __CYGWIN__ || defined __linux__
+	/* GNU strerror_r() always returns a pointer to a string */
 	msgbufptr = strerror_r(errno, msgbuf, BUFSIZ);
 #else
-	msgbufptr = (strerror_r(errno, msgbuf, BUFSIZ) == 0 ? msgbuf : NULL);
-#endif
-
+	/*
+	 * For other systems, use the POSIX version of strerror_r().
+	 * POSIX doesn't specify what is returned when an error
+	 * occurs, so create our own error string.
+	 */
+	int ret = strerror_r(errno, msgbuf, BUFSIZ);
 	/* Error message when failing to retrieve the error message */
-	if (msgbufptr == NULL)
+	if (ret != 0) {
 		snprintf(msgbuf, BUFSIZ, "Unable to retrieve system error "
 		    "message for errno = %d (errno = %d)", lastErrno, errno);
-		    
-	return (msgbuf);
+	}
+	msgbufptr = msgbuf;
+#endif
+	return (msgbufptr);
 }
 
