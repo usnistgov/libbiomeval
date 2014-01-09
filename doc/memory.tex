@@ -9,11 +9,11 @@ classes to wrap C memory allocations, and other dynamically-sized objects.
 \section{AutoBuffer}
 \label{sec-autobuffer}
 The \lname\ is designed to interoperate with existing C code that has its own
-memory management techniques, e.g. \nbis~\cite{nbis}. In these cases, functions
-exist to allocate and free blocks of memory, and these calls must be made by
-the applications which use those libraries. To assist \sname\ clients that
-use these existing libraries, the \class{AutoBuffer} class wraps the C memory
-management functions, guaranteeing the release of C objects when the
+memory management techniques, e.g. \nbis~\cite{nist:nbis}. In these cases,
+functions exist to allocate and free blocks of memory, and these calls must be
+made by the applications which use those libraries. To assist \sname\ clients
+that use these existing libraries, the \class{AutoBuffer} class wraps the C
+memory management functions, guaranteeing the release of C objects when the
 AutoBuffer goes out of scope.
 
 The \class{AutoBuffer} constructor takes three function pointers as parameters: one for

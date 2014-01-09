@@ -91,7 +91,7 @@ within libjpeg will be caught and rethrown as \class{Exception}~s.
 \label{sec-image-jpegl}
 Similar to \class{JPEG}, the \class{JPEGL} class performs \class{Image} class
 services for lossless JPEG encoded images.  JPEGL decompression is performed
-by \nbis~'s \lib{libjpegl}~\cite{nbis}.
+by \nbis~'s \lib{libjpegl}~\cite{nist:nbis}.
 
 \section{JPEG2000}
 \label{sec-image-jpeg2000}
@@ -146,8 +146,8 @@ are caught and rethrown as \class{Exception}~s.
 
 \section{WSQ}
 \label{sec-image-wsq}
-Images encoded in the WSQ-image standard~\cite{wsq} are represented by the 
-\class{WSQ} class.  The WSQ decompressor found in \nbis~\cite{nbis}, 
+Images encoded in the WSQ-image standard~\cite{std:wsq} are represented by the 
+\class{WSQ} class.  The WSQ decompressor found in \nbis~\cite{nist:nbis}, 
 \lib{libwsq}, is used by this class.  The class provides a static function to determine whether or not an image appears to be encoded in the WSQ format.
 
 Errors from the \lib{libwsq} will be displayed through \code{stderr}
