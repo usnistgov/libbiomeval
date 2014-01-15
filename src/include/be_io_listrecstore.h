@@ -1,4 +1,4 @@
-/*
+/**
  * This software was developed at the National Institute of Standards and
  * Technology (NIST) by employees of the Federal Government in the course
  * of their official duties. Pursuant to title 17 Section 105 of the
@@ -44,7 +44,6 @@ namespace BiometricEvaluation
 		 * ListRecordStores can also be created and modified with
 		 * versions of rstool(1) from 2013 or later.
 		 *
-		 * @example 
 		 * Example .rscontrol.prop file:
 		 *	Count = 10
 		 *	Description = Search records for SDK TESTSDK
@@ -53,7 +52,7 @@ namespace BiometricEvaluation
 		 *	Source Record Store = /Users/wsalamon/sandbox/SD29.rs
 		 *
 		 * @note
-		 * List RecordStores can only be opened read-only.
+		 * List RecordStores must be opened read-only.
 		 */
 		class ListRecordStore : public RecordStore {
 		public:
