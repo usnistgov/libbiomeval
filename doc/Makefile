@@ -19,5 +19,6 @@ include $(LOCALINC)/common.mk
 .DEFAULT_GOAL = all
 
 all:
-	$(MAKE) GENERATEDOXYGEN=YES thedoc
-
+	$(MAKE) WRAPPER=BEFull GENERATEDOXYGEN=YES thedoc
+small:
+	$(MAKE) WRAPPER=BESmall GENERATEDOXYGEN=NO thedoc
