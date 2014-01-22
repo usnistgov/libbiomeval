@@ -275,6 +275,7 @@ BiometricEvaluation::Process::ForkManager::_wait()
 	pid_t process = -1;
 	int status;
 	while (getNumActiveWorkers() > 0) {
+		stop = false;
 		while (!stop) {
 			process = ::wait(&status);
 			switch (process) {
