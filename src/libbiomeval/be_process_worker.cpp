@@ -89,10 +89,6 @@ BiometricEvaluation::Process::Worker::waitForMessage(
     const
 {
 	bool result = false;
-	fd_set set;
-	
-	FD_ZERO(&set);
-	FD_SET(_pipeToChild[0], &set);
 	
 	struct timeval timeout;
 	bool userTimeout;
@@ -120,33 +116,42 @@ BiometricEvaluation::Process::Worker::waitForMessage(
 	 * is told to stop asynchronously.
 	 */
 	bool finished = false;
+	fd_set set;
+	FD_ZERO(&set);
+	FD_SET(_pipeToChild[0], &set);
+	struct timeval l_timeout = timeout;
 	while (!finished && !_stopRequested) {
 		int ret = select(_pipeToChild[0] + 1, &set,
-		    NULL, NULL, &timeout);
+		    NULL, NULL, &l_timeout);
 		if (ret == 0) {
 			/* Nothing available */
 			if (userTimeout) {
 				result = false;
 				finished = true;
+			} else {
+				FD_SET(_pipeToChild[0], &set);
+				/* Reset timeout as some systems change it */
+				l_timeout = timeout;
 			}
 		} else if (ret < 0) {
 			/* Could have been interrupted while blocking */
-			if (errno != EINTR)
-				finished = true;
-			else
+			if (errno == EINTR) {
 				/* Give up if we need to exit anyway */
 				if (_stopRequested)
 					return (false);
+			} else {
+				finished = true;
+			}
 		} else {
 			/* Something available -- check what */
-			if (FD_ISSET(_pipeToChild[0], &set) == 0)
+			if (FD_ISSET(_pipeToChild[0], &set)) {
+				result = true;
+				finished = true;
+			} else {
 				result = false;
-			result = true;
-			finished = true;
+			}
 		}
 	}
-	
-	FD_CLR(_pipeToChild[0], &set);
 	return (result);
 }
 

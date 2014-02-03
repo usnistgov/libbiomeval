@@ -90,9 +90,9 @@ BiometricEvaluation::Process::WorkerController::sendMessageToWorker(
 	Error::SignalManager signalManager(sigset);
 	
 	size_t sz = 0;
+	int pipeFD = getWorker()->getSendingPipe();
 	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
-		sz = write(getWorker()->getSendingPipe(), &length,
-		    sizeof(length));
+		sz = write(pipeFD, &length, sizeof(length));
 	END_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
 	if (signalManager.sigHandled())
 		throw Error::ObjectDoesNotExist("Widowed pipe");
@@ -100,7 +100,7 @@ BiometricEvaluation::Process::WorkerController::sendMessageToWorker(
 		throw (Error::StrategyError("Could not write message length: "
 		    + Error::errorStr()));
 	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
-		sz = write(getWorker()->getSendingPipe(), message, length);
+		sz = write(pipeFD, message, length);
 	END_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
 	if (signalManager.sigHandled())
 		throw Error::ObjectDoesNotExist("Widowed pipe");

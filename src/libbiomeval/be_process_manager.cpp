@@ -131,6 +131,12 @@ BiometricEvaluation::Process::Manager::waitForMessage(
 		}
 		
 		int ret = select(maxfd + 1, &set, NULL, NULL, timeoutptr);
+		/*
+		 * We don't reset timeout value here (for Linux systems)
+		 * because when something, or nothing, is available, we return,
+		 * and for interrupted calls can just leave the remaining
+		 * timeout in place.
+		 */
 		if (ret == 0) {
 			/* Nothing available */
 			result = false;
