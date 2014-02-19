@@ -138,9 +138,11 @@ bool
 BiometricEvaluation::Image::PNG::isPNG(
     const uint8_t *data)
 {
-	static const png_size_t sig_length =
-	    sizeof(((struct png_info_struct*)NULL)->signature);
-	return (png_sig_cmp((png_bytep)data, 0, sig_length) == 0);
+	static const png_size_t PNG_SIG_LENGTH = 8;
+
+	png_byte header[PNG_SIG_LENGTH];
+	std::memcpy(header, data, PNG_SIG_LENGTH);
+	return (png_sig_cmp(header, 0, PNG_SIG_LENGTH) == 0);
 }
 
 void
