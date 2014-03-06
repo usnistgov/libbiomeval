@@ -350,7 +350,7 @@ messages.
 
 	/* Deal with next customer unless Manager interrupts in next second */
 	if (this->waitForMessage(1)) {
-		if (this->getMessageFromManager(msg)) {
+		if (this->receiveMessageFromManager(msg)) {
 			Action action = Restaurant::messageToAction(msg);
 			switch (action) {
 			case TAKE_BREAK:
