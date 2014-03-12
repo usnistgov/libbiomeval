@@ -142,17 +142,6 @@ namespace BiometricEvaluation
 			 */
 			bool isAppendixFCompliant() const;
 
-			/*
-			 * View::View implementations.
-			 */
-			tr1::shared_ptr<Image::Image> getImage() const;
-			Image::Size getImageSize() const;
-			Image::Resolution getImageResolution() const;
-			uint32_t getImageDepth() const;
-			Image::CompressionAlgorithm::Kind
-			    getCompressionAlgorithm() const;
-			Image::Resolution getScanResolution() const;
-
 		protected:
 
 			INCITSView();
@@ -296,40 +285,6 @@ namespace BiometricEvaluation
 			 * compliant, false if not.
 			 */
 			void setAppendixFCompliance(bool flag);
-
-			/**
-			 * @brief
-			 * Mutator for the image size.
-			 * @param[in] imageSize
-			 * The image size object.
-			 */
-			void setImageSize(const Image::Size &imageSize);
-
-			/**
-			 * @brief
-			 * Mutator for the image resolution.
-			 * @param[in] imageResolution
-			 * The image resolution object.
-			 */
-			void setImageResolution(
-			    const Image::Resolution &imageResolution);
-
-			/**
-			 * @brief
-			 * Mutator for the image scan resolution.
-			 * @param[in] scanResolution
-			 * The image scan resolution object.
-			 */
-			void setScanResolution(
-			    const Image::Resolution &scanResolution);
-
-			/**
-			 * @brief
-			 * Mutator for the image data.
-			 * @param[in] imageData
-			 * The image data object.
-			 */
-			void setImageData(const Memory::uint8Array &imageData);
 
 			/**
 			 * @brief
@@ -477,13 +432,6 @@ namespace BiometricEvaluation
 			uint16_t _productIDOwner;
 			uint16_t _productIDType;
 			uint16_t _captureEquipmentID;
-
-			Image::Size _imageSize;
-			Image::Resolution _imageResolution;
-			Image::Resolution _scanResolution;
-			Memory::uint8Array _imageData;
-			Image::CompressionAlgorithm::Kind _compressionAlgorithm;
-			uint32_t _imageDepth;
 		};
 	}
 }

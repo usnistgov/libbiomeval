@@ -210,17 +210,6 @@ namespace BiometricEvaluation
 
 			~AN2KView();
 
-			/*
-			 * View::View implementations.
-		 	 */
-			tr1::shared_ptr<Image::Image> getImage() const;
-			Image::Size getImageSize() const;
-			Image::Resolution getImageResolution() const;
-			uint32_t getImageDepth() const;
-			Image::CompressionAlgorithm::Kind
-			    getCompressionAlgorithm() const;
-			Image::Resolution getScanResolution() const;
-			
 			/**
 			 * @brief
 			 * Obtain the set of minutiae records.
@@ -265,38 +254,6 @@ namespace BiometricEvaluation
 			RECORD*
 			getAN2KRecord()
 			    const;
-
-			/**
-			 * @brief
-			 * Mutator for the image data.
-			 */
-			void setImageData(
-			    const Memory::AutoArray<uint8_t> &imageData);
-
-			/**
-			 * @brief
-			 * Mutator for the image resolution.
-			 */
-			void setImageResolution(const Image::Resolution &ir);
-
-			/**
-			 * @brief
-			 * Mutator for the image depth.
-			 */
-			void setImageDepth(const uint32_t depth);
-
-			/**
-			 * @brief
-			 * Mutator for the scan resolution.
-			 */
-			void setScanResolution(const Image::Resolution &ir);
-
-			/**
-			 * @brief
-			 * Mutator for the compression algorithm.
-			 */
-			void setCompressionAlgorithm(
-			    const Image::CompressionAlgorithm::Kind &ca);
 
 		private:
 
@@ -360,16 +317,6 @@ namespace BiometricEvaluation
 			addMinutiaeDataRecord(
 			    Finger::AN2KMinutiaeDataRecord &mdr);
 			    
-			/*
-			 * Items for the Image: Data, resolution, etc.
-			 */
-			Image::Size _imageSize;
-			Image::Resolution _imageResolution;
-			Image::Resolution _scanResolution;
-			Memory::AutoArray<uint8_t> _imageData;
-			Image::CompressionAlgorithm::Kind _compressionAlgorithm;
-			uint32_t _imageDepth;
-
 			/* The record that this object represents. The Nth
 			 * record is searched for when the object is
 			 * constructed and may be referenced by subclasses.

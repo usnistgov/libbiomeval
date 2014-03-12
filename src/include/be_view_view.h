@@ -30,18 +30,20 @@ namespace BiometricEvaluation
 		 */
 		class View {
 		public:
-			virtual ~View() = 0;
 
 			/**
 			 * @brief
-			 * Obtain the image used for the finger view.
+			 * Obtain the image used for the biometric view
+			 * in the format contained in the record (JPEG, etc.)
 			 * @details
-			 * Not all finger views will have an image, however
+			 * Not all views will have an image, however
 			 * the derived information, such as minutiae, may
 			 * be present.
+			 * @return
+			 * The image data.
 		 	 */
-			virtual tr1::shared_ptr<Image::Image>
-			    getImage() const = 0;
+			tr1::shared_ptr<Image::Image>
+			    getImage() const;
 
 			/**
 			 * @brief
@@ -53,8 +55,10 @@ namespace BiometricEvaluation
 			 * applications can check for inconsistencies. In
 			 * the case of raw images, however, the value obtained
 			 * with this method must be accepted as correct.
+			 * @return
+			 * The image size.
 		 	 */
-			virtual Image::Size getImageSize() const = 0;
+			Image::Size getImageSize() const;
 
 			/**
 			 * @brief
@@ -65,8 +69,11 @@ namespace BiometricEvaluation
 			 * resolution may be the components of the pixel
 			 * ratio, and applications must check the 
 			 * Image::Resolution::units field for value NA.
+			 * @return
+			 * The scan resolution.
 		 	 */
-			virtual Image::Resolution getImageResolution() const = 0;
+			Image::Resolution getImageResolution() const;
+
 			/**
 			 * @brief
 			 * Obtain the image depth.
@@ -77,8 +84,10 @@ namespace BiometricEvaluation
 			 * applications can check for inconsistencies. In
 			 * the case of raw images, however, the value obtained
 			 * with this method must be accepted as correct.
+			 * @return
+			 * The image depth.
 		 	 */
-			virtual uint32_t getImageDepth() const = 0;
+			uint32_t getImageDepth() const;
 
 			/**
 			 * @brief
@@ -86,9 +95,11 @@ namespace BiometricEvaluation
 			 * @details
 			 * This value is as present in the biometric record,
 			 * and not obtained from the image data itself.
+			 * @return
+			 * The compression algorithm.
 		 	 */
-			virtual Image::CompressionAlgorithm::Kind
-			    getCompressionAlgorithm() const = 0;
+			Image::CompressionAlgorithm::Kind
+			    getCompressionAlgorithm() const;
 
 			/**
 			 * @brief
@@ -98,11 +109,80 @@ namespace BiometricEvaluation
 			 * and not in the image data itself. Normally, this
 			 * value and the actual image resolution must be equal,
 			 * but applications can check for inconsistencies.
+			 * @return
+			 * The scan resolution.
 		 	 */
-			virtual Image::Resolution getScanResolution() const = 0;
+			Image::Resolution getScanResolution() const;
 
 		protected:
+			View();
+			~View();
+
+			/**
+			 * @brief
+			 * Mutator for the image size.
+			 * @param[in] imageSize
+			 * The image size object.
+			 */
+			void setImageSize(
+			    const BiometricEvaluation::Image::Size &imageSize);
+
+			/**
+			 * @brief
+			 * Mutator for the image size.
+			 * @param[in] imageDepth
+			 * The image depth.
+			 */
+			void setImageDepth(uint32_t imageDepth);
+
+			/**
+			 * @brief
+			 * Mutator for the image resolution.
+			 * @param[in] imageResolution
+			 * The image resolution object.
+			 */
+			void setImageResolution(
+			    const BiometricEvaluation::Image::Resolution
+				&imageResolution);
+
+			/**
+			 * @brief
+			 * Mutator for the image scan resolution.
+			 * @param[in] scanResolution
+			 * The image scan resolution object.
+			 */
+			void setScanResolution(
+			    const BiometricEvaluation::Image::Resolution
+				&scanResolution);
+
+			/**
+			 * @brief
+			 * Mutator for the image data.
+			 * @param[in] imageData
+			 * The image data object.
+			 */
+			void setImageData(
+			    const BiometricEvaluation::Memory::uint8Array
+				&imageData);
+
+			/**
+			 * @brief
+			 * Mutator for the compression algorithm.
+			 */
+			void setCompressionAlgorithm(
+			    const Image::CompressionAlgorithm::Kind &ca);
+
 		private:
+			/*
+			 * Items for the Image: Data, resolution, etc.
+			 */
+			Image::Size _imageSize;
+			Image::Resolution _imageResolution;
+			Image::Resolution _scanResolution;
+			Memory::AutoArray<uint8_t> _imageData;
+			Image::CompressionAlgorithm::Kind _compressionAlgorithm;
+			uint32_t _imageDepth;
+
 		};
 	}
 }

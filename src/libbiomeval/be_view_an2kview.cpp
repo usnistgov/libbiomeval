@@ -12,9 +12,6 @@
 
 #include <be_data_interchange_an2k.h>
 #include <be_finger_an2kminutiae_data_record.h>
-#include <be_image_jpeg.h>
-#include <be_image_raw.h>
-#include <be_image_wsq.h>
 #include <be_io_utility.h>
 #include <be_view_an2kview.h>
 #include <be_memory_autobuffer.h>
@@ -23,6 +20,7 @@ extern "C" {
 }
 
 using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 const double BiometricEvaluation::View::AN2KView::MinimumScanResolutionPPMM = 19.69;
 const double BiometricEvaluation::View::AN2KView::HalfMinimumScanResolutionPPMM = 9.84;
@@ -78,55 +76,6 @@ BiometricEvaluation::View::AN2KView::~AN2KView()
 /*****************************************************************************/
 /* Public functions.                                                         */
 /******************************************************************************/
-
-tr1::shared_ptr<Image::Image>
-BiometricEvaluation::View::AN2KView::getImage() const
-{
-	switch (_compressionAlgorithm) {
-	case Image::CompressionAlgorithm::JPEGB:
-		return (tr1::shared_ptr<Image::Image>(
-		    new Image::JPEG(_imageData, _imageData.size())));
-	case Image::CompressionAlgorithm::None:
-		return (tr1::shared_ptr<Image::Image>(
-		    new Image::Raw(_imageData, _imageData.size(),
-		    _imageSize, _imageDepth, _imageResolution)));
-	case Image::CompressionAlgorithm::WSQ20:
-		return (tr1::shared_ptr<Image::Image>(
-		    new Image::WSQ(_imageData, _imageData.size())));
-	default:
-		return (tr1::shared_ptr<Image::Image>());
-	}
-}
-
-Image::Size
-BiometricEvaluation::View::AN2KView::getImageSize() const
-{
-	return (_imageSize);
-}
-
-Image::Resolution
-BiometricEvaluation::View::AN2KView::getImageResolution() const
-{
-	return (_imageResolution);
-}
-
-uint32_t
-BiometricEvaluation::View::AN2KView::getImageDepth() const
-{
-	return (_imageDepth);
-}
-
-Image::CompressionAlgorithm::Kind
-BiometricEvaluation::View::AN2KView::getCompressionAlgorithm() const
-{
-	return (_compressionAlgorithm);
-}
-
-Image::Resolution
-BiometricEvaluation::View::AN2KView::getScanResolution() const
-{
-	return (_scanResolution);
-}
 
 Image::CompressionAlgorithm::Kind
 BiometricEvaluation::View::AN2KView::convertCompressionAlgorithm(
@@ -261,41 +210,6 @@ BiometricEvaluation::View::operator<<(
 /* Protected functions.                                                       */
 /******************************************************************************/
 
-void
-BiometricEvaluation::View::AN2KView::setImageData(
-    const Memory::AutoArray<uint8_t> &imageData)
-{
-	_imageData = imageData;
-}
-
-void
-BiometricEvaluation::View::AN2KView::setImageResolution(
-    const Image::Resolution &ir)
-{
-	_imageResolution = ir;
-}
-
-void
-BiometricEvaluation::View::AN2KView::setImageDepth(
-    const uint32_t depth)
-{
-	_imageDepth = depth;
-}
-
-void
-BiometricEvaluation::View::AN2KView::setScanResolution(
-    const Image::Resolution &ir)
-{
-	_scanResolution = ir;
-}
-
-void
-BiometricEvaluation::View::AN2KView::setCompressionAlgorithm(
-    const Image::CompressionAlgorithm::Kind &ca)
-{
-	_compressionAlgorithm = ca;
-}
-
 Memory::AutoBuffer<ANSI_NIST>
 BiometricEvaluation::View::AN2KView::getAN2K()
     const
@@ -374,11 +288,14 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
 		
 	if (lookup_ANSI_NIST_field(&field, &idx, HLL_ID, _an2kRecord) != TRUE)
 		throw Error::DataError("Field HLL not found");
-	_imageSize.xSize = atoi((char *)field->subfields[0]->items[0]->value);
+	
+	Image::Size imageSize;
+	imageSize.xSize = atoi((char *)field->subfields[0]->items[0]->value);
 		
 	if (lookup_ANSI_NIST_field(&field, &idx, VLL_ID, _an2kRecord) != TRUE)
 		throw Error::DataError("Field VLL not found");
-	_imageSize.ySize = atoi((char *)field->subfields[0]->items[0]->value);
+	imageSize.ySize = atoi((char *)field->subfields[0]->items[0]->value);
+	this->setImageSize(imageSize);
 	
 	switch (typeID) {
 	case RecordType::Type_3:
@@ -400,8 +317,10 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
     		/* Not reached */
   		throw Error::ParameterError("Invalid Record Type ID");
 	}
-	_compressionAlgorithm = convertCompressionAlgorithm(typeID,
+	Image::CompressionAlgorithm::Kind ca =
+	    convertCompressionAlgorithm(typeID,
 	    field->subfields[0]->items[0]->value);
+	this->setCompressionAlgorithm(ca);
 	
 	switch (typeID) {
 	case RecordType::Type_3:
@@ -423,8 +342,10 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
     		/* Not reached */
   		throw Error::ParameterError("Invalid Record Type ID");
 	}
-	_imageData.copy(field->subfields[0]->items[0]->value,
+	BE::Memory::uint8Array imageData;
+	imageData.copy(field->subfields[0]->items[0]->value,
 	    field->subfields[0]->items[0]->num_bytes);
+	this->setImageData(imageData);
 }
 
 void

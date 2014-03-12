@@ -161,64 +161,6 @@ Finger::INCITSView::getCaptureEquipmentID() const
 	return (_captureEquipmentID);
 }
 
-Image::CompressionAlgorithm::Kind
-    Finger::INCITSView::getCompressionAlgorithm() const
-{
-	return (_compressionAlgorithm);
-}
-
-tr1::shared_ptr<Image::Image>
-Finger::INCITSView::getImage() const
-{
-	if (_imageData.size() == 0)
-		return (tr1::shared_ptr<Image::Image>());
-
-	switch (_compressionAlgorithm) {
-	case Image::CompressionAlgorithm::JPEGB:
-		return (tr1::shared_ptr<Image::Image>(
-		    new Image::JPEG(_imageData, _imageData.size())));
-	case Image::CompressionAlgorithm::JP2:
-		return (tr1::shared_ptr<Image::Image>(
-		    new Image::JPEG2000(_imageData, _imageData.size())));
-	case Image::CompressionAlgorithm::None:
-		return (tr1::shared_ptr<Image::Image>(
-		    new Image::Raw(_imageData, _imageData.size(),
-                    _imageSize, _imageDepth, _imageResolution)));
-	case Image::CompressionAlgorithm::WSQ20:
-		return (tr1::shared_ptr<Image::Image>(
-		    new Image::WSQ(_imageData, _imageData.size())));
-	case Image::CompressionAlgorithm::PNG:
-		return (tr1::shared_ptr<Image::Image>(
-		    new Image::PNG(_imageData, _imageData.size())));
-	default:
-		return (tr1::shared_ptr<Image::Image>());
-        }
-}
-
-Image::Size
-Finger::INCITSView::getImageSize() const
-{
-	return (_imageSize);
-}
-
-Image::Resolution
-Finger::INCITSView::getImageResolution() const
-{
-	return (_imageResolution);
-}
-
-uint32_t
-Finger::INCITSView::getImageDepth() const
-{
-	return (_imageDepth);
-}
-
-Image::Resolution
-Finger::INCITSView::getScanResolution() const
-{
-	return (_scanResolution);
-}
-
 /******************************************************************************/
 /* Local functions.                                                           */
 /******************************************************************************/
@@ -358,30 +300,6 @@ Finger::INCITSView::setAppendixFCompliance(bool flag)
 }
 
 void
-Finger::INCITSView::setImageSize(const Image::Size &imageSize)
-{
-	_imageSize = imageSize;
-}
-
-void Finger::INCITSView::setImageResolution(
-    const Image::Resolution &imageResolution)
-{
-	_imageResolution = imageResolution;
-}
-
-void Finger::INCITSView::setScanResolution(
-    const Image::Resolution &scanResolution)
-{
-	_scanResolution = scanResolution;
-}
-
-void Finger::INCITSView::setImageData(
-    const Memory::uint8Array &imageData)
-{
-	_imageData = imageData;
-}
-
-void
 Finger::INCITSView::readFMRHeader(
     Memory::IndexedBuffer &buf,
     const uint32_t formatStandard)
@@ -434,10 +352,10 @@ Finger::INCITSView::readFMRHeader(
 	uint16_t xval, yval;
 	xval = buf.scanBeU16Val();
 	yval = buf.scanBeU16Val();
-	setImageSize(Image::Size(xval, yval));
+	this->setImageSize(Image::Size(xval, yval));
 	xval = buf.scanBeU16Val();
 	yval = buf.scanBeU16Val();
-	setImageResolution(Image::Resolution(xval, yval));
+	this->setImageResolution(Image::Resolution(xval, yval));
 	setScanResolution(Image::Resolution(xval, yval));
 
 	/* Number of views and reserved field */

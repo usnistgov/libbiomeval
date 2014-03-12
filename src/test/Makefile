@@ -18,13 +18,17 @@ IMAGE = test_be_image_raw test_be_image_jpeg test_be_image_jpegl test_be_image_j
 
 FINGER = test_be_finger_an2kview test_be_finger_an2kview_varres test_be_finger_incitsviews
 
+IRIS = test_be_iris_incitsviews
+
+FACE = test_be_face_incitsviews
+
 PROCESS_MANAGEMENT = test_be_process_forkmanager test_be_process_posixthreadmanager
 
 FEATURE = test_be_feature_an2kminutiae
 
 OTHER = test_be_data_interchange_an2k
 
-PROGS = $(CORE) $(IO) $(IMAGE) $(PROCESS_MANAGEMENT) $(FINGER) $(FEATURE) $(OTHER)
+PROGS = $(CORE) $(IO) $(IMAGE) $(PROCESS_MANAGEMENT) $(FINGER) $(IRIS) $(FACE) $(FEATURE) $(OTHER)
 
 all: CXXFLAGS += -g
 all: $(PROGS)
@@ -96,6 +100,10 @@ test_be_text: test_be_text.cpp
 test_be_framework: test_be_framework.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_finger_an2kview: test_be_finger_an2kview.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_iris_incitsviews: test_be_iris_incitsviews.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_face_incitsviews: test_be_face_incitsviews.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_feature_an2kminutiae: test_be_feature_an2kminutiae.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
