@@ -23,7 +23,7 @@ BiometricEvaluation::Face::ISO2005View::ISO2005View(
 {
 	BE::Memory::uint8Array recordData = Face::INCITSView::getFIDData();
 	BE::Memory::IndexedBuffer iBuf(recordData, recordData.size());
-	this->readHeader(iBuf, Face::INCITSView::ISO2005_STANDARD);
+	this->readHeader(iBuf);
 
 	//XXX Really should use a skipFaceView() function here
 	for (uint32_t i = 1; i <= viewNumber; i++)
@@ -37,7 +37,7 @@ BiometricEvaluation::Face::ISO2005View::ISO2005View(
 {
 	BE::Memory::IndexedBuffer iBuf(
 	    const_cast<BE::Memory::uint8Array &>(buffer), buffer.size());
-	this->readHeader(iBuf, Face::INCITSView::ISO2005_STANDARD);
+	this->readHeader(iBuf);
 
 	//XXX Really should use a skipFaceView() function here
 	for (uint32_t i = 1; i <= viewNumber; i++)
@@ -46,8 +46,7 @@ BiometricEvaluation::Face::ISO2005View::ISO2005View(
 
 void
 BiometricEvaluation::Face::ISO2005View::readHeader(
-    Memory::IndexedBuffer &buf,
-    const uint32_t formatStandard)
+    Memory::IndexedBuffer &buf)
 {
 	uint32_t uval32;
 
@@ -59,6 +58,7 @@ BiometricEvaluation::Face::ISO2005View::readHeader(
 	if (uval32 != BE::Face::ISO2005View::BASE_SPEC_VERSION)
 		throw (Error::DataError("Invalid Spec Version in data"));
 
-	BE::Face::INCITSView::readHeader(buf, formatStandard);
+	BE::Face::INCITSView::readHeader(
+	    buf, Face::INCITSView::ISO2005_STANDARD);
 }
 

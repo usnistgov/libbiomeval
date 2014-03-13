@@ -44,18 +44,19 @@ printViewInfo(Iris::INCITSView &irisv)
 	 * Test the implementation of the Iris::INCITSView
 	 * interface.
 	 */
-	cout << "Capture Date: " << irisv.getCaptureDateAsString() << endl;
+	cout << "Capture Date: " << irisv.getCaptureDateString() << endl;
 
 	cout << "Capture Device Technology: "
 	    << irisv.getCaptureDeviceTechnology() << endl;
 	cout << "Capture Device Vendor: "
-	     << hex << "0x" << setw(4) << irisv.getCaptureDeviceVendor()
-	     << endl;
+	    << hex << "0x" << setw(4) << setfill('0') 
+	    << irisv.getCaptureDeviceVendor() << endl;
 	cout << "Capture Device Type: "
-	     << hex << "0x" << setw(4) << irisv.getCaptureDeviceType() << endl;
+	    << hex << "0x" << setw(4) << setfill('0')
+	    << irisv.getCaptureDeviceType() << endl;
 	cout << dec;
 
-	Iris::QualitySet qualitySet;
+	Iris::INCITSView::QualitySet qualitySet;
 	irisv.getQualitySet(qualitySet);
 	cout << "There are " << qualitySet.size() << " quality sub-blocks."
 	    << endl;

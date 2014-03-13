@@ -12,6 +12,7 @@
 #include <be_io_utility.h>
 
 using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 Finger::ANSI2004View::ANSI2004View()
 {
@@ -26,9 +27,11 @@ Finger::ANSI2004View::ANSI2004View(
 {
 	Memory::uint8Array recordData = Finger::INCITSView::getFMRData();
 	Memory::IndexedBuffer iBuf(recordData, recordData.size());
-	this->readFMRHeader(iBuf, Finger::INCITSView::FMR_ANSI2004_STANDARD);
+	this->readFMRHeader(iBuf);
 	for (uint32_t i = 0; i < viewNumber; i++)
 		this->readFVMR(iBuf);
+
+	//XXX Need to read the image record
 }
 
 Finger::ANSI2004View::ANSI2004View(
@@ -39,9 +42,29 @@ Finger::ANSI2004View::ANSI2004View(
     INCITSView(fmrBuffer, firBuffer, viewNumber)
 {
 	Memory::IndexedBuffer iBuf(fmrBuffer, fmrBuffer.size());
-	this->readFMRHeader(iBuf, Finger::INCITSView::FMR_ANSI2004_STANDARD);
+	this->readFMRHeader(iBuf);
 	for (uint32_t i = 0; i < viewNumber; i++)
 		this->readFVMR(iBuf);
+
+	//XXX Need to read the image record
+}
+
+void
+Finger::ANSI2004View::readFMRHeader(
+    Memory::IndexedBuffer &buf)
+{
+	uint32_t uval32;
+
+	uval32 = buf.scanBeU32Val();	/* Format ID */
+	if (uval32 != BE::Finger::INCITSView::FMR_BASE_FORMAT_ID)
+		throw (BE::Error::DataError("Invalid Format ID in data"));
+
+	uval32 = buf.scanBeU32Val();	/* Spec Version */
+	if (uval32 != BE::Finger::ANSI2004View::BASE_SPEC_VERSION)
+		throw (Error::DataError("Invalid Spec Version in data"));
+
+	BE::Finger::INCITSView::readFMRHeader(
+	    buf, BE::Finger::INCITSView::ANSI2004_STANDARD);
 }
 
 void
@@ -52,19 +75,28 @@ Finger::ANSI2004View::readCoreDeltaData(
     Feature::DeltaPointSet &deltas)
     throw (Error::DataError)
 {
+	static const uint16_t CORE_TYPE_MASK = 0xC0;
+	static const uint16_t CORE_TYPE_SHIFT = 6;
+	static const uint16_t CORE_NUM_CORES_MASK = 0x0F;
+	static const uint16_t CORE_X_COORD_MASK = 0x3FFF;
+	static const uint16_t CORE_Y_COORD_MASK = 0x3FFF;
+
+	static const uint16_t DELTA_TYPE_MASK = 0xC0;
+	static const uint16_t DELTA_TYPE_SHIFT = 6;
+	static const uint16_t DELTA_NUM_DELTAS_MASK = 0x3F;
+	static const uint16_t DELTA_X_COORD_MASK = 0x3FFF;
+	static const uint16_t DELTA_Y_COORD_MASK = 0x3FFF;
+
 	/* Read the core info */
 	uint8_t cval = buf.scanU8Val();
-	uint8_t type = (cval & Finger::ANSI2004View::CORE_TYPE_MASK) >>
-	    Finger::ANSI2004View::CORE_TYPE_SHIFT;
-	uint8_t count = cval & Finger::ANSI2004View::CORE_NUM_CORES_MASK;
+	uint8_t type = (cval & CORE_TYPE_MASK) >> CORE_TYPE_SHIFT;
+	uint8_t count = cval & CORE_NUM_CORES_MASK;
 	bool hasAngle = false;
 	if (type == Feature::INCITSMinutiae::CORE_TYPE_ANGULAR)
 		hasAngle = true;
 	for (int i = 0; i < count; i++) {
-		uint16_t x = buf.scanBeU16Val() &
-		    Finger::ANSI2004View::CORE_X_COORD_MASK;
-		uint16_t y = buf.scanBeU16Val() &
-		    Finger::ANSI2004View::CORE_Y_COORD_MASK;
+		uint16_t x = buf.scanBeU16Val() & CORE_X_COORD_MASK;
+		uint16_t y = buf.scanBeU16Val() & CORE_Y_COORD_MASK;
 		uint8_t angle = 0;
 		if (hasAngle)
 			angle = buf.scanU8Val();
@@ -74,17 +106,14 @@ Finger::ANSI2004View::readCoreDeltaData(
 
 	/* Read the delta info */
 	cval = buf.scanU8Val();
-	type = (cval & Finger::ANSI2004View::DELTA_TYPE_MASK) >>
-	    Finger::ANSI2004View::DELTA_TYPE_SHIFT;
-	count = cval & Finger::ANSI2004View::DELTA_NUM_DELTAS_MASK;
+	type = (cval & DELTA_TYPE_MASK) >> DELTA_TYPE_SHIFT;
+	count = cval & DELTA_NUM_DELTAS_MASK;
 	hasAngle = false;
 	if (type == Feature::INCITSMinutiae::DELTA_TYPE_ANGULAR)
 		hasAngle = true;
 	for (int i = 0; i < count; i++) {
-		uint16_t x = buf.scanBeU16Val() &
-		    Finger::ANSI2004View::DELTA_X_COORD_MASK;
-		uint16_t y = buf.scanBeU16Val() &
-		    Finger::ANSI2004View::DELTA_Y_COORD_MASK;
+		uint16_t x = buf.scanBeU16Val() & DELTA_X_COORD_MASK;
+		uint16_t y = buf.scanBeU16Val() & DELTA_Y_COORD_MASK;
 		uint8_t angle1 = 0, angle2 = 0, angle3 = 0;
 		if (hasAngle) {
 			angle1 = buf.scanU8Val();

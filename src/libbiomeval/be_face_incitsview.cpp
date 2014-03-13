@@ -122,7 +122,7 @@ BiometricEvaluation::Face::INCITSView::getDeviceType() const
 
 void
 BiometricEvaluation::Face::INCITSView::getFeaturePointSet(
-    BiometricEvaluation::Face::FeaturePointSet &featurePointSet
+    BiometricEvaluation::Feature::MPEGFacePointSet &featurePointSet
 ) const
 {
 	featurePointSet = this->_featurePointSet;
@@ -236,7 +236,7 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
 	/*
 	 * Feature point blocks
 	 */
-	BE::Face::FeaturePoint fp;
+	BE::Feature::MPEGFacePoint fp;
 	for (uint16_t count = 0; count < numFeaturePoints; count++) {
 		fp.type = buf.scanU8Val();
 		uval8 = buf.scanU8Val();

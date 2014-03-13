@@ -11,6 +11,7 @@
 #ifndef __BE_IRIS_INCITSVIEW_H__
 #define __BE_IRIS_INCITSVIEW_H__
 
+#include <string>
 #include <vector>
 
 #include <be_image.h>
@@ -22,17 +23,6 @@ namespace BiometricEvaluation
 {
 	namespace Iris
 	{
-		/**
-		 * @brief
-		 * Representation of an iris quality block.
-		 */
-		typedef struct {
-			uint8_t		score;
-			uint16_t	vendorID;
-			uint16_t	algorithmID;
-		} QualitySubBlock;
-		typedef std::vector<QualitySubBlock> QualitySet;
-
 		/**
 		 * @brief
 		 * A class to represent single iris view and derived
@@ -47,39 +37,16 @@ namespace BiometricEvaluation
 		 */
 		class INCITSView : public View::View {
 		public:
-			/*
+			/**
 			 * @brief
-			 * Constants relevant to INCITS and ISO iris
-			 * data records.
-			*/
-			static const uint32_t ISO2011_STANDARD = 1;
-
-			static const uint32_t BASE_FORMAT_ID = 0x49495200;
-			/* 'I''I''R' 'nul' */
-
-			static const uint8_t CAPTURE_DATE_LENGTH = 9;
-
-			static const uint8_t SUBJECT_EYE_LABEL_UNDEF = 0;
-			static const uint8_t SUBJECT_EYE_LABEL_RIGHT = 1;
-			static const uint8_t SUBJECT_EYE_LABEL_LEFT = 2;
-
-			static const uint8_t ORIENTATION_UNDEF = 0;
-			static const uint8_t ORIENTATION_BASE = 1;
-			static const uint8_t ORIENTATION_FLIPPED = 2;
-
-			static const uint8_t PREVIOUS_COMPRESSION_UNDEF = 0;
-			static const uint8_t
-			    PREVIOUS_COMPRESSION_LOSSLESS_OR_NONE = 1;
-			static const uint8_t PREVIOUS_COMPRESSION_LOSSY = 2;
-
-			static const uint8_t IMAGE_TYPE_UNCROPPED = 0;
-			static const uint8_t IMAGE_TYPE_VGA = 2;
-			static const uint8_t IMAGE_TYPE_CROPPED = 3;
-			static const uint8_t IMAGE_TYPE_CROPPED_MASKED = 7;
-
-			static const uint8_t IMAGE_FORMAT_MONO_RAW = 0x02;
-			static const uint8_t IMAGE_FORMAT_JPEG2000 = 0x0A;
-			static const uint8_t IMAGE_FORMAT_MONO_PNG = 0x0E;
+			 * Representation of an iris quality block.
+			 */
+			typedef struct {
+				uint8_t		score;
+				uint16_t	vendorID;
+				uint16_t	algorithmID;
+			} QualitySubBlock;
+			typedef std::vector<QualitySubBlock> QualitySet;
 
 			static const uint16_t RANGE_UNASSIGNED = 0;
 			static const uint16_t RANGE_FAILED = 1;
@@ -95,7 +62,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The capture data and time.
 		 	 */
-			std::string getCaptureDateAsString() const;
+			std::string getCaptureDateString() const;
 
 			/**
 			 * @brief
@@ -129,7 +96,7 @@ namespace BiometricEvaluation
 			 * The set of quality sub-blocks.
 		 	 */
 			void getQualitySet(
-			    Iris::QualitySet &qualitySet) const;
+			    Iris::INCITSView::QualitySet &qualitySet) const;
 
 			/**
 			 * @brief
@@ -217,6 +184,11 @@ namespace BiometricEvaluation
 			);
 
 		protected:
+
+			static const uint32_t ISO2011_STANDARD = 1;
+			static const uint32_t BASE_FORMAT_ID = 0x49495200;
+			/* 'I''I''R' 'nul' */
+			static const uint8_t CAPTURE_DATE_LENGTH = 9;
 
 			INCITSView();
 
@@ -319,7 +291,8 @@ namespace BiometricEvaluation
 			BiometricEvaluation::Iris::CaptureDeviceTechnology::Kind
 			    _captureDeviceTechnology;
 
-			BiometricEvaluation::Iris::QualitySet _qualitySet;
+			BiometricEvaluation::Iris::INCITSView::QualitySet
+			    _qualitySet;
 
 			BiometricEvaluation::Iris::EyeLabel::Kind
 			    _eyeLabel;
@@ -343,6 +316,7 @@ namespace BiometricEvaluation
 			uint16_t _captureDeviceVendor;
 			uint16_t _captureDeviceType;
 			uint8_t _captureDate[CAPTURE_DATE_LENGTH];
+			std::string _captureDateString;
 		};
 	}
 }

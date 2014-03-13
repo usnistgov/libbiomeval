@@ -60,26 +60,10 @@ BE::Iris::INCITSView::INCITSView(
 /******************************************************************************/
 
 std::string
-BiometricEvaluation::Iris::INCITSView::getCaptureDateAsString() const
+BiometricEvaluation::Iris::INCITSView::getCaptureDateString() const
 {
-	/*
-	 * Convert the data in the date array to YYYY-MM-DD HH:MM:SS
-	 * format.
-	 */
-	BE::Memory::IndexedBuffer buf(
-	    const_cast<uint8_t *>(this->_captureDate), CAPTURE_DATE_LENGTH);
+	return (this->_captureDateString);
 
-	uint16_t year = buf.scanBeU16Val();
-	uint8_t month = buf.scanU8Val();
-	uint8_t day = buf.scanU8Val();
-	uint8_t hour = buf.scanU8Val();
-	uint8_t minute = buf.scanU8Val();
-	uint8_t seconds = buf.scanU8Val();
-
-	std::stringstream sstr;
-	sstr << (int)year << "-" << (int)month << "-" << (int)day << " ";
-	sstr << (int)hour << ":" << (int)minute << ":" << (int)seconds;
-	return (sstr.str());
 }
 
 BiometricEvaluation::Iris::CaptureDeviceTechnology::Kind
@@ -102,7 +86,7 @@ BiometricEvaluation::Iris::INCITSView::getCaptureDeviceType() const
 
 void
 BiometricEvaluation::Iris::INCITSView::getQualitySet(
-    Iris::QualitySet &qualitySet) const
+    Iris::INCITSView::QualitySet &qualitySet) const
 {
 	qualitySet = this->_qualitySet;
 }
@@ -191,14 +175,34 @@ void
 BiometricEvaluation::Iris::INCITSView::readIrisView(
     BiometricEvaluation::Memory::IndexedBuffer &buf)
 {
+	static const uint8_t IMAGE_FORMAT_MONO_RAW = 0x02;
+	static const uint8_t IMAGE_FORMAT_JPEG2000 = 0x0A;
+	static const uint8_t IMAGE_FORMAT_MONO_PNG = 0x0E;
+
 	uint8_t uval8;
 	uint16_t uval16;
 	uint32_t uval32;
 
 	uval32 = buf.scanBeU32Val();	/* Representation length */
-	buf.scan(this->_captureDate,
-	    BiometricEvaluation::Iris::INCITSView::CAPTURE_DATE_LENGTH);
+	buf.scan(this->_captureDate, CAPTURE_DATE_LENGTH);
+	/*
+	 * Convert the data in the date array to YYYY-MM-DD HH:MM:SS
+	 * format.
+	 */
+	BE::Memory::IndexedBuffer dateBuf(
+	    const_cast<uint8_t *>(this->_captureDate), CAPTURE_DATE_LENGTH);
 
+	uint16_t year = dateBuf.scanBeU16Val();
+	uint8_t month = dateBuf.scanU8Val();
+	uint8_t day = dateBuf.scanU8Val();
+	uint8_t hour = dateBuf.scanU8Val();
+	uint8_t minute = dateBuf.scanU8Val();
+	uint8_t seconds = dateBuf.scanU8Val();
+
+	std::stringstream sstr;
+	sstr << (int)year << "-" << (int)month << "-" << (int)day << " ";
+	sstr << (int)hour << ":" << (int)minute << ":" << (int)seconds;
+	this->_captureDateString = sstr.str();
 
 	//XXX Replace this with Framework::Enumeration
 	uval8 = buf.scanU8Val();
@@ -212,7 +216,7 @@ BiometricEvaluation::Iris::INCITSView::readIrisView(
 	 * Quality blocks: Length field (number of blocks) and blocks
 	 */
 	uval8 = buf.scanU8Val();
-	BE::Iris::QualitySubBlock qsb;
+	BE::Iris::INCITSView::QualitySubBlock qsb;
 	for (uint8_t count = 0; count < uval8; count++) {
 		qsb.score = buf.scanU8Val();
 		qsb.vendorID = buf.scanBeU16Val();
@@ -232,15 +236,15 @@ BiometricEvaluation::Iris::INCITSView::readIrisView(
 
 	uval8 = buf.scanU8Val();	/* Image format */
 	switch (uval8) {
-		case BE::Iris::INCITSView::IMAGE_FORMAT_MONO_RAW:
+		case IMAGE_FORMAT_MONO_RAW:
 			this->setCompressionAlgorithm(
 			    BE::Image::CompressionAlgorithm::None);
 			break;
-		case BE::Iris::INCITSView::IMAGE_FORMAT_JPEG2000:
+		case IMAGE_FORMAT_JPEG2000:
 			this->setCompressionAlgorithm( 
 			    BE::Image::CompressionAlgorithm::JP2);
 			break;
-		case BE::Iris::INCITSView::IMAGE_FORMAT_MONO_PNG:
+		case IMAGE_FORMAT_MONO_PNG:
 			this->setCompressionAlgorithm( 
 			    BE::Image::CompressionAlgorithm::PNG);
 			break;

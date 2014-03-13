@@ -30,24 +30,6 @@ namespace BiometricEvaluation
 		class ANSI2007View : public Finger::INCITSView {
 		public:
 
-			/*
-		 	* Constants that are relevant to parsing ANSI-2007
-			* records.
-			*/
-			static const string FMR_SPEC_VERSION;
-
-			static const uint16_t CORE_TYPE_MASK = 0xC0;
-			static const uint16_t CORE_TYPE_SHIFT = 6;
-			static const uint16_t CORE_NUM_CORES_MASK = 0x0F;
-			static const uint16_t CORE_X_COORD_MASK = 0x3FFF;
-			static const uint16_t CORE_Y_COORD_MASK = 0x3FFF;
-
-			static const uint16_t DELTA_TYPE_MASK = 0xC0;
-			static const uint16_t DELTA_TYPE_SHIFT = 6;
-			static const uint16_t DELTA_NUM_DELTAS_MASK = 0x0F;
-			static const uint16_t DELTA_X_COORD_MASK = 0x3FFF;
-			static const uint16_t DELTA_Y_COORD_MASK = 0x3FFF;
-
 			ANSI2007View();
 
 			/**
@@ -113,14 +95,11 @@ namespace BiometricEvaluation
 			    throw (Error::DataError);
 
 		protected:
-			/*
-			 * Override the inherited method to read the
-			 * Finger Minutiae Record header.
-			*/
+			static const uint32_t BASE_SPEC_VERSION = 0x30333000;
+			/* '0' '3' '0' 'nul' */
+
 			void readFMRHeader(
-			    Memory::IndexedBuffer &buf,
-			    const uint32_t formatStandard)
-			    throw (Error::ParameterError, Error::DataError);
+			    Memory::IndexedBuffer &buf);
 
 			/*
 			 * Override the inherited method to read the

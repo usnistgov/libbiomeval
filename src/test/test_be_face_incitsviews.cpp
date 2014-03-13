@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iostream>
 #include <be_face_iso2005view.h>
+#include <be_feature_mpegfacepoint.h>
 
 using namespace std;
 using namespace BiometricEvaluation;
@@ -61,7 +62,7 @@ printViewInfo(Face::INCITSView &facev)
 	cout << "Image data type is " << facev.getImageDataType() << endl;
 	cout << "Color space is " << facev.getColorSpace() << endl;
 	cout << "Source type is " << facev.getSourceType() << endl;
-	cout << "Device type is " << "0x" << hex << setw(4)
+	cout << "Device type is " << "0x" << hex << setw(4) << setfill('0')
 	    << facev.getDeviceType() << dec << endl;
 
 	Face::PropertySet properties;
@@ -77,7 +78,7 @@ printViewInfo(Face::INCITSView &facev)
 		cout << "There are no properties." << endl;
 	}
 
-	Face::FeaturePointSet fps;
+	Feature::MPEGFacePointSet fps;
 	facev.getFeaturePointSet(fps);
 	cout << "There are " << fps.size() << " feature points." << endl;
 	if (fps.size() != 0) {

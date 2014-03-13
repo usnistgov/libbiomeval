@@ -17,7 +17,6 @@ namespace BiometricEvaluation
 {
 	namespace Iris
 	{
-
 		/**
 		 * @brief
 		 * A class to represent single iris view and derived
@@ -28,9 +27,6 @@ namespace BiometricEvaluation
 		 */
 		class ISO2011View : public Iris::INCITSView {
 		public:
-			static const uint32_t BASE_SPEC_VERSION = 0x30323000;
-
-			/* '0''2''0' 'nul' */
 			/**
 			 * @brief
 			 * Construct an empty ISO 2011 iris view.
@@ -71,14 +67,13 @@ namespace BiometricEvaluation
 			ISO2011View(
 			    const Memory::uint8Array &buffer,
 			    const uint32_t viewNumber);
+
 		protected:
-			/*
-			 * Override parent method to enforce specific
-			 * needs of ISO 2011 version of the spec.
-			 */
+			static const uint32_t BASE_SPEC_VERSION = 0x30323000;
+			/* '0''2''0' 'nul' */
+
 			void readHeader(
-			    BiometricEvaluation::Memory::IndexedBuffer &buf,
-			    const uint32_t formatStandard);
+			    BiometricEvaluation::Memory::IndexedBuffer &buf);
 		private:
 		};
 	}

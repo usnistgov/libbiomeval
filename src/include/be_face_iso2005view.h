@@ -22,7 +22,6 @@ namespace BiometricEvaluation
 {
 	namespace Face
 	{
-
 		/**
 		 * @brief
 		 * A class to represent single face view and derived
@@ -33,14 +32,6 @@ namespace BiometricEvaluation
 		 */
 		class ISO2005View : public Face::INCITSView {
 		public:
-			/*
-			 * @brief
-			 * Constants relevant to INCITS and ISO face
-			 * data records.
-			*/
-			static const uint32_t BASE_SPEC_VERSION = 0x30313000;
-			/* '0''1''0' 'nul' */
-
 			/**
 			 * @brief
 			 * Construct an empty ISO2005 Face Image Data record.
@@ -94,6 +85,9 @@ namespace BiometricEvaluation
 
 		protected:
 
+			static const uint32_t BASE_SPEC_VERSION = 0x30313000;
+			/* '0''1''0' 'nul' */
+
 			/**
 			 * @brief
 			 * Read the face image data record header
@@ -102,17 +96,11 @@ namespace BiometricEvaluation
 			 * The indexed buffer containing the record data.
 			 * The index of the buffer will be changed to the
 			 * location after the header.
-			 * @param[in] formatStandard
-			 * Value indicating which header version to read; must
-			 * be ISO2005_STANDARD.
-			 * @throw ParameterError
-			 * The specVersion parameter is incorrect.
 			 * @throw DataError
 			 * The record has invalid or missing data.
 			 */
 			void readHeader(
-			    BiometricEvaluation::Memory::IndexedBuffer &buf,
-			    const uint32_t formatStandard);
+			    BiometricEvaluation::Memory::IndexedBuffer &buf);
 
 		private:
 		};

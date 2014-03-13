@@ -33,31 +33,6 @@ namespace BiometricEvaluation
 		 */
 		class INCITSView : public View::View {
 		public:
-
-
-			/*
-			 * @brief
-			 * Constants relevant to INCITS and ISO finger minutiae
-			 * data records.
-			*/
-			static const uint32_t FMR_ANSI2004_STANDARD = 1;
-			static const uint32_t FMR_ISO2005_STANDARD = 2;
-			static const uint32_t FMR_ANSI2007_STANDARD = 3;
-
-			static const string FMR_BASE_FORMAT_ID;
-			static const uint32_t FMR_SPEC_VERSION_LEN = 4;
-			static const string FMR_BASE_SPEC_VERSION;
-
-			static const string FMR_ANSI2007_SPEC_VERSION;
-			
-			static const uint16_t FMR_HDR_SCANNER_ID_MASK = 0x0FFF;
-			static const uint16_t FMR_HDR_COMPLIANCE_MASK = 0xF000;
-			static const uint8_t FMR_HDR_COMPLIANCE_SHIFT = 12;
-			static const uint16_t FMR_HDR_APPENDIX_F_MASK = 0x0008;
-			static const uint8_t FVMR_VIEW_NUMBER_MASK = 0xF0;
-			static const uint8_t FVMR_VIEW_NUMBER_SHIFT  = 4;
-			static const uint8_t FVMR_IMPRESSION_MASK = 0x0F;
-
 			/**
 			 * @brief
 			 * Convert a finger postion code from an INCITS
@@ -73,7 +48,7 @@ namespace BiometricEvaluation
 			 */
 			static Finger::Position::Kind
 			    convertPosition(int incitsFGP)
-    			    throw (Error::DataError);
+			    throw (Error::DataError);
 	
 			/**
 			 * @brief
@@ -93,7 +68,7 @@ namespace BiometricEvaluation
 			 */
 			static Finger::Impression::Kind
 			    convertImpression(int incitsIMP)
-    			    throw (Error::DataError);
+			    throw (Error::DataError);
 	
 			/**
 			 * @brief
@@ -143,6 +118,18 @@ namespace BiometricEvaluation
 			bool isAppendixFCompliant() const;
 
 		protected:
+
+			static const uint32_t FMR_BASE_FORMAT_ID = 0x464D5200;
+			/* 'F' 'M' 'R' 'nul' */
+
+			/**
+			 * @brief
+			 * The type of record that will be read by the
+			 * subclass.
+			*/
+			static const uint32_t ANSI2004_STANDARD = 1;
+			static const uint32_t ISO2005_STANDARD = 2;
+			static const uint32_t ANSI2007_STANDARD = 3;
 
 			INCITSView();
 
@@ -295,11 +282,13 @@ namespace BiometricEvaluation
 			 * finger minutiae record header is (mostly) the same.
 			 * @param[in] buf
 			 * The indexed buffer containing the record data.
+			 * The index must start after the Format ID and
+			 * spec version fields in the header.
 			 * The index of the buffer will be changed to the
 			 * location after the header.
 			 * @param[in] formatStandard
 			 * Value indicating which header version to read; one
-			 * of FMR_ANSI2004_STANDARD or FMR_ISO2005_STANDARD.
+			 * of ANSI2004_STANDARD or ISO2005_STANDARD.
 			 * @throw ParameterError
 			 * The specVersion parameter is incorrect.
 			 * @throw DataError

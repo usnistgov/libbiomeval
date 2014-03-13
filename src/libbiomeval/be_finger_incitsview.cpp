@@ -21,9 +21,6 @@
 
 using namespace BiometricEvaluation;
 
-const string BiometricEvaluation::Finger::INCITSView::FMR_BASE_SPEC_VERSION(" 20");
-const string BiometricEvaluation::Finger::INCITSView::FMR_BASE_FORMAT_ID("FMR");
-
 Finger::INCITSView::INCITSView()
 {
 }
@@ -305,27 +302,19 @@ Finger::INCITSView::readFMRHeader(
     const uint32_t formatStandard)
     throw (Error::ParameterError, Error::DataError)
 {
-	if ((formatStandard != Finger::INCITSView::FMR_ANSI2004_STANDARD) &&
-	    (formatStandard != Finger::INCITSView::FMR_ISO2005_STANDARD))
+	static const uint16_t HDR_SCANNER_ID_MASK = 0x0FFF;
+	static const uint16_t HDR_COMPLIANCE_MASK = 0xF000;
+	static const uint8_t HDR_COMPLIANCE_SHIFT = 12;
+
+	if ((formatStandard != Finger::INCITSView::ANSI2004_STANDARD) &&
+	    (formatStandard != Finger::INCITSView::ISO2005_STANDARD))
 		throw (Error::ParameterError("Invalid standard parameter"));
 
 	uint32_t lval;
 	uint16_t sval;
 
-	lval = buf.scanU32Val();	/* Format ID */
-	char *cptr = (char *)&lval;
-	string s(cptr);
-	if (s != Finger::INCITSView::FMR_BASE_FORMAT_ID)
-		throw (Error::DataError("Invalid Format ID in data"));
-
-	lval = buf.scanU32Val();	/* Spec Version */
-	cptr[3] = 0;			/* Make sure string is terminated */
-	s = string(cptr);
-	if (s != Finger::INCITSView::FMR_BASE_SPEC_VERSION)
-		throw (Error::DataError("Invalid Spec Version in data"));
-
 	/* Record length, 2/4/6 bytes */
-	if (formatStandard == Finger::INCITSView::FMR_ANSI2004_STANDARD) {
+	if (formatStandard == Finger::INCITSView::ANSI2004_STANDARD) {
 		sval = buf.scanBeU16Val();
 		if (sval == 0) {
 			lval = buf.scanBeU32Val();	/* record length */
@@ -335,18 +324,16 @@ Finger::INCITSView::readFMRHeader(
 	}
 	
 	/* CBEFF Product ID */
-	if (formatStandard == Finger::INCITSView::FMR_ANSI2004_STANDARD) {
+	if (formatStandard == Finger::INCITSView::ANSI2004_STANDARD) {
 		_productIDOwner = buf.scanBeU16Val();
 		_productIDType = buf.scanBeU16Val();
 	}
 
 	/* Capture equipment compliance/scanner ID */
 	sval = buf.scanBeU16Val();
-	_captureEquipmentID = sval &
-	    Finger::INCITSView::FMR_HDR_SCANNER_ID_MASK;
+	_captureEquipmentID = sval & HDR_SCANNER_ID_MASK;
 	_appendixFCompliance =
-	    (sval & Finger::INCITSView::FMR_HDR_COMPLIANCE_MASK) >>
-	    Finger::INCITSView::FMR_HDR_COMPLIANCE_SHIFT;
+	    (sval & HDR_COMPLIANCE_MASK) >> HDR_COMPLIANCE_SHIFT;
 
 	/* Image size and resolution */
 	uint16_t xval, yval;
@@ -368,6 +355,10 @@ Finger::INCITSView::readFVMR(
     Memory::IndexedBuffer &buf)
     throw (Error::DataError)
 {
+	static const uint8_t FVMR_VIEW_NUMBER_MASK = 0xF0;
+	static const uint8_t FVMR_VIEW_NUMBER_SHIFT  = 4;
+	static const uint8_t FVMR_IMPRESSION_MASK = 0x0F;
+
 	uint8_t cval = buf.scanU8Val();
 	_position = Finger::INCITSView::convertPosition(cval);
 

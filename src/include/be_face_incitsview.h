@@ -15,6 +15,7 @@
 
 #include <be_image.h>
 #include <be_face.h>
+#include <be_feature_mpegfacepoint.h>
 #include <be_memory_indexedbuffer.h>
 #include <be_view_view.h>
 
@@ -22,18 +23,6 @@ namespace BiometricEvaluation
 {
 	namespace Face
 	{
-		/**
-		 * @brief
-		 * Representation of a feature point and a set of points.
-		 */
-		typedef struct {
-			uint8_t		type;
-			uint8_t		major;
-			uint8_t		minor;
-			BiometricEvaluation::Image::Coordinate coordinate;
-		} FeaturePoint;
-		typedef std::vector<FeaturePoint> FeaturePointSet;
-
 		/**
 		 * A set of properties.
 		 */
@@ -54,19 +43,6 @@ namespace BiometricEvaluation
 		 */
 		class INCITSView : public View::View {
 		public:
-			/*
-			 * @brief
-			 * Constants relevant to INCITS and ISO face
-			 * data records.
-			*/
-			static const uint32_t ISO2005_STANDARD = 1;
-
-			static const uint32_t BASE_FORMAT_ID = 0x46414300;
-			/* 'F''A''C' 'nul' */
-
-			static const uint8_t IMAGE_FORMAT_JPEG = 0x00;
-			static const uint8_t IMAGE_FORMAT_JPEG2000 = 0x01;
-
 			/**
 			 * @brief
 			 * Obtain the gender.
@@ -118,7 +94,8 @@ namespace BiometricEvaluation
 			 * The set of feature points.
 		 	 */
 			void getFeaturePointSet(
-			    Face::FeaturePointSet &featurePointSet) const;
+			    BiometricEvaluation::Feature::MPEGFacePointSet
+				 &featurePointSet) const;
 
 			/**
 			 * @brief
@@ -169,6 +146,10 @@ namespace BiometricEvaluation
 			uint16_t getDeviceType() const;
 
 		protected:
+
+			static const uint32_t ISO2005_STANDARD = 1;
+			static const uint32_t BASE_FORMAT_ID = 0x46414300;
+			/* 'F''A''C' 'nul' */
 
 			INCITSView();
 
@@ -268,7 +249,7 @@ namespace BiometricEvaluation
 		private:
 			BiometricEvaluation::Memory::uint8Array _fid;
 
-			BiometricEvaluation::Face::FeaturePointSet
+			BiometricEvaluation::Feature::MPEGFacePointSet
 			    _featurePointSet;
 			BiometricEvaluation::Face::ImageType::Kind
 			    _imageType;

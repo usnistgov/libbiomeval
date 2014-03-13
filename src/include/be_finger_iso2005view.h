@@ -28,24 +28,6 @@ namespace BiometricEvaluation
 		 */
 		class ISO2005View : public Finger::INCITSView {
 		public:
-
-			/*
-			 * Constants that are relevant to parsing ISO-2005
-			 * records.
-			*/
-			static const uint16_t CORE_TYPE_MASK = 0xC000;
-			static const uint16_t CORE_TYPE_SHIFT = 14;
-			static const uint16_t CORE_NUM_CORES_MASK = 0x3F;
-			static const uint16_t CORE_X_COORD_MASK = 0x3FFF;
-			static const uint16_t CORE_Y_COORD_MASK = 0x3FFF;
-			static const uint16_t CORE_MIN_NUM = 0;
-
-			static const uint16_t DELTA_TYPE_MASK = 0xC000;
-			static const uint16_t DELTA_TYPE_SHIFT = 14;
-			static const uint16_t DELTA_NUM_DELTAS_MASK = 0x3F;
-			static const uint16_t DELTA_X_COORD_MASK = 0x3FFF;
-			static const uint16_t DELTA_Y_COORD_MASK = 0x3FFF;
-
 			/*
 			 * Construct an empty ISO-2005 view.
 			 */
@@ -110,6 +92,12 @@ namespace BiometricEvaluation
 			    throw (Error::DataError);
 
 		protected:
+			static const uint32_t BASE_SPEC_VERSION = 0x20323000;
+			/* ' ' '2' '0' 'nul' */
+
+			void readFMRHeader(
+			    Memory::IndexedBuffer &buf);
+
 			/*
 			 * Required implementation of reading core/delta data.
 			 */
