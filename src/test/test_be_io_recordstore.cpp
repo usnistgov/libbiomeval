@@ -16,6 +16,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <be_io_utility.h>
+
 #ifdef FILERECORDSTORETEST
 #include <be_io_filerecstore.h>
 #define TESTDEFINED
@@ -397,7 +399,7 @@ runTests(IO::RecordStore *rs)
 
 	cout << endl << "Changing RecordStore name..." << endl;
 	try {
-		string newName = tempnam(".", NULL);
+		string newName = IO::Utility::createTemporaryFile("", ".");
 		newName = newName.substr(2, newName.length());
 		rs->changeName(newName);
 	} catch (Error::ObjectExists &e) {

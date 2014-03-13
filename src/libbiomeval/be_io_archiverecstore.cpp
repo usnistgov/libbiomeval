@@ -567,7 +567,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::vacuum(
 				delete oldrs;
 			return;
 		}
-		string newName = tempnam(".", NULL);
+		string newName = IO::Utility::createTemporaryFile("", ".");
 		newName = newName.substr(2, newName.length());
 		newrs = new ArchiveRecordStore(newName, 
 		    oldrs->getDescription(), parentDir);
