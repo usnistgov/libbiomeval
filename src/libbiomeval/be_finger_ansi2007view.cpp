@@ -67,9 +67,6 @@ Finger::ANSI2007View::readFMRHeader(
 	if (lval != BE::Finger::ANSI2007View::BASE_SPEC_VERSION)
 		throw (Error::DataError("Invalid Spec Version in data"));
 
-	BE::Finger::INCITSView::readFMRHeader(
-	    buf, BE::Finger::INCITSView::ANSI2004_STANDARD);
-
 	/* Record length, 4 bytes */
 	lval = buf.scanBeU32Val();
 	
