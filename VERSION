@@ -14,13 +14,13 @@
 #
 # Increment this number when applications should be forced to relink with a
 # newer version of the library (changes to .h files).
-MAJOR_VERSION=0
+MAJOR_VERSION=1
 
 # Minor version number
 #
 # Increment this number as updates are made to the compiled library that
 # do not break existing applications (changes to .cpp files).
-MINOR_VERSION=4
+MINOR_VERSION=0
 
 # Compatibility version number (OS X only)
 #
