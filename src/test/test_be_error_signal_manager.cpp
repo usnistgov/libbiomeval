@@ -13,6 +13,7 @@
 #include <memory>
 
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <be_error_signal_manager.h>
 

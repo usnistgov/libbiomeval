@@ -10,6 +10,8 @@
 
 #include <sys/select.h>
 
+#include <unistd.h>
+
 #include <algorithm>
 #include <cerrno>
 

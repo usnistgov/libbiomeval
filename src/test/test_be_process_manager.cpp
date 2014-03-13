@@ -12,6 +12,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <unistd.h>
+
 #include <be_io_recordstore.h>
 #include <be_io_utility.h>
 

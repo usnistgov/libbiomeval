@@ -8,6 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <unistd.h>
+
 #include <be_error.h>
 #include <be_error_signal_manager.h>
 
