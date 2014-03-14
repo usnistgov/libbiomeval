@@ -101,7 +101,7 @@ namespace BiometricEvaluation
 			/*
 			 * Required implementation of reading core/delta data.
 			 */
-			virtual void readCoreDeltaData(
+			void readCoreDeltaData(
 			    Memory::IndexedBuffer &buf,
 				uint32_t dataLength,
 				Feature::CorePointSet &cores,
