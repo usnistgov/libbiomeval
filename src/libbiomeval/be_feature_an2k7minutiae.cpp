@@ -9,6 +9,7 @@
  */
 #include <cstdio>
 
+#include <be_framework_enumeration.h>
 #include <be_finger_an2kview.h>
 #include <be_feature_an2k7minutiae.h>
 #include <be_memory_autobuffer.h>
@@ -17,33 +18,45 @@ extern "C" {
 #include <an2k.h>
 }
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
+
+template<>
+const std::map<BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod,
+    std::string> BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod>::
+    enumToStringMap {
+	{BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod::Automatic,
+	    "Automatic (no possible human interaction)"},
+	{BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod::
+	    AutomaticUnedited, "Automatic (editing possible, "
+	    "but not performed)"},
+	{BE::Feature::AN2K7Minutiae::EncodingMethod::Manual, "Manual"}
+};
 
 BiometricEvaluation::Feature::AN2K7Minutiae::AN2K7Minutiae(
     const std::string &filename,
     int recordNumber)
-    throw (Error::DataError, Error::FileError)
 {
 
 	if (!IO::Utility::fileExists(filename))
-		throw (Error::FileError("File not found."));
+		throw (BE::Error::FileError("File not found."));
 
 	FILE *fp = std::fopen(filename.c_str(), "rb");
-	if (fp == NULL)
-		throw (Error::FileError("Could not open file."));
+	if (fp == nullptr)
+		throw (BE::Error::FileError("Could not open file."));
 
 	uint64_t sz = IO::Utility::getFileSize(filename);
 	Memory::uint8Array buf(sz);
 	if (fread(buf, 1, sz, fp) != sz) {
 		fclose(fp);
-		throw Error::FileError("Could not read AN2K file");
+		throw BE::Error::FileError("Could not read AN2K file");
 	}
         fclose(fp);
 	
 	readType9Record(buf, recordNumber);
 }
 
-BiometricEvaluation::Feature::MinutiaeFormat::Kind
+BiometricEvaluation::Feature::MinutiaeFormat
 BiometricEvaluation::Feature::AN2K7Minutiae::getFormat() const
 {
 	return (MinutiaeFormat::AN2K7);
@@ -52,7 +65,6 @@ BiometricEvaluation::Feature::AN2K7Minutiae::getFormat() const
 BiometricEvaluation::Feature::AN2K7Minutiae::AN2K7Minutiae(
     Memory::uint8Array &buf,
     int recordNumber)
-    throw (Error::DataError)
 {
 	readType9Record(buf, recordNumber);
 }
@@ -60,10 +72,9 @@ BiometricEvaluation::Feature::AN2K7Minutiae::AN2K7Minutiae(
 BiometricEvaluation::Feature::AN2K7Minutiae::FingerprintReadingSystem
 BiometricEvaluation::Feature::AN2K7Minutiae::
 getOriginatingFingerprintReadingSystem() const
-    throw (Error::ObjectDoesNotExist)
 {
 	if (_ofr.name.empty())
-		throw Error::ObjectDoesNotExist();
+		throw BE::Error::ObjectDoesNotExist();
 	
 	return (_ofr);
 }
@@ -74,25 +85,25 @@ BiometricEvaluation::Feature::AN2K7Minutiae::getPatternClassificationSet() const
 	return (_fpc);
 }
 
-Feature::MinutiaPointSet
+BiometricEvaluation::Feature::MinutiaPointSet
 BiometricEvaluation::Feature::AN2K7Minutiae::getMinutiaPoints() const
 {
 	return (_minutiaPointSet);
 }
 
-Feature::RidgeCountItemSet
+BiometricEvaluation::Feature::RidgeCountItemSet
 BiometricEvaluation::Feature::AN2K7Minutiae::getRidgeCountItems() const
 {
 	return (_ridgeCountItemSet);
 }
 
-Feature::CorePointSet
+BiometricEvaluation::Feature::CorePointSet
 BiometricEvaluation::Feature::AN2K7Minutiae::getCores() const
 {
 	return (_corePointSet);
 }
 
-Feature::DeltaPointSet
+BiometricEvaluation::Feature::DeltaPointSet
 BiometricEvaluation::Feature::AN2K7Minutiae::getDeltas() const
 {
 	return (_deltaPointSet);
@@ -113,11 +124,11 @@ BiometricEvaluation::Feature::AN2K7Minutiae::PatternClassification::Entry::Entry
 /******************************************************************************/
 
 static void
-convertXYT(unsigned char *value, Feature::MinutiaPoint *mp)
+convertXYT(unsigned char *value, BiometricEvaluation::Feature::MinutiaPoint *mp)
 {
         char buf[5];
 	buf[4] = '\0';
-        Image::Coordinate coord;
+        BE::Image::Coordinate coord;
         for (int i = 0; i < 4; i++)
                 buf[i] = value[i];
         mp->coordinate.x = atoi(buf);
@@ -135,7 +146,6 @@ extractRidge(
     const unsigned char *str,
     int *point,
     int *distance)
-    throw (Error::DataError)
 {
 	/* Copy the string */
 	int len = strlen((char*)str);
@@ -153,7 +163,7 @@ extractRidge(
 	
 	/* Make sure it split */
 	if (i == (len - 1))
-		throw Error::DataError("Invalid format for MRC ridge data");
+		throw BE::Error::DataError("Invalid format for MRC ridge data");
 	
 	/* Assign the two integers */
 	*point = atoi((char*)copy);
@@ -164,24 +174,23 @@ extractRidge(
 static void
 readMRC(
     const RECORD *type9,
-    Feature::MinutiaPointSet &mps,
-    Feature::RidgeCountItemSet &rcs,
+    BiometricEvaluation::Feature::MinutiaPointSet &mps,
+    BiometricEvaluation::Feature::RidgeCountItemSet &rcs,
     bool hasRDG)
-    throw (Error::DataError)
 {
 	FIELD *field;
 	int idx;
 
 	/* Number of minutiae */
 	if (lookup_ANSI_NIST_field(&field, &idx, MIN_ID, type9) == FALSE)
-		throw Error::DataError("Field MIN not found");
+		throw BE::Error::DataError("Field MIN not found");
 	int count = atoi((char*)field->subfields[0]->items[0]->value);
 
 	/* Minutiae and Ridge Count data */
 	if (lookup_ANSI_NIST_field(&field, &idx, MRC_ID, type9) == FALSE)
-		throw Error::DataError("Field MRC not found");	
+		throw BE::Error::DataError("Field MRC not found");	
 	for (int i = 0; i < count; i++) {
-		Feature::MinutiaPoint mp;
+		BiometricEvaluation::Feature::MinutiaPoint mp;
 		
 		int numItems = field->subfields[i]->num_items;
 		
@@ -201,7 +210,7 @@ readMRC(
 		
 		/* Minutiae type present */
 		if (numItems >= 4) {
-			mp.type = (Feature::MinutiaeType::Kind)atoi((char*)
+			mp.type = (BE::Feature::MinutiaeType)atoi((char*)
 			    field->subfields[i]->items[3]->value);
 			mp.has_type = true;
 		} else {
@@ -212,9 +221,9 @@ readMRC(
 		/* The remaining information is ridge count data */
 		if (hasRDG) {
 			if (numItems < 5)
-				throw Error::DataError("Corrupt Type-9");
+				throw BE::Error::DataError("Corrupt Type-9");
 			for (int j = 4; j < numItems; j++) {
-				Feature::RidgeCountItem ridge;
+				BE::Feature::RidgeCountItem ridge;
 				ridge.index_one = mp.index;
 				extractRidge(
 				    field->subfields[i]->items[j]->value,
@@ -226,31 +235,11 @@ readMRC(
 	}
 }
 
-std::ostream&
-BiometricEvaluation::Feature::operator<< (std::ostream &s,
-    const Feature::AN2K7Minutiae::EncodingMethod::Kind& mem)
-{
-	string str;
-	switch (mem) {
-	case Feature::AN2K7Minutiae::EncodingMethod::Automatic:
-		str = "Automatic (no possible human interaction)"; break;
-	case Feature::AN2K7Minutiae::EncodingMethod::AutomaticUnedited:
-		str = "Automatic (editing possible, but not performed)"; break;
-	case Feature::AN2K7Minutiae::EncodingMethod::AutomaticEdited:
-		str = "Automatic (editing possible and performed)"; break;
-	case Feature::AN2K7Minutiae::EncodingMethod::Manual:
-		str = "Manual"; break;
-	}
-	
-	return (s << str);
-}
-
-BiometricEvaluation::Finger::PatternClassification::Kind
+BiometricEvaluation::Finger::PatternClassification
 BiometricEvaluation::Feature::AN2K7Minutiae::convertPatternClassification(
     const char *fpc)
-    throw (Error::DataError)
 {
-	string str(fpc);
+	std::string str(fpc);
 	if (str == "PA")
 		return (Finger::PatternClassification::PlainArch);
 	else if (str == "TA")
@@ -280,32 +269,31 @@ BiometricEvaluation::Feature::AN2K7Minutiae::convertPatternClassification(
 	else if (str == "UN")
 		return (Finger::PatternClassification::Unknown);
 	else
-		throw Error::DataError("Invalid value for "
+		throw BE::Error::DataError("Invalid value for "
 		    "pattern classification");	
 }
 
-BiometricEvaluation::Finger::PatternClassification::Kind
+BiometricEvaluation::Finger::PatternClassification
 BiometricEvaluation::Feature::AN2K7Minutiae::convertPatternClassification(
     const PatternClassification::Entry &entry)
-    throw (Error::DataError)
 {
 	if (entry.standard == false)
-		throw Error::DataError("Non-standard pattern classification");
+		throw BE::Error::DataError(
+		    "Non-standard pattern classification");
 		
 	return (convertPatternClassification(entry.code.c_str()));
 }
 
-BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod::Kind
+BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod
 BiometricEvaluation::Feature::AN2K7Minutiae::convertEncodingMethod(
     const char *mem)
-    throw (Error::DataError)
 {
-	string str(mem);
+	std::string str(mem);
 	if (str == "A") return (EncodingMethod::Automatic);
 	else if (str == "U") return (EncodingMethod::AutomaticUnedited);
 	else if (str == "E") return (EncodingMethod::AutomaticEdited);
 	else if (str == "M") return (EncodingMethod::Manual);
-	else throw Error::DataError("Invalid value for minutiae encoding "
+	else throw BE::Error::DataError("Invalid value for minutiae encoding "
 	    "method");
 }
 
@@ -314,10 +302,10 @@ BiometricEvaluation::Feature::operator<<(
     std::ostream &s,
     const Feature::AN2K7Minutiae::FingerprintReadingSystem &frs)
 {
-	s << "Name: " << frs.name << endl;
-	s << "Method: " << frs.method;
+	s << "Name: " << frs.name << std::endl;
+	s << "Method: " << to_string(frs.method);
 	if (frs.equipment.empty() == false)
-		s << endl << "Equipment ID: " << frs.equipment;
+		s << std::endl << "Equipment ID: " << frs.equipment;
 
 	return (s);
 }
@@ -326,22 +314,22 @@ BiometricEvaluation::Image::Coordinate
 BiometricEvaluation::Feature::AN2K7Minutiae::convertCoordinate(
     const char *str,
     bool calculateDistance)
-    throw (Error::DataError)
 {
 	if (strlen(str) != 8)
-		throw Error::DataError("Coordinate encoding of invalid size");
+		throw BE::Error::DataError(
+		    "Coordinate encoding of invalid size");
 		
 	char x[5], y[5];
 	for (int i = 0; i < 4; i++) x[i] = str[i];
 	for (int i = 4; i < 8; i++) y[i - 4] = str[i];
 	x[4] = y[4] = '\0';
 
-	Image::Coordinate ret(atoi(x), atoi(y));
+	BE::Image::Coordinate ret(atoi(x), atoi(y));
 	
 	if (calculateDistance) {
-		static Image::Coordinate origin(0, 0, 0.0, 0.0);
-		ret.xDistance = Image::distance(ret, origin);
-		ret.yDistance = Image::distance(ret, origin);
+		static BE::Image::Coordinate origin(0, 0, 0.0, 0.0);
+		ret.xDistance = BE::Image::distance(ret, origin);
+		ret.yDistance = BE::Image::distance(ret, origin);
 	}
 	
 	return (ret);
@@ -355,7 +343,6 @@ void
 BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
     Memory::uint8Array &buf,
     int recordNumber)
-    throw (Error::DataError)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k =
 	    Memory::AutoBuffer<ANSI_NIST>(&alloc_ANSI_NIST,
@@ -364,14 +351,15 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
 	AN2KBDB bdb;
 	INIT_AN2KBDB(&bdb, buf, buf.size());
 	if (scan_ANSI_NIST(&bdb, an2k) != 0)
-		throw Error::DataError("Could not read complete AN2K record");
+		throw BE::Error::DataError(
+		    "Could not read complete AN2K record");
 
 	/*
 	 * Find the requested Type-9 in the file, throwing an exception
 	 * if not present. The first record in an AN2K file is always
 	 * the Type-1, so skip that one.
 	 */
-	RECORD *type9 = NULL;
+	RECORD *type9 = nullptr;
 	for (int i = 1; i < an2k->num_records; i++) {
 		if (an2k->records[i]->type == TYPE_9_ID) {
 			if (i == recordNumber) {
@@ -380,8 +368,8 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
 			}
 		}
 	}
-	if (type9 == NULL)
-		throw (Error::DataError(
+	if (type9 == nullptr)
+		throw (BE::Error::DataError(
 		    "Could not find requested Type-9 in AN2K record"));
 
 	/*********************************************************************/
@@ -391,19 +379,19 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
 	int idx;
 
 	if (lookup_ANSI_NIST_field(&field, &idx, FGP2_ID, type9) == FALSE)
-		throw Error::DataError("Field FGP not found");
+		throw BE::Error::DataError("Field FGP not found");
 	_fgp = Finger::AN2KView::populateFGP(field);
 	
 	if (lookup_ANSI_NIST_field(&field, &idx, FPC_ID, type9) == FALSE)
-		throw Error::DataError("Field FPC not found");
+		throw BE::Error::DataError("Field FPC not found");
 	for (int i = 0; i < field->num_subfields; i++)
 		_fpc.push_back(PatternClassification::Entry(
-		    (string((char*)field->subfields[i]->items[0]->
+		    (std::string((char*)field->subfields[i]->items[0]->
 		    value) == "T"), (char *)field->subfields[i]->
 		    items[1]->value));
 
 	if (lookup_ANSI_NIST_field(&field, &idx, RDG_ID, type9) == FALSE)
-		throw Error::DataError("Field RDG not found");
+		throw BE::Error::DataError("Field RDG not found");
 	bool hasRDG = atoi((char*)field->subfields[0]->items[0]->value);
 
 	readMRC(type9, _minutiaPointSet, _ridgeCountItemSet, hasRDG);

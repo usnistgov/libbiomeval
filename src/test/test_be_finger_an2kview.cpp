@@ -25,23 +25,29 @@ handleAN2KView(Finger::AN2KView &an2kv)
 	/*
 	 * Test the AN2KView implementation of the Finger::View interface.
 	 */
-	cout << "Record Type is " << an2kv.getRecordType() << endl;
+	cout << "Record Type is " <<
+	    static_cast<
+	    std::underlying_type<View::AN2KView::RecordType>::type>(
+	    an2kv.getRecordType()) << endl;
 	cout << "Image resolution is " << an2kv.getImageResolution() << endl;
 	cout << "Image size is " << an2kv.getImageSize() << endl;
 	cout << "Image depth is " << an2kv.getImageDepth() << endl;
-	cout << "Compression is " << an2kv.getCompressionAlgorithm() << endl;
+	cout << "Compression is " <<
+	    to_string(an2kv.getCompressionAlgorithm()) << endl;
 	cout << "Scan resolution is " << an2kv.getScanResolution() << endl;
 
 	/*
 	 * Get the image data and save to a file
 	 */
-	tr1::shared_ptr<Image::Image> img = an2kv.getImage();
-	if (img.get() == NULL) {
-		cout << "Image was NULL" << endl;
+	shared_ptr<Image::Image> img = an2kv.getImage();
+	if (img.get() == nullptr) {
+		cout << "Image was nullptr" << endl;
 		return (-1);
 	}
 	char tmpl[32];
-	sprintf(tmpl, "Type-%u_imgXXXXXX", an2kv.getRecordType());
+	sprintf(tmpl, "Type-%u_imgXXXXXX",
+	    static_cast<std::underlying_type<
+	    View::AN2KView::RecordType>::type>(an2kv.getRecordType()));
 	string filename = mktemp(tmpl);
 	filename += ".pgm";
 
@@ -56,8 +62,9 @@ handleAN2KView(Finger::AN2KView &an2kv)
 
 	ofstream img_out(filename.c_str(), ofstream::binary);
 	img_out << hdr.str();
-	img_out.write((char *)&(img->getRawData()[0]),
-	    img->getRawData().size());
+	Memory::uint8Array imgData;
+	img->getRawData(imgData);
+	img_out.write((char *)&(imgData[0]), imgData.size());
 	if (img_out.good())
 		cout << "\tFile: " << filename << endl;
 	else {
@@ -69,7 +76,7 @@ handleAN2KView(Finger::AN2KView &an2kv)
 	Finger::PositionSet positions = an2kv.getPositions();
 	cout << "There are " << positions.size() << " positions:" << endl;
 	for (size_t i = 0; i < positions.size(); i++)
-		cout << "\t" << positions[i] << endl;
+		cout << "\t" << to_string(positions[i]) << endl;
 
 	/*
 	 * Test the Finger::AN2KView extensions.
@@ -95,10 +102,10 @@ main(int argc, char* argv[]) {
 		_an2kv = new Finger::AN2KViewFixedResolution(
 		    "test_data/type9.an2k", View::AN2KView::RecordType::Type_3, 1);
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	if (!success) {
@@ -112,7 +119,7 @@ main(int argc, char* argv[]) {
 		_an2kv = new Finger::AN2KViewFixedResolution(
 		    "nbv5425GHdfsdfad", View::AN2KView::RecordType::Type_3, 1);
 	} catch (Error::FileError& e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -126,10 +133,10 @@ main(int argc, char* argv[]) {
 		    "test_data/type4-slaps.an2k",
 		    View::AN2KView::RecordType::Type_4, 1);
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	std::auto_ptr<Finger::AN2KView> an2kv(_an2kv);
@@ -143,10 +150,10 @@ main(int argc, char* argv[]) {
 		    "test_data/type3.an2k",
 		    View::AN2KView::RecordType::Type_3, 1));
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	cout << "Success." << endl;

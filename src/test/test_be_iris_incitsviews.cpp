@@ -26,17 +26,18 @@ printViewInfo(Iris::INCITSView &irisv)
 	cout << "Image resolution is " << irisv.getImageResolution() << endl;
 	cout << "Image size is " << irisv.getImageSize() << endl;
 	cout << "Image depth is " << irisv.getImageDepth() << endl;
-	cout << "Compression is " << irisv.getCompressionAlgorithm() << endl;
+	cout << "Compression is " <<
+	    to_string(irisv.getCompressionAlgorithm()) << endl;
 	cout << "Scan resolution is " << irisv.getScanResolution() << endl;
 
 	try {
-		tr1::shared_ptr<Image::Image> theImage = irisv.getImage();
+		std::shared_ptr<Image::Image> theImage = irisv.getImage();
 		cout << "Information from the Image data item:" << endl;
 		cout << "\tResolution: " << theImage->getResolution() << endl;
 		cout << "\tDimensions: " << theImage->getDimensions() << endl;
 		cout << "\tDepth: " << theImage->getDepth() << endl;
 	} catch (Error::Exception &e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 	}
 	cout << "------------------------------------------" << endl;
 
@@ -116,10 +117,10 @@ testISO2011()
 	try {
 		irisv = Iris::ISO2011View("test_data/iris01.iso2011", 1);
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (false);
 	} catch (Error::FileError& e) {
-		cout << e.getInfo() << endl;
+		cout << e.what() << endl;
 		return (false);
 	}
 	cout << "Success." << endl;

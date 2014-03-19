@@ -16,16 +16,15 @@ extern "C" {
 #include <an2k.h>
 }
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 /******************************************************************************/
 /* Private functions.                                                         */
 /******************************************************************************/
-set<int>
+std::set<int>
 BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
     Memory::uint8Array &buf,
-    View::AN2KView::RecordType::Kind recordType)
-    throw (Error::DataError)
+    View::AN2KView::RecordType recordType)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k(&alloc_ANSI_NIST,
 	    &free_ANSI_NIST, &copy_ANSI_NIST);
@@ -37,14 +36,16 @@ BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
 	return (recordLocations(an2k, recordType));
 }
 
-set<int>
+std::set<int>
 BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
     const ANSI_NIST *an2k,
-    View::AN2KView::RecordType::Kind recordType)
+    View::AN2KView::RecordType recordType)
 {
-	set<int> locations;
+	std::set<int> locations;
 	for (int i = 0; i < an2k->num_records; i++)
-		if (an2k->records[i]->type == recordType)
+		if (an2k->records[i]->type == static_cast<
+		    std::underlying_type<
+		    View::AN2KView::RecordType>::type>(recordType))
 			locations.insert(i);
 			
 	return (locations);
@@ -53,7 +54,6 @@ BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
 void
 BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
     Memory::uint8Array &buf)
-    throw (Error::DataError)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k(&alloc_ANSI_NIST,
 	    &free_ANSI_NIST, &copy_ANSI_NIST);
@@ -129,7 +129,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
 	}
 	/* Greenwich Mean Time */
 	if (lookup_ANSI_NIST_field(&field, &field_idx, GMT_ID, rec) == TRUE) {
-		string gmt = (char *)field->subfields[0]->items[0]->value;
+		std::string gmt = (char *)field->subfields[0]->items[0]->value;
 		if (gmt.length() != 15)
 			throw Error::DataError("Field GMT has invalid length");
 		_gmt.tm_year = atoi(gmt.substr(0, 4).c_str());
@@ -170,7 +170,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readFingerCaptures(
 	int i = 1;
 	while(true) {
 		try {
-			Finger::AN2KViewCapture an2kv(buf, i);
+			BE::Finger::AN2KViewCapture an2kv(buf, i);
 			_fingerCaptures.push_back(an2kv);
 		} catch (Error::DataError &e) {
 			break;
@@ -186,7 +186,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readFingerLatents(
 	int i = 1;
 	while(true) {
 		try {
-			Finger::AN2KViewLatent an2kv(buf, i);
+			BE::Finger::AN2KViewLatent an2kv(buf, i);
 			_fingerLatents.push_back(an2kv);
 		} catch (Error::DataError &e) {
 			break;
@@ -199,11 +199,13 @@ void
 BiometricEvaluation::DataInterchange::AN2KRecord::readMinutiaeData(
     Memory::uint8Array &buf)
 {
-	set<int> loc = recordLocations(buf, View::AN2KView::RecordType::Type_9);
-	for (set<int>::const_iterator it = loc.begin(); it != loc.end(); it++) {
+	std::set<int> loc = recordLocations(
+	    buf, View::AN2KView::RecordType::Type_9);
+	for (std::set<int>::const_iterator it = loc.begin();
+	    it != loc.end(); it++) {
 		try {
 			_minutiaeDataRecordSet.push_back(
-			    Finger::AN2KMinutiaeDataRecord(buf, *it));
+			    BE::Finger::AN2KMinutiaeDataRecord(buf, *it));
 		} catch (Error::DataError &e) {
 			break;
 		}	
@@ -215,15 +217,12 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readMinutiaeData(
 /******************************************************************************/
 BiometricEvaluation::DataInterchange::AN2KRecord::AN2KRecord(
     const std::string filename)
-    throw (
-	Error::DataError,
-	Error::FileError)
 {
 	if (!IO::Utility::fileExists(filename))
 		throw Error::FileError("File not found.");
 
 	FILE *fp = std::fopen(filename.c_str(), "rb");
-	if (fp == NULL)
+	if (fp == nullptr)
                 throw (Error::FileError("Could not open file."));
 
 	uint64_t sz = IO::Utility::getFileSize(filename);
@@ -239,8 +238,6 @@ BiometricEvaluation::DataInterchange::AN2KRecord::AN2KRecord(
 
 BiometricEvaluation::DataInterchange::AN2KRecord::AN2KRecord(
     Memory::uint8Array &buf)
-    throw (
-	Error::DataError)
 {
 	readAN2KRecord(buf);
 }
@@ -248,7 +245,6 @@ BiometricEvaluation::DataInterchange::AN2KRecord::AN2KRecord(
 void
 BiometricEvaluation::DataInterchange::AN2KRecord::readAN2KRecord(
     Memory::uint8Array &buf)
-    throw (Error::DataError)
 {
 	readType1Record(buf);
 	readMinutiaeData(buf);
@@ -256,43 +252,43 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readAN2KRecord(
 	readFingerLatents(buf);
 }
 
-string
+std::string
 BiometricEvaluation::DataInterchange::AN2KRecord::getDate() const
 {
 	return (_date);
 }
 
-string
+std::string
 BiometricEvaluation::DataInterchange::AN2KRecord::getVersionNumber() const
 {
 	return (_version);
 }
 
-string
+std::string
 BiometricEvaluation::DataInterchange::AN2KRecord::getDestinationAgency() const
 {
 	return (_dai);
 }
 
-string
+std::string
 BiometricEvaluation::DataInterchange::AN2KRecord::getOriginatingAgency() const
 {
 	return (_ori);
 }
 
-string
+std::string
 BiometricEvaluation::DataInterchange::AN2KRecord::getTransactionControlNumber() const
 {
 	return (_tcn);
 }
 
-string
+std::string
 BiometricEvaluation::DataInterchange::AN2KRecord::getNativeScanningResolution() const
 {
 	return (_nsr);
 }
 
-string
+std::string
 BiometricEvaluation::DataInterchange::AN2KRecord::getNominalTransmittingResolution() const
 {
 	return (_ntr);
@@ -304,14 +300,14 @@ BiometricEvaluation::DataInterchange::AN2KRecord::getFingerLatentCount() const
 	return (_fingerLatents.size());
 }
 
-std::vector<Finger::AN2KMinutiaeDataRecord>
+std::vector<BE::Finger::AN2KMinutiaeDataRecord>
 BiometricEvaluation::DataInterchange::AN2KRecord::getMinutiaeDataRecordSet()
     const
 {
 	return (_minutiaeDataRecordSet);
 }
 
-std::vector<Finger::AN2KViewLatent>
+std::vector<BE::Finger::AN2KViewLatent>
 BiometricEvaluation::DataInterchange::AN2KRecord::getFingerLatents() const
 {
 	return (_fingerLatents);
@@ -323,7 +319,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::getFingerCaptureCount() const
 	return (_fingerCaptures.size());
 }
 
-std::vector<Finger::AN2KViewCapture>
+std::vector<BE::Finger::AN2KViewCapture>
 BiometricEvaluation::DataInterchange::AN2KRecord::getFingerCaptures() const
 {
 	return (_fingerCaptures);

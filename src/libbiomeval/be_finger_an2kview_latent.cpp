@@ -13,12 +13,11 @@ extern "C" {
 #include <an2k.h>
 }
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
     const std::string &filename,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError, Error::FileError) :
+    const uint32_t recordNumber) :
     AN2KViewVariableResolution(filename, RecordType::Type_13, recordNumber)
 {
 	/* Parent classes handle all fields */
@@ -26,8 +25,7 @@ BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
 
 BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
     Memory::uint8Array &buf,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError) :
+    const uint32_t recordNumber) :
     AN2KViewVariableResolution(buf, RecordType::Type_13, recordNumber)
 {
 	/* Parent classes handle all fields */

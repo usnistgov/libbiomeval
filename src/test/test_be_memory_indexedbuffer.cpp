@@ -128,7 +128,7 @@ main (int argc, char* argv[])
 		}
 		cout << endl;
 	} catch (Error::DataError &e) {
-		cerr << "Caught " << e.getInfo() << endl;
+		cerr << "Caught " << e.what() << endl;
 	}
 
 	bool success = false;

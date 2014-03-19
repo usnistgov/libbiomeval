@@ -19,19 +19,16 @@ extern "C" {
 #include <be_image_jpeg.h>
 #include <be_image_jpegl.h>
 
-using namespace std;
-
 BiometricEvaluation::Image::JPEGL::JPEGL(
     const uint8_t *data,
-    const uint64_t size)
-    throw (Error::DataError,
-    Error::StrategyError) : 
+    const uint64_t size) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::JPEGL)
 {
-	Memory::uint8Array jpeglData = getData();
+	Memory::uint8Array jpeglData;
+	this->getData(jpeglData);
 	uint8_t *markerBuf = jpeglData;	/* Manipulated by libjpegl */
 	uint8_t *endPtr = jpeglData + jpeglData.size();
 	
@@ -49,11 +46,11 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 	switch (JFIFHeader->units) {
 	case 1:	/* PPI */
 		setResolution(Resolution(JFIFHeader->dx, JFIFHeader->dy, 
-		    Resolution::PPI));
+		    Resolution::Units::PPI));
 		break;
 	case 2:	/* PPCM */
 		setResolution(Resolution(JFIFHeader->dx, JFIFHeader->dy,
-		    Resolution::PPCM));
+		    Resolution::Units::PPCM));
 		break;
 	case 0:	/* Resolution undefined */
 		/* FALLTHROUGH */
@@ -89,24 +86,27 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 	free(frameHeader);
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
-BiometricEvaluation::Image::JPEGL::getRawData()
+void
+BiometricEvaluation::Image::JPEGL::getRawData(
+    Memory::uint8Array &rawData)
     const
-    throw (Error::DataError)
 {
 	/* Check for cached version */
-	if (_raw_data.size() != 0)
-		return (_raw_data);
+	if (_raw_data.size() != 0) {
+		rawData.copy(_raw_data, _raw_data.size());
+		return;
+	}
 		
 	/* TODO: Extract the raw data without using the IMG_DAT struct */
-	IMG_DAT *imgDat = NULL;
-	Memory::uint8Array jpeglData = getData();
+	IMG_DAT *imgDat = nullptr;
+	Memory::uint8Array jpeglData;
+	this->getData(jpeglData);
 	int32_t lossy;
 	if (jpegl_decode_mem(&imgDat, &lossy, jpeglData, jpeglData.size()))
 		throw Error::DataError("libjpegl: Could not decode Lossless "
 		    "JPEG data");
 	
-	uint8_t *rawDataPtr = NULL;
+	uint8_t *rawDataPtr = nullptr;
 	int32_t width, height, depth, ppi, rawSize;
 	if (get_IMG_DAT_image(&rawDataPtr, &rawSize, &width, &height, &depth,
 	    &ppi, imgDat)) {
@@ -116,17 +116,16 @@ BiometricEvaluation::Image::JPEGL::getRawData()
 	_raw_data.copy(rawDataPtr, rawSize);
 	
 	free_IMG_DAT(imgDat, FREE_IMAGE);
-	return (_raw_data);
+	rawData.copy(_raw_data, _raw_data.size());
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
+void
 BiometricEvaluation::Image::JPEGL::getRawGrayscaleData(
+    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
-    throw (Error::DataError,
-    Error::ParameterError)
 {
-	return (Image::getRawGrayscaleData(depth));
+	Image::getRawGrayscaleData(rawGray, depth);
 }
 
 bool

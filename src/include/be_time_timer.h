@@ -11,7 +11,7 @@
 #ifndef __BE_TIME_TIMER_H__
 #define __BE_TIME_TIMER_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <be_time.h>
 #include <be_error_exception.h>
@@ -54,9 +54,8 @@ namespace BiometricEvaluation
 			 *		operation or an error occurred when
 			 *		obtaining timing information.
 			 */
-			void start()
-			    throw (Error::StrategyError);
-	
+			void start();
+
 			/** 
 			 * Stop tracking time.
 			 *
@@ -66,9 +65,8 @@ namespace BiometricEvaluation
 			 *		an operation or an error occurred when
 			 *		obtaining timing information.
 			 */
-			void stop()
-			    throw (Error::StrategyError);
-	
+			void stop();
+
 			/**
 			 * Get the elapsed time in microseconds between calls
 			 * to this object's start() and stop() methods.
@@ -84,8 +82,7 @@ namespace BiometricEvaluation
 			 *		obtaining timing information.
 			 *		
 			 */
-			uint64_t elapsed()
-			    throw (Error::StrategyError);
+			uint64_t elapsed();
 
 		private:
 

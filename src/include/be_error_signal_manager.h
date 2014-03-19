@@ -10,11 +10,10 @@
 #ifndef __BE_ERROR_SIGNAL_MANAGER_H__
 #define __BE_ERROR_SIGNAL_MANAGER_H__
 
-#include <setjmp.h>
-#include <signal.h>
-#include <be_error_exception.h>
+#include <csetjmp>
+#include <csignal>
 
-using namespace std;
+#include <be_error_exception.h>
 
 /*
  * Macros that are used by applications to indicate the start and end of
@@ -85,8 +84,7 @@ namespace BiometricEvaluation {
 			 *      Error::StrategyError
 			 *		Could not register the signal handler.
 			 */
-			SignalManager()
-			    throw (Error::StrategyError);
+			SignalManager();
 
 			/**
 			 * Construct a new SignalManager object with the
@@ -102,8 +100,7 @@ namespace BiometricEvaluation {
 			 * 		be handled (SIGKILL, SIGSTOP.).
 			 */
 			SignalManager(
-			    const sigset_t signalSet)
-			    throw (Error::ParameterError);
+			    const sigset_t signalSet);
 
 			/**
 			 * Set the signals this object will manage.
@@ -118,8 +115,7 @@ namespace BiometricEvaluation {
 			 * 		be handled (SIGKILL, SIGSTOP.).
 			 */
 			void setSignalSet(
-			    const sigset_t signalSet)
-			    throw (Error::ParameterError);
+			    const sigset_t signalSet);
 
 			/**
 			 * Clear all signal handling.
@@ -150,8 +146,7 @@ namespace BiometricEvaluation {
  			 * is undefined, and can result in an infinite loop
 			 * if further processing causes a signal to be raised.
 			 */
-			void start()
-				throw (Error::StrategyError);
+			void start();
 
 			 /**
 			 * Stop handling signals of the current signal set.
@@ -159,8 +154,7 @@ namespace BiometricEvaluation {
 			 *	Error::StrategyError
 			 *		Could not register the signal handler.
 			 */
-			void stop()
-				throw (Error::StrategyError);
+			void stop();
 
 			/**
 			 * Set a flag to indicate a signal was handled.

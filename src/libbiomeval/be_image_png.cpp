@@ -15,28 +15,28 @@
 
 BiometricEvaluation::Image::PNG::PNG(
     const uint8_t *data,
-    const uint64_t size)
-    throw (Error::DataError,
-    Error::StrategyError) : 
+    const uint64_t size) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::PNG)
 {
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-	    NULL, png_error, png_error);
-	if (png_ptr == NULL)
+	    nullptr, png_error, png_error);
+	if (png_ptr == nullptr)
 		throw Error::StrategyError("libpng could not create "
 		    "png_struct");
 
 	/* Read encoded PNG data from an AutoArray using our extension */
-	png_buffer png_buf = { getData(), 0 };
+	Memory::uint8Array imageData;
+	this->getData(imageData);
+	png_buffer png_buf = { imageData, 0 };
 	png_set_read_fn(png_ptr, &png_buf, png_read_mem_src);
 	
 	/* Read the header information */
 	png_infop png_info_ptr = png_create_info_struct(png_ptr);
-	if (png_info_ptr == NULL) {
-		png_destroy_read_struct(&png_ptr, NULL, NULL);
+	if (png_info_ptr == nullptr) {
+		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		throw Error::StrategyError("libpng could not create "
 		    "png_info");
 	}
@@ -54,7 +54,7 @@ BiometricEvaluation::Image::PNG::PNG(
 	    	switch (type) {
 		case PNG_RESOLUTION_METER:
 			setResolution(Resolution(xres / 100.0, yres / 100.0, 
-			    Resolution::PPCM));
+			    Resolution::Units::PPCM));
 			break;
 		case PNG_RESOLUTION_UNKNOWN:
 			/* Resolution based on aspect ratio */
@@ -66,7 +66,8 @@ BiometricEvaluation::Image::PNG::PNG(
 			 * For our purposes, there really is no good way to 
 			 * unambiguously set a resolution.
 			 */
-			setResolution(Resolution(0, 0, Resolution::PPCM));
+			setResolution(Resolution(0, 0,
+			    Resolution::Units::PPCM));
 			break;
 		}
 	} else {
@@ -75,35 +76,39 @@ BiometricEvaluation::Image::PNG::PNG(
 		 * is not set, which is often the case in order to reduce 
 		 * file size.
 		 */
-		setResolution(Resolution(72, 72, Resolution::PPI));
+		setResolution(Resolution(72, 72, Resolution::Units::PPI));
 	}
 
-	png_destroy_read_struct(&png_ptr, &png_info_ptr, NULL);
+	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
-BiometricEvaluation::Image::PNG::getRawData()
+void
+BiometricEvaluation::Image::PNG::getRawData(
+    Memory::uint8Array &rawData)
     const
-    throw (Error::DataError)
 {
 	/* Check for cached version */
-	if (_raw_data.size() != 0)
-		return (_raw_data);
+	if (_raw_data.size() != 0) {
+		rawData.copy(_raw_data, _raw_data.size());
+		return;
+	}
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-	    NULL, png_error, png_error);
-	if (png_ptr == NULL)
+	    nullptr, png_error, png_error);
+	if (png_ptr == nullptr)
 		throw Error::StrategyError("libpng could not create "
 		    "png_struct");
 
 	/* Read encoded PNG data from an AutoArray using our extension */
-	png_buffer png_buf = { getData(), 0 };
+	Memory::uint8Array imageData;
+	this->getData(imageData);
+	png_buffer png_buf = { imageData, 0 };
 	png_set_read_fn(png_ptr, &png_buf, png_read_mem_src);
 	
 	/* Read the header information */
 	png_infop png_info_ptr = png_create_info_struct(png_ptr);
-	if (png_info_ptr == NULL) {
-		png_destroy_read_struct(&png_ptr, NULL, NULL);
+	if (png_info_ptr == nullptr) {
+		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		throw Error::StrategyError("libpng could not create "
 		    "png_info");
 	}
@@ -120,18 +125,17 @@ BiometricEvaluation::Image::PNG::getRawData()
 		row_pointers[row] = _raw_data + row * rowbytes;
 	png_read_image(png_ptr, row_pointers);
 	
-	png_destroy_read_struct(&png_ptr, &png_info_ptr, NULL);
-	return (_raw_data);
+	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
+	rawData.copy(_raw_data, _raw_data.size());
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
+void
 BiometricEvaluation::Image::PNG::getRawGrayscaleData(
+    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
-    throw (Error::DataError,
-    Error::ParameterError)
 {
-	return (Image::getRawGrayscaleData(depth));
+	Image::getRawGrayscaleData(rawGray, depth);
 }
 
 bool
@@ -150,14 +154,13 @@ BiometricEvaluation::Image::PNG::png_read_mem_src(
     png_structp png_ptr,
     png_bytep buffer,
     png_size_t length)
-    throw (Error::StrategyError)
 {
 	// XXX: It appears that libpng calls this function in 4-byte
 	// increments, which can't be good for performance.  See if there is
 	// a way to increase the chunk size.  Ideally, one would set the chunk
 	// size to the size of the buffer since it is known ahead of time.
 
-	if (png_get_io_ptr(png_ptr) == NULL)
+	if (png_get_io_ptr(png_ptr) == nullptr)
 		throw Error::StrategyError("libpng has no io_ptr set");
 
 	png_buffer *input = (png_buffer *)png_get_io_ptr(png_ptr);
@@ -173,9 +176,8 @@ void
 BiometricEvaluation::Image::PNG::png_error(
     png_structp png_ptr,
     png_const_charp msg)
-    throw (Error::StrategyError)
 {
-	throw Error::StrategyError("libpng: " + string(msg));
+	throw Error::StrategyError("libpng: " + std::string(msg));
 }
 
 BiometricEvaluation::Image::PNG::~PNG()

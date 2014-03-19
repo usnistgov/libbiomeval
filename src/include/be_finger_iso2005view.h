@@ -57,8 +57,7 @@ namespace BiometricEvaluation
 			ISO2005View(
 			    const std::string &fmrFilename,
 			    const std::string &firFilename,
-			    const uint32_t viewNumber)
-			    throw (Error::DataError, Error::FileError);
+			    const uint32_t viewNumber);
 
 			/**
 			 * @brief
@@ -88,8 +87,7 @@ namespace BiometricEvaluation
 			ISO2005View(
 			    Memory::uint8Array &fmrBuffer,
 			    Memory::uint8Array &firBuffer,
-			    const uint32_t viewNumber)
-			    throw (Error::DataError);
+			    const uint32_t viewNumber);
 
 		protected:
 			static const uint32_t BASE_SPEC_VERSION = 0x20323000;
@@ -103,10 +101,9 @@ namespace BiometricEvaluation
 			 */
 			void readCoreDeltaData(
 			    Memory::IndexedBuffer &buf,
-				uint32_t dataLength,
-				Feature::CorePointSet &cores,
-				Feature::DeltaPointSet &deltas)
-			    throw (Error::DataError);
+			    uint32_t dataLength,
+			    Feature::CorePointSet &cores,
+			    Feature::DeltaPointSet &deltas);
 
 		private:
 		};

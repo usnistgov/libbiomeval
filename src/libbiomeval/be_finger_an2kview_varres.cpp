@@ -18,24 +18,24 @@ extern "C" {
 #include <an2k.h>
 }
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
-BiometricEvaluation::Finger::AN2KViewVariableResolution::AN2KViewVariableResolution(
+BiometricEvaluation::Finger::AN2KViewVariableResolution::
+AN2KViewVariableResolution(
     const std::string &filename,
-    const RecordType::Kind typeID,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError, Error::FileError) :
+    const RecordType typeID,
+    const uint32_t recordNumber) :
     BiometricEvaluation::View::AN2KViewVariableResolution(
 	filename, typeID, recordNumber)
 {
 	readImageRecord(typeID);
 }
 
-BiometricEvaluation::Finger::AN2KViewVariableResolution::AN2KViewVariableResolution(
+BiometricEvaluation::Finger::AN2KViewVariableResolution::
+AN2KViewVariableResolution(
     Memory::uint8Array &buf,
-    const RecordType::Kind typeID,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError) :
+    const RecordType typeID,
+    const uint32_t recordNumber) :
     BiometricEvaluation::View::AN2KViewVariableResolution(
 	buf, typeID, recordNumber)
 {
@@ -46,11 +46,11 @@ BiometricEvaluation::Finger::AN2KViewVariableResolution::AN2KViewVariableResolut
 /* Public functions.                                                          */
 /******************************************************************************/
 
-Finger::AN2KViewVariableResolution::PrintPositionCoordinate::
-PrintPositionCoordinate(
-    Finger::FingerImageCode::Kind &fingerView,
-    Finger::FingerImageCode::Kind &segment,
-    Image::CoordinateSet &coordinates) :
+BiometricEvaluation::Finger::AN2KViewVariableResolution::
+PrintPositionCoordinate::PrintPositionCoordinate(
+    BE::Finger::FingerImageCode &fingerView,
+    BE::Finger::FingerImageCode &segment,
+    BE::Image::CoordinateSet &coordinates) :
     fingerView(fingerView),
     segment(segment),
     coordinates(coordinates)
@@ -58,19 +58,19 @@ PrintPositionCoordinate(
 
 }
 
-Finger::AN2KViewVariableResolution::PrintPositionCoordinate
-Finger::AN2KViewVariableResolution::convertPrintPositionCoordinate(
+BiometricEvaluation::Finger::AN2KViewVariableResolution::PrintPositionCoordinate
+BiometricEvaluation::Finger::AN2KViewVariableResolution::
+convertPrintPositionCoordinate(
     SUBFIELD *subfield)
-    throw (Error::DataError)
 {	
 	if (subfield->num_items != 6)
 		throw Error::DataError("Not enough items for PPC");
 	
-	FingerImageCode::Kind fingerView =
-	    Finger::AN2KView::convertFingerImageCode((char *)
+	BE::Finger::FingerImageCode fingerView =
+	    BE::Finger::AN2KView::convertFingerImageCode((char *)
 	    subfield->items[0]->value);
-	FingerImageCode::Kind segment =
-	    Finger::AN2KView::convertFingerImageCode((char *)
+	BE::Finger::FingerImageCode segment =
+	    BE::Finger::AN2KView::convertFingerImageCode((char *)
 	    subfield->items[1]->value);
 
 	Image::CoordinateSet coordinates;
@@ -84,19 +84,19 @@ Finger::AN2KViewVariableResolution::convertPrintPositionCoordinate(
 	return (PrintPositionCoordinate(fingerView, segment, coordinates));
 }
 
-Finger::PositionSet
+BiometricEvaluation::Finger::PositionSet
 BiometricEvaluation::Finger::AN2KViewVariableResolution::getPositions() const
 {
 	return (_positions);
 }
 
-Finger::Impression::Kind
+BiometricEvaluation::Finger::Impression
 BiometricEvaluation::Finger::AN2KViewVariableResolution::getImpressionType() const
 {
 	return (_imp);
 }
 
-Finger::PositionDescriptors
+BiometricEvaluation::Finger::PositionDescriptors
 BiometricEvaluation::Finger::AN2KViewVariableResolution::
 getPositionDescriptors()
     const
@@ -104,9 +104,9 @@ getPositionDescriptors()
 	return (_pd);
 }
 
-Finger::AN2KViewVariableResolution::PrintPositionCoordinateSet
-Finger::AN2KViewVariableResolution::getPrintPositionCoordinates()
-    const
+BiometricEvaluation::Finger::AN2KViewVariableResolution::PrintPositionCoordinateSet
+BiometricEvaluation::Finger::AN2KViewVariableResolution::
+getPrintPositionCoordinates() const
 {
 	return (_ppcs);
 }
@@ -118,9 +118,8 @@ Finger::AN2KViewVariableResolution::getPrintPositionCoordinates()
 BiometricEvaluation::Finger::PositionDescriptors
 BiometricEvaluation::Finger::AN2KViewVariableResolution::
 parsePositionDescriptors(
-    const RecordType::Kind typeID,
+    const RecordType typeID,
     const RECORD *record)
-    throw (Error::DataError)
 {
 	unsigned int field_num;
 	switch (typeID) {
@@ -139,9 +138,9 @@ parsePositionDescriptors(
 		if (field->subfields[i]->num_items != 2)
 			throw Error::DataError(
 			    "Not enough position descriptor fields.");
-		pd[Finger::AN2KView::convertPosition(atoi((char *)field->
+		pd[BE::Finger::AN2KView::convertPosition(atoi((char *)field->
 		    subfields[i]->items[0]->value))] =
-		    Finger::AN2KView::convertFingerImageCode((char *)field->
+		    BE::Finger::AN2KView::convertFingerImageCode((char *)field->
 		    subfields[i]->items[1]->value);
 	}
 	
@@ -151,11 +150,12 @@ parsePositionDescriptors(
 std::ostream&
 BiometricEvaluation::Finger::operator<<(
     std::ostream &stream,
-    const Finger::AN2KViewVariableResolution::PrintPositionCoordinate &ppc)
+    const BiometricEvaluation::Finger::AN2KViewVariableResolution::
+    PrintPositionCoordinate &ppc)
 {
-	stream << ppc.fingerView;
-	if (ppc.segment != Finger::FingerImageCode::NA)
-		stream << " - " << ppc.segment;
+	stream << to_string(ppc.fingerView);
+	if (ppc.segment != BE::Finger::FingerImageCode::NA)
+		stream << " - " << to_string(ppc.segment);
 	stream << ": " << ppc.coordinates;
 
 	return (stream);
@@ -167,8 +167,7 @@ BiometricEvaluation::Finger::operator<<(
 
 void
 BiometricEvaluation::Finger::AN2KViewVariableResolution::readImageRecord(
-    const RecordType::Kind typeID)
-    throw (Error::DataError)
+    const RecordType typeID)
 {
 	switch (typeID) {
 		case RecordType::Type_13:
@@ -188,18 +187,18 @@ BiometricEvaluation::Finger::AN2KViewVariableResolution::readImageRecord(
 
 	if (lookup_ANSI_NIST_field(&field, &idx, IMP_ID, record) != TRUE)
 		throw Error::DataError("Field IMP not found");
-	_imp = Finger::AN2KView::convertImpression(
+	_imp = BE::Finger::AN2KView::convertImpression(
 	    field->subfields[0]->items[0]->value);
 	if (lookup_ANSI_NIST_field(&field, &idx, FGP3_ID, record) != TRUE)
 		throw Error::DataError("Field FGP not found");
-	_positions = Finger::AN2KView::populateFGP(field);
+	_positions = BE::Finger::AN2KView::populateFGP(field);
 	
 	/*********************************************************************/
 	/* Optional Fields.                                                  */
 	/*********************************************************************/
 	
 	if (std::find(_positions.begin(), _positions.end(),
-	    Finger::Position::EJI) != _positions.end()) {
+	    BE::Finger::Position::EJI) != _positions.end()) {
 		/* Print Position Descriptors */
 		int pd_id;
 		switch (typeID) {

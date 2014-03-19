@@ -90,6 +90,16 @@ main(int argc, char* argv[])
 	cout << "Dirname: " << Text::dirname(path) << endl;
 	cout << "Filename: " << Text::filename(path) << endl;
 
+	cout << endl;
+
+	cout << "Text::caseInsensitiveCompare()" << endl;
+	cout << "RecordStore == recordstore ? " << boolalpha <<
+	    Text::caseInsensitiveCompare("RecordStore", "recordstore") << endl;
+    	cout << "RecordStore == RecordStore ? " << boolalpha <<
+	    Text::caseInsensitiveCompare("RecordStore", "recordstore") << endl;
+       	cout << "RecordStore == Record$tore ? " << boolalpha <<
+	    Text::caseInsensitiveCompare("RecordStore", "Record$tore") << endl;
+
 	return (EXIT_SUCCESS);
 }
 

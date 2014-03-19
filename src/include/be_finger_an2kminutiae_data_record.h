@@ -12,7 +12,7 @@
 #define __BE_FINGER_AN2KMINUTIAE_DATA_RECORD_H__
 
 #include <map>
-#include <tr1/memory>
+#include <memory>
 
 #include <be_feature_an2k7minutiae.h>
 #include <be_memory_autoarray.h>
@@ -20,8 +20,6 @@
 /* an2k.h forward declares */
 struct record;
 typedef record RECORD;
-
-using namespace std;
 
 namespace BiometricEvaluation {
 	namespace Finger {
@@ -61,10 +59,8 @@ namespace BiometricEvaluation {
 			 *	for the requested number.
 			 */
 			AN2KMinutiaeDataRecord(
-			    const string &filename,
-			    int recordNumber)
-			    throw (Error::DataError,
-			    Error::FileError);
+			    const std::string &filename,
+			    int recordNumber);
 			 
 			/**
 			 * @brief
@@ -88,8 +84,7 @@ namespace BiometricEvaluation {
 			 */
 			AN2KMinutiaeDataRecord(
 			    Memory::uint8Array &buf,
-			    int recordNumber)
-			    throw (Error::DataError);
+			    int recordNumber);
 		
 			/**
 			 * @brief
@@ -101,7 +96,7 @@ namespace BiometricEvaluation {
 			 *	containing the standard format minutiae data
 			 *	found in this Type-9 Record.
 			 */
-			tr1::shared_ptr<Feature::AN2K7Minutiae>
+			std::shared_ptr<Feature::AN2K7Minutiae>
 			getAN2K7Minutiae()
 			    const;
 			
@@ -113,7 +108,7 @@ namespace BiometricEvaluation {
 			 * 	Impression type of the image from which
 			 *	minutiae points were generated.
 			 */
-			Impression::Kind
+			Impression
 			getImpressionType()
 			    const;
 			
@@ -140,11 +135,10 @@ namespace BiometricEvaluation {
 			 *	implementation of accessing minutiae data
 			 *	in AN2KMinutiaeDataRecord.
 			 */
-			map<uint16_t, Memory::uint8Array>
+			std::map<uint16_t, Memory::uint8Array>
 			getRegisteredVendorBlock(
-			    Feature::MinutiaeFormat::Kind vendor)
-			    const
-			    throw (Error::NotImplemented);
+			    Feature::MinutiaeFormat vendor) const;
+
 		protected:
 			
 		private:
@@ -166,8 +160,7 @@ namespace BiometricEvaluation {
 			void
 			readType9Record(
 			    Memory::uint8Array &buf,
-			    int recordNumber)
-			    throw (Error::DataError);
+			    int recordNumber);
 			
 			/**
 			 * @brief
@@ -188,28 +181,27 @@ namespace BiometricEvaluation {
 			void
 			readRegisteredVendorBlock(
 			    RECORD *type9,
-			    Feature::MinutiaeFormat::Kind vendor)
-			    throw (Error::NotImplemented);
+			    Feature::MinutiaeFormat vendor);
 
 			/** Standard Format features (Field 9.005 - 9.012) */
-			tr1::shared_ptr<Feature::AN2K7Minutiae> _AN2K7Features;
+			std::shared_ptr<Feature::AN2K7Minutiae> _AN2K7Features;
 			/** IAFIS features (Field 9.013 - 9.030) */
-			map<uint16_t, Memory::uint8Array> _IAFISFeatures;
+			std::map<uint16_t, Memory::uint8Array> _IAFISFeatures;
 			/** Cogent Systems features (Field 9.031 - 9.055 */
-			map<uint16_t, Memory::uint8Array> _cogentFeatures;
+			std::map<uint16_t, Memory::uint8Array> _cogentFeatures;
 			/** Motorola minutiae data (Field 9.056 - 9.070) */
-			map<uint16_t, Memory::uint8Array> _motorolaFeatures;
+			std::map<uint16_t, Memory::uint8Array> _motorolaFeatures;
 			/** Sagem Morpho features (Field 9.071 - 9.099) */
-			map<uint16_t, Memory::uint8Array> _sagemFeatures;
+			std::map<uint16_t, Memory::uint8Array> _sagemFeatures;
 			/** NEC features (Field 9.100 - 9.125) */
-			map<uint16_t, Memory::uint8Array> _NECFeatures;
+			std::map<uint16_t, Memory::uint8Array> _NECFeatures;
 			/** M1-378 features (Field 9.126 - 9.150) */
-			map<uint16_t, Memory::uint8Array> _M1Features;
+			std::map<uint16_t, Memory::uint8Array> _M1Features;
 			/** Identix features (Field 9.151 - 9.175) */
-			map<uint16_t, Memory::uint8Array> _identixFeatures;
+			std::map<uint16_t, Memory::uint8Array> _identixFeatures;
 
 			/** Impression type (IMP) -- Field 9.003 (mandatory) */
-			Impression::Kind _imp;
+			Impression _imp;
 		};
 	}
 }

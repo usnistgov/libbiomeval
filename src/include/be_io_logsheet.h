@@ -11,17 +11,14 @@
 #ifndef __BE_IO_LOGSHEET_H__
 #define __BE_IO_LOGSHEET_H__
 
+#include <cstdint>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <string>
-#include <tr1/memory>
 #include <vector>
 
-#include <stdint.h>
-
 #include <be_error_exception.h>
-
-using namespace std;
 
 namespace BiometricEvaluation
 {
@@ -70,7 +67,7 @@ namespace BiometricEvaluation
 			/** Delimiter for an entry line in the log sheet. */
 			static const char EntryDelimiter = 'E';
 			/** The tag for the description string. */
-			static const string DescriptionTag;
+			static const std::string DescriptionTag;
 
 			/**
 			 * @brief
@@ -92,11 +89,9 @@ namespace BiometricEvaluation
 			 *	file system, or name or parentDir is malformed.
 			 */
 			LogSheet(
-			    const string &name,
-			    const string &description,
-			    const string &parentDir)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &description,
+			    const std::string &parentDir);
 
 			/**
 			 * @brief
@@ -118,10 +113,8 @@ namespace BiometricEvaluation
 			 *	file system, or name or parentDir is malformed.
 			 */
 			LogSheet(
-			    const string &name,
-			    const string &parentDir)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir);
 
 			/** Destructor */
 			virtual ~LogSheet();
@@ -142,8 +135,7 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			write(
-			    const string &entry)
-			    throw (Error::StrategyError);
+			    const std::string &entry);
 
 			/**
 			 * @brief
@@ -163,8 +155,7 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			writeComment(
-			    const string &comment)
-			    throw (Error::StrategyError);
+			    const std::string &comment);
 
 			/**
 			 * @brief
@@ -180,8 +171,7 @@ namespace BiometricEvaluation
 			 *	file system.
 			 */
 			virtual void
-			newEntry()
-			    throw (Error::StrategyError);
+			newEntry();
 
 			/**
 			 * @brief
@@ -191,7 +181,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	The text of the current entry.
 			 */
-			virtual string
+			virtual std::string
 			getCurrentEntry();
 
 			/** Reset the current entry buffer to the beginning. */
@@ -221,8 +211,7 @@ namespace BiometricEvaluation
 			 *	file system.
 			*/
 			virtual void
-			sync()
-			    throw (Error::StrategyError);
+			sync();
 
 			/**
 			 * Turn on/off auto-sync of the data. Applications can
@@ -265,15 +254,12 @@ namespace BiometricEvaluation
 			 *	Invalid cursor position or the contents of
 			 *	the LogSheet is malformed.
 			 */
-			string
+			std::string
 			sequence(
 			    bool comments = false,
 			    bool trim = true,
-			    int32_t cursor = BE_LOGSHEET_SEQ_NEXT)
-			    throw (Error::FileError,
-			    Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			    
+			    int32_t cursor = BE_LOGSHEET_SEQ_NEXT);
+
 			/**
 			 * @brief
 			 * Trim delimiters from LogSheet entries.
@@ -286,9 +272,9 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Delimiter-less entry.
 			 */
-			static string
+			static std::string
 			trim(
-			    const string &entry);
+			    const std::string &entry);
 			    
 			/**
 			 * @brief
@@ -306,10 +292,8 @@ namespace BiometricEvaluation
 			 */
 			static void
 			mergeLogSheets(
-			    vector< tr1::shared_ptr<LogSheet> > &logSheets)
-			    throw (Error::FileError,
-			    Error::StrategyError);
-			    
+			    std::vector<std::shared_ptr<LogSheet>> &logSheets);
+
 		protected:
 			/** Prevent copying of LogSheet objects */
 			LogSheet(const LogSheet&);
@@ -319,7 +303,7 @@ namespace BiometricEvaluation
 			/** Number of the current entry */
 			uint32_t _entryNumber;
 			/** Stream used for writing the log file */
-			auto_ptr<std::fstream> _theLogFile;
+			std::auto_ptr<std::fstream> _theLogFile;
 			/** Whether or not to sync() on write() */
 			bool _autoSync;
 
@@ -331,10 +315,10 @@ namespace BiometricEvaluation
 			 *	Error getting file position from sequence file.
 			 */
 			void
-			updateCursor()
-			    throw (Error::FileError);
+			updateCursor();
+
 			/** Stream used for sequencing */
-			tr1::shared_ptr<std::fstream> _sequenceFile;
+			std::shared_ptr<std::fstream> _sequenceFile;
 			/** Position of the sequencer, relative to SOF */
 			streamoff _cursor;
 		};

@@ -39,23 +39,18 @@ namespace BiometricEvaluation
 		public:
 			JPEG(
 			    const uint8_t *data,
-			    const uint64_t size)
-			    throw (Error::DataError,
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			~JPEG();
 
-			Memory::AutoArray<uint8_t>
+			void
 			getRawGrayscaleData(
-			    uint8_t depth = 8)
-			    const
-			    throw (Error::DataError,
-			    Error::ParameterError);
+			    Memory::uint8Array &rawGray,
+			    uint8_t depth = 8) const;
 
-			Memory::AutoArray<uint8_t>
-			getRawData()
-			    const
-			    throw (Error::DataError);
+			void
+			getRawData(
+			    Memory::uint8Array &rawData) const;
 	
 			/**
 			 * Whether or not data is a Lossy JPEG image.
@@ -95,8 +90,7 @@ namespace BiometricEvaluation
 			 */
 			static void
 			error_exit(
-			    j_common_ptr cinfo)
-			    throw (Error::StrategyError);
+			    j_common_ptr cinfo);
 
 			/* 
 			 * libjpeg 8.0 has code for handling a JPEG image

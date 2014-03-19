@@ -7,13 +7,14 @@
 * its use by other parties, and makes no guarantees, expressed or implied,
 * about its quality, reliability, or any other characteristic.
 ******************************************************************************/
+
+#include <csetjmp>
+#include <csignal>
 #include <iostream>
-#include <signal.h>
-#include <setjmp.h>
+
 #include <be_error_signal_manager.h>
 
-using namespace std;
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 bool BiometricEvaluation::Error::SignalManager::_canSigJump = false;
 sigjmp_buf BiometricEvaluation::Error::SignalManager::_sigJumpBuf;
@@ -42,7 +43,6 @@ validSignalSet(const sigset_t sigset)
 }
 
 BiometricEvaluation::Error::SignalManager::SignalManager()
-    throw (Error::StrategyError)
 {
 	_canSigJump = false;
 	this->setDefaultSignalSet();
@@ -50,7 +50,6 @@ BiometricEvaluation::Error::SignalManager::SignalManager()
 
 BiometricEvaluation::Error::SignalManager::SignalManager(
     const sigset_t signalSet)
-    throw (Error::ParameterError)
 {
 	if (!validSignalSet(signalSet))
 		throw (Error::ParameterError("Invalid signal set"));
@@ -61,7 +60,6 @@ BiometricEvaluation::Error::SignalManager::SignalManager(
 void
 BiometricEvaluation::Error::SignalManager::setSignalSet(
     const sigset_t signalSet)
-    throw (Error::ParameterError)
 {
 	if (!validSignalSet(signalSet))
 		throw (Error::ParameterError("Invalid signal set"));
@@ -90,7 +88,6 @@ BiometricEvaluation::Error::SignalManager::sigHandled()
 
 void
 BiometricEvaluation::Error::SignalManager::start()
-    throw (Error::StrategyError)
 {
 	struct sigaction sa;
 	sigemptyset(&sa.sa_mask);
@@ -100,8 +97,9 @@ BiometricEvaluation::Error::SignalManager::start()
 		if ((sig == SIGKILL) || (sig == SIGSTOP))
 			continue;
 		if (sigismember(&_signalSet, sig)) {
-			if (sigaction(sig, &sa, NULL) == -1) {
-				throw (Error::StrategyError("Registering signal handler failed"));
+			if (sigaction(sig, &sa, nullptr) == -1) {
+				throw (Error::StrategyError(
+				    "Registering signal handler failed"));
 			}
 		}
 	}
@@ -110,7 +108,6 @@ BiometricEvaluation::Error::SignalManager::start()
 
 void
 BiometricEvaluation::Error::SignalManager::stop()
-    throw (Error::StrategyError)
 {
 	struct sigaction sa;
 	sigemptyset(&sa.sa_mask);
@@ -120,8 +117,9 @@ BiometricEvaluation::Error::SignalManager::stop()
 		if ((sig == SIGKILL) || (sig == SIGSTOP))
 			continue;
 		if (sigismember(&_signalSet, sig)) {
-			if (sigaction(sig, &sa, NULL) == -1) {
-				throw (Error::StrategyError("Setting default signal handler failed"));
+			if (sigaction(sig, &sa, nullptr) == -1) {
+				throw (Error::StrategyError(
+				    "Setting default signal handler failed"));
 			}
 		}
 	}

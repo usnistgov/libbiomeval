@@ -29,7 +29,7 @@ std::list<BiometricEvaluation::Process::ForkManager*>
     std::list<BiometricEvaluation::Process::ForkManager*>();
 
 BiometricEvaluation::Process::ForkManager::ForkManager() :
-    _exitCallback(NULL),
+    _exitCallback(nullptr),
     _parent(false),
     _wcStatus()
 {
@@ -41,7 +41,7 @@ BiometricEvaluation::Process::ForkManager::responsibleFor(
     const pid_t pid)
     const
 {
-	std::map<tr1::shared_ptr<ForkWorkerController>, Status>::
+	std::map<std::shared_ptr<ForkWorkerController>, Status>::
 	    const_iterator it;
 
 	for (it = _wcStatus.begin(); it != _wcStatus.end(); it++)
@@ -55,7 +55,7 @@ void
 BiometricEvaluation::Process::ForkManager::setNotWorking(
     const pid_t pid)
 {
-	std::map<tr1::shared_ptr<ForkWorkerController>, Status>::iterator it;
+	std::map<std::shared_ptr<ForkWorkerController>, Status>::iterator it;
 	for (it = _wcStatus.begin(); it != _wcStatus.end(); it++) {
 		if (it->second.pid == pid) {
 			_wcStatus[it->first].isWorking = false;
@@ -71,7 +71,7 @@ BiometricEvaluation::Process::ForkManager::getIsWorkingStatus(
     const pid_t pid)
     const
 {
-	std::map<tr1::shared_ptr<ForkWorkerController>, Status>::
+	std::map<std::shared_ptr<ForkWorkerController>, Status>::
 	    const_iterator it;
 	for (it = _wcStatus.begin(); it != _wcStatus.end(); it++)
 		if (it->second.pid == pid)
@@ -80,11 +80,11 @@ BiometricEvaluation::Process::ForkManager::getIsWorkingStatus(
 	throw Error::ObjectDoesNotExist();
 }
 
-tr1::shared_ptr<BiometricEvaluation::Process::WorkerController>
+std::shared_ptr<BiometricEvaluation::Process::WorkerController>
 BiometricEvaluation::Process::ForkManager::addWorker(
-    tr1::shared_ptr<Worker> worker)
+    std::shared_ptr<Worker> worker)
 {
-	_workers.push_back(tr1::shared_ptr<ForkWorkerController>(
+	_workers.push_back(std::shared_ptr<ForkWorkerController>(
 	    new ForkWorkerController(worker)));
 
 	return (_workers[_workers.size() - 1]);
@@ -94,15 +94,13 @@ void
 BiometricEvaluation::Process::ForkManager::startWorkers(
     bool wait,
     bool communicate)
-    throw (Error::ObjectExists,
-    Error::StrategyError)
 {
 	/* Ensure all Workers have finished their previous assignments */
 	this->reset();
 
 	for (uint32_t i = 0; i < getTotalWorkers(); i++) {
-		tr1::shared_ptr<ForkWorkerController> fwc =
-		    tr1::static_pointer_cast<ForkWorkerController>(_workers[i]);
+		std::shared_ptr<ForkWorkerController> fwc =
+		    std::static_pointer_cast<ForkWorkerController>(_workers[i]);
 		fwc->start(communicate);
 		_wcStatus[fwc].pid = fwc->getPID();
 		_wcStatus[fwc].isWorking = true;
@@ -123,26 +121,24 @@ BiometricEvaluation::Process::ForkManager::startWorkers(
 		struct sigaction reapSignal;			
 		memset(&reapSignal, 0, sizeof(reapSignal));
 		reapSignal.sa_handler = ForkManager::reap;
-		sigaction(SIGCHLD, &reapSignal, NULL);
+		sigaction(SIGCHLD, &reapSignal, nullptr);
 	}
 }
 
 void
 BiometricEvaluation::Process::ForkManager::startWorker(
-    tr1::shared_ptr<WorkerController> worker,
+    std::shared_ptr<WorkerController> worker,
     bool wait,
     bool communicate)
-    throw (Error::ObjectExists,
-    Error::StrategyError)
 {
-	vector< tr1::shared_ptr<WorkerController> >::iterator it;
+	std::vector<std::shared_ptr<WorkerController>>::iterator it;
 	it = find(_workers.begin(), _workers.end(), worker);
 	if (it == _workers.end())
 		throw Error::StrategyError("Worker is not being managed "
 		    "by this Manager");
 
-	tr1::shared_ptr<ForkWorkerController> fwc =
-	    tr1::static_pointer_cast<ForkWorkerController>(*it);
+	std::shared_ptr<ForkWorkerController> fwc =
+	    std::static_pointer_cast<ForkWorkerController>(*it);
 	fwc->start(communicate);
 	
 	/* In the child case, start() will eventually exit the child */
@@ -162,15 +158,13 @@ BiometricEvaluation::Process::ForkManager::startWorker(
 		struct sigaction reapSignal;			
 		memset(&reapSignal, 0, sizeof(reapSignal));
 		reapSignal.sa_handler = ForkManager::reap;
-		sigaction(SIGCHLD, &reapSignal, NULL);
+		sigaction(SIGCHLD, &reapSignal, nullptr);
 	}
 }
 
 void
 BiometricEvaluation::Process::ForkWorkerController::start(
     bool communicate)
-    throw (Error::ObjectExists,
-    Error::StrategyError)
 {
 	this->reset();
 
@@ -197,7 +191,7 @@ BiometricEvaluation::Process::ForkWorkerController::start(
 		struct sigaction stopSignal;			
 		memset(&stopSignal, 0, sizeof(stopSignal));
 		stopSignal.sa_handler = ForkWorkerController::_stop;
-		sigaction(SIGUSR1, &stopSignal, NULL);
+		sigaction(SIGUSR1, &stopSignal, nullptr);
 		    
 		/* Run workerMain() -- required method */
 		int rv = getWorker()->workerMain();
@@ -219,14 +213,12 @@ BiometricEvaluation::Process::ForkWorkerController::start(
 
 int32_t
 BiometricEvaluation::Process::ForkManager::stopWorker(
-    tr1::shared_ptr<WorkerController> workerController)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
+    std::shared_ptr<WorkerController> workerController)
 {
 	if (_parent == false)
 		throw Error::StrategyError("Only parent may stop children");
 
-	vector< tr1::shared_ptr<WorkerController> >::iterator it;
+	std::vector<std::shared_ptr<WorkerController>>::iterator it;
 	it = find(_workers.begin(), _workers.end(), workerController);
 	if (it == _workers.end())
 		throw Error::StrategyError("Worker is not being managed "
@@ -234,31 +226,30 @@ BiometricEvaluation::Process::ForkManager::stopWorker(
 	
 	_pendingExit.push_back(*it);
 
-	return (tr1::static_pointer_cast<ForkWorkerController>(*it)->stop());
+	return (std::static_pointer_cast<ForkWorkerController>(*it)->stop());
 }
 
 void
 BiometricEvaluation::Process::ForkManager::broadcastSignal(int signo)
 {
-	vector< tr1::shared_ptr<WorkerController> >::iterator it;
-	tr1::shared_ptr<ForkWorkerController> workerController;
+	std::vector< std::shared_ptr<WorkerController> >::iterator it;
+	std::shared_ptr<ForkWorkerController> workerController;
 	for (it = _workers.begin(); it != _workers.end(); it++) {
 		workerController =
-		    tr1::static_pointer_cast<ForkWorkerController>(*it);
+		    std::static_pointer_cast<ForkWorkerController>(*it);
 		kill(workerController->getPID(), signo);
 	}
 }
 
-tr1::shared_ptr<BiometricEvaluation::Process::ForkWorkerController>
+std::shared_ptr<BiometricEvaluation::Process::ForkWorkerController>
 BiometricEvaluation::Process::ForkManager::getProcessWithPID(
     pid_t pid)
-    throw (Error::ObjectDoesNotExist)
 {
-	vector< tr1::shared_ptr<WorkerController> >::iterator it;
-	tr1::shared_ptr<ForkWorkerController> workerController;
+	std::vector<std::shared_ptr<WorkerController>>::iterator it;
+	std::shared_ptr<ForkWorkerController> workerController;
 	for (it = _workers.begin(); it != _workers.end(); it++) {
 		workerController =
-		    tr1::static_pointer_cast<ForkWorkerController>(*it);
+		    std::static_pointer_cast<ForkWorkerController>(*it);
 		if ((workerController->getPID() == pid))
 			return (workerController);
 	}
@@ -286,7 +277,7 @@ BiometricEvaluation::Process::ForkManager::_wait()
 				case ECHILD:	/* No child processes */
 					if (_exitCallback != NULL) {
 						_exitCallback(
-						    tr1::shared_ptr<
+						    std::shared_ptr<
 							ForkWorkerController>(),
 							 0);
 					}
@@ -329,7 +320,7 @@ BiometricEvaluation::Process::ForkManager::_wait()
 void
 BiometricEvaluation::Process::ForkManager::markAllFinished()
 {
-	std::map<tr1::shared_ptr<ForkWorkerController>, Status>::iterator it;
+	std::map<std::shared_ptr<ForkWorkerController>, Status>::iterator it;
 	for (it = _wcStatus.begin(); it != _wcStatus.end(); it++)
 		it->second.isWorking = false;
 }
@@ -381,7 +372,7 @@ BiometricEvaluation::Process::ForkManager::reap(
 void
 BiometricEvaluation::Process::ForkManager::setExitCallback(
     void (*exitCallback)
-    (tr1::shared_ptr<ForkWorkerController> childProcess,
+    (std::shared_ptr<ForkWorkerController> childProcess,
     int stat_loc))
 {
 	_exitCallback = exitCallback;
@@ -389,25 +380,26 @@ BiometricEvaluation::Process::ForkManager::setExitCallback(
 
 void
 BiometricEvaluation::Process::ForkManager::defaultExitCallback(
-    tr1::shared_ptr<ForkWorkerController> child,
+    std::shared_ptr<ForkWorkerController> child,
     int status)
 {
-	if (child == NULL) {
-		cout << "Unknown child exited with unknown status." << endl;
+	if (child == nullptr) {
+		std::cerr << "Unknown child exited with unknown status." <<
+		    std::endl;
 		return;
 	}
 
-	cout << "PID " << child->getPID() << ": ";
+	std::cerr << "PID " << child->getPID() << ": ";
 	if (WIFEXITED(status))
-		cout << "Exited with status " << WEXITSTATUS(status);
+		std::cerr << "Exited with status " << WEXITSTATUS(status);
 	else if (WIFSIGNALED(status)) {
-		cout << "Exited due to signal " << WTERMSIG(status) << " (" <<
-		    strsignal(WTERMSIG(status)) << ')';
+		std::cerr << "Exited due to signal " << WTERMSIG(status) <<
+		    " (" << strsignal(WTERMSIG(status)) << ')';
 		if ((WCOREDUMP(status)))
-			cout << " and core dumped";
+			std::cerr << " and core dumped";
 	} else
-		cout << "Exited with unknown status";
-	cout << '.' << endl;
+		std::cerr << "Exited with unknown status";
+	std::cerr << '.' << std::endl;
 }
 
 BiometricEvaluation::Process::ForkManager::Status::Status() :
@@ -426,11 +418,11 @@ BiometricEvaluation::Process::ForkManager::~ForkManager()
 /* ForkWorkerController implementation                                        */
 /******************************************************************************/
 
-tr1::shared_ptr<BiometricEvaluation::Process::Worker>
+std::shared_ptr<BiometricEvaluation::Process::Worker>
     BiometricEvaluation::Process::ForkWorkerController::_staticWorker;
 
 BiometricEvaluation::Process::ForkWorkerController::ForkWorkerController(
-    tr1::shared_ptr<Worker> worker) :
+    std::shared_ptr<Worker> worker) :
     WorkerController(worker),
     _pid(0)
 {
@@ -439,7 +431,6 @@ BiometricEvaluation::Process::ForkWorkerController::ForkWorkerController(
 
 void
 BiometricEvaluation::Process::ForkWorkerController::reset()
-    throw (Error::ObjectExists)
 {
 	WorkerController::reset();
 	
@@ -473,8 +464,6 @@ BiometricEvaluation::Process::ForkWorkerController::getPID()
 
 int32_t
 BiometricEvaluation::Process::ForkWorkerController::stop()
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
 	if (this->isWorking() == false)
 		throw Error::ObjectDoesNotExist();

@@ -12,14 +12,13 @@
 #define __BE_IO_COMPRESSOR__
 
 #include <map>
+#include <memory>
 #include <string>
-#include <tr1/memory>
 
 #include <be_error_exception.h>
+#include <be_framework_enumeration.h>
 #include <be_io_properties.h>
 #include <be_memory_autoarray.h>
-
-using namespace std;
 
 namespace BiometricEvaluation 
 {
@@ -30,49 +29,10 @@ namespace BiometricEvaluation
 		{
 		public:
 			/** Kinds of Compressors (for factory) */
-			typedef enum {
+			enum class Kind {
 				GZIP
-			} Kind;
-			
-			/** String representations of the compressors */
-			static const string GZIPTYPE;
-			
-			/**
-			 * @brief
-			 * Convert Kind enumeration to string.
-			 *
-			 * @param[in] compressor
-			 *	The Compressor to convert.
-			 *
-			 * @return
-			 *	String representation of compressor.
-			 *
-			 * @throw Error::ObjectDoesNotExist
-			 *	compressor is not a valid Compressor type.
-			 */
-			static string
-			kindToString(
-			    Compressor::Kind compressor)
-			    throw (Error::ObjectDoesNotExist);
-			
-			/**
-			 * @brief
-			 * Convert string to Kind enumeration.
-			 *
-			 * @param[in] compressor
-			 *	The Compressor to convert.
-			 *
-			 * @return
-			 *	Kind enumeration of compressor.
-			 *
-			 * @throw Error::ObjectDoesNotExist
-			 *	compressor is not a valid Compressor type.
-			 */
-			static Compressor::Kind
-			stringToKind(
-			    const string &compressor)
-			    throw (Error::ObjectDoesNotExist);
-		
+			};
+					
 			/**
 			 * @brief
 			 * Create a new Compressor object.
@@ -89,19 +49,18 @@ namespace BiometricEvaluation
 			 *	Uncompressed data buffer to compress.
 			 * @param uncompressedDataSize
 			 *	Size of uncompressedData.
-			 *
-			 * @return
-			 *	Compressed buffer.
+			 * @param compressedData
+			 *	Reference to an AutoArray to store the
+			 *	compressed buffer.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in compression unit.
 			 */
-			virtual Memory::uint8Array
+			virtual void
 			compress(
 			    const uint8_t *const uncompressedData,
-			    uint64_t uncompressedDataSize)
-			    const
-			    throw (Error::StrategyError) = 0;
+			    uint64_t uncompressedDataSize,
+			    Memory::uint8Array &compressedData) const = 0;
 			
 			/**
 			 * @brief
@@ -109,19 +68,18 @@ namespace BiometricEvaluation
 			 *
 			 * @param uncompressedData
 			 *	Uncompressed data buffer to compress.
-			 *
-			 * @return
-			 *	Compressed buffer.
+			 * @param compressedData
+			 *	Reference to an AutoArray to store the
+			 *	compressed buffer.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in decompression unit.
 			 */
-			virtual Memory::uint8Array
+			virtual void
 			compress(
-			    const Memory::uint8Array &uncompressedData)
-			    const
-			    throw (Error::StrategyError) = 0;
-			    
+			    const Memory::uint8Array &uncompressedData,
+			    Memory::uint8Array &compressedData) const = 0;
+
 			/**
 			 * @brief
 			 * Compress a buffer.
@@ -142,11 +100,8 @@ namespace BiometricEvaluation
 			compress(
 			    const uint8_t *const uncompressedData,
 			    uint64_t uncompressedDataSize,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			
+			    const std::string &outputFile) const = 0;
+
 			/**
 			 * @brief
 			 * Compress a buffer.
@@ -164,33 +119,28 @@ namespace BiometricEvaluation
 			virtual void
 			compress(
 			    const Memory::uint8Array &uncompressedData,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			    
+			    const std::string &outputFile) const = 0;
+
 			/**
 			 * @brief
 			 * Compress a file.
 			 *
 			 * @param inputFile
 			 *	Path to file to compress.
-			 *
-			 * @return
-			 *	Compressed buffer.
+			 * @param compressedData
+			 *	Reference to an AutoArray to store the
+			 *	compressed buffer.
 			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	Input file does not exist.
 			 * @throw Error::StrategyError
 			 *	Error in decompression unit.
 			 */
-			virtual Memory::uint8Array
+			virtual void
 			compress(
-			    const string &inputFile)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError) = 0;
-			
+			    const std::string &inputFile,
+			    Memory::uint8Array &compressedData) const = 0;
+
 			/**
 			 * @brief
 			 * Compress a file.
@@ -210,13 +160,9 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			compress(
-			    const string &inputFile,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			
+			    const std::string &inputFile,
+			    const std::string &outputFile) const = 0;
+
 			/**
 			 * @brief
 			 * Decompress a compressed buffer.
@@ -225,18 +171,18 @@ namespace BiometricEvaluation
 			 *	Compressed data buffer to decompress.
 			 * @param compressedDataSize
 			 *	Size of compressedData.
-			 * @return
-			 *	Decompressed buffer.
+			 * @param uncompressedData
+			 *	Reference to an AutoArray to store the 
+			 *	decompressed data.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in compression unit.
 			 */
-			virtual Memory::uint8Array
+			virtual void
 			decompress(
 			    const uint8_t *const compressedData,
-			    uint64_t compressedDataSize)
-			    const
-			    throw (Error::StrategyError) = 0;
+			    uint64_t compressedDataSize,
+			    Memory::uint8Array &uncompressedData) const = 0;
 
 			/**
 			 * @brief
@@ -244,41 +190,38 @@ namespace BiometricEvaluation
 			 *
 			 * @param compressedData
 			 *	Compressed data buffer to decompress.
-			 *
-			 * @return
-			 *	Decompressed buffer.
+			 * @param uncompressedData
+			 *	Reference to an AutoArray to store the 
+			 *	decompressed data.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in decompression unit.
 			 */
-   			virtual Memory::uint8Array
+   			virtual void
 			decompress(
-			    const Memory::uint8Array &compressedData)
-			    const
-			    throw (Error::StrategyError) = 0;
-			
+			    const Memory::uint8Array &compressedData,
+			    Memory::uint8Array &uncompressedData) const = 0;
+
 			/**
 			 * @brief
 			 * Decompress a compressed buffer into a file.
 			 *
 			 * @param inputFile
 			 *	Location to save compressed file.
-			 *
-			 * @return
-			 *	Decompressed buffer.
+			 * @param uncompressedData
+			 *	Reference to an AutoArray to store the 
+			 *	decompressed data.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in decompression unit.
 			 * @throw Error::ObjectDoesNotExists
 			 *	Output file already exists.
 			 */
-   			virtual Memory::uint8Array
+   			virtual void
 			decompress(
-			    const string &inputFile)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError) = 0;
-			    
+			    const std::string &inputFile,
+			    Memory::uint8Array &uncompressedData) const = 0;
+
 			/**
 			 * @brief
 			 * Decompress a file.
@@ -297,11 +240,8 @@ namespace BiometricEvaluation
 			virtual void
 			decompress(
 			    const Memory::uint8Array &compressedData,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			    
+			    const std::string &outputFile) const = 0;
+
 			/**
 			 * @brief
 			 * Decompress a file.
@@ -323,11 +263,8 @@ namespace BiometricEvaluation
 			decompress(
 			    const uint8_t *const compressedData,
 			    const uint64_t compressedDataSize,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			
+			    const std::string &outputFile) const = 0;
+
 			/**
 			 * @brief
 			 * Decompress a file.
@@ -347,13 +284,9 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			decompress(
-			    const string &inputFile,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			
+			    const std::string &inputFile,
+			    const std::string &outputFile) const = 0;
+
 			/**
 			 * @brief
 			 * Assign a compressor option.
@@ -370,10 +303,9 @@ namespace BiometricEvaluation
 			 */
 			void
 			setOption(
-			    const string &optionName,
-			    const string &optionValue)
-			    throw (Error::StrategyError);
-			    
+			    const std::string &optionName,
+			    const std::string &optionValue);
+
 			/**
 			 * @brief
 			 * Assign a compressor option.
@@ -390,10 +322,9 @@ namespace BiometricEvaluation
 			 */
 			void
 			setOption(
-			    const string &optionName,
-			    int64_t optionValue)
-			    throw (Error::StrategyError);
-			    
+			    const std::string &optionName,
+			    int64_t optionValue);
+
 			/**
 			 * @brief
 			 * Obtain a compressor option as an integer.
@@ -404,12 +335,10 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Value of compressor option.
 			 */
-			string
+			std::string
 			getOption(
-			    const string &optionName)
-			    const
-			    throw (Error::ObjectDoesNotExist);
-			    
+			    const std::string &optionName) const;
+
 			/**
 			 * @brief
 			 * Obtain a compressor option as an integer.
@@ -425,10 +354,8 @@ namespace BiometricEvaluation
 			 */
 			int64_t
 			getOptionAsInteger(
-			    const string &optionName)
-			    const
-			    throw (Error::ObjectDoesNotExist);
-			    
+			    const std::string &optionName) const;
+
 			/**
 			 * @brief
 			 * Remove a compressor option.
@@ -438,9 +365,8 @@ namespace BiometricEvaluation
 			 */
 			void
 			removeOption(
-			    const string &optionName)
-			    throw (Error::ObjectDoesNotExist);
-			    
+			    const std::string &optionName);
+
 			/** Destructor */
 			virtual ~Compressor();
 			
@@ -456,12 +382,10 @@ namespace BiometricEvaluation
 			 * @throw Error::ObjectDoesNotExist
 			 *	Invalid compressor type.
 			 */
-			static tr1::shared_ptr<Compressor>
+			static std::shared_ptr<Compressor>
 			createCompressor(
-			    Compressor::Kind compressorKind = Compressor::GZIP)
-			    throw (Error::ObjectDoesNotExist);
-			    
-		private:
+			    Compressor::Kind compressorKind = Kind::GZIP);
+
 			/**
 			 * @brief
 			 * Copy constructor (disabled).
@@ -472,8 +396,8 @@ namespace BiometricEvaluation
 			 *	Compressor to copy.
 			 */
 			Compressor(
-			    const Compressor &other);
-			    
+			    const Compressor &other) = delete;
+
     			/**
 			 * @brief
 			 * Assignment overload (disabled).
@@ -489,8 +413,9 @@ namespace BiometricEvaluation
 			 */
 			Compressor&
 			operator=(
-			    const Compressor& other);
-			    
+			    const Compressor& other) = delete;
+
+		private:
 			/** Compressor properties */
 			Properties _compressorOptions;
 		};

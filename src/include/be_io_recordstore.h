@@ -10,16 +10,15 @@
 #ifndef __BE_IO_RECORDSTORE_H__
 #define __BE_IO_RECORDSTORE_H__
 
+#include <memory>
 #include <string>
-#include <tr1/memory>
 #include <vector>
 
 #include <be_error_exception.h>
+#include <be_framework_enumeration.h>
 #include <be_io.h>
 #include <be_io_propertiesfile.h>
 #include <be_memory_autoarray.h>
-
-using namespace std;
 
 /*
  * This file contains the class declaration for the RecordStore, a virtual
@@ -28,6 +27,8 @@ using namespace std;
 namespace BiometricEvaluation {
 
 	namespace IO {
+		class RecordStoreIterator;
+
 		/**
 		 * @brief
 		 * A class to represent a data storage mechanism.
@@ -49,12 +50,34 @@ namespace BiometricEvaluation {
 		 */
 		class RecordStore {
 		public:
+			using iterator = IO::RecordStoreIterator;
+			using const_iterator = const IO::RecordStoreIterator;
+
+			/** Possible types of RecordStore */
+			enum class Kind
+			{
+				/** DBRecordStore */
+				BerkeleyDB,
+				/** ArchiveRecordStore */
+				Archive,
+				/** FileRecordStore */
+				File,
+				/** SQLiteRecordStore */
+				SQLite,
+				/** CompressedRecordStore */
+				Compressed,
+				/** ListRecordStore */
+				List,
+
+				/** "Default" RecordStore kind */
+				Default = BerkeleyDB
+			};
 			
 			/**
 			 * The set of prohibited characters in a key:
 			 * '/', '\', '*', '&'
 			 */
-			static const string INVALIDKEYCHARS;
+			static const std::string INVALIDKEYCHARS;
 			/** Character used to separate key segments */
 			static const char KEY_SEGMENT_SEPARATOR = '&';
 			/** First segment number of a segmented record */
@@ -62,34 +85,19 @@ namespace BiometricEvaluation {
 			
  
 			/** The name of the control file, a properties list */
-			static const string CONTROLFILENAME;
+			static const std::string CONTROLFILENAME;
 
 			/** Property key for name of the RecordStore */
-			static const string NAMEPROPERTY;
+			static const std::string NAMEPROPERTY;
 			/** Property key for description of the RecordStore */
-			static const string DESCRIPTIONPROPERTY;
+			static const std::string DESCRIPTIONPROPERTY;
 			/** Property key for the number of store items */
-			static const string COUNTPROPERTY;
+			static const std::string COUNTPROPERTY;
 			/** Property key for the type of RecordStore */
-			static const string TYPEPROPERTY;
+			static const std::string TYPEPROPERTY;
 
-			/** DBRecordStore type */
-			static const string BERKELEYDBTYPE;
-			/** ArchiveRecordStore type */
-			static const string ARCHIVETYPE;
-			/** FileRecordStore type */
-			static const string FILETYPE;
-			/** SQLiteRecordStore type */
-			static const string SQLITETYPE;
-			/** CompressedRecordStore type */
-			static const string COMPRESSEDTYPE;
-			/** ListRecordStore type */
-			static const string LISTTYPE;
-			/** Default RecordStore */
-			static const string DEFAULTTYPE;
-			
 			/** Message for READONLY RecordStore modification */
-			static const string RSREADONLYERROR;
+			static const std::string RSREADONLYERROR;
 
 			/**
 			 * Constructor to create a new RecordStore.
@@ -98,8 +106,8 @@ namespace BiometricEvaluation {
 			 *	The name of the RecordStore to be created.
 			 * @param[in] description
 			 *	The text used to describe the store.
-			 * @param[in] type
-			 *	The type of RecordStore.
+			 * @param[in] kind
+			 *	The kind of RecordStore.
 			 * @param[in] parentDir
 			 *	Where, in the file system, the store is to
 			 *	be rooted. This directory must exist.
@@ -111,11 +119,10 @@ namespace BiometricEvaluation {
 			 *	storage system, or the the name malformed.
 			 */
 			RecordStore(
-			    const string &name,
-			    const string &description,
-			    const string &type,
-			    const string &parentDir)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &name,
+			    const std::string &description,
+			    const Kind &kind,
+			    const std::string &parentDir);
 
 			/**
 			 * Constructor to open an existing RecordStore.
@@ -133,11 +140,9 @@ namespace BiometricEvaluation {
 			 *	storage system, or the name is malformed.
 			 */
 			RecordStore(
-			    const string &name,
-			    const string &parentDir,
-			    uint8_t mode = READWRITE)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir,
+			    uint8_t mode = READWRITE);
 
 			virtual ~RecordStore();
 			
@@ -146,14 +151,14 @@ namespace BiometricEvaluation {
 			 * @return
 			 *	 The RecordStore's name.
 			 */
-			string getName() const;
+			std::string getName() const;
 
 			/**
 			 * Obtain a textual description of the RecordStore.
 			 * @return
 			 *	The RecordStore's description.
 			 */
-			string getDescription() const;
+			std::string getDescription() const;
 
 			/**
 			 * Obtain the number of items in the RecordStore.
@@ -171,8 +176,7 @@ namespace BiometricEvaluation {
 			 *	storage system, or the name is malformed.
 			 */
 			virtual void changeName(
-			    const string &name)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &name);
 
 			/**
 			 * Change the description of the RecordStore.
@@ -183,9 +187,8 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual void changeDescription(
-			    const string &description)
-			    throw (Error::StrategyError);
-			
+			    const std::string &description);
+
 			/**
 			 * @brief
 			 * Obtain real storage utilization.
@@ -202,10 +205,8 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
-			virtual uint64_t getSpaceUsed()
-			    const
-			    throw (Error::StrategyError);
-			
+			virtual uint64_t getSpaceUsed() const;
+
 			/**
 			 * Synchronize the entire record store to persistent
 			 * storage.
@@ -214,9 +215,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
-			virtual void sync()
-			    const
-			    throw (Error::StrategyError);
+			virtual void sync() const;
 
 			/**
 			 * Insert a record into the store.
@@ -235,12 +234,10 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual void insert(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			
+			    const uint64_t size) = 0;
+
 			/**
 			 * Insert a record into the store.
 			 *
@@ -258,10 +255,8 @@ namespace BiometricEvaluation {
 			 */
 			virtual void
 			insert(
-			    const string &key,
-			    const Memory::uint8Array &data)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    const std::string &key,
+			    const Memory::uint8Array &data);
 
 			/**
 			 * Remove a record from the store.
@@ -275,9 +270,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual void remove(
-			    const string &key)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError) = 0;
+			    const std::string &key) = 0;
 
 			/**
 			 * Read a complete record from a store. Applications
@@ -297,12 +290,9 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */	
 			virtual uint64_t read(
-			    const string &key,
-			    void *const data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError) = 0;
-			
+			    const std::string &key,
+			    void *const data) const = 0;
+
 			/**
 			 * @brief
 			 * Read a complete record from a store.
@@ -326,11 +316,8 @@ namespace BiometricEvaluation {
 			 */	
 			virtual uint64_t
 			read(
-			    const string &key,
-			    Memory::uint8Array &data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key,
+			    Memory::uint8Array &data) const;
 
 			/**
 			 * Replace a complete record in a store.
@@ -349,12 +336,10 @@ namespace BiometricEvaluation {
 			 */	
 			virtual void
 			replace(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError) = 0;
-			    
+			    const uint64_t size) = 0;
+
 			/**
 			 * Replace a complete record in a RecordStore.
 			 *
@@ -370,10 +355,8 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */	
 			virtual void replace(
-			    const string &key,
-			    const Memory::uint8Array &data)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key,
+			    const Memory::uint8Array &data);
 
 			/**
 			 * Return the length of a record.
@@ -389,10 +372,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual uint64_t length(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError) = 0;
+			    const std::string &key) const = 0;
 
 			/**
 			 * Commit the record's data to storage.
@@ -405,10 +385,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual void flush(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError) = 0;
+			    const std::string &key) const = 0;
 
 			/** Tell sequence() to sequence from beginning */
 			static const int BE_RECSTORE_SEQ_START = 1;
@@ -432,7 +409,7 @@ namespace BiometricEvaluation {
 			 *	The key of the currently sequenced record.
 			 * @param[in] data
 			 *	Pointer to where the data is to be written.
-			 *	Applications can set data to NULL to indicate
+			 *	Applications can set data to nullptr to indicate
 			 *	only the key is wanted.
 			 * @param[in] cursor
 			 *	The location within the sequence of the
@@ -446,12 +423,10 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual uint64_t sequence(
-			    string &key,
-			    void *const data = NULL,
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError) = 0;
-			    
+			    std::string &key,
+			    void *const data = nullptr,
+			    int cursor = BE_RECSTORE_SEQ_NEXT) = 0;
+
 			/**
 			 * @brief
 			 * Sequence through a RecordStore, returning the
@@ -484,11 +459,9 @@ namespace BiometricEvaluation {
 			 */
 			virtual uint64_t
 			sequence(
-			    string &key,
+			    std::string &key,
 			    Memory::uint8Array &data,
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			/**
 			 * Set the sequence cursor to an arbitrary position
@@ -507,9 +480,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual void setCursorAtKey(
-			    string &key)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError) = 0;
+			    std::string &key) = 0;
 
 			/**
 			 * @brief
@@ -539,12 +510,10 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system, or the name is malformed.
 			 */
-			static tr1::shared_ptr<RecordStore> openRecordStore(
-			    const string &name,
-			    const string &parentDir,
-			    uint8_t mode = READWRITE)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			static std::shared_ptr<RecordStore> openRecordStore(
+			    const std::string &name,
+			    const std::string &parentDir,
+			    uint8_t mode = READWRITE);
 
 			/**
 			 * @brief
@@ -559,8 +528,8 @@ namespace BiometricEvaluation {
 			 *	The name of the store to be created.
 			 * @param[in] description
 			 *	The description of the store to be created.
-			 * @param[in] type
-			 *	The type of the store to be created.
+			 * @param[in] kind
+			 *	The kind of RecordStore to be created.
 			 * @param[in] destDir
 			 *	Where, in the file system, the store will be 
 			 *	created.
@@ -573,12 +542,11 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system, or the name is malformed.
 			 */
-			static tr1::shared_ptr<RecordStore> createRecordStore(
-			    const string &name,
-			    const string &description,
-			    const string &type,
-			    const string &destDir)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			static std::shared_ptr<RecordStore> createRecordStore(
+			    const std::string &name,
+			    const std::string &description,
+			    const Kind &kind,
+			    const std::string &destDir);
 
 			/**
 			 * Remove a RecordStore by deleting all persistant
@@ -595,11 +563,9 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			static void removeRecordStore(
-			    const string &name,
-			    const string &parentDir)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
-			    
+			    const std::string &name,
+			    const std::string &parentDir);
+
 			/**
 			 * @brief
 			 * Create a new RecordStore that contains the contents
@@ -612,8 +578,8 @@ namespace BiometricEvaluation {
 			 *	The text used to describe the RecordStore.
 			 * @param[in] parentDir
 			 *	Where the new RecordStore should be rooted.
-			 * @param[in] type
-			 *	The type of RecordStore that mergedName should
+			 * @param[in] kind
+			 *	The kind of RecordStore that mergedName should
 			 *	be.
 			 * @param[in] path
 			 *	Vector of string paths to RecordStores to open.
@@ -628,12 +594,11 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			static void mergeRecordStores(
-			    const string &mergedName,
-			    const string &mergedDescription,
-			    const string &parentDir,
-			    const string &type,
-			    const vector<string> &path)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &mergedName,
+			    const std::string &mergedDescription,
+			    const std::string &parentDir,
+			    const RecordStore::Kind &kind,
+			    const std::vector<std::string> &path);
 			    
 			/**
 			 * @brief
@@ -649,22 +614,32 @@ namespace BiometricEvaluation {
 			 */
 			virtual bool
 			containsKey(
-			    const string &key)
+			    const std::string &key)
 			    const;
+
+			/** @return Iterator to the first record. */
+			virtual iterator
+			begin()
+			    noexcept;
+
+			/** @return Iterator past the last record. */
+			virtual iterator
+			end()
+			    noexcept;
 
 		protected:
 			uint8_t getMode() const;
-			string getDirectory() const;
-			string getParentDirectory() const;
+			std::string getDirectory() const;
+			std::string getParentDirectory() const;
 			/*
 			 * Return the full name of a file stored as part
 			 * of the RecordStore, typically _directory + name.
 			 */
-			string canonicalName(const string &name) const;
+			std::string canonicalName(const std::string &name) const;
 			int getCursor() const;
 			void setCursor(int cursor);
 			bool validateKeyString(
-			    const string &key)
+			    const std::string &key)
 			    const;
 
 			/**
@@ -679,9 +654,9 @@ namespace BiometricEvaluation {
 			 * @return
 			 *	Key segment name.
 			 */
-			static string
+			static std::string
 			genKeySegName(
-			    const string &key,
+			    const std::string &key,
 			    const uint64_t segnum);
 			
 			/**
@@ -700,9 +675,8 @@ namespace BiometricEvaluation {
 			 */   
 			void
 			setProperties(
-			    const tr1::shared_ptr<IO::Properties> properties)
-			    throw (Error::StrategyError);
-			    
+			    const std::shared_ptr<IO::Properties> properties);
+
 			/**
 			 * @brief
 			 * Obtain a copy of the Properties object.
@@ -713,24 +687,24 @@ namespace BiometricEvaluation {
 			 *	Shared pointer to Properties object that may
 			 *	be modified.
 			 */
-			tr1::shared_ptr<IO::Properties>
+			std::shared_ptr<IO::Properties>
 			getProperties()
 			    const;
 			
 		private:
 			/** Properties of the RecordStore */
-			tr1::shared_ptr<IO::PropertiesFile> _props;
+			std::shared_ptr<IO::PropertiesFile> _props;
 			
 			/*
 			 * The name directory where the store is rooted,
 			 * including _parentDir.
 			 */
-			string _directory;
+			std::string _directory;
 
 			/*
 			 * The directory containing the store.
 			 */
-			string _parentDir;
+			std::string _parentDir;
 
 			/*
 			 * The current record position cursor.
@@ -751,9 +725,8 @@ namespace BiometricEvaluation {
 			 *	Required key is missing or file not found.
 			 */
 			void
-			validateControlFile()
-			    throw (Error::StrategyError);
-			
+			validateControlFile();
+
 			/**
 			 * @brief
 			 * Open/create the PropertiesFile for this RecordStore.
@@ -763,9 +736,8 @@ namespace BiometricEvaluation {
 			 *	READONLY, error with underlying file system, 
 			 */
 			void
-			openControlFile()
-			    throw (Error::StrategyError);
-			    
+			openControlFile();
+
 			/**
 			 * @brief
 			 * Detemine if a property key is a core RecordStore
@@ -780,9 +752,10 @@ namespace BiometricEvaluation {
 			 */
 			bool
 			isKeyCoreProperty(
-			    const string &key)
+			    const std::string &key)
 			    const;
 		};
 	}
 }
+
 #endif	/* __BE_IO_RECORDSTORE_H__ */

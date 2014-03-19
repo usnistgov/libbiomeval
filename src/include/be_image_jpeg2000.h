@@ -46,23 +46,18 @@ namespace BiometricEvaluation
 			JPEG2000(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const int8_t codec = 2)
-			    throw (Error::DataError,
-			    Error::StrategyError);
+			    const int8_t codec = 2);
 
 			~JPEG2000();
 
-			Memory::AutoArray<uint8_t>
-			getRawData()
-			    const
-			    throw (Error::DataError);
+			void
+			getRawData(
+			    Memory::uint8Array &rawData) const;
 			    
-			Memory::AutoArray<uint8_t>
+			void
 			getRawGrayscaleData(
-			    uint8_t depth = 8)
-			    const
-			    throw (Error::DataError,
-			    Error::ParameterError);
+			    Memory::uint8Array &rawGray,
+			    uint8_t depth = 8) const;
 	
 			/**
 			 * Whether or not data is a JPEG-2000 image.
@@ -103,9 +98,8 @@ namespace BiometricEvaluation
 			static void
 			openjpeg_message(
 			    const char *msg,
-			    void *client_data)
-			    throw (Error::StrategyError);
-			
+			    void *client_data);
+
 			/**
 			 * @brief
 			 * Return the value for a JPEG-2000 marker.
@@ -135,9 +129,8 @@ namespace BiometricEvaluation
 			    uint64_t marker_size,
 			    uint8_t *buffer,
 			    uint64_t buffer_size,
-			    uint64_t value_size)
-			    throw (Error::ObjectDoesNotExist);
-			    
+			    uint64_t value_size);
+
 			/**
 			 * @brief
 			 * Parse display resolution information from the 
@@ -158,9 +151,8 @@ namespace BiometricEvaluation
 			 */
 			Resolution
 			parse_resd(
-			    const Memory::AutoArray<uint8_t> &resd)
-			    throw (Error::DataError);
-			    
+			    const Memory::AutoArray<uint8_t> &resd);
+
 			/**
 			 * @brief
 			 * Populate _raw_data AutoArray.

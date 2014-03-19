@@ -13,12 +13,11 @@ extern "C" {
 #include <an2k.h>
 }
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::Finger::AN2KViewCapture::AN2KViewCapture(
     const std::string &filename,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError, Error::FileError) :
+    const uint32_t recordNumber) :
     AN2KViewVariableResolution(filename, RecordType::Type_14, recordNumber)
 {
 	readImageRecord();
@@ -26,8 +25,7 @@ BiometricEvaluation::Finger::AN2KViewCapture::AN2KViewCapture(
 
 BiometricEvaluation::Finger::AN2KViewCapture::AN2KViewCapture(
     Memory::uint8Array &buf,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError) :
+    const uint32_t recordNumber) :
     AN2KViewVariableResolution(buf, RecordType::Type_14, recordNumber)
 {
 	readImageRecord();
@@ -40,7 +38,6 @@ BiometricEvaluation::Finger::AN2KViewCapture::AN2KViewCapture(
 BiometricEvaluation::View::AN2KViewVariableResolution::QualityMetricSet
 BiometricEvaluation::Finger::AN2KViewCapture::extractNISTQuality(
     const FIELD *field)
-    throw (Error::DataError)
 {
 	AN2KViewVariableResolution::QualityMetricSet qms;
 	
@@ -73,12 +70,11 @@ BiometricEvaluation::Finger::AN2KViewCapture::getSegmentationQualityMetric()
 	return (_sqm);
 }
 
-BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged::Kind
+BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged
 BiometricEvaluation::Finger::AN2KViewCapture::convertAmputatedBandaged(
     const char *ampcd)
-    throw (Error::DataError)
 {
-	string str(ampcd);
+	std::string str(ampcd);
 	if (str == "XX")
 		return (AmputatedBandaged::Amputated);
 	else if (str == "UP")
@@ -87,7 +83,7 @@ BiometricEvaluation::Finger::AN2KViewCapture::convertAmputatedBandaged(
 		throw (Error::DataError("Invalid AMPCD"));
 }
 
-BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged::Kind
+BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged
 BiometricEvaluation::Finger::AN2KViewCapture::getAmputatedBandaged()
     const
 {
@@ -97,13 +93,12 @@ BiometricEvaluation::Finger::AN2KViewCapture::getAmputatedBandaged()
 BiometricEvaluation::Finger::AN2KViewCapture::FingerSegmentPosition
 BiometricEvaluation::Finger::AN2KViewCapture::convertFingerSegmentPosition(
    const SUBFIELD *sf)
-   throw (Error::DataError)
 {
 	if (sf->num_items != 5)
 		throw Error::DataError("Invalid format for finger segment "
 		    "position -- not enough items");
 
-	Finger::Position::Kind position = Finger::AN2KView::convertPosition(
+	Finger::Position position = Finger::AN2KView::convertPosition(
 	    atoi((char *)sf->items[0]));
 	    
 	Image::CoordinateSet coordinates;
@@ -124,7 +119,7 @@ BiometricEvaluation::Finger::AN2KViewCapture::getFingerSegmentPositionSet()
 
 BiometricEvaluation::Finger::AN2KViewCapture::FingerSegmentPosition::
 FingerSegmentPosition(
-    const Finger::Position::Kind fingerPosition,
+    const Finger::Position fingerPosition,
     const Image::CoordinateSet coordinates) :
     fingerPosition(fingerPosition),
     coordinates(coordinates)
@@ -136,14 +131,13 @@ BiometricEvaluation::Finger::AN2KViewCapture::FingerSegmentPosition
 BiometricEvaluation::Finger::AN2KViewCapture::
 convertAlternateFingerSegmentPosition(
    const SUBFIELD *sf)
-   throw (Error::DataError)
 {
 	/* Required number of items */
 	if (sf->num_items < 8)
 		throw Error::DataError("Invalid format for alternate finger "
 		    "segment position -- not enough items");
 
-	Finger::Position::Kind position = Finger::AN2KView::convertPosition(
+	Finger::Position position = Finger::AN2KView::convertPosition(
 	    atoi((char *)sf->items[0]));
 	
 	/* Coordinates begin at offset 2, with X and Y in sequential items */
@@ -183,33 +177,27 @@ BiometricEvaluation::Finger::AN2KViewCapture::getPrintPositionDescriptors()
 /* Local functions.                                                           */
 /******************************************************************************/
 
-std::ostream&
-BiometricEvaluation::Finger::operator<<(
-    std::ostream &stream,
-    const AN2KViewCapture::AmputatedBandaged::Kind &ab)
-{
-	string str;
-	switch (ab) {
-	case AN2KViewCapture::AmputatedBandaged::Amputated:
-		str = "Amputated";
-		break;
-	case AN2KViewCapture::AmputatedBandaged::Bandaged:
-		str = "Unable to print (e.g., bandaged)";
-		break;
-	case AN2KViewCapture::AmputatedBandaged::NA:
-		str = "(Optional field -- not specified)";
-		break;
-	}
-	
-	return (stream << str);
-}
+template<>
+const std::map<BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged,
+    std::string>
+    BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged>::
+    enumToStringMap {
+	{Finger::AN2KViewCapture::AmputatedBandaged::Amputated, "Amputated"},
+	{Finger::AN2KViewCapture::AmputatedBandaged::Bandaged,
+		"Unable to print (e.g., bandaged)"},
+	{Finger::AN2KViewCapture::AmputatedBandaged::NA,
+	    "(Optional field -- not specified)"}
+};
+
 
 std::ostream&
 BiometricEvaluation::Finger::operator<<(
     std::ostream &stream,
     const AN2KViewCapture::FingerSegmentPosition &fsp)
 {
-	return (stream << fsp.fingerPosition << ": " << fsp.coordinates);
+	return (stream << to_string(fsp.fingerPosition) << ": " <<
+	    fsp.coordinates);
 }
 
 /******************************************************************************/
@@ -218,7 +206,6 @@ BiometricEvaluation::Finger::operator<<(
 
 void
 BiometricEvaluation::Finger::AN2KViewCapture::readImageRecord()
-    throw (Error::DataError)
 {
 	RECORD *record = AN2KView::getAN2KRecord();
 	FIELD *field;

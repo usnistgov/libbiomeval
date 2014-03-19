@@ -24,11 +24,13 @@ FACE = test_be_face_incitsviews
 
 PROCESS_MANAGEMENT = test_be_process_forkmanager test_be_process_posixthreadmanager
 
+COMMAND_CENTER = be_process_commandcenter_example
+
 FEATURE = test_be_feature_an2kminutiae
 
-OTHER = test_be_data_interchange_an2k
+OTHER = test_be_data_interchange_an2k test_be_framework_enumeration
 
-PROGS = $(CORE) $(IO) $(IMAGE) $(PROCESS_MANAGEMENT) $(FINGER) $(IRIS) $(FACE) $(FEATURE) $(OTHER)
+PROGS = $(CORE) $(IO) $(IMAGE) $(PROCESS_MANAGEMENT) $(FINGER) $(FEATURE) $(OTHER) $(IRIS) $(FACE) $(COMMAND_CENTER)
 
 all: CXXFLAGS += -g
 all: $(PROGS)
@@ -122,6 +124,10 @@ test_be_process_forkmanager: test_be_process_manager.cpp
 test_be_process_posixthreadmanager: test_be_process_manager.cpp
 	$(CXX) $(CXXFLAGS) -DPOSIXTHREADTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_listrecstore: test_be_io_listrecstore.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_framework_enumeration: test_be_framework_enumeration.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+be_process_commandcenter_example: be_process_commandcenter_example.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 
 clean:

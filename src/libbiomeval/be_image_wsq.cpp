@@ -7,9 +7,10 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
+ 
+#include <cstdio>
 
 extern "C" {
-	#include <stdio.h>
 	#include <dataio.h>
 	#include <wsq.h>
 	int debug = 0;	/* Required by libwsq */
@@ -19,15 +20,14 @@ extern "C" {
 
 BiometricEvaluation::Image::WSQ::WSQ(
     const uint8_t *data,
-    const uint64_t size)
-    throw (Error::DataError,
-    Error::StrategyError) : 
+    const uint64_t size) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::WSQ20)
 {
-	Memory::uint8Array wsqData = getData();
+	Memory::uint8Array wsqData;
+	this->getData(wsqData);
 	uint8_t *marker_buf = wsqData;	/* Will be manipulated by libwsq */
 	uint8_t *wsq_buf = marker_buf;
 
@@ -70,7 +70,7 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	if (ppi == -1)
 		setResolution(Resolution(0, 0));
 	else
-		setResolution(Resolution(ppi, ppi, Resolution::PPI));
+		setResolution(Resolution(ppi, ppi, Resolution::Units::PPI));
 	
 	/* 
 	 * "Source fingerprint images shall be captured with 8 bits of 
@@ -79,18 +79,21 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	setDepth(8);
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
-BiometricEvaluation::Image::WSQ::getRawData()
+void
+BiometricEvaluation::Image::WSQ::getRawData(
+    Memory::uint8Array &rawData)
     const
-    throw (Error::DataError)
 {
 	/* Check for cached version */
-	if (_raw_data.size() != 0)
-		return (_raw_data);
+	if (_raw_data.size() != 0) {
+		rawData.copy(_raw_data, _raw_data.size());
+		return;
+	}
 
-	uint8_t *rawbuf = NULL;
+	uint8_t *rawbuf = nullptr;
 	int32_t depth, height, lossy, ppi, rv, width;
-	Memory::uint8Array wsqData = getData();
+	Memory::uint8Array wsqData;
+	this->getData(wsqData);
 	if ((rv = wsq_decode_mem(&rawbuf, &width, &height, &depth, &ppi,
 	    &lossy, wsqData, wsqData.size())))
 		throw Error::DataError("Could not convert WSQ to raw.");
@@ -100,17 +103,16 @@ BiometricEvaluation::Image::WSQ::getRawData()
 	    width * height * (depth / Image::bitsPerComponent));
 	free(rawbuf);
 		
-	return (_raw_data);
+	rawData.copy(_raw_data, _raw_data.size());
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
+void
 BiometricEvaluation::Image::WSQ::getRawGrayscaleData(
+    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
-    throw (Error::DataError,
-    Error::ParameterError)
 {
-	return (Image::getRawGrayscaleData(depth));
+	Image::getRawGrayscaleData(rawGray, depth);
 }
 
 bool

@@ -8,8 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cstdio>		/* Needed for NBIS headers */
 #include <sstream>
-#include <stdio.h>		/* Needed for NBIS headers */
 
 extern "C" {
 	#include <computil.h>
@@ -21,9 +21,7 @@ extern "C" {
 
 BiometricEvaluation::Image::JPEG::JPEG(
     const uint8_t *data,
-    const uint64_t size)
-    throw (Error::DataError,
-    Error::StrategyError) : 
+    const uint64_t size) :
     Image::Image(
     data,
     size,
@@ -38,7 +36,8 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Memory::AutoArray<uint8_t> buffer = getData();
+	Memory::AutoArray<uint8_t> buffer;
+	this->getData(buffer);
 
 #if JPEG_LIB_VERSION >= 80
 	::jpeg_mem_src(&dinfo, buffer, buffer.size());
@@ -52,20 +51,22 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	setDimensions(Size(dinfo.image_width, dinfo.image_height));
 	setDepth(dinfo.num_components * bitsPerComponent);
 	setResolution(Resolution(dinfo.X_density, dinfo.Y_density,
-	    Resolution::PPI));
+	    Resolution::Units::PPI));
 
 	/* Clean up after libjpeg */
 	jpeg_destroy_decompress(&dinfo);
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
-BiometricEvaluation::Image::JPEG::getRawData()
+void
+BiometricEvaluation::Image::JPEG::getRawData(
+    Memory::uint8Array &rawData)
     const
-    throw (Error::DataError)
 {
 	/* Check for cached version */
-	if (_raw_data.size() != 0)
-		return (_raw_data);
+	if (_raw_data.size() != 0) {
+		rawData.copy(_raw_data, _raw_data.size());
+		return;
+	}
 		
 	/* Initialize custom JPEG error manager to throw exceptions */
 	struct jpeg_error_mgr jpeg_error_mgr;
@@ -76,7 +77,8 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Memory::AutoArray<uint8_t> jpeg_data = getData();
+	Memory::AutoArray<uint8_t> jpeg_data;
+	this->getData(jpeg_data);
 
 #if JPEG_LIB_VERSION >= 80
 	::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
@@ -104,15 +106,14 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	jpeg_finish_decompress(&dinfo);
 	jpeg_destroy_decompress(&dinfo);
 	
-	return (_raw_data);
+	rawData.copy(_raw_data, _raw_data.size());
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
+void
 BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
+    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
-    throw (Error::DataError,
-    Error::ParameterError)
 {
 	if (depth != 8 && depth != 1)
 		throw Error::ParameterError("Invalid value for bit depth");
@@ -126,7 +127,8 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Memory::AutoArray<uint8_t> jpeg_data = getData();
+	Memory::AutoArray<uint8_t> jpeg_data;
+	this->getData(jpeg_data);
 
 #if JPEG_LIB_VERSION >= 80
 	::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
@@ -154,7 +156,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 		throw Error::StrategyError("jpeg_start_decompress()");
 
 	uint64_t row_stride = dinfo.output_width * dinfo.output_components;
-	Memory::AutoArray<uint8_t> raw_gray(dinfo.output_height * row_stride);
+	rawGray.resize(dinfo.output_height * row_stride);
 
 	JSAMPARRAY buffer = (*dinfo.mem->alloc_sarray)(
 	    (j_common_ptr)&dinfo, JPOOL_IMAGE, row_stride, 1);
@@ -175,14 +177,12 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 					buffer[0][i] = 0xFF;
 			break;
 		}
-		memcpy(&raw_gray[n * row_stride], buffer[0], row_stride);
+		memcpy(&rawGray[n * row_stride], buffer[0], row_stride);
 	}
 
 	/* Clean up after libjpeg */
 	jpeg_finish_decompress(&dinfo);
 	jpeg_destroy_decompress(&dinfo);
-	
-	return (raw_gray);
 }
 
 bool
@@ -289,7 +289,6 @@ BiometricEvaluation::Image::JPEG::~JPEG()
 void
 BiometricEvaluation::Image::JPEG::error_exit(
     j_common_ptr cinfo)
-    throw (Error::StrategyError)
 {
 	std::stringstream error;
 	error << "libjpeg: ";
@@ -333,7 +332,7 @@ BiometricEvaluation::Image::JPEG::jpeg_mem_src(
 {
 	struct jpeg_source_mgr *src;
 
-	if (cinfo->src == NULL) {     /* first time for this JPEG object? */
+	if (cinfo->src == nullptr) {     /* first time for this JPEG object? */
 		cinfo->src = (struct jpeg_source_mgr *)
 		    (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo,
 		        JPOOL_PERMANENT, sizeof(struct jpeg_source_mgr));

@@ -11,16 +11,13 @@
 #ifndef __BE_IO_GZIP__
 #define __BE_IO_GZIP__
 
-#include <zlib.h>
-
 #include <string>
+#include <zlib.h>
 
 #include <be_error_exception.h>
 #include <be_io_compressor.h>
 #include <be_io_properties.h>
 #include <be_memory_autoarray.h>
-
-using namespace std;
 
 namespace BiometricEvaluation 
 {
@@ -37,117 +34,88 @@ namespace BiometricEvaluation
 			 * zlib compressor property keys.
 			 */
 			/** How thorough the compression should be */
-			static const string COMPRESSION_LEVEL;
+			static const std::string COMPRESSION_LEVEL;
 			/** Which underlying algorithm to use */
-			static const string COMPRESSION_STRATEGY;
+			static const std::string COMPRESSION_STRATEGY;
 			/** Which underlying method in the compressor */
-			static const string COMPRESSION_METHOD;
+			static const std::string COMPRESSION_METHOD;
 			/** The type of data being compressed */
-			static const string INPUT_DATA_TYPE;
+			static const std::string INPUT_DATA_TYPE;
 			/** Window size */
-			static const string WINDOW_BITS;
+			static const std::string WINDOW_BITS;
 			/** How much memory for internal compression state */
-			static const string MEMORY_LEVEL;
+			static const std::string MEMORY_LEVEL;
 			/** How many bytes to work at a time */
-			static const string CHUNK_SIZE;
+			static const std::string CHUNK_SIZE;
 
 			GZip();
-			
-			Memory::uint8Array
-			compress(
-			    const uint8_t *const uncompressedData,
-			    uint64_t uncompressedDataSize)
-			    const
-			    throw (Error::StrategyError);
-			
-			Memory::uint8Array
-			compress(
-			    const Memory::uint8Array &uncompressedData)
-			    const
-			    throw (Error::StrategyError);
-			
+
 			void
 			compress(
 			    const uint8_t *const uncompressedData,
 			    uint64_t uncompressedDataSize,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    Memory::uint8Array &compressedData) const;
 
 			void
 			compress(
 			    const Memory::uint8Array &uncompressedData,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
-			Memory::uint8Array
-			compress(
-			    const string &inputFile)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			
+			    Memory::uint8Array &compressedData) const;
+
 			void
 			compress(
-			    const string &inputFile,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::ObjectExists,
-			    Error::StrategyError);
-			
-			Memory::uint8Array
+			    const uint8_t *const uncompressedData,
+			    uint64_t uncompressedDataSize,
+			    const std::string &outputFile) const;
+
+			void
+			compress(
+			    const Memory::uint8Array &uncompressedData,
+			    const std::string &outputFile) const;
+    
+			void
+			compress(
+			    const std::string &inputFile,
+			    Memory::uint8Array &compressedData) const;
+
+			void
+			compress(
+			    const std::string &inputFile,
+			    const std::string &outputFile) const;
+
+			void
 			decompress(
 			    const uint8_t *const compressedData,
-			    uint64_t compressedDataSize)
-			    const
-			    throw (Error::StrategyError);
+			    uint64_t compressedDataSize,
+			    Memory::uint8Array &uncompressedData) const;
 
-			Memory::uint8Array
-			decompress(
-			    const Memory::uint8Array &compressedData)
-			    const
-			    throw (Error::StrategyError);
-			    
-			Memory::uint8Array
-			decompress(
-			    const string &input)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			    
 			void
 			decompress(
-			    const string &inputFile,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::ObjectExists,
-			    Error::StrategyError);
-			
+			    const Memory::uint8Array &compressedData,
+			    Memory::uint8Array &uncompressedData) const;
+
+			void
+			decompress(
+			    const std::string &input,
+			    Memory::uint8Array &uncompressedData) const;
+
+			void
+			decompress(
+			    const std::string &inputFile,
+			    const std::string &outputFile) const;
+
 			void
 			decompress(
 			    const uint8_t *const compressedData,
 			    const uint64_t compressedDataSize,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			
+			    const std::string &outputFile) const;
+
 			void
 			decompress(
 			    const Memory::uint8Array &compressedData,
-			    const string &outputFile)
-			    const
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			
+			    const std::string &outputFile) const;
+
 			~GZip();
 		
-		private:
 			/**
 			 * @brief
 			 * Copy constructor (disabled).
@@ -159,8 +127,8 @@ namespace BiometricEvaluation
 			 *	GZip to copy.
 			 */
 			GZip(
-			    const GZip &other);
-			    
+			    const GZip &other) = delete;
+
     			/**
 			 * @brief
 			 * Assignment overload (disabled).
@@ -176,8 +144,9 @@ namespace BiometricEvaluation
 			 */
 			GZip&
 			operator=(
-			    const GZip& other);
-			    
+			    const GZip& other) = delete;
+
+		private:
 			/**
 			 * @brief
 			 * Initialize compression stream.
@@ -220,9 +189,7 @@ namespace BiometricEvaluation
 			    uint64_t &totalCompressedBytes,
 			    Memory::uint8Array &compressedBuf,
 			    bool compressedBufIsChunk,
-			    z_stream &strm)
-			    const
-			    throw (Error::StrategyError);
+			    z_stream &strm) const;
 
 			/**
 			 * @brief
@@ -263,10 +230,8 @@ namespace BiometricEvaluation
 			    uint64_t &totalUncompressedBytes,
 			    Memory::uint8Array &uncompressedBuf,
 			    bool uncompressedBufIsChunk,
-			    z_stream &strm)
-			    const
-			    throw (Error::StrategyError);
-			
+			    z_stream &strm) const;
+
 			/** Add GZIP to window size to produce gzip header */
 			static const uint8_t GZIP_WBITS_MAGIC = 16;
 		};

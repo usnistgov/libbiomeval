@@ -11,14 +11,11 @@
 #ifndef __BE_PROCESS_WORKER_H__
 #define __BE_PROCESS_WORKER_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <be_error_exception.h>
 #include <be_memory_autoarray.h>
 #include <be_process.h>
-
-using namespace std;
-
 
 namespace BiometricEvaluation
 {
@@ -62,9 +59,9 @@ namespace BiometricEvaluation
 			 * If name does not exist, a new shared_ptr will be 
 			 * set for name.
 			 */
-			tr1::shared_ptr<void>
+			std::shared_ptr<void>
 			getParameter(
-			    const string &name);
+			    const std::string &name);
 			    
 			/**
 			 * @brief
@@ -83,7 +80,7 @@ namespace BiometricEvaluation
 			 */
 			double
 			getParameterAsDouble(
-			    const string &name);
+			    const std::string &name);
 			    
 			/**
 			 * @brief
@@ -102,7 +99,7 @@ namespace BiometricEvaluation
 			 */
 			int64_t
 			getParameterAsInteger(
-			    const string &name);
+			    const std::string &name);
 			    
 			/**
 			 * @brief
@@ -119,9 +116,9 @@ namespace BiometricEvaluation
 			 * If name does not exist, a new shared_ptr<string>
 			 * will be set for name.
 			 */
-			string
+			std::string
 			getParameterAsString(
-			    const string &name);
+			    const std::string &name);
 			    
 			/**
 			 * @brief
@@ -134,8 +131,8 @@ namespace BiometricEvaluation
 			 */
 			void
 			setParameter(
-			    const string &name, 
-			    tr1::shared_ptr<void> argument);
+			    const std::string &name, 
+			    std::shared_ptr<void> argument);
 			
 			/**
 			 * @brief
@@ -159,9 +156,8 @@ namespace BiometricEvaluation
 			 *	Communications not enabled.
 			 */
 			void
-			closeWorkerPipeEnds()
-			    throw (Error::StrategyError);
-			
+			closeWorkerPipeEnds();
+
 			/**
 			 * @brief
 			 * Perform initialization for communication from
@@ -174,9 +170,8 @@ namespace BiometricEvaluation
 			 *	Communications not enabled.
 			 */
 			void
-			closeManagerPipeEnds()
-			    throw (Error::StrategyError);
-			
+			closeManagerPipeEnds();
+
 			/**
 			 * @brief
 			 * Obtain the pipe used to send messages to
@@ -191,11 +186,8 @@ namespace BiometricEvaluation
 			 *	Communications not enabled.
 			 */
 			int
-			getSendingPipe()
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			
+			getSendingPipe() const;
+
 			/**
 			 * @brief
 			 * Obtain the pipe used to receive messages to
@@ -210,11 +202,8 @@ namespace BiometricEvaluation
 			 *	Communications not enabled.
 			 */
 			int
-			getReceivingPipe()
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			
+			getReceivingPipe() const;
+
 			/**
 			 * @brief
 			 * Send a message to the Manager.
@@ -229,9 +218,7 @@ namespace BiometricEvaluation
 			 */
 			void
 			sendMessageToManager(
-			    const Memory::uint8Array &message)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    const Memory::uint8Array &message);
 
 			/**
 			 * @brief
@@ -248,10 +235,8 @@ namespace BiometricEvaluation
 			 */
 			void
 			receiveMessageFromManager(
-			    Memory::uint8Array &message)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			
+			    Memory::uint8Array &message);
+
 			/**
 			 * @brief
 			 * Perform general communication initialization from
@@ -261,9 +246,8 @@ namespace BiometricEvaluation
 			 *	Error in initialization.
 			 */
 			void
-			_initCommunication()
-			    throw (Error::StrategyError);
-			
+			_initCommunication();
+
 			/**
 			 * @brief
 			 * Worker destructor.

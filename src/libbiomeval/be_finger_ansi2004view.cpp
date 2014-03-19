@@ -11,21 +11,19 @@
 #include <be_finger_ansi2004view.h>
 #include <be_io_utility.h>
 
-using namespace BiometricEvaluation;
 namespace BE = BiometricEvaluation;
 
-Finger::ANSI2004View::ANSI2004View()
+BiometricEvaluation::Finger::ANSI2004View::ANSI2004View()
 {
 }
 
-Finger::ANSI2004View::ANSI2004View(
+BiometricEvaluation::Finger::ANSI2004View::ANSI2004View(
     const std::string &fmrFilename,
     const std::string &firFilename,
-    const uint32_t viewNumber)
-    throw (Error::DataError, Error::FileError) :
+    const uint32_t viewNumber) :
     INCITSView(fmrFilename, firFilename, viewNumber)
 {
-	Memory::uint8Array recordData = Finger::INCITSView::getFMRData();
+	Memory::uint8Array recordData = BE::Finger::INCITSView::getFMRData();
 	Memory::IndexedBuffer iBuf(recordData, recordData.size());
 	this->readFMRHeader(iBuf);
 	for (uint32_t i = 0; i < viewNumber; i++)
@@ -34,11 +32,10 @@ Finger::ANSI2004View::ANSI2004View(
 	//XXX Need to read the image record
 }
 
-Finger::ANSI2004View::ANSI2004View(
+BiometricEvaluation::Finger::ANSI2004View::ANSI2004View(
     Memory::uint8Array &fmrBuffer,
     Memory::uint8Array &firBuffer,
-    const uint32_t viewNumber)
-    throw (Error::DataError) :
+    const uint32_t viewNumber) :
     INCITSView(fmrBuffer, firBuffer, viewNumber)
 {
 	Memory::IndexedBuffer iBuf(fmrBuffer, fmrBuffer.size());
@@ -50,7 +47,7 @@ Finger::ANSI2004View::ANSI2004View(
 }
 
 void
-Finger::ANSI2004View::readFMRHeader(
+BiometricEvaluation::Finger::ANSI2004View::readFMRHeader(
     Memory::IndexedBuffer &buf)
 {
 	uint32_t uval32;
@@ -68,12 +65,11 @@ Finger::ANSI2004View::readFMRHeader(
 }
 
 void
-Finger::ANSI2004View::readCoreDeltaData(
+BiometricEvaluation::Finger::ANSI2004View::readCoreDeltaData(
     Memory::IndexedBuffer &buf,
     uint32_t dataLength,
     Feature::CorePointSet &cores,
     Feature::DeltaPointSet &deltas)
-    throw (Error::DataError)
 {
 	static const uint16_t CORE_TYPE_MASK = 0xC0;
 	static const uint16_t CORE_TYPE_SHIFT = 6;

@@ -24,13 +24,15 @@
 #define	SQLITE_V2_SUPPORT	1
 #endif
 
-using namespace std;
-
-const string BiometricEvaluation::IO::SQLiteRecordStore::KEY_COL = "key";
-const string BiometricEvaluation::IO::SQLiteRecordStore::VALUE_COL = "value";
-const string BiometricEvaluation::IO::SQLiteRecordStore::PRIMARY_KV_TABLE =
-    "RecordStore";
-const string BiometricEvaluation::IO::SQLiteRecordStore::SUBORDINATE_KV_TABLE =
+const std::string
+     BiometricEvaluation::IO::SQLiteRecordStore::KEY_COL = "key";
+const std::string
+     BiometricEvaluation::IO::SQLiteRecordStore::VALUE_COL = "value";
+const std::string
+     BiometricEvaluation::IO::SQLiteRecordStore::PRIMARY_KV_TABLE =
+     "RecordStore";
+const std::string
+    BiometricEvaluation::IO::SQLiteRecordStore::SUBORDINATE_KV_TABLE =
     "SubordinateRecordStore";
 
 /* 
@@ -50,18 +52,16 @@ static const uint64_t MAX_REC_SIZE = (uint64_t)1000000000U;
 
 
 BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
-    const string &name,
-    const string &description,
-    const string &parentDir)
-    throw (Error::ObjectExists,
-    Error::StrategyError) :
+    const std::string &name,
+    const std::string &description,
+    const std::string &parentDir) :
     RecordStore(name,
     description,
-    SQLITETYPE,
+    RecordStore::Kind::SQLite,
     parentDir),
-    _db(NULL),
+    _db(nullptr),
     _dbname(""),
-    _sequencer(NULL),
+    _sequencer(nullptr),
     _sequenceEnd(false)
 {
 #ifdef	SQLITE_V2_SUPPORT
@@ -76,11 +76,11 @@ BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
 #ifdef	SQLITE_V2_SUPPORT
 	int32_t rv = sqlite3_open_v2(_dbname.c_str(), &_db,
 	    SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE |
-	    SQLITE_OPEN_FULLMUTEX, NULL);
+	    SQLITE_OPEN_FULLMUTEX, nullptr);
 #else
 	int32_t rv = sqlite3_open(_dbname.c_str(), &_db);
 #endif
-	if ((rv != SQLITE_OK) || (_db == NULL))
+	if ((rv != SQLITE_OK) || (_db == nullptr))
 		sqliteError(rv);
 	
 	this->createStructure();
@@ -88,17 +88,15 @@ BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
 }
 
 BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
-    const string &name,
-    const string &parentDir,
-    uint8_t mode)
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError) :
+    const std::string &name,
+    const std::string &parentDir,
+    uint8_t mode) :
     RecordStore(name,
     parentDir,
     mode),
-    _db(NULL),
+    _db(nullptr),
     _dbname(""),
-    _sequencer(NULL),
+    _sequencer(nullptr),
     _sequenceEnd(false)
 {
 #ifdef	SQLITE_V2_SUPPORT
@@ -114,15 +112,15 @@ BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
 	if (mode == READWRITE)
 		/* TODO: SQLITE_OPEN_PRIVATECACHE */
 		rv = sqlite3_open_v2(_dbname.c_str(), &_db, 
-		    SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, NULL);
+		    SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, nullptr);
 	else
 		/* TODO: SQLITE_OPEN_PRIVATECACHE */
 		rv = sqlite3_open_v2(_dbname.c_str(), &_db, 
-		    SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX, NULL);
+		    SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX, nullptr);
 #else
 	rv = sqlite3_open(_dbname.c_str(), &_db);
 #endif
-	if ((rv != SQLITE_OK) || (_db == NULL))
+	if ((rv != SQLITE_OK) || (_db == nullptr))
 		sqliteError(rv);
 	
 	if (this->validateSchema() == false)
@@ -141,16 +139,14 @@ BiometricEvaluation::IO::SQLiteRecordStore::~SQLiteRecordStore()
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::changeName(
-    const string &name)
-    throw (Error::ObjectExists,
-    Error::StrategyError)
+    const std::string &name)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	this->cleanup();
 		
-	string oldDBName, newDBName;
+	std::string oldDBName, newDBName;
 	if (getParentDirectory().empty() || getParentDirectory() == ".") {
 		oldDBName = name + '/' + getName();
 		newDBName = name + '/' + name;
@@ -170,11 +166,11 @@ BiometricEvaluation::IO::SQLiteRecordStore::changeName(
 
 #ifdef	SQLITE_V2_SUPPORT
 	int32_t rv = sqlite3_open_v2(_dbname.c_str(), &_db, 
-	    SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, NULL);
+	    SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, nullptr);
 #else
 	int32_t rv = sqlite3_open(_dbname.c_str(), &_db);
 #endif
-    	if ((rv != SQLITE_OK) || (_db == NULL))
+    	if ((rv != SQLITE_OK) || (_db == nullptr))
 		sqliteError(rv);
 	
 	if (this->validateSchema() == false)
@@ -183,8 +179,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::changeName(
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::changeDescription(
-    const string &description)
-    throw (Error::StrategyError)
+    const std::string &description)
 {
 	RecordStore::changeDescription(description);
 }
@@ -192,7 +187,6 @@ BiometricEvaluation::IO::SQLiteRecordStore::changeDescription(
 uint64_t
 BiometricEvaluation::IO::SQLiteRecordStore::getSpaceUsed()
     const
-    throw (Error::StrategyError)
 {
 	this->sync();
 	return (RecordStore::getSpaceUsed() + 
@@ -201,11 +195,9 @@ BiometricEvaluation::IO::SQLiteRecordStore::getSpaceUsed()
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::insert(
-    const string &key,
+    const std::string &key,
     const void *const data,
     const uint64_t size)
-    throw (Error::ObjectExists,
-    Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
@@ -218,30 +210,30 @@ BiometricEvaluation::IO::SQLiteRecordStore::insert(
 		throw Error::ObjectExists(key);
 	} catch (Error::ObjectDoesNotExist) {}
 	
-	sqlite3_stmt *statement = NULL;
-	string activeTable = PRIMARY_KV_TABLE;
+	sqlite3_stmt *statement = nullptr;
+	std::string activeTable = PRIMARY_KV_TABLE;
 	uint64_t segnum = 0;
 	uint64_t remSize = size, bindSize = 0;
 	uint8_t *bindData = (uint8_t *)data;
 	while ((remSize > 0) ||
 	    ((remSize == 0) && (segnum < KEY_SEGMENT_START))) {
-		string sqlCommand = "INSERT INTO " + activeTable + " " + 
+		std::string sqlCommand = "INSERT INTO " + activeTable + " " + 
 		    "VALUES ('" + genKeySegName(key, segnum) +
 		    "', $value)";
 	
 		/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
 		int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-		    sqlCommand.length(), &statement, NULL);
+		    sqlCommand.length(), &statement, nullptr);
 #else
 		int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-		    sqlCommand.length(), &statement, NULL);
+		    sqlCommand.length(), &statement, nullptr);
 #endif
 		if (rv != SQLITE_OK) {
 			sqlite3_finalize(statement);
 			sqliteError(rv);
 		}
-		if (statement == NULL)
+		if (statement == nullptr)
 			throw Error::StrategyError("SQLite: Could not allocate "
 			    "statement");
 	
@@ -292,9 +284,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::insert(
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::remove(
-    const string &key)
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError)
+    const std::string &key)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
@@ -302,27 +292,27 @@ BiometricEvaluation::IO::SQLiteRecordStore::remove(
 		throw Error::StrategyError("Invalid key format");
 
 	sqlite3_stmt *statement;
-	string activeTable = PRIMARY_KV_TABLE;
+	std::string activeTable = PRIMARY_KV_TABLE;
 	int64_t segnum = 0;
 	bool moreSegments = true;
 	while (moreSegments) {
-		string sqlCommand = "DELETE FROM " + activeTable + " " + 
+		std::string sqlCommand = "DELETE FROM " + activeTable + " " + 
 		    "WHERE " + KEY_COL + " = '" + genKeySegName(key, segnum) + 
 		    "'";
 		
 		/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
 		int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-		    sqlCommand.length(), &statement, NULL);
+		    sqlCommand.length(), &statement, nullptr);
 #else
 		int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-		    sqlCommand.length(), &statement, NULL);
+		    sqlCommand.length(), &statement, nullptr);
 #endif
 		if (rv != SQLITE_OK) {
 			sqlite3_finalize(statement);
 			sqliteError(rv);
 		}
-		if (statement == NULL)
+		if (statement == nullptr)
 			throw Error::StrategyError("SQLite: Could not allocate "
 			    "statement");
 	
@@ -367,22 +357,18 @@ BiometricEvaluation::IO::SQLiteRecordStore::remove(
 
 uint64_t
 BiometricEvaluation::IO::SQLiteRecordStore::read(
-    const string &key,
+    const std::string &key,
     void *const data)
     const
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError)
 {
 	return (this->readSegments(key, data));
 }
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::replace(
-    const string &key,
+    const std::string &key,
     const void *const data,
     const uint64_t size)
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
@@ -399,21 +385,17 @@ BiometricEvaluation::IO::SQLiteRecordStore::replace(
 
 uint64_t
 BiometricEvaluation::IO::SQLiteRecordStore::length(
-    const string &key)
+    const std::string &key)
     const
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError)
 {
-	return (this->readSegments(key, NULL));
+	return (this->readSegments(key, nullptr));
 }
     
 uint64_t
 BiometricEvaluation::IO::SQLiteRecordStore::readSegments(
-    const string &key,
+    const std::string &key,
     void * const data)
     const
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError)
 {	
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -421,27 +403,27 @@ BiometricEvaluation::IO::SQLiteRecordStore::readSegments(
 	sqlite3_stmt *statement;
 	uint64_t segnum = 0;
 	uint64_t totalBytes = 0, segBytes;
-	string activeTable = PRIMARY_KV_TABLE;
+	std::string activeTable = PRIMARY_KV_TABLE;
 	uint8_t *dataPtr = (uint8_t *)data;
 	bool moreSegments = true;
 	while (moreSegments) {
-		string sqlCommand = "SELECT " + VALUE_COL + " FROM " + 
+		std::string sqlCommand = "SELECT " + VALUE_COL + " FROM " + 
 		    activeTable + " WHERE " + KEY_COL + " = '" + 
 		    genKeySegName(key, segnum) + "' LIMIT 1";
 		    
 		/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
 		int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-		    sqlCommand.length(), &statement, NULL);
+		    sqlCommand.length(), &statement, nullptr);
 #else
 		int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-		    sqlCommand.length(), &statement, NULL);
+		    sqlCommand.length(), &statement, nullptr);
 #endif
 		if (rv != SQLITE_OK) {
 			sqlite3_finalize(statement);
 			sqliteError(rv);
 		}
-		if (statement == NULL)
+		if (statement == nullptr)
 			throw Error::StrategyError("SQLite: Could not allocate "
 			    "statement");
 			
@@ -458,7 +440,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::readSegments(
 			segBytes = sqlite3_column_bytes(statement, 0);
 			totalBytes += segBytes;
 			
-			if (data != NULL) {
+			if (data != nullptr) {
 				memcpy(dataPtr,
 				    sqlite3_column_blob(statement, 0),
 				    segBytes);
@@ -493,10 +475,8 @@ BiometricEvaluation::IO::SQLiteRecordStore::readSegments(
 			    
 void
 BiometricEvaluation::IO::SQLiteRecordStore::flush(
-    const string &key)
+    const std::string &key)
     const
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -511,11 +491,9 @@ BiometricEvaluation::IO::SQLiteRecordStore::flush(
 
 uint64_t
 BiometricEvaluation::IO::SQLiteRecordStore::sequence(
-    string &key,
+    std::string &key,
     void *const data,
     int cursor)
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError)
 {
 	if ((cursor != BE_RECSTORE_SEQ_START) &&
 	    (cursor != BE_RECSTORE_SEQ_NEXT))
@@ -523,8 +501,8 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 		    "argument");
 		    
 	int32_t rv;
-	if ((cursor == BE_RECSTORE_SEQ_START) || (_sequencer == NULL)) {
-		string sqlCommand = "SELECT *,ROWID FROM " + 
+	if ((cursor == BE_RECSTORE_SEQ_START) || (_sequencer == nullptr)) {
+		std::string sqlCommand = "SELECT *,ROWID FROM " + 
 		    PRIMARY_KV_TABLE + " " + "ORDER BY ROWID";
 		
 		/* Finalize previous statement */
@@ -535,12 +513,12 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 		/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
 		rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-		    sqlCommand.length(), &_sequencer, NULL);
+		    sqlCommand.length(), &_sequencer, nullptr);
 #else
 		rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-		    sqlCommand.length(), &_sequencer, NULL);
+		    sqlCommand.length(), &_sequencer, nullptr);
 #endif
-		if ((rv != SQLITE_OK) || (_sequencer == NULL))
+		if ((rv != SQLITE_OK) || (_sequencer == nullptr))
 			sqliteError(rv);
 		_sequenceEnd = false;
 	}
@@ -559,7 +537,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 		if (rv != SQLITE_OK)
 			sqliteError(rv);
 	
-		stringstream sqlCommand;
+		std::stringstream sqlCommand;
 		sqlCommand << "SELECT *,ROWID FROM " <<
 		    PRIMARY_KV_TABLE << " " << "WHERE ROWID >= " << 
 		    _cursorRow << " ORDER BY ROWID";
@@ -568,12 +546,12 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 		/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
 		rv = sqlite3_prepare_v2(_db, sqlCommand.str().c_str(),
-		    sqlCommand.str().length(), &_sequencer, NULL);
+		    sqlCommand.str().length(), &_sequencer, nullptr);
 #else
 		rv = sqlite3_prepare(_db, sqlCommand.str().c_str(),
-		    sqlCommand.str().length(), &_sequencer, NULL);
+		    sqlCommand.str().length(), &_sequencer, nullptr);
 #endif
-		if ((rv != SQLITE_OK) || (_sequencer == NULL))
+		if ((rv != SQLITE_OK) || (_sequencer == nullptr))
 			sqliteError(rv);
 	}
 	
@@ -585,7 +563,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 	case SQLITE_ROW: {
 		key.assign((const char *)sqlite3_column_text(_sequencer, 0));
 		uint64_t bytes = sqlite3_column_bytes(_sequencer, 1);
-		if (data != NULL)
+		if (data != nullptr)
 			memcpy(data, sqlite3_column_blob(_sequencer, 1), bytes);
 
 		return (bytes);
@@ -608,9 +586,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::setCursorAtKey(
-    string &key)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
+    std::string &key)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -618,18 +594,18 @@ BiometricEvaluation::IO::SQLiteRecordStore::setCursorAtKey(
 	int32_t rv;
 	
 	sqlite3_stmt *statement;
-	string sqlCommand = "SELECT ROWID FROM " + PRIMARY_KV_TABLE + " " + 
+	std::string sqlCommand = "SELECT ROWID FROM " + PRIMARY_KV_TABLE + " " +
 	    "WHERE " + KEY_COL + " = '" + key + "'";
 	
 	/* Prepare the statement */
 #ifdef	SQLITE_V2_SUPPORT
 	rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(), sqlCommand.length(),
-	    &statement, NULL);
+	    &statement, nullptr);
 #else
 	rv = sqlite3_prepare(_db, sqlCommand.c_str(), sqlCommand.length(),
-	    &statement, NULL);
+	    &statement, nullptr);
 #endif
-	if ((rv != SQLITE_OK) || (statement == NULL))
+	if ((rv != SQLITE_OK) || (statement == nullptr))
 		sqliteError(rv);
 	
 	/* Execute the statement */
@@ -639,7 +615,8 @@ BiometricEvaluation::IO::SQLiteRecordStore::setCursorAtKey(
 	switch (rv) {
 	case SQLITE_ROW: {
 		_cursorRow = (uint64_t)strtoll(
-		    (const char *)sqlite3_column_text(statement, 0), NULL, 10);
+		    (const char *)sqlite3_column_text(statement, 0), nullptr, 
+		    10);
 
     		rv = sqlite3_finalize(statement);
 		if (rv != SQLITE_OK)
@@ -669,7 +646,6 @@ BiometricEvaluation::IO::SQLiteRecordStore::setCursorAtKey(
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::cleanup()
-    throw (Error::StrategyError)
 {
 	int32_t rv;
 
@@ -679,7 +655,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::cleanup()
 		throw Error::StrategyError("SQLite: Could not finalize "
 		    "sequencer");
 	_sequenceEnd = false;
-	_sequencer = NULL;
+	_sequencer = nullptr;
 	
 	/* Close DB */
 	rv = sqlite3_close(_db);
@@ -692,16 +668,14 @@ void
 BiometricEvaluation::IO::SQLiteRecordStore::sqliteError(
     int32_t errorNumber)
     const
-    throw (Error::StrategyError)
 {	
-	stringstream msg;
+	std::stringstream msg;
 	msg << "sqlite3: " << sqlite3_errmsg(_db) << " (" << errorNumber << ')';
 	throw Error::StrategyError(msg.str());
 }
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::createStructure()
-    throw (Error::StrategyError)
 {
 	this->createKeyValueTable(PRIMARY_KV_TABLE);
 	this->createKeyValueTable(SUBORDINATE_KV_TABLE);
@@ -712,27 +686,26 @@ BiometricEvaluation::IO::SQLiteRecordStore::createStructure()
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::createKeyValueTable(
-    const string &table)
-    throw (Error::StrategyError)
+    const std::string &table)
 {
 	sqlite3_stmt *statement;
 	
 	/* Compile the SQL statement */
-	string sqlCommand = "CREATE TABLE " + table + " " + 
+	std::string sqlCommand = "CREATE TABLE " + table + " " + 
 	    "(" + KEY_COL + " VARCHAR(1024) UNIQUE PRIMARY KEY NOT NULL, " +
 	    VALUE_COL + " BLOB)";
 #ifdef	SQLITE_V2_SUPPORT
 	int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+	    sqlCommand.length(), &statement, nullptr);
 #else
 	int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+	    sqlCommand.length(), &statement, nullptr);
 #endif
 	if (rv != SQLITE_OK) {
 		sqlite3_finalize(statement);
 		sqliteError(rv);
 	}
-	if (statement == NULL)
+	if (statement == nullptr)
 		throw Error::StrategyError("SQLite: Could not allocate "
 		    "statement");
 		
@@ -751,7 +724,6 @@ BiometricEvaluation::IO::SQLiteRecordStore::createKeyValueTable(
 
 bool
 BiometricEvaluation::IO::SQLiteRecordStore::validateSchema()
-    throw (Error::StrategyError)
 {
 	return (this->validateKeyValueTable(PRIMARY_KV_TABLE) &&
 	    this->validateKeyValueTable(SUBORDINATE_KV_TABLE));
@@ -759,22 +731,21 @@ BiometricEvaluation::IO::SQLiteRecordStore::validateSchema()
 
 bool
 BiometricEvaluation::IO::SQLiteRecordStore::validateKeyValueTable(
-    const string &table)
-    throw (Error::StrategyError)
+    const std::string &table)
 {
 	sqlite3_stmt *statement;
 
 	/* Schema is good if there exists key and value columns */
-	string sqlCommand = "SELECT " + KEY_COL + "," + VALUE_COL + 
+	std::string sqlCommand = "SELECT " + KEY_COL + "," + VALUE_COL + 
 	    " FROM " + table + " LIMIT 1";
 #ifdef	SQLITE_V2_SUPPORT
 	int32_t rv = sqlite3_prepare_v2(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+	    sqlCommand.length(), &statement, nullptr);
 #else
 	int32_t rv = sqlite3_prepare(_db, sqlCommand.c_str(),
-	    sqlCommand.length(), &statement, NULL);
+	    sqlCommand.length(), &statement, nullptr);
 #endif
-	if ((rv != SQLITE_OK) || (statement == NULL))
+	if ((rv != SQLITE_OK) || (statement == nullptr))
 		sqliteError(rv);
 
 	/* Execute the statement */

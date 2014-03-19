@@ -11,7 +11,7 @@
 #ifndef __BE_TIME_H__
 #define __BE_TIME_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <be_error_exception.h>
 
@@ -39,7 +39,7 @@ namespace BiometricEvaluation
 		 * @brief
 		 * Return the current time as a string.
 		 */
-		 string getCurrentTime();
+		 std::string getCurrentTime();
 	}
 }
 #endif /* __BE_TIME_H__ */

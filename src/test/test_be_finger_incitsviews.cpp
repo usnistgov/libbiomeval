@@ -29,21 +29,23 @@ printViewInfo(Finger::INCITSView &fngv)
 	cout << "Image resolution is " << fngv.getImageResolution() << endl;
 	cout << "Image size is " << fngv.getImageSize() << endl;
 	cout << "Image depth is " << fngv.getImageDepth() << endl;
-	cout << "Compression is " << fngv.getCompressionAlgorithm() << endl;
+	cout << "Compression is " <<
+	    to_string(fngv.getCompressionAlgorithm()) << endl;
 	cout << "Scan resolution is " << fngv.getScanResolution() << endl;
 
 	/*
 	 * Test the ANSI200xView implementation of the Finger::INCITSVIEW
 	 * interface.
 	 */
-	cout << "Finger position is " << fngv.getPosition() << endl;
-	cout << "Impression type is " << fngv.getImpressionType() << endl;
+	cout << "Finger position is " << to_string(fngv.getPosition()) << endl;
+	cout << "Impression type is " <<
+	    to_string(fngv.getImpressionType()) << endl;
 	cout << "Quality is " << fngv.getQuality() << endl;
 	cout << "Eqpt ID is " << hex << showbase << fngv.getCaptureEquipmentID() << endl;
 	cout << dec;
 
 	Feature::INCITSMinutiae fmd = fngv.getMinutiaeData();
-	cout << "Minutiae format is " << fmd.getFormat() << endl;
+	cout << "Minutiae format is " << to_string(fmd.getFormat()) << endl;
 	Feature::MinutiaPointSet mps = fmd.getMinutiaPoints();
 	cout << "There are " << mps.size() << " minutiae points:" << endl;
 	for (size_t i = 0; i < mps.size(); i++)
@@ -79,7 +81,7 @@ testANSI2004()
 	try {
 		fngv = Finger::ANSI2004View("nbv5425GHdfsdfad", "", 1);
 	} catch (Error::FileError& e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -92,10 +94,10 @@ testANSI2004()
 		fngv = Finger::ANSI2004View(
 		    "test_data/fmr.ansi2004", "", 3);
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (false);
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}
 	cout << "Success." << endl;
@@ -115,7 +117,7 @@ testANSI2007()
 	try {
 		fngv = Finger::ANSI2007View("nbv5425GHdfsdfad", "", 1);
 	} catch (Error::FileError& e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -127,10 +129,10 @@ testANSI2007()
 	try {
 		fngv = Finger::ANSI2007View("test_data/fmr.ansi2007", "", 1);
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (false);
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}
 	cout << "Success." << endl;
@@ -149,10 +151,10 @@ testISO2005()
 	try {
 		fngv = Finger::ISO2005View("test_data/fmr.iso2005", "", 2);
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (false);
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}
 	cout << "Success." << endl;

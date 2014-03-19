@@ -30,7 +30,7 @@ testNonMutable(IO::PropertiesFile &props)
 	try {
 		props.sync();
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	} catch (Error::FileError &e) {
 		cout << "A file error occurred during sync and that should not happen!" << endl;
@@ -44,7 +44,7 @@ testNonMutable(IO::PropertiesFile &props)
 	try {
 		props.setProperty("foo", "bar");
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -56,7 +56,7 @@ testNonMutable(IO::PropertiesFile &props)
 	try {
 		props.setPropertyFromInteger("foo", 23);
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -68,7 +68,7 @@ testNonMutable(IO::PropertiesFile &props)
 	try {
 		props.changeName("foo");
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -81,7 +81,7 @@ testNonMutable(IO::PropertiesFile &props)
 	try {
 		IO::PropertiesFile newProp("nonexistent", IO::READONLY);
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -103,10 +103,10 @@ main(int argc, char* argv[]) {
 	try {
 		props = new IO::PropertiesFile(fname);
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 
@@ -127,7 +127,7 @@ main(int argc, char* argv[]) {
 		cout << "Value for property '" << property << "' is '";
 		cout << props->getProperty(property) << "';";
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
 	}
 	if (value != props->getProperty(property)) {
@@ -142,7 +142,7 @@ main(int argc, char* argv[]) {
 	try {
 		(void)props->getPropertyAsInteger(property);
 	} catch (Error::ConversionError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -161,7 +161,7 @@ main(int argc, char* argv[]) {
 		cout << "Value for property '" << property << "' is ";
 		cout << props->getPropertyAsInteger(property) << ";";
 	} catch (Error::ConversionError &e) {
-		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
 	}
 	if (intVal != props->getPropertyAsInteger(property)) {
@@ -180,7 +180,7 @@ main(int argc, char* argv[]) {
 		cout << "Value for property '" << property << "' is ";
 		cout << props->getPropertyAsInteger(property) << ";";
 	} catch (Error::ConversionError &e) {
-		cout << "Caught " << e.getInfo() << ";failure." << endl;
+		cout << "Caught " << e.what() << ";failure." << endl;
 		return (EXIT_FAILURE);
 	}
 	if (intVal != props->getPropertyAsInteger(property)) {
@@ -199,7 +199,7 @@ main(int argc, char* argv[]) {
 		cout << "Value for property '" << property << "' is ";
 		cout << props->getPropertyAsInteger(property) << ";";
 	} catch (Error::ConversionError &e) {
-		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
 	}
 	if (intVal != props->getPropertyAsInteger(property)) {
@@ -217,7 +217,7 @@ main(int argc, char* argv[]) {
 	try {
 		(void)props->getPropertyAsInteger(property);
 	} catch (Error::ConversionError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -234,7 +234,7 @@ main(int argc, char* argv[]) {
 	try {
 		(void)props->getProperty(property);
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -247,7 +247,7 @@ main(int argc, char* argv[]) {
 	try {
 		(void)props->getPropertyAsInteger(property);
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -272,7 +272,7 @@ main(int argc, char* argv[]) {
 	try {
 		props->sync();
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; failed." << endl;
+		cout << "Caught " << e.what() << "; failed." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::FileError &e) {
 		cout << "A file error occurred during sync.\n";
@@ -293,11 +293,11 @@ main(int argc, char* argv[]) {
 	try {
 		props = new IO::PropertiesFile(fname, IO::READONLY);
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 	cout << "success." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	if (testNonMutable(*props) != 0)
@@ -307,7 +307,7 @@ main(int argc, char* argv[]) {
 	try {
 		props->sync();
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	} catch (Error::FileError &e) {
 		cout << "A file error occurred during sync.\n";

@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 #include <be_io_recordstore.h>
-using namespace std;
 
 /*
  * This file contains the class declaration for an implementation of a
@@ -52,10 +51,9 @@ namespace BiometricEvaluation {
 			 * 	file system.
 			 */
 			FileRecordStore(
-			    const string &name,
-			    const string &description,
-			    const string &parentDir)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &name,
+			    const std::string &description,
+			    const std::string &parentDir);
 
 			/**
 			 * Open an existing FileRecordStore.
@@ -74,87 +72,65 @@ namespace BiometricEvaluation {
 			 *	file system.
 			 */
 			FileRecordStore(
-			    const string &name,
-			    const string &parentDir,
-			    uint8_t mode = IO::READWRITE)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir,
+			    uint8_t mode = IO::READWRITE);
 
 			/*
 			 * Methods that implement the RecordStore interface.
 			 */
-			uint64_t getSpaceUsed()
-			    const
-			    throw (Error::StrategyError);
+			uint64_t getSpaceUsed() const;
 
 			void insert(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const uint64_t size);
 
 			void remove(
-			    const string &key)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key);
 
 			uint64_t read(
-			    const string &key,
-			    void *const data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key,
+			    void *const data) const;
 
 			virtual void replace(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			virtual uint64_t length(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key) const;
 
 			void flush(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key) const;
 
 			uint64_t sequence(
-			    string &key,
-			    void *const data = NULL,
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    std::string &key,
+			    void *const data = nullptr,
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			void setCursorAtKey(
-			    string &key)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    std::string &key);
 
 			void changeName(
-			    const string &name)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &name);
+
+			/* Prevent copying of FileRecordStore objects */
+			FileRecordStore(const FileRecordStore&) = delete;
+			FileRecordStore& operator=(const FileRecordStore&) = delete;
 
 		protected:
-			string canonicalName(const string &name) const;
+			std::string canonicalName(
+			    const std::string &name) const;
 
 		private:
-			/* Prevent copying of FileRecordStore objects */
-			FileRecordStore(const FileRecordStore&);
-			FileRecordStore& operator=(const FileRecordStore&);
-
 			void writeNewRecordFile(
-			    const string &name, 
+			    const std::string &name, 
 			    const void *data,
-			    const uint64_t size)
-			    throw (Error::StrategyError);
+			    const uint64_t size);
+
 			uint64_t _cursorPos;
-			string _theFilesDir;
+			std::string _theFilesDir;
 		};
 	}
 }

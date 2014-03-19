@@ -54,8 +54,8 @@ namespace BiometricEvaluation
 				 *	implementation of the identifier.
 				 */
 				DomainName(
-				    string identifier = "",
-				    string version = "") :
+				    std::string identifier = "",
+				    std::string version = "") :
 				    identifier(identifier),
 				    version(version) {};
 				    
@@ -63,12 +63,12 @@ namespace BiometricEvaluation
 				 * Unique identifier for agency, entity, 
 				 * or implementation.
 				 */
-				string identifier;
+				std::string identifier;
 				/** Optional version of the implementation */
-				string version;
+				std::string version;
 			};
-			/** Convenience typedef for struct DomainName */
-			typedef struct DomainName DomainName;
+			/** Convenience alias for struct DomainName */
+			using DomainName = struct DomainName;
 			
 			struct CharacterSet {
 				/**
@@ -85,8 +85,8 @@ namespace BiometricEvaluation
 				 */
 				CharacterSet(
 				    uint16_t identifier = 0,
-				    string commonName = "",
-				    string version = "") :
+				    std::string commonName = "",
+				    std::string version = "") :
 				    identifier(identifier),
 				    commonName(commonName),
 				    version(version) {};
@@ -94,12 +94,12 @@ namespace BiometricEvaluation
 				/** Identifier (000-999) */
 				uint16_t identifier;
 				/** Common name of the character set */
-				string commonName;
+				std::string commonName;
 				/** Optional version of the character set */
-				string version;
+				std::string version;
 			};
-			/** Convenience typedef for struct CharacterSet */
-			typedef struct CharacterSet CharacterSet;
+			/** Convenience alias for struct CharacterSet */
+			using CharacterSet = struct CharacterSet;
 			
 			
 			/**
@@ -120,11 +120,10 @@ namespace BiometricEvaluation
 			 *	An error occurred when processing the AN2K
 			 *	record.
 			 */
-			static set<int>
+			static std::set<int>
 			recordLocations(
 			    Memory::uint8Array &buf,
-			    const View::AN2KView::RecordType::Kind recordType)
-			    throw (Error::DataError);
+			    const View::AN2KView::RecordType recordType);
 			    
 			/**
 			 * @brief
@@ -140,10 +139,10 @@ namespace BiometricEvaluation
 			 *	Set of integer positions within the ANSI_NIST
 			 *	struct where a recordType Record is located.
 			 */
-			static set<int>
+			static std::set<int>
 			recordLocations(
 			    const ANSI_NIST *an2k,
-			    const View::AN2KView::RecordType::Kind recordType);
+			    const View::AN2KView::RecordType recordType);
 			    
 			/**
 			 * @brief
@@ -160,10 +159,7 @@ namespace BiometricEvaluation
 			 *	record.
 			 */
 			AN2KRecord(
-			    const std::string filename)
-			    throw (
-				Error::FileError,
-				Error::DataError);
+			    const std::string filename);
 
 			/**
 			 * @brief
@@ -177,51 +173,49 @@ namespace BiometricEvaluation
 			 *	record.
 			 */
 			AN2KRecord(
-			    Memory::uint8Array &buf)
-			    throw (
-				Error::DataError);
+			    Memory::uint8Array &buf);
 
 			/**
 			 * @return
 			 *	 The record version field in the Type-1 record.
 			 */
-			string getVersionNumber() const;
+			std::string getVersionNumber() const;
 
 			/**
 			 * @return
 			 * The date field in the Type-1 record.
 			 */
-			string getDate() const;
+			std::string getDate() const;
 
 			/**
 			 * @return
 			 * The destination agency ID.
 			 */
-			string getDestinationAgency() const;
+			std::string getDestinationAgency() const;
 
 			/**
 			 * @return
 			 * The originating agency ID.
 			 */
-			string getOriginatingAgency() const;
+			std::string getOriginatingAgency() const;
 
 			/**
 			 * @return
 			 * The transcantion control number.
 			 */
-			string getTransactionControlNumber() const;
+			std::string getTransactionControlNumber() const;
 
 			/**
 			 * @return
 			 * The native scanning resolution.
 			 */
-			string getNativeScanningResolution() const;
+			std::string getNativeScanningResolution() const;
 
 			/**
 			 * @return
 			 * The nominal transmitting resolution.
 			 */
-			string getNominalTransmittingResolution() const;
+			std::string getNominalTransmittingResolution() const;
 
 			/**
 			 * @brief
@@ -329,17 +323,17 @@ namespace BiometricEvaluation
 			AN2KRecord() { }
 
 		private:
-			string _version;
-			string _date;
-			string _dai;
-			string _ori;
-			string _tcn;
-			string _nsr;
-			string _ntr;
+			std::string _version;
+			std::string _date;
+			std::string _dai;
+			std::string _ori;
+			std::string _tcn;
+			std::string _nsr;
+			std::string _ntr;
 			/** Priority (1:High - 9:Low) */
 			uint8_t _pry;
 			/** Transaction control reference */
-			string _tcr;
+			std::string _tcr;
 			/** Domain name */
 			DomainName _domainName;
 			/** Greenwich Mean Time */
@@ -361,10 +355,8 @@ namespace BiometricEvaluation
 			 * @param[in] buf
 			 *	AN2K buffer.
 			 */
-			void readAN2KRecord(Memory::uint8Array &buf)
-			    throw (Error::DataError);
-			void readType1Record(Memory::uint8Array &buf)
-			    throw (Error::DataError);
+			void readAN2KRecord(Memory::uint8Array &buf);
+			void readType1Record(Memory::uint8Array &buf);
 			    
 			/**
 			 * @brief

@@ -17,14 +17,12 @@
 #include <be_io.h>
 #include <be_memory_autoarray.h>
 
-using namespace std;
-
 namespace BiometricEvaluation
 {
 	namespace IO
 	{
 		/** Internal structure used for storing property keys/values */
-		typedef map<string, string> PropertiesMap;
+		using PropertiesMap = std::map<std::string, std::string>;
 
 		/**
 		* @brief
@@ -34,7 +32,7 @@ namespace BiometricEvaluation
 		class Properties {
 		public:
 			/** Convenience const iterator over a Properties */
-			typedef PropertiesMap::const_iterator const_iterator;
+			using const_iterator = PropertiesMap::const_iterator;
 			
 			/**
 			 * @brief
@@ -67,9 +65,8 @@ namespace BiometricEvaluation
 			Properties(
 			    const uint8_t *buffer,
 			    const size_t size,
-			    uint8_t mode = IO::READWRITE)
-			    throw (Error::StrategyError);
-			    
+			    uint8_t mode = IO::READWRITE);
+
 			/**
 			 * @brief
 			 * Set a property with a value.
@@ -90,9 +87,8 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			setProperty(
-			    const string &property,
-			    const string &value)
-			    throw (Error::StrategyError);
+			    const std::string &property,
+			    const std::string &value);
 
 			/**
 			 * @brief
@@ -113,10 +109,9 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			setPropertyFromInteger(
-			    const string &property,
-			    int64_t value)
-			    throw (Error::StrategyError);
-			
+			    const std::string &property,
+			    int64_t value);
+
 			/**
 			 * @brief
 			 * Set a property with a double value.
@@ -136,9 +131,8 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			setPropertyFromDouble(
-			    const string &property,
-			    double value)
-			    throw (Error::StrategyError);
+			    const std::string &property,
+			    double value);
 
 			/**
 			 * @brief
@@ -154,9 +148,7 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			removeProperty(
-			    const string &property)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    const std::string &property);
 
 			/**
 			 * @brief
@@ -168,11 +160,9 @@ namespace BiometricEvaluation
 			 * @throw Error::ObjectDoesNotExist
 			 *	The named property does not exist.
 			 */
-			virtual string
+			virtual std::string
 			getProperty(
-			    const string &property)
-			    const
-			    throw (Error::ObjectDoesNotExist);
+			    const std::string &property) const;
 
 			/**
 			 * @brief
@@ -193,11 +183,8 @@ namespace BiometricEvaluation
 			 */
 			virtual int64_t
 			getPropertyAsInteger(
-			    const string &property)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::ConversionError);
-				   
+			    const std::string &property) const;
+
 			/**
 			 * @brief
 			 * Retrieve a property value as a double value.
@@ -210,10 +197,8 @@ namespace BiometricEvaluation
 			 */
 			virtual double
 			getPropertyAsDouble(
-			    const string &property)
-			    const
-			    throw (Error::ObjectDoesNotExist);
-						
+			    const std::string &property) const;
+
 			/**
 			 * @brief
 			 * Obtain iterator to the first property.
@@ -267,9 +252,8 @@ namespace BiometricEvaluation
 			 */
 			void
 			initWithBuffer(
-			    const Memory::uint8Array &buffer)
-			    throw (Error::StrategyError);
-			    
+			    const Memory::uint8Array &buffer);
+
 			/**
 			 * @brief
 			 * Initialize the PropertiesMap with the contents
@@ -289,8 +273,7 @@ namespace BiometricEvaluation
 			void
 			initWithBuffer(
 			    const uint8_t *const buffer,
-			    size_t size)
-			    throw (Error::StrategyError);
+			    size_t size);
 
 		private:
 			/** The map containing the property/value pairs */

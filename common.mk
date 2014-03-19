@@ -27,7 +27,40 @@ PWD := $(shell pwd)
 OS := $(shell uname -s)
 ARCH := $(shell uname -m)
 CC = gcc
-CXX = g++
+CXX = clang++
+
+#
+# Determine if CXX can handle C++11 (-std=c++11 flag)
+#
+ifeq ($(CXX),g++)
+	CXX_MAJOR := $(shell expr `$(CXX) -dumpversion | cut -f1 -d.`)
+	CXX_MINOR := $(shell expr `$(CXX) -dumpversion | cut -f2 -d.`)
+
+#	-std=c++11 first present in G++ 4.7
+	SUPPORTS_CXX11 := $(shell [ $(CXX_MAJOR) -ge 5 -o \( $(CXX_MAJOR) -eq 4 -a $(CXX_MINOR) -ge 7 \) ] && echo true)
+else
+	ifeq ($(CXX),clang++)
+		CXX_MAJOR := $(shell $(CXX) --version | tr '\n' ' ' | sed 's/.*version\ \([[:digit:]]\)\.[[:digit:]].*/\1/')
+		CXX_MINOR := $(shell $(CXX) --version | tr '\n' ' ' | sed 's/.*version\ [[:digit:]]\.\([[:digit:]]\).*/\1/')
+
+		ifeq ($(OS),Darwin)
+#			Apple changes clang++ version to match Xcode,
+#			so require Xcode 4.2
+			SUPPORTS_CXX11 := $(shell [ $(CXX_MAJOR) -ge 5 -o \( $(CXX_MAJOR) -eq 4 -a $(CXX_MINOR) -ge 2 \) ] && echo true)
+		else
+#			Require clang++ 3.1
+			SUPPORTS_CXX11 := $(shell [ $(CXX_MAJOR) -ge 4 -o \( $(CXX_MAJOR) -eq 3 -a $(CXX_MINOR) -ge 1 \) ] && echo true)
+		endif
+
+		EXTRA_CXXFLAGS += -stdlib=libc++
+	else
+                $(warning CXX=$(CXX) is untested.  I assume you know what you are doing...)
+		SUPPORTS_CXX11 := true
+	endif
+endif
+ifneq ($(SUPPORTS_CXX11),true)
+        $(error This compiler (CXX=$(CXX)) version does not support -std=c++11)
+endif
 
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
         ROOT = Administrator
@@ -36,7 +69,9 @@ else
         ROOT  = root
 endif
 ifeq ($(findstring x86_64,$(ARCH)), x86_64)
-        ARCHOPT = -fPIC
+	ifneq ($(findstring CYGWIN,$(OS)), CYGWIN)
+        	ARCHOPT = -fPIC
+	endif
 endif
 
 
@@ -48,6 +83,14 @@ endif
 CFLAGS := -std=c99 -D$(OS) $(ARCHOPT) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH)
 CXXFLAGS := $(ARCHOPT) -D$(OS) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH)
 LDFLAGS := -L$(LOCALLIB) -L$(LIBPATH)
+
+# Enable C++11 support.
+ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
+	# Cygwin's g++ currently requires the GNU dialect
+	CXXFLAGS += -std=gnu++11
+else
+	CXXFLAGS += -std=c++11
+endif
 
 # Enable debugging symbols when DEBUG=1, true, or yes
 ifdef DEBUG

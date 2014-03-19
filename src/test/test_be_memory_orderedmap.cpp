@@ -8,16 +8,15 @@
  * about its quality, reliability, or any other characteristic.
  */
  
-#include <stdint.h>
-
 #include <algorithm>
+#include <cstdint>
 #include <iostream>
 
 #include <be_memory_orderedmap.h>
 
 using namespace std;
 
-typedef BiometricEvaluation::Memory::OrderedMap<string, uint64_t> ContainerType;
+using ContainerType = BiometricEvaluation::Memory::OrderedMap<string, uint64_t>;
 
 /* Test iterators via STL algorithm usage */
 template<class Key, class T>
@@ -30,7 +29,7 @@ public:
 		    endl;
 	}
 };
-typedef PairPrinter<string, uint64_t> PairPrinterType;
+using PairPrinterType = PairPrinter<string, uint64_t>;
 
 /* Test const interators */
 static void

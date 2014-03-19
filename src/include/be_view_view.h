@@ -11,7 +11,7 @@
 #ifndef __BE_VIEW_VIEW_H__
 #define __BE_VIEW_VIEW_H__
 
-#include <tr1/memory>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -42,7 +42,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The image data.
 		 	 */
-			tr1::shared_ptr<Image::Image>
+			std::shared_ptr<Image::Image>
 			    getImage() const;
 
 			/**
@@ -98,7 +98,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The compression algorithm.
 		 	 */
-			Image::CompressionAlgorithm::Kind
+			Image::CompressionAlgorithm
 			    getCompressionAlgorithm() const;
 
 			/**
@@ -170,7 +170,7 @@ namespace BiometricEvaluation
 			 * Mutator for the compression algorithm.
 			 */
 			void setCompressionAlgorithm(
-			    const Image::CompressionAlgorithm::Kind &ca);
+			    const Image::CompressionAlgorithm &ca);
 
 		private:
 			/*
@@ -180,7 +180,7 @@ namespace BiometricEvaluation
 			Image::Resolution _imageResolution;
 			Image::Resolution _scanResolution;
 			Memory::AutoArray<uint8_t> _imageData;
-			Image::CompressionAlgorithm::Kind _compressionAlgorithm;
+			Image::CompressionAlgorithm _compressionAlgorithm;
 			uint32_t _imageDepth;
 
 		};

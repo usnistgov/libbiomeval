@@ -13,8 +13,8 @@
 
 #include <iterator>
 #include <list>
-#include <tr1/memory>
-#include <tr1/unordered_map>
+#include <memory>
+#include <unordered_map>
 
 
 namespace BiometricEvaluation
@@ -29,22 +29,22 @@ namespace BiometricEvaluation
 		/** Iterator for OrderedMaps. */
 		template<class Key, class T>
 		class OrderedMapIterator :
-		    public std::iterator< std::bidirectional_iterator_tag,
-		    std::pair<Key, T> >
+		    public std::iterator<std::bidirectional_iterator_tag,
+		    std::pair<Key, T>>
 		{
 		public:
-			typedef
+			using reference =
 			    typename std::iterator_traits<OrderedMapIterator>::
-			    reference reference;
-			typedef
+			    reference;
+			using pointer =
 			    typename std::iterator_traits<OrderedMapIterator>::
-			    pointer pointer;
-			typedef
+			    pointer;
+			using value_type =
 			    typename std::iterator_traits<OrderedMapIterator>::
-			    value_type value_type;
-			typedef
+			    value_type;
+			using difference_type =
 			    typename std::iterator_traits<OrderedMapIterator>::
-			    difference_type difference_type;
+			    difference_type;
 		
 			friend class OrderedMap<Key, T>;
 			friend class OrderedMapConstIterator<Key, T>;
@@ -146,29 +146,28 @@ namespace BiometricEvaluation
 		/** Const Iterator for OrderedMaps. */
 		template<class Key, class T>
 		class OrderedMapConstIterator :
-		    public std::iterator< std::bidirectional_iterator_tag,
-		    std::pair<Key, T> >
+		    public std::iterator<std::bidirectional_iterator_tag,
+		    std::pair<Key, T>>
 		{
 		public:
-			typedef
+			using reference =
 			    typename std::iterator_traits<
-			    OrderedMapConstIterator>::reference reference;
-			typedef
+			    OrderedMapConstIterator>::reference;
+			using const_reference =
 			    const typename std::iterator_traits<
-			    OrderedMapConstIterator>::reference const_reference;
-			typedef	typename
+			    OrderedMapConstIterator>::reference;
+			using pointer = typename
 			    std::iterator_traits<OrderedMapConstIterator>::
-			    pointer pointer;
-			typedef
+			    pointer;
+			using const_pointer =
 			    const typename std::iterator_traits<
-			    OrderedMapConstIterator>::pointer const_pointer;
-			typedef
+			    OrderedMapConstIterator>::pointer;
+			using value_type =
 			    typename std::iterator_traits<
-			    OrderedMapConstIterator>::value_type value_type;
-			typedef
+			    OrderedMapConstIterator>::value_type;
+			using difference_type =
 			    typename std::iterator_traits<
-			    OrderedMapConstIterator>::difference_type
-			    difference_type;
+			    OrderedMapConstIterator>::difference_type;
 		
 			friend class OrderedMap<Key, T>;
 			
@@ -278,18 +277,16 @@ namespace BiometricEvaluation
 		class OrderedMap
 		{
 		public:
-			typedef typename
-			    std::tr1::unordered_map<Key, T> container;
-			typedef OrderedMapIterator<Key, T> iterator;
-			typedef OrderedMapConstIterator<Key, T>
-			    const_iterator;
+			using container = typename std::unordered_map<Key, T>;
+			using iterator = OrderedMapIterator<Key, T>;
+			using const_iterator = OrderedMapConstIterator<Key, T>;
 			
-			typedef typename container::size_type size_type;
-			typedef typename container::value_type value_type;
-			typedef Key key_type;
-			typedef T mapped_type;
+			using size_type = typename container::size_type;
+			using value_type = typename container::value_type;
+			using key_type = Key;
+			using mapped_type = T;
 			
-			typedef typename container::key_equal key_equal;
+			using key_equal = typename container::key_equal;
 			
 			friend class OrderedMapIterator<Key, T>;
 			friend class OrderedMapConstIterator<Key, T>;
@@ -412,7 +409,7 @@ namespace BiometricEvaluation
 			    const Key &key)
 			    const;
 			    
-			std::tr1::shared_ptr<value_type>
+			std::shared_ptr<value_type>
 			find_quick(
 			    const Key &key)
 			    const;
@@ -458,9 +455,9 @@ BiometricEvaluation::Memory::OrderedMap<Key, T>::OrderedMap() :
 template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMap<Key, T>::~OrderedMap()
 {
-	if (_elements != NULL)
+	if (_elements != nullptr)
 		delete _elements;
-	if (_ordering != NULL)
+	if (_ordering != nullptr)
 		delete _ordering;
 }
 
@@ -569,7 +566,7 @@ BiometricEvaluation::Memory::OrderedMap<Key, T>::find(
 }
 
 template<class Key, class T>
-std::tr1::shared_ptr<
+std::shared_ptr<
 typename BiometricEvaluation::Memory::OrderedMap<Key, T>::value_type>
 BiometricEvaluation::Memory::OrderedMap<Key, T>::find_quick(
     const Key &key)
@@ -577,11 +574,11 @@ BiometricEvaluation::Memory::OrderedMap<Key, T>::find_quick(
 {
 	typename container::const_iterator it = _elements->find(key);
 	if (it != _elements->end())
-		return (std::tr1::shared_ptr<
+		return (std::shared_ptr<
 		    typename OrderedMap<Key, T>::value_type>(
 		    new typename OrderedMap<Key, T>::value_type(it->first,
 		    it->second)));
-	return (std::tr1::shared_ptr<
+	return (std::shared_ptr<
 	    typename OrderedMap<Key, T>::value_type>());
 }
 
@@ -597,8 +594,8 @@ BiometricEvaluation::Memory::OrderedMap<Key, T>::key_eq()
 
 template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::OrderedMapIterator() :
-    _orderedMap(NULL),
-    _listIter(NULL)
+    _orderedMap(nullptr),
+    _listIter()
 {
 
 }
@@ -607,8 +604,8 @@ template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::OrderedMapIterator(
     const OrderedMap<Key, T> *orderedMap,
     const typename std::list<Key>::iterator listIter) :
-    std::iterator< std::bidirectional_iterator_tag,
-    std::pair<Key, T> >(),
+    std::iterator<std::bidirectional_iterator_tag,
+    std::pair<Key, T>>(),
     _orderedMap(orderedMap),
     _listIter(listIter)
 {
@@ -697,8 +694,8 @@ BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::~OrderedMapIterator()
 template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::
 OrderedMapConstIterator() :
-    _orderedMap(NULL),
-    _listIter(NULL)
+    _orderedMap(nullptr),
+    _listIter()
 {
 
 }
@@ -708,8 +705,8 @@ BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::
 OrderedMapConstIterator(
     const OrderedMap<Key, T> *orderedMap,
     const typename std::list<Key>::iterator listIter) :
-    std::iterator< std::bidirectional_iterator_tag,
-    std::pair<Key, T> >(),
+    std::iterator<std::bidirectional_iterator_tag,
+    std::pair<Key, T>>(),
     _orderedMap(orderedMap),
     _listIter(listIter)
 {

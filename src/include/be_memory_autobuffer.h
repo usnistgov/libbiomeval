@@ -53,10 +53,10 @@ namespace BiometricEvaluation {
 		
 		public:
 			
-			typedef T value_type;
+			using value_type = T;
 
-			typedef T& reference;
-			typedef const T& const_reference;
+			using reference = T&;
+			using const_reference = const T&;
 		
 			operator T*();
 			T* operator->();
@@ -68,7 +68,7 @@ namespace BiometricEvaluation {
 			AutoBuffer(T* data);
 			/* Constructor, Destructor, Copy Copy Constructor */
 			AutoBuffer(int (*ctor)(T**), void (*dtor)(T*), 
-			    int (*copyCtor)(T**, T*)=NULL);
+			    int (*copyCtor)(T**, T*)=nullptr);
 			AutoBuffer(const AutoBuffer& copy);
 
 			~AutoBuffer();
@@ -137,9 +137,9 @@ BiometricEvaluation::Memory::AutoBuffer<T>::operator=
 			 * Use copy constructor on the allocated memory to 
 			 * duplicate.
 			 */
-			if (_copyCtor == NULL)
+			if (_copyCtor == nullptr)
 				throw Error::ParameterError("Copy "
-				    "constructor is NULL");
+				    "constructor is nullptr");
 			if ((_copyCtor)(&_data, copy._data) != 0)
 				throw Error::DataError("Data could not be "
 				    "allocated");
@@ -155,7 +155,7 @@ BiometricEvaluation::Memory::AutoBuffer<T>::operator=
 template<class T>
 BiometricEvaluation::Memory::AutoBuffer<T>::AutoBuffer()
 {
-	_data = NULL;
+	_data = nullptr;
 	_handsOff = true;
 }
 
@@ -165,15 +165,15 @@ BiometricEvaluation::Memory::AutoBuffer<T>::AutoBuffer(
     void (*dtor)(T*), 
     int (*copyCtor)(T**, T*)) 
 {
-	if (ctor != NULL)
+	if (ctor != nullptr)
 		_ctor = ctor;
 	else
-		throw Error::ParameterError("Allocator is NULL");
+		throw Error::ParameterError("Allocator is nullptr");
 	
-	if (dtor != NULL)
+	if (dtor != nullptr)
 		_dtor = dtor;
 	else
-		throw Error::ParameterError("Destructor is NULL");
+		throw Error::ParameterError("Destructor is nullptr");
 		
 	/* Don't require copy constructor, user might never make copy */
 	_copyCtor = copyCtor;
@@ -212,9 +212,9 @@ BiometricEvaluation::Memory::AutoBuffer<T>::AutoBuffer(const AutoBuffer& copy)
 		_data = copy._data;
 	else {
 		/* Use copy constructor on the allocated memory to duplicate */
-		if (_copyCtor == NULL)
+		if (_copyCtor == nullptr)
 			throw Error::ParameterError("Copy constructor is "
-			    "NULL");
+			    "nullptr");
 	
 		if ((_copyCtor)(&_data, copy._data) != 0)
 			throw Error::DataError("Data could not be "

@@ -17,13 +17,13 @@
 #include <windows.h>
 #endif
 
-string
+std::string
 BiometricEvaluation::Time::getCurrentTime()
 {
-	time_t theTime = time(NULL);
-	ostringstream sstream;
+	time_t theTime = time(nullptr);
+	std::ostringstream sstream;
 	sstream << ctime(&theTime);
-	string strTime = sstream.str();
+	std::string strTime = sstream.str();
 
 	/*
 	 * ctime(3) places a newline at the end of the text,

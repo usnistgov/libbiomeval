@@ -15,6 +15,8 @@
 #include <openssl/evp.h>
 #endif
 
+#include <algorithm>
+#include <cctype>
 #include <iomanip>
 #include <sstream>
 #include <vector>
@@ -23,7 +25,7 @@
 #include <be_memory_autoarray.h>
 
 void
-BiometricEvaluation::Text::removeLeadingTrailingWhitespace(string &s)
+BiometricEvaluation::Text::removeLeadingTrailingWhitespace(std::string &s)
 {
 	for (unsigned int idx = 0; idx < s.length(); idx++) {
 		if (std::isspace(s[idx])) {
@@ -42,14 +44,11 @@ BiometricEvaluation::Text::removeLeadingTrailingWhitespace(string &s)
 	}
 }
 
-string
+std::string
 BiometricEvaluation::Text::digest(
     const void *buffer,
     const size_t buffer_size,
-    const string &digest)
-    throw (Error::MemoryError,
-    Error::NotImplemented,
-    Error::StrategyError)
+    const std::string &digest)
 {
 #ifdef Darwin
 	/* Use CommonCrypto under OS X (10.4 or later) */
@@ -93,13 +92,14 @@ BiometricEvaluation::Text::digest(
 	
 	/* Obtain the digest */
 	Memory::AutoArray<unsigned char> md(digestLength);
-	if (digestFunction(buffer, buffer_size, md) == NULL)
+	if (digestFunction(buffer, buffer_size, md) == nullptr)
 		throw Error::StrategyError("Could not obtain digest");
 	
 	/* Stringify the digest */
-	stringstream ret;
+	std::stringstream ret;
 	for (CC_LONG i = 0; i < digestLength; i++)
-		ret << hex << setw(2) << setfill('0') << (int)md[i];
+		ret << std::hex << std::setw(2) << std::setfill('0')
+		    << (int)md[i];
 		
 	return (ret.str());
 #else
@@ -121,7 +121,7 @@ BiometricEvaluation::Text::digest(
 	EVP_MD_CTX mdctx;
 	EVP_MD_CTX_init(&mdctx);
 
-	EVP_DigestInit_ex(&mdctx, md, NULL);
+	EVP_DigestInit_ex(&mdctx, md, nullptr);
 	EVP_DigestUpdate(&mdctx, buffer, buffer_size);
 
 	unsigned char md_value[EVP_MAX_MD_SIZE];
@@ -135,39 +135,36 @@ BiometricEvaluation::Text::digest(
 	 */
 	EVP_MD_CTX_cleanup(&mdctx);
 
-	stringstream ret;
+	std::stringstream ret;
 	for (unsigned int i = 0; i < md_size; i++)
-		ret << hex << setw(2) << setfill('0') << (int)md_value[i];
+		ret << std::hex << std::setw(2) << std::setfill('0') <<
+		    (int)md_value[i];
 
 	return ret.str();
 #endif
 }
 
-string
+std::string
 BiometricEvaluation::Text::digest(
-    const string &s,
-    const string &digest)
-    throw (Error::MemoryError,
-    Error::NotImplemented,
-    Error::StrategyError)
+    const std::string &s,
+    const std::string &digest)
 {
 	return (BiometricEvaluation::Text::digest(s.c_str(), s.length(),
 	    digest));
 }
 
-std::vector<string>
+std::vector<std::string>
 BiometricEvaluation::Text::split(
-    const string &str,
+    const std::string &str,
     const char delimiter,
     bool escape)
-    throw (Error::ParameterError)
 {
 	if (delimiter == '\\')
 		throw Error::ParameterError("Cannot use \\ as delimiter");
 		
-	std::vector<string> ret;
+	std::vector<std::string> ret;
 
-	string cur_str("");
+	std::string cur_str("");
 	for (unsigned int i = 0; i < str.length(); i++)
 	{
 		if (str[i] == delimiter) {
@@ -201,9 +198,9 @@ BiometricEvaluation::Text::split(
 	return (ret);
 }
 
-string
+std::string
 BiometricEvaluation::Text::filename(
-    const string &path)
+    const std::string &path)
 {
 	static Memory::AutoArray<char> buf;
 	buf.resize(strlen(path.c_str()) + 1);
@@ -212,14 +209,27 @@ BiometricEvaluation::Text::filename(
 	return (::basename(buf));
 }
 
-string
+std::string
 BiometricEvaluation::Text::dirname(
-    const string &path)
+    const std::string &path)
 {
 	static Memory::AutoArray<char> buf;
 	buf.resize(strlen(path.c_str()) + 1);
 	strncpy(buf, path.c_str(), strlen(path.c_str()) + 1);
 
 	return (::dirname(buf));
+}
+bool
+BiometricEvaluation::Text::caseInsensitiveCompare(
+    const std::string &str1,
+    const std::string &str2)
+{
+	/* Enumerate character by character */
+	return ((str1.size() == str2.size()) &&
+	    std::equal(str1.cbegin(), str1.cend(), str2.cbegin(),
+	    [](const char str1Char, const char str2Char) {
+	        return (std::toupper(str1Char) == std::toupper(str2Char));
+	    })
+	);
 }
 

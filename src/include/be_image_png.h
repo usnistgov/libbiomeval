@@ -39,24 +39,19 @@ namespace BiometricEvaluation
 		public:
 			PNG(
 			    const uint8_t *data,
-			    const uint64_t size)
-			    throw (Error::DataError,
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			~PNG();
 
-			Memory::AutoArray<uint8_t>
-			getRawData()
-			    const
-			    throw (Error::DataError);
-			    
-			Memory::AutoArray<uint8_t>
+			void
+			getRawData(
+			    Memory::uint8Array &rawData) const;
+
+			void
 			getRawGrayscaleData(
-			    uint8_t depth = 8)
-			    const
-			    throw (Error::DataError,
-			    Error::ParameterError);
-	
+			    Memory::uint8Array &rawGray,
+			    uint8_t depth = 8) const;
+
 			/**
 			 * Whether or not data is a PNG image.
 			 *
@@ -79,14 +74,16 @@ namespace BiometricEvaluation
 			 * Wrapper for reading PNG-encoded data from an
 			 * AutoArray with libpng.
 			 */
-			typedef struct {
+			struct png_buffer
+			{
 				/** PNG-encoded buffer */
 				Memory::AutoArray<uint8_t> data;
 
 				/** Number of bytes currently read by libpng */
 				png_size_t offset;
 
-			} png_buffer;
+			};
+			using png_buffer = struct png_buffer;
 		
 			/**
 			 * @brief
@@ -101,7 +98,7 @@ namespace BiometricEvaluation
 			 *	into buffer, starting from buffer->offset.
 			 *
 			 * @throw Error::StrategyError
-			 *	Input buffer given to libpng is NULL or
+			 *	Input buffer given to libpng is nullptr or
 			 *	libpng wants to read more data from input 
 			 *	buffer than available.
 			 */
@@ -109,9 +106,8 @@ namespace BiometricEvaluation
 			png_read_mem_src(
 			    png_structp png_ptr,
 			    png_bytep buffer,
-			    png_size_t length)
-		            throw (Error::StrategyError);
-		            
+			    png_size_t length);
+
 		        /**
 		         * @brief
 		         * Convert libpng errors into C++ exceptions.
@@ -128,8 +124,7 @@ namespace BiometricEvaluation
 		        static void
 			png_error(
 			    png_structp png_ptr,
-			    png_const_charp msg)
-			throw (Error::StrategyError);
+			    png_const_charp msg);
 		};
 	}
 }

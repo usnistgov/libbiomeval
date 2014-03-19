@@ -33,7 +33,7 @@ static void*
 child(void *)
 {
 	sleep(2);
-	return (NULL);
+	return (nullptr);
 }
 
 static int
@@ -59,9 +59,9 @@ testMemorySizes(Process::Statistics &stats)
 		for (int i = 0; i < 5; i++)
 			free(ptr[i]);
 	} catch (Error::NotImplemented &e) {
-		cout << "Caught " << e.getInfo() << "; OK" << endl;
+		cout << "Caught " << e.what() << "; OK" << endl;
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		cout << "Caught " << e.what() << "; failure." << endl;
 		return (-1);
 	}
 	return (0);
@@ -86,7 +86,7 @@ main(int argc, char *argv[])
 
 		LONGDELAY;
 
-		stats.getCPUTimes(&userend, NULL);
+		stats.getCPUTimes(&userend, nullptr);
 		cout << "At end: " << userend << ": ";
 		diff = userend - userstart;
 		if (diff > 0) {
@@ -98,7 +98,7 @@ main(int argc, char *argv[])
 	} catch (Error::NotImplemented) {
 		cout << "Not Implemented; OK." << endl;
 	} catch (Error::StrategyError &e) {
-		cout << "caught " << e.getInfo() << endl;
+		cout << "caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 
@@ -107,10 +107,10 @@ main(int argc, char *argv[])
 	try {
 		stats.logStats();
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	} catch (Error::Exception &e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 	}
 	if (!success)
 		return (EXIT_FAILURE);
@@ -119,9 +119,9 @@ main(int argc, char *argv[])
 	 * Create a few threads, and compare to what is measured.
 	 */
 	pthread_t thread1, thread2, thread3;
-	(void)pthread_create(&thread1, NULL, child, NULL);
-	(void)pthread_create(&thread2, NULL, child, NULL);
-	(void)pthread_create(&thread3, NULL, child, NULL);
+	(void)pthread_create(&thread1, nullptr, child, nullptr);
+	(void)pthread_create(&thread2, nullptr, child, nullptr);
+	(void)pthread_create(&thread3, nullptr, child, nullptr);
 	cout << "Testing getNumThreads(): ";
 	try {
 		cout << "Count is " << stats.getNumThreads() << ": ";
@@ -132,7 +132,7 @@ main(int argc, char *argv[])
 			return (EXIT_FAILURE);
 		}
 	} catch (Error::StrategyError &e) {
-		cout << "caught " << e.getInfo() << endl;
+		cout << "caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::NotImplemented) {
 		cout << "Not implemented; OK." << endl;
@@ -144,14 +144,14 @@ main(int argc, char *argv[])
 	if (testMemorySizes(stats) != 0)
 		return (EXIT_FAILURE);
 
-	pthread_join(thread1, NULL);
-	pthread_join(thread2, NULL);
-	pthread_join(thread3, NULL);
+	pthread_join(thread1, nullptr);
+	pthread_join(thread2, nullptr);
+	pthread_join(thread3, nullptr);
 	
 	/*
 	 * System time, after some activity.
 	 */
-	stats.getCPUTimes(NULL, &systemend);
+	stats.getCPUTimes(nullptr, &systemend);
 	cout << "Total System time at start: " << systemstart << " : ";
 	cout << "At end: " << systemend << ": " << endl;
 
@@ -166,10 +166,10 @@ main(int argc, char *argv[])
 	try {
 		logstats = new Process::Statistics(&lc);
 	} catch (Error::NotImplemented &e) {
-		cout << "Caught " << e.getInfo() << "; OK." << endl;
+		cout << "Caught " << e.what() << "; OK." << endl;
 		return (EXIT_SUCCESS);
 	} catch (Error::Exception &e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	cout << "Attempting to log synchronously: ";
@@ -180,15 +180,15 @@ main(int argc, char *argv[])
 			LONGDELAY;
 		}
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		cout << "Caught " << e.what() << "; failure." << endl;
 		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		cout << "Caught " << e.what() << "; failure." << endl;
 		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::NotImplemented &e) {
-		cout << "Caught " << e.getInfo() << "; OK." << endl;
+		cout << "Caught " << e.what() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
 		
@@ -197,19 +197,19 @@ main(int argc, char *argv[])
 		logstats->startAutoLogging(Time::MicrosecondsPerSecond);
 		sleep(6);
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		cout << "Caught " << e.what() << "; failure." << endl;
 		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		cout << "Caught " << e.what() << "; failure." << endl;
 		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::ObjectExists &e) {
-		cout << "Caught " << e.getInfo() << "; failure." << endl;
+		cout << "Caught " << e.what() << "; failure." << endl;
 		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::NotImplemented &e) {
-		cout << "Caught " << e.getInfo() << "; OK." << endl;
+		cout << "Caught " << e.what() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
 	cout << "The log sheet in statLogCabinet should have 11 or 12 entries." << flush << endl;
@@ -222,7 +222,7 @@ main(int argc, char *argv[])
 	try {
 		logstats->startAutoLogging(1);
 	} catch (Error::ObjectExists &e) {
-		cout << "Caught " << e.getInfo() << "; OK." << flush << endl;
+		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		success = true;
 	}
 	if (!success) {
@@ -236,7 +236,7 @@ main(int argc, char *argv[])
 	try {
 		logstats->stopAutoLogging();
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught " << e.getInfo() << "; OK." << flush << endl;
+		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		success = true;
 	}
 	if (!success) {
@@ -256,7 +256,7 @@ main(int argc, char *argv[])
 //			cout << "stop:thread count is " << logstats->getNumThreads() << flush << endl;;
 		}
 	} catch (Error::Exception &e) {
-		cout << "Caught " << e.getInfo() << "; OK." << flush << endl;
+		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		return (EXIT_FAILURE);
 	}
 	cout << "There should be over 1000 entries in the log." << endl;

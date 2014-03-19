@@ -15,6 +15,8 @@
 #include <map>
 #include <vector>
 
+#include <be_framework_enumeration.h>
+
 namespace BiometricEvaluation 
 {
 	/**
@@ -30,38 +32,24 @@ namespace BiometricEvaluation
 	 */
 	namespace Finger
 	{
-		/**
-		 * @brief
-		 * Pattern classification codes.
-		 */
-		class PatternClassification {
-		public:
-			typedef enum {
-				PlainArch = 0,
-				TentedArch,
-				RadialLoop,
-				UlnarLoop,
-				PlainWhorl,
-				CentralPocketLoop,
-				DoubleLoop,
-				AccidentalWhorl,
-				Whorl,
-				RightSlantLoop,
-				LeftSlantLoop,
-				Scar,
-				Amputation,
-				Unknown
-			} Kind;
+		/** Pattern classification codes. */
+		enum class PatternClassification
+		{
+			PlainArch = 0,
+			TentedArch,
+			RadialLoop,
+			UlnarLoop,
+			PlainWhorl,
+			CentralPocketLoop,
+			DoubleLoop,
+			AccidentalWhorl,
+			Whorl,
+			RightSlantLoop,
+			LeftSlantLoop,
+			Scar,
+			Amputation,
+			Unknown
 		};
-		
-		/**
-		 * @brief
-		 * Output stream overload for PatternClassification::Kind.
-		 */
-		std::ostream&
-		operator<<(
-		    std::ostream&,
-		    const Finger::PatternClassification::Kind&);
 		    
 		/**
 		 * @brief
@@ -70,96 +58,72 @@ namespace BiometricEvaluation
 		 * These codes match those in ANSI/NIST. Other minutiae
 		 * formats may have to map codes into this set.
 		 */
-		class Position {
-		public:
-			typedef enum {
-				Unknown			= 0,
-				RightThumb		= 1,
-				RightIndex		= 2,
-				RightMiddle		= 3,
-				RightRing		= 4,
-				RightLittle		= 5,
-				LeftThumb		= 6,
-				LeftIndex		= 7,
-				LeftMiddle		= 8,
-				LeftRing		= 9,
-				LeftLittle		= 10,
-				PlainRightThumb		= 11,
-				PlainLeftThumb		= 12,
-				PlainRightFourFingers	= 13,
-				PlainLeftFourFingers	= 14,
-				LeftRightThumbs		= 15,
-				EJI			= 19
-			} Kind;
-		private:
-			Position() {}
+		enum class Position
+		{
+			Unknown			= 0,
+			RightThumb		= 1,
+			RightIndex		= 2,
+			RightMiddle		= 3,
+			RightRing		= 4,
+			RightLittle		= 5,
+			LeftThumb		= 6,
+			LeftIndex		= 7,
+			LeftMiddle		= 8,
+			LeftRing			= 9,
+			LeftLittle		= 10,
+			PlainRightThumb		= 11,
+			PlainLeftThumb		= 12,
+			PlainRightFourFingers	= 13,
+			PlainLeftFourFingers	= 14,
+			LeftRightThumbs		= 15,
+			EJI			= 19
 		};
-		std::ostream& operator<< (std::ostream&, const Position::Kind&);
-		typedef std::vector<Position::Kind> PositionSet;
+		using PositionSet = std::vector<Position>;
 
-		/**
-		 * @brief
-		 * Finger and palm impression types.
-		 */
-		class Impression {
-		public:
-			typedef enum {
-				LiveScanPlain = 0,
-				LiveScanRolled,
-				NonLiveScanPlain,
-				NonLiveScanRolled,
-				LatentImpression,
-				LatentTracing,
-				LatentPhoto,
-				LatentLift,
-				LiveScanVerticalSwipe,
-				LiveScanPalm,
-				NonLiveScanPalm,
-				LatentPalmImpression,
-				LatentPalmTracing,
-				LatentPalmPhoto,
-				LatentPalmLift,
-				LiveScanOpticalContactPlain,
-				LiveScanOpticalContactRolled,
-				LiveScanNonOpticalContactPlain,
-				LiveScanNonOpticalContactRolled,
-				LiveScanOpticalContactlessPlain,
-				LiveScanOpticalContactlessRolled,
-				LiveScanNonOpticalContactlessPlain,
-				LiveScanNonOpticalContactlessRolled,
-				Other,
-				Unknown
-			} Kind;
-		private:
-			Impression() {}
+		/** Finger and palm impression types. */
+		enum class Impression
+		{
+			LiveScanPlain = 0,
+			LiveScanRolled,
+			NonLiveScanPlain,
+			NonLiveScanRolled,
+			LatentImpression,
+			LatentTracing,
+			LatentPhoto,
+			LatentLift,
+			LiveScanVerticalSwipe,
+			LiveScanPalm,
+			NonLiveScanPalm,
+			LatentPalmImpression,
+			LatentPalmTracing,
+			LatentPalmPhoto,
+			LatentPalmLift,
+			LiveScanOpticalContactPlain,
+			LiveScanOpticalContactRolled,
+			LiveScanNonOpticalContactPlain,
+			LiveScanNonOpticalContactRolled,
+			LiveScanOpticalContactlessPlain,
+			LiveScanOpticalContactlessRolled,
+			LiveScanNonOpticalContactlessPlain,
+			LiveScanNonOpticalContactlessRolled,
+			Other,
+			Unknown
 		};
-		std::ostream& operator<< (std::ostream&,
-		    const Impression::Kind&);
 		    
-		/**
-		 * Joint and tip codes.
-		 */
-		class FingerImageCode {
-		public:
-			typedef enum {
-				EJI = 0,
-				RolledTip,
-				FullFingerRolled,
-				FullFingerPlainLeft,
-				FullFingerPlainCenter,
-				FullFingerPlainRight,
-				ProximalSegment,
-				DistalSegment,
-				MedialSegment,
-				NA
-			} Kind;
-		private:
-			FingerImageCode() {};
+		/** Joint and tip codes. */
+		enum class FingerImageCode {
+			EJI = 0,
+			RolledTip,
+			FullFingerRolled,
+			FullFingerPlainLeft,
+			FullFingerPlainCenter,
+			FullFingerPlainRight,
+			ProximalSegment,
+			DistalSegment,
+			MedialSegment,
+			NA
 		};
-		std::ostream& operator<< (std::ostream&,
-		    const FingerImageCode::Kind&);
-		typedef std::map<Position::Kind, FingerImageCode::Kind> 
-		    PositionDescriptors;
+		using PositionDescriptors = std::map<Position, FingerImageCode>;
 	}
 }
 #endif /* __BE_FINGER_H__ */

@@ -9,11 +9,13 @@
  */
 
 #include <cstdlib>
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 
 #include <be_error_exception.h>
 #include <be_memory_autoarray.h>
+#include <be_memory_autoarrayiterator.h>
 
 using namespace BiometricEvaluation;
 using namespace std;
@@ -25,7 +27,66 @@ void printBuf(string name, Memory::AutoArray<char> buf) {
 	for (it = buf.begin(); it != buf.end(); it++)
 		cout << (*it) << " ";
 	cout << endl;
-} 
+}
+
+std::string
+randomString()
+{
+	auto randomCharacter = []() -> char {
+		/* Random lowercase ASCII character */
+		return ((std::rand() % 25) + 97);
+	};
+
+	uint8_t stringLength = (std::rand() % 12) + 1;
+	std::string randomString(stringLength, '\0');
+	std::generate_n(randomString.begin(), stringLength, randomCharacter);
+
+	return (randomString);
+}
+
+void
+testStringAutoArray()
+{
+	Memory::AutoArray<std::string> stringAA(10);
+	std::generate(stringAA.begin(), stringAA.end(), randomString);
+	std::cout << "Unsorted:" << std::endl;
+	std::copy(stringAA.cbegin(), stringAA.cend(),
+	    std::ostream_iterator<std::string>(std::cout, " "));
+	stringAA.resize(15);
+	stringAA.resize(5);
+	std::cout << std::endl;
+	std::cout << "Smaller Unsorted:" << std::endl;
+	std::copy(stringAA.cbegin(), stringAA.cend(),
+	    std::ostream_iterator<std::string>(std::cout, " "));
+	std::cout << std::endl;
+	std::sort(stringAA.begin(), stringAA.end(), std::less<std::string>());
+	std::cout << "Sorted:" << std::endl;
+	std::copy(stringAA.cbegin(), stringAA.cend(),
+	    std::ostream_iterator<std::string>(std::cout, " "));
+	std::cout << std::endl;
+}
+
+void
+testIterator()
+{
+	/* Fill an array with random numbers */
+	Memory::uint8Array aa(30);
+	std::srand(std::time(0));
+	std::generate(aa.begin(), aa.end(), std::rand);
+
+	/* Print the array */
+	std::cout << "Unsorted:" << dec << std::endl;
+	std::copy(aa.cbegin(), aa.cend(),
+	    std::ostream_iterator<int>(std::cout, " "));
+	cout << endl;
+
+	/* Sort and print again */
+	std::cout << "Sorted:" << std::endl;
+	std::sort(aa.begin(), aa.end(), std::less<uint8_t>());
+	std::copy(aa.cbegin(), aa.cend(),
+	    std::ostream_iterator<int>(std::cout, " "));
+	cout << endl;
+}
 
 int main (int argc, char* argv[]) {
 	Memory::AutoArray<char> buf = Memory::AutoArray<char>(0);
@@ -71,7 +132,7 @@ int main (int argc, char* argv[]) {
 	Memory::AutoArray<unsigned int> aa(size);
 	for (size_t i = 0; i < size; i++)
 		aa[i] = (i + 1);
-	for (Memory::AutoArray<unsigned int>::iterator it = aa.begin(); 
+	for (Memory::AutoArray<unsigned int>::iterator it = aa.begin();
 	    it != aa.end(); it++)
 		cout << *it << " ";
 	cout << endl << endl;
@@ -93,7 +154,7 @@ int main (int argc, char* argv[]) {
 	cout << "--------------------" << endl;
 	size_t five_letters_sz = 5;
 	char *five_letters = (char *)malloc(sizeof(char) * five_letters_sz);
-	if (five_letters == NULL)
+	if (five_letters == nullptr)
 		throw Error::StrategyError("Could not allocate memory");
 	cout << "Address of malloc()'d buffer " << hex << showbase <<
 	    &five_letters << endl;
@@ -108,7 +169,7 @@ int main (int argc, char* argv[]) {
 	auto_five_letters.copy(five_letters, five_letters_sz);
 	for (size_t i = 0; i < five_letters_sz; i++)
 		five_letters[i] = ('A' + five_letters_sz) + i;
-	if (five_letters != NULL)
+	if (five_letters != nullptr)
 		free(five_letters);
 	cout << "AutoArray.copy(): ";
 	for (size_t i = 0; i < five_letters_sz; i++)
@@ -138,7 +199,14 @@ int main (int argc, char* argv[]) {
 			    auto_five_letters[i] << endl;
 		}
 	}
-	
+
+	/* Test real iterators */
+	std::cout << std::endl;
+	testIterator();
+
+	/* Test non-integral AutoArray */
+	testStringAutoArray();
+
 	return (0);
 }
 

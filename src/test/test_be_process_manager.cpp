@@ -43,8 +43,8 @@ workerMain()
 	cout << "<< (W" << instance + 1 << ") " << message <<
 	    " from instance #" << instance + 1 << endl;
 	
-	tr1::shared_ptr<IO::RecordStore> rs =
-	    tr1::static_pointer_cast<IO::RecordStore>(getParameter("rs"));
+	shared_ptr<IO::RecordStore> rs =
+	    static_pointer_cast<IO::RecordStore>(getParameter("rs"));
 
 	stringstream key;
 	uint64_t counter = 1;
@@ -56,7 +56,7 @@ workerMain()
 			rs->insert(key.str(), key.str().c_str(),
 			    key.str().length());
 		} catch (Error::Exception &e) {
-			cout << e.getInfo() << endl;
+			cout << e.what() << endl;
 		}
 		
 		/* Receive message from server, or continue after 2 seconds */
@@ -77,7 +77,7 @@ workerMain()
 				    ") Messsage sent" << endl;
 			} catch (Error::Exception &e) {
 				cerr << "<< (W " << instance + 1 <<
-				    ") CAUGHT: " << e.getInfo() << endl;
+				    ") CAUGHT: " << e.what() << endl;
 			}
 		}
 	}
@@ -105,14 +105,14 @@ workerMain()
 {
 	int status = EXIT_FAILURE;
 	
-	tr1::shared_ptr<Process::Manager> procMgr;
+	shared_ptr<Process::Manager> procMgr;
 #if defined FORKTEST
 	procMgr.reset(new Process::ForkManager());
 #elif defined POSIXTHREADTEST
 	procMgr.reset(new Process::POSIXThreadManager());
 #endif
-	tr1::shared_ptr<Process::WorkerController> worker = procMgr->addWorker(
-	    tr1::shared_ptr<TestDriverWorker>(new TestDriverWorker()));
+	shared_ptr<Process::WorkerController> worker = procMgr->addWorker(
+	    shared_ptr<TestDriverWorker>(new TestDriverWorker()));
 	
 	string message = this->getParameterAsString("message");
 	uint32_t instance = this->getParameterAsInteger("instance");
@@ -168,13 +168,13 @@ main(
 {
 	static const uint32_t numWorkers = 3;
 
-	tr1::shared_ptr<Process::Manager> procMgr;
+	shared_ptr<Process::Manager> procMgr;
 #if defined FORKTEST
 	procMgr.reset(new Process::ForkManager());
 #elif defined POSIXTHREADTEST
 	procMgr.reset(new Process::POSIXThreadManager());
 #endif
-	tr1::shared_ptr<Process::WorkerController> workers[numWorkers];
+	shared_ptr<Process::WorkerController> workers[numWorkers];
 	
 	for (uint32_t i = 0; i < numWorkers; i++) {
 		stringstream name;
@@ -182,13 +182,13 @@ main(
 
 		if (i < (numWorkers - 1)) {
 			workers[i] = procMgr->addWorker(
-			    tr1::shared_ptr<TestDriverWorker>(
+			    shared_ptr<TestDriverWorker>(
 			    new TestDriverWorker()));
 			workers[i]->setParameterFromString("message",
 			    "Working");
 		} else {
 			workers[i] = procMgr->addWorker(
-			    tr1::shared_ptr<ManagingWorker>(
+			    shared_ptr<ManagingWorker>(
 			    new ManagingWorker()));
 			workers[i]->setParameterFromString("message",
 			    "Managing");
@@ -200,10 +200,10 @@ main(
 		
 			workers[i]->setParameter("rs",
 			    IO::RecordStore::createRecordStore(name.str(),
-			    "Test RS", IO::RecordStore::BERKELEYDBTYPE, "."));
+			    "Test RS", IO::RecordStore::Kind::BerkeleyDB, "."));
 			workers[i]->setParameterFromInteger("instance", i);
 		} catch (Error::Exception &e) {
-			cout << e.getInfo() << endl;
+			cout << e.what() << endl;
 		}
 	}
 
@@ -225,12 +225,12 @@ main(
 			cout << ">> (M) Send message to " << i + 1 << endl;
  			workers[i]->sendMessageToWorker(message);
 		} catch (Error::Exception &e) {
-			cout << ">>>> (M) SND CAUGHT: " << e.getInfo() << endl;
+			cout << ">>>> (M) SND CAUGHT: " << e.what() << endl;
 		}
 	}
 	
 	/* Get all messages until no messages received for 2 seconds */
-	tr1::shared_ptr<Process::WorkerController> sender;
+	shared_ptr<Process::WorkerController> sender;
 	try {
 		while (procMgr->getNextMessage(sender, message, 2))
 			cout << ">> (M) Received: " << message << " " <<
@@ -238,7 +238,7 @@ main(
 			    getParameterAsInteger("instance") + 1 << ")" <<
 			    endl;
 	} catch (Error::Exception &f) {
-		cout << ">>>> (M) RCV CAUGHT: " << f.getInfo() << endl;
+		cout << ">>>> (M) RCV CAUGHT: " << f.what() << endl;
 	}
 	
 	/* Exit all workers */
@@ -271,14 +271,14 @@ main(
 
 	cout << ">> Testing quick worker exit... (no crash/hang if "
 	    "successful)" << endl;
-	tr1::shared_ptr<Process::Manager> quickMgr;
+	std::shared_ptr<Process::Manager> quickMgr;
 #if defined FORKTEST
 	quickMgr.reset(new Process::ForkManager());
 #elif defined POSIXTHREADTEST
 	quickMgr.reset(new Process::POSIXThreadManager());
 #endif
-	quickMgr->addWorker(tr1::shared_ptr<QuickWorker>(new QuickWorker()));
-	quickMgr->addWorker(tr1::shared_ptr<QuickWorker>(new QuickWorker()));
+	quickMgr->addWorker(std::shared_ptr<QuickWorker>(new QuickWorker()));
+	quickMgr->addWorker(std::shared_ptr<QuickWorker>(new QuickWorker()));
 	quickMgr->startWorkers();
 	
 	return (0);

@@ -29,11 +29,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewLatent(
 			    const std::string &filename,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError,
-				Error::FileError);
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -45,9 +41,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewLatent(
 			    Memory::uint8Array &buf,
-			    const uint32_t recordNumber)
-			    throw (Error::ParameterError, Error::DataError);
-			
+			    const uint32_t recordNumber);
+
 			/**
 			 * @brief
 			 * Obtain metrics for latent image quality score data

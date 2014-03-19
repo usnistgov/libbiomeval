@@ -9,7 +9,8 @@
  */
 
 #include <sys/time.h>
-#include <time.h>
+
+#include <ctime>
 
 #include <be_time_timer.h>
 
@@ -33,7 +34,6 @@ BiometricEvaluation::Time::Timer::Timer() :
 
 void
 BiometricEvaluation::Time::Timer::start()
-    throw (Error::StrategyError)
 {
 	if (_inProgress)
 		throw Error::StrategyError("Timing already in progress");
@@ -63,7 +63,6 @@ BiometricEvaluation::Time::Timer::start()
 
 void
 BiometricEvaluation::Time::Timer::stop()
-    throw (Error::StrategyError)
 {
 	if (!_inProgress)
 		throw Error::StrategyError("Timing not in progress");
@@ -93,7 +92,6 @@ BiometricEvaluation::Time::Timer::stop()
 
 uint64_t
 BiometricEvaluation::Time::Timer::elapsed()
-    throw (Error::StrategyError)
 {
 	if (_inProgress)
 		throw Error::StrategyError("Timing in progress");

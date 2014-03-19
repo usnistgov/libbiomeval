@@ -10,12 +10,11 @@
 #ifndef __BE_TIME_WATCHDOG_H__
 #define __BE_TIME_WATCHDOG_H__
 
-#include <setjmp.h>
-#include <signal.h>
+#include <csetjmp>
+#include <csignal>
+
 #include <be_time.h>
 #include <be_error_exception.h>
-
-using namespace std;
 
 /**
  * Macros that are used by applications to indicate the start and end of
@@ -115,9 +114,7 @@ namespace BiometricEvaluation {
 			 *	Watchdog::PROCESSTIME is not supported under
 			 *	Cygwin.
 			 */
-			Watchdog(const uint8_t type)
-			    throw (Error::NotImplemented,
-			    Error::ParameterError);
+			Watchdog(const uint8_t type);
 
 			/**
 			 * Set the interval for the timer, but don't start the
@@ -139,8 +136,7 @@ namespace BiometricEvaluation {
 			 *	Could not register the signal handler, or
 			 *	could not create the timer.
 			 */
-			void start()
-			    throw (Error::StrategyError);
+			void start();
 
 			/**
 			 * Stop a watchdog timer.
@@ -148,8 +144,7 @@ namespace BiometricEvaluation {
 			 * @throw Error::StrategyError
 			 *	Could not clear the timer.
 			 */
-			void stop()
-			    throw (Error::StrategyError);
+			void stop();
 
 			/**
 			 * Indicate whether the watchdog timer expired.

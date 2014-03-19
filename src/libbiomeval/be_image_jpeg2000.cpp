@@ -17,9 +17,7 @@
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const uint8_t *data,
     const uint64_t size,
-    const int8_t codec)
-    throw (Error::DataError,
-    Error::StrategyError) : 
+    const int8_t codec) :
     Image::Image(
     data,
     size,
@@ -32,12 +30,12 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	 */
 	 
 	/* Error callbacks */
-	opj_dinfo_t* dinfo = NULL;
+	opj_dinfo_t* dinfo = nullptr;
 	opj_event_mgr_t event_mgr;
 	event_mgr.error_handler = openjpeg_message;
 	event_mgr.warning_handler = openjpeg_message;
-	event_mgr.info_handler = NULL;
-	opj_set_event_mgr((opj_common_ptr)dinfo, &event_mgr, NULL);
+	event_mgr.info_handler = nullptr;
+	opj_set_event_mgr((opj_common_ptr)dinfo, &event_mgr, nullptr);
 
 	/* Use default decoding parameters, except codec, which is "unknown" */
 	opj_dparameters parameters;
@@ -63,12 +61,13 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	}
 	
 	opj_setup_decoder(dinfo, &parameters);
-	Memory::uint8Array jpegData = getData();
+	Memory::uint8Array jpegData;
+	this->getData(jpegData);
 	opj_cio_t *cio = opj_cio_open((opj_common_ptr)dinfo, jpegData,
 	    jpegData.size());
 	opj_codestream_info_t cstr_info;
 	opj_image_t *image = opj_decode_with_info(dinfo, cio, &cstr_info);
-	if (image == NULL) {
+	if (image == nullptr) {
 		opj_destroy_decompress(dinfo);
 		opj_cio_close(cio);
 		throw Error::StrategyError("libopenjpeg: Failed to "
@@ -87,7 +86,7 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 		setResolution(parse_resd(find_marker(resd, 4, jpegData,
 		    jpegData.size(), resd_box_size)));
 	} catch (Error::ObjectDoesNotExist) {
-		setResolution(Resolution(72, 72, Resolution::PPI));
+		setResolution(Resolution(72, 72, Resolution::Units::PPI));
 	}
 	
 	decode_raw(image);
@@ -115,22 +114,21 @@ BiometricEvaluation::Image::JPEG2000::decode_raw(
 }
 
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
-BiometricEvaluation::Image::JPEG2000::getRawData()
+void
+BiometricEvaluation::Image::JPEG2000::getRawData(
+    Memory::uint8Array &rawData)
     const
-    throw (Error::DataError)
 {
-	return (_raw_data);
+	rawData.copy(_raw_data, _raw_data.size());
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
+void
 BiometricEvaluation::Image::JPEG2000::getRawGrayscaleData(
+    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
-    throw (Error::DataError,
-    Error::ParameterError)
 {
-	return (Image::getRawGrayscaleData(depth));
+	Image::getRawGrayscaleData(rawGray, depth);
 }
 
 bool
@@ -150,9 +148,8 @@ void
 BiometricEvaluation::Image::JPEG2000::openjpeg_message(
     const char *msg,
     void *client_data)
-    throw (Error::StrategyError)
 {
-	throw Error::StrategyError("libopenjpeg: " + string(msg));
+	throw Error::StrategyError("libopenjpeg: " + std::string(msg));
 }
 
 BiometricEvaluation::Memory::AutoArray<uint8_t>
@@ -162,7 +159,6 @@ BiometricEvaluation::Image::JPEG2000::find_marker(
     uint8_t *buffer,
     uint64_t buffer_size,
     uint64_t value_size)
-    throw (Error::ObjectDoesNotExist)
 {
 	uint64_t step;
 	for (step = 0; step < buffer_size; step++) {
@@ -185,7 +181,6 @@ BiometricEvaluation::Image::JPEG2000::find_marker(
 BiometricEvaluation::Image::Resolution
 BiometricEvaluation::Image::JPEG2000::parse_resd(
     const BiometricEvaluation::Memory::AutoArray<uint8_t> &resd)
-    throw (Error::DataError)
 {
 	/* Sanity check */
 	if (resd.size() != 10)
@@ -206,7 +201,7 @@ BiometricEvaluation::Image::JPEG2000::parse_resd(
 	int8_t HRdE = resd[offset];
 	return (Resolution((((float)VRdN / VRdD) * pow(10.0, VRdE)) / 100.0,
 	    (((float)HRdN / HRdD) * pow(10.0, HRdE)) / 100.0,
-	    Resolution::PPCM));
+	    Resolution::Units::PPCM));
 }
 
 BiometricEvaluation::Image::JPEG2000::~JPEG2000()

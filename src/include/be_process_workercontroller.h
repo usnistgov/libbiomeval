@@ -11,14 +11,12 @@
 #ifndef __BE_PROCESS_WORKERCONTROLLER_H__
 #define __BE_PROCESS_WORKERCONTROLLER_H__
 
-#include <tr1/memory>
+#include <memory>
 
 #include <be_error_exception.h>
 #include <be_memory_autoarray.h>
 #include <be_process.h>
 #include <be_process_worker.h>
-
-using namespace std;
 
 namespace BiometricEvaluation
 {
@@ -38,7 +36,7 @@ namespace BiometricEvaluation
 			 *	The Worker instance to wrap.
 			 */
 			WorkerController(
-			    tr1::shared_ptr<Worker> worker);
+			    std::shared_ptr<Worker> worker);
 			    
 			/**
 			 * @brief
@@ -56,10 +54,8 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			sendMessageToWorker(
-			    const Memory::uint8Array &message)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-		
+			    const Memory::uint8Array &message);
+
 			/**
 			 * @brief
 			 * Set the parameter to be passed to the Worker.
@@ -76,8 +72,8 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			setParameter(
-			    const string &name, 
-			    tr1::shared_ptr<void> argument);
+			    const std::string &name, 
+			    std::shared_ptr<void> argument);
 			    
 			/**
 			 * @brief
@@ -95,7 +91,7 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			setParameterFromDouble(
-			    const string &name, 
+			    const std::string &name, 
 			    double argument);
 			
 			/**
@@ -114,7 +110,7 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			setParameterFromInteger(
-			    const string &name, 
+			    const std::string &name, 
 			    int64_t argument);
 			    
 			/**
@@ -133,8 +129,8 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			setParameterFromString(
-			    const string &name, 
-			    const string &argument);
+			    const std::string &name, 
+			    const std::string &argument);
 			    
 			/**
 			 * @brief
@@ -145,8 +141,7 @@ namespace BiometricEvaluation
 			 *	running.
 			 */
 			virtual void
-			reset()
-			    throw (Error::ObjectExists);
+			reset();
 			
 			/**
 			 * @brief
@@ -166,7 +161,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Worker instance.
 			 */
-			tr1::shared_ptr<Worker>
+			std::shared_ptr<Worker>
 			getWorker()
 			    const;
 			
@@ -178,7 +173,7 @@ namespace BiometricEvaluation
 
 		protected:
 			/** The Worker instance that is running in this child */
-			tr1::shared_ptr<Worker> _worker;
+			std::shared_ptr<Worker> _worker;
 		
 		private:
 			/**
@@ -200,10 +195,8 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			start(
-			    bool communicate = false)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			    
+			    bool communicate = false) = 0;
+
 			/**
 			 * @brief
 			 * Tell the Worker to stop.
@@ -217,9 +210,7 @@ namespace BiometricEvaluation
 			 *	Error asking Worker to stop.
 			 */
 			virtual int32_t
-			stop()
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError) = 0;
+			stop() = 0;
 		};
 	}
 }

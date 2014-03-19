@@ -11,10 +11,9 @@
 #ifndef __BE_IMAGE_IMAGE_H__
 #define __BE_IMAGE_IMAGE_H__
 
+#include <cstdint>
 #include <stdexcept>
-#include <tr1/memory>
-
-#include <stdint.h>
+#include <memory>
 
 #include <be_image.h>
 #include <be_memory_autoarray.h>
@@ -35,7 +34,7 @@ namespace BiometricEvaluation
 		 * Images are represented by their size, depth, and resolution
 		 * on the X and Y axes. The image data can be of any format,
 		 * raw, JPEG, etc.  Implementations of this abstraction provide 
-		 * the getRawData() method to convert image data to 'raw'
+		 * the getRawData method to convert image data to 'raw'
 		 * format.
 		 *
 		 * Image resolution is in pixels per centimeter, and the
@@ -73,9 +72,7 @@ namespace BiometricEvaluation
 			    const Size dimensions,
 			    const uint32_t depth, 
 			    const Resolution resolution,
-			    const CompressionAlgorithm::Kind compression)
-			    throw (Error::DataError,
-			    Error::StrategyError);
+			    const CompressionAlgorithm compression);
 
 			/**
 		 	 * @brief
@@ -96,9 +93,7 @@ namespace BiometricEvaluation
 			Image(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const CompressionAlgorithm::Kind compression)
-			    throw (Error::DataError,
-			    Error::StrategyError);
+			    const CompressionAlgorithm compression);
 
 			/**
 			 * @brief
@@ -108,7 +103,7 @@ namespace BiometricEvaluation
 			 *	Type of compression used on the data that will
 			 *	be returned from getData().
 			 */
-			CompressionAlgorithm::Kind
+			CompressionAlgorithm
 			getCompressionAlgorithm()
 			    const;
 
@@ -128,11 +123,12 @@ namespace BiometricEvaluation
 			 * Accessor for the image data. The data returned
 			 * is likely encoded in a specialized format.
 			 * 
-			 * @return
-			 *	Image data.
+			 * @param data
+			 *	Reference to an AutoArray to hold image data.
 			 */
-			Memory::AutoArray<uint8_t>
-			getData() 
+			void
+			getData(
+			    Memory::uint8Array &data)
 			    const;
 
 			/**
@@ -140,27 +136,27 @@ namespace BiometricEvaluation
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
 			 * 
-			 * @return
-			 *	Raw image data.
+			 * @param rawData
+			 *	Reference to AutoArray to hold raw image data.
 			 *
 			 * @throw Error::DataError
 			 *	Error decompressing image data.
 			 */
-			virtual Memory::AutoArray<uint8_t>
-			getRawData() 
-			    const
-			    throw (Error::DataError) = 0;
+			virtual void
+			getRawData(
+			    Memory::uint8Array &rawData) const = 0;
 			    
 			/**
 			 * @brief
 			 * Accessor for decompressed data in grayscale.
 			 *
+			 * @param rawGray
+			 *	Reference to AutoArray to hold raw grayscale
+			 *	image data.
 			 * @param depth
 			 *	The desired bit depth of the resulting raw
 			 *	image.  This value may either be 8 or 1.
 			 *
-			 * @return
-			 *	Raw image buffer.
 			 *
 			 * @throw Error::DataError
 			 *	Error decompressing image data.
@@ -181,12 +177,10 @@ namespace BiometricEvaluation
 			 *	currently 1 (2 gray levels) or 8 (256 gray 
 			 *	levels).
 			 */
-			virtual Memory::AutoArray<uint8_t>
+			virtual void
 			getRawGrayscaleData(
-			    uint8_t depth = 8)
-			    const
-			    throw (Error::DataError,
-			    Error::ParameterError) = 0;
+			    Memory::uint8Array &rawGray,
+			    uint8_t depth = 8) const = 0;
 
 			/**
 		 	 * @brief
@@ -260,12 +254,10 @@ namespace BiometricEvaluation
 			 * @throw Error::StrategyError
 			 *	Error while creating Image.
 			 */
-			static tr1::shared_ptr<Image>
+			static std::shared_ptr<Image>
 			openImage(
 			    const uint8_t *data,
-			    const uint64_t size)
-			    throw (Error::DataError,
-			    Error::StrategyError);
+			    const uint64_t size);
 			    
 			/**
 			 * @brief
@@ -283,11 +275,9 @@ namespace BiometricEvaluation
 			 * @throw Error::StrategyError
 			 *	Error while creating Image.
 			 */
-			static tr1::shared_ptr<Image>
+			static std::shared_ptr<Image>
 			openImage(
-			    const Memory::uint8Array &data)
-			    throw (Error::DataError,
-			    Error::StrategyError);
+			    const Memory::uint8Array &data);
 			    
 			/**
 			 * @brief
@@ -307,12 +297,9 @@ namespace BiometricEvaluation
 			 * @throw Error::StrategyError
 			 *	Error while creating Image.
 			 */
-			static tr1::shared_ptr<Image>
+			static std::shared_ptr<Image>
 			openImage(
-			    const string &path)
-			    throw (Error::DataError,
-			    Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    const std::string &path);
 			    
 			/**
 			 * @brief
@@ -332,7 +319,7 @@ namespace BiometricEvaluation
 			 *	no compression algorithm known to the
 			 *	Biometric Evaluation Framework is found.
 			 */
-			static CompressionAlgorithm::Kind
+			static CompressionAlgorithm
 			getCompressionAlgorithm(
 			    const uint8_t *data,
 			    const uint64_t size);
@@ -353,7 +340,7 @@ namespace BiometricEvaluation
 			 *	no compression algorithm known to the
 			 *	Biometric Evaluation Framework is found.
 			 */
-			static CompressionAlgorithm::Kind
+			static CompressionAlgorithm
 			getCompressionAlgorithm(
 			    const Memory::uint8Array &data);
 			
@@ -378,11 +365,9 @@ namespace BiometricEvaluation
 			 *	no compression algorithm known to the
 			 *	Biometric Evaluation Framework is found.
 			 */
-			static CompressionAlgorithm::Kind
+			static CompressionAlgorithm
 			getCompressionAlgorithm(
-			    const string &path)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    const std::string &path);
 			
 			/*
 			 * Useful constants 
@@ -442,7 +427,7 @@ namespace BiometricEvaluation
 			Memory::AutoArray<uint8_t> _data;
 
 			/** Compression algorithm of _data */
-			CompressionAlgorithm::Kind _compressionAlgorithm;
+			CompressionAlgorithm _compressionAlgorithm;
 		};
 	}
 }

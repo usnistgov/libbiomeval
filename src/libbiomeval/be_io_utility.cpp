@@ -13,13 +13,13 @@
 #include <sys/types.h>
 
 #include <dirent.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
 #include <unistd.h>
 
+#include <cerrno>
+#include <cstdint>
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <sstream>
 
@@ -27,12 +27,11 @@
 #include <be_text.h>
 #include <be_io_utility.h>
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 bool
 BiometricEvaluation::IO::Utility::fileExists(
-    const string &pathname)
-    throw (Error::StrategyError)
+    const std::string &pathname)
 {
 	if (access(pathname.c_str(), F_OK) == 0)
 		return (true);
@@ -42,8 +41,7 @@ BiometricEvaluation::IO::Utility::fileExists(
 
 bool
 BiometricEvaluation::IO::Utility::pathIsDirectory(
-    const string &pathname)
-    throw (Error::StrategyError)
+    const std::string &pathname)
 {
 	struct stat sb;
 
@@ -58,14 +56,13 @@ BiometricEvaluation::IO::Utility::pathIsDirectory(
 
 void
 BiometricEvaluation::IO::Utility::copyDirectoryContents(
-    const string &sourcepath,
-    const string &targetpath,
+    const std::string &sourcepath,
+    const std::string &targetpath,
     const bool removesource)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	struct stat sb;
 	struct dirent *entry;
-	DIR *dir = NULL;
+	DIR *dir = nullptr;
 
 	if (!IO::Utility::pathIsDirectory(sourcepath))
 		throw Error::ObjectDoesNotExist(sourcepath + " is not a path");
@@ -82,18 +79,18 @@ BiometricEvaluation::IO::Utility::copyDirectoryContents(
 	}
 
 	dir = opendir(sourcepath.c_str());
-	if (dir == NULL)
+	if (dir == nullptr)
 		throw Error::StrategyError(sourcepath + " could not be opened");
 
-	while ((entry = readdir(dir)) != NULL) {
+	while ((entry = readdir(dir)) != nullptr) {
 		if (entry->d_ino == 0)
 			continue;
 		if ((strcmp(entry->d_name, ".") == 0) ||
 		    (strcmp(entry->d_name, "..") == 0))
 			continue;
 
-		string sourcefile = sourcepath + "/" + entry->d_name;
-		string targetfile = targetpath + "/" + entry->d_name;
+		std::string sourcefile = sourcepath + "/" + entry->d_name;
+		std::string targetfile = targetpath + "/" + entry->d_name;
 
 		/* Recursively copy subdirectories and files */
 		try {
@@ -107,7 +104,7 @@ BiometricEvaluation::IO::Utility::copyDirectoryContents(
 			}
 		} catch (Error::Exception &e) {
 			closedir(dir);
-			throw (e);
+			throw;
 		}
 	}
 	closedir(dir);
@@ -117,23 +114,22 @@ BiometricEvaluation::IO::Utility::copyDirectoryContents(
 
 void
 BiometricEvaluation::IO::Utility::removeDirectory(
-    const string &directory,
-    const string &prefix)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &directory,
+    const std::string &prefix)
 {
 	struct stat sb;
 	struct dirent *entry;
-	DIR *dir = NULL;
-	string dirpath, filename;
+	DIR *dir = nullptr;
+	std::string dirpath, filename;
 
 	dirpath = prefix + "/" + directory;
 	if (stat(dirpath.c_str(), &sb) != 0)
 		throw Error::ObjectDoesNotExist(dirpath + " does not exist");
 	dir = opendir(dirpath.c_str());
-	if (dir == NULL)
+	if (dir == nullptr)
 		throw Error::StrategyError(dirpath + " could not be opened");
 	
-	while ((entry = readdir(dir)) != NULL) {
+	while ((entry = readdir(dir)) != nullptr) {
 		if (entry->d_ino == 0)
 			continue;
 		if ((strcmp(entry->d_name, ".") == 0) ||
@@ -142,7 +138,7 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 
 		filename = dirpath + "/" + entry->d_name;
 		if (stat(filename.c_str(), &sb) != 0) {
-			if (dir != NULL) {
+			if (dir != nullptr) {
 				if (closedir(dir)) {
 					throw Error::StrategyError("Could not "
 					    "close " + dirpath + " (" +
@@ -158,7 +154,7 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 			removeDirectory(entry->d_name, dirpath);
 		} else {
 			if (unlink(filename.c_str())) {
-				if (dir != NULL) {
+				if (dir != nullptr) {
 					if (closedir(dir)) {
 						throw Error::StrategyError(
 						    "Could not close " + 
@@ -178,7 +174,7 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 		throw Error::StrategyError(dirpath + " could not be removed (" +
 		    Error::errorStr() + ")");
 
-	if (dir != NULL) {
+	if (dir != nullptr) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + 
 			    dirpath + " (" + Error::errorStr() + ")");
@@ -188,8 +184,7 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 
 void
 BiometricEvaluation::IO::Utility::removeDirectory(
-    const string &pathname)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &pathname)
 {
 	IO::Utility::removeDirectory(
 	    Text::filename(pathname),
@@ -198,15 +193,14 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 
 void
 BiometricEvaluation::IO::Utility::setAsideName(
-    const string &path)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &path)
 {
 	if (!fileExists(path))
 		throw Error::ObjectDoesNotExist(path + " does not exist");
 
 	/* Find the next index available for the set aside name */
 	uint32_t idx;
-	ostringstream sstr;
+	std::ostringstream sstr;
 	for (idx = 1; idx <= UINT16_MAX; idx++) {
 		sstr << path << "." << idx;
 		if (!fileExists(sstr.str()))
@@ -224,8 +218,7 @@ BiometricEvaluation::IO::Utility::setAsideName(
 
 uint64_t
 BiometricEvaluation::IO::Utility::getFileSize(
-    const string &pathname)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &pathname)
 {
 	struct stat sb;
 
@@ -241,7 +234,7 @@ BiometricEvaluation::IO::Utility::getFileSize(
 
 bool
 BiometricEvaluation::IO::Utility::validateRootName(
-    const string &name)
+    const std::string &name)
 {
 	bool validity = true;
 
@@ -249,7 +242,8 @@ BiometricEvaluation::IO::Utility::validateRootName(
 		validity = false;
 
         /* Do not allow pathname delimiters in the name */
-	if (name.find("/") != string::npos || name.find("\\") != string::npos)
+	if (name.find("/") != std::string::npos ||
+	     name.find("\\") != std::string::npos)
 		validity = false;
 
 	if (isspace(name[0]))
@@ -260,9 +254,9 @@ BiometricEvaluation::IO::Utility::validateRootName(
 
 bool
 BiometricEvaluation::IO::Utility::constructAndCheckPath(
-    const string &name,
-    const string &parentDir,
-    string &fullPath)
+    const std::string &name,
+    const std::string &parentDir,
+    std::string &fullPath)
 {
 	if (parentDir.empty() || parentDir == ".")
 		fullPath = name;
@@ -278,7 +272,7 @@ BiometricEvaluation::IO::Utility::constructAndCheckPath(
 
 int
 BiometricEvaluation::IO::Utility::makePath(
-    const string &path,
+    const std::string &path,
     const mode_t mode)
 {
 	if (mkdir(path.c_str(), mode) != 0) {
@@ -300,14 +294,12 @@ BiometricEvaluation::IO::Utility::makePath(
 
 BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::IO::Utility::readFile(
-    const string &path,
-    ios_base::openmode mode)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
+    const std::string &path,
+    std::ios_base::openmode mode)
 {	
 	Memory::uint8Array contents(getFileSize(path));
 	
-	ifstream file(path.c_str(), mode | ios_base::in);
+	std::ifstream file(path.c_str(), mode | std::ios_base::in);
 	if (file.good() == false)
 		throw Error::StrategyError("Error while opening");
 		
@@ -324,20 +316,18 @@ void
 BiometricEvaluation::IO::Utility::writeFile(
     const uint8_t *data,
     const size_t size,
-    const string &path,
-    ios_base::openmode mode)
-    throw (Error::ObjectExists,
-    Error::StrategyError)
+    const std::string &path,
+    std::ios_base::openmode mode)
 {
 	/* Throw exception if truncate not set and file exists */
-	if ((mode & ios_base::trunc) == 0)
+	if ((mode & std::ios_base::trunc) == 0)
 		if (fileExists(path))
 			throw Error::ObjectExists("Truncate disabled");
 	/* Throw exception is path exists and is directory */
 	if (pathIsDirectory(path))
 		throw Error::ObjectExists(path + " is a directory");
 	
-	ofstream file(path.c_str(), mode | ios_base::out);
+	std::ofstream file(path.c_str(), mode | std::ios_base::out);
 	if (file.good() == false)
 		throw Error::StrategyError("Error while opening");
 
@@ -351,17 +341,15 @@ BiometricEvaluation::IO::Utility::writeFile(
 void
 BiometricEvaluation::IO::Utility::writeFile(
     const Memory::uint8Array data,
-    const string &path,
-    ios_base::openmode mode)
-    throw (Error::ObjectExists,
-    Error::StrategyError)
+    const std::string &path,
+    std::ios_base::openmode mode)
 {
 	writeFile(data, data.size(), path, mode);
 }
 
 bool
 BiometricEvaluation::IO::Utility::isReadable(
-    const string &pathname)
+    const std::string &pathname)
 {
 	bool rv = true;
 	
@@ -369,7 +357,7 @@ BiometricEvaluation::IO::Utility::isReadable(
 	if (errno == EACCES)
 		rv = false;
 
-	if (fp != NULL)
+	if (fp != nullptr)
 		fclose(fp);
 	
 	return (rv);
@@ -377,7 +365,7 @@ BiometricEvaluation::IO::Utility::isReadable(
 
 bool
 BiometricEvaluation::IO::Utility::isWritable(
-    const string &pathname)
+    const std::string &pathname)
 {
 	bool rv = true;
 	
@@ -385,20 +373,18 @@ BiometricEvaluation::IO::Utility::isWritable(
 	if (errno == EACCES)
 		rv = false;
 
-	if (fp != NULL)
+	if (fp != nullptr)
 		fclose(fp);
 	
 	return (rv);
 }
 
-string
+std::string
 BiometricEvaluation::IO::Utility::createTemporaryFile(
-    const string &prefix,
-    const string &parentDir)
-    throw (Error::FileError,
-    Error::MemoryError)
+    const std::string &prefix,
+    const std::string &parentDir)
 {
-	string path;
+	std::string path;
 	FILE *fp = IO::Utility::createTemporaryFile(path, prefix, parentDir);
 	fclose(fp);
 
@@ -407,18 +393,16 @@ BiometricEvaluation::IO::Utility::createTemporaryFile(
 
 FILE*
 BiometricEvaluation::IO::Utility::createTemporaryFile(
-    string &path,
-    const string &prefix,
-    const string &parentDir)
-    throw (Error::FileError,
-    Error::MemoryError)
+    std::string &path,
+    const std::string &prefix,
+    const std::string &parentDir)
 {
-	string tmpl = "";
+	std::string tmpl = "";
 	constructAndCheckPath(((prefix == "") ? "libbiomeval" : prefix) + 
 	    "-XXXXXX", parentDir, tmpl);
 
 	char *name = strdup(tmpl.c_str());
-	if (name == NULL)
+	if (name == nullptr)
 		throw Error::MemoryError();
 	
 	int fildes = mkstemp(name);
@@ -432,7 +416,7 @@ BiometricEvaluation::IO::Utility::createTemporaryFile(
 	free(name);
 	
 	FILE *fp = fdopen(fildes, "w+x");
-	if (fp == NULL)
+	if (fp == nullptr)
 		throw Error::FileError("Could not wrap with stream (" + 
 		    Error::errorStr() + ')');
 		    

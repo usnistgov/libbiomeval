@@ -8,13 +8,14 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <stdlib.h>
 
 #include <be_io_logcabinet.h>
 
+using namespace std;
 using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::IO;
 
@@ -43,7 +44,7 @@ doLogSheetTests(LogSheet &ls)
 		}
 		ls.sync();
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	return (0);
@@ -63,7 +64,7 @@ doLogCabinetTests()
 		cout << "Cabinet already exists; should not happen." << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.getInfo();
+		cout << "Caught " << e.what();
 		success = true;
 	}
 	if (success) {
@@ -79,13 +80,13 @@ doLogCabinetTests()
 		cout << "The Log Cabinet already exists." << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	cout << "success." << endl;
 	auto_ptr<LogCabinet> alc(lc);
 
-	tr1::shared_ptr<LogSheet> ls;
+	shared_ptr<LogSheet> ls;
 	string lsname;
 	for (size_t i = 0; i < LOGSHEETCOUNT; i++) {
 		ostringstream sbuf;
@@ -98,7 +99,7 @@ doLogCabinetTests()
 			cout << "The Log Sheet already exists." << endl;
 			return (-1);
 		} catch (Error::StrategyError& e) {
-			cout << "Caught " << e.getInfo() << endl;
+			cout << "Caught " << e.what() << endl;
 			return (-1);
 		}
 		cout << "Writing log sheet... ";
@@ -116,7 +117,7 @@ doLogCabinetTests()
 		cout << "The Log Cabinet does not exist; what happened?" << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	cout << "success." << endl;
@@ -134,7 +135,7 @@ doLogCabinetTests()
 		cout << "The Log Cabinet does not exist; what happened?" << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	cout << "success." << endl;
@@ -146,7 +147,7 @@ doLogCabinetTests()
 	} catch (Error::ObjectDoesNotExist &e) {
 		success = true;
 	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	if (success) {
@@ -173,7 +174,7 @@ main(int argc, char* argv[])
 		cout << "The Log Sheet already exists; exiting." << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	cout << "success." << endl;
@@ -190,7 +191,7 @@ main(int argc, char* argv[])
 		*als << "First entry that is saved to the log file.";
 		als->newEntry();
 	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	cout << "Writing more entries... ";
@@ -209,7 +210,7 @@ main(int argc, char* argv[])
 		cout << "The LogSheet doesn't exist; exiting." << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	cout << "success." << endl;
@@ -224,7 +225,7 @@ main(int argc, char* argv[])
 		} catch (Error::ObjectDoesNotExist) {
 			break;
 		} catch (Error::Exception &e) {
-			cerr << "failed! (" << e.getInfo() << ')' << endl;
+			cerr << "failed! (" << e.what() << ')' << endl;
 		}
 	}
 	if (sequenceCounter != 19) {
@@ -246,7 +247,7 @@ main(int argc, char* argv[])
 			ls->newEntry();
 		}
 	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	
@@ -258,7 +259,7 @@ main(int argc, char* argv[])
 		} catch (Error::ObjectDoesNotExist) {
 			break;
 		} catch (Error::Exception &e) {
-			cerr << "failed! (" << e.getInfo() << ')' << endl;
+			cerr << "failed! (" << e.what() << ')' << endl;
 		}
 	}
 	if (sequenceCounter != 29) {

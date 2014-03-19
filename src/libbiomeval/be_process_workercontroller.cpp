@@ -16,7 +16,7 @@
 #include <be_process_workercontroller.h>
 
 BiometricEvaluation::Process::WorkerController::WorkerController(
-    tr1::shared_ptr<Worker> worker) :
+    std::shared_ptr<Worker> worker) :
     _worker(worker)
 {
 
@@ -24,7 +24,6 @@ BiometricEvaluation::Process::WorkerController::WorkerController(
 
 void
 BiometricEvaluation::Process::WorkerController::reset()
-    throw (Error::ObjectExists)
 {
 	if (isWorking())
 		throw Error::ObjectExists();
@@ -32,40 +31,40 @@ BiometricEvaluation::Process::WorkerController::reset()
 
 void
 BiometricEvaluation::Process::WorkerController::setParameter(
-    const string &name,
-    tr1::shared_ptr<void> argument)
+    const std::string &name,
+    std::shared_ptr<void> argument)
 {
 	_worker->setParameter(name, argument);
 }
 
 void
 BiometricEvaluation::Process::WorkerController::setParameterFromDouble(
-    const string &name, 
+    const std::string &name, 
     double argument)
 {
 	this->setParameter(name,
-	    tr1::shared_ptr<double>(new double(argument)));
+	    std::shared_ptr<double>(new double(argument)));
 }
 
 void
 BiometricEvaluation::Process::WorkerController::setParameterFromInteger(
-    const string &name, 
+    const std::string &name, 
     int64_t argument)
 {
 	this->setParameter(name,
-	    tr1::shared_ptr<int64_t>(new int64_t(argument)));
+	    std::shared_ptr<int64_t>(new int64_t(argument)));
 }
 
 void
 BiometricEvaluation::Process::WorkerController::setParameterFromString(
-    const string &name, 
-    const string &argument)
+    const std::string &name, 
+    const std::string &argument)
 {
 	this->setParameter(name,
-	    tr1::shared_ptr<string>(new string(argument)));
+	    std::shared_ptr<std::string>(new std::string(argument)));
 }
 
-tr1::shared_ptr<BiometricEvaluation::Process::Worker>
+std::shared_ptr<BiometricEvaluation::Process::Worker>
 BiometricEvaluation::Process::WorkerController::getWorker()
     const
 {
@@ -82,8 +81,6 @@ BiometricEvaluation::Process::WorkerController::~WorkerController()
 void
 BiometricEvaluation::Process::WorkerController::sendMessageToWorker(
     const Memory::uint8Array &message)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
 	uint64_t length = message.size();
 	sigset_t sigset;

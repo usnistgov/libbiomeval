@@ -61,12 +61,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewFixedResolution(
 			    const std::string filename,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError,
-				Error::FileError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -90,11 +86,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewFixedResolution(
 			    Memory::uint8Array &buf,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 		protected:
 
@@ -109,8 +102,7 @@ namespace BiometricEvaluation
 			 *	The AN2K record has invalid or missing data.
 			 */
 			void readImageRecord(
-			    const RecordType::Kind typeID)
-			    throw (Error::DataError);
+			    const RecordType typeID);
 		};
 	}
 }

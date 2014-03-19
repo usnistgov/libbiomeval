@@ -12,9 +12,9 @@
 #define __BE_VIEW_AN2KVIEW_VARRES_H__
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #include <be_view_an2kview.h>
 #include <be_error_exception.h>
@@ -24,7 +24,6 @@
 struct field;
 typedef field FIELD;
 
-using namespace std;
 namespace BiometricEvaluation 
 {
 	namespace View
@@ -49,14 +48,15 @@ namespace BiometricEvaluation
 			* Type-15 (Palmprint). The NIST Quality Metric is also
 			* returned via this structure.
 			*/
-			struct AN2KQualityMetric {
-				Finger::Position::Kind	position;
+			struct AN2KQualityMetric
+			{
+				Finger::Position	position;
 				uint8_t			score;
 				uint16_t		vendorID;
 				uint16_t		productCode;
 			};
-			typedef struct AN2KQualityMetric AN2KQualityMetric;
-			typedef std::vector<AN2KQualityMetric> QualityMetricSet;
+			using AN2KQualityMetric = struct AN2KQualityMetric;
+			using QualityMetricSet = std::vector<AN2KQualityMetric>;
 			
 			/**
 			 * @brief
@@ -70,20 +70,19 @@ namespace BiometricEvaluation
 			 *	The data contains an invalid value.
 			 */
 			static QualityMetricSet
-			extractQuality(FIELD *field)
-    			    throw (Error::DataError);
-			    
+			extractQuality(FIELD *field);
+
 			/**
 			 * @return
 			 *	The source agency.
 			 */
-			string getSourceAgency() const;
+			std::string getSourceAgency() const;
 
 			/**
 			 * @return
 			 *	The capture date.
 			 */
-			string getCaptureDate() const;
+			std::string getCaptureDate() const;
 
 			/**
 			 * @brief
@@ -93,7 +92,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	The comment field, empty string if not present.
 			 */
-			string getComment() const;
+			std::string getComment() const;
 			
 			/**
 			 * @brief
@@ -112,10 +111,8 @@ namespace BiometricEvaluation
 			 */
 			Memory::uint8Array
 			getUserDefinedField(
-			    const uint16_t field)
-			    const
-			    throw (Error::ParameterError);
-			
+			    const uint16_t field) const;
+
 			/**
 			 * @brief
 			 * Read raw bytes from a user-defined AN2K field.
@@ -135,8 +132,7 @@ namespace BiometricEvaluation
 			static Memory::uint8Array
 			parseUserDefinedField(
 			    const RECORD* const record,
-			    int fieldID)
-		            throw (Error::ParameterError);
+			    int fieldID);
 
 		protected:
 			/**
@@ -148,12 +144,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewVariableResolution(
 			    const std::string &filename,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError,
-				Error::FileError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -165,9 +157,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewVariableResolution(
 			    Memory::uint8Array &buf,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (Error::ParameterError, Error::DataError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			/** 
 			 * @brief
@@ -182,16 +173,15 @@ namespace BiometricEvaluation
 
 		private:
 			void readImageRecord(
-			    const RecordType::Kind typeID)
-			    throw (Error::DataError);
+			    const RecordType typeID);
 
-			string _sourceAgency;
-			string _captureDate;
-			string _comment;
+			std::string _sourceAgency;
+			std::string _captureDate;
+			std::string _comment;
 			/** Metrics of image quality score data */
 			QualityMetricSet _qms;
 			/** User-defined Fields (populated on access) */
-			mutable map<uint16_t, Memory::uint8Array> _udf;
+			mutable std::map<uint16_t, Memory::uint8Array> _udf;
 		};
 		
 		/**

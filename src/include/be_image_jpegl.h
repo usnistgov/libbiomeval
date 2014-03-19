@@ -26,23 +26,18 @@ namespace BiometricEvaluation
 		public:
 			JPEGL(
 			    const uint8_t *data,
-			    const uint64_t size)
-			    throw (Error::DataError,
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			~JPEGL();
 
-			Memory::AutoArray<uint8_t>
+			void
 			getRawGrayscaleData(
-			    uint8_t depth = 8)
-			    const
-			    throw (Error::DataError,
-			    Error::ParameterError);
+			    Memory::uint8Array &rawGray,
+			    uint8_t depth = 8) const;
 
-			Memory::AutoArray<uint8_t>
-			getRawData()
-			    const
-			    throw (Error::DataError);
+			void
+			getRawData(
+			    Memory::uint8Array &rawData) const;
 	
 			/**
 			 * Whether or not data is a Lossless JPEG image.

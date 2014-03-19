@@ -18,16 +18,13 @@
 #include <be_io_utility.h>
 #include <be_io_filerecstore.h>
 
-using namespace std;
-
-static const string _fileArea = "theFiles";
+static const std::string _fileArea = "theFiles";
 
 BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
-    const string &name,
-    const string &description,
-    const string &parentDir)
-    throw (Error::ObjectExists, Error::StrategyError) : 
-    RecordStore(name, description, FILETYPE, parentDir)
+    const std::string &name,
+    const std::string &description,
+    const std::string &parentDir) :
+    RecordStore(name, description, RecordStore::Kind::File, parentDir)
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
@@ -38,10 +35,9 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
 }
 
 BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
-    const string &name,
-    const string &parentDir,
-    uint8_t mode)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError) : 
+    const std::string &name,
+    const std::string &parentDir,
+    uint8_t mode) :
     RecordStore(name, parentDir, mode)
 {
 	_cursorPos = 1;
@@ -52,8 +48,7 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
 
 void
 BiometricEvaluation::IO::FileRecordStore::changeName(
-    const string &name)
-    throw (Error::ObjectExists, Error::StrategyError)
+    const std::string &name)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
@@ -65,20 +60,19 @@ BiometricEvaluation::IO::FileRecordStore::changeName(
 uint64_t
 BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
     const
-    throw (Error::StrategyError)
 {
 	this->sync();
 	
 	DIR *dir;
 	dir = opendir(_theFilesDir.c_str());
-	if (dir == NULL)
+	if (dir == nullptr)
 		throw Error::StrategyError("Cannot open store directory");
 
 	uint64_t total = RecordStore::getSpaceUsed();
 	struct dirent *entry;
 	struct stat sb;
-	string cname;
-	while ((entry = readdir(dir)) != NULL) {
+	std::string cname;
+	while ((entry = readdir(dir)) != nullptr) {
 		if (entry->d_ino == 0)
 			continue;
 		cname = entry->d_name;
@@ -91,7 +85,7 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
 		total += sb.st_blocks * S_BLKSIZE;
 	}	
 
-	if (dir != NULL) {
+	if (dir != nullptr) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + 
 			    getName() + "(" + Error::errorStr() + ")");
@@ -103,24 +97,23 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
 
 void
 BiometricEvaluation::IO::FileRecordStore::insert( 
-    const string &key,
+    const std::string &key,
     const void *const data,
     const uint64_t size)
-    throw (Error::ObjectExists, Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
-	string pathname = FileRecordStore::canonicalName(key);
+	std::string pathname = FileRecordStore::canonicalName(key);
 	if (IO::Utility::fileExists(pathname))
 		throw Error::ObjectExists();
 
 	try {
 		writeNewRecordFile(pathname, data, size);
 	} catch (Error::StrategyError& e) {
-		throw e;
+		throw;
 	}
 
 	RecordStore::insert(key, data, size);
@@ -129,15 +122,14 @@ BiometricEvaluation::IO::FileRecordStore::insert(
 
 void
 BiometricEvaluation::IO::FileRecordStore::remove( 
-    const string &key)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &key)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
-	string pathname = FileRecordStore::canonicalName(key);
+	std::string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw Error::ObjectDoesNotExist();
 
@@ -149,21 +141,20 @@ BiometricEvaluation::IO::FileRecordStore::remove(
 
 uint64_t
 BiometricEvaluation::IO::FileRecordStore::read(
-    const string &key,
+    const std::string &key,
     void *const data)
     const
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
-	string pathname = FileRecordStore::canonicalName(key);
+	std::string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw Error::ObjectDoesNotExist();
 
 	/* Allow exceptions to propagate out of here */
 	uint64_t size = IO::Utility::getFileSize(pathname);
 	std::FILE *fp = std::fopen(pathname.c_str(), "rb");
-	if (fp == NULL)
+	if (fp == nullptr)
 		throw Error::StrategyError("Could not open " + pathname + 
 		    " (" + Error::errorStr() + ")");
 
@@ -177,36 +168,34 @@ BiometricEvaluation::IO::FileRecordStore::read(
 
 void
 BiometricEvaluation::IO::FileRecordStore::replace(
-    const string &key,
+    const std::string &key,
     const void *const data,
     const uint64_t size)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
-	string pathname = FileRecordStore::canonicalName(key);
+	std::string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw Error::ObjectDoesNotExist();
 
 	try {
 		writeNewRecordFile(pathname, data, size);
 	} catch (Error::StrategyError& e) {
-		throw e;
+		throw;
 	}
 }
 
 uint64_t
 BiometricEvaluation::IO::FileRecordStore::length(
-    const string &key)
+    const std::string &key)
     const
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
-	string pathname = FileRecordStore::canonicalName(key);
+	std::string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw Error::ObjectDoesNotExist();
 
@@ -215,16 +204,15 @@ BiometricEvaluation::IO::FileRecordStore::length(
 
 void
 BiometricEvaluation::IO::FileRecordStore::flush(
-    const string &key)
+    const std::string &key)
     const
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
 
-	string pathname = FileRecordStore::canonicalName(key);
+	std::string pathname = FileRecordStore::canonicalName(key);
 	if (!IO::Utility::fileExists(pathname))
 		throw Error::ObjectDoesNotExist();
 
@@ -236,10 +224,9 @@ BiometricEvaluation::IO::FileRecordStore::flush(
 
 uint64_t
 BiometricEvaluation::IO::FileRecordStore::sequence(
-    string &key,
+    std::string &key,
     void *const data,
     int cursor)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if ((cursor != BE_RECSTORE_SEQ_START) &&
 	    (cursor != BE_RECSTORE_SEQ_NEXT))
@@ -248,7 +235,7 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 
 	DIR *dir;
 	dir = opendir(_theFilesDir.c_str());
-	if (dir == NULL)
+	if (dir == nullptr)
 		throw Error::StrategyError("Cannot open store directory");
 
 	/* If the current cursor position is START, then it doesn't matter
@@ -264,8 +251,8 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 	struct dirent *entry;
 	struct stat sb;
 	uint64_t i = 1;
-	string cname;
-	while ((entry = readdir(dir)) != NULL) {
+	std::string cname;
+	while ((entry = readdir(dir)) != nullptr) {
 		if (entry->d_ino == 0)
 			continue;
 		cname = _theFilesDir + "/" + entry->d_name;
@@ -282,12 +269,12 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 	if (i > _cursorPos)
 		throw Error::StrategyError("Record cursor position out of "
 		    "sync");
-	string _key = entry->d_name;
+	std::string _key = entry->d_name;
 	key = _key;
 	setCursor(BE_RECSTORE_SEQ_NEXT);
 	_cursorPos = i + 1;
 
-	if (dir != NULL) {
+	if (dir != nullptr) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + 
 			    _theFilesDir + " (" + Error::errorStr() + 
@@ -295,29 +282,28 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 		}
 	}
 	
-	if (data == NULL)
+	if (data == nullptr)
 		return FileRecordStore::length(_key);
 	return FileRecordStore::read(_key, data);
 }
 
 void 
 BiometricEvaluation::IO::FileRecordStore::setCursorAtKey(
-    string &key)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    std::string &key)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
 
 	DIR *dir;
 	dir = opendir(_theFilesDir.c_str());
-	if (dir == NULL)
+	if (dir == nullptr)
 		throw Error::StrategyError("Cannot open store directory");
 
 	struct dirent *entry;
 	struct stat sb;
 	int i = 1;
-	string cname;
-	while ((entry = readdir(dir)) != NULL) {
+	std::string cname;
+	while ((entry = readdir(dir)) != nullptr) {
 		if (entry->d_ino == 0)
 			continue;
 		cname = _theFilesDir + "/" + entry->d_name;
@@ -334,10 +320,10 @@ BiometricEvaluation::IO::FileRecordStore::setCursorAtKey(
 	}
 
 	/* Exited the loop by exhausting the directory */
-	if (entry == NULL)
+	if (entry == nullptr)
 		throw Error::ObjectDoesNotExist(key);
 
-	if (dir != NULL) {
+	if (dir != nullptr) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + 
 			    _theFilesDir + " (" + Error::errorStr() + 
@@ -355,13 +341,12 @@ BiometricEvaluation::IO::FileRecordStore::setCursorAtKey(
  */
 void
 BiometricEvaluation::IO::FileRecordStore::writeNewRecordFile( 
-    const string &name,
+    const std::string &name,
     const void *data,
     const uint64_t size)
-    throw (Error::StrategyError)
 {
 	std::FILE *fp = std::fopen(name.c_str(), "wb");
-	if (fp == NULL)
+	if (fp == nullptr)
 		throw Error::StrategyError("Could not open " + name + " (" + 
 		    Error::errorStr() + ")");
 
@@ -372,9 +357,9 @@ BiometricEvaluation::IO::FileRecordStore::writeNewRecordFile(
 		    Error::errorStr() + ")");
 }
 
-string
+std::string
 BiometricEvaluation::IO::FileRecordStore::canonicalName(
-    const string &name) const
+    const std::string &name) const
 {
 	return(_theFilesDir + '/' + name);
 }

@@ -9,16 +9,17 @@
  */
 
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <iostream>
 #include <sstream>
 
-#include <stdlib.h>
-#include <string.h>
 
 #include <be_io_archiverecstore.h>
 
 using namespace BiometricEvaluation;
+using namespace std;
 
 /*
  * This program is used to test ArchiveRecordStore object construction,
@@ -39,7 +40,7 @@ int main (int argc, char* argv[]) {
 		cout << "The archive already exists; exiting." << endl;
 		exit (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 	}
 	cout << "Passed test of creating non-existing archive." << endl;
 	delete ars;
@@ -54,7 +55,7 @@ int main (int argc, char* argv[]) {
 		cout << "Passed test of opening non-existing archive." << endl;
 		cont = true;
 	} catch (Error::StrategyError e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		exit (EXIT_FAILURE);
 	}
 	if (!cont) {
@@ -68,7 +69,7 @@ int main (int argc, char* argv[]) {
 		cont = true;
 	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Failed test of opening existing archive." << endl;
-		cout << e.getInfo() << endl;
+		cout << e.what() << endl;
 		exit (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << "Failed test of opening existing archive." << endl;
@@ -153,10 +154,10 @@ int main (int argc, char* argv[]) {
 		exit (EXIT_FAILURE);
 	}
 	try {
-		char *buf = NULL;
+		char *buf = nullptr;
 		uint64_t size = ars3->length(chkkey);
 		buf = (char *)malloc(sizeof(char) * size);
-		if (buf == NULL) {
+		if (buf == nullptr) {
 			cerr << "Could not allocate buffer" << endl;
 			exit (EXIT_FAILURE);
 		}
@@ -165,13 +166,13 @@ int main (int argc, char* argv[]) {
 			cout << "Sizes were not equal" << endl;
 		cout << "Passed test of reading replacement value" << endl;
 		cout << "Read Key " << chkkey << ": \'" << buf << "\' Size: " << size << endl;
-		if (buf != NULL) free(buf);
+		if (buf != nullptr) free(buf);
 	} catch (Error::ObjectDoesNotExist e) {
-		cout << e.getInfo() << endl;
+		cout << e.what() << endl;
 		cout << "Failed test of reading replacement" << endl;
 		exit (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
-		cout << e.getInfo() << endl;
+		cout << e.what() << endl;
 		cout << "Failed test of reading replacement" << endl;
 		exit (EXIT_FAILURE);
 	}
@@ -190,7 +191,7 @@ int main (int argc, char* argv[]) {
 
 	/* Reread the key to prove it has been removed */
 	try {
-		char *buf = NULL;
+		char *buf = nullptr;
 		ars3->read(chkkey, buf);
 		cout << "Failed test of removing/re-reading" << endl;
 		exit (EXIT_FAILURE);

@@ -11,11 +11,10 @@
 #include <sys/time.h>
 
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <string>
-
-#include <stdlib.h>
 
 #ifdef FILERECORDSTORETEST
 #include <be_io_filerecstore.h>
@@ -69,7 +68,7 @@ static int insertMany(IO::RecordStore *rs)
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", i);
 		theKey = keyName;
-		gettimeofday(&starttm, NULL);
+		gettimeofday(&starttm, nullptr);
 		try {
 			rs->insert(theKey, theData, RECSIZE);
 		} catch (Error::ObjectExists& e) {
@@ -77,10 +76,10 @@ static int insertMany(IO::RecordStore *rs)
 			return (-1);
 		} catch (Error::StrategyError& e) {
 			cout << "Could not insert record " << i << ": " <<
-			    e.getInfo() << "." << endl;
+			    e.what() << "." << endl;
 			return (-1);
 		}
-		gettimeofday(&endtm, NULL);
+		gettimeofday(&endtm, nullptr);
 		totalTime += TIMEINTERVAL(starttm, endtm);
 	}
 	cout << "Insert lapsed time: " << totalTime << endl;
@@ -148,7 +147,7 @@ int main (int argc, char* argv[]) {
 			cout << "The RecordStore already exists; exiting." << endl;
 			return (EXIT_FAILURE);
 		} catch (Error::StrategyError& e) {
-			cout << "A strategy error occurred: " << e.getInfo() << endl;
+			cout << "A strategy error occurred: " << e.what() << endl;
 		}
 		delete rs;
 
@@ -210,7 +209,7 @@ int main (int argc, char* argv[]) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", 
 		    (unsigned int)(rand() % RECCOUNT));
 		theKey = keyName;
-		gettimeofday(&starttm, NULL);
+		gettimeofday(&starttm, nullptr);
 		try {
 			ars->replace(theKey, theData, RECSIZE);
 		} catch (Error::ObjectDoesNotExist& e) {
@@ -218,10 +217,10 @@ int main (int argc, char* argv[]) {
 			return (EXIT_FAILURE);
 		} catch (Error::StrategyError& e) {
 			cout << "Could not replace record " << i << ": " <<
-			    e.getInfo() << "." << endl;
+			    e.what() << "." << endl;
 			return (EXIT_FAILURE);
 		}
-		gettimeofday(&endtm, NULL);
+		gettimeofday(&endtm, nullptr);
 		totalTime += TIMEINTERVAL(starttm, endtm);
 	}
 	cout << "Random replace lapsed time: " << totalTime << endl;
@@ -231,7 +230,7 @@ int main (int argc, char* argv[]) {
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", i);
 		theKey = keyName;
-		gettimeofday(&starttm, NULL);
+		gettimeofday(&starttm, nullptr);
 		try {
 			ars->read(theKey, theData);
 		} catch (Error::ObjectDoesNotExist& e) {
@@ -240,10 +239,10 @@ int main (int argc, char* argv[]) {
 			return (EXIT_FAILURE);
 		} catch (Error::StrategyError& e) {
 			cout << "Could not read record " << i << ": " <<
-			    e.getInfo() << "." << endl;
+			    e.what() << "." << endl;
 			return (EXIT_FAILURE);
 		}
-		gettimeofday(&endtm, NULL);
+		gettimeofday(&endtm, nullptr);
 		totalTime += TIMEINTERVAL(starttm, endtm);
 	}
 	cout << "Sequential read lapsed time: " << totalTime << endl;
@@ -254,7 +253,7 @@ int main (int argc, char* argv[]) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", 
 		    (unsigned int)(rand() % RECCOUNT));
 		theKey = keyName;
-		gettimeofday(&starttm, NULL);
+		gettimeofday(&starttm, nullptr);
 		try {
 			ars->read(theKey, theData);
 		} catch (Error::ObjectDoesNotExist& e) {
@@ -263,10 +262,10 @@ int main (int argc, char* argv[]) {
 			return (EXIT_FAILURE);
 		} catch (Error::StrategyError& e) {
 			cout << "Could not read record " << i << ": " <<
-			    e.getInfo() << "." << endl;
+			    e.what() << "." << endl;
 			return (EXIT_FAILURE);
 		}
-		gettimeofday(&endtm, NULL);
+		gettimeofday(&endtm, nullptr);
 		totalTime += TIMEINTERVAL(starttm, endtm);
 	}
 	cout << "Random read lapsed time: " << totalTime << endl;
@@ -276,7 +275,7 @@ int main (int argc, char* argv[]) {
 	try {
 		startStoreSize = ars->getSpaceUsed();
 	} catch (Error::StrategyError& e) {
-                cout << "Can't get space usage:" << e.getInfo() << "." << endl;
+                cout << "Can't get space usage:" << e.what() << "." << endl;
 		return (EXIT_FAILURE);
         }
 	cout << "Space used after first insert is " << startStoreSize << endl;
@@ -285,7 +284,7 @@ int main (int argc, char* argv[]) {
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", i);
 		theKey = keyName;
-		gettimeofday(&starttm, NULL);
+		gettimeofday(&starttm, nullptr);
 		try {
 			ars->remove(theKey);
 		} catch (Error::ObjectDoesNotExist& e) {
@@ -294,10 +293,10 @@ int main (int argc, char* argv[]) {
 			return (EXIT_FAILURE);
 		} catch (Error::StrategyError& e) {
 			cout << "Could not remove record " << i << ": " <<
-			    e.getInfo() << "." << endl;
+			    e.what() << "." << endl;
 			return (EXIT_FAILURE);
 		}
-		gettimeofday(&endtm, NULL);
+		gettimeofday(&endtm, nullptr);
 		totalTime += TIMEINTERVAL(starttm, endtm);
 	}
 	cout << "Remove lapsed time: " << totalTime << endl;
@@ -307,7 +306,7 @@ int main (int argc, char* argv[]) {
 	try {
 		endStoreSize = ars->getSpaceUsed();
 	} catch (Error::StrategyError& e) {
-                cout << "Can't get space usage:" << e.getInfo() << "." << endl;
+                cout << "Can't get space usage:" << e.what() << "." << endl;
 		return (EXIT_FAILURE);
         }
 	cout << "Space used after removal is " << endStoreSize << endl;

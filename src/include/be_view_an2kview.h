@@ -15,9 +15,10 @@
 #include <string>
 #include <vector>
 
-#include <tr1/memory>
+#include <memory>
 
 #include <be_finger_an2kminutiae_data_record.h>
+#include <be_framework_enumeration.h>
 #include <be_memory_autobuffer.h>
 #include <be_view_view.h>
 #include <be_image_image.h>
@@ -49,34 +50,27 @@ namespace BiometricEvaluation
 		 */
 		class AN2KView : public View::View {
 		public:
-			/**
-			 * @brief
-			 * The type of AN2K record.
-			 */
-			class RecordType {
-			public:
-				typedef enum {
-					Type_1 = 1,
-					Type_2 = 2,
-					Type_3 = 3,
-					Type_4 = 4,
-					Type_5 = 5,
-					Type_6 = 6,
-					Type_7 = 7,
-					Type_8 = 8,
-					Type_9 = 9,
-					Type_10 = 10,
-					Type_11 = 11,
-					Type_12 = 12,
-					Type_13 = 13,
-					Type_14 = 14,
-					Type_15 = 15,
-					Type_16 = 16,
-					Type_17 = 17,
-					Type_99 = 99
-				} Kind;
-			private:
-				RecordType() {};
+			/** The type of AN2K record. */
+			enum class RecordType : uint16_t
+			{
+				Type_1 = 1,
+				Type_2 = 2,
+				Type_3 = 3,
+				Type_4 = 4,
+				Type_5 = 5,
+				Type_6 = 6,
+				Type_7 = 7,
+				Type_8 = 8,
+				Type_9 = 9,
+				Type_10 = 10,
+				Type_11 = 11,
+				Type_12 = 12,
+				Type_13 = 13,
+				Type_14 = 14,
+				Type_15 = 15,
+				Type_16 = 16,
+				Type_17 = 17,
+				Type_99 = 99
 			};
 
 			/**
@@ -84,38 +78,34 @@ namespace BiometricEvaluation
 			 * The level of human monitoring for the image
 			 * capture device.
 			 */
-			class DeviceMonitoringMode {
-			public:
-				typedef enum {
-					/**
-					 * Operator physically controls the 
-					 * subject to acquire biometric sample.
-					 */
-					Controlled,
-					/**
-					 * Person available to provide
-					 * assistance to the subject submitting
-					 * the biometric.
-					 */
-					Assisted,
-					/**
-					 * Person present to observe the
-					 * operation of the device but provides
-					 * no assistance.
-					 */
-					Observed,
-					/**
-					 * No one present to observe or
-					 * provide assistance.
-					 */
-					Unattended,
-					/** No information is known. */
-					Unknown,
-					/** Optional field -- not specified */
-					NA
-				} Kind;
-			private:
-				DeviceMonitoringMode() {};
+			enum class DeviceMonitoringMode
+			{
+				/**
+				 * Operator physically controls the
+				 * subject to acquire biometric sample.
+				 */
+				Controlled,
+				/**
+				 * Person available to provide
+				 * assistance to the subject submitting
+				 * the biometric.
+				 */
+				Assisted,
+				/**
+				 * Person present to observe the
+				 * operation of the device but provides
+				 * no assistance.
+				 */
+				Observed,
+				/**
+				 * No one present to observe or
+				 * provide assistance.
+				 */
+				Unattended,
+				/** No information is known. */
+				Unknown,
+				/** Optional field -- not specified */
+				NA
 			};
 			
 			/** 
@@ -133,11 +123,10 @@ namespace BiometricEvaluation
 			 * @throw Error::DataError
 			 *	Invalid format of dmm.
 			 */
-			static DeviceMonitoringMode::Kind
+			static DeviceMonitoringMode
 			convertDeviceMonitoringMode(
-			    const char *dmm)
-			    throw (Error::DataError);
-			
+			    const char *dmm);
+
 			/**
 			 * @brief
 			 * Convert a compression algorithm indicator from
@@ -157,11 +146,10 @@ namespace BiometricEvaluation
 			 * @throws Error::ParameterError
 			 *	Invalid record type.
 			 */
-			static Image::CompressionAlgorithm::Kind
+			static Image::CompressionAlgorithm
 			    convertCompressionAlgorithm(
 			    const uint16_t recordType,
-			    const unsigned char *an2kValue)
-			    throw (Error::ParameterError, Error::DataError);
+			    const unsigned char *an2kValue);
 
 			/**
 			 * @brief
@@ -186,12 +174,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KView(
 			    const std::string filename,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError,
-				Error::FileError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -202,11 +186,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KView(
 			    Memory::uint8Array &buf,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			~AN2KView();
 
@@ -220,10 +201,8 @@ namespace BiometricEvaluation
 			 * @return
 			 * A vector of minutiae data records.
 		 	 */
-			vector<Finger::AN2KMinutiaeDataRecord>
-			getMinutiaeDataRecordSet()
-			    const
-			    throw (Error::DataError);
+			std::vector<Finger::AN2KMinutiaeDataRecord>
+			getMinutiaeDataRecordSet() const;
 
 			/**
 			 * @brief
@@ -231,7 +210,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The type of record used to construct this object.
 			 */
-			RecordType::Kind getRecordType() const;
+			RecordType getRecordType() const;
 
 		protected:
 
@@ -271,15 +250,14 @@ namespace BiometricEvaluation
 			 * @param[in] an2k
 			 *	The AN2K record.
 			 * @throw ParameterError
-			 *	The record parameter is NULL.
+			 *	The record parameter is nullptr.
 			 * @throw DataError
 			 *	The AN2K record has invalid or missing data.
 			 */
 			void readImageCommon(
 			    const ANSI_NIST *an2k,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (Error::ParameterError, Error::DataError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -303,7 +281,7 @@ namespace BiometricEvaluation
 			 */
     			void
 			associateMinutiaeData(
-			    const string &filename);
+			    const std::string &filename);
 			    
     			/**
 			 * @brief
@@ -323,14 +301,14 @@ namespace BiometricEvaluation
 			 */
 			Memory::AutoBuffer<ANSI_NIST> _an2k;
 			RECORD *_an2kRecord;
-			RecordType::Kind _recordType;
+			RecordType _recordType;
 			int _idc;
 			
 			/** 
 			 * Collection of AN2KMinutiaeDataRecords that share
 			 * this View's IDC.
 			 */
-			vector<Finger::AN2KMinutiaeDataRecord>
+			std::vector<Finger::AN2KMinutiaeDataRecord>
 			    _minutiaeDataRecordSet;
 		};
 		
@@ -341,7 +319,7 @@ namespace BiometricEvaluation
 		std::ostream&
 		operator<<(
 		    std::ostream &stream,
-		    const AN2KView::DeviceMonitoringMode::Kind &kind);
+		    const AN2KView::DeviceMonitoringMode &kind);
 	}
 }
 #endif /* __BE_VIEW_AN2KVIEW_H__ */

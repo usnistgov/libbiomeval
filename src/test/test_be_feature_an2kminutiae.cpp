@@ -8,9 +8,10 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
+
 #include <be_feature_an2k7minutiae.h>
 #include <be_error_exception.h>
 
@@ -26,15 +27,15 @@ main(int argc, char* argv[]) {
 	try {
 		_an2km = new Feature::AN2K7Minutiae(fname, 1);
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	std::auto_ptr<Feature::AN2K7Minutiae> an2km(_an2km);
 
-	cout << "Minutiae format is " << an2km->getFormat() << endl;
+	cout << "Minutiae format is " << to_string(an2km->getFormat()) << endl;
 
 	/*
 	 * Test the Minutiae interface
@@ -50,7 +51,7 @@ main(int argc, char* argv[]) {
 		dps = an2km->getDeltas();
 
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
 	}
 	
@@ -74,9 +75,9 @@ main(int argc, char* argv[]) {
 	try { cout << an2km->getOriginatingFingerprintReadingSystem() << endl; }
 	catch (Error::ObjectDoesNotExist) { cout << "<Omitted>" << endl; }
 	
-	cout << "Pattern (primary): " << 
+	cout << "Pattern (primary): " << to_string(
 	    Feature::AN2K7Minutiae::convertPatternClassification(
-	    an2km->getPatternClassificationSet().at(0)) << endl;
+	    an2km->getPatternClassificationSet().at(0))) << endl;
 		 
 	return(EXIT_SUCCESS);
 }

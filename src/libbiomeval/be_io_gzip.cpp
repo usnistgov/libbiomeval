@@ -15,16 +15,17 @@
 #include <be_io_gzip.h>
 #include <be_io_utility.h>
 
-const string
+const std::string
     BiometricEvaluation::IO::GZip::COMPRESSION_LEVEL = "CompressionLevel";
-const string
+const std::string
     BiometricEvaluation::IO::GZip::COMPRESSION_STRATEGY = "CompressionStrategy";
-const string
+const std::string
     BiometricEvaluation::IO::GZip::COMPRESSION_METHOD = "CompressionMethod";
-const string BiometricEvaluation::IO::GZip::INPUT_DATA_TYPE = "InputDataType";
-const string BiometricEvaluation::IO::GZip::WINDOW_BITS = "WindowBits";
-const string BiometricEvaluation::IO::GZip::MEMORY_LEVEL = "MemoryLevel";
-const string BiometricEvaluation::IO::GZip::CHUNK_SIZE = "ChunkSize";
+const std::string
+    BiometricEvaluation::IO::GZip::INPUT_DATA_TYPE = "InputDataType";
+const std::string BiometricEvaluation::IO::GZip::WINDOW_BITS = "WindowBits";
+const std::string BiometricEvaluation::IO::GZip::MEMORY_LEVEL = "MemoryLevel";
+const std::string BiometricEvaluation::IO::GZip::CHUNK_SIZE = "ChunkSize";
 
 BiometricEvaluation::IO::GZip::GZip() :
     BiometricEvaluation::IO::Compressor()
@@ -47,12 +48,12 @@ BiometricEvaluation::IO::GZip::GZip() :
 	this->setOption(MEMORY_LEVEL, 8);
 }
 
-BiometricEvaluation::Memory::uint8Array
+void
 BiometricEvaluation::IO::GZip::compress(
     const uint8_t *const uncompressedData,
-    uint64_t uncompressedDataSize)
+    uint64_t uncompressedDataSize,
+    Memory::uint8Array &compressedData)
     const
-    throw (Error::StrategyError)
 {
 	z_stream strm = this->initCompressionStream();
 		
@@ -61,7 +62,7 @@ BiometricEvaluation::IO::GZip::compress(
 	uint64_t chunk = this->getOptionAsInteger(CHUNK_SIZE);
 	uint64_t remainingBytes = uncompressedDataSize;
 	uint64_t totalCompressedBytes = 0;
-	Memory::uint8Array compressedBuf(chunk);
+	compressedData.resize(chunk);
 	do {
 		/* Move uncompressed pointer */
 		strm.next_in = (uint8_t *)(uncompressedData + 
@@ -80,7 +81,7 @@ BiometricEvaluation::IO::GZip::compress(
 		
 		/* Perform compression */
 		rv = this->compressChunk(flush, chunk, totalCompressedBytes,
-		    compressedBuf, false, strm);
+		    compressedData, false, strm);
 		
 		/* Sanity check */
 		if (strm.avail_in != 0) {
@@ -98,28 +99,25 @@ BiometricEvaluation::IO::GZip::compress(
 		    "at stream end");
 	
 	/* Resize output buffer's size parameter to match the actual size */
-	compressedBuf.resize(totalCompressedBytes);
-	
-	return (compressedBuf);
+	compressedData.resize(totalCompressedBytes);
 }
 
-BiometricEvaluation::Memory::uint8Array
+void
 BiometricEvaluation::IO::GZip::compress(
-    const Memory::uint8Array &uncompressedData)
+    const Memory::uint8Array &uncompressedData,
+    Memory::uint8Array &compressedData)
     const
-    throw (Error::StrategyError)
 {
-	return (this->compress(uncompressedData, uncompressedData.size()));
+	return (this->compress(uncompressedData, uncompressedData.size(),
+	    compressedData));
 }
 
 void
 BiometricEvaluation::IO::GZip::compress(
     const uint8_t *const uncompressedData,
     uint64_t uncompressedDataSize,
-    const string &outputFile)
+    const std::string &outputFile)
     const
-    throw (Error::ObjectExists,
-    Error::StrategyError)
 {
 	if (IO::Utility::fileExists(outputFile))
 		throw Error::ObjectExists(outputFile);
@@ -134,7 +132,7 @@ BiometricEvaluation::IO::GZip::compress(
 	/* Open output file */
 	Memory::uint8Array out(chunk);
 	FILE *ofp = fopen(outputFile.c_str(), "ab");
-	if (ofp == NULL)
+	if (ofp == nullptr)
 		throw Error::StrategyError("Could not create " + outputFile);
 
 	int32_t rv;
@@ -160,7 +158,7 @@ BiometricEvaluation::IO::GZip::compress(
 			    totalCompressedBytes, out, true, strm);
 		} catch (Error::StrategyError &e) {
 			fclose(ofp);
-			throw e;
+			throw;
 		}
 		
 		/* Write the compressed chunk */
@@ -192,20 +190,17 @@ BiometricEvaluation::IO::GZip::compress(
 void
 BiometricEvaluation::IO::GZip::compress(
     const Memory::uint8Array &uncompressedData,
-    const string &outputFile)
+    const std::string &outputFile)
     const
-    throw (Error::ObjectExists,
-    Error::StrategyError)
 {
 	this->compress(uncompressedData, uncompressedData.size(), outputFile);
 }
 
-BiometricEvaluation::Memory::uint8Array
+void
 BiometricEvaluation::IO::GZip::compress(
-    const string &inputFile)
+    const std::string &inputFile,
+    Memory::uint8Array &compressedData)
     const
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
 	if (IO::Utility::fileExists(inputFile) == false)
 		throw Error::ObjectDoesNotExist(inputFile);
@@ -215,12 +210,12 @@ BiometricEvaluation::IO::GZip::compress(
 	uint8_t flush = Z_NO_FLUSH;
 	uint64_t chunk = this->getOptionAsInteger(CHUNK_SIZE);
 	uint64_t totalCompressedBytes = 0;
-	Memory::uint8Array compressedBuf(chunk);
+	compressedData.resize(chunk);
 
 	int32_t rv;
 	Memory::uint8Array in(chunk);
 	FILE *fp = fopen(inputFile.c_str(), "r");
-	if (fp == NULL)
+	if (fp == nullptr)
 		throw Error::StrategyError("Could not open " + inputFile);
 	do {
 		/* Read chunk */
@@ -231,10 +226,10 @@ BiometricEvaluation::IO::GZip::compress(
 		/* Perform compression */
 		try {
 			rv = this->compressChunk(flush, chunk,
-			    totalCompressedBytes, compressedBuf, false, strm);
+			    totalCompressedBytes, compressedData, false, strm);
 		} catch (Error::StrategyError &e) {
 			fclose(fp);
-			throw e;
+			throw;
 		}
 
 		/* Sanity check */
@@ -255,19 +250,14 @@ BiometricEvaluation::IO::GZip::compress(
 		    "at stream end");
 	
 	/* Resize output buffer's size parameter to match the actual size */
-	compressedBuf.resize(totalCompressedBytes);
-	
-	return (compressedBuf);
+	compressedData.resize(totalCompressedBytes);
 }
 
 void
 BiometricEvaluation::IO::GZip::compress(
-    const string &inputFile,
-    const string &outputFile)
+    const std::string &inputFile,
+    const std::string &outputFile)
     const
-    throw (Error::ObjectDoesNotExist,
-    Error::ObjectExists,
-    Error::StrategyError)
 {
 	if (IO::Utility::fileExists(inputFile) == false)
 		throw Error::ObjectDoesNotExist(inputFile);
@@ -283,13 +273,13 @@ BiometricEvaluation::IO::GZip::compress(
 	/* Open input file */
 	Memory::uint8Array in(chunk);
 	FILE *ifp = fopen(inputFile.c_str(), "r");
-	if (ifp == NULL)
+	if (ifp == nullptr)
 		throw Error::StrategyError("Could not open " + inputFile);
 
 	/* Open output file */
 	Memory::uint8Array out(chunk);
 	FILE *ofp = fopen(outputFile.c_str(), "ab");
-	if (ofp == NULL)
+	if (ofp == nullptr)
 		throw Error::StrategyError("Could not create " + outputFile);
 
 	int32_t rv;
@@ -306,7 +296,7 @@ BiometricEvaluation::IO::GZip::compress(
 		} catch (Error::StrategyError &e) {
 			fclose(ifp);
 			fclose(ofp);
-			throw e;
+			throw;
 		}
 		
 		/* Write the compressed chunk */
@@ -369,7 +359,6 @@ BiometricEvaluation::IO::GZip::compressChunk(
     bool compressedBufIsChunk,
     z_stream &strm)
     const
-    throw (Error::StrategyError)
 {
 	int32_t rv = 0;
 	
@@ -412,12 +401,12 @@ BiometricEvaluation::IO::GZip::compressChunk(
 	return (rv);
 }
 
-BiometricEvaluation::Memory::uint8Array
+void
 BiometricEvaluation::IO::GZip::decompress(
     const uint8_t *const compressedData,
-    uint64_t compressedDataSize)
+    uint64_t compressedDataSize,
+    Memory::uint8Array &uncompressedData)
     const
-    throw (Error::StrategyError)
 {
 	z_stream strm = this->initDecompressionStream();
 	
@@ -425,7 +414,7 @@ BiometricEvaluation::IO::GZip::decompress(
 	uint64_t chunk = this->getOptionAsInteger(CHUNK_SIZE);
 	uint64_t remainingBytes = compressedDataSize;
 	uint64_t totalUncompressedBytes = 0;
-	Memory::uint8Array uncompressedBuf(chunk);
+	uncompressedData.resize(chunk);
 	do {
 		/* Move compressed pointer */
 		strm.next_in = (uint8_t *)(compressedData + 
@@ -442,7 +431,7 @@ BiometricEvaluation::IO::GZip::decompress(
 		
 		/* Perform decompression */
 		rv = this->decompressChunk(chunk, totalUncompressedBytes,
-		    uncompressedBuf, false, strm);
+		    uncompressedData, false, strm);
 		
 		/* Sanity check */
 		if (strm.avail_in != 0) {
@@ -455,26 +444,24 @@ BiometricEvaluation::IO::GZip::decompress(
 	inflateEnd(&strm);
 	
 	/* Resize output buffer's size parameter to match the actual size */
-	uncompressedBuf.resize(totalUncompressedBytes);
-	
-	return (uncompressedBuf);
+	uncompressedData.resize(totalUncompressedBytes);
 }
 
-BiometricEvaluation::Memory::uint8Array
+void
 BiometricEvaluation::IO::GZip::decompress(
-    const Memory::uint8Array &compressedData)
+    const Memory::uint8Array &compressedData,
+    Memory::uint8Array &uncompressedData)
     const
-    throw (Error::StrategyError)
 {
-	return (this->decompress(compressedData, compressedData.size()));
+	return (this->decompress(compressedData, compressedData.size(),
+	    uncompressedData));
 }
 
-BiometricEvaluation::Memory::uint8Array
+void
 BiometricEvaluation::IO::GZip::decompress(
-    const string &inputFile)
+    const std::string &inputFile,
+    Memory::uint8Array &uncompressedData)
     const
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
 	if (IO::Utility::fileExists(inputFile) == false)
 		throw Error::ObjectDoesNotExist(inputFile);
@@ -484,9 +471,10 @@ BiometricEvaluation::IO::GZip::decompress(
 	int32_t rv = 0;
 	uint64_t chunk = this->getOptionAsInteger(CHUNK_SIZE);
 	uint64_t totalUncompressedBytes = 0;
-	Memory::uint8Array uncompressedBuf(chunk), uncompressedChunk(chunk);
+	uncompressedData.resize(chunk);
+	Memory::uint8Array uncompressedChunk(chunk);
 	FILE *fp = fopen(inputFile.c_str(), "r");
-	if (fp == NULL)
+	if (fp == nullptr)
 		throw Error::StrategyError("Could not open " + inputFile);
 	Memory::uint8Array in(chunk);
 	do {
@@ -497,12 +485,12 @@ BiometricEvaluation::IO::GZip::decompress(
 		/* Perform decompression */
 		try {
 			rv = this->decompressChunk(chunk,
-			    totalUncompressedBytes, uncompressedBuf, false,
+			    totalUncompressedBytes, uncompressedData, false,
 			    strm);
 		} catch (Error::StrategyError &e) {
 			inflateEnd(&strm);
 			fclose(fp);
-			throw e;
+			throw;
 		}
 		
 		/* Sanity check */
@@ -517,19 +505,14 @@ BiometricEvaluation::IO::GZip::decompress(
 	inflateEnd(&strm);
 	
 	/* Resize output buffer's size parameter to match the actual size */
-	uncompressedBuf.resize(totalUncompressedBytes);
-	
-	return (uncompressedBuf);
+	uncompressedData.resize(totalUncompressedBytes);
 }
 
 void
 BiometricEvaluation::IO::GZip::decompress(
-    const string &inputFile,
-    const string &outputFile)
+    const std::string &inputFile,
+    const std::string &outputFile)
     const
-    throw (Error::ObjectDoesNotExist,
-    Error::ObjectExists,
-    Error::StrategyError)
 {
 	if (IO::Utility::fileExists(inputFile) == false)
 		throw Error::ObjectDoesNotExist(inputFile);
@@ -544,13 +527,13 @@ BiometricEvaluation::IO::GZip::decompress(
 	/* Open input file */
 	Memory::uint8Array in(chunk);
 	FILE *ifp = fopen(inputFile.c_str(), "r");
-	if (ifp == NULL)
+	if (ifp == nullptr)
 		throw Error::StrategyError("Could not open " + inputFile);
 
 	/* Open output file */
 	Memory::uint8Array out(chunk);
 	FILE *ofp = fopen(outputFile.c_str(), "ab");
-	if (ofp == NULL)
+	if (ofp == nullptr)
 		throw Error::StrategyError("Could not create " + outputFile);
 
 	int32_t rv;
@@ -567,7 +550,7 @@ BiometricEvaluation::IO::GZip::decompress(
 			fclose(ifp);
 			fclose(ofp);
 			inflateEnd(&strm);
-			throw e;
+			throw;
 		}
 		
 		/* Sanity check */
@@ -602,10 +585,8 @@ void
 BiometricEvaluation::IO::GZip::decompress(
     const uint8_t *const compressedData,
     const uint64_t compressedDataSize,
-    const string &outputFile)
+    const std::string &outputFile)
     const
-    throw (Error::ObjectExists,
-    Error::StrategyError)
 {
 	if (IO::Utility::fileExists(outputFile))
 		throw Error::ObjectExists(outputFile);
@@ -619,7 +600,7 @@ BiometricEvaluation::IO::GZip::decompress(
 	/* Open output file */
 	Memory::uint8Array out(chunk);
 	FILE *ofp = fopen(outputFile.c_str(), "ab");
-	if (ofp == NULL)
+	if (ofp == nullptr)
 		throw Error::StrategyError("Could not create " + outputFile);
 
 	int32_t rv;
@@ -645,7 +626,7 @@ BiometricEvaluation::IO::GZip::decompress(
 		} catch (Error::StrategyError &e) {
 			fclose(ofp);
 			inflateEnd(&strm);
-			throw e;
+			throw;
 		}
 		
 		/* Sanity check */
@@ -676,10 +657,8 @@ BiometricEvaluation::IO::GZip::decompress(
 void
 BiometricEvaluation::IO::GZip::decompress(
     const Memory::uint8Array &compressedData,
-    const string &outputFile)
+    const std::string &outputFile)
     const
-    throw (Error::ObjectExists,
-    Error::StrategyError)
 {
 	this->decompress(compressedData, compressedData.size(), outputFile);
 }
@@ -712,7 +691,6 @@ BiometricEvaluation::IO::GZip::decompressChunk(
     bool uncompressedBufIsChunk,
     z_stream &strm)
     const
-    throw (Error::StrategyError)
 {
 	int32_t rv;
 	

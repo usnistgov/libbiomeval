@@ -9,10 +9,10 @@
  */
 
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 
-#include <stdlib.h>
 #include <unistd.h>
 
 #include <be_time_timer.h>
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	cout << "Testing with gettimeofday()" << endl;
 #endif
 	
-	Time::Timer *timer = NULL;
+	Time::Timer *timer = nullptr;
 
 	cout << "Creating a Timer... ";
 	try {
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 		cout << "passed" << endl;
 	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	auto_ptr<Time::Timer> atimer(timer);
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 		cout << "Time = " << seconds << " (should be 0)" << endl;
 	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 	try {
 		atimer->stop();
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 		cout << "Time for sleep(1): " << atimer->elapsed() << endl;
 	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 

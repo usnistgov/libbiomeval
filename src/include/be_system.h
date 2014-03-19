@@ -11,7 +11,7 @@
 #ifndef __BE_SYSTEM_H__
 #define __BE_SYSTEM_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <be_error_exception.h>
 
@@ -37,8 +37,7 @@ namespace BiometricEvaluation
 		 *	Not implemented for this operating system, or the
 		 *	underlying OS feature is not installed.
 		 */
-		uint32_t getCPUCount()
-		    throw (Error::NotImplemented);
+		uint32_t getCPUCount();
 
 		/**
 		 * @brief
@@ -48,8 +47,7 @@ namespace BiometricEvaluation
 		 *	Not implemented for this operating system, or the
 		 *	underlying OS feature is not installed.
 		 */
-		uint64_t getRealMemorySize()
-		    throw (Error::NotImplemented);
+		uint64_t getRealMemorySize();
 
 		/**
 		 * @brief
@@ -59,8 +57,7 @@ namespace BiometricEvaluation
 		 *	Not implemented for this operating system, or the
 		 *	underlying OS feature is not installed.
 		 */
-		double getLoadAverage()
-		    throw (Error::NotImplemented);
+		double getLoadAverage();
 	}
 }
 #endif /* __BE_SYSTEM_H__ */

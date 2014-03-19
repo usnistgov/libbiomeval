@@ -17,12 +17,12 @@
 #include <be_io_utility.h>
 #include <be_io_logcabinet.h>
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 /*
  * The name of the control file use by the LogCabinet.
  */
-const string controlFileName(".lccontrol");
+const std::string controlFileName(".lccontrol");
 
 
 /*
@@ -33,10 +33,9 @@ const string controlFileName(".lccontrol");
  * Constructors and destructors oh my.
  */
 BiometricEvaluation::IO::LogCabinet::LogCabinet(
-    const string &name,
-    const string &description,
-    const string &parentDir)
-    throw (Error::ObjectExists, Error::StrategyError)
+    const std::string &name,
+    const std::string &description,
+    const std::string &parentDir)
 {
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid LogCabinet name");
@@ -54,14 +53,13 @@ BiometricEvaluation::IO::LogCabinet::LogCabinet(
 	try {
 		(void)writeControlFile();
 	} catch (Error::StrategyError& e) {
-		throw e;
+		throw;
 	}
 }
 
 BiometricEvaluation::IO::LogCabinet::LogCabinet(
-    const string &name,
-    const string &parentDir)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &name,
+    const std::string &parentDir)
 {
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid LogCabinet name");
@@ -74,7 +72,7 @@ BiometricEvaluation::IO::LogCabinet::LogCabinet(
 	try {
 		(void)readControlFile();
 	} catch (Error::StrategyError& e) {
-		throw e;
+		throw;
 	}
 }
 
@@ -84,20 +82,19 @@ BiometricEvaluation::IO::LogCabinet::~LogCabinet()
 		writeControlFile();
 	} catch (Error::StrategyError& e) {
 		if (!std::uncaught_exception())
-			cerr << e.getInfo() << endl;
+			std::cerr << e.whatString() << std::endl;
 	}
 }
 
 /*
  * Object methods.
  */
-tr1::shared_ptr<BiometricEvaluation::IO::LogSheet>
+std::shared_ptr<BiometricEvaluation::IO::LogSheet>
 BiometricEvaluation::IO::LogCabinet::newLogSheet(
-    const string &name,
-    const string &description)
-    throw (Error::ObjectExists, Error::StrategyError)
+    const std::string &name,
+    const std::string &description)
 {
-	string fullPath;
+	std::string fullPath;
 	if (IO::Utility::constructAndCheckPath(name, _directory, fullPath))
 		throw Error::ObjectExists();
 
@@ -105,22 +102,22 @@ BiometricEvaluation::IO::LogCabinet::newLogSheet(
 	try {
 		ls = new LogSheet(name, description, _directory);
 	} catch (Error::ObjectExists &e) {
-		throw e;
+		throw;
 	} catch (Error::StrategyError &e) {
-		throw e;
+		throw;
 	}
 	_count++;
-	return (std::tr1::shared_ptr<BiometricEvaluation::IO::LogSheet>(ls));
+	return (std::shared_ptr<BiometricEvaluation::IO::LogSheet>(ls));
 
 }
 
-string
+std::string
 BiometricEvaluation::IO::LogCabinet::getName()
 {
 	return (_name);
 }
 
-string
+std::string
 BiometricEvaluation::IO::LogCabinet::getDescription()
 {
 	return (_description);
@@ -134,15 +131,14 @@ BiometricEvaluation::IO::LogCabinet::getCount()
 
 void
 BiometricEvaluation::IO::LogCabinet::remove(
-    const string &name,
-    const string &parentDir)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &name,
+    const std::string &parentDir)
 {
 
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid LogCabinet name");
 
-	string oldDirectory;
+	std::string oldDirectory;
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, oldDirectory))
 		throw Error::ObjectDoesNotExist();
 
@@ -152,28 +148,26 @@ BiometricEvaluation::IO::LogCabinet::remove(
 		else
 			IO::Utility::removeDirectory(name, parentDir);
 	} catch (Error::ObjectDoesNotExist &e) {
-		throw e;
+		throw;
 	} catch (Error::StrategyError &e) {
-		throw e;
+		throw;
 	}
 }
 
 /*
  * Protected methods.
  */
-string
+std::string
 BiometricEvaluation::IO::LogCabinet::canonicalName(
-    const string &name)
+    const std::string &name)
 {
 	return (_directory + '/' + name);
 }
 
 void
 BiometricEvaluation::IO::LogCabinet::readControlFile()
-    throw (Error::StrategyError)
 {
-
-	string str;
+	std::string str;
 
 	/* Read the cabinet name and description from the control file.
 	 * _directory must be set before calling this method.
@@ -200,15 +194,14 @@ BiometricEvaluation::IO::LogCabinet::readControlFile()
 
 void
 BiometricEvaluation::IO::LogCabinet::writeControlFile()
-    throw (Error::StrategyError)
 {
 	std::ofstream ofs(canonicalName(controlFileName).c_str());
 	if (!ofs)
 		throw Error::StrategyError("Could not write control file");
 
-	ofs << _name << endl;
-	ofs << _description << endl;
-	ofs << _count << endl;
+	ofs << _name << std::endl;
+	ofs << _description << std::endl;
+	ofs << _count << std::endl;
 	if (!ofs.good())
 		throw Error::StrategyError("Could not write count to control "
 		    "file");

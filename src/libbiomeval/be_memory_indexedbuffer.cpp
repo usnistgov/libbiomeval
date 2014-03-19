@@ -8,8 +8,10 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cstring>
+
 #include <arpa/inet.h>
-#include <string.h>
+
 #include <be_memory_indexedbuffer.h>
 
 /******************************************************************************/
@@ -29,7 +31,6 @@ BiometricEvaluation::Memory::IndexedBuffer::getIndex()
 
 void
 BiometricEvaluation::Memory::IndexedBuffer::setIndex(uint32_t index)
-throw (Error::ParameterError)
 {
 	if (index >= _size)
 		throw (Error::ParameterError("Can't set index beyond buffer end"));
@@ -38,11 +39,10 @@ throw (Error::ParameterError)
 
 uint32_t
 BiometricEvaluation::Memory::IndexedBuffer::scan(void *buf, const uint32_t len)
-	throw (Error::DataError)
 {
 	if (_index + len > _size)
 		throw (Error::DataError("Can't read beyond end of buffer"));
-	if (buf != NULL)
+	if (buf != nullptr)
 		(void)memcpy(buf, _data + _index, len);
 	_index += len;
 	return (len);
@@ -50,7 +50,6 @@ BiometricEvaluation::Memory::IndexedBuffer::scan(void *buf, const uint32_t len)
 
 uint8_t
 BiometricEvaluation::Memory::IndexedBuffer::scanU8Val()
-    throw (Error::DataError)
 {
 	size_t len = sizeof(uint8_t);
 	uint8_t val;
@@ -60,7 +59,6 @@ BiometricEvaluation::Memory::IndexedBuffer::scanU8Val()
 
 uint16_t
 BiometricEvaluation::Memory::IndexedBuffer::scanU16Val()
-    throw (Error::DataError)
 {
 	size_t len = sizeof(uint16_t);
 	uint16_t val;
@@ -70,14 +68,12 @@ BiometricEvaluation::Memory::IndexedBuffer::scanU16Val()
 
 uint16_t
 BiometricEvaluation::Memory::IndexedBuffer::scanBeU16Val()
-throw (Error::DataError)
 {
 	return (ntohs(scanU16Val()));
 }
 
 uint32_t
 BiometricEvaluation::Memory::IndexedBuffer::scanU32Val()
-    throw (Error::DataError)
 {
 	size_t len = sizeof(uint32_t);
 	uint32_t val;
@@ -87,14 +83,12 @@ BiometricEvaluation::Memory::IndexedBuffer::scanU32Val()
 
 uint32_t
 BiometricEvaluation::Memory::IndexedBuffer::scanBeU32Val()
-throw (Error::DataError)
 {
 	return (ntohl(scanU32Val()));
 }
 
 uint64_t
 BiometricEvaluation::Memory::IndexedBuffer::scanU64Val()
-    throw (Error::DataError)
 {
 	size_t len = sizeof(uint64_t);
 	uint64_t val;

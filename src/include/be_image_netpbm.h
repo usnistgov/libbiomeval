@@ -13,6 +13,7 @@
 
 #include <stdexcept>
 
+#include <be_framework_enumeration.h>
 #include <be_image_image.h>
 
 namespace BiometricEvaluation
@@ -31,20 +32,18 @@ namespace BiometricEvaluation
 		class NetPBM : public Image
 		{
 		public:
-			typedef enum {
+			enum class Kind {
 				ASCIIPortableBitmap = 1,	/* P1 */
 				ASCIIPortableGraymap = 2,	/* P2 */
 				ASCIIPortablePixmap = 3,	/* P3 */
 				BinaryPortableBitmap = 4,	/* P4 */
 				BinaryPortableGraymap = 5,	/* P5 */
 				BinaryPortablePixmap = 6	/* P6 */
-			} Kind;
+			};
 		
 			NetPBM(
 			    const uint8_t *data,
-			    const uint64_t size)
-			    throw (Error::DataError,
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			~NetPBM();
 
@@ -53,8 +52,8 @@ namespace BiometricEvaluation
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
 			 * 
-			 * @return
-			 *	Raw image data.
+			 * @param rawData
+			 *	Reference to AutoArray to hold raw image data.
 			 *
 			 * @throw Error::DataError
 			 *	Error decompressing image data.
@@ -65,17 +64,14 @@ namespace BiometricEvaluation
 			 * except in the case of 1-bit (bitmap) images, which
 			 * are expanded to 8-bit.
 			 */
-			Memory::AutoArray<uint8_t>
-			getRawData()
-			    const
-			    throw (Error::DataError);
+			void
+			getRawData(
+			    Memory::uint8Array &rawData) const;
 			    
-			Memory::AutoArray<uint8_t>
+			void
 			getRawGrayscaleData(
-			    uint8_t depth = 8)
-			    const
-			    throw (Error::DataError,
-			    Error::ParameterError);
+			    Memory::uint8Array &rawGray,
+			    uint8_t depth = 8) const;
 	
 			/**
 			 * Whether or not data is a netpbm image.
@@ -116,8 +112,7 @@ namespace BiometricEvaluation
 			static void
 			skipLine(
 			    Memory::uint8Array &data,
-			    size_t &offset)
-			    throw (out_of_range);
+			    size_t &offset);
 			
 			/**
 			 * @brief
@@ -136,8 +131,7 @@ namespace BiometricEvaluation
 			static void
 			skipComment(
 			    Memory::uint8Array &data,
-			    size_t &offset)
-			    throw (out_of_range);
+			    size_t &offset);
 			
 			/**
 			 * @brief
@@ -157,7 +151,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Next value from data.
 			 */
-			static string
+			static std::string
 			getNextValue(
 			    Memory::uint8Array &data,
 			    size_t &offset,
@@ -189,8 +183,7 @@ namespace BiometricEvaluation
 			ASCIIBitmapTo8Bit(
 			    Memory::uint8Array &bitmap,
 			    uint32_t width,
-			    uint32_t height)
-			    throw (out_of_range);
+			    uint32_t height);
 			    
 			/**
 			 * @brief
@@ -225,10 +218,8 @@ namespace BiometricEvaluation
 			    uint32_t width,
 			    uint32_t height,
 			    uint8_t depth,
-			    uint32_t maxColor)
-			    throw (out_of_range,
-			    Error::ParameterError);
-			    
+			    uint32_t maxColor);
+
 			/**
 			 * @brief
 			 * Convert an binary bitmap (1-bit depth) buffer into 
@@ -251,9 +242,8 @@ namespace BiometricEvaluation
 			BinaryBitmapTo8Bit(
 			    Memory::uint8Array &bitmap,
 			    uint32_t width,
-			    uint32_t height)
-			    throw (out_of_range);
-			    
+			    uint32_t height);
+
 		private:
 			/**
 			 * @brief
@@ -266,10 +256,8 @@ namespace BiometricEvaluation
 			 *	Invalid NetPBM format.
 			 */
 			void
-			parseHeader()
-			    throw (out_of_range,
-			    Error::DataError);
-		
+			parseHeader();
+
 			/** Maximum color value per pixel */
 			uint32_t _maxColorValue;
 			/** Size of the netpbm header */

@@ -20,8 +20,6 @@
 #include <db.h>
 #endif
 
-using namespace std;
-
 /*
  * This file contains the class declaration for an implementation of a
  * RecordStore using a on-disk database.
@@ -55,10 +53,9 @@ namespace BiometricEvaluation {
 			 * 	file system.
 			 */
 			DBRecordStore(
-			    const string &name,
-			    const string &description,
-			    const string &parentDir)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &name,
+			    const std::string &description,
+			    const std::string &parentDir);
 
 			/**
 			 * Open an existing DBRecordStore.
@@ -77,11 +74,9 @@ namespace BiometricEvaluation {
 			 *	file system.
 			 */
 			DBRecordStore(
-			    const string &name,
-			    const string &parentDir,
-			    uint8_t mode = IO::READWRITE)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir,
+			    uint8_t mode = IO::READWRITE);
 
 			/*
 			 * Destructor.
@@ -91,77 +86,52 @@ namespace BiometricEvaluation {
 			/*
 			 * Implementation of the RecordStore interface.
 			 */
-			uint64_t getSpaceUsed()
-			    const
-			    throw (Error::StrategyError);
+			uint64_t getSpaceUsed() const;
 
-			void sync()
-			    const
-			    throw (Error::StrategyError);
+			void sync() const;
 
 			void insert(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const uint64_t size);
 
 			void remove(
-			    const string &key)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key);
 
 			uint64_t read(
-			    const string &key,
-			    void *const data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key,
+			    void *const data) const;
 
 			void replace(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			uint64_t length(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key) const;
 
 			void flush(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key) const;
 
 			uint64_t sequence(
-			    string &key,
-			    void *const data = NULL,
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    std::string &key,
+			    void *const data = nullptr,
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			void setCursorAtKey(
-			    string &key)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    std::string &key);
 
 			void changeName(
-			    const string &name)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &name);
 
-		protected:
+			/* Prevent copying of DBRecordStore objects */
+			DBRecordStore(const DBRecordStore&) = delete;
+			DBRecordStore& operator=(const DBRecordStore&) = delete;
 
 		private:
-			/* Prevent copying of DBRecordStore objects */
-			DBRecordStore(const DBRecordStore&);
-			DBRecordStore& operator=(const DBRecordStore&);
-
 			/* The file names of the underlying databases. */
-			string _dbnameP;
-			string _dbnameS;
+			std::string _dbnameP;
+			std::string _dbnameS;
 
 			/*
 			 * The handle to the underlying database for the
@@ -179,28 +149,19 @@ namespace BiometricEvaluation {
 			 * Functions to insert/read/sequence/remove all
 			 * segments of a record. 
 			 */
-			void insertRecordSegments(const string &key,
-			    const void *data, const uint64_t size)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			void insertRecordSegments(const std::string &key,
+			    const void *data, const uint64_t size);
 
 			uint64_t readRecordSegments(
-			    const string &key,
-			    void *const data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key,
+			    void *const data) const;
 
 			uint64_t sequenceRecordSegments(
-			    string &key,
+			    std::string &key,
 			    void *const data,
-			    u_int pos)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    u_int pos) const;
 
-			void removeRecordSegments(const string &key)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			void removeRecordSegments(const std::string &key);
 		};
 	}
 }

@@ -23,49 +23,49 @@ namespace BE = BiometricEvaluation;
 /* Public functions.                                                         */
 /******************************************************************************/
 
-tr1::shared_ptr<BE::Image::Image>
+std::shared_ptr<BE::Image::Image>
 BiometricEvaluation::View::View::getImage() const
 {
 	switch (_compressionAlgorithm) {
 	case BE::Image::CompressionAlgorithm::None:
-		return (tr1::shared_ptr<BE::Image::Image>(
+		return (std::shared_ptr<BE::Image::Image>(
 		    new BE::Image::Raw(
 			this->_imageData, this->_imageData.size(),
 			this->_imageSize, this->_imageDepth,
 			this->_imageResolution)));
 
 	case BE::Image::CompressionAlgorithm::WSQ20:
-		return (tr1::shared_ptr<Image::Image>(
+		return (std::shared_ptr<Image::Image>(
 		    new BE::Image::WSQ(
 			this->_imageData, this->_imageData.size())));
 
 	case BE::Image::CompressionAlgorithm::JPEGB:
-		return (tr1::shared_ptr<BE::Image::Image>(
+		return (std::shared_ptr<BE::Image::Image>(
 		    new BE::Image::JPEG(
 			this->_imageData, this->_imageData.size())));
 
 	case BE::Image::CompressionAlgorithm::JPEGL:
-		return (tr1::shared_ptr<BE::Image::Image>(
+		return (std::shared_ptr<BE::Image::Image>(
 		    new BE::Image::JPEGL(
 			this->_imageData, this->_imageData.size())));
 
 	case BE::Image::CompressionAlgorithm::JP2:
-		return (tr1::shared_ptr<BE::Image::Image>(
+		return (std::shared_ptr<BE::Image::Image>(
 		    new BE::Image::JPEG2000(
 			this->_imageData, this->_imageData.size())));
 
 	case BE::Image::CompressionAlgorithm::PNG:
-		return (tr1::shared_ptr<BE::Image::Image>(
+		return (std::shared_ptr<BE::Image::Image>(
 		    new BE::Image::PNG(
 			this->_imageData, this->_imageData.size())));
 
 	case BE::Image::CompressionAlgorithm::NetPBM:
-		return (tr1::shared_ptr<BE::Image::Image>(
+		return (std::shared_ptr<BE::Image::Image>(
 		    new BE::Image::NetPBM(
 			this->_imageData, this->_imageData.size())));
 
 	default:
-		return (tr1::shared_ptr<BE::Image::Image>());
+		return (std::shared_ptr<BE::Image::Image>());
 	}
 }
 
@@ -87,7 +87,7 @@ BiometricEvaluation::View::View::getImageDepth() const
 	return (_imageDepth);
 }
 
-BiometricEvaluation::Image::CompressionAlgorithm::Kind
+BiometricEvaluation::Image::CompressionAlgorithm
 BiometricEvaluation::View::View::getCompressionAlgorithm() const
 {
 	return (_compressionAlgorithm);
@@ -147,7 +147,7 @@ BiometricEvaluation::View::View::setScanResolution(
 
 void
 BiometricEvaluation::View::View::setCompressionAlgorithm(
-    const BiometricEvaluation::Image::CompressionAlgorithm::Kind &ca)
+    const BiometricEvaluation::Image::CompressionAlgorithm &ca)
 {
 	this->_compressionAlgorithm = ca;
 }

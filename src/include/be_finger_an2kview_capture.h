@@ -12,6 +12,7 @@
 #define __BE_FINGER_AN2KVIEW_CAPTURE_H__
 
 #include <be_finger_an2kview_varres.h>
+#include <be_framework_enumeration.h>
 
 namespace BiometricEvaluation 
 {
@@ -32,19 +33,14 @@ namespace BiometricEvaluation
 			 * Enumeration of the finger amuptated or bandaged
 			 * code, a reason that a capture could not be made.
 			 */
-			class AmputatedBandaged {
-			public:
-				typedef enum {
-					/** Amputation */
-					Amputated,
-					/** Unable to print (e.g., bandaged) */
-					Bandaged,
-					/** Optional field -- not specified */
-					NA
-				} Kind;
-
-			private:
-				AmputatedBandaged() {};
+			enum class AmputatedBandaged
+			{
+				/** Amputation */
+				Amputated,
+				/** Unable to print (e.g., bandaged) */
+				Bandaged,
+				/** Optional field -- not specified */
+				NA
 			};
 
 			/**
@@ -63,18 +59,18 @@ namespace BiometricEvaluation
 				 *	the segment bonding polygon.
 				 */
 				FingerSegmentPosition(
-				    const Finger::Position::Kind fingerPosition,
+				    const Finger::Position fingerPosition,
 				    const Image::CoordinateSet coordinates);
 				    
 				/** Finger depicted in this segment */
-				Finger::Position::Kind fingerPosition;
+				Finger::Position fingerPosition;
 				/** Points composing the segmented polygon */
 				Image::CoordinateSet coordinates;
 			};
-			typedef struct FingerSegmentPosition
-			    FingerSegmentPosition;
-			typedef std::vector<FingerSegmentPosition>
-			    FingerSegmentPositionSet;
+			using FingerSegmentPosition =
+			    struct FingerSegmentPosition;
+			using FingerSegmentPositionSet =
+			    std::vector<FingerSegmentPosition>;
 			
 			/**
 			 * @brief
@@ -88,11 +84,10 @@ namespace BiometricEvaluation
 			 * @throw Error::DataError
 			 *	Invalid value for ampcd.
 			 */
-			static AmputatedBandaged::Kind
+			static AmputatedBandaged
 			convertAmputatedBandaged(
-			    const char *ampcd)
-			    throw (Error::DataError);
-			    
+			    const char *ampcd);
+
 			/**
 			 * @brief
 			 * Convert SUBFIELD read from AN2K record into a
@@ -107,9 +102,8 @@ namespace BiometricEvaluation
 			 */
 			static FingerSegmentPosition
 			convertFingerSegmentPosition(
-			    const SUBFIELD *sf)
-			    throw (Error::DataError);
-			    
+			    const SUBFIELD *sf);
+
 			/**
 			 * @brief
 			 * Convert SUBFIELD read from AN2K record into an
@@ -124,9 +118,8 @@ namespace BiometricEvaluation
 			 */
 			static FingerSegmentPosition
 			convertAlternateFingerSegmentPosition(
-			    const SUBFIELD *sf)
-			    throw (Error::DataError);
-			
+			    const SUBFIELD *sf);
+
 			/**
 			 * @brief
 			 * Construct an AN2K finger view from a file.
@@ -151,11 +144,7 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewCapture(
 			    const std::string &filename,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError,
-				Error::FileError);
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -167,9 +156,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewCapture(
 			    Memory::uint8Array &buf,
-			    const uint32_t recordNumber)
-			    throw (Error::ParameterError, Error::DataError);
-			    
+			    const uint32_t recordNumber);
+
 			/**
 			 * @brief
 			 * Extract the NQM information from an AN2K FIELD.
@@ -186,8 +174,7 @@ namespace BiometricEvaluation
 			 */
 			QualityMetricSet
 			extractNISTQuality(
-			    const FIELD *field)
-			    throw (Error::DataError);
+			    const FIELD *field);
 
 			/**
 			 * @brief
@@ -231,7 +218,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Optional amputated or bandaged code.
 			 */
-			AmputatedBandaged::Kind
+			AmputatedBandaged
 			getAmputatedBandaged()
 			    const;
 			
@@ -270,9 +257,9 @@ namespace BiometricEvaluation
 			/** Alternate finger segment position(s) */
 			FingerSegmentPositionSet _afsps;
 			/** Amputated or bandaged code */
-			AmputatedBandaged::Kind _amp;
+			AmputatedBandaged _amp;
 			/** Device monitoring mode */
-			DeviceMonitoringMode::Kind _dmm;
+			DeviceMonitoringMode _dmm;
 			/** Finger segment position(s) */
 			FingerSegmentPositionSet _fsps;
 			/** NIST quality metric */
@@ -280,18 +267,8 @@ namespace BiometricEvaluation
 			/** Segmentation quality metric */
 			QualityMetricSet _sqm;
 			
-			void readImageRecord()
-			    throw (Error::DataError);
+			void readImageRecord();
 		};
-					    
-		/**
-		 * @brief
-		 * Output stream overload for AmputatedBandaged::Kind.
-		 */
-		std::ostream&
-		operator<<(
-		    std::ostream &stream,
-		    const AN2KViewCapture::AmputatedBandaged::Kind &ab);
 		
 		/**
 		 * @brief

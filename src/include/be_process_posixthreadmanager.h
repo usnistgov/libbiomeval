@@ -16,8 +16,6 @@
 #include <be_process_manager.h>
 #include <be_process_workercontroller.h>
 
-using namespace std;
-
 namespace BiometricEvaluation
 {
 	namespace Process
@@ -48,9 +46,9 @@ namespace BiometricEvaluation
 			 * @return
 			 *	shared_ptr to worker.
 			 */
-			tr1::shared_ptr<WorkerController>
+			std::shared_ptr<WorkerController>
 			addWorker(
-			    tr1::shared_ptr<Worker> worker);
+			    std::shared_ptr<Worker> worker);
 
 			/**
 			 * @brief
@@ -71,10 +69,8 @@ namespace BiometricEvaluation
 			void
 			startWorkers(
 			    bool wait = true,
-			    bool communicate = false)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    bool communicate = false);
+
 			/**
 			 * @brief
 			 * Start a Worker.
@@ -96,12 +92,10 @@ namespace BiometricEvaluation
 			 */
 			void
 			startWorker(
-			    tr1::shared_ptr<WorkerController> worker,
+			    std::shared_ptr<WorkerController> worker,
 			    bool wait = true,
-			    bool communicate = false)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    bool communicate = false);
+
 			/**
 			 * @brief
 			 * Ask Worker to exit.
@@ -120,10 +114,8 @@ namespace BiometricEvaluation
 			 */
 			int32_t
 			stopWorker(
-			    tr1::shared_ptr<WorkerController> workerController)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			    
+			    std::shared_ptr<WorkerController> workerController);
+
 			/**
 			 * @brief
 			 * ~POSIXThreadManager destructor.
@@ -155,9 +147,8 @@ namespace BiometricEvaluation
 			 *	running.
 			 */
 			void
-			reset()
-			    throw (Error::ObjectExists);
-			
+			reset();
+
 			/**
 			 * @brief
 			 * Obtain whether or not Worker is working.
@@ -186,7 +177,7 @@ namespace BiometricEvaluation
 			 *	The Worker instance to wrap.
 			 */
 			POSIXThreadWorkerController(
-			    tr1::shared_ptr<Worker> worker);
+			    std::shared_ptr<Worker> worker);
 			    
 			/**
 			 * @brief
@@ -207,10 +198,8 @@ namespace BiometricEvaluation
 			 */
 			void
 			start(
-			    bool communicate = false)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    bool communicate = false);
+
 			/**
 			 * @brief
 			 * Tell the Worker to stop.
@@ -224,10 +213,8 @@ namespace BiometricEvaluation
 			 *	Error asking Worker to stop.
 			 */
 			int32_t
-			stop()
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			    
+			stop();
+
 			/**
 			 * @brief
 			 * Wrap workerMain() in something that can be passed
@@ -237,12 +224,12 @@ namespace BiometricEvaluation
 			 *	Pointer to a POSIXThreadWorkerController.
 			 *
 			 * @return
-			 *	Always returns NULL.
+			 *	Always returns nullptr.
 			 */
 			static void *
 			workerMainWrapper(
 			    void *_this);
-			      
+
 			/*
 			 * Friends.
 			 * XXX We just need addWorker(), startWorkers(), and
@@ -251,13 +238,13 @@ namespace BiometricEvaluation
 			 * TODO Eliminate _wait() from WorkerController?
 			 */
 			friend class POSIXThreadManager;
-			
+
 			/** POSIX thread object of the started Worker */
 			pthread_t _thread;
-			
+
 			/** Whether or not the Worker is working */
 			bool _working;
-			
+
 			/** Returned status from the thread on exit */
 			int32_t _rv;
 		};

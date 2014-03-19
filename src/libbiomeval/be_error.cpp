@@ -8,7 +8,9 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <stdio.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 
 /* 
  * Certain versions of Cygwin only support the GNU version of
@@ -26,18 +28,14 @@
 #define _GNU_SOURCE
 #endif
 
-#include <string.h>
-#include <errno.h>
 
 #include <be_error.h>
 
-using namespace std;
-
-string
+std::string
 BiometricEvaluation::Error::errorStr()
 {
 	char msgbuf[BUFSIZ];
-	char *msgbufptr = NULL;
+	char *msgbufptr = nullptr;
 	int lastErrno = errno;
 
 #if defined __CYGWIN__ || defined __linux__

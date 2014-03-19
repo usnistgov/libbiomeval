@@ -16,19 +16,15 @@ extern "C" {
 #include <an2k.h>
 }
 
-using namespace std;
-
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::AN2KMinutiaeDataRecord(
-    const string &filename,
+    const std::string &filename,
     int recordNumber)
-    throw (Error::DataError,
-    Error::FileError)
 {
 	if (IO::Utility::fileExists(filename) == false)
 		throw (Error::FileError("File not found."));
 
 	FILE *fp = std::fopen(filename.c_str(), "rb");
-	if (fp == NULL)
+	if (fp == nullptr)
 		throw (Error::FileError("Could not open file."));
 
 	uint64_t sz = IO::Utility::getFileSize(filename);
@@ -45,7 +41,6 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::AN2KMinutiaeDataRecord(
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::AN2KMinutiaeDataRecord(
     Memory::uint8Array &buf,
     int recordNumber)
-    throw (Error::DataError)
 {
 	readType9Record(buf, recordNumber);
 }
@@ -54,25 +49,24 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::AN2KMinutiaeDataRecord(
 /* Public functions.                                                          */
 /******************************************************************************/
 
-tr1::shared_ptr<BiometricEvaluation::Feature::AN2K7Minutiae>
+std::shared_ptr<BiometricEvaluation::Feature::AN2K7Minutiae>
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getAN2K7Minutiae()
     const
 {
 	return (_AN2K7Features);
 }
 
-BiometricEvaluation::Finger::Impression::Kind
+BiometricEvaluation::Finger::Impression
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getImpressionType()
     const
 {
 	return (_imp);
 }
 
-map<uint16_t, BiometricEvaluation::Memory::uint8Array>
+std::map<uint16_t, BiometricEvaluation::Memory::uint8Array>
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getRegisteredVendorBlock(
-    BiometricEvaluation::Feature::MinutiaeFormat::Kind vendor)
+    BiometricEvaluation::Feature::MinutiaeFormat vendor)
     const
-    throw (Error::NotImplemented)
 {
 	switch (vendor) {
 	case Feature::MinutiaeFormat::IAFIS: return (_IAFISFeatures);
@@ -87,7 +81,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getRegisteredVendorBlock(
 	}
 	
 	/* Not reached */
-	return (map<uint16_t, Memory::uint8Array>());
+	return (std::map<uint16_t, Memory::uint8Array>());
 }
 
 /******************************************************************************/
@@ -97,8 +91,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getRegisteredVendorBlock(
 void
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readRegisteredVendorBlock(
     RECORD *type9,
-    BiometricEvaluation::Feature::MinutiaeFormat::Kind vendor)
-    throw (Error::NotImplemented)
+    BiometricEvaluation::Feature::MinutiaeFormat vendor)
 {
 	/* First field of IAFIS format features */
 	static const uint16_t IAFISFieldStart = 13;
@@ -130,7 +123,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readRegisteredVendorBlock(
 	static const uint16_t IdentixFieldEnd = 175;
 
 	uint16_t startField, endField;
-	map<uint16_t, Memory::uint8Array> *features;
+	std::map<uint16_t, Memory::uint8Array> *features;
 	switch (vendor) {
 	case Feature::MinutiaeFormat::IAFIS:
 		startField = IAFISFieldStart;
@@ -189,7 +182,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readRegisteredVendorBlock(
 		 * XXX: num_bytes is not the size of a FIELD, though num_bytes + 
 		 * num_subfields is over the size by a few bytes.
 		 */
-		features->insert(pair<uint16_t, Memory::uint8Array>(i,
+		features->insert(std::pair<uint16_t, Memory::uint8Array>(i,
 		    Memory::uint8Array(field->num_bytes +
 		    field->num_subfields)));
 		for (int sf = 0; sf < field->num_subfields; sf++, offset = 0) {
@@ -217,7 +210,6 @@ void
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
     Memory::uint8Array &buf,
     int recordNumber)
-    throw (Error::DataError)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k =
 	    Memory::AutoBuffer<ANSI_NIST>(&alloc_ANSI_NIST,
@@ -233,7 +225,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
 	 * if not present. The first record in an AN2K file is always
 	 * the Type-1, so skip that one.
 	 */
-	RECORD *type9 = NULL;
+	RECORD *type9 = nullptr;
 	for (int i = 1; i < an2k->num_records; i++) {
 		if (an2k->records[i]->type == TYPE_9_ID) {
 			if (i == recordNumber) {
@@ -242,7 +234,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
 			}
 		}
 	}
-	if (type9 == NULL)
+	if (type9 == nullptr)
 		throw (Error::DataError("Could not find requested Type-9 in "
 		    "AN2K record"));
 

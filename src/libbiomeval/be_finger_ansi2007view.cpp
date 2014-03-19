@@ -11,32 +11,29 @@
 #include <be_finger_ansi2007view.h>
 #include <be_io_utility.h>
 
-using namespace BiometricEvaluation;
 namespace BE = BiometricEvaluation;
 
-Finger::ANSI2007View::ANSI2007View()
+BiometricEvaluation::Finger::ANSI2007View::ANSI2007View()
 {
 }
 
-Finger::ANSI2007View::ANSI2007View(
+BiometricEvaluation::Finger::ANSI2007View::ANSI2007View(
     const std::string &fmrFilename,
     const std::string &firFilename,
-    const uint32_t viewNumber)
-    throw (Error::DataError, Error::FileError) :
+    const uint32_t viewNumber) :
     INCITSView(fmrFilename, firFilename, viewNumber)
 {
-	Memory::uint8Array recordData = Finger::INCITSView::getFMRData();
+	Memory::uint8Array recordData = BE::Finger::INCITSView::getFMRData();
 	Memory::IndexedBuffer iBuf(recordData, recordData.size());
 	this->readFMRHeader(iBuf);
 	for (uint32_t i = 0; i < viewNumber; i++)
 		this->readFVMR(iBuf);
 }
 
-Finger::ANSI2007View::ANSI2007View(
+BiometricEvaluation::Finger::ANSI2007View::ANSI2007View(
     Memory::uint8Array &fmrBuffer,
     Memory::uint8Array &firBuffer,
-    const uint32_t viewNumber)
-    throw (Error::DataError) :
+    const uint32_t viewNumber) :
     INCITSView(fmrBuffer, firBuffer, viewNumber)
 {
 	Memory::IndexedBuffer iBuf(fmrBuffer, fmrBuffer.size());
@@ -49,7 +46,7 @@ Finger::ANSI2007View::ANSI2007View(
 /* Protected functions.                                                       */
 /******************************************************************************/
 void
-Finger::ANSI2007View::readFMRHeader(
+BiometricEvaluation::Finger::ANSI2007View::readFMRHeader(
     Memory::IndexedBuffer &buf)
 {
 	uint32_t lval;
@@ -90,36 +87,35 @@ Finger::ANSI2007View::readFMRHeader(
 }
 
 void
-Finger::ANSI2007View::readFVMR(
+BiometricEvaluation::Finger::ANSI2007View::readFVMR(
     Memory::IndexedBuffer &buf)
-    throw (Error::DataError)
 {
 	uint8_t cval = buf.scanU8Val();
-	Finger::Position::Kind pos = Finger::INCITSView::convertPosition(cval);
-	Finger::INCITSView::setPosition(pos);
+	BE::Finger::Position pos = BE::Finger::INCITSView::convertPosition(cval);
+	BE::Finger::INCITSView::setPosition(pos);
 	
 	cval = buf.scanU8Val();
-	Finger::INCITSView::setViewNumber(cval);
+	BE::Finger::INCITSView::setViewNumber(cval);
 
 	cval = buf.scanU8Val();
-	Finger::Impression::Kind imp = 
-	    Finger::INCITSView::convertImpression(cval);
-	Finger::INCITSView::setImpressionType(imp);
+	BE::Finger::Impression imp = 
+	    BE::Finger::INCITSView::convertImpression(cval);
+	BE::Finger::INCITSView::setImpressionType(imp);
 
 	cval = buf.scanU8Val();
-	Finger::INCITSView::setQuality(cval);
+	BE::Finger::INCITSView::setQuality(cval);
 
 	_algorithmID = buf.scanU32Val();
 
 	uint16_t xval, yval;
 	xval = buf.scanBeU16Val();
 	yval = buf.scanBeU16Val();
-	Finger::INCITSView::setImageSize(Image::Size(xval, yval));
+	BE::Finger::INCITSView::setImageSize(Image::Size(xval, yval));
 	xval = buf.scanBeU16Val();
 	yval = buf.scanBeU16Val();
-	Finger::INCITSView::setImageResolution(
+	BE::Finger::INCITSView::setImageResolution(
 	    Image::Resolution(xval, yval));
-	Finger::INCITSView::setScanResolution(
+	BE::Finger::INCITSView::setScanResolution(
 	    Image::Resolution(xval, yval));
 		
 	/* Read the minutiae data items. */
@@ -127,18 +123,17 @@ Finger::ANSI2007View::readFVMR(
 	Feature::MinutiaPointSet mps = this->readMinutiaeDataPoints(buf, cval);
 	Feature::INCITSMinutiae minutiae;
 	minutiae.setMinutiaPoints(mps);
-	Finger::INCITSView::setMinutiaeData(minutiae);
+	BE::Finger::INCITSView::setMinutiaeData(minutiae);
 
 	this->readExtendedDataBlock(buf);
 }
 
 void
-Finger::ANSI2007View::readCoreDeltaData(
+BiometricEvaluation::Finger::ANSI2007View::readCoreDeltaData(
     Memory::IndexedBuffer &buf,
 	uint32_t dataLength,
 	Feature::CorePointSet &cores,
 	Feature::DeltaPointSet &deltas)
-    throw (Error::DataError)
 {
 
 	static const uint16_t CORE_TYPE_MASK = 0xC0;

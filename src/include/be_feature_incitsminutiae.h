@@ -17,7 +17,6 @@
 #include <be_memory_autoarray.h>
 #include <be_memory_indexedbuffer.h>
 
-using namespace std;
 namespace BiometricEvaluation 
 {
 	namespace Feature
@@ -42,9 +41,9 @@ namespace BiometricEvaluation
 			 * Constants relevant to INCITS and ISO finger minutiae
 			 * data records.
 			*/
-			static const string FMR_ANSI_SPEC_VERSION;
-			static const string FMR_ISO_SPEC_VERSION;
-			static const string FMR_ANSI07_SPEC_VERSION;
+			static const std::string FMR_ANSI_SPEC_VERSION;
+			static const std::string FMR_ISO_SPEC_VERSION;
+			static const std::string FMR_ANSI07_SPEC_VERSION;
 			static const uint8_t FMR_SPEC_VERSION_LEN = 4;
 
 			/*
@@ -125,7 +124,7 @@ namespace BiometricEvaluation
 			/*
 			 * Feature::Minutiae implementations.
 			 */
-			MinutiaeFormat::Kind getFormat() const;
+			MinutiaeFormat getFormat() const;
 			MinutiaPointSet getMinutiaPoints() const;
 			RidgeCountItemSet getRidgeCountItems() const;
 			CorePointSet getCores() const;

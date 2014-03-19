@@ -19,9 +19,9 @@
 #include <be_image_wsq.h>
 #include <be_image_png.h>
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
-Finger::INCITSView::INCITSView()
+BiometricEvaluation::Finger::INCITSView::INCITSView()
 {
 }
 
@@ -32,11 +32,10 @@ Finger::INCITSView::INCITSView()
  * data is done by the child classes with help from this
  * class.
  */
-Finger::INCITSView::INCITSView(
+BiometricEvaluation::Finger::INCITSView::INCITSView(
     const std::string &fmrFilename,
     const std::string &firFilename,
     const uint32_t viewNumber)
-    throw (Error::DataError, Error::FileError)
 {
 	FILE *fp;
 	if (fmrFilename != "") {
@@ -44,7 +43,7 @@ Finger::INCITSView::INCITSView(
 			throw (Error::FileError("FMR file not found."));
 
 		fp = std::fopen(fmrFilename.c_str(), "rb");
-		if (fp == NULL)
+		if (fp == nullptr)
 			throw (Error::FileError("Could not open FMR file."));
 		uint64_t size = IO::Utility::getFileSize(fmrFilename);
 		_fmr.resize(size);
@@ -60,7 +59,7 @@ Finger::INCITSView::INCITSView(
 			throw (Error::FileError("FIR file not found."));
 
 		fp = std::fopen(firFilename.c_str(), "rb");
-		if (fp == NULL)
+		if (fp == nullptr)
 			throw (Error::FileError("Could not open FIR file."));
 		uint64_t size = IO::Utility::getFileSize(firFilename);
 		_fir.resize(size);
@@ -73,11 +72,10 @@ Finger::INCITSView::INCITSView(
 	}
 }
 
-Finger::INCITSView::INCITSView(
+BiometricEvaluation::Finger::INCITSView::INCITSView(
     const Memory::uint8Array &fmrBuffer,
     const Memory::uint8Array &firBuffer,
     const uint32_t viewNumber)
-    throw (Error::DataError)
 {
 	_fmr = fmrBuffer;
 	_fir = firBuffer;
@@ -86,74 +84,72 @@ Finger::INCITSView::INCITSView(
 /******************************************************************************/
 /* Public functions.                                                          */
 /******************************************************************************/
-Finger::Position::Kind
-Finger::INCITSView::convertPosition(int incitsFGP)
-    throw (Error::DataError)
+BiometricEvaluation::Finger::Position
+BiometricEvaluation::Finger::INCITSView::convertPosition(int incitsFGP)
 {
 	switch (incitsFGP) {
 
-	case 0: return (Finger::Position::Unknown); break;
-	case 1: return (Finger::Position::RightThumb); break;
-	case 2: return (Finger::Position::RightIndex); break;
-	case 3: return (Finger::Position::RightMiddle); break;
-	case 4: return (Finger::Position::RightRing); break;
-	case 5: return (Finger::Position::RightLittle); break;
-	case 6: return (Finger::Position::LeftThumb); break;
-	case 7: return (Finger::Position::LeftIndex); break;
-	case 8: return (Finger::Position::LeftMiddle); break;
-	case 9: return (Finger::Position::LeftRing); break;
-	case 10: return (Finger::Position::LeftLittle); break;
-	case 11: return (Finger::Position::PlainRightThumb); break;
-	case 12: return (Finger::Position::PlainLeftThumb); break;
-	case 13: return (Finger::Position::PlainRightFourFingers); break;
-	case 14: return (Finger::Position::PlainLeftFourFingers); break;
+	case 0: return (BE::Finger::Position::Unknown); break;
+	case 1: return (BE::Finger::Position::RightThumb); break;
+	case 2: return (BE::Finger::Position::RightIndex); break;
+	case 3: return (BE::Finger::Position::RightMiddle); break;
+	case 4: return (BE::Finger::Position::RightRing); break;
+	case 5: return (BE::Finger::Position::RightLittle); break;
+	case 6: return (BE::Finger::Position::LeftThumb); break;
+	case 7: return (BE::Finger::Position::LeftIndex); break;
+	case 8: return (BE::Finger::Position::LeftMiddle); break;
+	case 9: return (BE::Finger::Position::LeftRing); break;
+	case 10: return (BE::Finger::Position::LeftLittle); break;
+	case 11: return (BE::Finger::Position::PlainRightThumb); break;
+	case 12: return (BE::Finger::Position::PlainLeftThumb); break;
+	case 13: return (BE::Finger::Position::PlainRightFourFingers); break;
+	case 14: return (BE::Finger::Position::PlainLeftFourFingers); break;
 	default:
 		throw (Error::DataError("Invalid finger position code")); 
 	}
 }
 
-Finger::Impression::Kind
-Finger::INCITSView::convertImpression(int incitsIMP)
-    throw (Error::DataError)
+BiometricEvaluation::Finger::Impression
+BiometricEvaluation::Finger::INCITSView::convertImpression(int incitsIMP)
 {
 	switch (incitsIMP) {
-	case 0: return (Finger::Impression::LiveScanPlain);
-	case 1: return (Finger::Impression::LiveScanRolled);
-	case 2: return (Finger::Impression::NonLiveScanPlain);
-	case 3: return (Finger::Impression::NonLiveScanRolled);
-	case 8: return (Finger::Impression::LiveScanVerticalSwipe);
-	case 9: return (Finger::Impression::LiveScanOpticalContactlessPlain);
+	case 0: return (BE::Finger::Impression::LiveScanPlain);
+	case 1: return (BE::Finger::Impression::LiveScanRolled);
+	case 2: return (BE::Finger::Impression::NonLiveScanPlain);
+	case 3: return (BE::Finger::Impression::NonLiveScanRolled);
+	case 8: return (BE::Finger::Impression::LiveScanVerticalSwipe);
+	case 9: return (BE::Finger::Impression::LiveScanOpticalContactlessPlain);
 	default:
 		throw (Error::DataError("Invalid impression type code")); 
 	}
 }
 
-Feature::INCITSMinutiae
-Finger::INCITSView::getMinutiaeData() const
+BiometricEvaluation::Feature::INCITSMinutiae
+BiometricEvaluation::Finger::INCITSView::getMinutiaeData() const
 {
 	return (_minutiae);
 }
 
-Finger::Position::Kind
-Finger::INCITSView::getPosition() const
+BiometricEvaluation::Finger::Position
+BiometricEvaluation::Finger::INCITSView::getPosition() const
 {
 	return (_position);
 }
 
-Finger::Impression::Kind
-Finger::INCITSView::getImpressionType() const
+BiometricEvaluation::Finger::Impression
+BiometricEvaluation::Finger::INCITSView::getImpressionType() const
 {
 	return (_impression);
 }
 
 uint32_t
-Finger::INCITSView::getQuality() const
+BiometricEvaluation::Finger::INCITSView::getQuality() const
 {
 	return (_quality);
 }
 
 uint16_t
-Finger::INCITSView::getCaptureEquipmentID() const
+BiometricEvaluation::Finger::INCITSView::getCaptureEquipmentID() const
 {
 	return (_captureEquipmentID);
 }
@@ -161,38 +157,37 @@ Finger::INCITSView::getCaptureEquipmentID() const
 /******************************************************************************/
 /* Local functions.                                                           */
 /******************************************************************************/
-static Feature::MinutiaPoint
-scanFMD(Memory::IndexedBuffer &buf)
-    throw (Error::DataError)
+static BiometricEvaluation::Feature::MinutiaPoint
+scanFMD(BiometricEvaluation::Memory::IndexedBuffer &buf)
 {
 	uint16_t sval;
 	uint8_t cval;
-	Feature::MinutiaPoint m;
+	BE::Feature::MinutiaPoint m;
 
 	sval = buf.scanBeU16Val();	
 
 	m.has_type = true;
 	uint8_t nativeType = ((sval & 
-	    Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_MASK) >>
-	    Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_SHIFT);
+	    BE::Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_MASK) >>
+	    BE::Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_SHIFT);
 
 	switch (nativeType) {
-	case Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_OTHER:
-		m.type = Feature::MinutiaeType::Other;
+	case BE::Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_OTHER:
+		m.type = BE::Feature::MinutiaeType::Other;
 		break;
-	case Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_RIDGE_ENDING:
-		m.type = Feature::MinutiaeType::RidgeEnding;
+	case BE::Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_RIDGE_ENDING:
+		m.type = BE::Feature::MinutiaeType::RidgeEnding;
 		break;
-	case Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_BIFURCATION:
-		m.type = Feature::MinutiaeType::Bifurcation;
+	case BE::Feature::INCITSMinutiae::FMD_MINUTIA_TYPE_BIFURCATION:
+		m.type = BE::Feature::MinutiaeType::Bifurcation;
 		break;
 	default:
-		throw (Error::DataError("Invalid minutiae type."));
+		throw (BE::Error::DataError("Invalid minutiae type."));
 		break;
 	}
-	m.coordinate.x = sval & Feature::INCITSMinutiae::FMD_X_COORD_MASK;
+	m.coordinate.x = sval & BE::Feature::INCITSMinutiae::FMD_X_COORD_MASK;
 	sval = buf.scanBeU16Val();
-	m.coordinate.y = sval & Feature::INCITSMinutiae::FMD_Y_COORD_MASK;
+	m.coordinate.y = sval & BE::Feature::INCITSMinutiae::FMD_Y_COORD_MASK;
 
 	/* Angle and quality */
 	cval = buf.scanU8Val();
@@ -205,29 +200,30 @@ scanFMD(Memory::IndexedBuffer &buf)
 }
 
 static
-Feature::RidgeCountItem scanRCD(
-    Memory::IndexedBuffer &buf,
+BiometricEvaluation::Feature::RidgeCountItem scanRCD(
+    BiometricEvaluation::Memory::IndexedBuffer &buf,
     uint8_t nativeExtrMethod)
 {
 	uint8_t idx1 = buf.scanU8Val();
 	uint8_t idx2 = buf.scanU8Val();
 	uint8_t	count = buf.scanU8Val();
-	Feature::RidgeCountExtractionMethod::Kind extrMethod;
+	BE::Feature::RidgeCountExtractionMethod extrMethod;
 	switch (nativeExtrMethod) {
-	case Feature::INCITSMinutiae::RCE_NONSPECIFIC:
-		extrMethod = Feature::RidgeCountExtractionMethod::NonSpecific;
+	case BE::Feature::INCITSMinutiae::RCE_NONSPECIFIC:
+		extrMethod = BE::Feature::RidgeCountExtractionMethod::NonSpecific;
 		break;
-	case Feature::INCITSMinutiae::RCE_FOUR_NEIGHBOR:
-		extrMethod = Feature::RidgeCountExtractionMethod::FourNeighbor;
+	case BE::Feature::INCITSMinutiae::RCE_FOUR_NEIGHBOR:
+		extrMethod = BE::Feature::RidgeCountExtractionMethod::FourNeighbor;
 		break;
-	case Feature::INCITSMinutiae::RCE_EIGHT_NEIGHBOR:
-		extrMethod = Feature::RidgeCountExtractionMethod::EightNeighor;
+	case BE::Feature::INCITSMinutiae::RCE_EIGHT_NEIGHBOR:
+		extrMethod = BE::Feature::RidgeCountExtractionMethod::EightNeighbor;
 		break;
 	default:
-		throw (Error::DataError("Invalid ridge count extraction method"));
+		throw (BE::Error::DataError(
+		    "Invalid ridge count extraction method"));
 		break;
 	}
-	Feature::RidgeCountItem rcd(extrMethod, idx1, idx2, count);
+	BE::Feature::RidgeCountItem rcd(extrMethod, idx1, idx2, count);
 	return (rcd);
 }
 
@@ -235,72 +231,75 @@ Feature::RidgeCountItem scanRCD(
 /* Protected functions.                                                       */
 /******************************************************************************/
 
-Memory::uint8Array const&
-Finger::INCITSView::getFMRData() const
+BiometricEvaluation::Memory::uint8Array const&
+BiometricEvaluation::Finger::INCITSView::getFMRData() const
 {
 	return (_fmr);
 }
 
-Memory::uint8Array const&
-Finger::INCITSView::getFIRData() const
+BiometricEvaluation::Memory::uint8Array const&
+BiometricEvaluation::Finger::INCITSView::getFIRData() const
 {
 	return (_fir);
 }
 
 void
-Finger::INCITSView::setMinutiaeData(const Feature::INCITSMinutiae &minutiae)
+BiometricEvaluation::Finger::INCITSView::setMinutiaeData(
+    const BiometricEvaluation::Feature::INCITSMinutiae &minutiae)
 {
 	_minutiae = minutiae;
 }
 
 void
-Finger::INCITSView::setPosition(const Finger::Position::Kind &position)
+BiometricEvaluation::Finger::INCITSView::setPosition(
+    const Finger::Position &position)
 {
 	_position = position;
 }
 
 void
-Finger::INCITSView::setImpressionType(const Finger::Impression::Kind &impression)
+BiometricEvaluation::Finger::INCITSView::setImpressionType(
+    const Finger::Impression &impression)
 {
 	_impression = impression;
 }
 
 void
-Finger::INCITSView::setQuality(uint32_t quality)
+BiometricEvaluation::Finger::INCITSView::setQuality(uint32_t quality)
 {
 	_quality = quality;
 }
 
 void
-Finger::INCITSView::setViewNumber(uint32_t viewNumber)
+BiometricEvaluation::Finger::INCITSView::setViewNumber(uint32_t viewNumber)
 {
 	_viewNumber = viewNumber;
 }
 
 void
-Finger::INCITSView::setCaptureEquipmentID(uint16_t id)
+BiometricEvaluation::Finger::INCITSView::setCaptureEquipmentID(uint16_t id)
 {
 	_captureEquipmentID = id;
 }
 
 void
-Finger::INCITSView::setCBEFFProductIDs(uint16_t owner, uint16_t type)
+BiometricEvaluation::Finger::INCITSView::setCBEFFProductIDs(
+    uint16_t owner, uint16_t type)
 {
 	_productIDOwner = owner;
 	_productIDType = type;
 }
 
 void
-Finger::INCITSView::setAppendixFCompliance(bool flag)
+BiometricEvaluation::Finger::INCITSView::setAppendixFCompliance(bool flag)
 {
 	_appendixFCompliance = flag;
 }
 
 void
-Finger::INCITSView::readFMRHeader(
-    Memory::IndexedBuffer &buf,
+BiometricEvaluation::Finger::INCITSView::readFMRHeader(
+    BiometricEvaluation::Memory::IndexedBuffer &buf,
     const uint32_t formatStandard)
-    throw (Error::ParameterError, Error::DataError)
 {
 	static const uint16_t HDR_SCANNER_ID_MASK = 0x0FFF;
 	static const uint16_t HDR_COMPLIANCE_MASK = 0xF000;
@@ -351,69 +350,67 @@ Finger::INCITSView::readFMRHeader(
 }
 
 void
-Finger::INCITSView::readFVMR(
-    Memory::IndexedBuffer &buf)
-    throw (Error::DataError)
+BiometricEvaluation::Finger::INCITSView::readFVMR(
+    BiometricEvaluation::Memory::IndexedBuffer &buf)
 {
 	static const uint8_t FVMR_VIEW_NUMBER_MASK = 0xF0;
 	static const uint8_t FVMR_VIEW_NUMBER_SHIFT  = 4;
 	static const uint8_t FVMR_IMPRESSION_MASK = 0x0F;
 
 	uint8_t cval = buf.scanU8Val();
-	_position = Finger::INCITSView::convertPosition(cval);
+	_position = BE::Finger::INCITSView::convertPosition(cval);
 
 	cval = buf.scanU8Val();
 	_viewNumber = (cval & FVMR_VIEW_NUMBER_MASK) >> FVMR_VIEW_NUMBER_SHIFT;
-	_impression = Finger::INCITSView::convertImpression(
+	_impression = BE::Finger::INCITSView::convertImpression(
 	    cval & FVMR_IMPRESSION_MASK);
 
 	_quality = (uint32_t)buf.scanU8Val();
 
 	/* Read the minutiae data items. */
 	cval = buf.scanU8Val();		/* Number of minutiae */
-	Feature::MinutiaPointSet mps = this->readMinutiaeDataPoints(buf, cval);
+	BE::Feature::MinutiaPointSet mps =
+	     this->readMinutiaeDataPoints(buf, cval);
 	_minutiae.setMinutiaPoints(mps);
 	this->readExtendedDataBlock(buf);
 }
 
-Feature::MinutiaPointSet
-Finger::INCITSView::readMinutiaeDataPoints(
-    Memory::IndexedBuffer &buf,
+BiometricEvaluation::Feature::MinutiaPointSet
+BiometricEvaluation::Finger::INCITSView::readMinutiaeDataPoints(
+    BiometricEvaluation::Memory::IndexedBuffer &buf,
     uint32_t count)
-    throw (Error::DataError)
 {
-	Feature::MinutiaPointSet mps(count);
+	BE::Feature::MinutiaPointSet mps(count);
 	for (uint32_t i = 0; i < count; i++) {
-		Feature::MinutiaPoint mp = scanFMD(buf);
+		BE::Feature::MinutiaPoint mp = scanFMD(buf);
 		mp.index = i;
 		mps[i] = mp;
 	}
 	return (mps);
 }
 
-Feature::RidgeCountItemSet
-Finger::INCITSView::readRidgeCountData(
-    Memory::IndexedBuffer &buf,
+BiometricEvaluation::Feature::RidgeCountItemSet
+BiometricEvaluation::Finger::INCITSView::readRidgeCountData(
+    BiometricEvaluation::Memory::IndexedBuffer &buf,
     uint32_t dataLength)
-    throw (Error::DataError)
 {
 	uint8_t nativeExtrMethod = buf.scanU8Val();
-	int32_t remLength = dataLength - Feature::INCITSMinutiae::FED_HEADER_LENGTH - 1;
-	if ((remLength % Feature::INCITSMinutiae::FED_RCD_ITEM_LENGTH) != 0)
+	int32_t remLength = dataLength -
+	    BE::Feature::INCITSMinutiae::FED_HEADER_LENGTH - 1;
+	if ((remLength % BE::Feature::INCITSMinutiae::FED_RCD_ITEM_LENGTH) != 0)
 		throw (Error::DataError(
 		    "Ridge count data block has bad length"));
-	Feature::RidgeCountItemSet rcis;
+	BE::Feature::RidgeCountItemSet rcis;
 	while (remLength > 0) {
 		rcis.push_back(scanRCD(buf, nativeExtrMethod));
-		remLength -= Feature::INCITSMinutiae::FED_RCD_ITEM_LENGTH;
+		remLength -= BE::Feature::INCITSMinutiae::FED_RCD_ITEM_LENGTH;
 	}
 	return (rcis);
 }
 
 void
-Finger::INCITSView::readExtendedDataBlock(
-    Memory::IndexedBuffer &buf)
-    throw (Error::DataError)
+BiometricEvaluation::Finger::INCITSView::readExtendedDataBlock(
+    BiometricEvaluation::Memory::IndexedBuffer &buf)
 {
 	/* Extended data block length */
 	int32_t blockLength = (int32_t)buf.scanBeU16Val();
@@ -426,25 +423,25 @@ Finger::INCITSView::readExtendedDataBlock(
 		if (dataLength == 0)
 			throw (Error::DataError("Extended data length is 0"));
 		if (dataLength > blockLength) {
-			ostringstream sstr;
+			std::ostringstream sstr;
 			sstr << "Extended data length " << dataLength <<
 			    " is greater than remaining block length of " <<
 			    blockLength;
 			throw (Error::DataError(sstr.str()));
 		}
 		switch (typeID) {
-		case Feature::INCITSMinutiae::FED_RIDGE_COUNT:
+		case BE::Feature::INCITSMinutiae::FED_RIDGE_COUNT:
 		{
-			Feature::RidgeCountItemSet rcis =
+			BE::Feature::RidgeCountItemSet rcis =
 			    this->readRidgeCountData(buf, dataLength);
 			_minutiae.setRidgeCountItems(rcis);
 		}
 			break;
 
-		case Feature::INCITSMinutiae::FED_CORE_AND_DELTA:
+		case BE::Feature::INCITSMinutiae::FED_CORE_AND_DELTA:
 		{
-			Feature::CorePointSet cps;
-			Feature::DeltaPointSet dps;
+			BE::Feature::CorePointSet cps;
+			BE::Feature::DeltaPointSet dps;
 			this->readCoreDeltaData(buf, dataLength, cps, dps);
 			_minutiae.setCorePointSet(cps);
 			_minutiae.setDeltaPointSet(dps);

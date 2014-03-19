@@ -11,7 +11,7 @@
 #ifndef __BE_PROCESS_STATISTICS_H__
 #define __BE_PROCESS_STATISTICS_H__
 
-#include <tr1/memory>
+#include <memory>
 #include <memory>
 #include <pthread.h>
 
@@ -63,16 +63,14 @@ namespace BiometricEvaluation {
 			 * @throw Error::StrategyError
 			 *	Failure to create the LogSheet in the cabinet.
 			 */
-			Statistics(IO::LogCabinet * const logCabinet)
-			    throw (Error::NotImplemented, Error::ObjectExists,
-				Error::StrategyError);
+			Statistics(IO::LogCabinet * const logCabinet);
 
 			~Statistics();
 
 			/**
 			 * Obtain the total user and system times for the
 			 * process, in microseconds. Any of the out parameters
-			 * can be NULL, indicating non-interest in that
+			 * can be nullptr, indicating non-interest in that
 			 * statistic.
 			 * @note
 			 * This method may not be implemented in all operating
@@ -93,13 +91,12 @@ namespace BiometricEvaluation {
 			 */
 			void getCPUTimes(
 			    uint64_t *usertime,
-			    uint64_t *systemtime)
-			    throw (Error::StrategyError, Error::NotImplemented);
+			    uint64_t *systemtime);
 
 			/**
 			 * Obtain the current memory set sizes for the
 			 * process, in kilobytes. Any of the out parameters
-			 * can be NULL, indicating non-interest in that
+			 * can be nullptr, indicating non-interest in that
 			 * statistic.
 			 * @note
 			 * This method may not be implemented in all operating
@@ -134,8 +131,7 @@ namespace BiometricEvaluation {
 			    uint64_t *vmsize,
 			    uint64_t *vmpeak,
 			    uint64_t *vmdata,
-			    uint64_t *vmstack)
-			    throw (Error::StrategyError, Error::NotImplemented);
+			    uint64_t *vmstack);
 
 			/**
 			 * Obtain the number of threads composing this process.
@@ -150,8 +146,7 @@ namespace BiometricEvaluation {
 			 * @throw Error::NotImplemented
 			 *	This method is not implemented on this OS.
 			 */
-			uint32_t getNumThreads()
-			    throw (Error::StrategyError, Error::NotImplemented);
+			uint32_t getNumThreads();
 
 			/**
 			 * @brief
@@ -167,9 +162,7 @@ namespace BiometricEvaluation {
 			 *	The statistics gathering is not implemented for
 			 *	this operating system.
 			 */
-			void logStats()
-			    throw (Error::ObjectDoesNotExist,
-				Error::StrategyError, Error::NotImplemented);
+			void logStats();
 
 			/**
 			 * @brief
@@ -198,11 +191,7 @@ namespace BiometricEvaluation {
 			 *	The statistics gathering is not implemented for
 			 *	this operating system.
 			 */
-			void startAutoLogging(uint64_t interval)
-			    throw (Error::ObjectDoesNotExist,
-				Error::ObjectExists,
-				Error::StrategyError,
-				Error::NotImplemented);
+			void startAutoLogging(uint64_t interval);
 
 			/**
 			 * @brief
@@ -214,10 +203,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when stopping, most likely
 			 *	because the logging thread died.
 			 */
-			void stopAutoLogging()
-			    throw (
-				Error::ObjectDoesNotExist,
-				Error::StrategyError);
+			void stopAutoLogging();
 
 			/**
 			 * Helper function in C++ space that has access to
@@ -231,7 +217,7 @@ namespace BiometricEvaluation {
 
 			pid_t _pid;
 			IO::LogCabinet *_logCabinet;
-			tr1::shared_ptr<IO::LogSheet> _logSheet;
+			std::shared_ptr<IO::LogSheet> _logSheet;
 			bool _logging;
 			bool _autoLogging;
 			pthread_t _loggingThread;

@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cstdlib>
 #include <iostream>
 
 #include <be_system.h>
@@ -16,13 +17,11 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
-#include <stdlib.h>
 #include <unistd.h>
 
 extern int errno;
 uint32_t
 BiometricEvaluation::System::getCPUCount()
-    throw (Error::NotImplemented)
 {
 	long sysval = sysconf(_SC_NPROCESSORS_ONLN);
 	if (sysval <= 0)
@@ -32,7 +31,6 @@ BiometricEvaluation::System::getCPUCount()
 
 uint64_t
 BiometricEvaluation::System::getRealMemorySize()
-    throw (Error::NotImplemented)
 {
 #if defined Linux
 	long numpages = sysconf(_SC_PHYS_PAGES);
@@ -58,7 +56,7 @@ BiometricEvaluation::System::getRealMemorySize()
 	size_t len = sizeof(total);
 	mib[0] = CTL_HW;
 	mib[1] = HW_MEMSIZE;
-	int retval = sysctl(mib, 2, &total, &len, NULL, 0);
+	int retval = sysctl(mib, 2, &total, &len, nullptr, 0);
 	if (retval != 0)
 		throw (Error::NotImplemented());
 	total = total / 1024;
@@ -70,7 +68,6 @@ BiometricEvaluation::System::getRealMemorySize()
 
 double
 BiometricEvaluation::System::getLoadAverage()
-    throw (Error::NotImplemented)
 {
 #ifdef __CYGWIN__
 	throw Error::NotImplemented();

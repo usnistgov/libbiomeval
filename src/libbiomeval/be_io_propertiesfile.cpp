@@ -10,9 +10,8 @@
 
 #include <sys/types.h>
 
-#include <errno.h>
-#include <limits.h>
-
+#include <cerrno>
+#include <climits>
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -23,13 +22,11 @@
 #include <be_io_utility.h>
 #include <be_text.h>
 
-static string RO_ERR_MSG = "Object is read-only";
+static std::string RO_ERR_MSG = "Object is read-only";
 
 BiometricEvaluation::IO::PropertiesFile::PropertiesFile(
-    const string &filename,
-    uint8_t mode)
-    throw (Error::FileError,
-    Error::StrategyError) :
+    const std::string &filename,
+    uint8_t mode) :
     Properties(mode),
     _filename(filename)
 {
@@ -45,7 +42,7 @@ BiometricEvaluation::IO::PropertiesFile::PropertiesFile(
 			    "exist and mode is read-only");
 
 		FILE *fp = fopen(_filename.c_str(), "w");
-		if (fp == NULL)
+		if (fp == nullptr)
 			throw Error::FileError("Could not create new "
 			    "properties file");
 		fclose(fp);
@@ -54,7 +51,6 @@ BiometricEvaluation::IO::PropertiesFile::PropertiesFile(
 
 void
 BiometricEvaluation::IO::PropertiesFile::sync()
-    throw (Error::FileError, Error::StrategyError)
 {
 	if (this->getMode() == IO::READONLY)
 		throw Error::StrategyError(RO_ERR_MSG);
@@ -70,8 +66,7 @@ BiometricEvaluation::IO::PropertiesFile::sync()
 
 void
 BiometricEvaluation::IO::PropertiesFile::changeName(
-    const string &filename)
-    throw (Error::StrategyError)
+    const std::string &filename)
 {
 	if (this->getMode() == IO::READONLY)
 		throw Error::StrategyError(RO_ERR_MSG);

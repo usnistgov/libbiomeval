@@ -17,13 +17,12 @@ extern "C" {
 #include <an2k.h>
 }
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::View::AN2KViewVariableResolution::AN2KViewVariableResolution(
     const std::string &filename,
-    const RecordType::Kind typeID,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError, Error::FileError) :
+    const RecordType typeID,
+    const uint32_t recordNumber) :
     AN2KView(filename, typeID, recordNumber)
 {
 	readImageRecord(typeID);
@@ -31,9 +30,8 @@ BiometricEvaluation::View::AN2KViewVariableResolution::AN2KViewVariableResolutio
 
 BiometricEvaluation::View::AN2KViewVariableResolution::AN2KViewVariableResolution(
     Memory::uint8Array &buf,
-    const RecordType::Kind typeID,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError) :
+    const RecordType typeID,
+    const uint32_t recordNumber) :
     AN2KView(buf, typeID, recordNumber)
 {
 	readImageRecord(typeID);
@@ -43,19 +41,19 @@ BiometricEvaluation::View::AN2KViewVariableResolution::AN2KViewVariableResolutio
 /* Public functions.                                                          */
 /******************************************************************************/
 
-string
+std::string
 BiometricEvaluation::View::AN2KViewVariableResolution::getSourceAgency() const
 {
 	return (_sourceAgency);
 }
 
-string
+std::string
 BiometricEvaluation::View::AN2KViewVariableResolution::getCaptureDate() const
 {
 	return (_captureDate);
 }
 
-string
+std::string
 BiometricEvaluation::View::AN2KViewVariableResolution::getComment() const
 {
 	return (_comment);
@@ -64,7 +62,6 @@ BiometricEvaluation::View::AN2KViewVariableResolution::getComment() const
 BiometricEvaluation::View::AN2KViewVariableResolution::QualityMetricSet
 BiometricEvaluation::View::AN2KViewVariableResolution::extractQuality(
     FIELD *field)
-    throw (Error::DataError)
 {
 	QualityMetricSet qms;
 	
@@ -85,7 +82,6 @@ BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::View::AN2KViewVariableResolution::getUserDefinedField(
     const uint16_t field)
     const
-    throw (Error::ParameterError)
 {
 	std::map<uint16_t, Memory::uint8Array>::const_iterator it;
 	
@@ -95,7 +91,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::getUserDefinedField(
 		return (it->second);
 
 	/* Insert pair and return the data */
-	return ((_udf.insert(pair<uint16_t, Memory::uint8Array>(field, 
+	return ((_udf.insert(std::pair<uint16_t, Memory::uint8Array>(field, 
 	    parseUserDefinedField(AN2KView::getAN2KRecord(), field)))).second);
 }
 
@@ -116,8 +112,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::getQualityMetric()
 
 void
 BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
-    const RecordType::Kind typeID)
-    throw (Error::DataError)
+    const RecordType typeID)
 {
 	switch (typeID) {
 		case RecordType::Type_13:
@@ -155,9 +150,9 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 
 	Image::Resolution ir;
 	switch (slc) {
-		case 0: ir.units = Image::Resolution::NA; break;
-		case 1: ir.units = Image::Resolution::PPI; break;
-		case 2: ir.units = Image::Resolution::PPCM; break;
+		case 0: ir.units = Image::Resolution::Units::NA; break;
+		case 1: ir.units = Image::Resolution::Units::PPI; break;
+		case 2: ir.units = Image::Resolution::Units::PPCM; break;
 	}
 	if (lookup_ANSI_NIST_field(&field, &idx, HPS_ID, record) != TRUE)
                 throw Error::DataError("Field HPS not found");
@@ -192,7 +187,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 	/* Optional Fields.                                                  */
 	/*********************************************************************/
 	ir.xRes = ir.yRes = 0.0;
-	ir.units = Image::Resolution::NA;
+	ir.units = Image::Resolution::Units::NA;
 	if (lookup_ANSI_NIST_field(&field, &idx, SHPS_ID, record) == TRUE)
 		ir.xRes = atoi((char *)field->subfields[0]->items[0]->value);
 	if (lookup_ANSI_NIST_field(&field, &idx, SVPS_ID, record) == TRUE)
@@ -217,11 +212,10 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 		_qms = extractQuality(field);
 }
 
-Memory::uint8Array
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::View::AN2KViewVariableResolution::parseUserDefinedField(
     const RECORD* const record,
     int fieldID)
-    throw (Error::ParameterError)
 {
 	FIELD *field;
 	int idx;
@@ -262,7 +256,7 @@ operator<<(
     const BiometricEvaluation::View::AN2KViewVariableResolution::
     AN2KQualityMetric &qm)
 {
-	stream << qm.position << ": " << qm.score << ' ';
+	stream << to_string(qm.position) << ": " << qm.score << ' ';
 	stream << '(' << qm.vendorID << ", " << qm.productCode << ')';
 
 	return (stream);

@@ -14,13 +14,12 @@ extern "C" {
 #include <an2k.h>
 }
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::Finger::AN2KView::AN2KView(
     const std::string filename,
-    const RecordType::Kind typeID,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError, Error::FileError) :
+    const RecordType typeID,
+    const uint32_t recordNumber) :
     BiometricEvaluation::View::AN2KView(filename, typeID, recordNumber)
 {
 	readImageRecord(typeID, recordNumber);
@@ -28,9 +27,8 @@ BiometricEvaluation::Finger::AN2KView::AN2KView(
 
 BiometricEvaluation::Finger::AN2KView::AN2KView(
     Memory::uint8Array &buf,
-    const RecordType::Kind typeID,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError) :
+    const RecordType typeID,
+    const uint32_t recordNumber) :
     BiometricEvaluation::View::AN2KView(buf, typeID, recordNumber)
 {
 	readImageRecord(typeID, recordNumber);
@@ -40,31 +38,29 @@ BiometricEvaluation::Finger::AN2KView::AN2KView(
 /* Public functions.                                                          */
 /******************************************************************************/
 
-Finger::PositionSet
+BiometricEvaluation::Finger::PositionSet
 BiometricEvaluation::Finger::AN2KView::getPositions() const
 {
 	return (_positions);
 }
 
-Finger::Impression::Kind
+BiometricEvaluation::Finger::Impression
 BiometricEvaluation::Finger::AN2KView::getImpressionType() const
 {
 	return (_imp);
 }
 
-vector<BiometricEvaluation::Finger::AN2KMinutiaeDataRecord>
+std::vector<BiometricEvaluation::Finger::AN2KMinutiaeDataRecord>
 BiometricEvaluation::Finger::AN2KView::getMinutiaeDataRecordSet()
     const
-    throw (Error::DataError)
 {
 	return (_minutiaeDataRecordSet);
 }
 
-Finger::Position::Kind 
+BiometricEvaluation::Finger::Position
 BiometricEvaluation::Finger::AN2KView::convertPosition(int an2kFGP)
-    throw (Error::DataError)
 {
-	Finger::Position::Kind fgp;
+	Finger::Position fgp;
 	switch (an2kFGP) {
 	case 0: fgp = Finger::Position::Unknown; break;
 	case 1: fgp = Finger::Position::RightThumb; break;
@@ -89,9 +85,8 @@ BiometricEvaluation::Finger::AN2KView::convertPosition(int an2kFGP)
 	return (fgp);
 }
 
-Finger::PositionSet
+BiometricEvaluation::Finger::PositionSet
 BiometricEvaluation::Finger::AN2KView::populateFGP(FIELD* field)
-    throw (Error::DataError)
 {
 	int an2kFGP;
 	Finger::PositionSet fgp;
@@ -103,13 +98,12 @@ BiometricEvaluation::Finger::AN2KView::populateFGP(FIELD* field)
 	return (fgp);
 }
 
-Finger::Impression::Kind
+BiometricEvaluation::Finger::Impression
 BiometricEvaluation::Finger::AN2KView::convertImpression(
     const unsigned char *str)
-    throw (Error::DataError)
 {
 	long an2k_imp;
-	an2k_imp = strtol((const char *)str, NULL, 10);
+	an2k_imp = strtol((const char *)str, nullptr, 10);
 	switch (an2k_imp) {
 	case 0: return (Finger::Impression::LiveScanPlain);
 	case 1: return (Finger::Impression::LiveScanRolled);
@@ -135,33 +129,32 @@ BiometricEvaluation::Finger::AN2KView::convertImpression(
 	}
 }
 
-Finger::FingerImageCode::Kind
+BiometricEvaluation::Finger::FingerImageCode
 BiometricEvaluation::Finger::AN2KView::convertFingerImageCode(
     const char *str)
-    throw (Error::DataError)
 {
 	if (strncmp(str, "EJI", 3) == 0)
-		return (Finger::FingerImageCode::EJI);
+		return (BE::Finger::FingerImageCode::EJI);
 	else if (strncmp(str, "TIP", 3) == 0)
-		return (Finger::FingerImageCode::RolledTip);
+		return (BE::Finger::FingerImageCode::RolledTip);
 	else if (strncmp(str, "FV1", 3) == 0)
-		return (Finger::FingerImageCode::FullFingerRolled);
+		return (BE::Finger::FingerImageCode::FullFingerRolled);
 	else if (strncmp(str, "FV2", 3) == 0)
-		return (Finger::FingerImageCode::FullFingerPlainLeft);
+		return (BE::Finger::FingerImageCode::FullFingerPlainLeft);
 	else if (strncmp(str, "FV3", 3) == 0)
-		return (Finger::FingerImageCode::FullFingerPlainCenter);
+		return (BE::Finger::FingerImageCode::FullFingerPlainCenter);
 	else if (strncmp(str, "FV4", 3) == 0)
-		return (Finger::FingerImageCode::FullFingerPlainRight);
+		return (BE::Finger::FingerImageCode::FullFingerPlainRight);
 	else if (strncmp(str, "PRX", 3) == 0)
-		return (Finger::FingerImageCode::ProximalSegment);
+		return (BE::Finger::FingerImageCode::ProximalSegment);
 	else if (strncmp(str, "DST", 3) == 0)
-		return (Finger::FingerImageCode::DistalSegment);
+		return (BE::Finger::FingerImageCode::DistalSegment);
 	else if (strncmp(str, "MED", 3) == 0)
-		return (Finger::FingerImageCode::MedialSegment);
+		return (BE::Finger::FingerImageCode::MedialSegment);
 	else if (strncmp(str, "NA", 2) == 0)
-		return (Finger::FingerImageCode::NA);
+		return (BE::Finger::FingerImageCode::NA);
 	else
-		throw Error::DataError("Invalid finger image code value");
+		throw BE::Error::DataError("Invalid finger image code value");
 }
 
 void
@@ -185,9 +178,8 @@ BiometricEvaluation::Finger::AN2KView::addMinutiaeDataRecord(
 
 void
 BiometricEvaluation::Finger::AN2KView::readImageRecord(
-    const RecordType::Kind typeID,
+    const RecordType typeID,
     const uint32_t recordNumber)
-    throw (Error::DataError)
 {
 	switch (typeID) {
 		case RecordType::Type_3:

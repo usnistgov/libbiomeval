@@ -51,7 +51,8 @@ printImageInfo(const Image::Image &img, const string &name,
 	
 {
 	cout << "Image info:" << endl;
-	cout << "\tCompression: " << img.getCompressionAlgorithm() << endl;
+	cout << "\tCompression: " << to_string(img.getCompressionAlgorithm()) <<
+	    endl;
 	cout << "\tDimensions: " << img.getDimensions() << endl;
 	cout << "\tResolution: " << img.getResolution() << endl;
 	cout << "\tDepth: " << img.getDepth() << endl;
@@ -67,8 +68,9 @@ printImageInfo(const Image::Image &img, const string &name,
 	    (int)(pow(2.0, (int)img.getDepth()) - 1) << "\n";
 	ofstream img_out(filename.c_str(), ofstream::binary);
 	img_out << str.str();
-	img_out.write((char *)&(img.getRawData()[0]), 
-	    img.getRawData().size());
+	Memory::uint8Array imgData;
+	img.getRawData(imgData);
+	img_out.write((char *)&(imgData[0]), imgData.size());
 	if (img_out.good())
 		cout << "\tFile: " << filename << endl;
 	else {
@@ -82,17 +84,21 @@ printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
     const string &name, const int idx)
 {
 	cout << "[Start of View]" << endl;
-	cout << "\tRecord Type: " << an2kv.getRecordType() << endl;
+	cout << "\tRecord Type: " <<
+	    static_cast<std::underlying_type<
+	    View::AN2KView::RecordType>::type>(an2kv.getRecordType()) << endl;
 	cout << "\tImage resolution: " << an2kv.getImageResolution() << endl;
 	cout << "\tImage size: " << an2kv.getImageSize() << endl;
 	cout << "\tImage depth: " << an2kv.getImageDepth() << endl;
-	cout << "\tCompression: " << an2kv.getCompressionAlgorithm() << endl;
+	cout << "\tCompression: " <<
+	    to_string(an2kv.getCompressionAlgorithm()) << endl;
 	cout << "\tScan resolution: " << an2kv.getScanResolution() << endl;
-	cout << "\tImpression Type: " << an2kv.getImpressionType() << endl;
+	cout << "\tImpression Type: " << to_string(an2kv.getImpressionType()) <<
+	    endl;
 	Finger::PositionSet positions = an2kv.getPositions();;
 	cout << "\tPositions: ";
 	for (size_t i = 0; i < positions.size(); i++)
-		cout << positions[i] << " ";
+		cout << to_string(positions[i]) << " ";
 	cout << endl;
 	cout << "\tSource Agency: " << an2kv.getSourceAgency() << endl;
 	cout << "\tCapture Date: " << an2kv.getCaptureDate() << endl;
@@ -101,8 +107,8 @@ printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
 	/*
 	 * Get the image data.
 	 */
-	tr1::shared_ptr<Image::Image> img = an2kv.getImage();
-	if (img != NULL)
+	shared_ptr<Image::Image> img = an2kv.getImage();
+	if (img != nullptr)
 		printImageInfo(*img, name, idx);
 	else
 		cout << "No Image available." << endl;
@@ -124,14 +130,14 @@ main(int argc, char* argv[]) {
 	cout << "Opening the Record Store" << endl;
 	string rsname = "AN2KRecordStore";
 	string datadir = "test_data";
-	std::tr1::shared_ptr<IO::RecordStore> rs;
+	std::shared_ptr<IO::RecordStore> rs;
 	try {
 		rs = IO::RecordStore::openRecordStore(rsname, datadir,
 		    IO::READONLY);
 	} catch (Error::Exception &e) {
 		cout << "Could not open record store " << rsname 
 		    << " in directory " << datadir << ": "
-		    << e.getInfo() << endl;
+		    << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 
@@ -143,11 +149,11 @@ main(int argc, char* argv[]) {
 	while (true) {		// Loop through all records in store
 		uint64_t rlen;
 		try {
-			rlen = rs->sequence(key, NULL);
+			rlen = rs->sequence(key, nullptr);
 		} catch (Error::ObjectDoesNotExist &e) {
 			break;
 		} catch (Error::Exception &e) {
-			cout << "Failed sequence: " << e.getInfo() << endl;
+			cout << "Failed sequence: " << e.what() << endl;
 			return (EXIT_FAILURE);
 		}
 		data.resize(rlen);
@@ -176,7 +182,7 @@ main(int argc, char* argv[]) {
 			else cout << "." << endl;
 			for (size_t i = 0; i < minutiae.size(); i++) {
 				if (minutiae.at(i).getAN2K7Minutiae().get() != 
-				    NULL)
+				    nullptr)
 					cout << "\t* " << minutiae.at(i).
 					    getAN2K7Minutiae()->
 					    getMinutiaPoints().size();
@@ -186,7 +192,7 @@ main(int argc, char* argv[]) {
 			}
 			cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 		} catch (Error::Exception &e) {
-			cout << "Failed read: " << e.getInfo() << endl;
+			cout << "Failed read: " << e.what() << endl;
 			return (EXIT_FAILURE);
 		}
 	}

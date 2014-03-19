@@ -27,22 +27,21 @@ BiometricEvaluation::Image::Raw::Raw(
 
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
-BiometricEvaluation::Image::Raw::getRawData()
+void
+BiometricEvaluation::Image::Raw::getRawData(
+    Memory::uint8Array &rawData)
     const
-    throw (Error::DataError)
 {
-	return (Image::getData());
+	this->getData(rawData);
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
+void
 BiometricEvaluation::Image::Raw::getRawGrayscaleData(
+    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
-    throw (Error::DataError,
-    Error::ParameterError)
 {
-	return (Image::getRawGrayscaleData(depth));
+	Image::getRawGrayscaleData(rawGray, depth);
 }
 
 BiometricEvaluation::Image::Raw::~Raw()

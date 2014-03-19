@@ -8,14 +8,15 @@
  * about its quality, reliability, or any other characteristic.
  */
 #include <be_feature_minutiae.h>
-using namespace BiometricEvaluation;
+
+namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::Feature::Minutiae::~Minutiae()
 {
 }
 
 BiometricEvaluation::Feature::RidgeCountItem::RidgeCountItem(
-	Feature::RidgeCountExtractionMethod::Kind extraction_method,
+	Feature::RidgeCountExtractionMethod extraction_method,
 	int index_one,
 	int index_two,
 	int count) :
@@ -50,73 +51,62 @@ BiometricEvaluation::Feature::DeltaPoint::DeltaPoint(
 {
 }
 
+template<>
+const std::map<BiometricEvaluation::Feature::MinutiaeFormat, std::string>
+    BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::Feature::MinutiaeFormat>::enumToStringMap {
+	{Feature::MinutiaeFormat::AN2K7, "ANSI/NIST-ITL 2007"},
+	{Feature::MinutiaeFormat::IAFIS, "IAFIS"},
+	{Feature::MinutiaeFormat::Cogent, "Cogent"},
+	{Feature::MinutiaeFormat::Motorola, "Motorola"},
+	{Feature::MinutiaeFormat::Sagem, "Sagem"},
+	{Feature::MinutiaeFormat::NEC, "NEC"},
+	{Feature::MinutiaeFormat::M1, "M1"},
+	{Feature::MinutiaeFormat::Identix, "Identix"}
+};
+
+template<>
+const std::map<BiometricEvaluation::Feature::MinutiaeType, std::string>
+    BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::Feature::MinutiaeType>::enumToStringMap {
+	{Feature::MinutiaeType::RidgeEnding, "Ridge Ending"},
+	{Feature::MinutiaeType::Bifurcation, "Bifurcation"},
+	{Feature::MinutiaeType::Compound, "Compound"},
+	{Feature::MinutiaeType::Other, "Other"}
+};
+
+template<>
+const std::map<BiometricEvaluation::Feature::RidgeCountExtractionMethod,
+    std::string>
+    BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::Feature::RidgeCountExtractionMethod>::enumToStringMap {
+	{Feature::RidgeCountExtractionMethod::NonSpecific, "Non-specific"},
+	{Feature::RidgeCountExtractionMethod::FourNeighbor, "Four-neighbor"},
+	{Feature::RidgeCountExtractionMethod::EightNeighbor, "Eight-neighbor"},
+	{Feature::RidgeCountExtractionMethod::Other, "Other"}
+};
+
 /******************************************************************************/
 /* Public functions.                                                          */
 /******************************************************************************/
-std::ostream&
-BiometricEvaluation::Feature::operator<< (std::ostream& s,
-    const Feature::MinutiaeFormat::Kind mf)
-{
-	switch (mf) {
-	case MinutiaeFormat::AN2K7: s << "ANSI/NIST-ITL 2007"; break;
-	case MinutiaeFormat::IAFIS: s << "IAFIS"; break;
-	case MinutiaeFormat::Cogent: s << "Cogent"; break;
-	case MinutiaeFormat::Motorola: s << "Motorola"; break;
-	case MinutiaeFormat::Sagem: s << "Sagem"; break;
-	case MinutiaeFormat::NEC: s << "NEC"; break;
-	case MinutiaeFormat::M1: s << "M1"; break;
-	case MinutiaeFormat::Identix: s << "Identix"; break;
-	}
-	return (s);
-}
-
-std::ostream&
-BiometricEvaluation::Feature::operator<< (std::ostream& s,
-    const Feature::MinutiaeType::Kind mt)
-{
-	switch (mt) {
-	case MinutiaeType::RidgeEnding: s << "Ridge Ending"; break;
-	case MinutiaeType::Bifurcation: s << "Bifurcation"; break;
-	case MinutiaeType::Compound: s << "Compound"; break;
-	case MinutiaeType::Other: s << "Other"; break;
-	}
-	return (s);
-}
-
-std::ostream&
-BiometricEvaluation::Feature::operator<< (std::ostream& s,
-    const Feature::RidgeCountExtractionMethod::Kind rcem)
-{
-	switch (rcem) {
-	case RidgeCountExtractionMethod::NonSpecific:
-		s << "Non-specific"; break;
-	case RidgeCountExtractionMethod::FourNeighbor:
-		s << "Four-neighbor"; break;
-	case RidgeCountExtractionMethod::EightNeighor:
-		s << "Eight-neighbor"; break;
-	case RidgeCountExtractionMethod::Other:
-		s << "Other"; break;
-	}
-	return (s);
-}
 
 std::ostream&
 BiometricEvaluation::Feature::operator<< (std::ostream& s,
     const Feature::MinutiaPoint& mp)
 {
-	s << "Index: " << mp.index << endl;
+	s << "Index: " << mp.index << std::endl;
 	if (mp.has_type)
-		s << "Has valid type: " << mp.type;
+		s << "Has valid type: " << to_string(mp.type);
 	else
 		s << "No valid type.";
-	s << endl;
+	s << std::endl;
 	s << "Coordinate: " << mp.coordinate;
-	s << " with Angle " << mp.theta << endl;
+	s << " with Angle " << mp.theta << std::endl;
 	if (mp.has_quality)
 		s << "Has quality: " << mp.quality;
 	else
 		s << "No quality value.";
-	s << endl;
+	s << std::endl;
 	return (s);
 }
 
@@ -124,10 +114,10 @@ std::ostream&
 BiometricEvaluation::Feature::operator<< (std::ostream& s,
     const RidgeCountItem& rci)
 {
-	s << "Method: " << rci.extraction_method << "; ";
+	s << "Method: " << to_string(rci.extraction_method) << "; ";
 	s << "Index One: " << rci.index_one << "; ";
 	s << "Index Two: " << rci.index_two << "; ";
-	s << "Count: " << rci.count << endl;
+	s << "Count: " << rci.count << std::endl;
 	
 	return (s);
 }
@@ -137,9 +127,9 @@ BiometricEvaluation::Feature::operator<< (std::ostream& s,const CorePoint& cp)
 {
 	s << "Coordinate: " << cp.coordinate << "; ";
 	if (cp.has_angle)
-		s << "Angle: " << cp.angle << endl;
+		s << "Angle: " << cp.angle << std::endl;
 	else
-		s << "No angle" << endl;
+		s << "No angle" << std::endl;
 	
 	return (s);
 }
@@ -150,9 +140,9 @@ BiometricEvaluation::Feature::operator<< (std::ostream& s,const DeltaPoint& dp)
 	s << "Coordinate: " << dp.coordinate << "; ";
 	if (dp.has_angle) {
 		s << "Angles: " << dp.angle1 << ", ";
-		s << dp.angle2 << ", " << dp.angle3 << endl;
+		s << dp.angle2 << ", " << dp.angle3 << std::endl;
 	} else {
-		s << "No angles" << endl;
+		s << "No angles" << std::endl;
 	}
 	
 	return (s);

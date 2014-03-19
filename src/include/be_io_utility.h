@@ -12,15 +12,12 @@
 
 #include <sys/stat.h>
 
-#include <stdint.h>
-
+#include <cstdint>
 #include <fstream>
 #include <string>
 
 #include <be_error_exception.h>
 #include <be_memory_autoarray.h>
-
-using namespace std;
 
 namespace BiometricEvaluation
 {
@@ -50,10 +47,8 @@ namespace BiometricEvaluation
 			 * 	prefix is malformed.
 			 */
 			void removeDirectory(
-			    const string &directory,
-			    const string &prefix)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &directory,
+			    const std::string &prefix);
 
 			/**
 			 * @brief
@@ -69,9 +64,7 @@ namespace BiometricEvaluation
 			 *	storage system, or the path name is malformed.
 			 */
 			void removeDirectory(
-			    const string &pathname)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &pathname);
 
 			/**
 			 * @brief
@@ -95,11 +88,9 @@ namespace BiometricEvaluation
 			 * 	prefix is malformed.
 			 */
 			void copyDirectoryContents(
-			    const string &sourcepath,
-			    const string &targetpath,
-			    const bool removesource = false)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &sourcepath,
+			    const std::string &targetpath,
+			    const bool removesource = false);
 
 			/**
 			 * @brief
@@ -124,9 +115,7 @@ namespace BiometricEvaluation
 			 *	was reached.
 			 */
 			void setAsideName(
-			    const string &name)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &name);
 
 			/**
 			 * Get the size of a file.
@@ -143,9 +132,7 @@ namespace BiometricEvaluation
 			 *	storage system, or pathname is malformed.
 			 */
 			uint64_t getFileSize(
-			    const string &pathname)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &pathname);
 
 			/**
 			 * Indicate whether a file exists.
@@ -160,8 +147,7 @@ namespace BiometricEvaluation
 			 *	storage system, or pathname is malformed.
 			 */
 			bool fileExists(
-			    const string &pathname)
-			    throw (Error::StrategyError);
+			    const std::string &pathname);
 
 			/*
 			 * Indicate whether a path points to a directory.
@@ -176,8 +162,7 @@ namespace BiometricEvaluation
 			 *		name is malformed.
 			 */
 			bool pathIsDirectory(
-			    const string &pathname)
-			    throw (Error::StrategyError);
+			    const std::string &pathname);
 
 			/**
 			 * Check whether or not a string is valid as a name for
@@ -192,7 +177,7 @@ namespace BiometricEvaluation
 			 *	true if the name is acceptable, false otherwise.
 			 */
 			bool validateRootName(
-			    const string &name);
+			    const std::string &name);
 
 			/**
 			 * Construct a full path for a rooted entity, and
@@ -212,9 +197,9 @@ namespace BiometricEvaluation
 			 *	system, false otherwise.
 			 */
 			bool constructAndCheckPath(
-			    const string &name,
-			    const string &parentDir,
-			    string &fullPath);
+			    const std::string &name,
+			    const std::string &parentDir,
+			    std::string &fullPath);
 
 			/**
 			 * @brief
@@ -232,7 +217,7 @@ namespace BiometricEvaluation
 			 *	0 on success, non-zero otherwise, and errno
 			 *	can be checked.
 			 */
-			int makePath(const string &path, const mode_t mode);
+			int makePath(const std::string &path, const mode_t mode);
 			
 			/**
 			 * @brief
@@ -255,10 +240,8 @@ namespace BiometricEvaluation
 			 */
 			Memory::uint8Array
 			readFile(
-			    const string &path,
-			    ios_base::openmode mode = ios_base::binary)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    const std::string &path,
+			    std::ios_base::openmode mode = std::ios_base::binary);
 			
 			/**
 			 * @brief
@@ -285,10 +268,8 @@ namespace BiometricEvaluation
 			writeFile(
 			    const uint8_t *data,
 			    const size_t size,
-			    const string &path,
-			    ios_base::openmode mode = ios_base::binary)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    const std::string &path,
+			    std::ios_base::openmode mode = std::ios_base::binary);
 
 			/**
 			 * @brief
@@ -312,10 +293,8 @@ namespace BiometricEvaluation
     			void
 			writeFile(
 			    const Memory::uint8Array data,
-			    const string &path,
-			    ios_base::openmode mode = ios_base::binary)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    const std::string &path,
+			    std::ios_base::openmode mode = std::ios_base::binary);
 			
 			/**
 			 * @brief
@@ -338,7 +317,7 @@ namespace BiometricEvaluation
 			 */
 			bool
 			isReadable(
-			    const string &pathname);
+			    const std::string &pathname);
 			
 			/**
 			 * @brief
@@ -361,7 +340,7 @@ namespace BiometricEvaluation
 			 */
 			bool
 			isWritable(
-			    const string &pathname);
+			    const std::string &pathname);
 			    
 			/**
 			 * @brief
@@ -386,12 +365,10 @@ namespace BiometricEvaluation
 			 * since the exclusive descriptor is closed before
 			 * returning.
 			 */
-			string
+			std::string
 			createTemporaryFile(
-			    const string &prefix = "",
-			    const string &parentDir = "/tmp")
-			    throw (Error::FileError,
-			    Error::MemoryError);
+			    const std::string &prefix = "",
+			    const std::string &parentDir = "/tmp");
 			    
 			/**
 			 * @brief
@@ -421,11 +398,9 @@ namespace BiometricEvaluation
 			 */
 			FILE*
 			createTemporaryFile(
-			    string &path,
-			    const string &prefix = "",
-			    const string &parentDir = "/tmp")
-			    throw (Error::FileError,
-			    Error::MemoryError);
+			    std::string &path,
+			    const std::string &prefix = "",
+			    const std::string &parentDir = "/tmp");
 		}
 	}
 }

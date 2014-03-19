@@ -10,7 +10,7 @@
 #ifndef __BE_IO_H__
 #define __BE_IO_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 /*
  * This file contains items that are used within the Biometric Evaluation

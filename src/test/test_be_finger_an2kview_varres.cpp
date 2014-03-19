@@ -25,7 +25,7 @@ openAN2KFile(const string filename)
 	uint64_t sz = IO::Utility::getFileSize(filename);
 
 	FILE *fp = fopen(filename.c_str(), "r");
-	if (fp == NULL)
+	if (fp == nullptr)
 		throw(Error::Exception("Could not open file"));
 
 	Memory::uint8Array buf(sz);
@@ -43,13 +43,15 @@ printViewInfo(Finger::AN2KViewVariableResolution *an2kv) {
 	cout << "Image resolution: " << an2kv->getImageResolution() << endl;
 	cout << "Image size: " << an2kv->getImageSize() << endl;
 	cout << "Image depth: " << an2kv->getImageDepth() << endl;
-	cout << "Compression: " << an2kv->getCompressionAlgorithm() << endl;
+	cout << "Compression: " <<
+	    to_string(an2kv->getCompressionAlgorithm()) << endl;
 	cout << "Scan resolution: " << an2kv->getScanResolution() << endl;
-	cout << "Impression Type: " << an2kv->getImpressionType() << endl;
+	cout << "Impression Type: " <<
+	    to_string(an2kv->getImpressionType()) << endl;
 	Finger::PositionSet positions = an2kv->getPositions();;
 	cout << "There are " << positions.size() << " position(s): ";
 	for (size_t i = 0; i < positions.size(); i++)
-		cout << positions[i] << " " << endl;
+		cout << to_string(positions[i]) << " " << endl;
 	cout << "----------------------------------------------" << endl;
 }
 
@@ -66,10 +68,10 @@ main(int argc, char* argv[]) {
 		an2kv.reset(new Finger::AN2KViewLatent(
 		    "test_data/type9.an2k", 1));
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	if (!success) {
@@ -83,7 +85,7 @@ main(int argc, char* argv[]) {
 		an2kv.reset(new Finger::AN2KViewLatent(
 		    "nbv5425GHdfsdfad", 1));
 	} catch (Error::FileError& e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
 	if (!success) {
@@ -95,10 +97,10 @@ main(int argc, char* argv[]) {
 		an2kv.reset(new Finger::AN2KViewLatent(
 		    "test_data/type9-13.an2k", 1));
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::FileError& e) {
-		cout << "A file error occurred: " << e.getInfo() << endl;
+		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	cout << "Success." << endl;
@@ -117,7 +119,7 @@ main(int argc, char* argv[]) {
 	try {
 		bufAn2kv.reset(new Finger::AN2KViewLatent(buf, 1));
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo() << "; success." << endl;
+		cout << "Caught " << e.what() << "; success." << endl;
 		return (EXIT_FAILURE);
 	}
 	cout << " Success." << endl;
@@ -127,18 +129,20 @@ main(int argc, char* argv[]) {
 	/*
 	 * Get the image data and save to a file.
 	 */
-	tr1::shared_ptr<Image::Image> img = an2kv->getImage();
-	if (img != NULL) {
+	shared_ptr<Image::Image> img = an2kv->getImage();
+	if (img != nullptr) {
 		cout << "Image info:" << endl;
-		cout << "\tCompression: " << img->getCompressionAlgorithm() << endl;
+		cout << "\tCompression: " <<
+		    to_string(img->getCompressionAlgorithm()) << endl;
 		cout << "\tDimensions: " << img->getDimensions() << endl;
 		cout << "\tResolution: " << img->getResolution() << endl;
 		cout << "\tDepth: " << img->getDepth() << endl;
 		
 		string filename = "rawimg_test";
 		ofstream img_out(filename.c_str(), ofstream::binary);
-		img_out.write((char *)&(img->getRawData()[0]), 
-		    img->getRawData().size());
+		Memory::uint8Array imgData;
+		img->getRawData(imgData);
+		img_out.write((char *)&(imgData[0]), imgData.size());
 		if (img_out.good())
 			cout << "\tFile: " << filename << endl;
 		else {

@@ -13,12 +13,10 @@
 
 #include <fstream>
 #include <list>
-#include <tr1/memory>
+#include <memory>
 
 #include <be_error_exception.h>
 #include <be_io_recordstore.h>
-
-using namespace BiometricEvaluation;
 
 namespace BiometricEvaluation
 {
@@ -57,16 +55,14 @@ namespace BiometricEvaluation
 		class ListRecordStore : public RecordStore {
 		public:
 			/** Property key for the source RecordStore */
-			static const string SOURCERECORDSTOREPROPERTY;
+			static const std::string SOURCERECORDSTOREPROPERTY;
 			/** File name containing the list of keys */
-			static const string KEYLISTFILENAME;
+			static const std::string KEYLISTFILENAME;
 
 			/** Constructor, always opening read-only */
 			ListRecordStore(
-			    const string &name,
-			    const string &parentDir)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir);
 
 			/** Destructor */
 			~ListRecordStore();
@@ -77,89 +73,64 @@ namespace BiometricEvaluation
 
 			void
 			insert(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			void
 			remove(
-			    const string &key)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    const std::string &key);
 
 			uint64_t
 			read(
-			    const string &key,
-			    void *const data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
-		
+			    const std::string &key,
+			    void *const data) const;
+
 			void
 			replace(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const uint64_t size);
 		
 			uint64_t
 			length(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key) const;
 		
 			void
 			flush(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
-			    
+			    const std::string &key) const;
+
     			void
-			sync()
-			    const
-			    throw (Error::StrategyError);
-		
+			sync() const;
+
 			uint64_t
 			sequence(
-			    string &key,
-			    void *const data = NULL,
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
-		
+			    std::string &key,
+			    void *const data = nullptr,
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
+
 			void
 			setCursorAtKey(
-			    string &key)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			    
+			    std::string &key);
+
 			void
 			changeName(
-			    const string &name)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    const std::string &name);
+
 			uint64_t
-			getSpaceUsed()
-			    const
-			    throw (Error::StrategyError);
-		
+			getSpaceUsed() const;
+
 		private:
 			/**
 			 * Textfile containing a subset of keys from
 			 * the source RecordStore
 			 */
-			tr1::shared_ptr<std::ifstream> _keyListFile;
+			std::shared_ptr<std::ifstream> _keyListFile;
 			/**
 			 * RecordStore containing data referenced by KeyList
 			 * file keys
 			 */
-			tr1::shared_ptr<IO::RecordStore> _sourceRecordStore;
+			std::shared_ptr<IO::RecordStore> _sourceRecordStore;
 			
 			/**
 			 * @brief
@@ -175,9 +146,7 @@ namespace BiometricEvaluation
 			 * Always throws an exception.
 			 */
 			void
-			CRUDMethodCalled()
-			    const
-			    throw (Error::StrategyError);
+			CRUDMethodCalled() const;
 		};
 	}
 }

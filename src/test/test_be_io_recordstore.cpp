@@ -9,12 +9,13 @@
  */
 
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <string>
 
-#include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 
 #include <be_io_utility.h>
 
@@ -49,6 +50,7 @@
 #endif
 
 #ifdef TESTDEFINED
+#include <be_io_recordstoreiterator.h>
 using namespace BiometricEvaluation;
 #endif
 
@@ -79,13 +81,59 @@ testSequence(IO::RecordStore *rs)
 			} catch (Error::ObjectDoesNotExist &e) {
 				break;
 			} catch (Error::StrategyError &e) {
-				cout << "Caught " << e.getInfo() << endl;
+				cout << "Caught " << e.what() << endl;
 			}
 			i++;
 		}
 	} catch (Error::StrategyError &e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 	}
+}
+
+static void
+testIterator(
+    IO::RecordStore *rs)
+{
+	cout << "for loop:" << endl;
+	for (auto it = rs->begin(); it != rs->end(); it++) {
+		cout << "Record: " << it->first << ", Length: "  <<
+		    (*it).second.size() << " ";
+		printf("data is [%s]\n", static_cast<uint8_t*>(it->second));
+	}
+
+	cout << "for_each with lambda:" << endl;
+	std::for_each(rs->begin(), rs->end(),
+	    [](IO::RecordStore::iterator::value_type i) {
+		cout << "Record: " << i.first << ", Length: "  <<
+		    i.second.size() << " ";
+		printf("data is [%s]\n", static_cast<uint8_t*>(i.second));
+	    }
+	);
+
+	/* Test searching */
+	auto findKey3 = std::find_if(rs->begin(), rs->end(),
+	[](IO::RecordStore::iterator::value_type i) -> bool {
+		return (i.first == "key3");
+	});
+	cout << "Has \"key3\"?: " << boolalpha << (findKey3 != rs->end()) <<
+	    endl;
+	if (findKey3 != rs->end())
+		cout << "\tValue: [" << findKey3->second << "]" << endl;
+
+	/* Test implicit STL iterator functions */
+	auto it = rs->begin();
+	it = std::next(it, 3);
+	cout << "Record 4: " << it->first << endl;
+
+	it = rs->begin();
+	std::advance(it, 6);
+	cout << "Record 7: " << it->first << endl;
+
+	it = rs->begin();
+	if (it != rs->begin())
+		cout << "FAILED equivalence test" << endl;
+	it = it + 2;
+	cout << "Record 3: " << it->first << endl;
 }
 
 #ifdef MERGETESTDEFINED
@@ -95,7 +143,7 @@ testSequence(IO::RecordStore *rs)
 static void
 testMerge()
 {
-	string merged_type;
+	BiometricEvaluation::IO::RecordStore::Kind merged_type;
 	const size_t num_rs = 3;
 	const string merge_rs_fn[num_rs] = {"merge_test1", "merge_test2", 
 	    "merge_test3"};
@@ -104,7 +152,7 @@ testMerge()
 
 	try {
 #ifdef ARCHIVERECORDSTORETEST
-		merged_type = IO::RecordStore::ARCHIVETYPE;
+		merged_type = IO::RecordStore::Kind::Archive;
 		merge_rs[0] = new IO::ArchiveRecordStore(merge_rs_fn[0],
 		    "RS for merge", "");
 		merge_rs[1] = new IO::ArchiveRecordStore(merge_rs_fn[1],
@@ -113,7 +161,7 @@ testMerge()
 		    "RS for merge", "");
 #endif
 #ifdef DBRECORDSTORETEST
-		merged_type = IO::RecordStore::BERKELEYDBTYPE;
+		merged_type = IO::RecordStore::Kind::BerkeleyDB;
 		merge_rs[0] = new IO::DBRecordStore(merge_rs_fn[0],
 		    "RS for merge", "");
 		merge_rs[1] = new IO::DBRecordStore(merge_rs_fn[1],
@@ -122,7 +170,7 @@ testMerge()
 		    "RS for merge", "");
 #endif
 #ifdef FILERECORDSTORETEST
-		merged_type = IO::RecordStore::FILETYPE;
+		merged_type = IO::RecordStore::Kind::File;
 		merge_rs[0] = new IO::FileRecordStore(merge_rs_fn[0],
 		    "RS for merge", "");
 		merge_rs[1] = new IO::FileRecordStore(merge_rs_fn[1],
@@ -131,7 +179,7 @@ testMerge()
 		    "RS for merge", "");
 #endif
 #ifdef SQLITERECORDSTORETEST
-		merged_type = IO::RecordStore::SQLITETYPE;
+		merged_type = IO::RecordStore::Kind::SQLite;
 		merge_rs[0] = new IO::SQLiteRecordStore(merge_rs_fn[0],
 		    "RS for merge", "");
 		merge_rs[1] = new IO::SQLiteRecordStore(merge_rs_fn[1],
@@ -177,24 +225,24 @@ testMerge()
 		else
 			cout << "FAILED." << endl;
 
-		if (merged_rs != NULL) {
+		if (merged_rs != nullptr) {
 			delete merged_rs; 
 			IO::RecordStore::removeRecordStore(merged_rs_fn, "");
 		}
-		if (merge_rs[0] != NULL) {
+		if (merge_rs[0] != nullptr) {
 			delete merge_rs[0];
 			IO::RecordStore::removeRecordStore(merge_rs_fn[0], "");
 		}
-		if (merge_rs[1] != NULL) {
+		if (merge_rs[1] != nullptr) {
 			delete merge_rs[1];
 			IO::RecordStore::removeRecordStore(merge_rs_fn[1], "");
 		}
-		if (merge_rs[2] != NULL) {
+		if (merge_rs[2] != nullptr) {
 			delete merge_rs[2];
 			IO::RecordStore::removeRecordStore(merge_rs_fn[2], "");
 		}
 	} catch (Error::Exception &e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 	}
 }
 #endif
@@ -225,11 +273,11 @@ runTests(IO::RecordStore *rs)
 			rs->insert(theKey, wdata.c_str(), wlen);
 		} catch (Error::StrategyError& e) {
 			cout << "Could not remove, and should be able to: " <<
-			    e.getInfo() << "." << endl;
+			    e.what() << "." << endl;
 			return (-1);
 		}
 	} catch (Error::StrategyError& e) {
-		cout << "failed:" << e.getInfo() << "." << endl;
+		cout << "failed:" << e.what() << "." << endl;
 		return (-1);
 	}
 	cout << endl;
@@ -244,7 +292,7 @@ runTests(IO::RecordStore *rs)
 	} catch (Error::ObjectExists) {
 		cout << "success" << endl;	
 	} catch (Error::Exception &e) {
-		cout << "FAILED; caught " << e.getInfo() << endl;
+		cout << "FAILED; caught " << e.what() << endl;
 		return (-1);
 	}
 
@@ -257,7 +305,7 @@ runTests(IO::RecordStore *rs)
 		cout << "failed: Does not exist. " << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
-		cout << "failed: " << e.getInfo() << "." << endl;
+		cout << "failed: " << e.what() << "." << endl;
 		return (-1);
 	}
 	cout << "succeeded, read [" << rdata << "] ";
@@ -275,7 +323,7 @@ runTests(IO::RecordStore *rs)
 		cout << "does not exist!" << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
-		cout << "failed:" << e.getInfo() << "." << endl;
+		cout << "failed:" << e.what() << "." << endl;
 		return (-1);
 	}
 	cout << endl;
@@ -284,7 +332,7 @@ runTests(IO::RecordStore *rs)
 	try {
 		cout << rs->getSpaceUsed() << endl;
 	} catch (Error::StrategyError& e) {
-		cout << "failed:" << e.getInfo() << "." << endl;
+		cout << "failed:" << e.what() << "." << endl;
 	}
 
 	bzero(rdata, RDATASIZE);
@@ -298,7 +346,7 @@ runTests(IO::RecordStore *rs)
 		cout << "does not exist!" << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
-		cout << "failed:" << e.getInfo() << "." << endl;
+		cout << "failed:" << e.what() << "." << endl;
 		return (-1);
 	}
 	if (rlen != wlen) {
@@ -325,7 +373,7 @@ runTests(IO::RecordStore *rs)
 		cout << "succeeded." << endl;
 		success = true;
 	} catch (Error::StrategyError& e) {
-		cout << "failed: " << e.getInfo() << "." << endl;
+		cout << "failed: " << e.what() << "." << endl;
 		return (-1);
 	}
 	if (!success)
@@ -336,7 +384,7 @@ runTests(IO::RecordStore *rs)
 		rs->sync();
 		cout << "succeeded." << endl;
 	} catch (Error::StrategyError& e) {
-		cout << "failed: " << e.getInfo() << "." << endl;
+		cout << "failed: " << e.what() << "." << endl;
 		return (-1);
 	}
 	cout << "\nSpace usage with no records is " << rs->getSpaceUsed() << endl;
@@ -350,6 +398,8 @@ runTests(IO::RecordStore *rs)
 		rs->insert(theKey, rdata, RDATASIZE);
 	}
 	testSequence(rs);
+	cout << "Iterator version:" << endl;
+	testIterator(rs);
 
 	/*
 	 * 'Need to sequence to a specific location as we can't just pick
@@ -357,15 +407,15 @@ runTests(IO::RecordStore *rs)
 	 * name we hard-code may be the last key.
 	 */
 	string tempKey;
-	rlen = rs->sequence(tempKey, NULL,
+	rlen = rs->sequence(tempKey, nullptr,
 	    IO::RecordStore::BE_RECSTORE_SEQ_START);
 	for (int i = 0; i < 3; i++)
-		rlen = rs->sequence(tempKey, NULL);
+		rlen = rs->sequence(tempKey, nullptr);
 	cout << endl << "Sequence, starting from \"" << tempKey << "\"" << endl;
 	try {
 		rs->setCursorAtKey(tempKey);
 	} catch (Error::Exception &e) {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.what() << endl;
 	}
 	testSequence(rs);
 	cout << endl << "Sequencing from end; there should be no output." << endl;
@@ -390,6 +440,10 @@ runTests(IO::RecordStore *rs)
 	testSequence(rs);
 	cout << "Should sequence starting at 'Record 2' key from first list."
 	    << endl;
+	cout << "Iterator version:" << endl;
+	testIterator(rs);
+	cout << "Should sequence starting at 'Record 1' key from first list."
+	    << endl;
 
 	/* Reinsert the record for the key that was deleted above */
 	snprintf(rdata, RDATASIZE, "Bogus data for %s ", tempKey.c_str());
@@ -399,14 +453,16 @@ runTests(IO::RecordStore *rs)
 
 	cout << endl << "Changing RecordStore name..." << endl;
 	try {
-		string newName = IO::Utility::createTemporaryFile("", ".");
-		newName = newName.substr(2, newName.length());
+		string newName = IO::Utility::createTemporaryFile("", "");
+		if (unlink(newName.c_str()))
+			throw Error::StrategyError("Could not unlink empty "
+			    "temporary file (" + newName + ")");
 		rs->changeName(newName);
 	} catch (Error::ObjectExists &e) {
-		cout << "failed: " << e.getInfo() << "." << endl;
+		cout << "failed: " << e.what() << "." << endl;
 		return (-1);
 	} catch (Error::StrategyError &e) {
-		cout << "failed: " << e.getInfo() << "." << endl;
+		cout << "failed: " << e.what() << "." << endl;
 		return (-1);
 	}
 	cout << "Name is now " << rs->getName() << endl;
@@ -418,7 +474,7 @@ runTests(IO::RecordStore *rs)
 		try { 
 			rs->remove(theKey);
 		} catch (Error::Exception &e) {
-			cout << "Caught: " << e.getInfo() << endl;
+			cout << "Caught: " << e.what() << endl;
 		}
 	}
 	cout << "\nSequencing empty store... ";
@@ -432,7 +488,7 @@ runTests(IO::RecordStore *rs)
 		rs->insert(theKey, wdata.c_str(), 0);
 		cout << "success." << endl;
 	} catch (Error::Exception &e) {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.what() << endl;
 	}
 	cout << "Read zero-length record... ";
 	try {
@@ -443,7 +499,7 @@ runTests(IO::RecordStore *rs)
 		else
 			cout << "failure." << endl;
 	} catch (Error::Exception &e) {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.what() << endl;
 	}
 	cout << "Removing zero-length record...";
 	try {
@@ -511,9 +567,9 @@ runTests(IO::RecordStore *rs)
 		cout << "failed" << endl;
 		return (-1);
 	} catch (Error::ObjectExists &e) {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.what() << endl;
 	} catch (Error::StrategyError &e)  {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.what() << endl;
 		cout << "\tShould be invalid key." << endl;
 	}
 
@@ -521,9 +577,9 @@ runTests(IO::RecordStore *rs)
 	try {
 		rs->changeName(rsname);
 	} catch (Error::ObjectExists &e) {
-		cout << "Caught: " << e.getInfo();
+		cout << "Caught: " << e.what();
 	} catch (Error::StrategyError &e)  {
-		cout << "Caught: " << e.getInfo();
+		cout << "Caught: " << e.what();
 	}
 	cout << "finished." << endl;
 
@@ -549,7 +605,7 @@ main(int argc, char* argv[]) {
 		cout << "The File Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	auto_ptr<IO::FileRecordStore> ars(rs);
@@ -565,7 +621,7 @@ main(int argc, char* argv[]) {
 		cout << "The DB Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	auto_ptr<IO::DBRecordStore> ars(rs);
@@ -581,7 +637,7 @@ main(int argc, char* argv[]) {
 		cout << "The Archive Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	auto_ptr<IO::ArchiveRecordStore> ars(rs);
@@ -597,7 +653,7 @@ main(int argc, char* argv[]) {
 		cout << "The SQLite Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	auto_ptr<IO::SQLiteRecordStore> ars(rs);
@@ -609,12 +665,12 @@ main(int argc, char* argv[]) {
 	IO::CompressedRecordStore *rs;
 	try {
 		rs = new IO::CompressedRecordStore(rsname, "RW Test Dir",
-		    IO::RecordStore::BERKELEYDBTYPE, "", "GZIP");
+		    IO::RecordStore::Kind::BerkeleyDB, "", "GZIP");
 	} catch (Error::ObjectExists &e) {
 		cout << "The Compressed Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	auto_ptr<IO::CompressedRecordStore> ars(rs);
@@ -637,7 +693,7 @@ main(int argc, char* argv[]) {
 		cout << "The File Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 #endif
@@ -651,7 +707,7 @@ main(int argc, char* argv[]) {
 		cout << "The DB Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 #endif
@@ -665,7 +721,7 @@ main(int argc, char* argv[]) {
 		cout << "The Archive Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 #endif
@@ -679,7 +735,7 @@ main(int argc, char* argv[]) {
 		cout << "The SQLite Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 #endif
@@ -693,7 +749,7 @@ main(int argc, char* argv[]) {
 		cout << "The Compressed Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 #endif
@@ -714,28 +770,28 @@ main(int argc, char* argv[]) {
 	try {
 		IO::ArchiveRecordStore::vacuum(rsname, "");
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.what() << endl;
 	} catch (Error::StrategyError &e) {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.what() << endl;
 	}
 	cout << "\nSpace usage after vacuum is ";
 	try {
 		cout << rs->getSpaceUsed() << endl;
 	} catch (Error::StrategyError& e) {
-		cout << "failed:" << e.getInfo() << "." << endl;
+		cout << "failed:" << e.what() << "." << endl;
 	}
 #endif
 
 	cout << "Open non-existing record store using factory method: ";
-	std::tr1::shared_ptr<IO::RecordStore> srs;
+	std::shared_ptr<IO::RecordStore> srs;
 	bool success = false;
 	try {
 		srs = IO::RecordStore::openRecordStore("bbogusss", "/tmp");
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught" << e.getInfo() << "; success." << endl;
+		cout << "Caught" << e.what() << "; success." << endl;
 		success = true;
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	if (!success) {
@@ -748,10 +804,10 @@ main(int argc, char* argv[]) {
 		srs = IO::RecordStore::openRecordStore(rsname, "");
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Record Store could not be opened by the factory; exiting." << endl;
-		cout << e.getInfo() << endl;
+		cout << e.what() << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError& e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	if (runTests(srs.get()) != 0)
@@ -773,9 +829,9 @@ main(int argc, char* argv[]) {
 	try {
 		IO::RecordStore::removeRecordStore(rsname, "");
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.what() << endl;
 	} catch (Error::StrategyError &e) {
-		cout << "Caught: " << e.getInfo() << endl;
+		cout << "Caught: " << e.what() << endl;
 	}
 
 	return(EXIT_SUCCESS);

@@ -11,11 +11,11 @@
 #ifndef __BE_PROCESS_FORKMANAGER_H__
 #define __BE_PROCESS_FORKMANAGER_H__
 
+#include <unistd.h>
+
 #include <list>
 
 #include <be_process_manager.h>
-
-using namespace std;
 
 namespace BiometricEvaluation
 {
@@ -60,9 +60,9 @@ namespace BiometricEvaluation
 			 * @return
 			 *	shared_ptr to worker.
 			 */
-			tr1::shared_ptr<WorkerController>
+			std::shared_ptr<WorkerController>
 			addWorker(
-			    tr1::shared_ptr<Worker> worker);
+			    std::shared_ptr<Worker> worker);
 
 			/**
 			 * @brief
@@ -83,10 +83,8 @@ namespace BiometricEvaluation
 			void
 			startWorkers(
 			    bool wait = true,
-			    bool communicate = false)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    bool communicate = false);
+   
 			/**
 			 * @brief
 			 * Start a worker
@@ -108,12 +106,10 @@ namespace BiometricEvaluation
 			 */
 			void
 			startWorker(
-			    tr1::shared_ptr<WorkerController> worker,
+			    std::shared_ptr<WorkerController> worker,
 			    bool wait = true,
-			    bool communicate = false)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    bool communicate = false);
+
 			/**
 			 * @brief
 			 * Ask Worker to exit.
@@ -142,9 +138,7 @@ namespace BiometricEvaluation
 			 */
 			int32_t
 			stopWorker(
-			    tr1::shared_ptr<WorkerController> workerController)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    std::shared_ptr<WorkerController> workerController);
 
 			/**
 			 * @brief
@@ -230,11 +224,10 @@ namespace BiometricEvaluation
 			 * @throw Error::ObjectDoesNotExist
 			 *	No process with PID pid found.
 			 */
-			tr1::shared_ptr<ForkWorkerController>
+			std::shared_ptr<ForkWorkerController>
 			getProcessWithPID(
-			    pid_t pid)
-			    throw (Error::ObjectDoesNotExist);
-			    
+			    pid_t pid);
+
 			/** 
 			 * @brief
 			 * Do not return until all Workers exit.
@@ -259,7 +252,7 @@ namespace BiometricEvaluation
 			void
 			setExitCallback(
 			    void (*exitCallback)
-			    (tr1::shared_ptr<ForkWorkerController> worker,
+			    (std::shared_ptr<ForkWorkerController> worker,
 			    int stat_loc));
 			    
 			/**
@@ -277,7 +270,7 @@ namespace BiometricEvaluation
 			 */
 			static void
 			defaultExitCallback(
-			    tr1::shared_ptr<ForkWorkerController> worker,
+			    std::shared_ptr<ForkWorkerController> worker,
 			    int status);
 
 			/**
@@ -326,7 +319,7 @@ namespace BiometricEvaluation
 			 */
 			void
 			(*_exitCallback)
-			    (tr1::shared_ptr<ForkWorkerController> wc,
+			    (std::shared_ptr<ForkWorkerController> wc,
 			    int stat_loc);
 		
 			/** Whether or not this process is a parent process */
@@ -334,7 +327,7 @@ namespace BiometricEvaluation
 
 			/** Map of WorkerController statuses */
 			std::map<
-			    tr1::shared_ptr<ForkWorkerController>, Status>
+			    std::shared_ptr<ForkWorkerController>, Status>
 			    _wcStatus;
 		};
 		
@@ -366,9 +359,8 @@ namespace BiometricEvaluation
 			 *	running.
 			 */
 			void
-			reset()
-			    throw (Error::ObjectExists);
-			
+			reset();
+
 			/**
 			 * @brief
 			 * Obtain the PID of this process this instance 
@@ -417,7 +409,7 @@ namespace BiometricEvaluation
 			 *	The Worker instance to wrap.
 			 */
 			ForkWorkerController(
-			    tr1::shared_ptr<Worker> worker);
+			    std::shared_ptr<Worker> worker);
 			    
 			/**
 			 * @brief
@@ -438,10 +430,8 @@ namespace BiometricEvaluation
 			 */
 			void
 			start(
-			    bool communicate = false)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    bool communicate = false);
+
 			/**
 			 * @brief
 			 * Tell the Worker to stop.
@@ -455,9 +445,7 @@ namespace BiometricEvaluation
 			 *	Error asking Worker to stop.
 			 */
 			int32_t
-			stop()
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			stop();
 
 			/** PID of the process represented by _worker */
     			pid_t _pid;
@@ -467,7 +455,7 @@ namespace BiometricEvaluation
 			 * be one instance of a ForkedChild per Child, because
 			 * of the way fork() copies memory.
 			 */
-			static tr1::shared_ptr<Worker> _staticWorker;
+			static std::shared_ptr<Worker> _staticWorker;
 
 			/*
 			 * Friends.
@@ -492,10 +480,8 @@ namespace BiometricEvaluation
 			friend void
 			ForkManager::startWorkers(
 			    bool wait,
-			    bool communicate)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			
+			    bool communicate);
+
 			/**
 			 * @brief
 			 * Restart a completed Worker.
@@ -517,12 +503,10 @@ namespace BiometricEvaluation
 			 */
 			friend void
 			ForkManager::startWorker(
-			    tr1::shared_ptr<WorkerController> worker,
+			    std::shared_ptr<WorkerController> worker,
 			    bool wait,
-			    bool communicate)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    bool communicate);
+
 			/**
 			 * @brief
 			 * Ask Worker to exit.
@@ -544,10 +528,8 @@ namespace BiometricEvaluation
 			 */
 			friend int32_t
 			ForkManager::stopWorker(
-			    tr1::shared_ptr<WorkerController> workerController)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			    
+			    std::shared_ptr<WorkerController> workerController);
+
 			/**
 			 * @brief
 			 * Adds a Worker to be managed by this Manager.
@@ -558,9 +540,9 @@ namespace BiometricEvaluation
 			 * @return
 			 *	shared_ptr to worker.
 			 */
-			friend tr1::shared_ptr<WorkerController>
+			friend std::shared_ptr<WorkerController>
 			ForkManager::addWorker(
-			    tr1::shared_ptr<Worker> worker);
+			    std::shared_ptr<Worker> worker);
 		};
 	}
 }

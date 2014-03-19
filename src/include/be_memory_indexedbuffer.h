@@ -93,8 +93,7 @@ namespace BiometricEvaluation {
 			 * @throw Error::ParameterError
 			 * The index parameter is too large.
 			 */
-			void setIndex(uint32_t index)
-			    throw (Error::ParameterError);
+			void setIndex(uint32_t index);
 			
 			/**
 			 * @brief
@@ -106,8 +105,7 @@ namespace BiometricEvaluation {
 			 * The next element of the buffer as an unsigned 8-bit
 			 * value.
 			 */
-			uint8_t scanU8Val()
-			    throw (Error::DataError);
+			uint8_t scanU8Val();
 			
 			/**
 			 * @brief
@@ -119,8 +117,7 @@ namespace BiometricEvaluation {
 			 * The next element of the buffer as an unsigned 
 			 * 16-bit value.
 			 */
-			uint16_t scanU16Val()
-			    throw (Error::DataError);
+			uint16_t scanU16Val();
 		
 			/**
 			 * @brief
@@ -133,8 +130,7 @@ namespace BiometricEvaluation {
 			 * The next element of the buffer as an unsigned 
 			 * 16-bit value.
 			 */
-			uint16_t scanBeU16Val()
-			    throw (Error::DataError);
+			uint16_t scanBeU16Val();
 
 			/**
 			 * @brief
@@ -146,8 +142,7 @@ namespace BiometricEvaluation {
 			 * The next element of the buffer as an unsigned
 			 * 32-bit value.
 			 */
-			uint32_t scanU32Val()
-			    throw (Error::DataError);
+			uint32_t scanU32Val();
 
 			/**
 			 * @brief
@@ -160,8 +155,7 @@ namespace BiometricEvaluation {
 			 * The next element of the buffer as an unsigned 
 			 * 32-bit value.
 			 */
-			uint32_t scanBeU32Val()
-			    throw (Error::DataError);
+			uint32_t scanBeU32Val();
 
 			/**
 			 * @brief
@@ -173,8 +167,7 @@ namespace BiometricEvaluation {
 			 * The next element of the buffer as an unsigned
 			 * 64-bit value.
 			 */
-			uint64_t scanU64Val()
-			    throw (Error::DataError);
+			uint64_t scanU64Val();
 
 			/**
 			 * @brief
@@ -182,7 +175,7 @@ namespace BiometricEvaluation {
 			 * increment the current index value by n.
 			 *
 			 * @param[in] buf
-			 *	Buffer to store the copied data. Can be NULL.
+			 *	Buffer to store the copied data. Can be nullptr.
 			 *	The current index is incremented.
 			 * @param[in] len
 			 *	The number of elements to copy.
@@ -195,8 +188,7 @@ namespace BiometricEvaluation {
 			 */
 			uint32_t scan(
 			    void *buf,
-			    const uint32_t len)
-			    throw (Error::DataError);
+			    const uint32_t len);
 
 			/**
 			 * @brief

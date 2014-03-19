@@ -15,7 +15,6 @@
 
 #include <be_error_exception.h>
 
-using namespace std;
 namespace BiometricEvaluation {
 
 	/**
@@ -33,7 +32,7 @@ namespace BiometricEvaluation {
 		 * Remove lead and trailing white space from a string
 		 * object.
 		 */
-		void removeLeadingTrailingWhitespace(string &s);
+		void removeLeadingTrailingWhitespace(std::string &s);
 
 		/**
 		 * @brief
@@ -56,14 +55,11 @@ namespace BiometricEvaluation {
 		 *	An ASCII representation of the hex digits composing
 		 *	the digest.
 		 */
-		string
+		std::string
 		digest(
-		    const string &s,
-		    const string &digest = "md5")
-		    throw (Error::MemoryError,
-		    Error::NotImplemented,
-		    Error::StrategyError);
-    
+		    const std::string &s,
+		    const std::string &digest = "md5");
+
 		/**
 		 * @brief
 		 * Compute the digest of a memory buffer.
@@ -87,15 +83,12 @@ namespace BiometricEvaluation {
 		 *	An ASCII representation of the hex digits composing
 		 *	the digest.
 		 */
-		string
+		std::string
 		digest(
 		    const void *buffer,
 		    const size_t buffer_size,
-		    const string &digest = "md5")
-		    throw (Error::MemoryError,
-		    Error::NotImplemented,
-		    Error::StrategyError);
-    
+		    const std::string &digest = "md5");
+
 		/**
 		 * @brief
 		 * Return tokens bound by delimiters and the beginning and end
@@ -117,12 +110,11 @@ namespace BiometricEvaluation {
 		 * If delimiter does not appear in string, the returned vector
 		 * vector will still contain one item, str.
 		 */
-		vector<string>
+		std::vector<std::string>
 		split(
-		    const string &str,
+		    const std::string &str,
 		    const char delimiter,
-		    bool escape = true)
-		    throw (Error::ParameterError);
+		    bool escape = true);
 
 		/**
 		 * @brief
@@ -134,9 +126,9 @@ namespace BiometricEvaluation {
 		 * @return
 		 *	Filename portion of path.
 		 */
-		string
+		std::string
 		filename(
-		    const string &path);
+		    const std::string &path);
 
 		/**
 		 * @brief
@@ -148,9 +140,27 @@ namespace BiometricEvaluation {
 		 * @return
 		 *	Directory portion of path.
 		 */
-		string
+		std::string
 		dirname(
-		    const string &path);
+		    const std::string &path);
+
+		/**
+		 * @brief
+		 * Compare two ASCII-encoded strings.
+		 *
+		 * @param str1
+		 *	First string to compare.
+		 * @param str2
+		 *	Second string to compare.
+		 *
+		 * @return
+		 *	true if str1 and str2 are equal other than case,
+		 *	false otherwise.
+		 */
+		bool
+		caseInsensitiveCompare(
+		    const std::string &str1,
+		    const std::string &str2);
 	}
 }
 #endif /* __BE_TEXT_H__ */

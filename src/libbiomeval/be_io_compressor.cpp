@@ -8,36 +8,18 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <be_framework_enumeration.h>
 #include <be_io_compressor.h>
 
 /* Include children for factory */
 #include <be_io_gzip.h>
 
-const string BiometricEvaluation::IO::Compressor::GZIPTYPE = "GZIP";
-
-BiometricEvaluation::IO::Compressor::Kind
-BiometricEvaluation::IO::Compressor::stringToKind(
-    const string &compressor)
-    throw (Error::ObjectDoesNotExist)
-{
-	if (strcasecmp(GZIPTYPE.c_str(), compressor.c_str()) == 0)
-		return (Compressor::GZIP);
-		
-	throw Error::ObjectDoesNotExist(compressor);
-}
-
-string
-BiometricEvaluation::IO::Compressor::kindToString(
-    Compressor::Kind compressor)
-    throw (Error::ObjectDoesNotExist)
-{
-	switch (compressor) {
-	case GZIP:
-		return (GZIPTYPE);
-	default:
-		throw Error::ObjectDoesNotExist();
-	}
-}
+template<>
+const std::map<BiometricEvaluation::IO::Compressor::Kind, std::string>
+    BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::IO::Compressor::Kind>::enumToStringMap {
+	{BiometricEvaluation::IO::Compressor::Kind::GZIP, "GZIP"}
+};
 
 BiometricEvaluation::IO::Compressor::Compressor() :
     _compressorOptions()
@@ -47,57 +29,51 @@ BiometricEvaluation::IO::Compressor::Compressor() :
 
 void
 BiometricEvaluation::IO::Compressor::setOption(
-    const string &optionName,
-    const string &optionValue)
-    throw (Error::StrategyError)
+    const std::string &optionName,
+    const std::string &optionValue)
 {
 	_compressorOptions.setProperty(optionName, optionValue);
 }
 
 void
 BiometricEvaluation::IO::Compressor::setOption(
-    const string &optionName,
+    const std::string &optionName,
     int64_t optionValue)
-    throw (Error::StrategyError)
 {
 	_compressorOptions.setPropertyFromInteger(optionName,
 	    optionValue);
 }
 
-string
+std::string
 BiometricEvaluation::IO::Compressor::getOption(
-    const string &optionName)
+    const std::string &optionName)
     const
-    throw (Error::ObjectDoesNotExist)
 {
 	return (_compressorOptions.getProperty(optionName));
 }
 
 int64_t
 BiometricEvaluation::IO::Compressor::getOptionAsInteger(
-    const string &optionName)
+    const std::string &optionName)
     const
-    throw (Error::ObjectDoesNotExist)
 {
 	return (_compressorOptions.getPropertyAsInteger(optionName));
 }
 
 void
 BiometricEvaluation::IO::Compressor::removeOption(
-    const string &optionName)
-    throw (Error::ObjectDoesNotExist)
+    const std::string &optionName)
 {
 	return (_compressorOptions.removeProperty(optionName));
 }
 
-tr1::shared_ptr<BiometricEvaluation::IO::Compressor>
+std::shared_ptr<BiometricEvaluation::IO::Compressor>
 BiometricEvaluation::IO::Compressor::createCompressor(
     Compressor::Kind compressorKind)
-    throw (Error::ObjectDoesNotExist)
 {
 	switch (compressorKind) {
-	case GZIP:
-		return (tr1::shared_ptr<Compressor>(new GZip()));
+	case Kind::GZIP:
+		return (std::shared_ptr<Compressor>(new GZip()));
 	default:
 		throw Error::ObjectDoesNotExist("Invalid compressor type");
 	}

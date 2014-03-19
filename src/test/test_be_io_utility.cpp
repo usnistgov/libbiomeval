@@ -35,7 +35,7 @@ main(int argc, char* argv[])
 //		cout << "\t\"" << line << '"' << endl;
 		
 	} catch (Error::Exception &e) {
-		cout << "ERROR (" << e.getInfo() << ")" << endl;
+		cout << "ERROR (" << e.what() << ")" << endl;
 		return (EXIT_FAILURE);
 	}
 
@@ -46,7 +46,7 @@ main(int argc, char* argv[])
 		IO::Utility::writeFile(textFile, tempFileName);
 		cout << "success" << endl;
 	} catch (Error::Exception &e) {
-		cout << "ERROR (" << e.getInfo() << ")" << endl;
+		cout << "ERROR (" << e.what() << ")" << endl;
 		return (EXIT_FAILURE);
 	}
 	
@@ -66,7 +66,7 @@ main(int argc, char* argv[])
 		IO::Utility::writeFile(textFile, tempFileName, ios_base::trunc);
 		cout << "success" << endl;
 	} catch (Error::Exception &e) {
-		cout << "ERROR (" << e.getInfo() << ")" << endl;
+		cout << "ERROR (" << e.what() << ")" << endl;
 		return (EXIT_FAILURE);
 	}
 	
@@ -77,7 +77,7 @@ main(int argc, char* argv[])
 		textFile2 = IO::Utility::readFile(tempFileName);
 
 	} catch (Error::Exception &e) {
-		cout << "ERROR (" << e.getInfo() << ")" << endl;
+		cout << "ERROR (" << e.what() << ")" << endl;
 		return (EXIT_FAILURE);
 	}
 	if (textFile.size() != textFile2.size()) {
@@ -107,7 +107,7 @@ main(int argc, char* argv[])
 			}
 			IO::Utility::writeFile(textFile, tempFileName);
 		} catch (Error::Exception &e) {
-			cout << "Caught " + e.getInfo() << endl;
+			cout << "Caught " << e.what() << endl;
 			return (EXIT_FAILURE);
 		}
 	}
@@ -132,7 +132,7 @@ main(int argc, char* argv[])
 			}
 			mkdir(tempDirName.c_str(), 0777);
 		} catch (Error::Exception &e) {
-			cout << "Caught " + e.getInfo() << endl;
+			cout << "Caught " << e.what() << endl;
 			return (EXIT_FAILURE);
 		}
 	}
@@ -160,7 +160,7 @@ main(int argc, char* argv[])
 	try {
 		IO::Utility::makePath(tree1, 0777);
 	} catch (Error::Exception &e) {
-		cout << "FAIL: Caught " << e.getInfo() << endl;
+		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	if (IO::Utility::fileExists(tree1))
@@ -182,7 +182,7 @@ main(int argc, char* argv[])
 	try {
 		IO::Utility::copyDirectoryContents(firstLvl1, firstLvl2, true);
 	} catch (Error::Exception &e) {
-		cout << "FAIL: Caught " << e.getInfo() << endl;
+		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	/* Check that the leaf file exists in the copy */
@@ -203,7 +203,7 @@ main(int argc, char* argv[])
 	try {
 		IO::Utility::removeDirectory(tempDirName);
 	} catch (Error::Exception &e) {
-		cout << "FAIL: Caught " << e.getInfo() << endl;
+		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	if (IO::Utility::fileExists(tempDirName))
@@ -219,19 +219,19 @@ main(int argc, char* argv[])
 	try {
 		testTempFile = IO::Utility::createTemporaryFile("test");
 	} catch (Error::Exception &e) {
-		cout << "FAIL: Caught " << e.getInfo() << endl;
+		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	cout << testTempFile << endl;
 	unlink(testTempFile.c_str());
 	
 	cout << "Write to exclusive temporary file: ";
-	FILE *tempFp = NULL;
+	FILE *tempFp = nullptr;
 	try {
 		tempFp = IO::Utility::createTemporaryFile(testTempFile,
 		    "test");
 	} catch (Error::Exception &e) {
-		cout << "FAIL: Caught " << e.getInfo() << endl;
+		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	string testContents = "This is a test entry for the temp file";

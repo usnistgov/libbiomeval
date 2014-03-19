@@ -14,8 +14,6 @@
 #include <be_io_compressor.h>
 #include <be_io_recordstore.h>
 
-using namespace std;
-
 namespace BiometricEvaluation
 {
 	namespace IO
@@ -50,14 +48,12 @@ namespace BiometricEvaluation
 			 * 	file system.
 			 */
 			CompressedRecordStore(
-			    const string &name,
-			    const string &description,
-		      	    const string &recordStoreType,
-			    const string &parentDir,
-			    const string &compressorType)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    const std::string &name,
+			    const std::string &description,
+		      	    const RecordStore::Kind &recordStoreType,
+			    const std::string &parentDir,
+			    const std::string &compressorType);
+
 			/**
 			 * Create a new CompressedRecordStore, read/write mode.
 			 *
@@ -81,13 +77,11 @@ namespace BiometricEvaluation
 			 * 	file system.
 			 */
 			CompressedRecordStore(
-			    const string &name,
-			    const string &description,
-		      	    const string &recordStoreType,
-			    const string &parentDir,
-			    const Compressor::Kind &compressorType)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &description,
+		      	    const RecordStore::Kind &recordStoreType,
+			    const std::string &parentDir,
+			    const Compressor::Kind &compressorType);
 
 			/**
 			 * Open an existing CompressedRecordStore.
@@ -106,11 +100,9 @@ namespace BiometricEvaluation
 			 *	file system.
 			 */
 			CompressedRecordStore(
-			    const string &name,
-			    const string &parentDir,
-			    uint8_t mode = IO::READWRITE)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir,
+			    uint8_t mode = IO::READWRITE);
 
 			/*
 			 * Destructor.
@@ -123,87 +115,59 @@ namespace BiometricEvaluation
 			 */
 			 
 			uint64_t
-			getSpaceUsed()
-			    const
-			    throw (Error::StrategyError);
+			getSpaceUsed() const;
 
 			void
-			sync()
-			    const
-			    throw (Error::StrategyError);
+			sync() const;
 
 			void
 			insert(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			void
 			remove(
-			    const string &key)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key);
 
 			uint64_t
 			read(
-			    const string &key,
-			    void *const data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key,
+			    void *const data) const;
 
 			void
 			replace(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			uint64_t
 			length(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key) const;
 
 			void
 			flush(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key) const;
 
 			uint64_t
 			sequence(
-			    string &key,
-			    void *const data = NULL,
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    std::string &key,
+			    void *const data = nullptr,
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			void
 			setCursorAtKey(
-			    string &key)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    std::string &key);
 
 			void
 			changeName(
-			    const string &name)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
-			    
+			    const std::string &name);
+
 			/** Name of the underlying store within this RS */
-			static const string BACKING_STORE;
+			static const std::string BACKING_STORE;
 			/** Name of the key storing compressor type */
-			static const string COMPRESSOR_TYPE_KEY;
+			static const std::string COMPRESSOR_TYPE_KEY;
 
-		protected:
-
-		private:
 			/**
 			 * @brief
 			 * Copy constructor (disabled).
@@ -215,8 +179,8 @@ namespace BiometricEvaluation
 			 *	CompressedRecordStore object to copy.
 			 */
 			 CompressedRecordStore(
-			    const CompressedRecordStore &rhs);
-			
+			    const CompressedRecordStore &rhs) = delete;
+
 			/**
 			 * @brief
 			 * Assignment operator (disabled).
@@ -233,19 +197,20 @@ namespace BiometricEvaluation
 			 */
 			CompressedRecordStore&
 			operator=(
-			    const CompressedRecordStore &rhs);
+			    const CompressedRecordStore &rhs) = delete;
 
+		private:
 			/** Underlying RecordStore */
-			tr1::shared_ptr<IO::RecordStore> _rs;
+			std::shared_ptr<IO::RecordStore> _rs;
 			
 			/** Metadata RecordStore */
-			tr1::shared_ptr<IO::RecordStore> _mdrs;
+			std::shared_ptr<IO::RecordStore> _mdrs;
 			
 			/** Underlying Compressor */
-			tr1::shared_ptr<IO::Compressor> _compressor;
+			std::shared_ptr<IO::Compressor> _compressor;
 			
 			/** Suffix for Metadata RecordStore */
-			static const string METADATA_SUFFIX;
+			static const std::string METADATA_SUFFIX;
 		};
 	}
 }

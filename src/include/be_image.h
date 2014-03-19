@@ -11,10 +11,11 @@
 #ifndef __BE_IMAGE_H__
 #define __BE_IMAGE_H__
 
-#include <stdint.h>
-
+#include <cstdint>
 #include <iostream>
 #include <vector>
+
+#include <be_framework_enumeration.h>
 
 namespace BiometricEvaluation 
 {
@@ -28,28 +29,19 @@ namespace BiometricEvaluation
 	 */
 	namespace Image
 	{
-		/**
-		 * @brief
-		 * Image compression algorithms.
-		 */
-		class CompressionAlgorithm {
-		public:
-			typedef enum {
-				None		= 0,
-				Facsimile	= 1,
-				WSQ20		= 2,
-				JPEGB		= 3,
-				JPEGL		= 4,
-				JP2		= 5,
-				JP2L		= 6,
-				PNG		= 7,
-				NetPBM		= 8
-			} Kind;
-		private:
-			CompressionAlgorithm() {}
+		/** Image compression algorithms. */
+		enum class CompressionAlgorithm
+		{
+			None		= 0,
+			Facsimile	= 1,
+			WSQ20		= 2,
+			JPEGB		= 3,
+			JPEGL		= 4,
+			JP2		= 5,
+			JP2L		= 6,
+			PNG		= 7,
+			NetPBM		= 8
 		};
-		std::ostream& operator<< (std::ostream&,
-		    const CompressionAlgorithm::Kind&);
 
 		/**
 		 * @brief
@@ -85,10 +77,10 @@ namespace BiometricEvaluation
 			/** Y-coordinate distance from origin */
 			float yDistance;
 		};
-		typedef struct Coordinate Coordinate;
+		using Coordinate = struct Coordinate;
 
 		std::ostream& operator<< (std::ostream&, const Coordinate&);
-		typedef std::vector<Image::Coordinate> CoordinateSet;
+		using CoordinateSet = std::vector<Image::Coordinate>;
 		/**
 		 * @brief
 		 * Output stream overload for CoordinateSet.
@@ -132,7 +124,7 @@ namespace BiometricEvaluation
 			/** Number of pixels on the Y-axis */
 			uint32_t ySize;
 		};
-		typedef struct Size Size;
+		using Size = struct Size;
 		std::ostream& operator<< (std::ostream&, const Size&);
 
 		/**
@@ -145,7 +137,7 @@ namespace BiometricEvaluation
 			 * Possible representations of the units in a
 			 * Resolution struct
 			 */
-			typedef enum {
+			enum class Units {
 				/** Not-applicable: unknown, or otherwise */
 				NA	= 0,
 				/** Pixels per inch */
@@ -154,7 +146,7 @@ namespace BiometricEvaluation
 				PPMM	= 2,
 				/** Pixels per centimeter */
 				PPCM	= 3
-			} Kind;
+			};
 				
 			/**
 			 * @brief
@@ -170,21 +162,17 @@ namespace BiometricEvaluation
 			Resolution(
 			    const double xRes = 0.0,
 			    const double yRes = 0.0,
-			    const Kind units = PPI);
+			    const Units units = Units::PPI);
 
 			/** Resolution along the X-axis */
 			double xRes;
 			/** Resolution along the Y-axis */
 			double yRes;
 			/** Units in which xRes and yRes are represented */
-			Kind units;
+			Units units;
 		};
-		typedef struct Resolution Resolution;
+		using Resolution = struct Resolution;
 		std::ostream& operator<< (std::ostream&, const Resolution&);
-		std::ostream&
-		operator<< (
-		    std::ostream &stream,
-		    const Resolution::Kind &kind);
 		
 		/**
 		 * @brief

@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include <tr1/memory>
+#include <memory>
 
 #include <be_view_an2kview_varres.h>
 #include <be_finger_an2kview.h>
@@ -61,21 +61,21 @@ namespace BiometricEvaluation
 				 *	right vertex).
 				 */
 				PrintPositionCoordinate(
-				    FingerImageCode::Kind &fingerView,
-				    FingerImageCode::Kind &segment,
+				    FingerImageCode &fingerView,
+				    FingerImageCode &segment,
 				    Image::CoordinateSet &coordinates);
 				
 				/** Full finger view being bounded */
-				FingerImageCode::Kind fingerView;
+				FingerImageCode fingerView;
 				/** Segment within full finger view bound */
-				FingerImageCode::Kind segment;
+				FingerImageCode segment;
 				/** Two coordinates forming bounding box */
 				Image::CoordinateSet coordinates;
 			};
-			typedef struct PrintPositionCoordinate
-			    PrintPositionCoordinate;
-			typedef std::vector<PrintPositionCoordinate>
-			    PrintPositionCoordinateSet;
+			using PrintPositionCoordinate =
+			    struct PrintPositionCoordinate;
+			using PrintPositionCoordinateSet =
+			    std::vector<PrintPositionCoordinate>;
 			    
 			/**
 			 * @brief
@@ -93,7 +93,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	The finger impression code.
 			 */
-			Finger::Impression::Kind getImpressionType() const;
+			Finger::Impression getImpressionType() const;
 			
 			/**
 			 * @brief
@@ -131,12 +131,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewVariableResolution(
 			    const std::string &filename,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError,
-				Error::FileError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -160,9 +156,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KViewVariableResolution(
 			    Memory::uint8Array &buf,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (Error::ParameterError, Error::DataError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -181,8 +176,7 @@ namespace BiometricEvaluation
 			 */
 			static PrintPositionCoordinate
 			convertPrintPositionCoordinate(
-			    SUBFIELD *subfield)
-			    throw (Error::DataError);
+			    SUBFIELD *subfield);
 
 			/**
 			 * @return
@@ -207,16 +201,15 @@ namespace BiometricEvaluation
 			 */
 			static PositionDescriptors
 			parsePositionDescriptors(
-			    const RecordType::Kind typeID,
-			    const RECORD *record)
-			    throw (Error::DataError);
+			    const RecordType typeID,
+			    const RECORD *record);
 
 		private:
 			void readImageRecord(
-			    const RecordType::Kind typeID)
-			    throw (Error::DataError);
+			    const RecordType typeID);
+
 			Finger::PositionSet _positions;
-			Finger::Impression::Kind _imp;
+			Finger::Impression _imp;
 			Finger::PositionDescriptors _pd;
 			/** Bounding boxes for EJIs */
 			PrintPositionCoordinateSet _ppcs;

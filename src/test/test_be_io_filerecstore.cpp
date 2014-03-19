@@ -8,12 +8,13 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cstdlib>
 #include <iostream>
 
-#include <stdlib.h>
 #include <be_io_filerecstore.h>
 
 using namespace BiometricEvaluation;
+using namespace std;
 
 /*
  * This program is used to test FileRecordStore object construction,
@@ -36,7 +37,7 @@ int main (int argc, char* argv[]) {
 		cout << "The directory already exists; exiting." << endl;
 		return (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 	}
 	cout << "Passed test of creating non-existing bit store." << endl;
 	delete frs;
@@ -51,7 +52,7 @@ int main (int argc, char* argv[]) {
 		cout << "Passed test of opening non-existing bit store." << endl;
 		cont = true;
 	} catch (Error::StrategyError e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 	}
 	if (!cont) {
 		cout << "Test of opening non-existing bit store construction failed." << endl;
@@ -65,7 +66,7 @@ int main (int argc, char* argv[]) {
 	} catch (Error::ObjectDoesNotExist) {
 		cout << "Failed test of opening existing bit store." << endl;
 	} catch (Error::StrategyError e) {
-		cout << "A strategy error occurred: " << e.getInfo() << endl;
+		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	if (!cont) {

@@ -59,8 +59,7 @@ namespace BiometricEvaluation
 			ANSI2007View(
 			    const std::string &fmrFilename,
 			    const std::string &firFilename,
-			    const uint32_t viewNumber)
-			    throw (Error::DataError, Error::FileError);
+			    const uint32_t viewNumber);
 
 			/**
 			 * @brief
@@ -91,8 +90,7 @@ namespace BiometricEvaluation
 			ANSI2007View(
 			    Memory::uint8Array &fmrBuffer,
 			    Memory::uint8Array &firBuffer,
-			    const uint32_t viewNumber)
-			    throw (Error::DataError);
+			    const uint32_t viewNumber);
 
 		protected:
 			static const uint32_t BASE_SPEC_VERSION = 0x30333000;
@@ -107,8 +105,7 @@ namespace BiometricEvaluation
 			 * INCITS/ANSI Finger Minutiae Record.
 			 */
 			void readFVMR(
-			    Memory::IndexedBuffer &buf)
-			    throw (Error::DataError);
+			    Memory::IndexedBuffer &buf);
 
 			/*
 			 * Required implementation of reading core/delta data.
@@ -117,8 +114,7 @@ namespace BiometricEvaluation
 			    Memory::IndexedBuffer &buf,
 				uint32_t dataLength,
 				Feature::CorePointSet &cores,
-				Feature::DeltaPointSet &deltas)
-			    throw (Error::DataError);
+				Feature::DeltaPointSet &deltas);
 
 		private:
 			uint32_t _algorithmID;

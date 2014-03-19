@@ -35,21 +35,15 @@ namespace BiometricEvaluation
 			/*
 			 * Implementations of the Image interface.
 			 */
-			Memory::AutoArray<uint8_t>
-			getData()
-			    const;
 
-			Memory::AutoArray<uint8_t>
-			getRawData()
-			    const
-			    throw (Error::DataError);
+			void
+			getRawData(
+			    Memory::uint8Array &rawData) const;
 			    
-			Memory::AutoArray<uint8_t>
+			void
 			getRawGrayscaleData(
-			    uint8_t depth = 8)
-			    const
-			    throw (Error::DataError,
-			    Error::ParameterError);
+			    Memory::uint8Array &rawGray,
+			    uint8_t depth = 8) const;
 
 		protected:
 

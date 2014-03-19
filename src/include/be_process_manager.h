@@ -18,8 +18,6 @@
 #include <be_process_worker.h>
 #include <be_process_workercontroller.h>
 
-using namespace std;
-
 namespace BiometricEvaluation
 {
 	namespace Process
@@ -47,9 +45,9 @@ namespace BiometricEvaluation
 			 * @return
 			 *	shared_ptr to worker.
 			 */
-			virtual tr1::shared_ptr<WorkerController>
+			virtual std::shared_ptr<WorkerController>
 			addWorker(
-			    tr1::shared_ptr<Worker> worker) = 0;
+			    std::shared_ptr<Worker> worker) = 0;
 			
 			/**
 			 * @brief
@@ -62,10 +60,8 @@ namespace BiometricEvaluation
 			 *	No Workers have started working yet.
 			 */
 			virtual uint32_t
-			getNumCompletedWorkers()
-			    const
-			    throw (Error::StrategyError);
-			    
+			getNumCompletedWorkers() const;
+
 			/**
 			 * @brief
 			 * Obtain the number of Workers that are still
@@ -78,10 +74,8 @@ namespace BiometricEvaluation
 			 *	No Workers have started working yet.
 			 */
 			virtual uint32_t
-			getNumActiveWorkers()
-			    const
-			    throw (Error::StrategyError);
-			    
+			getNumActiveWorkers() const;
+
 			/**
 			 * @brief
 			 * Obtain the number of Workers this class is
@@ -113,10 +107,8 @@ namespace BiometricEvaluation
 			virtual void
 			startWorkers(
 			    bool wait = true,
-			    bool communicate = false)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			    
+			    bool communicate = false) = 0;
+
 			/**
 			 * @brief
 			 * Start a Worker.
@@ -144,12 +136,10 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			startWorker(
-			    tr1::shared_ptr<WorkerController> worker,
+			    std::shared_ptr<WorkerController> worker,
 			    bool wait = true,
-			    bool communicate = false)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError) = 0;
-			    
+			    bool communicate = false) = 0;
+
 			/**
 			 * @brief
 			 * Reuse all Workers.
@@ -158,9 +148,8 @@ namespace BiometricEvaluation
 			 *	At least one Worker is still working.
 			 */
 			virtual void
-			reset()
-			    throw (Error::ObjectExists);
-			    
+			reset();
+
 			/**
 			 * @brief
 			 * Ask Worker to return as soon as possible.
@@ -179,10 +168,8 @@ namespace BiometricEvaluation
 			 */
 			virtual int32_t
 			stopWorker(
-			    tr1::shared_ptr<WorkerController> worker)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError) = 0;
-			
+			    std::shared_ptr<WorkerController> worker) = 0;
+
 			/**
 			 * @brief
 			 * Wait for a message from a Worker.
@@ -202,8 +189,8 @@ namespace BiometricEvaluation
 			 */
 			virtual bool
 			waitForMessage(
-			    tr1::shared_ptr<WorkerController> &sender,
-			    int *nextFD = NULL,
+			    std::shared_ptr<WorkerController> &sender,
+			    int *nextFD = nullptr,
 			    int numSeconds = -1)
 			    const;
 			
@@ -230,13 +217,10 @@ namespace BiometricEvaluation
 			 */
 			virtual bool
 			getNextMessage(
-			    tr1::shared_ptr<WorkerController> &sender,
+			    std::shared_ptr<WorkerController> &sender,
 			    Memory::uint8Array &message,
-			    int numSeconds = -1)
-			    const
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-			
+			    int numSeconds = -1) const;
+
 			/**
 			 * @brief
 			 * Send one message to all Workers.
@@ -249,10 +233,8 @@ namespace BiometricEvaluation
 			 */
 			virtual void
 			broadcastMessage(
-			    Memory::uint8Array &message)
-			    const
-    			    throw (Error::StrategyError);
-			    
+			    Memory::uint8Array &message) const;
+
 			/**
 			 * @brief
 			 * Manager destructor.
@@ -268,10 +250,12 @@ namespace BiometricEvaluation
 			_wait() = 0;
 			
 			/** Workers that have been added. */
-			vector<tr1::shared_ptr<WorkerController> > _workers;
+			std::vector<std::shared_ptr<WorkerController>>
+			    _workers;
 			
 			/** Workers that are about to exit (stop requested). */
-			vector<tr1::shared_ptr<WorkerController> > _pendingExit;
+			std::vector<std::shared_ptr<WorkerController>>
+			    _pendingExit;
 			
 		private:
 		

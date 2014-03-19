@@ -9,10 +9,10 @@
  */
 
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 
-#include <stdlib.h>
 #include <unistd.h>
 
 #include <be_time_timer.h>
@@ -42,7 +42,7 @@ testWatchdogAndSignalManager(Time::Watchdog *theDog)
 	 */
 	Error::SignalManager *sigmgr = new Error::SignalManager();
 	auto_ptr<Error::SignalManager> asigmgr(sigmgr);
-	char *cptr = NULL;
+	char *cptr = nullptr;
 
 	/*
 	 * Test timer expiration with signal handling inside.
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 #endif
 	} catch (Error::Exception &e) {
 		cout << "failed." << endl;
-		cout << "Caught " << e.getInfo() << ".\n";
+		cout << "Caught " << e.what() << ".\n";
 		return (EXIT_FAILURE);
 	}
 	cout << "success." << endl;
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 		Indy = new Time::Watchdog(Time::Watchdog::REALTIME);
 	} catch (Error::Exception &e) {
 		cout << "failed." << endl;
-		cout << "Caught " << e.getInfo() << ".\n";
+		cout << "Caught " << e.what() << ".\n";
 		return (EXIT_FAILURE);
 	}
 	cout << "success." << endl;

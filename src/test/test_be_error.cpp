@@ -23,9 +23,11 @@ int main(int argc, char *argv[])
 	std::cout << "\n\t(Some systems report 'Success', others 'Undefined' "
 	   "or 'Unknown'" << std::endl;
 	errno = 2;
-	std::cout << "Testing errno = 2: " << BE::Error::errorStr() << endl;
+	std::cout << "Testing errno = 2: " << BE::Error::errorStr() <<
+	    std::endl;
 	errno = 9999;
-	std::cout << "Testing errno = 9999: " << BE::Error::errorStr() << endl;
+	std::cout << "Testing errno = 9999: " << BE::Error::errorStr() <<
+	    std::endl;
 	std::cout << "\t(Some systems report 'Unknown' or 'Undefined', others "
 	   "the errorStr()"
 	    "\n\tmessage string 'Unable to retrieve ...')" << std::endl;

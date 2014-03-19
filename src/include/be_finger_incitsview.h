@@ -46,9 +46,8 @@ namespace BiometricEvaluation
 			 * @return
 			 * The finger position code in common notation.
 			 */
-			static Finger::Position::Kind
-			    convertPosition(int incitsFGP)
-			    throw (Error::DataError);
+			static Finger::Position
+			    convertPosition(int incitsFGP);
 	
 			/**
 			 * @brief
@@ -66,9 +65,8 @@ namespace BiometricEvaluation
 			 *	The finger impression type code in common
 			 *	notation.
 			 */
-			static Finger::Impression::Kind
-			    convertImpression(int incitsIMP)
-			    throw (Error::DataError);
+			static Finger::Impression
+			    convertImpression(int incitsIMP);
 	
 			/**
 			 * @brief
@@ -82,7 +80,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The finger position.
 		 	 */
-			Finger::Position::Kind getPosition() const;
+			Finger::Position getPosition() const;
 
 			/**
 			 * @brief
@@ -90,7 +88,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The finger impression code.
 			 */
-			Finger::Impression::Kind getImpressionType() const;
+			Finger::Impression getImpressionType() const;
 
 			/**
 			 * @brief
@@ -116,6 +114,8 @@ namespace BiometricEvaluation
 			 * True if 'Appendix F' compliant, false otherwise.
 			 */
 			bool isAppendixFCompliant() const;
+
+			std::shared_ptr<Image::Image> getImage() const;
 
 		protected:
 
@@ -158,8 +158,7 @@ namespace BiometricEvaluation
 			INCITSView(
 			    const std::string &fmrFilename,
 			    const std::string &firFilename,
-			    const uint32_t viewNumber)
-			    throw (Error::DataError, Error::FileError);
+			    const uint32_t viewNumber);
 
 			/**
 			 * @brief
@@ -184,8 +183,7 @@ namespace BiometricEvaluation
 			INCITSView(
 			    const Memory::uint8Array &fmrBuffer,
 			    const Memory::uint8Array &firBuffer,
-			    const uint32_t viewNumber)
-			    throw (Error::DataError);
+			    const uint32_t viewNumber);
 
 			/**
 			 * @brief
@@ -219,7 +217,7 @@ namespace BiometricEvaluation
 			 * @param[in] position
 			 * The finger position.
 			 */
-			void setPosition(const Finger::Position::Kind &position);
+			void setPosition(const Finger::Position &position);
 
 			/**
 			 * @brief
@@ -228,7 +226,7 @@ namespace BiometricEvaluation
 			 * The finger impression type code.
 			 */
 			void setImpressionType(
-			    const Finger::Impression::Kind &impression);
+			    const Finger::Impression &impression);
 
 			/**
 			 * @brief
@@ -296,8 +294,7 @@ namespace BiometricEvaluation
 			 */
 			void readFMRHeader(
 			    Memory::IndexedBuffer &buf,
-			    const uint32_t formatStandard)
-			    throw (Error::ParameterError, Error::DataError);
+			    const uint32_t formatStandard);
 
 			/**
 			 * @brief
@@ -321,8 +318,7 @@ namespace BiometricEvaluation
 			 * The INCITS record has invalid or missing data.
 			 */
 			void readFVMR(
-			    Memory::IndexedBuffer &buf)
-			    throw (Error::DataError);
+			    Memory::IndexedBuffer &buf);
 
 			/**
 			 * @brief
@@ -346,8 +342,7 @@ namespace BiometricEvaluation
 			 virtual
 			 Feature::MinutiaPointSet readMinutiaeDataPoints(
 			    Memory::IndexedBuffer &buf,
-				uint32_t count)
-				throw (Error::DataError);
+			    uint32_t count);
 
 			/**
 			 * @brief
@@ -360,8 +355,7 @@ namespace BiometricEvaluation
 			 * The INCITS record has invalid or missing data.
 			 */
 			virtual void readExtendedDataBlock(
-			    Memory::IndexedBuffer &buf)
-			    throw (Error::DataError);
+			    Memory::IndexedBuffer &buf);
 
 			/**
 			 * @brief
@@ -381,8 +375,7 @@ namespace BiometricEvaluation
 			 */
 			virtual Feature::RidgeCountItemSet readRidgeCountData(
 			    Memory::IndexedBuffer &buf,
-			    uint32_t dataLength)
-			    throw (Error::DataError);
+			    uint32_t dataLength);
 
 			/**
 			 * @brief
@@ -406,15 +399,14 @@ namespace BiometricEvaluation
 			    Memory::IndexedBuffer &buf,
 				uint32_t dataLength,
 				Feature::CorePointSet &cores,
-				Feature::DeltaPointSet &deltas)
-			    throw (Error::DataError) = 0;
+				Feature::DeltaPointSet &deltas) = 0;
 				
 		private:
 			Memory::uint8Array _fmr;
 			Memory::uint8Array _fir;
-			Finger::Position::Kind _position;
+			Finger::Position _position;
 			Feature::INCITSMinutiae _minutiae;
-			Finger::Impression::Kind _impression;
+			Finger::Impression _impression;
 			uint32_t _viewNumber;
 			uint32_t _quality;
 			bool _appendixFCompliance;

@@ -14,7 +14,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <memory>
 #include <sstream>
 
 #include <be_error.h>
@@ -26,55 +25,61 @@
 #include <be_io_listrecstore.h>
 #include <be_io_propertiesfile.h>
 #include <be_io_recordstore.h>
+#include <be_io_recordstoreiterator.h>
 #include <be_io_sqliterecstore.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
 #include <be_text.h>
 
-const string BiometricEvaluation::IO::RecordStore::INVALIDKEYCHARS("/\\*&");
+const std::string BiometricEvaluation::IO::RecordStore::INVALIDKEYCHARS(
+    "/\\*&");
 
 /*
  * The name of the control file use by all RecordStores.
  */
-const string BiometricEvaluation::IO::RecordStore::CONTROLFILENAME(".rscontrol.prop");
+const std::string BiometricEvaluation::IO::RecordStore::CONTROLFILENAME(
+    ".rscontrol.prop");
 
 /*
  * The common properties for all RecordStore types.
  */
-const string BiometricEvaluation::IO::RecordStore::NAMEPROPERTY("Name");
-const string BiometricEvaluation::IO::RecordStore::DESCRIPTIONPROPERTY("Description");
-const string BiometricEvaluation::IO::RecordStore::COUNTPROPERTY("Count");
-const string BiometricEvaluation::IO::RecordStore::TYPEPROPERTY("Type");
-
-const string BiometricEvaluation::IO::RecordStore::BERKELEYDBTYPE("BerkeleyDB");
-const string BiometricEvaluation::IO::RecordStore::ARCHIVETYPE("Archive");
-const string BiometricEvaluation::IO::RecordStore::FILETYPE("File");
-const string BiometricEvaluation::IO::RecordStore::SQLITETYPE("SQLite");
-const string BiometricEvaluation::IO::RecordStore::COMPRESSEDTYPE("Compressed");
-const string BiometricEvaluation::IO::RecordStore::LISTTYPE("List");
-
-/* 
- * Default RecordStore should be one of the above and never an 
- * aggregated (like COMPRESSEDTYPE).
- */
-const string BiometricEvaluation::IO::RecordStore::DEFAULTTYPE(BERKELEYDBTYPE);
+const std::string BiometricEvaluation::IO::RecordStore::NAMEPROPERTY("Name");
+const std::string BiometricEvaluation::IO::RecordStore::DESCRIPTIONPROPERTY(
+    "Description");
+const std::string BiometricEvaluation::IO::RecordStore::COUNTPROPERTY("Count");
+const std::string BiometricEvaluation::IO::RecordStore::TYPEPROPERTY("Type");
 
 /** Error message when trying to change a core property */
-static const string COREPROPERTYERROR = "Cannot change core properties";
+static const std::string COREPROPERTYERROR = "Cannot change core properties";
 
-const string BiometricEvaluation::IO::RecordStore::RSREADONLYERROR =
-    "RecordStore was opened read-only";
+const std::string BiometricEvaluation::IO::RecordStore::RSREADONLYERROR(
+    "RecordStore was opened read-only");
+
+#pragma mark - RecordStore::Kind
+
+template<>
+const std::map<BiometricEvaluation::IO::RecordStore::Kind, std::string>
+BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::IO::RecordStore::Kind>::enumToStringMap {
+	{BiometricEvaluation::IO::RecordStore::Kind::BerkeleyDB, "BerkeleyDB"},
+	{BiometricEvaluation::IO::RecordStore::Kind::Archive, "Archive"},
+	{BiometricEvaluation::IO::RecordStore::Kind::File, "File"},
+	{BiometricEvaluation::IO::RecordStore::Kind::SQLite, "SQLite"},
+	{BiometricEvaluation::IO::RecordStore::Kind::Compressed, "Compressed"},
+	{BiometricEvaluation::IO::RecordStore::Kind::List, "List"}
+};
+
+#pragma mark - RecordStore
 
 /*
  * Constructors
  */
 
 BiometricEvaluation::IO::RecordStore::RecordStore(
-    const string &name,
-    const string &description,
-    const string &type,
-    const string &parentDir)
-    throw (Error::ObjectExists, Error::StrategyError) :
+    const std::string &name,
+    const std::string &description,
+    const Kind &kind,
+    const std::string &parentDir) :
     _parentDir(parentDir),
     _cursor(BE_RECSTORE_SEQ_START),
     _mode(IO::READWRITE)
@@ -100,14 +105,13 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 	_props->setPropertyFromInteger(COUNTPROPERTY, 0);
 	_props->setProperty(NAMEPROPERTY, name);
 	_props->setProperty(DESCRIPTIONPROPERTY, description);
-	_props->setProperty(TYPEPROPERTY, type);
+	_props->setProperty(TYPEPROPERTY, to_string(kind));
 }
 
 BiometricEvaluation::IO::RecordStore::RecordStore(
-    const string &name,
-    const string &parentDir,
-    uint8_t mode)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError) :
+    const std::string &name,
+    const std::string &parentDir,
+    uint8_t mode) :
     _parentDir(parentDir),
     _cursor(BE_RECSTORE_SEQ_START),
     _mode(mode)
@@ -124,12 +128,12 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 	try {
 		(void)validateControlFile();
 	} catch (Error::StrategyError& e) {
-		throw e;
+		throw;
 	}
 }
 
 /*
- * Destructor for the abstract class; required NULL implementaton.
+ * Destructor for the abstract class; required empty implementaton.
  */
 BiometricEvaluation::IO::RecordStore::~RecordStore()
 {
@@ -142,30 +146,25 @@ BiometricEvaluation::IO::RecordStore::~RecordStore()
 
 void
 BiometricEvaluation::IO::RecordStore::insert(
-    const string &key,
+    const std::string &key,
     const void *const data,
     const uint64_t size)
-    throw (Error::ObjectExists, Error::StrategyError)
 {
 	_props->setPropertyFromInteger(COUNTPROPERTY, this->getCount() + 1);
 }
 
 void
 BiometricEvaluation::IO::RecordStore::insert(
-    const string &key,
+    const std::string &key,
     const Memory::uint8Array &data)
-    throw (Error::ObjectExists,
-    Error::StrategyError)
 {
 	this->insert(key, data, data.size());
 }
 
 void
 BiometricEvaluation::IO::RecordStore::replace(
-    const string &key,
+    const std::string &key,
     const Memory::uint8Array &data)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
 	this->remove(key);
 	this->insert(key, data);
@@ -173,11 +172,9 @@ BiometricEvaluation::IO::RecordStore::replace(
 
 uint64_t 
 BiometricEvaluation::IO::RecordStore::read(
-    const string &key,
+    const std::string &key,
     Memory::uint8Array &data)
     const
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError)
 {
 	data.resize(this->length(key));
 	/* Cast to avoid undesired recursion */
@@ -186,21 +183,18 @@ BiometricEvaluation::IO::RecordStore::read(
 
 uint64_t
 BiometricEvaluation::IO::RecordStore::sequence(
-    string &key,
+    std::string &key,
     Memory::uint8Array &data,
     int cursor)
-    throw (Error::ObjectDoesNotExist, 
-    Error::StrategyError)
 {
-	data.resize(this->sequence(key, NULL, cursor));
+	data.resize(this->sequence(key, nullptr, cursor));
 	/* Cast to avoid undesired recursion */
 	return (this->read(key, static_cast<void *>(data)));
 }
 
 void
 BiometricEvaluation::IO::RecordStore::remove(
-    const string &key)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &key)
 {
 	_props->setPropertyFromInteger(COUNTPROPERTY, this->getCount() - 1);
 }
@@ -218,9 +212,7 @@ BiometricEvaluation::IO::RecordStore::setCursor(int cursor)
 }
 
 uint64_t
-BiometricEvaluation::IO::RecordStore::getSpaceUsed() 
-    const
-    throw (Error::StrategyError)
+BiometricEvaluation::IO::RecordStore::getSpaceUsed() const
 {
 	struct stat sb;
 
@@ -230,9 +222,7 @@ BiometricEvaluation::IO::RecordStore::getSpaceUsed()
 }
 
 void
-BiometricEvaluation::IO::RecordStore::sync()
-    const
-    throw (Error::StrategyError)
+BiometricEvaluation::IO::RecordStore::sync() const
 {
 	if (_mode == IO::READONLY)
 		return;
@@ -240,7 +230,7 @@ BiometricEvaluation::IO::RecordStore::sync()
 	try {
 		_props->sync();
 	} catch (Error::Exception& e) {
-		throw Error::StrategyError(e.getInfo());
+		throw Error::StrategyError(e.whatString());
 	}
 }
 
@@ -250,13 +240,13 @@ BiometricEvaluation::IO::RecordStore::getCount() const
 	return (_props->getPropertyAsInteger(COUNTPROPERTY));
 }
 
-string
+std::string
 BiometricEvaluation::IO::RecordStore::getName() const
 {
 	return (_props->getProperty(NAMEPROPERTY));
 }
 
-string
+std::string
 BiometricEvaluation::IO::RecordStore::getDescription() const
 {
 	return (_props->getProperty(DESCRIPTIONPROPERTY));
@@ -264,8 +254,7 @@ BiometricEvaluation::IO::RecordStore::getDescription() const
 
 bool
 BiometricEvaluation::IO::RecordStore::containsKey(
-    const string &key)
-    const
+    const std::string &key) const
 {
 	/* Ask a core method to retrieve some data about a key */
 	try {
@@ -273,13 +262,11 @@ BiometricEvaluation::IO::RecordStore::containsKey(
 	} catch (Error::ObjectDoesNotExist) {
 		return (false);
 	}
-	
 	return (true);
 }
 
 void
-BiometricEvaluation::IO::RecordStore::changeName(const string &name)
-    throw (Error::ObjectExists, Error::StrategyError)
+BiometricEvaluation::IO::RecordStore::changeName(const std::string &name)
 {
 	if (_mode == IO::READONLY)
 		throw Error::StrategyError(RSREADONLYERROR);
@@ -287,7 +274,7 @@ BiometricEvaluation::IO::RecordStore::changeName(const string &name)
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
 
-	string newDirectory;
+	std::string newDirectory;
 	if (IO::Utility::constructAndCheckPath(name, _parentDir, newDirectory))
 		throw Error::ObjectExists(newDirectory);
 
@@ -306,8 +293,8 @@ BiometricEvaluation::IO::RecordStore::changeName(const string &name)
 }
 
 void
-BiometricEvaluation::IO::RecordStore::changeDescription(const string &description)
-    throw (Error::StrategyError)
+BiometricEvaluation::IO::RecordStore::changeDescription(
+    const std::string &description)
 {
 	if (_mode == IO::READONLY)
 		throw Error::StrategyError(RSREADONLYERROR);
@@ -316,15 +303,13 @@ BiometricEvaluation::IO::RecordStore::changeDescription(const string &descriptio
 	_props->sync();
 }
 
-std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore>
+std::shared_ptr<BiometricEvaluation::IO::RecordStore>
 BiometricEvaluation::IO::RecordStore::openRecordStore(
-    const string &name,
-    const string &parentDir,
+    const std::string &name,
+    const std::string &parentDir,
     uint8_t mode)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
-
-	string path;
+	std::string path;
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, path))
@@ -347,7 +332,7 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 	}
 	std::auto_ptr<PropertiesFile> aprops(props);
 
-	string type;
+	std::string type;
 	try {
 		type = aprops->getProperty(RecordStore::TYPEPROPERTY);
 	} catch (Error::ObjectDoesNotExist& e) {
@@ -356,66 +341,71 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 
 	RecordStore *rs;
 	/* Exceptions thrown by constructors are allowed to float out */
-	if (type == RecordStore::BERKELEYDBTYPE)
+	if (type == to_string(RecordStore::Kind::BerkeleyDB))
 		rs = new DBRecordStore(name, parentDir, mode);
-	else if (type == RecordStore::ARCHIVETYPE)
+	else if (type == to_string(RecordStore::Kind::Archive))
 		rs = new ArchiveRecordStore(name, parentDir, mode);
-	else if (type == RecordStore::FILETYPE)
+	else if (type == to_string(RecordStore::Kind::File))
 		rs = new FileRecordStore(name, parentDir, mode);
-	else if (type == RecordStore::SQLITETYPE)
+	else if (type == to_string(RecordStore::Kind::SQLite))
 		rs = new SQLiteRecordStore(name, parentDir, mode);
-	else if (type == RecordStore::COMPRESSEDTYPE)
+	else if (type == to_string(RecordStore::Kind::Compressed))
 		rs = new CompressedRecordStore(name, parentDir, mode);
-	else if (type == RecordStore::LISTTYPE) {
+	else if (type == to_string(RecordStore::Kind::List)) {
 		if (mode == IO::READWRITE)
 			throw Error::StrategyError("ListRecordStores cannot "
 			    "be opened read/write");
 		rs = new ListRecordStore(name, parentDir);
 	} else
 		throw Error::StrategyError("Unknown RecordStore type");
-	return (std::tr1::shared_ptr<RecordStore>(rs));
+	return (std::shared_ptr<RecordStore>(rs));
 }
 
 
-std::tr1::shared_ptr<BiometricEvaluation::IO::RecordStore>
+std::shared_ptr<BiometricEvaluation::IO::RecordStore>
 BiometricEvaluation::IO::RecordStore::createRecordStore(
-    const string &name,
-    const string &description,
-    const string &type,
-    const string &destDir)
-    throw (Error::ObjectExists, Error::StrategyError)
+    const std::string &name,
+    const std::string &description,
+    const RecordStore::Kind &kind,
+    const std::string &destDir)
 {
 	RecordStore *rs;
 	/* Exceptions thrown by constructors are allowed to float out */
-	if (strcasecmp( type.c_str(), RecordStore::BERKELEYDBTYPE.c_str()) == 0)
+	switch (kind) {
+	case BiometricEvaluation::IO::RecordStore::Kind::BerkeleyDB:
 		rs = new DBRecordStore(name, description, destDir);
-	else if (strcasecmp(type.c_str(), RecordStore::ARCHIVETYPE.c_str()) == 0)
+		break;
+	case BiometricEvaluation::IO::RecordStore::Kind::Archive:
 		rs = new ArchiveRecordStore(name, description, destDir);
-	else if (strcasecmp(type.c_str(), RecordStore::FILETYPE.c_str()) == 0)
+		break;
+	case BiometricEvaluation::IO::RecordStore::Kind::File:
 		rs = new FileRecordStore(name, description, destDir);
-	else if (strcasecmp(type.c_str(), RecordStore::SQLITETYPE.c_str()) == 0)
+		break;
+	case BiometricEvaluation::IO::RecordStore::Kind::SQLite:
 		rs = new SQLiteRecordStore(name, description, destDir);
-	else if (strcasecmp(type.c_str(), RecordStore::COMPRESSEDTYPE.c_str()) == 0)
+		break;
+	case BiometricEvaluation::IO::RecordStore::Kind::Compressed:
 		rs = new CompressedRecordStore(name, description,
-		    RecordStore::DEFAULTTYPE, destDir,
-		    IO::Compressor::GZIPTYPE);
-	else if (strcasecmp(type.c_str(), RecordStore::LISTTYPE.c_str()) == 0)
+		    RecordStore::Kind::Default, destDir,
+		    IO::Compressor::Kind::GZIP);
+		break;
+	case BiometricEvaluation::IO::RecordStore::Kind::List:
 		throw Error::StrategyError("ListRecordStores cannot be "
 		    "created with this function");
-	else
-		throw Error::StrategyError("Unknown RecordStore type");
-	return (std::tr1::shared_ptr<RecordStore>(rs));
+	}
+
+	return (std::shared_ptr<RecordStore>(rs));
 }
+
 void 
 BiometricEvaluation::IO::RecordStore::removeRecordStore(
-    const string &name,
-    const string &parentDir)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &name,
+    const std::string &parentDir)
 {
 	if (!IO::Utility::validateRootName(name))
 		throw Error::StrategyError("Invalid characters in RS name");
 
-	string newDirectory;
+	std::string newDirectory;
 	if (!IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
 		throw Error::ObjectDoesNotExist("Could not find " + name
 		    + " in directory " + parentDir);
@@ -426,22 +416,22 @@ BiometricEvaluation::IO::RecordStore::removeRecordStore(
 		else
 			IO::Utility::removeDirectory(name, parentDir);
 	} catch (Error::ObjectDoesNotExist &e) {
-		throw e;
+		throw;
 	} catch (Error::StrategyError &e) {
-		throw e;
+		throw;
 	}
 }
 
 /******************************************************************************/
 /* Common protected method implementations.                                   */
 /******************************************************************************/
-string
+std::string
 BiometricEvaluation::IO::RecordStore::getDirectory() const
 {
 	return _directory;
 }
 
-string
+std::string
 BiometricEvaluation::IO::RecordStore::getParentDirectory() const
 {
 	return _parentDir;
@@ -453,15 +443,15 @@ BiometricEvaluation::IO::RecordStore::getMode() const
 	return (_mode);
 }
 
-string
+std::string
 BiometricEvaluation::IO::RecordStore::canonicalName(
-    const string &name) const
+    const std::string &name) const
 {
 	return (_directory + '/' + name);
 }
 
 bool
-BiometricEvaluation::IO::RecordStore::validateKeyString(const string &key)
+BiometricEvaluation::IO::RecordStore::validateKeyString(const std::string &key)
     const
 {
 	if (key.empty())
@@ -469,33 +459,32 @@ BiometricEvaluation::IO::RecordStore::validateKeyString(const string &key)
 	if (isspace(key[0]))
 		return (false);
 
-	string::const_iterator it = INVALIDKEYCHARS.begin();
+	std::string::const_iterator it = INVALIDKEYCHARS.begin();
 	while (it != INVALIDKEYCHARS.end()) {
-		if (key.find(*it) != string::npos)
+		if (key.find(*it) != std::string::npos)
 			return (false);
 		it++;
 	}
 	return (true);
 }
 
-string
+std::string
 BiometricEvaluation::IO::RecordStore::genKeySegName(
-    const string &key,
+    const std::string &key,
     const uint64_t segnum)
 {
 	if (segnum == 0)
 		return (key);
 		
-	ostringstream keyseg;
+	std::ostringstream keyseg;
 	keyseg << key << KEY_SEGMENT_SEPARATOR << segnum;
 	return (keyseg.str());
 }
 
-tr1::shared_ptr<BiometricEvaluation::IO::Properties>
-BiometricEvaluation::IO::RecordStore::getProperties()
-    const
+std::shared_ptr<BiometricEvaluation::IO::Properties>
+BiometricEvaluation::IO::RecordStore::getProperties() const
 {
-	tr1::shared_ptr<IO::Properties> exportProps(new IO::Properties());
+	std::shared_ptr<IO::Properties> exportProps(new IO::Properties());
 	
 	/* Export all except core properties */
 	for (IO::Properties::const_iterator it = _props->begin();
@@ -509,8 +498,7 @@ BiometricEvaluation::IO::RecordStore::getProperties()
 
 void
 BiometricEvaluation::IO::RecordStore::setProperties(
-    const tr1::shared_ptr<IO::Properties> importProps)
-    throw (Error::StrategyError)
+    const std::shared_ptr<IO::Properties> importProps)
 {
 	if (this->getMode() == IO::READONLY)
 		throw Error::StrategyError(RSREADONLYERROR);
@@ -540,8 +528,7 @@ BiometricEvaluation::IO::RecordStore::setProperties(
 
 bool
 BiometricEvaluation::IO::RecordStore::isKeyCoreProperty(
-    const string &key)
-    const
+    const std::string &key) const
 {
 	return ((key == NAMEPROPERTY) ||
 	    (key == DESCRIPTIONPROPERTY) ||
@@ -551,7 +538,6 @@ BiometricEvaluation::IO::RecordStore::isKeyCoreProperty(
 
 void
 BiometricEvaluation::IO::RecordStore::validateControlFile()
-    throw (Error::StrategyError)
 {
 	if (!IO::Utility::fileExists(RecordStore::canonicalName(
 	    CONTROLFILENAME)))
@@ -589,56 +575,68 @@ BiometricEvaluation::IO::RecordStore::validateControlFile()
 
 void
 BiometricEvaluation::IO::RecordStore::openControlFile()
-    throw (Error::StrategyError)
 {
 	try {
 		_props.reset(new IO::PropertiesFile(
 		    RecordStore::canonicalName(CONTROLFILENAME), _mode));
 	} catch (Error::Exception &e) {
                 throw Error::StrategyError("Could not open properties (" +
-		    e.getInfo() + ')');
+		    e.whatString() + ')');
 	}
+}
+
+BiometricEvaluation::IO::RecordStore::iterator
+BiometricEvaluation::IO::RecordStore::begin()
+    noexcept
+{
+	return (RecordStoreIterator(this));
+}
+
+BiometricEvaluation::IO::RecordStore::iterator
+BiometricEvaluation::IO::RecordStore::end()
+    noexcept
+{
+	return (
+	    RecordStoreIterator(this, true));
 }
 
 void
 BiometricEvaluation::IO::RecordStore::mergeRecordStores(
-    const string &mergedName,
-    const string &mergedDescription,
-    const string &parentDir,
-    const string &type,
-    const vector<string> &path)
-    throw (Error::ObjectExists,
-    Error::StrategyError)
+    const std::string &mergedName,
+    const std::string &mergedDescription,
+    const std::string &parentDir,
+    const RecordStore::Kind &kind,
+    const std::vector<std::string> &path)
 {
-	auto_ptr<RecordStore> merged_rs;
-	if (type == RecordStore::BERKELEYDBTYPE)
-		merged_rs.reset(new DBRecordStore(mergedName,
-		    mergedDescription, parentDir));
-	else if (type == RecordStore::ARCHIVETYPE)
-		merged_rs.reset(new ArchiveRecordStore(mergedName, 
-		    mergedDescription, parentDir));
-	else if (type == RecordStore::FILETYPE)
-		merged_rs.reset(new FileRecordStore(mergedName,
-		    mergedDescription, parentDir));
-	else if (type == RecordStore::SQLITETYPE)
-		merged_rs.reset(new SQLiteRecordStore(mergedName,
-		    mergedDescription, parentDir));
-	else if (type == RecordStore::COMPRESSEDTYPE)
-		throw Error::StrategyError("Invalid RecordStore type");
-	else
-		throw Error::StrategyError("Unknown RecordStore type");
+	std::shared_ptr<RecordStore> merged_rs;
+	switch (kind) {
+		case BiometricEvaluation::IO::RecordStore::Kind::BerkeleyDB:
+			/* FALLTHROUGH */
+		case BiometricEvaluation::IO::RecordStore::Kind::Archive:
+			/* FALLTHROUGH */
+		case BiometricEvaluation::IO::RecordStore::Kind::File:
+			/* FALLTHROUGH */
+		case BiometricEvaluation::IO::RecordStore::Kind::SQLite:
+			merged_rs = RecordStore::createRecordStore(mergedName,
+			    mergedDescription, kind, parentDir);
+			break;
+		case BiometricEvaluation::IO::RecordStore::Kind::List:
+			/* FALLTHROUGH */
+		case BiometricEvaluation::IO::RecordStore::Kind::Compressed:
+			throw Error::StrategyError("Invalid RecordStore type");
+	}
 
 	bool exhausted;
 	uint64_t record_size;
-	string key;
+	std::string key;
 	BiometricEvaluation::Memory::AutoArray<uint8_t> buf;
-	tr1::shared_ptr<RecordStore> rs;
+	std::shared_ptr<RecordStore> rs;
 	for (uint32_t i = 0; i < path.size(); i++) {
 		try {
 			rs = openRecordStore(Text::filename(path[i]),
 			    Text::dirname(path[i]), IO::READONLY);
 		} catch (Error::Exception &e) {
-			throw Error::StrategyError(e.getInfo());
+			throw Error::StrategyError(e.whatString());
 		}
 	
 		exhausted = false;

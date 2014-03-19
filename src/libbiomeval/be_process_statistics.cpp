@@ -8,17 +8,17 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
+#include <ctime>
 #include <fstream>
 #include <sstream>
 #include <string>
 
 #include <sys/resource.h>
 #include <dirent.h>
-#include <errno.h>
 #include <pthread.h>
-#include <string.h>
-#include <time.h>
 #include <unistd.h>
 
 #include <be_error.h>
@@ -27,7 +27,7 @@
 #include <be_process_statistics.h>
 #include <be_io_utility.h>
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 /*
  * There is no standard method to obtain process statistics from the OS.
@@ -51,40 +51,41 @@ struct _pstats {
 	uint64_t vmstack;
 	uint32_t threads;
 };
-typedef struct _pstats PSTATS;
-static const string LogSheetHeader =
+using PSTATS = struct _pstats;
+static const std::string LogSheetHeader =
     "Entry Usertime Systime RSS VMSize VMPeak VMData VMStack Threads";
-static const string StartAutologComment = "Autolog started. Interval: ";
-static const string StopAutologComment = "Autolog stopped. ";
+static const std::string StartAutologComment = "Autolog started. Interval: ";
+static const std::string StopAutologComment = "Autolog stopped. ";
 
 /*
  * Define a function to be used for Linux, to grab the OS statistics.
  */
 #if defined Linux
-static const string VmRSSProp = "VmRSS";
-static const string VmSizeProp = "VmSize";
-static const string VmPeakProp = "VmPeak";
-static const string VmDataProp = "VmData";
-static const string VmStackProp = "VmStk";
-static const string ThreadsProp = "Threads";
+static const std::string VmRSSProp = "VmRSS";
+static const std::string VmSizeProp = "VmSize";
+static const std::string VmPeakProp = "VmPeak";
+static const std::string VmDataProp = "VmData";
+static const std::string VmStackProp = "VmStk";
+static const std::string ThreadsProp = "Threads";
 #endif
 
-static string
+static std::string
 internalGetProcName(pid_t pid)
-    throw (Error::StrategyError, Error::NotImplemented)
 {
 #if defined Linux
-	ostringstream tp;
+	std::ostringstream tp;
 	tp <<  "/proc/" << pid << "/cmdline";
-	if (!IO::Utility::fileExists(tp.str()))
-		throw Error::StrategyError("Could not find " + tp.str() + ".");
+	if (!BE::IO::Utility::fileExists(tp.str()))
+		throw BE::Error::StrategyError(
+		    "Could not find " + tp.str() + ".");
 
 	/* Read the process cmdline into a string so we can parse it. */
 	std::ifstream ifs(tp.str().c_str());
 	if (ifs.fail())
-		throw Error::StrategyError("Could not open " + tp.str() + ".");
+		throw BE::Error::StrategyError(
+		    "Could not open " + tp.str() + ".");
 
-	string line;
+	std::string line;
 	ifs >> line;
 	ifs.close();
 
@@ -95,29 +96,30 @@ internalGetProcName(pid_t pid)
 	 * command name and we'll call that the process name.
 	 */
 	std::size_t loc = line.find_first_of('\0');
-	if (loc != string::npos)
+	if (loc != std::string::npos)
 		line.erase(loc, loc);
 
-	return (Text::filename(line));
+	return (BE::Text::filename(line));
 #else
-	throw Error::NotImplemented();
+	throw BE::Error::NotImplemented();
 #endif
 }
 
 static PSTATS
 internalGetPstats(pid_t pid)
-    throw (Error::StrategyError, Error::NotImplemented)
 #if defined Linux
 {
-	ostringstream tp;
+	std::ostringstream tp;
 	tp <<  "/proc/" << pid << "/status";
-	if (!IO::Utility::fileExists(tp.str()))
-		throw Error::StrategyError("Could not find " + tp.str() + ".");
+	if (!BE::IO::Utility::fileExists(tp.str()))
+		throw BE::Error::StrategyError(
+		    "Could not find " + tp.str() + ".");
 
 	/* Read the process status into a string so we can parse it. */
 	std::ifstream ifs(tp.str().c_str());
 	if (ifs.fail())
-		throw Error::StrategyError("Could not open " + tp.str() + ".");
+		throw BE::Error::StrategyError(
+		    "Could not open " + tp.str() + ".");
 
 	/*
 	 * The status info for a process is composed on n lines in this form:
@@ -125,15 +127,15 @@ internalGetPstats(pid_t pid)
 	 * so, for example:
 	 *	VmSize:    2164 kB
 	 */
-	string oneline, key, value;
-	string::size_type idx;
+	std::string oneline, key, value;
+	std::string::size_type idx;
 	PSTATS stats;
 	while (!ifs.eof()) {
 		std::getline(ifs, oneline);
 		idx = oneline.find(":");
 		key = oneline.substr(0, idx);
 		value = oneline.substr(idx + 1, oneline.length());
-		Text::removeLeadingTrailingWhitespace(key);
+		BE::Text::removeLeadingTrailingWhitespace(key);
 
 		//XXX May want to remove non-digits in value string
 
@@ -144,32 +146,32 @@ internalGetPstats(pid_t pid)
 		 */
 		if (key == VmRSSProp) {
 			stats.vmrss = (uint64_t)std::strtoll(value.c_str(),
-			    NULL, 10);;
+			    nullptr, 10);
 			continue;
 		}
 		if (key == VmSizeProp) {
 			stats.vmsize = (uint64_t)std::strtoll(value.c_str(),
-			    NULL, 10);;
+			    nullptr, 10);
 			continue;
 		}
 		if (key == VmPeakProp) {
 			stats.vmpeak = (uint64_t)std::strtoll(value.c_str(),
-			    NULL, 10);;
+			    nullptr, 10);
 			continue;
 		}
 		if (key == VmDataProp) {
 			stats.vmdata = (uint64_t)std::strtoll(value.c_str(),
-			    NULL, 10);;
+			    nullptr, 10);
 			continue;
 		}
 		if (key == VmStackProp) {
 			stats.vmstack = (uint64_t)std::strtoll(value.c_str(),
-			    NULL, 10);;
+			    nullptr, 10);
 			continue;
 		}
 		if (key == ThreadsProp) {
 			stats.threads = (uint64_t)std::strtoll(value.c_str(),
-			    NULL, 10);;
+			    nullptr, 10);
 			continue;
 		}
 	}
@@ -183,7 +185,7 @@ internalGetPstats(pid_t pid)
  * Local function to get usage stats from the Darwin (Mac OS-X) OS.
  */
 {
-	throw Error::NotImplemented();
+	throw BE::Error::NotImplemented();
 }
 
 #else /* Unsupported OS */
@@ -192,34 +194,33 @@ internalGetPstats(pid_t pid)
  * The default, not-implemented-here stats function.
  */
 {
-	throw Error::NotImplemented();
+	throw BE::Error::NotImplemented();
 }
 #endif	/* OS check */
 
 static void internalGetCPUTimes(
     uint64_t *usertime,
     uint64_t *systemtime)
-    throw (Error::StrategyError)
 {
 	struct rusage ru;
 	int ret = getrusage(RUSAGE_SELF, &ru);
 	if (ret != 0)
-		throw Error::StrategyError("OS call failed: " +
-		    Error::errorStr());
+		throw BE::Error::StrategyError("OS call failed: " +
+		    BE::Error::errorStr());
 
 	*usertime = (uint64_t)(ru.ru_utime.tv_sec *
-	    Time::MicrosecondsPerSecond + ru.ru_utime.tv_usec);
+	    BE::Time::MicrosecondsPerSecond + ru.ru_utime.tv_usec);
 	*systemtime = (uint64_t)(ru.ru_stime.tv_sec *
-	    Time::MicrosecondsPerSecond + ru.ru_stime.tv_usec);
+	    BE::Time::MicrosecondsPerSecond + ru.ru_stime.tv_usec);
 }
 
 BiometricEvaluation::Process::Statistics::Statistics()
 {
 	_pid = getpid();
-	_logCabinet = NULL;
+	_logCabinet = nullptr;
 	_logging = false;
 	_autoLogging = false;
-	pthread_mutex_init(&_logMutex, NULL);
+	pthread_mutex_init(&_logMutex, nullptr);
 }
 
 BiometricEvaluation::Process::Statistics::~Statistics()
@@ -229,34 +230,31 @@ BiometricEvaluation::Process::Statistics::~Statistics()
  	 */
 	if (_autoLogging) {
 		pthread_cancel(_loggingThread);
-		pthread_join(_loggingThread, NULL);
+		pthread_join(_loggingThread, nullptr);
 	}
 	pthread_mutex_destroy(&_logMutex);
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
     IO::LogCabinet * const logCabinet)
-    throw (Error::NotImplemented,
-	Error::ObjectExists,
-	Error::StrategyError)
 {
 	_pid = getpid();
 	_logCabinet = logCabinet;
 
-	ostringstream lsname, descr;
-	string procname = internalGetProcName(_pid);
+	std::ostringstream lsname, descr;
+	std::string procname = internalGetProcName(_pid);
 	lsname << procname << "-" << _pid << ".stats.log";
 	descr << "Statistics for " << procname << " (PID " << _pid << ")";
 	try {
 		_logSheet = logCabinet->newLogSheet(lsname.str(), descr.str());
-	} catch (Error::ObjectExists &e) {
-		throw Error::StrategyError("Logsheet already exists.");
-	} catch (Error::StrategyError &e) {
-		throw e;
+	} catch (BE::Error::ObjectExists &e) {
+		throw BE::Error::StrategyError("Logsheet already exists.");
+	} catch (BE::Error::StrategyError &e) {
+		throw;
 	}
 	_logging = true;
 	_autoLogging = false;
-	pthread_mutex_init(&_logMutex, NULL);
+	pthread_mutex_init(&_logMutex, nullptr);
 	_logSheet->writeComment(LogSheetHeader);
 }
 
@@ -264,14 +262,13 @@ void
 BiometricEvaluation::Process::Statistics::getCPUTimes(
     uint64_t *usertime,
     uint64_t *systemtime)
-    throw (Error::StrategyError, Error::NotImplemented)
 {
 	uint64_t utime, stime;
 
 	internalGetCPUTimes(&utime, &stime);
-	if (usertime != NULL)
+	if (usertime != nullptr)
 		*usertime = utime;
-	if (systemtime != NULL)
+	if (systemtime != nullptr)
 		*systemtime = stime;
 }
 
@@ -282,25 +279,23 @@ BiometricEvaluation::Process::Statistics::getMemorySizes(
     uint64_t *vmpeak,
     uint64_t *vmdata,
     uint64_t *vmstack)
-    throw (Error::StrategyError, Error::NotImplemented)
 {
 	/* Let exceptions from this call float out */
 	PSTATS ps = internalGetPstats(_pid);
-	if (vmrss != NULL)
+	if (vmrss != nullptr)
 		*vmrss = ps.vmrss;
-	if (vmsize != NULL)
+	if (vmsize != nullptr)
 		*vmsize = ps.vmsize;
-	if (vmpeak != NULL)
+	if (vmpeak != nullptr)
 		*vmpeak = ps.vmpeak;
-	if (vmdata != NULL)
+	if (vmdata != nullptr)
 		*vmdata = ps.vmdata;
-	if (vmstack != NULL)
+	if (vmstack != nullptr)
 		*vmstack = ps.vmstack;
 }
 
 uint32_t
 BiometricEvaluation::Process::Statistics::getNumThreads()
-    throw (Error::StrategyError, Error::NotImplemented)
 {
 	PSTATS ps = internalGetPstats(_pid);
 	return (ps.threads);
@@ -308,11 +303,9 @@ BiometricEvaluation::Process::Statistics::getNumThreads()
 
 void
 BiometricEvaluation::Process::Statistics::logStats()
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError, Error::NotImplemented)
 {
 	if (!_logging)
-		throw Error::ObjectDoesNotExist();
+		throw BE::Error::ObjectDoesNotExist();
 
 	PSTATS ps;
 	uint64_t usertime, systemtime;
@@ -320,9 +313,9 @@ BiometricEvaluation::Process::Statistics::logStats()
 	try { 
 		ps = internalGetPstats(_pid);
 		internalGetCPUTimes(&usertime, &systemtime);
-	} catch (Error::Exception &e) {
+	} catch (BE::Error::Exception &e) {
 		pthread_mutex_unlock(&this->_logMutex);
-		throw e;
+		throw;
 	}
 	*_logSheet << usertime << " " << systemtime << " ";
 	*_logSheet << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
@@ -341,7 +334,7 @@ BiometricEvaluation::Process::Statistics::callStatistics_logStats()
 struct loggerPackage {
 	uint64_t interval;
 	int flag;
-	Process::Statistics *stat;
+	BE::Process::Statistics *stat;
 	pthread_mutex_t logMutex;
 	pthread_cond_t logCond;
 };
@@ -365,12 +358,12 @@ autoLogger(void *ptr)
 	 */
 	struct loggerPackage *lp = (struct loggerPackage *)(ptr);
 	pthread_mutex_lock(&lp->logMutex);
-	Process::Statistics *stat = lp->stat;
+	BE::Process::Statistics *stat = lp->stat;
 	/*
 	 * Convert _interval to sec/nsec from usec
 	 */
-	time_t sec = (time_t)(lp->interval / Time::MicrosecondsPerSecond);
-	long nsec = (long)((lp->interval % Time::MicrosecondsPerSecond) * 1000);
+	time_t sec = (time_t)(lp->interval / BE::Time::MicrosecondsPerSecond);
+	long nsec = (long)((lp->interval % BE::Time::MicrosecondsPerSecond) * 1000);
 	lp->flag = 1;
 	pthread_cond_signal(&lp->logCond);
 	pthread_mutex_unlock(&lp->logMutex);
@@ -410,42 +403,40 @@ autoLogger(void *ptr)
 		}
 	}
 	
-	return (NULL);
+	return (nullptr);
 }
 
 void
 BiometricEvaluation::Process::Statistics::startAutoLogging(
     uint64_t interval)
-    throw (Error::ObjectDoesNotExist, Error::ObjectExists,
-	Error::StrategyError, Error::NotImplemented)
 {
 	if (!_logging)
-		throw Error::ObjectDoesNotExist();
+		throw BE::Error::ObjectDoesNotExist();
 	if (_autoLogging)
-		throw Error::ObjectExists();
+		throw BE::Error::ObjectExists();
 	if (interval == 0)
 		return;
 
 	struct loggerPackage *lp;
 	lp = (struct loggerPackage *)malloc(sizeof(struct loggerPackage));
-	if (lp == NULL)
-		throw Error::StrategyError("Memory allocation error");
+	if (lp == nullptr)
+		throw BE::Error::StrategyError("Memory allocation error");
 
 	lp->interval = interval;
 	lp->stat = this;
 	lp->flag = 0;
-	pthread_mutex_init(&lp->logMutex, NULL);
-	pthread_cond_init(&lp->logCond, NULL);
+	pthread_mutex_init(&lp->logMutex, nullptr);
+	pthread_cond_init(&lp->logCond, nullptr);
 
-	int retval = pthread_create(&_loggingThread, NULL, autoLogger,
+	int retval = pthread_create(&_loggingThread, nullptr, autoLogger,
 	    (void *)lp);
 	if (retval != 0) {
 		free (lp);
-		throw Error::StrategyError("Creating thread failed: " +
-		    Error::errorStr());
+		throw BE::Error::StrategyError("Creating thread failed: " +
+		    BE::Error::errorStr());
 	}
 
-	ostringstream comment;
+	std::ostringstream comment;
 	comment << StartAutologComment << lp->interval << " microseconds.";
 	_logSheet->writeComment(comment.str());
 
@@ -466,19 +457,19 @@ BiometricEvaluation::Process::Statistics::startAutoLogging(
 
 void
 BiometricEvaluation::Process::Statistics::stopAutoLogging()
-    throw ( Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!_autoLogging)
-		throw Error::ObjectDoesNotExist();
+		throw BE::Error::ObjectDoesNotExist();
 	_autoLogging = false;
 	int retval = pthread_cancel(_loggingThread);
 	if (retval != 0)
-		throw Error::StrategyError("Cancel of logging thread failed: " +
-		    Error::errorStr());
+		throw BE::Error::StrategyError(
+		    "Cancel of logging thread failed: " +
+		    BE::Error::errorStr());
 
 	/* Wait for the logging thread to exit */
-	pthread_join(_loggingThread, NULL);
-	ostringstream comment;
+	pthread_join(_loggingThread, nullptr);
+	std::ostringstream comment;
 	comment << StopAutologComment;
 	_logSheet->writeComment(comment.str());
 }

@@ -35,43 +35,43 @@ BiometricEvaluation::Process::Worker::stopRequested()
 
 void
 BiometricEvaluation::Process::Worker::setParameter(
-    const string &name, 
-    tr1::shared_ptr<void> argument)
+    const std::string &name, 
+    std::shared_ptr<void> argument)
 {
 	_parameters[name] = argument;
 }
 
-tr1::shared_ptr<void>
+std::shared_ptr<void>
 BiometricEvaluation::Process::Worker::getParameter(
-    const string &name)
+    const std::string &name)
 {
 	return (_parameters[name]);
 }
 
 double
 BiometricEvaluation::Process::Worker::getParameterAsDouble(
-    const string &name)
+    const std::string &name)
 {
-	tr1::shared_ptr<double> parameterPtr = 
-	    tr1::static_pointer_cast<double>(this->getParameter(name));
+	std::shared_ptr<double> parameterPtr = 
+	    std::static_pointer_cast<double>(this->getParameter(name));
 	return (*parameterPtr);
 }
 
 int64_t
 BiometricEvaluation::Process::Worker::getParameterAsInteger(
-    const string &name)
+    const std::string &name)
 {
-	tr1::shared_ptr<int64_t> parameterPtr = 
-	    tr1::static_pointer_cast<int64_t>(this->getParameter(name));
+	std::shared_ptr<int64_t> parameterPtr = 
+	    std::static_pointer_cast<int64_t>(this->getParameter(name));
 	return (*parameterPtr);
 }
 
-string
+std::string
 BiometricEvaluation::Process::Worker::getParameterAsString(
-    const string &name)
+    const std::string &name)
 {
-	tr1::shared_ptr<string> parameterPtr = 
-	    tr1::static_pointer_cast<string>(this->getParameter(name));
+	std::shared_ptr<std::string> parameterPtr = 
+	    std::static_pointer_cast<std::string>(this->getParameter(name));
 	return (*parameterPtr);
 }
 
@@ -124,7 +124,7 @@ BiometricEvaluation::Process::Worker::waitForMessage(
 	struct timeval l_timeout = timeout;
 	while (!finished && !_stopRequested) {
 		int ret = select(_pipeToChild[0] + 1, &set,
-		    NULL, NULL, &l_timeout);
+		    nullptr, nullptr, &l_timeout);
 		if (ret == 0) {
 			/* Nothing available */
 			if (userTimeout) {
@@ -160,8 +160,6 @@ BiometricEvaluation::Process::Worker::waitForMessage(
 void
 BiometricEvaluation::Process::Worker::sendMessageToManager(
     const Memory::uint8Array &message)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
 	if (_communicationEnabled == false)
 		throw Error::StrategyError("Communication is not enabled");
@@ -194,8 +192,6 @@ BiometricEvaluation::Process::Worker::sendMessageToManager(
 void
 BiometricEvaluation::Process::Worker::receiveMessageFromManager(
     Memory::uint8Array &message)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
 	if (_communicationEnabled == false)
 		throw Error::StrategyError("Communication is not enabled");
@@ -221,8 +217,6 @@ BiometricEvaluation::Process::Worker::receiveMessageFromManager(
 int
 BiometricEvaluation::Process::Worker::getSendingPipe()
     const
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
  	if (_communicationEnabled == false)
 		throw Error::StrategyError("Communication is not enabled");
@@ -235,8 +229,6 @@ BiometricEvaluation::Process::Worker::getSendingPipe()
 int
 BiometricEvaluation::Process::Worker::getReceivingPipe()
     const
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
  	if (_communicationEnabled == false)
 		throw Error::StrategyError("Communication is not enabled");
@@ -248,7 +240,6 @@ BiometricEvaluation::Process::Worker::getReceivingPipe()
 
 void
 BiometricEvaluation::Process::Worker::_initCommunication()
-    throw (Error::StrategyError)
 {
 	if (_communicationEnabled == false) {
 		if (pipe(_pipeToChild) != 0)
@@ -268,7 +259,6 @@ BiometricEvaluation::Process::Worker::_initCommunication()
 
 void
 BiometricEvaluation::Process::Worker::closeWorkerPipeEnds()
-    throw (Error::StrategyError)
 {
  	if (_communicationEnabled == false)
 		throw Error::StrategyError("Communication is not enabled");
@@ -279,7 +269,6 @@ BiometricEvaluation::Process::Worker::closeWorkerPipeEnds()
 
 void
 BiometricEvaluation::Process::Worker::closeManagerPipeEnds()
-    throw (Error::StrategyError)
 {
  	if (_communicationEnabled == false)
 		throw Error::StrategyError("Communication is not enabled");

@@ -10,10 +10,8 @@
 #ifndef __BE_IO_LOGCABINET_H
 #define __BE_IO_LOGCABINET_H
 
-#include <tr1/memory>
 
-#include <stdint.h>
-
+#include <cstdint>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -21,8 +19,6 @@
 
 #include <be_error_exception.h>
 #include <be_io_logsheet.h>
-
-using namespace std;
 
 namespace BiometricEvaluation {
     namespace IO {
@@ -49,10 +45,9 @@ namespace BiometricEvaluation {
 			 *	file system, or name or parentDir is malformed.
 			*/
 			LogCabinet(
-			    const string &name,
-			    const string &description,
-			    const string &parentDir)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &name,
+			    const std::string &description,
+			    const std::string &parentDir);
 
 			/**
 			 * Open an existing LogCabinet.
@@ -68,10 +63,8 @@ namespace BiometricEvaluation {
 			 *	file system, or name or parentDir is malformed.
 			 */
 			LogCabinet(
-			    const string &name,
-			    const string &parentDir)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir);
 
 			~LogCabinet();
 			
@@ -93,10 +86,9 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	file system, or name or parentDir is malformed.
 			*/
-			tr1::shared_ptr<LogSheet> newLogSheet(
-			    const string &name,
-			    const string &description)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			std::shared_ptr<LogSheet> newLogSheet(
+			    const std::string &name,
+			    const std::string &description);
 
 			/**
 			 * Obtain the name of the LogCabinet.
@@ -104,7 +96,7 @@ namespace BiometricEvaluation {
 			 * @ returns
 			 *	The name of the LogCabinet.
 			 */
-			string getName();
+			std::string getName();
 
 			/**
 			 * Obtain the description of the LogCabinet.
@@ -112,7 +104,7 @@ namespace BiometricEvaluation {
 			 * @ returns
 			 *	The description of the LogCabinet.
 			 */
-			string getDescription();
+			std::string getDescription();
 
 			/**
 			 * Obtain the number of items in the LogCabinet.
@@ -138,24 +130,22 @@ namespace BiometricEvaluation {
 			 *	file system, or name or parentDir is malformed.
 			 */
 			static void remove(
-			    const string &name,
-			    const string &parentDir)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir);
 
 		private:
 			 
 			/* The name of the LogCabinet */
-			string _name;
+			std::string _name;
 
 			/* The parent directory of the cabinet */
-			string _parentDir;
+			std::string _parentDir;
 
 			/* The directory where the cabinet is rooted */
-			string _directory;
+			std::string _directory;
 
 			/* A textual description of the cabinet. */
-			string _description;
+			std::string _description;
 
 			/* Number of items in the cabinet */
 			unsigned int _count;
@@ -167,17 +157,17 @@ namespace BiometricEvaluation {
 			 * Return the full path of a file stored as part
 			 * of the LogCabinet, typically _directory + name.
 			 */
-			string canonicalName(const string &name);
+			std::string canonicalName(const std::string &name);
 
 			/* Read the contents of the common control file format
 			 * for all LogCabinet.
 			 */
-			void readControlFile() throw (Error::StrategyError);
+			void readControlFile();
 
 			/* Write the contents of the common control file format
 			 * for all LogCabinet.
 			 */
-			void writeControlFile() throw (Error::StrategyError);
+			void writeControlFile();
 
 		private:
 			/* Prevent copying of LogCabinet objects */

@@ -15,13 +15,12 @@ extern "C" {
 #include <an2k.h>
 }
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
     const std::string filename,
-    const RecordType::Kind typeID,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError, Error::FileError) :
+    const RecordType typeID,
+    const uint32_t recordNumber) :
     Finger::AN2KView(filename, typeID, recordNumber)
 {
 	readImageRecord(typeID);
@@ -29,9 +28,8 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
 
 BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
     Memory::uint8Array &buf,
-    const RecordType::Kind typeID,
-    const uint32_t recordNumber)
-    throw (Error::ParameterError, Error::DataError) :
+    const RecordType typeID,
+    const uint32_t recordNumber) :
     Finger::AN2KView(buf, typeID, recordNumber)
 {
 	readImageRecord(typeID);
@@ -51,8 +49,7 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::AN2KViewFixedResolution(
 
 void
 BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
-    const RecordType::Kind typeID)
-    throw (Error::DataError)
+    const RecordType typeID)
 {
 	switch (typeID) {
 		case RecordType::Type_3:
@@ -73,7 +70,7 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
 	    != TRUE)
 		throw Error::DataError("Field NSR not found");
 	double nsr =
-	    strtod((char *)field->subfields[0]->items[0]->value, NULL);
+	    strtod((char *)field->subfields[0]->items[0]->value, nullptr);
 
 	RECORD *record = AN2KView::getAN2KRecord();
 
@@ -87,7 +84,7 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
 	int isr = atoi((char *)field->subfields[0]->items[0]->value);
 
 	Image::Resolution ir;
-	ir.units = Image::Resolution::PPMM;
+	ir.units = Image::Resolution::Units::PPMM;
 	switch ((*record).type) {
 		case TYPE_3_ID:
 		case TYPE_5_ID:

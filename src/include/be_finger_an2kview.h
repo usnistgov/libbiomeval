@@ -53,9 +53,8 @@ namespace BiometricEvaluation
 			 * @throws Error::DataError
 			 *	The position code is invalid.
 			 */
-			static Finger::Position::Kind
-			    convertPosition(int an2kFGP)
-    			    throw (Error::DataError);
+			static Finger::Position
+			    convertPosition(int an2kFGP);
 	
 			/**
 			 * @brief
@@ -66,17 +65,15 @@ namespace BiometricEvaluation
 			 * @throws Error::DataError
 			 *	The data contains an invalid value.
 			 */
-			static Finger::PositionSet populateFGP(FIELD* field)
-    			    throw (Error::DataError);
+			static Finger::PositionSet populateFGP(FIELD* field);
 
 			/**
 			 * @brief
 			 * Convert an impression code from a string.
 			 */
-			static Finger::Impression::Kind
-			    convertImpression(const unsigned char *str)
-    			    throw (Error::DataError);
-    			
+			static Finger::Impression
+			    convertImpression(const unsigned char *str);
+
     			/**
     			 * @brief
     			 * Convert an finger image code from a string.
@@ -87,10 +84,9 @@ namespace BiometricEvaluation
 			 * @throws Error::DataError
 			 *	The string contains an invalid image code.
     			 */
-    			static Finger::FingerImageCode::Kind
+    			static Finger::FingerImageCode
 			convertFingerImageCode(
-			    const char *str)
-			    throw (Error::DataError);
+			    const char *str);
 
 			/**
 			 * @brief
@@ -103,10 +99,8 @@ namespace BiometricEvaluation
 			 * @return
 			 * The vector of minutiae data records.
 		 	 */
-			vector<AN2KMinutiaeDataRecord>
-			getMinutiaeDataRecordSet()
-			    const
-			    throw (Error::DataError);
+			std::vector<AN2KMinutiaeDataRecord>
+			getMinutiaeDataRecordSet() const;
 
 			/**
 			 * @brief
@@ -126,7 +120,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The finger impression code.
 			 */
-			Finger::Impression::Kind getImpressionType() const;
+			Finger::Impression getImpressionType() const;
 
 		protected:
 
@@ -155,12 +149,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KView(
 			    const std::string filename,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError,
-				Error::FileError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -184,11 +174,8 @@ namespace BiometricEvaluation
 			 */
 			AN2KView(
 			    Memory::uint8Array &buf,
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (
-				Error::ParameterError,
-				Error::DataError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			/**
 			 * @brief
@@ -217,7 +204,7 @@ namespace BiometricEvaluation
 			 * @param[in] imp
 			 * The impression type for this finger view.
 			 */
-			void setImpressionType(Finger::Impression::Kind &imp);
+			void setImpressionType(Finger::Impression &imp);
 
 		private:
 			/**
@@ -230,13 +217,13 @@ namespace BiometricEvaluation
 			 *	The AN2K record has invalid or missing data.
 			 */
 			void readImageRecord(
-			    const RecordType::Kind typeID,
-			    const uint32_t recordNumber)
-			    throw (Error::DataError);
+			    const RecordType typeID,
+			    const uint32_t recordNumber);
 
 			Finger::PositionSet _positions;
-			vector<Finger::AN2KMinutiaeDataRecord> _minutiaeDataRecordSet;
-			Finger::Impression::Kind _imp;
+			std::vector<Finger::AN2KMinutiaeDataRecord>
+			    _minutiaeDataRecordSet;
+			Finger::Impression _imp;
 		};
 	}
 }

@@ -17,13 +17,15 @@ include ../../VERSION
 
 CORE = be_memory_indexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
 
-IO = be_io_properties.cpp be_io_propertiesfile.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_sqliterecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_compressedrecstore.cpp be_io_listrecstore.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_logcabinet.cpp be_io_compressor.cpp be_io_gzip.cpp
+IO = be_io_properties.cpp be_io_propertiesfile.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_sqliterecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_compressedrecstore.cpp be_io_listrecstore.cpp be_io_recordstoreiterator.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_logcabinet.cpp be_io_compressor.cpp be_io_gzip.cpp
 
 IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_netpbm.cpp be_image_raw.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp
 
 FEATURE = be_feature_minutiae.cpp be_feature_an2k7minutiae.cpp be_feature_incitsminutiae.cpp
 
 PROCESS_MANAGEMENT = be_process_worker.cpp be_process_workercontroller.cpp be_process_manager.cpp be_process_forkmanager.cpp be_process_posixthreadmanager.cpp
+
+MESSAGE_CENTER = be_process_messagecenter.cpp be_process_mclistener.cpp be_process_mcreceiver.cpp be_process_mcutility.cpp
 
 VIEW = be_view_view.cpp be_view_an2kview.cpp be_view_an2kview_varres.cpp
 
@@ -34,7 +36,7 @@ FACE = be_face_incitsview.cpp be_face_iso2005view.cpp
 
 DATA = be_data_interchange_an2k.cpp
 
-SOURCES = $(CORE) $(IO) $(PROCESS_MANAGEMENT) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA)
+SOURCES = $(CORE) $(IO) $(PROCESS_MANAGEMENT) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER)
 OBJECTS = $(SOURCES:%.cpp=%.o)
 LIBRARY = libbiomeval
 LOCALLIB = ../../lib

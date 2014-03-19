@@ -13,7 +13,7 @@
 #include <map>
 #include <sstream>
 #include <string>
-#include <tr1/memory>
+#include <memory>
 
 #include <be_image_image.h>
 #include <be_io_properties.h>
@@ -23,37 +23,37 @@
 
 #if defined RAWTEST
 #include <be_image_raw.h>
-static const string imageType = "Raw";
+static const std::string imageType = "Raw";
 #elif defined JPEG2000TEST
 #include <be_image_jpeg2000.h>
-static const string imageType = "JPEG2000";
+static const std::string imageType = "JPEG2000";
 #elif defined JPEGBTEST
 #include <be_image_jpeg.h>
-static const string imageType = "JPEG";
+static const std::string imageType = "JPEG";
 #elif defined JPEGLTEST
 #include <be_image_jpegl.h>
-static const string imageType = "JPEGL";
+static const std::string imageType = "JPEGL";
 #elif defined NETPBMTEST
 #include <be_image_netpbm.h>
-static const string imageType = "NetPBM";
+static const std::string imageType = "NetPBM";
 #elif defined PNGTEST
 #include <be_image_png.h>
-static const string imageType = "PNG";
+static const std::string imageType = "PNG";
 #elif defined WSQTEST
 #include <be_image_wsq.h>
-static const string imageType = "WSQ";
+static const std::string imageType = "WSQ";
 #elif defined FACTORYTEST
-static const string imageType = "Raw";
+static const std::string imageType = "Raw";
 #endif
 
 using namespace BiometricEvaluation;
 using namespace std;
 
-static const string ImageRSName = "ImageRS";
-static const string ImagePropRSName = "ImagePropertiesRS";
-static const string RSParentDir = "test_data";
-static const string RawSuffix = ".raw";
-static const string RawGraySuffix = ".gray.raw";
+static const std::string ImageRSName = "ImageRS";
+static const std::string ImagePropRSName = "ImagePropertiesRS";
+static const std::string RSParentDir = "test_data";
+static const std::string RawSuffix = ".raw";
+static const std::string RawGraySuffix = ".gray.raw";
 
 #if defined RAWTEST
 /**
@@ -66,15 +66,15 @@ static const string RawGraySuffix = ".gray.raw";
  * @return
  *	The Resolution::Kind representation of unitString.
  */
-static Image::Resolution::Kind
+static Image::Resolution::Units
 stringToResUnits(
-    const string &unitString)
+    const std::string &unitString)
 {
-	if (unitString == "PPI") return (Image::Resolution::PPI);
-	else if (unitString == "PPCM") return (Image::Resolution::PPCM);
-	else if (unitString == "PPMM") return (Image::Resolution::PPMM);
+	if (unitString == "PPI") return (Image::Resolution::Units::PPI);
+	else if (unitString == "PPCM") return (Image::Resolution::Units::PPCM);
+	else if (unitString == "PPMM") return (Image::Resolution::Units::PPMM);
 	
-	return (Image::Resolution::NA);
+	return (Image::Resolution::Units::NA);
 }
 #endif
 
@@ -88,15 +88,15 @@ stringToResUnits(
  * @return
  *	A string representation of unitKind.
  */
-static string
+static std::string
 resUnitsToString(
-    Image::Resolution::Kind unitKind)
+    Image::Resolution::Units unitKind)
 {
 	switch (unitKind) {
-	case Image::Resolution::PPI: return ("PPI");
-	case Image::Resolution::PPCM: return("PPCM");
-	case Image::Resolution::PPMM: return("PPMM");
-	case Image::Resolution::NA: return ("NA");
+	case Image::Resolution::Units::PPI: return ("PPI");
+	case Image::Resolution::Units::PPCM: return("PPCM");
+	case Image::Resolution::Units::PPMM: return("PPMM");
+	case Image::Resolution::Units::NA: return ("NA");
 	}
 	
 	return ("NA");
@@ -120,10 +120,10 @@ resUnitsToString(
  */
 static void
 compareProperties(
-    const string key,
-    tr1::shared_ptr<Image::Image> image,
-    tr1::shared_ptr<IO::Properties> properties,
-    tr1::shared_ptr<IO::RecordStore> imageRS)
+    const std::string key,
+    shared_ptr<Image::Image> image,
+    shared_ptr<IO::Properties> properties,
+    shared_ptr<IO::RecordStore> imageRS)
 {
 	bool passed = true, rawSizeDiffers = false, rawGraySizeDiffers = false;
 	
@@ -152,7 +152,7 @@ compareProperties(
 	}
 	Memory::uint8Array genRawData, genRawGrayData;
 	if (imageType != "Raw") {
-		genRawData = image->getRawData();
+		image->getRawData(genRawData);
 		if (genRawData.size() != 
 		    (size_t)properties->getPropertyAsInteger("rawSize")) {
 			passed = false;
@@ -161,7 +161,7 @@ compareProperties(
 			genRawData.size() <<  ", Recorded: " << 
 			properties->getPropertyAsInteger("rawSize") << endl;
 		}
-		genRawGrayData = image->getRawGrayscaleData();
+		image->getRawGrayscaleData(genRawGrayData);
 		if (genRawGrayData.size() != 
 		    (size_t)properties->getPropertyAsInteger("rawGraySize")) {
 			passed = false;
@@ -229,7 +229,7 @@ compareProperties(
 			cerr << "\t*** raw version missing" << endl;
 			passed = false;
 		} catch (Error::Exception &e) {
-			cerr << "\t*** " << e.getInfo() << endl;
+			cerr << "\t*** " << e.what() << endl;
 			passed = false;
 		}
 	}
@@ -249,7 +249,7 @@ compareProperties(
 			cerr << "\t*** raw gray version missing" << endl;
 			passed = false;
 		} catch (Error::Exception &e) {
-			cerr << "\t*** " << e.getInfo() << endl;
+			cerr << "\t*** " << e.what() << endl;
 			passed = false;
 		}
 	}
@@ -264,7 +264,7 @@ main(
     char *argv[])
 {
 	/* Define file extensions and which class should deal with each */
-	map<string, string> extensions;
+	map<std::string, std::string> extensions;
 	extensions["pbm"] = "NetPBM";
 	extensions["pgm"] = "NetPBM";
 	extensions["ppm"] = "NetPBM";
@@ -279,41 +279,41 @@ main(
 	extensions["wsq"] = "WSQ";
 
 	/* Load images */
-	tr1::shared_ptr<IO::RecordStore> imageRS;
+	shared_ptr<IO::RecordStore> imageRS;
 	try {
 		imageRS = IO::RecordStore::openRecordStore(ImageRSName, 
 		    RSParentDir, IO::READONLY);
 	} catch (Error::Exception &e) {
 		cerr << "Could not open " << RSParentDir << "/" <<
-		    ImageRSName << ": " << e.getInfo() << endl;
+		    ImageRSName << ": " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 	
 	/* Load image properties */
-	tr1::shared_ptr<IO::RecordStore> imagePropRS;
+	shared_ptr<IO::RecordStore> imagePropRS;
 	try {
 		imagePropRS = IO::RecordStore::openRecordStore(ImagePropRSName, 
 		    RSParentDir, IO::READONLY);
 	} catch (Error::Exception &e) {
 		cerr << "Could not open " << RSParentDir << "/" <<
-		    ImageRSName << ": " << e.getInfo() << endl;
+		    ImageRSName << ": " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 
 	bool doPropertyCompare;
-	string key, rawKey, extension;
+	std::string key, rawKey, extension;
 	Memory::uint8Array imageData, propertyData;
-	tr1::shared_ptr<IO::Properties> properties;
+	shared_ptr<IO::Properties> properties;
 	for (;;) {		
 		/* Read in image */
 		try {
-			imageData.resize(imageRS->sequence(key, NULL));
+			imageData.resize(imageRS->sequence(key, nullptr));
 			rawKey = key;
 		} catch (Error::ObjectDoesNotExist) {
 			/* Exhausted sample images */
 			return (EXIT_SUCCESS);
 		} catch (Error::Exception &e) {
-			cerr << e.getInfo() << endl;
+			cerr << e.what() << endl;
 			continue;
 		}
 			
@@ -348,7 +348,7 @@ main(
 		} catch (Error::ObjectDoesNotExist) {
 			doPropertyCompare = false;
 		} catch (Error::Exception &e) {
-			cerr << e.getInfo() << endl;
+			cerr << e.what() << endl;
 			continue;
 		}
 		
@@ -357,11 +357,11 @@ main(
 			if (imageRS->read(key, imageData) != imageData.size())
 				throw Error::DataError("Invalid size read");
 		} catch (Error::Exception &e) {
-			cerr << e.getInfo() << endl;
+			cerr << e.what() << endl;
 			continue;
 		}
 		
-		tr1::shared_ptr<Image::Image> image;
+		shared_ptr<Image::Image> image;
 #if defined WSQTEST
 		if (Image::WSQ::isWSQ(imageData) == false) {
 			cerr << key << " is not a WSQ image." << endl;
@@ -422,32 +422,35 @@ main(
 		cout << key << ':' << endl;
 #if defined FACTORYTEST
 		cout << "\tCompression Algorithm: " <<
-		    Image::Image::getCompressionAlgorithm(imageData) << endl;
+		    to_string(Image::Image::getCompressionAlgorithm(imageData)) << endl;
 #endif
+		Memory::uint8Array buf;
 		cout << "\tDimensions: " << image->getDimensions() << endl;
 		cout << "\tBit-Depth: " << image->getDepth() << endl;
 		cout << "\tResolution: " << image->getResolution() << endl;
-		cout << "\tNative Size: " << image->getData().size() << endl;
+		image->getData(buf);
+		cout << "\tNative Size: " << buf.size() << endl;
 		
 		/* Write a raw and grayscale raw version of the image */
 		try {
-			IO::Utility::writeFile(image->getRawData(),
-			    rawKey + RawSuffix, ios_base::trunc);
-			cout << "\tRaw Size: " << image->getRawData().size() << 
-			    " (" << rawKey << RawSuffix << ")" << endl;
+			image->getRawData(buf);
+			IO::Utility::writeFile(buf, rawKey + RawSuffix,
+			    ios_base::trunc);
+			cout << "\tRaw Size: " << buf.size() << " (" <<
+			    rawKey << RawSuffix << ")" << endl;
 		} catch (Error::Exception &e) {
-			cerr << "Error getRawData()/writeFile() for " << key <<
+			cerr << "Error getRawData/writeFile for " << key <<
 			    endl;
 		}
 		
 		try {
-			IO::Utility::writeFile(image->getRawGrayscaleData(),
-			    rawKey + RawGraySuffix, ios_base::trunc);
-			cout << "\tRaw 8-bit Grayscale Size: " <<
-			    image->getRawGrayscaleData().size() << " (" << 
-			    rawKey << RawGraySuffix << ")" << endl;
+			image->getRawGrayscaleData(buf);
+			IO::Utility::writeFile(buf, rawKey + RawGraySuffix,
+			    ios_base::trunc);
+			cout << "\tRaw 8-bit Grayscale Size: " << buf.size() <<
+			    " (" << rawKey << RawGraySuffix << ")" << endl;
 		} catch (Error::Exception &e) {
-			cerr << "Error getRawGrayscaleData()/writeFile() " <<
+			cerr << "Error getRawGrayscaleData/writeFile " <<
 			   "for " << key << endl;
 		}
 		

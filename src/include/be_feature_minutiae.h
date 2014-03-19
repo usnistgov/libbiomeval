@@ -12,17 +12,16 @@
 #define __BE_FEATURE_MINUTIAE_H__
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include <be_error.h>
 #include <be_finger.h>
+#include <be_framework_enumeration.h>
 #include <be_image.h>
 #include <be_memory_autoarray.h>
 
-#include <tr1/memory>
-
-using namespace std;
 namespace BiometricEvaluation 
 {
 	namespace Feature
@@ -31,77 +30,61 @@ namespace BiometricEvaluation
 		 * @brief
 		 * Enumerate the  minutiae format standards.
 		 */
-		class MinutiaeFormat {
-		public:
-			typedef enum {
-				AN2K7 = 0,
-				IAFIS,
-				Cogent,
-				Motorola,
-				Sagem,
-				NEC,
-				Identix,
-				M1
-			} Kind;
-		private:
-			MinutiaeFormat() {};
+		enum class MinutiaeFormat
+		{
+			AN2K7 = 0,
+			IAFIS,
+			Cogent,
+			Motorola,
+			Sagem,
+			NEC,
+			Identix,
+			M1
 		};
-		std::ostream& operator<< (std::ostream&,
-		    const MinutiaeFormat::Kind);
 
 		/**
 		 * @brief
 		 * Enumerate the types of minutiae: Ridge Ending, Bifurcation,
 		 * Compound, or other.
 		 */
-		class MinutiaeType {
-		public:
-			enum Kind {
-				RidgeEnding = 0,
-				Bifurcation,
-				Compound,
-				Other
-			};
-		private:
-			MinutiaeType() {}
+		enum class MinutiaeType
+		{
+			RidgeEnding = 0,
+			Bifurcation,
+			Compound,
+			Other
 		};
-		std::ostream& operator<< (std::ostream&,
-		    const MinutiaeType::Kind);
 
 		/**
 		 * @brief
 		 * Representation of a finger minutiae data point.
 		 */
-		typedef struct {
+		struct MinutiaPoint
+		{
 			unsigned int		index;
 			bool			has_type;
-			MinutiaeType::Kind	type;
+			MinutiaeType		type;
 			Image::Coordinate	coordinate;
 			unsigned int		theta;
 			bool			has_quality;
 			unsigned int		quality;
-		} MinutiaPoint;
+		};
+		using MinutiaPoint = struct MinutiaPoint;
 		std::ostream& operator<< (std::ostream&,
 		    const MinutiaPoint&);
-		typedef std::vector<MinutiaPoint> MinutiaPointSet;
+		using MinutiaPointSet = std::vector<MinutiaPoint>;
 
 		/**
 		 * @brief
 		 * Enumerate the types of extraction methods for ridge counts.
 		 */
-		class RidgeCountExtractionMethod {
-		public:
-			enum Kind {
-				NonSpecific = 0,
-				FourNeighbor = 1,
-				EightNeighor = 2,
-				Other = 3
-			};
-		private:
-			RidgeCountExtractionMethod() {}
+		enum class RidgeCountExtractionMethod
+		{
+			NonSpecific = 0,
+			FourNeighbor = 1,
+			EightNeighbor = 2,
+			Other = 3
 		};
-		std::ostream& operator<< (std::ostream&,
-		    const RidgeCountExtractionMethod::Kind);
 
 		/**
 		 * @brief
@@ -116,20 +99,20 @@ namespace BiometricEvaluation
 			 * Create a RidgeCountItem struct.
 			 */
 			RidgeCountItem(
-				RidgeCountExtractionMethod::Kind extraction_method,
+				RidgeCountExtractionMethod extraction_method,
 				int index_one,
 				int index_two,
 				int count = 0);
 			RidgeCountItem() { }
-			RidgeCountExtractionMethod::Kind extraction_method;
+			RidgeCountExtractionMethod extraction_method;
 			int		index_one;
 			int		index_two;
 			int		count;
 		};
-		typedef struct RidgeCountItem RidgeCountItem;
+		using RidgeCountItem = struct RidgeCountItem;
 		std::ostream& operator<< (std::ostream&,
 		    const RidgeCountItem&);
-		typedef std::vector<RidgeCountItem> RidgeCountItemSet;
+		using RidgeCountItemSet = std::vector<RidgeCountItem>;
 
 		/**
 		 * @brief
@@ -153,9 +136,9 @@ namespace BiometricEvaluation
 			bool			has_angle;
 			int			angle;
 		};
-		typedef struct CorePoint CorePoint;
+		using CorePoint = struct CorePoint;
 		std::ostream& operator<< (std::ostream&,const CorePoint&);
-		typedef std::vector<CorePoint> CorePointSet;
+		using CorePointSet = std::vector<CorePoint>;
 
 		/**
 		 * @brief
@@ -183,10 +166,10 @@ namespace BiometricEvaluation
 			int			angle2;
 			int			angle3;
 		};
-		typedef struct DeltaPoint DeltaPoint;
+		using DeltaPoint = struct DeltaPoint;
 		std::ostream& operator<< (std::ostream&,const DeltaPoint&);
 
-		typedef std::vector<DeltaPoint> DeltaPointSet;
+		using DeltaPointSet = std::vector<DeltaPoint>;
 
 		/**
 		 * @brief
@@ -207,7 +190,7 @@ namespace BiometricEvaluation
 			 * Obtain the minutiae format kind.
 			 *
 			 */
-			virtual MinutiaeFormat::Kind getFormat() const = 0;
+			virtual MinutiaeFormat getFormat() const = 0;
 
 			/**
 			 * @brief
@@ -243,8 +226,7 @@ namespace BiometricEvaluation
 
 		private:
 		};
-		typedef std::vector<tr1::shared_ptr<Minutiae> >
-		    MinutiaeSet;
+		using MinutiaeSet = std::vector<std::shared_ptr<Minutiae>>;
 	}
 }
 #endif /* __BE_FEATURE_MINUTIAE_H__ */

@@ -12,11 +12,10 @@
 #include <be_feature_incitsminutiae.h>
 #include <be_io_utility.h>
 
-using namespace BiometricEvaluation;
-using namespace BiometricEvaluation::Feature;
+namespace BE = BiometricEvaluation;
 
-const uint16_t INCITSMinutiae::FMD_ISO_ANGLE_UNIT = (360.0 / 256.0);
-const uint16_t INCITSMinutiae::FMD_ISOCC_ANGLE_UNIT = (360.0 / 64.0);
+const uint16_t BE::Feature::INCITSMinutiae::FMD_ISO_ANGLE_UNIT = (360.0 / 256.0);
+const uint16_t BE::Feature::INCITSMinutiae::FMD_ISOCC_ANGLE_UNIT = (360.0 / 64.0);
 
 BiometricEvaluation::Feature::INCITSMinutiae::INCITSMinutiae()
 {
@@ -34,37 +33,38 @@ BiometricEvaluation::Feature::INCITSMinutiae::INCITSMinutiae(
 {
 }
 
-BiometricEvaluation::Feature::MinutiaeFormat::Kind
+BiometricEvaluation::Feature::MinutiaeFormat
 BiometricEvaluation::Feature::INCITSMinutiae::getFormat() const
 {
 	return (MinutiaeFormat::M1);
 }
 
-Feature::MinutiaPointSet
+BiometricEvaluation::Feature::MinutiaPointSet
 BiometricEvaluation::Feature::INCITSMinutiae::getMinutiaPoints() const
 {
 	return (_minutiaPointSet);
 }
 
-Feature::RidgeCountItemSet
+BiometricEvaluation::Feature::RidgeCountItemSet
 BiometricEvaluation::Feature::INCITSMinutiae::getRidgeCountItems() const
 {
 	return (_ridgeCountItemSet);
 }
 
-Feature::CorePointSet
+BiometricEvaluation::Feature::CorePointSet
 BiometricEvaluation::Feature::INCITSMinutiae::getCores() const
 {
 	return (_corePointSet);
 }
 
-Feature::DeltaPointSet
+BiometricEvaluation::Feature::DeltaPointSet
 BiometricEvaluation::Feature::INCITSMinutiae::getDeltas() const
 {
 	return (_deltaPointSet);
 }
 
-void BiometricEvaluation::Feature::INCITSMinutiae::setMinutiaPoints(
+void
+BiometricEvaluation::Feature::INCITSMinutiae::setMinutiaPoints(
     const MinutiaPointSet& mps)
 {
 	_minutiaPointSet = mps;

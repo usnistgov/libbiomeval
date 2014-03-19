@@ -18,26 +18,27 @@
 #include <be_io_recordstore.h>
 #include <be_memory_orderedmap.h>
 
-using namespace std;
-
 /** Name of the manifest file on disk */
-const string manifestFileName("manifest");
+const std::string manifestFileName("manifest");
 /** Name of the archive file on disk */
-const string archiveFileName("archive");
+const std::string archiveFileName("archive");
 
 namespace BiometricEvaluation {
 
 	namespace IO {
 		/** Info about a single archive element */
-		typedef struct {
+		struct ManifestEntry
+		{
 			/** The offset from the beginning of the file/memory */
 			long offset;
 			/** The length from offset this element spans */
 			uint64_t size;
-		} ManifestEntry;
-	
-		/** Convenience typedef for storing the manifest */
-		typedef Memory::OrderedMap<string, ManifestEntry> ManifestMap;
+		};
+		using ManifestEntry = struct ManifestEntry;
+
+		/** Convenience alias for storing the manifest */
+		using ManifestMap =
+		    Memory::OrderedMap<std::string, ManifestEntry>;
 	
 /**
  * @brief
@@ -83,11 +84,10 @@ namespace BiometricEvaluation {
 			 * 	file system.
 			 */
 			ArchiveRecordStore(
-			    const string &name,
-			    const string &description,
-			    const string &parentDir)
-			    throw (Error::ObjectExists, Error::StrategyError);
-	
+			    const std::string &name,
+			    const std::string &description,
+			    const std::string &parentDir);
+
 			/**
 			 * Open an existing ArchiveRecordStore.
 			 *
@@ -105,79 +105,55 @@ namespace BiometricEvaluation {
 			 *	file system.
 			 */
 			 ArchiveRecordStore(
-			     const string &name,
-			     const string &parentDir,
-			     uint8_t mode = IO::READWRITE)
-			     throw (Error::ObjectDoesNotExist, 
-			     Error::StrategyError);
+			     const std::string &name,
+			     const std::string &parentDir,
+			     uint8_t mode = IO::READWRITE);
 
 			/**
 			 * Destructor.
 			 */
 			~ArchiveRecordStore();
-			
-			uint64_t getSpaceUsed()
-			    const
-			    throw (Error::StrategyError);
+
+			uint64_t getSpaceUsed() const;
 
 			/*
 			 * Implementations of RecordStore methods.
 			 */
-			void sync()
-			    const
-			    throw (Error::StrategyError);
+			void sync() const;
 
 			void insert(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const uint64_t size);
 
 			void remove(
-			    const string &key)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key);
 
 			uint64_t read(
-			    const string &key,
-			    void *const data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key,
+			    void *const data) const;
 
 			void replace(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
-	
+			    const uint64_t size);
+
 			uint64_t length(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist);
+			    const std::string &key) const;
 
 			void flush(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
-			
+			    const std::string &key) const;
+
 			uint64_t sequence(
-			    string &key,
-			    void *const data = NULL,
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    std::string &key,
+			    void *const data = nullptr,
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			void setCursorAtKey(
-			    string &key)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
-	
+			    std::string &key);
+
 			void changeName(
-			    const string &name)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &name);
 	
 			/**
 			 * See if the ArchiveRecordStore would benefit from
@@ -209,10 +185,8 @@ namespace BiometricEvaluation {
 			 *	false otherwise
 			 */
 			static bool needsVacuum(
-			    const string &name, 
-    			    const string &parentDir)
-    			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    const std::string &name, 
+    			    const std::string &parentDir);
 
 			/**
 			 * Remove deleted entries from the manifest and 
@@ -231,10 +205,8 @@ namespace BiometricEvaluation {
 			 * This is an expensive operation.
 			 */
 			static void vacuum(
-			    const string &name,
-			    const string &parentDir)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir);
 	
 			/**
 			 * Obtain the name of the file storing the data for 
@@ -243,7 +215,7 @@ namespace BiometricEvaluation {
 			 * @return
 			 *	Path to archive file.
 			 */
-			string getArchiveName() const;
+			std::string getArchiveName() const;
 	
 			/**
 			 * Obtain the name of the file storing the manifest data
@@ -252,22 +224,22 @@ namespace BiometricEvaluation {
 			 * @return
 			 *	Path to manifest file.
 			 */
-			string getManifestName() const;
+			std::string getManifestName() const;
 			
 			/** Offset placeholder indicating a removed record */
 			static const long OFFSET_RECORD_REMOVED = -1;
-	
-		protected:
-		
-		private:
-			/* Prevent copying of ArchiveRecordStore objects */
-			ArchiveRecordStore(const ArchiveRecordStore&);
-			ArchiveRecordStore& operator=(const ArchiveRecordStore&);
 
+			/* Prevent copying of ArchiveRecordStore objects */
+			ArchiveRecordStore(const ArchiveRecordStore&) = delete;
+			ArchiveRecordStore&
+			operator=(
+			    const ArchiveRecordStore&) = delete;
+
+		private:
 			/** Manifest file handle */
-			mutable fstream _manifestfp;
+			mutable std::fstream _manifestfp;
 			/** Archive file handle */
-			mutable fstream _archivefp;
+			mutable std::fstream _archivefp;
 	
 			/*
 			 * Offsets and sizes of data chunks within the archive.
@@ -292,9 +264,7 @@ namespace BiometricEvaluation {
 			 * @throw Error::FileError
 			 *	Manifest is malformed or could not be read.
 			 */
-			void read_manifest()
-			    throw (Error::ConversionError,
-			    Error::FileError);
+			void read_manifest();
 		
 			/**
 			 * @brief
@@ -309,9 +279,8 @@ namespace BiometricEvaluation {
 			 */
 			void
 			write_manifest_entry(
-			    const string &key, 
-			    ManifestEntry entry)
-			    throw (Error::StrategyError);
+			    const std::string &key, 
+			    ManifestEntry entry);
 	
 			/**
 			 * @brief
@@ -321,9 +290,7 @@ namespace BiometricEvaluation {
 			 *	Unable to open streams
 			 */
 			void
-			open_streams()
-			    const
-			    throw (Error::FileError);
+			open_streams() const;
 	
 			/**
 			 * @brief
@@ -333,8 +300,7 @@ namespace BiometricEvaluation {
 			 *	Unable to close streams
 			 */
 			void
-			close_streams()
-			    throw (Error::StrategyError);
+			close_streams();
 	
 			/**
 			 * @brief

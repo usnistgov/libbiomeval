@@ -28,16 +28,17 @@ printViewInfo(Face::INCITSView &facev)
 	cout << "Scan resolution is " << facev.getScanResolution() << endl;
 	cout << "Image size is " << facev.getImageSize() << endl;
 	cout << "Image depth is " << facev.getImageDepth() << endl;
-	cout << "Compression is " << facev.getCompressionAlgorithm() << endl;
+	cout << "Compression is " <<
+	    to_string(facev.getCompressionAlgorithm()) << endl;
 
 	try {
-		tr1::shared_ptr<Image::Image> theImage = facev.getImage();
+		std::shared_ptr<Image::Image> theImage = facev.getImage();
 		cout << "Information from the Image data item:" << endl;
 		cout << "\tResolution: " << theImage->getResolution() << endl;
 		cout << "\tDimensions: " << theImage->getDimensions() << endl;
 		cout << "\tDepth: " << theImage->getDepth() << endl;
 	} catch (Error::Exception &e) {
-		cout << "Caught " << e.getInfo() << endl;
+		cout << "Caught " << e.what() << endl;
 	}
 	cout << "------------------------------------------" << endl;
 
@@ -103,10 +104,10 @@ testISO2005()
 	try {
 		facev = Face::ISO2005View("test_data/face01.iso2005", 1);
 	} catch (Error::DataError &e) {
-		cout << "Caught " << e.getInfo()  << endl;
+		cout << "Caught " << e.what()  << endl;
 		return (false);
 	} catch (Error::FileError& e) {
-		cout << e.getInfo() << endl;
+		cout << e.what() << endl;
 		return (false);
 	}
 	cout << "Success." << endl;

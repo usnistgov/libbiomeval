@@ -15,13 +15,13 @@ int main(
 	 */
 
 	cout << "Testing factory open method... ";
-	tr1::shared_ptr<IO::RecordStore> rs;
+	shared_ptr<IO::RecordStore> rs;
 	try {
 		rs = IO::RecordStore::openRecordStore("listRecordStore",
 	            "test_data", IO::READONLY);
 		cout << "success" << endl;
 	} catch (Error::Exception &e) {
-		cerr << "FAIL: " << e.getInfo() << endl;
+		cerr << "FAIL: " << e.what() << endl;
 		return (1);
 	}
 
@@ -37,12 +37,12 @@ int main(
 	string key;
 	for (;;) {
 		try {
-			rs->sequence(key, NULL);
+			rs->sequence(key, nullptr);
 			counter++;
 		} catch (Error::ObjectDoesNotExist) {
 			break;
 		} catch (Error::Exception &e) {
-			cerr << endl << "FAIL: " << e.getInfo() << endl;
+			cerr << endl << "FAIL: " << e.what() << endl;
 			return (2);
 		}
 	}
@@ -61,12 +61,12 @@ int main(
 	counter = 0;
 	for (;;) {
 		try {
-			rs->sequence(key, NULL);
+			rs->sequence(key, nullptr);
 			counter++;
 		} catch (Error::ObjectDoesNotExist) {
                         break;
                 } catch (Error::Exception &e) {
-                        cerr << endl << "FAIL: " << e.getInfo() << endl;
+                        cerr << endl << "FAIL: " << e.what() << endl;
                         return (4);
                 }
 	}
@@ -87,17 +87,17 @@ int main(
 	try {
 		rs->setCursorAtKey(key);
 	} catch (Error::Exception &e) {
-		cout << "FAIL: " << e.getInfo() << endl;
+		cout << "FAIL: " << e.what() << endl;
 		return (6);
 	}
         for (;;) {
                 try {
-                        rs->sequence(key, NULL);
+                        rs->sequence(key, nullptr);
                         counter++;
                 } catch (Error::ObjectDoesNotExist) {
                         break;
                 } catch (Error::Exception &e) {
-                        cerr << endl << "FAIL: " << e.getInfo() << endl;
+                        cerr << endl << "FAIL: " << e.what() << endl;
                         return (7);
                 }
         }

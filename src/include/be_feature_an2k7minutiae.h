@@ -13,11 +13,11 @@
 
 #include <iostream>
 
+#include <be_framework_enumeration.h>
 #include <be_feature_minutiae.h>
 #include <be_finger.h>
 #include <be_memory_autoarray.h>
 
-using namespace std;
 namespace BiometricEvaluation 
 {
 	namespace Feature
@@ -66,12 +66,12 @@ namespace BiometricEvaluation
 					 */
 					std::string code;
 				};
-				typedef struct Entry Entry;
-			private:
-				PatternClassification() {};
+				using Entry = struct Entry;
+
+				PatternClassification() = delete;
 			};
-			typedef std::vector<PatternClassification::Entry>
-			    PatternClassificationSet;
+			using PatternClassificationSet =
+			    std::vector<PatternClassification::Entry>;
 			    
 			/**
 			 * @brief
@@ -85,11 +85,10 @@ namespace BiometricEvaluation
 			 * @throw Error::DataError
 			 *	Invalid value for fpc.
 			 */
-			static Finger::PatternClassification::Kind
+			static Finger::PatternClassification
 			convertPatternClassification(
-			    const char *fpc)
-			    throw (Error::DataError);
-			    
+			    const char *fpc);
+
 			/**
 			 * @brief
 			 * Convert a standard PatternClassification::Entry
@@ -101,25 +100,24 @@ namespace BiometricEvaluation
 			 * @throw Error::DataError
 			 *	Non-standard pattern classification entry.
 			 */
-			static Finger::PatternClassification::Kind
+			static Finger::PatternClassification
 			convertPatternClassification(
-			    const PatternClassification::Entry &entry)
-			    throw (Error::DataError);
-			    
+			    const PatternClassification::Entry &entry);
+
 			/**
 			 * @brief
 			 * Methods for encoding minutiae data in an AN2K record.
 			 */
-			class EncodingMethod {
-			public:
-				typedef enum {
-					Automatic = 0,
-					AutomaticUnedited,
-					AutomaticEdited,
-					Manual
-				} Kind;
-			private:
-				EncodingMethod() {};
+			enum class EncodingMethod
+			{
+				/** No possible human interaction */
+				Automatic = 0,
+				/** Editing possible, but not performed */
+				AutomaticUnedited,
+				/** Editing possible and was performed */
+				AutomaticEdited,
+				/* Manually encoded */
+				Manual
 			};
 			
 			/**
@@ -134,11 +132,10 @@ namespace BiometricEvaluation
 			 * @throw Error::DataError
 			 *	Invalid value for mem.
 			 */
-			static EncodingMethod::Kind
+			static EncodingMethod
 			convertEncodingMethod(
-			    const char *mem)
-			    throw (Error::DataError);
-			    
+			    const char *mem);
+
 			/**
 			 * @brief
 			 * Representation of information about a fingerprint
@@ -146,14 +143,14 @@ namespace BiometricEvaluation
 			 */
 			struct FingerprintReadingSystem {
 				/** Name for system that encoded minutiae */
-				string name;
+				std::string name;
 				/** Method used to encoded minutiae */
-				EncodingMethod::Kind method;
+				EncodingMethod method;
 				/** Optional ID for equipment used in system */
-				string equipment;
+				std::string equipment;
 			};
-			typedef struct FingerprintReadingSystem
-			    FingerprintReadingSystem;
+			using FingerprintReadingSystem =
+			    struct FingerprintReadingSystem;
 		
 			/**
 			 * @brief
@@ -180,9 +177,7 @@ namespace BiometricEvaluation
 			 */
 			AN2K7Minutiae(
 			    const std::string &filename,
-			    int recordNumber)
-			    throw (Error::DataError,
-				Error::FileError);
+			    int recordNumber);
 
 			/**
 			 * @brief
@@ -206,8 +201,7 @@ namespace BiometricEvaluation
 			 */
 			AN2K7Minutiae(
 			    Memory::uint8Array &buf,
-			    int recordNumber)
-			    throw (Error::DataError);
+			    int recordNumber);
 
 			/**
 			 * @brief
@@ -228,9 +222,8 @@ namespace BiometricEvaluation
 			 *	The optional OFR field has been excluded.
 			 */
 			FingerprintReadingSystem
-			getOriginatingFingerprintReadingSystem() const
-			    throw (Error::ObjectDoesNotExist);
-			
+			getOriginatingFingerprintReadingSystem() const;
+
 			/**
 			 * @brief
 			 * Obtain a Coordinate given an AN2K entry.
@@ -252,13 +245,12 @@ namespace BiometricEvaluation
 			static Image::Coordinate
 			convertCoordinate(
 			    const char *str,
-			    bool calculateDistance = true)
-			    throw (Error::DataError);
+			    bool calculateDistance = true);
 
 			/*
 			 * Feature::Minutiae implementations.
 			 */
-			MinutiaeFormat::Kind getFormat() const;
+			MinutiaeFormat getFormat() const;
 			MinutiaPointSet getMinutiaPoints() const;
 			RidgeCountItemSet getRidgeCountItems() const;
 			CorePointSet getCores() const;
@@ -268,8 +260,7 @@ namespace BiometricEvaluation
 		private:
 			void readType9Record(
 			    Memory::uint8Array &buf,
-    			    int recordNumber)
-			    throw (Error::DataError);
+    			    int recordNumber);
 
 			MinutiaPointSet _minutiaPointSet;
 			RidgeCountItemSet _ridgeCountItemSet;
@@ -281,16 +272,8 @@ namespace BiometricEvaluation
 			std::string _userdefinedFpc;
 
 		};
-		typedef std::vector<tr1::shared_ptr<AN2K7Minutiae> >
-		    AN2K7MinutiaeSet;
-
-		/**
-		 * @brief
-		 * Output stream overload for EncodingMethod.
-		 */
-		std::ostream&
-		operator<< (std::ostream&,
-		    const AN2K7Minutiae::EncodingMethod::Kind&);
+		using AN2K7MinutiaeSet =
+		    std::vector<std::shared_ptr<AN2K7Minutiae>>;
 		    
 		/**
 		 * @brief

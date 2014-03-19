@@ -70,7 +70,7 @@ main(int argc, char* argv[]) {
     try {
 	rs = new IO::DBRecordStore("myRecords", "My Record Store", "");
     } catch (Error::Exception& e) {
-	cout << "Caught " << e.getInfo() << endl;
+	cout << "Caught " << e.what() << endl;
 	return (EXIT_FAILURE);
     }
     auto_ptr<IO::DBRecordStore> ars(rs);
@@ -85,7 +85,7 @@ main(int argc, char* argv[]) {
 	ars->insert("key2", theData);
 
     } catch (Error::Exception& e) {
-	cout << "Caught " << e.getInfo() << endl;
+	cout << "Caught " << e.what() << endl;
 	return (EXIT_FAILURE);
     }
 
@@ -152,7 +152,7 @@ try {
     cout << "The Log Cabinet already exists." << endl;
     return (-1);
 } catch (Error::StrategyError& e) {
-    cout << "Caught " << e.getInfo() << endl;
+    cout << "Caught " << e.what() << endl;
     return (-1);
 }
 auto_ptr<LogCabinet> alc(lc);
@@ -162,7 +162,7 @@ try {
     cout << "The Log Sheet already exists." << endl;
     return (-1);
 } catch (Error::StrategyError& e) {
-    cout << "Caught " << e.getInfo() << endl;
+    cout << "Caught " << e.what() << endl;
     return (-1);
 }
 ls->setAutoSync(true);	// Force write of every entry when finished
@@ -187,10 +187,10 @@ string fname = "test.prop";
 try {
     props = new IO::Properties(fname);
 } catch (Error::StrategyError &e) {
-    cerr << "Caught " << e.getInfo()  << endl;
+    cerr << "Caught " << e.what()  << endl;
     return;
 } catch (Error::FileError& e) {
-    cerr << "A file error occurred: " << e.getInfo() << endl;
+    cerr << "A file error occurred: " << e.what() << endl;
     return;
 }
 props->setProperty("foo", "bar");
@@ -231,15 +231,15 @@ decompresses the \lib{gzip} format through interaction with
 \lib{zlib}~\cite{zlib}.
 
 \begin{lstlisting}[caption={Using a \class{Compressor} Object}, label=lst:compressoruse]
-tr1::shared_ptr<IO::Compressor> compressor;
+shared_ptr<IO::Compressor> compressor;
 Memory::uint8Array compressedBuffer, largeBuffer = /* ... */;
 try {
 	compressor = IO::Compressor::createCompressor(Compressor::Kind::GZIP);
 	/* Overloaded for all combination of buffer and file */
 	compressor->compress("largeInputFile", "compressedOutputFile");
-	compressedBuffer = compressor->compress(largeBuffer);
+	compressor->compress(largeBuffer, compressedBuffer);
 } catch (Error::Exception &e) {
-	cerr << "Could not compress (" << e.getInfo() << ')' << endl;
+	cerr << "Could not compress (" << e.what() << ')' << endl;
 }
 \end{lstlisting}
 
@@ -251,7 +251,7 @@ values.  Setting and retrieving these options is very similar to interacting
 with a \class{Properties} object (see \secref{sec-properties}).
 
 \begin{lstlisting}[caption={Setting \class{Compressor} Options}, label=lst:compressoroptions]
-tr1::shared_ptr<IO::Compressor> compressor =
+shared_ptr<IO::Compressor> compressor =
     IO::Compressor::createCompressor(Compressor::Kind::GZIP);
 
 /* A large GZIP chunk size can speed operations on systems with copious RAM */

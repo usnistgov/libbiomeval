@@ -18,8 +18,6 @@
 #include <be_io_properties.h>
 #include <be_error_exception.h>
 
-using namespace std;
-
 namespace BiometricEvaluation
 {
 	namespace IO
@@ -68,11 +66,9 @@ namespace BiometricEvaluation
 			 *	storage system.
 			 */
 			PropertiesFile(
-			    const string &filename,
-			    uint8_t mode = IO::READWRITE)
-			    throw (Error::FileError, 
-			    Error::StrategyError);
-			    
+			    const std::string &filename,
+			    uint8_t mode = IO::READWRITE);
+
 
 			/**
 			 * @brief
@@ -83,13 +79,11 @@ namespace BiometricEvaluation
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 * @throw Error::StrategyError
-			 *	The object was constructed with NULL as the
+			 *	The object was constructed with nullptr as the
 			 *	file name, or is read-only.
 			 */
 			void
-			sync()
-			    throw (Error::FileError,
-			    Error::StrategyError);
+			sync();
 
 			/**
 			 * @brief
@@ -109,15 +103,11 @@ namespace BiometricEvaluation
 			 */
 			void
 			changeName(
-			    const string &filename)
-			    throw (Error::StrategyError);
-			
+			    const std::string &filename);
+
 			/** Destructor */
 			~PropertiesFile();
 
-		protected:
-
-		private:
 			/**
 			 * @brief
 			 * Copy constructor (disabled).
@@ -129,8 +119,8 @@ namespace BiometricEvaluation
 			 *	PropertiesFile object to copy.
 			 */
 			PropertiesFile(
-			    const PropertiesFile &other);
-			    
+			    const PropertiesFile &other) = delete;
+
 			/**
 			 * @brief
 			 * Assignment operator (disabled).
@@ -147,10 +137,11 @@ namespace BiometricEvaluation
 			 */
 			PropertiesFile&
 			operator=(
-			    const PropertiesFile &other);
+			    const PropertiesFile &other) = delete;
 
+		private:
 			/** The file name of the underlying properties file */
-			string _filename;
+			std::string _filename;
 		};
 	}
 }

@@ -284,9 +284,9 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
 	 */
 	this->setImageDepth(0);
 	this->setImageResolution(
-	    Image::Resolution(0, 0, BE::Image::Resolution::NA));
+	    Image::Resolution(0, 0, BE::Image::Resolution::Units::NA));
 	this->setScanResolution(
-	    Image::Resolution(0, 0, BE::Image::Resolution::NA));
+	    Image::Resolution(0, 0, BE::Image::Resolution::Units::NA));
 	BE::Memory::uint8Array imageData(remainLen);
 	buf.scan(&imageData[0], remainLen);
 	this->setImageData(imageData);

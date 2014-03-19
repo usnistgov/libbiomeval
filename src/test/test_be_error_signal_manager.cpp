@@ -9,10 +9,10 @@
  */
 
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 
-#include <stdlib.h>
 #include <unistd.h>
 
 #include <be_error_signal_manager.h>
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 		success = true;
 	} catch (Error::StrategyError &e) {
 		cout << "failed." << endl;
-		cout << "Caught " << e.getInfo() << ".\n";
+		cout << "Caught " << e.what() << ".\n";
 		return (EXIT_FAILURE);
 	}
 	if (!success) {
@@ -46,14 +46,14 @@ int main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 
-	Error::SignalManager *sigmgr = NULL;
+	Error::SignalManager *sigmgr = nullptr;
 	cout << "Creating a default SignalManager: ";
 	try {
 		sigmgr = new Error::SignalManager();
 		cout << "success." << endl;
 	} catch (Error::StrategyError &e) {
 		cout << "failed." << endl;
-		cout << "Caught " << e.getInfo() << ".\n";
+		cout << "Caught " << e.what() << ".\n";
 		return (EXIT_FAILURE);
 	}
 	auto_ptr<Error::SignalManager> asigmgr(sigmgr);
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 	 * Create one of the signals handled by default.
 	 */
 	cout << "Testing default signal handling: ";
-	char *cptr = NULL;
+	char *cptr = nullptr;
 	BEGIN_SIGNAL_BLOCK(asigmgr, sigblock1);
 	if (asigmgr->sigHandled()) {
 		cout << "sigHandled is set prematurely; failure.";

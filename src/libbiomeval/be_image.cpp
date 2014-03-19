@@ -12,7 +12,7 @@
  
 #include <be_image.h>
 
-using namespace BiometricEvaluation;
+namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::Image::Coordinate::Coordinate(
     const uint32_t x,
@@ -30,7 +30,7 @@ BiometricEvaluation::Image::Coordinate::Coordinate(
 BiometricEvaluation::Image::Resolution::Resolution(
     const double xRes,
     const double yRes,
-    const Kind units) :
+    const Units units) :
     xRes(xRes),
     yRes(yRes),
     units(units)
@@ -47,24 +47,20 @@ BiometricEvaluation::Image::Size::Size(
 
 }
 
-std::ostream &
-BiometricEvaluation::Image::operator<< (std::ostream &s,
-    const Image::CompressionAlgorithm::Kind &ca)
-{
-	std::string str;
-	switch (ca) {
-	case CompressionAlgorithm::None: str = "None"; break;
-	case CompressionAlgorithm::Facsimile: str = "Facsimile"; break;
-	case CompressionAlgorithm::WSQ20: str = "WSQ 2.0"; break;
-	case CompressionAlgorithm::JPEGB: str = "JPEGB"; break;
-	case CompressionAlgorithm::JPEGL: str = "JPEGL"; break;
-	case CompressionAlgorithm::JP2: str = "JP2"; break;
-	case CompressionAlgorithm::JP2L: str = "JP2L"; break;
-	case CompressionAlgorithm::NetPBM: str = "NetPBM"; break;
-	case CompressionAlgorithm::PNG: str = "PNG"; break;
-	}
-	return (s << str);
-}
+template<>
+const std::map<BiometricEvaluation::Image::CompressionAlgorithm, std::string>
+    BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::Image::CompressionAlgorithm>::enumToStringMap {
+	{Image::CompressionAlgorithm::None, "None"},
+	{Image::CompressionAlgorithm::Facsimile, "Facsimile"},
+	{Image::CompressionAlgorithm::WSQ20, "WSQ 2.0"},
+	{Image::CompressionAlgorithm::JPEGB, "JPEGB"},
+	{Image::CompressionAlgorithm::JPEGL, "JPEGL"},
+	{Image::CompressionAlgorithm::JP2, "JP2"},
+	{Image::CompressionAlgorithm::JP2L, "JP2L"},
+	{Image::CompressionAlgorithm::NetPBM, "NetPBM"},
+	{Image::CompressionAlgorithm::PNG, "PNG"}
+};
 
 std::ostream&
 BiometricEvaluation::Image::operator<< (std::ostream &s,
@@ -93,28 +89,21 @@ BiometricEvaluation::Image::operator<< (std::ostream &s,
 	return (s << size.xSize << "x" << size.ySize);
 }
 
-std::ostream&
-BiometricEvaluation::Image::operator<< (std::ostream &s,
-    const Image::Resolution::Kind& kind)
-{
-	std::string str;
-
-	switch (kind) {
-	case Resolution::NA: str = "NA"; break;
-	case Resolution::PPI: str = "PPI"; break;
-	case Resolution::PPMM: str = "PPMM"; break;
-	case Resolution::PPCM: str = "PPCM"; break;
-	default: str = "Unknown"; break;
-	}
-
-	return (s << str);
-}
+template<>
+const std::map<BiometricEvaluation::Image::Resolution::Units, std::string>
+    BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::Image::Resolution::Units>::enumToStringMap {
+	{Image::Resolution::Units::NA, "NA"},
+	{Image::Resolution::Units::PPI, "PPI"},
+	{Image::Resolution::Units::PPMM, "PPMM"},
+	{Image::Resolution::Units::PPCM, "PPCM"}
+};
 
 std::ostream&
 BiometricEvaluation::Image::operator<< (std::ostream &s,
     const Image::Resolution& res)
 {
-	return (s << res.xRes << "x" << res.yRes << " " << res.units);
+	return (s << res.xRes << "x" << res.yRes << " " << to_string(res.units));
 }
 
 float

@@ -34,7 +34,6 @@ BiometricEvaluation::Process::Manager::~Manager()
 uint32_t
 BiometricEvaluation::Process::Manager::getNumCompletedWorkers()
     const
-    throw (Error::StrategyError)
 {
 	return (_workers.size() - getNumActiveWorkers());
 }
@@ -42,11 +41,10 @@ BiometricEvaluation::Process::Manager::getNumCompletedWorkers()
 uint32_t
 BiometricEvaluation::Process::Manager::getNumActiveWorkers()
     const
-    throw (Error::StrategyError)
 {
 	uint32_t sum = 0;
 	
-	vector< tr1::shared_ptr<WorkerController> >::const_iterator it;
+	std::vector<std::shared_ptr<WorkerController>>::const_iterator it;
 	for (it = _workers.begin(); it != _workers.end(); it++)
 		if ((*it)->isWorking())
 			sum++;
@@ -63,9 +61,8 @@ BiometricEvaluation::Process::Manager::getTotalWorkers()
 
 void
 BiometricEvaluation::Process::Manager::reset()
-    throw (Error::ObjectExists)
 {
-	vector< tr1::shared_ptr<WorkerController> >::iterator it;
+	std::vector<std::shared_ptr<WorkerController>>::iterator it;
 	for (it = _workers.begin(); it != _workers.end(); it++)
 		(*it)->reset();
 
@@ -76,7 +73,7 @@ BiometricEvaluation::Process::Manager::reset()
 
 bool
 BiometricEvaluation::Process::Manager::waitForMessage(
-    tr1::shared_ptr<WorkerController> &sender,
+    std::shared_ptr<WorkerController> &sender,
     int *nextFD,
     int numSeconds)
     const
@@ -87,9 +84,9 @@ BiometricEvaluation::Process::Manager::waitForMessage(
 	/* Listen for all Worker receiving pipes */
 	FD_ZERO(&set);
 	int maxfd = 0, curfd;
-	std::map<tr1::shared_ptr<WorkerController>, int> fds;
+	std::map<std::shared_ptr<WorkerController>, int> fds;
 	
-	struct timeval timeout, *timeoutptr = NULL;
+	struct timeval timeout, *timeoutptr = nullptr;
 	if (numSeconds >= 0) {
 		timeout.tv_sec = numSeconds;
 		timeout.tv_usec = 0;
@@ -132,7 +129,7 @@ BiometricEvaluation::Process::Manager::waitForMessage(
 			break;
 		}
 		
-		int ret = select(maxfd + 1, &set, NULL, NULL, timeoutptr);
+		int ret = select(maxfd + 1, &set, nullptr, nullptr, timeoutptr);
 		/*
 		 * We don't reset timeout value here (for Linux systems)
 		 * because when something, or nothing, is available, we return,
@@ -149,11 +146,11 @@ BiometricEvaluation::Process::Manager::waitForMessage(
 				finished = true;
 		} else {
 			/* Something available -- check what */
-			for (std::map<tr1::shared_ptr<WorkerController>, int>::
+			for (std::map<std::shared_ptr<WorkerController>, int>::
 			    const_iterator it = fds.begin(); it != fds.end();
 			    it++) {
 				if (FD_ISSET(it->second, &set) != 0) {
-					if (nextFD != NULL)
+					if (nextFD != nullptr)
 						*nextFD = it->second;
 					result = true;
 					sender = it->first;
@@ -169,12 +166,10 @@ BiometricEvaluation::Process::Manager::waitForMessage(
 
 bool
 BiometricEvaluation::Process::Manager::getNextMessage(
-    tr1::shared_ptr<WorkerController> &sender,
+    std::shared_ptr<WorkerController> &sender,
     Memory::uint8Array &message,
     int timeout)
     const
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
 {
 	int fd = 0;
 	if (this->waitForMessage(sender, &fd, timeout) == false)
@@ -202,9 +197,8 @@ void
 BiometricEvaluation::Process::Manager::broadcastMessage(
     Memory::uint8Array &message)
     const
-    throw (Error::StrategyError)
 {
-	vector< tr1::shared_ptr<WorkerController> >::const_iterator it;
+	std::vector<std::shared_ptr<WorkerController>>::const_iterator it;
 	for (it = _workers.begin(); it != _workers.end(); it++) {
 		try {
 			(*it)->sendMessageToWorker(message);

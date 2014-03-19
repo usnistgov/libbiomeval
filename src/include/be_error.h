@@ -13,8 +13,6 @@
 
 #include <string>
 
-using namespace std;
-
 namespace BiometricEvaluation 
 {
 	/**
@@ -33,7 +31,7 @@ namespace BiometricEvaluation
 		 * @return
 		 * 	The current error message specified by errno.
 		 */
-		string errorStr();
+		std::string errorStr();
 	}
 }
 #endif

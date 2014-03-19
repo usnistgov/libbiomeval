@@ -15,8 +15,6 @@
 
 #include <be_io_recordstore.h>
 
-using namespace std;
-
 namespace BiometricEvaluation
 {
 	namespace IO 
@@ -30,93 +28,71 @@ namespace BiometricEvaluation
 		{
 		public:
 			SQLiteRecordStore(
-			    const string &name,
-			    const string &description,
-			    const string &parentDir)
-			    throw (Error::ObjectExists, Error::StrategyError);
+			    const std::string &name,
+			    const std::string &description,
+			    const std::string &parentDir);
 
 			SQLiteRecordStore(
-			    const string &name,
-			    const string &parentDir,
-			    uint8_t mode = READWRITE)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &name,
+			    const std::string &parentDir,
+			    uint8_t mode = READWRITE);
 
 			void
 			changeName(
-			    const string &name)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    const std::string &name);
 
 			void
 			changeDescription(
-			    const string &description)
-			    throw (Error::StrategyError);
+			    const std::string &description);
 			
 			uint64_t
-			getSpaceUsed()
-			    const
-			    throw (Error::StrategyError);
+			getSpaceUsed() const;
 
 			void
 			insert(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectExists,
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			void 
 			remove(
-			    const string &key)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key);
 	
 			uint64_t
 			read(
-			    const string &key,
-			    void *const data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key,
+			    void *const data) const;
 
 			void
 			replace(
-			    const string &key,
+			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const uint64_t size);
 
 			uint64_t
 			length(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key) const;
 			    
 			void
 			flush(
-			    const string &key)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key) const;
 
 			uint64_t
 			sequence(
-			    string &key,
-			    void *const data = NULL,
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    std::string &key,
+			    void *const data = nullptr,
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			void
 			setCursorAtKey(
-			    string &key)
-			    throw (Error::ObjectDoesNotExist,
-			    Error::StrategyError);
+			    std::string &key);
 
 			~SQLiteRecordStore();
+
+			SQLiteRecordStore(const SQLiteRecordStore&) = delete;
+			SQLiteRecordStore&
+			operator=(
+			    const SQLiteRecordStore&) = delete;
 		
 		protected:
 
@@ -129,9 +105,7 @@ namespace BiometricEvaluation
 			 *	the last error condition.
 			 */
 			void
-			sqliteError(int32_t errorNumber)
-			    const
-			    throw (Error::StrategyError);
+			sqliteError(int32_t errorNumber) const;
 			
 			/**
 			 * @brief
@@ -142,9 +116,8 @@ namespace BiometricEvaluation
 			 *	Error executing SQL commands.
 			 */
 			void
-			createStructure()
-			    throw (Error::StrategyError);
-			    
+			createStructure();
+
 			/**
 			 * @brief
 			 * Confirm that a key->value table exists with the
@@ -162,8 +135,7 @@ namespace BiometricEvaluation
 			 */
 			bool
 			validateKeyValueTable(
-			    const string &table)
-			    throw (Error::StrategyError);
+			    const std::string &table);
 			
 			/**
 			 * @brief
@@ -178,9 +150,8 @@ namespace BiometricEvaluation
 			 */
 			void
 			createKeyValueTable(
-			    const string &table)
-			    throw (Error::StrategyError);
-			    
+			    const std::string &table);
+
 			/**
 			 * @brief
 			 * Confirm that the schema of the opened SQLite 
@@ -194,9 +165,8 @@ namespace BiometricEvaluation
 			 *	Error compiling SQL.
 			 */
 			bool
-			validateSchema()
-			    throw (Error::StrategyError);
-			
+			validateSchema();
+
 			/**
 			 * @brief
 			 * Select a row from the RecordStore.
@@ -204,7 +174,7 @@ namespace BiometricEvaluation
 			 * @param key
 			 *	Key of the row to select.
 			 * @param data
-			 *	If not NULL, deep copy the record for key
+			 *	If not nullptr, deep copy the record for key
 			 *	into data.
 			 * 
 			 * @throw Error::ObjectDoesNotExist
@@ -217,11 +187,8 @@ namespace BiometricEvaluation
 			 */
 			uint64_t
 			readSegments(
-			    const string &key,
-			    void * const data)
-			    const
-			    throw (Error::ObjectDoesNotExist, 
-			    Error::StrategyError);
+			    const std::string &key,
+			    void * const data) const;
 
 			/**
 			 * @brief
@@ -234,14 +201,13 @@ namespace BiometricEvaluation
 			 *	Bad return code from SQLite during cleanup.
 			 */
 			void
-			cleanup()
-			    throw (Error::StrategyError);
+			cleanup();
 
 		private:
 			/** SQLite database handle */
 			sqlite3 *_db;
 			/** The filename of the SQLite database */
-			string _dbname;
+			std::string _dbname;
 			/** SQLite statement used for sequencing */
 			sqlite3_stmt *_sequencer;
 			/** If _sequencer has reached the end */
@@ -250,13 +216,13 @@ namespace BiometricEvaluation
 			uint64_t _cursorRow;
 			
 			/** Name given to the primate SQLite table */
-			static const string PRIMARY_KV_TABLE;
+			static const std::string PRIMARY_KV_TABLE;
 			/** Name given to the subordinate SQLite table */
-			static const string SUBORDINATE_KV_TABLE;
+			static const std::string SUBORDINATE_KV_TABLE;
 			/* Name given to the column that stores keys */
-			static const string KEY_COL;
+			static const std::string KEY_COL;
 			/* Name given to the column that stores values */
-			static const string VALUE_COL;
+			static const std::string VALUE_COL;
 		};
 	}
 }

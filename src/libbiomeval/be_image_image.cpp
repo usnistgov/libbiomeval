@@ -10,7 +10,7 @@
 
 #include <cmath>
 #include <stdexcept>
-#include <tr1/memory>
+#include <memory>
 
 #include <be_image_image.h>
 #include <be_image_jpeg.h>
@@ -27,9 +27,7 @@ BiometricEvaluation::Image::Image::Image(
     const Size dimensions,
     const uint32_t depth,
     const Resolution resolution,
-    const CompressionAlgorithm::Kind compressionAlgorithm)
-    throw (Error::DataError,
-    Error::StrategyError) : 
+    const CompressionAlgorithm compressionAlgorithm) :
     _dimensions(dimensions),
     _depth(depth),
     _resolution(resolution),
@@ -42,9 +40,7 @@ BiometricEvaluation::Image::Image::Image(
 BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
     const uint64_t size,
-    const CompressionAlgorithm::Kind compressionAlgorithm)
-    throw (Error::DataError,
-    Error::StrategyError) :
+    const CompressionAlgorithm compressionAlgorithm) :
     _dimensions(Size()),
     _depth(0),
     _resolution(Resolution()),
@@ -54,7 +50,7 @@ BiometricEvaluation::Image::Image::Image(
 	memcpy(_data, data, size);
 }
 
-BiometricEvaluation::Image::CompressionAlgorithm::Kind
+BiometricEvaluation::Image::CompressionAlgorithm
 BiometricEvaluation::Image::Image::getCompressionAlgorithm()
     const
 {
@@ -82,23 +78,24 @@ BiometricEvaluation::Image::Image::getDepth()
 	return (_depth);
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
+void
 BiometricEvaluation::Image::Image::getRawGrayscaleData(
+    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
-    throw (Error::DataError,
-    Error::ParameterError)
 {
 	if (depth != 8 && depth != 1)
 		throw Error::ParameterError("Invalid value for bit depth");
 		
 	/* Images that are 8-bit depth are already grayscale */
-	if (getDepth() == 8 && depth == 8)
-		return (getRawData());
+	if (getDepth() == 8 && depth == 8) {
+		getRawData(rawGray);
+		return;
+	}
 
-	Memory::AutoArray<uint8_t> rawColor = getRawData();
-	Memory::AutoArray<uint8_t> rawGray(getDimensions().xSize * 
-	    getDimensions().ySize);
+	Memory::AutoArray<uint8_t> rawColor;
+	getRawData(rawColor);
+	rawGray.resize(getDimensions().xSize * getDimensions().ySize);
 	
 	/* Constants from ITU-R BT.601 */
 	static const float redFactor = 0.299;
@@ -112,7 +109,7 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 	    j++) {
 		switch (getDepth()) {
 		case 1:
-			/* Bitmap images are upped to 8-bit in getRawData() */
+			/* Bitmap images are upped to 8-bit in getRawData */
 			/* FALLTHROUGH */
 		case 8:
 			/* No conversion needed */
@@ -197,15 +194,14 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 		}
 		break;
 	}
-
-	return (rawGray);
 }
 
-BiometricEvaluation::Memory::AutoArray<uint8_t>
-BiometricEvaluation::Image::Image::getData()
+void
+BiometricEvaluation::Image::Image::getData(
+    Memory::uint8Array &data)
     const
 {
-	return (_data);
+	data.copy(_data, _data.size());
 }
 
 void
@@ -251,55 +247,48 @@ BiometricEvaluation::Image::Image::valueInColorspace(
 	return ((((uint64_t)pow(2.0, depth) - 1) * color) / maxColorValue);
 }
 
-tr1::shared_ptr<BiometricEvaluation::Image::Image>
+std::shared_ptr<BiometricEvaluation::Image::Image>
 BiometricEvaluation::Image::Image::openImage(
     const uint8_t *data,
     const uint64_t size)
-    throw (Error::DataError,
-    Error::StrategyError)
 {
 	switch (Image::getCompressionAlgorithm(data, size)) {
 	case CompressionAlgorithm::JPEGB:
-		return (tr1::shared_ptr<Image>(new JPEG(data, size)));
+		return (std::shared_ptr<Image>(new JPEG(data, size)));
 	case CompressionAlgorithm::JPEGL:
-		return (tr1::shared_ptr<Image>(new JPEGL(data, size)));
+		return (std::shared_ptr<Image>(new JPEGL(data, size)));
 	case CompressionAlgorithm::JP2:
 		/* FALLTHROUGH */
 	case CompressionAlgorithm::JP2L:
-		return (tr1::shared_ptr<Image>(new JPEG2000(data, size)));
+		return (std::shared_ptr<Image>(new JPEG2000(data, size)));
 	case CompressionAlgorithm::PNG:
-		return (tr1::shared_ptr<Image>(new PNG(data, size)));
+		return (std::shared_ptr<Image>(new PNG(data, size)));
 	case CompressionAlgorithm::NetPBM:
-		return (tr1::shared_ptr<Image>(new NetPBM(data, size)));
+		return (std::shared_ptr<Image>(new NetPBM(data, size)));
 	case CompressionAlgorithm::WSQ20:
-		return (tr1::shared_ptr<Image>(new WSQ(data, size)));
+		return (std::shared_ptr<Image>(new WSQ(data, size)));
 	default:
 		throw Error::StrategyError("Could not determine compression "
 		    "algorithm");
 	}
 }
 
-tr1::shared_ptr<BiometricEvaluation::Image::Image>
+std::shared_ptr<BiometricEvaluation::Image::Image>
 BiometricEvaluation::Image::Image::openImage(
     const Memory::uint8Array &data)
-    throw (Error::DataError,
-    Error::StrategyError)
 {
 	return (Image::openImage(data, data.size()));
 }
 
-tr1::shared_ptr<BiometricEvaluation::Image::Image>
+std::shared_ptr<BiometricEvaluation::Image::Image>
 BiometricEvaluation::Image::Image::openImage(
-    const string &path)
-    throw (Error::DataError,
-    Error::ObjectDoesNotExist,
-    Error::StrategyError)
+    const std::string &path)
 {
 	Memory::uint8Array data = IO::Utility::readFile(path);
 	return (Image::openImage(data));
 }
 
-BiometricEvaluation::Image::CompressionAlgorithm::Kind
+BiometricEvaluation::Image::CompressionAlgorithm
 BiometricEvaluation::Image::Image::getCompressionAlgorithm(
     const uint8_t *data,
     const uint64_t size)
@@ -320,18 +309,16 @@ BiometricEvaluation::Image::Image::getCompressionAlgorithm(
 	return (CompressionAlgorithm::None);
 }
 
-BiometricEvaluation::Image::CompressionAlgorithm::Kind
+BiometricEvaluation::Image::CompressionAlgorithm
 BiometricEvaluation::Image::Image::getCompressionAlgorithm(
     const Memory::uint8Array &data)
 {
 	return (Image::getCompressionAlgorithm(data, data.size()));
 }
 
-BiometricEvaluation::Image::CompressionAlgorithm::Kind
+BiometricEvaluation::Image::CompressionAlgorithm
 BiometricEvaluation::Image::Image::getCompressionAlgorithm(
-    const string &path)
-    throw (Error::ObjectDoesNotExist,
-    Error::StrategyError)
+    const std::string &path)
 {
 	Memory::uint8Array data = IO::Utility::readFile(path);
 	return (Image::getCompressionAlgorithm(data));

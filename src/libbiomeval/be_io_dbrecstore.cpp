@@ -8,15 +8,15 @@
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
 
+#include <climits>
+#include <cstdio>
+#include <cstring>
 #include <sstream>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include <fcntl.h>
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
 
 #include <be_error.h>
 #include <be_io_dbrecstore.h>
@@ -25,7 +25,7 @@
 static const mode_t DBRS_MODE_RW =
     S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 static const mode_t DBRS_MODE_R = S_IRUSR | S_IRGRP | S_IROTH;
-static const string SUBORDINATE_DBEXT = ".subordinate";
+static const std::string SUBORDINATE_DBEXT = ".subordinate";
 
 /* The maximum record size supported by the underlying Berkeley DB is
  * 2^32. This class will break larger records up into multiple key/value
@@ -40,17 +40,16 @@ static void setBtreeInfo(BTREEINFO *bti)
 	bti->maxkeypage = 0;
 	bti->minkeypage = 0;
 	bti->psize = 0;
-	bti->compare = NULL;
-	bti->prefix = NULL;
+	bti->compare = nullptr;
+	bti->prefix = nullptr;
 	bti->lorder = 4321;	/* Big-endian */
 }
 
 BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
-    const string &name,
-    const string &description,
-    const string &parentDir)
-    throw (Error::ObjectExists, Error::StrategyError) : 
-    RecordStore(name, description, BERKELEYDBTYPE, parentDir)
+    const std::string &name,
+    const std::string &description,
+    const std::string &parentDir) :
+    RecordStore(name, description, RecordStore::Kind::BerkeleyDB, parentDir)
 {
 	_dbnameP = getDirectory() + '/' + getName();
 	if (IO::Utility::fileExists(_dbnameP))
@@ -61,7 +60,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	setBtreeInfo(&bti);
 	_dbP = dbopen(_dbnameP.c_str(), O_CREAT | O_RDWR, DBRS_MODE_RW,
 	    DB_BTREE, &bti);
-	if (_dbP == NULL)
+	if (_dbP == nullptr)
 		throw Error::StrategyError("Could not create primary DB (" + 
 		    Error::errorStr() + ")");
 
@@ -69,16 +68,15 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	_dbnameS = _dbnameP + SUBORDINATE_DBEXT;
 	_dbS = dbopen(_dbnameS.c_str(), O_CREAT | O_RDWR, DBRS_MODE_RW,
 	    DB_BTREE, &bti);
-	if (_dbS == NULL)
+	if (_dbS == nullptr)
 		throw Error::StrategyError("Could not create subordinate DB (" 
 		    + Error::errorStr() + ")");
 }
 
 BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
-    const string &name,
-    const string &parentDir,
-    uint8_t mode)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError) : 
+    const std::string &name,
+    const std::string &parentDir,
+    uint8_t mode) :
     RecordStore(name, parentDir, mode)
 { 
 	_dbnameP = getDirectory() + '/' + getName();
@@ -94,7 +92,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	else
 		_dbP = dbopen(_dbnameP.c_str(), O_RDONLY, DBRS_MODE_R,
 		    DB_BTREE, &bti);
-	if (_dbP == NULL)
+	if (_dbP == nullptr)
 		throw Error::StrategyError("Could not open primary DB (" + 
 		    Error::errorStr() + ")");
 
@@ -109,7 +107,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	if (!IO::Utility::fileExists(_dbnameS)) {
 		_dbS = dbopen(_dbnameS.c_str(), O_CREAT | O_RDWR, DBRS_MODE_RW,
 		    DB_BTREE, &bti);
-		if (_dbS == NULL) {
+		if (_dbS == nullptr) {
 			if (mode == READWRITE) {
 				throw Error::StrategyError(
 				"Could not upgrade database.");
@@ -126,7 +124,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	else
 		_dbS = dbopen(_dbnameS.c_str(), O_RDONLY, DBRS_MODE_R,
 		    DB_BTREE, &bti);
-	if (_dbS == NULL)
+	if (_dbS == nullptr)
 		throw Error::StrategyError(
 		    "Could not open subordinate DB (" + 
 		    Error::errorStr() + ")");
@@ -134,25 +132,24 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 
 BiometricEvaluation::IO::DBRecordStore::~DBRecordStore()
 {
-	if (_dbP != NULL)
+	if (_dbP != nullptr)
 		_dbP->close(_dbP);
-	if (_dbS != NULL)
+	if (_dbS != nullptr)
 		_dbS->close(_dbS);
 }
 
 void
-BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
-    throw (Error::ObjectExists, Error::StrategyError)
+BiometricEvaluation::IO::DBRecordStore::changeName(const std::string &name)
 { 
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	if (_dbP != NULL)
+	if (_dbP != nullptr)
 		_dbP->close(_dbP);
-	if (_dbS != NULL)
+	if (_dbS != nullptr)
 		_dbS->close(_dbS);
 
-	string oldDBName, newDBName;
+	std::string oldDBName, newDBName;
 	if (getParentDirectory().empty() || getParentDirectory() == ".") {
 		oldDBName = name + '/' + getName();
 		newDBName = name + '/' + name;
@@ -182,13 +179,13 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
 		throw Error::StrategyError("Database " + _dbnameS + 
 		    "does not exist");
 
-	_dbP = dbopen(_dbnameP.c_str(), O_RDWR, DBRS_MODE_RW, DB_BTREE, NULL);
-	if (_dbP == NULL)
+	_dbP = dbopen(_dbnameP.c_str(), O_RDWR, DBRS_MODE_RW, DB_BTREE, nullptr);
+	if (_dbP == nullptr)
 		throw Error::StrategyError("Could not open primary DB (" +
 		    Error::errorStr() + ")");
 
-	_dbS = dbopen(_dbnameS.c_str(), O_RDWR, DBRS_MODE_RW, DB_BTREE, NULL);
-	if (_dbS == NULL)
+	_dbS = dbopen(_dbnameS.c_str(), O_RDWR, DBRS_MODE_RW, DB_BTREE, nullptr);
+	if (_dbS == nullptr)
 		throw Error::StrategyError("Could not open subordinate DB (" +
 		    Error::errorStr() + ")");
 }
@@ -196,7 +193,6 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const string &name)
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::getSpaceUsed()
     const
-    throw (Error::StrategyError)
 {
 	struct stat sb;
 
@@ -216,7 +212,6 @@ BiometricEvaluation::IO::DBRecordStore::getSpaceUsed()
 void
 BiometricEvaluation::IO::DBRecordStore::sync()
     const
-    throw (Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
 		return;
@@ -227,7 +222,7 @@ BiometricEvaluation::IO::DBRecordStore::sync()
 		throw Error::StrategyError("Could not sync primary DB (" +
 		    Error::errorStr() + ")");
 
-	if (_dbS != NULL) {
+	if (_dbS != nullptr) {
 		rc = _dbS->sync(_dbS, 0);
 		if (rc != 0) {
 			throw Error::StrategyError(
@@ -239,10 +234,9 @@ BiometricEvaluation::IO::DBRecordStore::sync()
 
 void
 BiometricEvaluation::IO::DBRecordStore::insert( 
-    const string &key,
+    const std::string &key,
     const void *const data,
     const uint64_t size)
-    throw (Error::ObjectExists, Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
@@ -254,8 +248,7 @@ BiometricEvaluation::IO::DBRecordStore::insert(
 
 void
 BiometricEvaluation::IO::DBRecordStore::remove( 
-    const string &key)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    const std::string &key)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
@@ -268,10 +261,9 @@ BiometricEvaluation::IO::DBRecordStore::remove(
 
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::read(
-    const string &key,
+    const std::string &key,
     void *const data)
     const
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	/*
 	 * All exceptions from readRecordSegments float out of this
@@ -284,10 +276,9 @@ BiometricEvaluation::IO::DBRecordStore::read(
 
 void
 BiometricEvaluation::IO::DBRecordStore::replace(
-    const string &key,
+    const std::string &key,
     const void *const data,
     const uint64_t size)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
@@ -302,29 +293,27 @@ BiometricEvaluation::IO::DBRecordStore::replace(
 		throw Error::StrategyError("Should never happen: " 
 		    "Key in database after removal.");
 	} catch (Error::StrategyError &e) {
-			throw (e);
+		throw;
 	}
 }
 
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::length(
-    const string &key)
+    const std::string &key)
     const
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	/*
 	 * Try to read the data; if it does not exist, or some other error
 	 * occurs, let the exception float out of this routine. Otherwise,
 	 * return the length.
 	 */
-	return (readRecordSegments(key, NULL));
+	return (readRecordSegments(key, nullptr));
 }
 
 void
 BiometricEvaluation::IO::DBRecordStore::flush(
-    const string &key)
+    const std::string &key)
     const
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
@@ -349,10 +338,9 @@ BiometricEvaluation::IO::DBRecordStore::flush(
 
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::sequence(
-    string &key,
+    std::string &key,
     void *data,
     int cursor)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if ((cursor != BE_RECSTORE_SEQ_START) &&
 	    (cursor != BE_RECSTORE_SEQ_NEXT))
@@ -376,8 +364,7 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 
 void 
 BiometricEvaluation::IO::DBRecordStore::setCursorAtKey(
-    string &key)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+    std::string &key)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -447,8 +434,6 @@ insertIntoDB(
     DB *DB,
     DBT dbtkey,
     DBT dbtdata)
-    throw (BiometricEvaluation::Error::ObjectExists,
-    BiometricEvaluation::Error::StrategyError)
 {
 	int rc = DB->put(DB, &dbtkey, &dbtdata, R_NOOVERWRITE);
 	switch (rc) {
@@ -469,10 +454,9 @@ insertIntoDB(
 
 void
 BiometricEvaluation::IO::DBRecordStore::insertRecordSegments(
-    const string &key,
+    const std::string &key,
     const void *data,
     const uint64_t size)
-    throw (Error::ObjectExists, Error::StrategyError)
 {
 	/*
 	 * Insert all segments.
@@ -493,14 +477,15 @@ BiometricEvaluation::IO::DBRecordStore::insertRecordSegments(
 		try {
 			insertIntoDB(_dbP, dbtkey, dbtdata);
 		} catch (Error::ObjectExists &e) {
-			throw e;
+			throw;
 		} catch (Error::StrategyError &e) {
-			throw e;
+			throw;
 		}
 	} else {
 		int segnum = KEY_SEGMENT_START;
 		uint64_t remsize = size;
-		string keyseg = key; /* First segment key same as input key */
+		std::string keyseg = key;
+			/* First segment key same as input key */
 		DB *DBin = _dbP;	/* Start with primary DB file */
 		while (remsize > 0) {
 			dbtkey.data = (void *)keyseg.data();
@@ -517,9 +502,9 @@ BiometricEvaluation::IO::DBRecordStore::insertRecordSegments(
 			try {
 				insertIntoDB(DBin, dbtkey, dbtdata);
 			} catch (Error::ObjectExists &e) {
-				throw e;
+				throw;
 			} catch (Error::StrategyError &e) {
-				throw e;
+				throw;
 			}
 			keyseg = genKeySegName(key, segnum);
 			segnum++;
@@ -534,10 +519,9 @@ BiometricEvaluation::IO::DBRecordStore::insertRecordSegments(
  */
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::readRecordSegments(
-    const string &key,
+    const std::string &key,
     void *const data)
     const
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -549,7 +533,7 @@ BiometricEvaluation::IO::DBRecordStore::readRecordSegments(
 	DBT dbtdata;
 	uint64_t totlen = 0;
 	int segnum = KEY_SEGMENT_START;
-	string keyseg = key;	/* First segment key is same as input key */
+	std::string keyseg = key;  /* First segment key is same as input key */
 	uint8_t *ptr = (uint8_t*)data;
 	DB *DBin = _dbP;	/* Start with the primary DB file */
 	do {
@@ -558,7 +542,7 @@ BiometricEvaluation::IO::DBRecordStore::readRecordSegments(
 		int rc = DBin->get(DBin, &dbtkey, &dbtdata, 0);
 		switch (rc) {
 			case 0:
-				if (ptr != NULL) {
+				if (ptr != nullptr) {
 					memcpy(ptr,dbtdata.data,dbtdata.size);
 					ptr += dbtdata.size;
 				}
@@ -572,7 +556,7 @@ BiometricEvaluation::IO::DBRecordStore::readRecordSegments(
 					throw Error::ObjectDoesNotExist(
 					    "Key not in database");
 				else
-					DBin = NULL;
+					DBin = nullptr;
 				break;
 			case -1:
 				throw Error::StrategyError(
@@ -582,7 +566,7 @@ BiometricEvaluation::IO::DBRecordStore::readRecordSegments(
 				throw Error::StrategyError(
 				    "Unknown error reading database");
 		}
-	} while (DBin != NULL);
+	} while (DBin != nullptr);
 	return (totlen);
 }
 
@@ -591,11 +575,10 @@ BiometricEvaluation::IO::DBRecordStore::readRecordSegments(
  */
 uint64_t
 BiometricEvaluation::IO::DBRecordStore::sequenceRecordSegments(
-    string &key,
+    std::string &key,
     void *const data,
     u_int pos)
     const
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
 {
 	DBT dbtkey;
 	DBT dbtdata;
@@ -632,9 +615,9 @@ BiometricEvaluation::IO::DBRecordStore::sequenceRecordSegments(
 			    "primary DB (" + Error::errorStr() + ")");
 	}
 	key.assign((const char *)dbtkey.data, dbtkey.size);
-	if (data != NULL)
+	if (data != nullptr)
 		memcpy(data ,dbtdata.data, dbtdata.size);
-	if (_dbS == NULL)
+	if (_dbS == nullptr)
 		return (dbtdata.size);
 
 	/*
@@ -643,7 +626,7 @@ BiometricEvaluation::IO::DBRecordStore::sequenceRecordSegments(
 	uint8_t *ptr = (uint8_t*)data + dbtdata.size;
 	uint64_t totlen = dbtdata.size;
 	int segnum = KEY_SEGMENT_START;
-	string keyseg;
+	std::string keyseg;
 	bool done = false;
 	while (!done) {
 		keyseg = genKeySegName(key, segnum);
@@ -652,7 +635,7 @@ BiometricEvaluation::IO::DBRecordStore::sequenceRecordSegments(
 		int rc = _dbS->get(_dbS, &dbtkey, &dbtdata, 0);
 		switch (rc) {
 			case 0:
-				if (ptr != NULL) {
+				if (ptr != nullptr) {
 					memcpy(ptr,dbtdata.data,dbtdata.size);
 					ptr += dbtdata.size;
 				}
@@ -682,8 +665,8 @@ BiometricEvaluation::IO::DBRecordStore::sequenceRecordSegments(
  * insertion.
  */
 void
-BiometricEvaluation::IO::DBRecordStore::removeRecordSegments(const string &key)
-    throw (Error::ObjectDoesNotExist, Error::StrategyError)
+BiometricEvaluation::IO::DBRecordStore::removeRecordSegments(
+    const std::string &key)
 {
 	/*
 	 * Remove all segments.
@@ -691,7 +674,7 @@ BiometricEvaluation::IO::DBRecordStore::removeRecordSegments(const string &key)
 	int rc;
 	DBT dbtkey;
 	int segnum = KEY_SEGMENT_START;
-	string keyseg = key;	/* First segment key is same as input key */
+	std::string keyseg = key;  /* First segment key is same as input key */
 	DB *DBin = _dbP;	/* Start with the primary DB file */
 	do {
 		dbtkey.data = (void *)keyseg.data();
@@ -706,7 +689,7 @@ BiometricEvaluation::IO::DBRecordStore::removeRecordSegments(const string &key)
 			case 1:
 				if (DBin == _dbP)
 					throw Error::ObjectDoesNotExist(key);
-				DBin = NULL;
+				DBin = nullptr;
 				break;
 			case -1:
 				throw Error::StrategyError("Could not delete " 
@@ -715,7 +698,7 @@ BiometricEvaluation::IO::DBRecordStore::removeRecordSegments(const string &key)
 				throw Error::StrategyError("Unknown error "
 				"deleting from DB");
 		}
-	} while (DBin != NULL);
+	} while (DBin != nullptr);
 	RecordStore::remove(key);
 }
 

@@ -8,14 +8,14 @@
 * about its quality, reliability, or any other characteristic.
 ******************************************************************************/
 #include <sys/time.h>
-#include <signal.h>
-#include <setjmp.h>
-#include <be_time_watchdog.h>
 
+#include <csetjmp>
+#include <csignal>
 #include <iostream>
 
-using namespace std;
-using namespace BiometricEvaluation;
+#include <be_time_watchdog.h>
+
+namespace BE = BiometricEvaluation;
 
 bool BiometricEvaluation::Time::Watchdog::_canSigJump = false;
 sigjmp_buf BiometricEvaluation::Time::Watchdog::_sigJumpBuf;
@@ -32,8 +32,6 @@ BiometricEvaluation::Time::WatchdogSignalHandler(
 
 BiometricEvaluation::Time::Watchdog::Watchdog(
     const uint8_t type)
-    throw (Error::NotImplemented,
-    Error::ParameterError)
 {
 	if ((type != Watchdog::PROCESSTIME) && (type != Watchdog::REALTIME))
 		throw (Error::ParameterError());
@@ -69,7 +67,6 @@ BiometricEvaluation::Time::Watchdog::internalMapWatchdogType(
 
 void
 BiometricEvaluation::Time::Watchdog::start()
-    throw (Error::StrategyError)
 {
 	if (_interval == 0)
 		return;
@@ -81,7 +78,7 @@ BiometricEvaluation::Time::Watchdog::start()
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_SIGINFO;
 	sa.sa_sigaction = WatchdogSignalHandler;
-	if (sigaction(signo, &sa, NULL) != 0)
+	if (sigaction(signo, &sa, nullptr) != 0)
 		throw (Error::StrategyError("Registering signal handler failed"));
 	time_t sec, usec;
 	struct itimerval timerval;
@@ -93,13 +90,12 @@ BiometricEvaluation::Time::Watchdog::start()
 	timerclear(&timerval.it_interval);
 	timerval.it_value.tv_sec = sec;
 	timerval.it_value.tv_usec = usec;
-	if (setitimer(which, &timerval, NULL) != 0)
+	if (setitimer(which, &timerval, nullptr) != 0)
 		throw (Error::StrategyError("Registering system timer failed"));
 }
 
 void
 BiometricEvaluation::Time::Watchdog::stop()
-    throw (Error::StrategyError)
 {
 	struct sigaction sa;
 	int signo;
@@ -108,7 +104,7 @@ BiometricEvaluation::Time::Watchdog::stop()
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	sa.sa_handler = SIG_DFL;
-	if (sigaction(signo, &sa, NULL) == -1)
+	if (sigaction(signo, &sa, nullptr) == -1)
 		throw (Error::StrategyError("Clearing signal handler failed"));
 
 	/*
@@ -117,7 +113,7 @@ BiometricEvaluation::Time::Watchdog::stop()
 	struct itimerval timerval;
 	timerclear(&timerval.it_interval);
 	timerclear(&timerval.it_value);
-	if (setitimer(which, &timerval, NULL) != 0)
+	if (setitimer(which, &timerval, nullptr) != 0)
 		throw (Error::StrategyError("Clearing system timer failed"));
 }
 
