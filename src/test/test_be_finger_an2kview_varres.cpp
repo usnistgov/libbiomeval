@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <memory>
+
 #include <be_io_utility.h>
 #include <be_finger_an2kview_latent.h>
 
@@ -38,7 +40,7 @@ openAN2KFile(const string filename)
 }
 
 static void
-printViewInfo(Finger::AN2KViewVariableResolution *an2kv) {
+printViewInfo(std::shared_ptr<Finger::AN2KViewVariableResolution> an2kv) {
 	cout << "----------------------------------------------" << endl;
 	cout << "Image resolution: " << an2kv->getImageResolution() << endl;
 	cout << "Image size: " << an2kv->getImageSize() << endl;
@@ -61,7 +63,7 @@ main(int argc, char* argv[]) {
 	/*
 	 * Call the constructor that will open an existing AN2K file.
 	 */
-	std::auto_ptr<Finger::AN2KViewLatent> an2kv;
+	std::shared_ptr<Finger::AN2KViewLatent> an2kv;
 	cout << "Attempt to construct with file with no image: ";
 	bool success = false;
 	try {
@@ -105,10 +107,10 @@ main(int argc, char* argv[]) {
 	}
 	cout << "Success." << endl;
 	cout << "Info for view constructed from file: " << endl;
-	printViewInfo(an2kv.get());
+	printViewInfo(an2kv);
 
 	cout << "Read AN2K from buffer: ";
-	std::auto_ptr<Finger::AN2KViewLatent> bufAn2kv;
+	std::shared_ptr<Finger::AN2KViewLatent> bufAn2kv;
 	Memory::uint8Array buf;
 	try {
 		buf = openAN2KFile("test_data/type9-13.an2k");
@@ -124,7 +126,7 @@ main(int argc, char* argv[]) {
 	}
 	cout << " Success." << endl;
 	cout << "Info for view constructed from buffer: " << endl;
-	printViewInfo(bufAn2kv.get());
+	printViewInfo(bufAn2kv);
 
 	/*
 	 * Get the image data and save to a file.
