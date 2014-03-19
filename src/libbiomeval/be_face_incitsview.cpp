@@ -186,10 +186,10 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
 	uint32_t propMask = 0;
 	uval8 = buf.scanU8Val();
 	propMask = (uint32_t)uval8;
-	propMask << 8;
+	propMask = propMask << 8;
 	uval8 = buf.scanU8Val();
 	propMask += uval8;
-	propMask << 8;
+	propMask = propMask << 8;
 	uval8 = buf.scanU8Val();
 	propMask += uval8;
 
