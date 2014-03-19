@@ -26,20 +26,26 @@ RM := rm -f
 PWD := $(shell pwd)
 OS := $(shell uname -s)
 ARCH := $(shell uname -m)
-CC = gcc
-CXX = clang++
+ifeq ($(OS),Darwin)
+	CC = clang
+	CXX = clang++
+else
+	CC = gcc
+	CXX = g++
+endif
 
 #
 # Determine if CXX can handle C++11 (-std=c++11 flag)
 #
-ifeq ($(CXX),g++)
+CXX_BASENAME := $(shell basename $(CXX))
+ifeq ($(CXX_BASENAME),g++)
 	CXX_MAJOR := $(shell expr `$(CXX) -dumpversion | cut -f1 -d.`)
 	CXX_MINOR := $(shell expr `$(CXX) -dumpversion | cut -f2 -d.`)
 
 #	-std=c++11 first present in G++ 4.7
 	SUPPORTS_CXX11 := $(shell [ $(CXX_MAJOR) -ge 5 -o \( $(CXX_MAJOR) -eq 4 -a $(CXX_MINOR) -ge 7 \) ] && echo true)
 else
-	ifeq ($(CXX),clang++)
+	ifeq ($(CXX_BASENAME),clang++)
 		CXX_MAJOR := $(shell $(CXX) --version | tr '\n' ' ' | sed 's/.*version\ \([[:digit:]]\)\.[[:digit:]].*/\1/')
 		CXX_MINOR := $(shell $(CXX) --version | tr '\n' ' ' | sed 's/.*version\ [[:digit:]]\.\([[:digit:]]\).*/\1/')
 
