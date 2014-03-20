@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	std::cout << "Testing errno = 2: " << BE::Error::errorStr() <<
 	    std::endl;
 	errno = 9999;
-	std::cout << "Testing errno = 9999: " << BE::Error::errorStr() <<
+	std::cout << "Testing errno = 9999: " << BE::Error::errorStr(true) <<
 	    std::endl;
 	std::cout << "\t(Some systems report 'Unknown' or 'Undefined', others "
 	   "the errorStr()"

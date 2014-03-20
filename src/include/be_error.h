@@ -25,13 +25,20 @@ namespace BiometricEvaluation
 	namespace Error
 	{
 		/**
+		 * @brief
 		 * Convert the value of errno to a human-readable
 		 * error messsage.
+		 *
+		 * @param includeErrno
+		 * Whether or not to include the value of errno in the returned
+		 * string.
 		 *
 		 * @return
 		 * 	The current error message specified by errno.
 		 */
-		std::string errorStr();
+		std::string
+		errorStr(
+		    bool includeErrno = false);
 	}
 }
 #endif

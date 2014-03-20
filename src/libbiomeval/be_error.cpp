@@ -8,55 +8,21 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <cerrno>
-#include <cstdio>
-#include <cstring>
-
-/* 
- * Certain versions of Cygwin only support the GNU version of
- * strerror_r(), which returns a char *; other versions support
- * both the BSD (returning int) and the GNU version. To support
- * all platforms, use a pointer set to the buffer passed in, and
- * #define _GNU_SOURCE above so we get the GNU version always on
- * Cygwin.
- * http://www.gnu.org/software/hello/manual/gnulib/strerror_005fr.html
- * For Linux, there is also confusion, so in order to remove any
- * dependency on the build system (-D_XOPEN_SOURCE=600, etc.) always
- * use the GNU version of strerror_r().
- */
-#if defined __CYGWIN__ || defined __linux__
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#endif
-
+#include <string>
+#include <system_error>
 
 #include <be_error.h>
 
 std::string
-BiometricEvaluation::Error::errorStr()
+BiometricEvaluation::Error::errorStr(
+    bool includeErrno)
 {
-	char msgbuf[BUFSIZ];
-	char *msgbufptr = nullptr;
+	std::system_error error = std::system_error(errno,
+	    std::system_category());
 
-#if defined __CYGWIN__ || defined __linux__
-	/* GNU strerror_r() always returns a pointer to a string */
-	msgbufptr = strerror_r(errno, msgbuf, BUFSIZ);
-#else
-	/*
-	 * For other systems, use the POSIX version of strerror_r().
-	 * POSIX doesn't specify what is returned when an error
-	 * occurs, so create our own error string.
-	 */
-	int lastErrno = errno;
-	int ret = strerror_r(errno, msgbuf, BUFSIZ);
-	/* Error message when failing to retrieve the error message */
-	if (ret != 0) {
-		snprintf(msgbuf, BUFSIZ, "Unable to retrieve system error "
-		    "message for errno = %d (errno = %d)", lastErrno, errno);
-	}
-	msgbufptr = msgbuf;
-#endif
-	return (msgbufptr);
+	if (includeErrno)
+		return (error.code().message() + " (errno = " +
+		    std::to_string(error.code().value()) + ")");
+	else
+		return (error.code().message());
 }
-
