@@ -402,6 +402,79 @@ namespace BiometricEvaluation
 }
 
 /*
+ * Declaration of global namespace functions.
+ */
+
+/**
+ * @brief
+ * Convert an enumeration into its const-wrapper, which implicitly
+ * converts to string.
+ *
+ * @param kind
+ * Enumeration to convert.
+ *
+ * @return
+ * Wrapped version of kind.
+ */
+template <typename T>
+BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
+to_string(
+    const T &kind);
+
+/**
+ * @brief
+ * Convert an enumeration into its underlying integer type.
+ *
+ * @param kind
+ * Enumeration to convert.
+ *
+ * @return
+ * Underlying integer version of kind.
+ */
+template <typename T>
+typename std::underlying_type<T>::type
+to_int_type(
+    const T &kind);
+
+/**
+ * @brief
+ * Convert a string into a const-wrapper version of an enumeration, which
+ * implicitly converts to the enumeration.
+ *
+ * @param name
+ * Mapped string value of an enumeration.
+ *
+ * @return
+ * Wrapped version of the numeration representedd by name.
+ *
+ * @throw ObjectDoesNotExist
+ * name does not map to an enumeration.
+ */
+template <typename T>
+BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
+to_enum(
+    const std::string &name);
+
+/**
+ * @brief
+ * Convert an underlying integer type into a const-wrapper version of an
+ * enumeration, which implicitly converts to the enumeration.
+ *
+ * @param value
+ * Mapped underlying value of an enumeration.
+ *
+ * @return
+ * Wrapped version of the enumeration represented by value.
+ *
+ * @throw ObjectDoesNotExist
+ * name does not map to an enumeration.
+ */
+template <typename T>
+BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
+to_enum(
+    const typename std::underlying_type<T>::type value);
+
+/*
  * Class Method Definitions
  */
 
