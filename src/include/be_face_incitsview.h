@@ -26,7 +26,7 @@ namespace BiometricEvaluation
 		/**
 		 * A set of properties.
 		 */
-		typedef std::vector<BiometricEvaluation::Face::Property::Kind>
+		typedef std::vector<BiometricEvaluation::Face::Property>
 		    PropertySet;
 
 		/**
@@ -49,7 +49,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The gender code.
 		 	 */
-			Face::Gender::Kind getGender() const;
+			Face::Gender getGender() const;
 
 			/**
 			 * @brief
@@ -57,7 +57,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The eye color code.
 		 	 */
-			Face::EyeColor::Kind getEyeColor() const;
+			Face::EyeColor getEyeColor() const;
 
 			/**
 			 * @brief
@@ -65,7 +65,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The hair color code.
 		 	 */
-			Face::HairColor::Kind getHairColor() const;
+			Face::HairColor getHairColor() const;
 
 			/**
 			 * @brief
@@ -84,7 +84,7 @@ namespace BiometricEvaluation
 			void
 			getPropertySet(Face::PropertySet &propertySet) const;
 
-			BiometricEvaluation::Face::Expression::Kind
+			BiometricEvaluation::Face::Expression
 			getExpression() const;
 
 			/**
@@ -103,7 +103,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The image type.
 		 	 */
-			Face::ImageType::Kind getImageType() const;
+			Face::ImageType getImageType() const;
 
 			/**
 			 * @brief
@@ -111,7 +111,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The image data type.
 		 	 */
-			Face::ImageDataType::Kind getImageDataType() const;
+			Face::ImageDataType getImageDataType() const;
 
 			/**
 			 * @brief
@@ -127,7 +127,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The color space code.
 		 	 */
-			Face::ColorSpace::Kind getColorSpace() const;
+			Face::ColorSpace getColorSpace() const;
 
 			/**
 			 * @brief
@@ -135,7 +135,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The source type code.
 		 	 */
-			Face::SourceType::Kind getSourceType() const;
+			Face::SourceType getSourceType() const;
 
 			/**
 			 * @brief
@@ -251,21 +251,21 @@ namespace BiometricEvaluation
 
 			BiometricEvaluation::Feature::MPEGFacePointSet
 			    _featurePointSet;
-			BiometricEvaluation::Face::ImageType::Kind
+			BiometricEvaluation::Face::ImageType
 			    _imageType;
-			BiometricEvaluation::Face::ImageDataType::Kind
+			BiometricEvaluation::Face::ImageDataType
 			    _imageDataType;
-			BiometricEvaluation::Face::Gender::Kind _gender;
-			BiometricEvaluation::Face::EyeColor::Kind _eyeColor;
-			BiometricEvaluation::Face::HairColor::Kind _hairColor;
+			BiometricEvaluation::Face::Gender _gender;
+			BiometricEvaluation::Face::EyeColor _eyeColor;
+			BiometricEvaluation::Face::HairColor _hairColor;
 
 			bool _propertiesConsidered;
 			BiometricEvaluation::Face::PropertySet _propertySet;
-			BiometricEvaluation::Face::Expression::Kind _expression;
+			BiometricEvaluation::Face::Expression _expression;
 			BiometricEvaluation::Face::PoseAngle _poseAngle;
 			
-			BiometricEvaluation::Face::ColorSpace::Kind _colorSpace;
-			BiometricEvaluation::Face::SourceType::Kind _sourceType;
+			BiometricEvaluation::Face::ColorSpace _colorSpace;
+			BiometricEvaluation::Face::SourceType _sourceType;
 
 			uint16_t _quality;
 			uint16_t _deviceType;

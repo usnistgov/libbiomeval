@@ -30,90 +30,60 @@ namespace BiometricEvaluation
 		 * @brief
 		 * Capture device technology identifiers.
 		 */
-		class CaptureDeviceTechnology {
-		public:
-			typedef enum {
-				Unknown = 0,
-				CMOSCCD = 1
-			} Kind;
-		private:
-			CaptureDeviceTechnology() {}
+		enum class CaptureDeviceTechnology {
+			Unknown = 0,
+			CMOSCCD = 1
 		};
 
 		/**
 		 * @brief
 		 * Eye label.
 		 */
-		class EyeLabel {
-		public:
-			typedef enum {
-				Undefined = 0,
-				Right = 1,
-				Left = 2
-			} Kind;
-		private:
-			EyeLabel() {}
+		enum class EyeLabel {
+			Undefined = 0,
+			Right = 1,
+			Left = 2
 		};
 
 		/**
 		 * @brief
 		 * Iris image type classification codes.
 		 */
-		class ImageType {
-		public:
-			typedef enum {
-				Uncropped = 1,
-				VGA = 2,
-				Cropped = 3,
-				CroppedMasked = 7
-			} Kind;
-		private:
-			ImageType() {}
+		enum class ImageType {
+			Uncropped = 1,
+			VGA = 2,
+			Cropped = 3,
+			CroppedMasked = 7
 		};
 
 		/**
 		 * @brief
 		 * Iris horizontal orientation classification codes.
 		 */
-		class Orientation {
-		public:
-			typedef enum {
-				Undefined = 0,
-				Base = 1,
-				Flipped = 2
-			} Kind;
-		private:
-			Orientation() {}
+		enum class Orientation {
+			Undefined = 0,
+			Base = 1,
+			Flipped = 2
 		};
 
 		/**
 		 * @brief
 		 * Iris image compression type.
 		 */
-		class ImageCompression {
-		public:
-			typedef enum {
-				Undefined = 0,
-				LoslessNone = 1,
-				Lossy = 2
-			} Kind;
-		private:
-			ImageCompression() {}
+		enum class ImageCompression {
+			Undefined = 0,
+			LosslessNone = 1,
+			Lossy = 2
 		};
 
 		/**
 		 * @brief
 		 * Range from camera lens center to subject iris.
 		 */
-		class CameraRange {
-		public:
-			typedef enum {
-				Unassigned = 0,
-				Failed = 1,
-				Overflow = 2
-			} Kind;
-		private:
-			CameraRange() {}
+		enum class CameraRange {
+			Unassigned = 0,
+			Failed = 1,
+			Overflow = 2
 		};
 	}
 }

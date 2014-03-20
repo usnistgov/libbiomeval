@@ -72,7 +72,7 @@ namespace BiometricEvaluation
 			static const uint32_t BASE_SPEC_VERSION = 0x30323000;
 			/* '0''2''0' 'nul' */
 
-			void readHeader(
+			void readISOHeader(
 			    BiometricEvaluation::Memory::IndexedBuffer &buf);
 		private:
 		};

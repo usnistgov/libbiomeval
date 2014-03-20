@@ -45,10 +45,12 @@ printViewInfo(Iris::INCITSView &irisv)
 	 * Test the implementation of the Iris::INCITSView
 	 * interface.
 	 */
+	cout << "Certification Flag: " << hex << "0x" << setw(2) << setfill('0')
+	    << (uint16_t)irisv.getCertificationFlag() << endl;
 	cout << "Capture Date: " << irisv.getCaptureDateString() << endl;
 
 	cout << "Capture Device Technology: "
-	    << irisv.getCaptureDeviceTechnology() << endl;
+	    << to_string(irisv.getCaptureDeviceTechnology()) << endl;
 	cout << "Capture Device Vendor: "
 	    << hex << "0x" << setw(4) << setfill('0') 
 	    << irisv.getCaptureDeviceVendor() << endl;
@@ -71,16 +73,16 @@ printViewInfo(Iris::INCITSView &irisv)
 	}
 	cout << dec;
 	
-	cout << "Eye label: " << irisv.getEyeLabel() << endl;
-	cout << "Image type: " << irisv.getImageType() << endl;
+	cout << "Eye label: " << to_string(irisv.getEyeLabel()) << endl;
+	cout << "Image type: " << to_string(irisv.getImageType()) << endl;
 
-	Iris::Orientation::Kind hOrient, vOrient;
-	Iris::ImageCompression::Kind comprHistory;
+	Iris::Orientation hOrient, vOrient;
+	Iris::ImageCompression comprHistory;
 	irisv.getImageProperties(hOrient, vOrient, comprHistory);
 	cout << "Image Properties:" << endl;
-	cout << "\tHorizontal Orientation: " << hOrient << endl;
-	cout << "\tVertical Orientation: " << vOrient << endl;
-	cout << "\tCompression History: " << comprHistory << endl;
+	cout << "\tHorizontal Orientation: " << to_string(hOrient) << endl;
+	cout << "\tVertical Orientation: " << to_string(vOrient) << endl;
+	cout << "\tCompression History: " << to_string(comprHistory) << endl;
 
 	cout << "Camera Range: " << irisv.getCameraRange() << endl;
 

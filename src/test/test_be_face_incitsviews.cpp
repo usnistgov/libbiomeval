@@ -46,10 +46,10 @@ printViewInfo(Face::INCITSView &facev)
 	 * Test the implementation of the Face::INCITSView
 	 * interface.
 	 */
-	cout << "Gender: " << facev.getGender() << endl;
-	cout << "Eye Color: " << facev.getEyeColor() << endl;
-	cout << "Hair Color: " << facev.getHairColor() << endl;
-	cout << "Expression: " << facev.getExpression() << endl;
+	cout << "Gender: " << to_string(facev.getGender()) << endl;
+	cout << "Eye Color: " << to_string(facev.getEyeColor()) << endl;
+	cout << "Hair Color: " << to_string(facev.getHairColor()) << endl;
+	cout << "Expression: " << to_string(facev.getExpression()) << endl;
 
 	Face::PoseAngle pa =  facev.getPoseAngle();
 	cout << "Pose angle info: ";
@@ -59,10 +59,11 @@ printViewInfo(Face::INCITSView &facev)
 	cout << "; Roll/Uncer: "
 	    << (int)pa.roll << "/" << (int)pa.rollUncertainty << endl;
 
-	cout << "Image type is " << facev.getImageType() << endl;
-	cout << "Image data type is " << facev.getImageDataType() << endl;
-	cout << "Color space is " << facev.getColorSpace() << endl;
-	cout << "Source type is " << facev.getSourceType() << endl;
+	cout << "Image type is " << to_string(facev.getImageType()) << endl;
+	cout << "Image data type is " << to_string(facev.getImageDataType())
+	    << endl;
+	cout << "Color space is " << to_string(facev.getColorSpace()) << endl;
+	cout << "Source type is " << to_string(facev.getSourceType()) << endl;
 	cout << "Device type is " << "0x" << hex << setw(4) << setfill('0')
 	    << facev.getDeviceType() << dec << endl;
 
@@ -72,7 +73,10 @@ printViewInfo(Face::INCITSView &facev)
 		facev.getPropertySet(properties);
 		cout << "There are " << properties.size() << " properties: ";
 		for (size_t i = 0; i < properties.size(); i++) {
-			cout << properties[i] << " ";
+			if (i != properties.size() - 1)
+				cout << to_string(properties[i]) << ", ";
+			else
+				cout << to_string(properties[i]);
 		}
 		cout << endl;
 	} else {

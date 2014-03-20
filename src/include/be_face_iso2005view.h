@@ -99,7 +99,7 @@ namespace BiometricEvaluation
 			 * @throw DataError
 			 * The record has invalid or missing data.
 			 */
-			void readHeader(
+			void readISOHeader(
 			    BiometricEvaluation::Memory::IndexedBuffer &buf);
 
 		private:

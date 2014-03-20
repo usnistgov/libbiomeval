@@ -76,7 +76,6 @@ BiometricEvaluation::Finger::ISO2005View::readCoreDeltaData(
 	static const uint16_t CORE_NUM_CORES_MASK = 0x3F;
 	static const uint16_t CORE_X_COORD_MASK = 0x3FFF;
 	static const uint16_t CORE_Y_COORD_MASK = 0x3FFF;
-	static const uint16_t CORE_MIN_NUM = 0;
 
 	static const uint16_t DELTA_TYPE_MASK = 0xC000;
 	static const uint16_t DELTA_TYPE_SHIFT = 14;

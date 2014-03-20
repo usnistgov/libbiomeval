@@ -23,7 +23,7 @@ BiometricEvaluation::Iris::ISO2011View::ISO2011View(
 {
 	BE::Memory::uint8Array recordData = Iris::INCITSView::getIIRData();
 	BE::Memory::IndexedBuffer iBuf(recordData, recordData.size());
-	this->readHeader(iBuf);
+	this->readISOHeader(iBuf);
 
 	//XXX Really should use a skipIrisView() function here
 	for (uint32_t i = 1; i <= viewNumber; i++)
@@ -37,7 +37,7 @@ BiometricEvaluation::Iris::ISO2011View::ISO2011View(
 {
 	BE::Memory::IndexedBuffer iBuf(
 	    const_cast<BE::Memory::uint8Array &>(buffer), buffer.size());
-	this->readHeader(iBuf);
+	this->readISOHeader(iBuf);
 
 	//XXX Really should use a skipIrisView() function here
 	for (uint32_t i = 1; i <= viewNumber; i++)
@@ -45,7 +45,7 @@ BiometricEvaluation::Iris::ISO2011View::ISO2011View(
 }
 
 void
-BiometricEvaluation::Iris::ISO2011View::readHeader(
+BiometricEvaluation::Iris::ISO2011View::readISOHeader(
     Memory::IndexedBuffer &buf)
 {
 	uint32_t uval32;

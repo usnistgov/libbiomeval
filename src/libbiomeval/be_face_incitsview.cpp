@@ -59,19 +59,19 @@ BiometricEvaluation::Face::INCITSView::INCITSView(
 /* Public functions.                                                          */
 /******************************************************************************/
 
-BiometricEvaluation::Face::Gender::Kind
+BiometricEvaluation::Face::Gender
 BiometricEvaluation::Face::INCITSView::getGender() const
 {
 	return (this->_gender);
 }
 
-BiometricEvaluation::Face::EyeColor::Kind
+BiometricEvaluation::Face::EyeColor
 BiometricEvaluation::Face::INCITSView::getEyeColor() const
 {
 	return (this->_eyeColor);
 }
 
-BiometricEvaluation::Face::HairColor::Kind
+BiometricEvaluation::Face::HairColor
 BiometricEvaluation::Face::INCITSView::getHairColor() const
 {
 	return (this->_hairColor);
@@ -90,7 +90,7 @@ BiometricEvaluation::Face::INCITSView::getPropertySet(
 	propertySet = this->_propertySet;
 }
 
-BiometricEvaluation::Face::Expression::Kind
+BiometricEvaluation::Face::Expression
 BiometricEvaluation::Face::INCITSView::getExpression() const
 {
 	return (this->_expression);
@@ -102,13 +102,13 @@ BiometricEvaluation::Face::INCITSView::getPoseAngle() const
 	return (this->_poseAngle);
 }
 
-BiometricEvaluation::Face::ColorSpace::Kind
+BiometricEvaluation::Face::ColorSpace
 BiometricEvaluation::Face::INCITSView::getColorSpace() const
 {
 	return (this->_colorSpace);
 }
 
-BiometricEvaluation::Face::SourceType::Kind
+BiometricEvaluation::Face::SourceType
 BiometricEvaluation::Face::INCITSView::getSourceType() const
 {
 	return (this->_sourceType);
@@ -128,13 +128,13 @@ BiometricEvaluation::Face::INCITSView::getFeaturePointSet(
 	featurePointSet = this->_featurePointSet;
 }
 
-BiometricEvaluation::Face::ImageType::Kind
+BiometricEvaluation::Face::ImageType
 BiometricEvaluation::Face::INCITSView::getImageType() const
 {
 	return (this->_imageType);
 }
 
-BiometricEvaluation::Face::ImageDataType::Kind
+BiometricEvaluation::Face::ImageDataType
 BiometricEvaluation::Face::INCITSView::getImageDataType() const
 {
 	return (this->_imageDataType);
@@ -161,8 +161,8 @@ BiometricEvaluation::Face::INCITSView::readHeader(
 	if (formatStandard != BE::Face::INCITSView::ISO2005_STANDARD)
 		throw (Error::ParameterError("Invalid standard"));
 
-	uint32_t recLength = buf.scanBeU32Val();
-	uint16_t numFace = buf.scanBeU16Val();
+	(void)buf.scanBeU32Val();	/* record length */
+	(void)buf.scanBeU16Val();	/* number of faces */
 }
 
 void
@@ -178,10 +178,9 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
 	uint32_t remainLen = buf.scanBeU32Val();/* Facial Record Data length */
 	uint16_t numFeaturePoints = buf.scanBeU16Val();
 
-	//XXX Replace these with Framework::Enumeration
-	this->_gender = (BE::Face::Gender::Kind)buf.scanU8Val();
-	this->_eyeColor = (BE::Face::EyeColor::Kind)buf.scanU8Val();
-	this->_hairColor = (BE::Face::HairColor::Kind)buf.scanU8Val();
+	this->_gender = to_enum<BE::Face::Gender>(buf.scanU8Val());
+	this->_eyeColor = to_enum<BE::Face::EyeColor>(buf.scanU8Val());
+	this->_hairColor = to_enum<BE::Face::HairColor>(buf.scanU8Val());
 
 	uint32_t propMask = 0;
 	uval8 = buf.scanU8Val();
@@ -210,17 +209,17 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
 		this->_propertySet.push_back(BE::Face::Property::Blink);
 	if (propMask & 0x00000040)
 		this->_propertySet.push_back(BE::Face::Property::MouthOpen);
-	if (propMask & 0x00000100)
+	if (propMask & 0x00000080)
 		this->_propertySet.push_back(BE::Face::Property::LeftEyePatch);
-	if (propMask & 0x00000200)
+	if (propMask & 0x00000100)
 		this->_propertySet.push_back(BE::Face::Property::RightEyePatch);
-	if (propMask & 0x00000400)
+	if (propMask & 0x00000200)
 		this->_propertySet.push_back(BE::Face::Property::DarkGlasses);
-	if (propMask & 0x00000800)
+	if (propMask & 0x00000400)
 		this->_propertySet.push_back(
 		    BE::Face::Property::MedicalCondition);
 
-	this->_expression = (BE::Face::Expression::Kind)buf.scanBeU16Val();
+	this->_expression = to_enum<BE::Face::Expression>(buf.scanBeU16Val());
 
 	BE::Face::PoseAngle pa;
 	pa.yaw = buf.scanU8Val();
@@ -253,8 +252,8 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
 	/*
 	 * Image Information
 	 */
-	this->_imageType = (BE::Face::ImageType::Kind)buf.scanU8Val();
-	this->_imageDataType = (BE::Face::ImageDataType::Kind) buf.scanU8Val();
+	this->_imageType = to_enum<BE::Face::ImageType>(buf.scanU8Val());
+	this->_imageDataType = to_enum<BE::Face::ImageDataType>( buf.scanU8Val());
 	uint16_t width = buf.scanBeU16Val();
 	uint16_t height = buf.scanBeU16Val();
 	this->setImageSize(BE::Image::Size(width, height));
@@ -272,8 +271,8 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
 			//XXX throw?
 			break;
 	}
-	this->_colorSpace = (BE::Face::ColorSpace::Kind)buf.scanU8Val();
-	this->_sourceType = (BE::Face::SourceType::Kind)buf.scanU8Val();
+	this->_colorSpace = to_enum<BE::Face::ColorSpace>(buf.scanU8Val());
+	this->_sourceType = to_enum<BE::Face::SourceType>(buf.scanU8Val());
 	this->_deviceType = buf.scanBeU16Val();
 	this->_quality = buf.scanBeU16Val();
 

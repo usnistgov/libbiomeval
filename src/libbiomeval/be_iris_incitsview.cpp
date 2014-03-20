@@ -11,6 +11,7 @@
 #include <sstream>
 
 #include <be_io_utility.h>
+#include <be_iris.h>
 #include <be_iris_incitsview.h>
 #include <be_image_jpeg2000.h>
 #include <be_image_raw.h>
@@ -59,14 +60,19 @@ BE::Iris::INCITSView::INCITSView(
 /* Public functions.                                                          */
 /******************************************************************************/
 
+uint8_t
+BiometricEvaluation::Iris::INCITSView::getCertificationFlag() const
+{
+	return (this->_certFlag);
+}
+
 std::string
 BiometricEvaluation::Iris::INCITSView::getCaptureDateString() const
 {
 	return (this->_captureDateString);
-
 }
 
-BiometricEvaluation::Iris::CaptureDeviceTechnology::Kind
+BiometricEvaluation::Iris::CaptureDeviceTechnology
 BiometricEvaluation::Iris::INCITSView::getCaptureDeviceTechnology() const
 {
 	return (this->_captureDeviceTechnology);
@@ -91,13 +97,13 @@ BiometricEvaluation::Iris::INCITSView::getQualitySet(
 	qualitySet = this->_qualitySet;
 }
 
-BiometricEvaluation::Iris::EyeLabel::Kind
+BiometricEvaluation::Iris::EyeLabel
 BiometricEvaluation::Iris::INCITSView::getEyeLabel() const
 {
 	return (this->_eyeLabel);
 }
 
-BiometricEvaluation::Iris::ImageType::Kind
+BiometricEvaluation::Iris::ImageType
 BiometricEvaluation::Iris::INCITSView::getImageType() const
 {
 	return (this->_imageType);
@@ -105,9 +111,9 @@ BiometricEvaluation::Iris::INCITSView::getImageType() const
 
 void
 BiometricEvaluation::Iris::INCITSView::getImageProperties(
-    Iris::Orientation::Kind &horizontalOrientation,
-    Iris::Orientation::Kind &verticalOrientation, 
-    Iris::ImageCompression::Kind &compressionHistory
+    Iris::Orientation &horizontalOrientation,
+    Iris::Orientation &verticalOrientation, 
+    Iris::ImageCompression &compressionHistory
 ) const
 {
 	horizontalOrientation = this->_horizontalOrientation;
@@ -165,10 +171,10 @@ BiometricEvaluation::Iris::INCITSView::readHeader(
 	if (formatStandard != BE::Iris::INCITSView::ISO2011_STANDARD)
 		throw (Error::ParameterError("Invalid standard"));
 
-	uint32_t recLength = buf.scanBeU32Val();
-	uint16_t numIris = buf.scanBeU16Val();
-	uint8_t certFlag = buf.scanU8Val();
-	uint8_t numEyes = buf.scanU8Val();
+	(void)buf.scanBeU32Val();		/* record length */
+	(void)buf.scanBeU16Val();		/* number of iris */
+	this->_certFlag = buf.scanU8Val();	/* certification flag */
+	(void)buf.scanU8Val();			/* number of eyes */
 }
 
 void
@@ -204,10 +210,9 @@ BiometricEvaluation::Iris::INCITSView::readIrisView(
 	sstr << (int)hour << ":" << (int)minute << ":" << (int)seconds;
 	this->_captureDateString = sstr.str();
 
-	//XXX Replace this with Framework::Enumeration
 	uval8 = buf.scanU8Val();
 	this->_captureDeviceTechnology = 
-	    (BE::Iris::CaptureDeviceTechnology::Kind)uval8;
+	    to_enum<BE::Iris::CaptureDeviceTechnology>(uval8);
 
 	this->_captureDeviceVendor = buf.scanBeU16Val();
 	this->_captureDeviceType = buf.scanBeU16Val();
@@ -226,13 +231,11 @@ BiometricEvaluation::Iris::INCITSView::readIrisView(
 
 	uval16 = buf.scanBeU16Val();	/* number of representations */
 
-	//XXX Replace this with Framework::Enumeration
 	uval8 = buf.scanU8Val();
-	this->_eyeLabel = (BE::Iris::EyeLabel::Kind)uval8;
+	this->_eyeLabel = to_enum<BE::Iris::EyeLabel>(uval8);
 
-	//XXX Replace this with Framework::Enumeration
 	uval8 = buf.scanU8Val();
-	this->_imageType = (BE::Iris::ImageType::Kind)uval8;
+	this->_imageType = to_enum<BE::Iris::ImageType>(uval8);
 
 	uval8 = buf.scanU8Val();	/* Image format */
 	switch (uval8) {
@@ -254,11 +257,11 @@ BiometricEvaluation::Iris::INCITSView::readIrisView(
 	}
 	uval8 = buf.scanU8Val();	/* Image properties */
 	this->_horizontalOrientation =
-	    (Iris::Orientation::Kind)(uval8 & 0x03);
+	    to_enum<BE::Iris::Orientation>(uval8 & 0x03);
 	this->_verticalOrientation =
-	    (Iris::Orientation::Kind)((uval8 & 0x0C) >> 2);
+	    to_enum<BE::Iris::Orientation>((uval8 & 0x0C) >> 2);
 	this->_compressionHistory =
-	    (Iris::ImageCompression::Kind)((uval8 & 0xC0) >> 6);
+	    to_enum<BE::Iris::ImageCompression>((uval8 & 0xC0) >> 6);
 
 	uint16_t width = buf.scanBeU16Val();	/* Image width */
 	uint16_t height = buf.scanBeU16Val();	/* Image height */

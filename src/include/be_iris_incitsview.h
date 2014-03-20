@@ -14,8 +14,8 @@
 #include <string>
 #include <vector>
 
-#include <be_image.h>
 #include <be_iris.h>
+#include <be_image.h>
 #include <be_memory_indexedbuffer.h>
 #include <be_view_view.h>
 
@@ -58,6 +58,14 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Obtain the certification flag.
+			 * @return
+			 * The certification flag.
+		 	 */
+			uint8_t getCertificationFlag() const;
+
+			/**
+			 * @brief
 			 * Obtain the capture date as a string.
 			 * @return
 			 * The capture data and time.
@@ -70,7 +78,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The capture device technology identifer.
 		 	 */
-			Iris::CaptureDeviceTechnology::Kind
+			Iris::CaptureDeviceTechnology
 			    getCaptureDeviceTechnology() const;
 
 			/**
@@ -104,7 +112,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The eye label.
 		 	 */
-			Iris::EyeLabel::Kind getEyeLabel() const;
+			Iris::EyeLabel getEyeLabel() const;
 
 			/**
 			 * @brief
@@ -112,7 +120,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The image type.
 		 	 */
-			Iris::ImageType::Kind getImageType() const;
+			Iris::ImageType getImageType() const;
 
 			/**
 			 * @brief
@@ -125,11 +133,11 @@ namespace BiometricEvaluation
 			 * The image compression history.
 		 	 */
 			void getImageProperties(
-			    BiometricEvaluation::Iris::Orientation::Kind
+			    BiometricEvaluation::Iris::Orientation
 				&horizontalOrientation,
-			    BiometricEvaluation::Iris::Orientation::Kind
+			    BiometricEvaluation::Iris::Orientation
 				&verticalOrientation,
-			    BiometricEvaluation::Iris::ImageCompression::Kind
+			    BiometricEvaluation::Iris::ImageCompression
 				&compressionHistory
 			) const;
 
@@ -287,20 +295,21 @@ namespace BiometricEvaluation
 
 		private:
 			BiometricEvaluation::Memory::uint8Array _iir;
+			uint8_t _certFlag;
 
-			BiometricEvaluation::Iris::CaptureDeviceTechnology::Kind
+			BiometricEvaluation::Iris::CaptureDeviceTechnology
 			    _captureDeviceTechnology;
 
 			BiometricEvaluation::Iris::INCITSView::QualitySet
 			    _qualitySet;
 
-			BiometricEvaluation::Iris::EyeLabel::Kind
+			BiometricEvaluation::Iris::EyeLabel
 			    _eyeLabel;
-			BiometricEvaluation::Iris::ImageType::Kind
+			BiometricEvaluation::Iris::ImageType
 			    _imageType;
-			Iris::Orientation::Kind _horizontalOrientation;
-			Iris::Orientation::Kind _verticalOrientation;
-			Iris::ImageCompression::Kind _compressionHistory;
+			Iris::Orientation _horizontalOrientation;
+			Iris::Orientation _verticalOrientation;
+			Iris::ImageCompression _compressionHistory;
 			
 			uint16_t _cameraRange;
 			uint16_t _rollAngle;

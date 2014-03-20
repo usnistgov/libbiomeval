@@ -9,11 +9,14 @@
 #
 .PHONY: all
 
+
 COMMONINCOPT = -I/usr/local/nbis/include
 NBISLIB = -L/usr/local/nbis/lib64 -lan2k -ljpegb -lwsq -ljpegl -lfet -lioutil -lutil -lpng -lz -lopenjpeg
 
 include ../common.mk
 include ../../VERSION
+
+CXXFLAGS += -Wall -pedantic
 
 CORE = be_memory_indexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
 
@@ -31,8 +34,8 @@ VIEW = be_view_view.cpp be_view_an2kview.cpp be_view_an2kview_varres.cpp
 
 FINGER = be_finger.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_finger_incitsview.cpp be_finger_ansi2004view.cpp be_finger_ansi2007view.cpp be_finger_iso2005view.cpp
 
-IRIS = be_iris_incitsview.cpp be_iris_iso2011view.cpp
-FACE = be_face_incitsview.cpp be_face_iso2005view.cpp
+IRIS = be_iris.cpp be_iris_incitsview.cpp be_iris_iso2011view.cpp
+FACE = be_face.cpp be_face_incitsview.cpp be_face_iso2005view.cpp
 
 DATA = be_data_interchange_an2k.cpp
 

@@ -23,7 +23,7 @@ BiometricEvaluation::Face::ISO2005View::ISO2005View(
 {
 	BE::Memory::uint8Array recordData = Face::INCITSView::getFIDData();
 	BE::Memory::IndexedBuffer iBuf(recordData, recordData.size());
-	this->readHeader(iBuf);
+	this->readISOHeader(iBuf);
 
 	//XXX Really should use a skipFaceView() function here
 	for (uint32_t i = 1; i <= viewNumber; i++)
@@ -37,7 +37,7 @@ BiometricEvaluation::Face::ISO2005View::ISO2005View(
 {
 	BE::Memory::IndexedBuffer iBuf(
 	    const_cast<BE::Memory::uint8Array &>(buffer), buffer.size());
-	this->readHeader(iBuf);
+	this->readISOHeader(iBuf);
 
 	//XXX Really should use a skipFaceView() function here
 	for (uint32_t i = 1; i <= viewNumber; i++)
@@ -45,7 +45,7 @@ BiometricEvaluation::Face::ISO2005View::ISO2005View(
 }
 
 void
-BiometricEvaluation::Face::ISO2005View::readHeader(
+BiometricEvaluation::Face::ISO2005View::readISOHeader(
     Memory::IndexedBuffer &buf)
 {
 	uint32_t uval32;
