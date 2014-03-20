@@ -25,7 +25,9 @@
  * use the GNU version of strerror_r().
  */
 #if defined __CYGWIN__ || defined __linux__
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #endif
 
 
@@ -36,7 +38,6 @@ BiometricEvaluation::Error::errorStr()
 {
 	char msgbuf[BUFSIZ];
 	char *msgbufptr = nullptr;
-	int lastErrno = errno;
 
 #if defined __CYGWIN__ || defined __linux__
 	/* GNU strerror_r() always returns a pointer to a string */
@@ -47,6 +48,7 @@ BiometricEvaluation::Error::errorStr()
 	 * POSIX doesn't specify what is returned when an error
 	 * occurs, so create our own error string.
 	 */
+	int lastErrno = errno;
 	int ret = strerror_r(errno, msgbuf, BUFSIZ);
 	/* Error message when failing to retrieve the error message */
 	if (ret != 0) {

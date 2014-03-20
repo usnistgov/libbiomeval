@@ -8,13 +8,17 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <unistd.h>
+
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
 #include <be_finger_an2kview_fixedres.h>
 #include <be_error_exception.h>
+#include <be_io_utility.h>
 
 using namespace std;
 using namespace BiometricEvaluation;
@@ -45,10 +49,13 @@ handleAN2KView(Finger::AN2KView &an2kv)
 		return (-1);
 	}
 	char tmpl[32];
-	sprintf(tmpl, "Type-%u_imgXXXXXX",
+	sprintf(tmpl, "Type-%u_img",
 	    static_cast<std::underlying_type<
 	    View::AN2KView::RecordType>::type>(an2kv.getRecordType()));
-	string filename = mktemp(tmpl);
+	string filename = IO::Utility::createTemporaryFile(tmpl);
+	if (::unlink(filename.c_str()))
+		throw Error::StrategyError("Could not unlink empty "
+		    "temporary file (" + filename + ")");
 	filename += ".pgm";
 
 	/*

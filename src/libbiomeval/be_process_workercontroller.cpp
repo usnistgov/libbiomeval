@@ -76,7 +76,9 @@ BiometricEvaluation::Process::WorkerController::~WorkerController()
 
 }
 
-#pragma mark - Communications
+/*
+ * Communications
+ */
 
 void
 BiometricEvaluation::Process::WorkerController::sendMessageToWorker(

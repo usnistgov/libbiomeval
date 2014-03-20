@@ -39,7 +39,6 @@ BiometricEvaluation::Process::MessageCenterReceiver::workerMain()
 {
 	this->parseArgs();
 
-	int rv;
 	bool stop = false;
 	Memory::uint8Array message;
 	while (!stop) {
@@ -88,7 +87,6 @@ BiometricEvaluation::Process::MessageCenterReceiver::receive()
 {
 	int rv;
 	Memory::uint8Array buffer(MessageCenter::MAX_MESSAGE_LENGTH);
-	Memory::uint8Array::size_type length;
 
 	/* Read message */
 	for (;;) {

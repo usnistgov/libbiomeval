@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cerrno>
 #include <cstdlib>
 #include <iostream>
 
@@ -19,7 +20,6 @@
 #endif
 #include <unistd.h>
 
-extern int errno;
 uint32_t
 BiometricEvaluation::System::getCPUCount()
 {

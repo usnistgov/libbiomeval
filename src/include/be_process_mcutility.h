@@ -154,7 +154,7 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			getMessage(
 			    const Memory::uint8Array &message);
-		};
+		}
 	}
 }
 

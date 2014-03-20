@@ -71,7 +71,9 @@ namespace BiometricEvaluation
 			using DIFFERENCE = typename
 			    AutoArrayIterator<CONST, T>::difference_type;
 
-			#pragma mark - Constructors
+			/*
+			 * Constructors
+ 			 */
 
 			/**
 			 * @brief
@@ -101,7 +103,9 @@ namespace BiometricEvaluation
 			/** Default destructor */
 			~AutoArrayIterator() = default;
 
-			#pragma mark - Assignments
+			/*
+			 * Assignments
+ 			 */
 
 			/** @return This object with offset set to rhs. */
 			inline AutoArrayIterator&
@@ -135,7 +139,9 @@ namespace BiometricEvaluation
 				return (*this);
 			}
 
-			#pragma mark - Dereferencing Content
+			/*
+			 * Dereferencing Content
+			 */
 
 			/** @return Object at the current offset. */
 			inline REFERENCE
@@ -162,7 +168,9 @@ namespace BiometricEvaluation
 				return (_autoArray->operator[](rhs));
 			}
 
-			#pragma mark - Arithmetic
+			/* 
+			 * Arithmetic
+			 */
 
 			/** @return This object with incremented offset. */
 			inline AutoArrayIterator&
@@ -265,7 +273,9 @@ namespace BiometricEvaluation
 				    lhs - rhs._offset));
 			}
 
-			#pragma mark - Comparisons
+			/*
+			 * Comparisons
+			 */
 
 			/** @return Whether or not the offsets are the same. */
 			inline bool

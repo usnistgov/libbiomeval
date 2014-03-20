@@ -29,7 +29,9 @@ BiometricEvaluation::Process::Manager::~Manager()
 
 }
 
-#pragma mark - Statistics
+/*
+ * Statistics
+ */
 
 uint32_t
 BiometricEvaluation::Process::Manager::getNumCompletedWorkers()
@@ -69,7 +71,9 @@ BiometricEvaluation::Process::Manager::reset()
 	_pendingExit.clear();
 }
 
-#pragma mark - Communications
+/*
+ * Communications
+ */
 
 bool
 BiometricEvaluation::Process::Manager::waitForMessage(

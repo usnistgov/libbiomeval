@@ -130,10 +130,9 @@ BiometricEvaluation::IO::ListRecordStore::setCursorAtKey(
 	/* Sequence until we find the key */
 	std::string sequencedKey, searchKey = key;
 	Text::removeLeadingTrailingWhitespace(searchKey);
-	uint64_t length;
 	for (;;) {
 		try {
-			length = this->sequence(sequencedKey, nullptr);
+			this->sequence(sequencedKey, nullptr);
 			if (sequencedKey == searchKey)
 				break;
 		} catch (Error::ObjectDoesNotExist) {

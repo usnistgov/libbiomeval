@@ -12,7 +12,9 @@
 
 #include <be_io_recordstoreiterator.h>
 
-#pragma mark Constructors
+/*
+ * Constructors
+ */
 
 BiometricEvaluation::IO::RecordStoreIterator::RecordStoreIterator() :
     _recordStore(nullptr),
@@ -31,7 +33,9 @@ BiometricEvaluation::IO::RecordStoreIterator::RecordStoreIterator(
 		this->restart();
 }
 
-#pragma mark - Operators
+/*
+ * Operators
+ */
 
 BiometricEvaluation::IO::RecordStoreIterator::reference
 BiometricEvaluation::IO::RecordStoreIterator::operator*()
@@ -86,7 +90,9 @@ BiometricEvaluation::IO::RecordStoreIterator::operator==(
 	    (this->_currentPair.first == rhs._currentPair.first));
 }
 
-#pragma mark - Private Methods
+/*
+ * Private Methods
+ */
 
 void
 BiometricEvaluation::IO::RecordStoreIterator::restart()

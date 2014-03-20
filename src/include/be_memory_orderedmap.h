@@ -590,7 +590,9 @@ BiometricEvaluation::Memory::OrderedMap<Key, T>::key_eq()
 	return (_elements->key_eq());
 }
 
-#pragma mark - OrderedMapIterator Implementation
+/*
+ * OrderedMapIterator Implementation
+ */
 
 template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::OrderedMapIterator() :
@@ -689,7 +691,9 @@ BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::~OrderedMapIterator()
 	/* Don't delete _orderedMap, we don't own it. */
 }
 
-#pragma mark - OrderedMapConstIterator Implementation
+/* 
+ * OrderedMapConstIterator Implementation
+ */
 
 template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::

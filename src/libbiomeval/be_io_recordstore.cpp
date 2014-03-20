@@ -55,7 +55,9 @@ static const std::string COREPROPERTYERROR = "Cannot change core properties";
 const std::string BiometricEvaluation::IO::RecordStore::RSREADONLYERROR(
     "RecordStore was opened read-only");
 
-#pragma mark - RecordStore::Kind
+/*
+ * RecordStore::Kind
+ */
 
 template<>
 const std::map<BiometricEvaluation::IO::RecordStore::Kind, std::string>
@@ -69,7 +71,9 @@ BiometricEvaluation::Framework::EnumerationFunctions<
 	{BiometricEvaluation::IO::RecordStore::Kind::List, "List"}
 };
 
-#pragma mark - RecordStore
+/*
+ * RecordStore
+ */
 
 /*
  * Constructors

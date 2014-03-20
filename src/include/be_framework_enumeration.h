@@ -401,7 +401,9 @@ namespace BiometricEvaluation
 	}
 }
 
-#pragma mark - Class Method Definitions
+/*
+ * Class Method Definitions
+ */
 
 template <typename T>
 BiometricEvaluation::Framework::EnumMapWrapper<T>::EnumMapWrapper(
@@ -445,7 +447,9 @@ BiometricEvaluation::Framework::ConstEnumMapWrapper<T>::operator T()
 	return (_enumeration);
 }
 
-#pragma mark - Global Functions
+/*
+ * Global Functions
+ */
 
 template <typename T>
 BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
@@ -488,7 +492,9 @@ to_int_type(
 	return (static_cast<typename std::underlying_type<T>::type>(kind));
 }
 
-#pragma mark - Global to_string Specializations
+/*
+ * Global to_string Specializations
+ */
 
 template <typename T>
 BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
@@ -498,7 +504,9 @@ to_string(
 	return (BiometricEvaluation::Framework::ConstEnumMapWrapper<T>(kind));
 }
 
-#pragma mark - Operators
+/*
+ * Operators
+ */
 
 template <typename T>
 bool

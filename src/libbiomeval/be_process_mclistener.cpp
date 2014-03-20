@@ -45,9 +45,7 @@ BiometricEvaluation::Process::MessageCenterListener::workerMain()
 		return (EXIT_FAILURE);
 	}
 
-	fd_set set;
-	struct timeval timeout;
-	int rv, client;
+	int client;
 	std::shared_ptr<BE::Process::WorkerController> wc;
 	BE::Memory::uint8Array message(0);
 	while (!this->stopRequested()) {
@@ -124,7 +122,9 @@ BiometricEvaluation::Process::MessageCenterListener::workerMain()
 	return (EXIT_SUCCESS);
 }
 
-#pragma mark - Setup
+/*
+ * Setup
+ */
 
 void
 BiometricEvaluation::Process::MessageCenterListener::parseArgs()
@@ -155,7 +155,9 @@ BiometricEvaluation::Process::MessageCenterListener::spawnReceiver(
 	::close(clientSocket);
 }
 
-#pragma mark - Communications
+/*
+ * Communications
+ */
 
 void
 BiometricEvaluation::Process::MessageCenterListener::listen()
@@ -233,11 +235,10 @@ BiometricEvaluation::Process::MessageCenterListener::accept()
 	return (clientSocket);
 }
 
-#pragma mark -
-
 void
 BiometricEvaluation::Process::MessageCenterListener::tearDown()
 {
 	::freeaddrinfo(this->_addr);
 	::close(this->_socket);
 }
+
