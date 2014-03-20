@@ -8,26 +8,14 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <sys/time.h>
-
-#include <ctime>
-
+#include <be_error_exception.h>
 #include <be_time_timer.h>
-
-#if defined(WIN32) || defined(__CYGWIN__)
-#include <windows.h>
-#endif
-
-/* For OS-X/Darwin */
-#if defined(Darwin)
-#include <mach/clock.h>
-#include <mach/mach.h>
-#endif
 
 BiometricEvaluation::Time::Timer::Timer() :
     _inProgress(false),
-    _start(0),
-    _finish(0)
+    _start(),
+    _finish(),
+    _placeholder()
 {
 
 }
@@ -35,77 +23,41 @@ BiometricEvaluation::Time::Timer::Timer() :
 void
 BiometricEvaluation::Time::Timer::start()
 {
-	if (_inProgress)
+	/* Get the time immediately */
+	this->_placeholder = BE_CLOCK_TYPE::now();
+
+	if (this->_inProgress)
 		throw Error::StrategyError("Timing already in progress");
 
-#if defined(WIN32) || defined(__CYGWIN__)
-	LARGE_INTEGER start;
-	if (QueryPerformanceCounter(&start) == 0)
-		throw Error::StrategyError("QueryPerformanceCounter returned "
-		    "false");
-	_start = start.QuadPart;
-#elif defined(Darwin)
-	clock_serv_t cclock;
-	mach_timespec_t mts;
-	host_get_clock_service(mach_host_self(), REALTIME_CLOCK, &cclock);
-	clock_get_time(cclock, &mts);
-	mach_port_deallocate(mach_task_self(), cclock);
-	_start = (mts.tv_sec * MicrosecondsPerSecond) +
-	     (mts.tv_nsec / NanosecondsPerMicrosecond);
-#else
-	struct timespec ts;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-	_start = (ts.tv_sec * MicrosecondsPerSecond) +
-	     (ts.tv_nsec / NanosecondsPerMicrosecond);
-#endif
-	_inProgress = true;
+	this->_start = this->_placeholder;
+	this->_inProgress = true;
 }
 
 void
 BiometricEvaluation::Time::Timer::stop()
 {
+	/* Get the time immediately */
+	_placeholder = BE_CLOCK_TYPE::now();
+
 	if (!_inProgress)
 		throw Error::StrategyError("Timing not in progress");
 
-#if defined(WIN32) || defined(__CYGWIN__)
-	LARGE_INTEGER finish;
-	if (QueryPerformanceCounter(&finish) == 0)
-		throw Error::StrategyError("QueryPerformanceCounter returned "
-		    "false");
-	_finish = finish.QuadPart;
-#elif defined(Darwin)
-	clock_serv_t cclock;
-	mach_timespec_t mts;
-	host_get_clock_service(mach_host_self(), REALTIME_CLOCK, &cclock);
-	clock_get_time(cclock, &mts);
-	mach_port_deallocate(mach_task_self(), cclock);
-	_finish = (mts.tv_sec * MicrosecondsPerSecond) +
-	     (mts.tv_nsec / NanosecondsPerMicrosecond);
-#else
-	struct timespec tp;
-	clock_gettime(CLOCK_MONOTONIC, &tp);
-	_finish = (tp.tv_sec * MicrosecondsPerSecond) +
-	     (tp.tv_nsec / NanosecondsPerMicrosecond);
-#endif
-	_inProgress = false;
+	this->_finish = this->_placeholder;
+	this->_inProgress = false;
 }
 
 uint64_t
 BiometricEvaluation::Time::Timer::elapsed()
+    const
 {
-	if (_inProgress)
+	if (this->_inProgress)
 		throw Error::StrategyError("Timing in progress");
-	
-#if defined(WIN32) || defined(__CYGWIN__)
-	LARGE_INTEGER frequency;
-	if (QueryPerformanceFrequency(&frequency) == 0)
-		throw Error::StrategyError("QueryPerformanceFrequency returned "
-		    "false");
 
-	return (uint64_t)(((_finish - _start) / (double)frequency.QuadPart) * 
-	    MicrosecondsPerSecond);
-#else
-	return _finish - _start;
-#endif
+	/* 
+	 * On some systems with some clocks, we may be losing precision by 
+	 * returning microseconds. Therefore, we must use a duration_cast
+	 * instead of simply instantiating a microseconds object.
+	 */
+	return (std::chrono::duration_cast<std::chrono::microseconds>(
+	    this->_finish - this->_start).count());
 }
-
