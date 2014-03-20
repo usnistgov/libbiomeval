@@ -17,9 +17,7 @@ std::string
 BiometricEvaluation::Error::errorStr(
     bool includeErrno)
 {
-	std::system_error error = std::system_error(errno,
-	    std::system_category());
-
+	std::system_error error{errno, std::system_category()};
 	if (includeErrno)
 		return (error.code().message() + " (errno = " +
 		    std::to_string(error.code().value()) + ")");
