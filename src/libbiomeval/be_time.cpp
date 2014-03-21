@@ -8,28 +8,48 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <chrono>
+#include <ctime>
+#include <iomanip>
 #include <sstream>
-#include <sys/time.h>
 
 #include <be_time.h>
-
-#if defined(WIN32) || defined(__CYGWIN__)
-#include <windows.h>
-#endif
 
 std::string
 BiometricEvaluation::Time::getCurrentTime()
 {
-	time_t theTime = time(nullptr);
-	std::ostringstream sstream;
-	sstream << ctime(&theTime);
-	std::string strTime = sstream.str();
-
-	/*
-	 * ctime(3) places a newline at the end of the text,
-	 * so remove it.
-	 */
-	strTime.replace(strTime.find("\n"), 1, "");
-	return (strTime);
+	static const char FORMAT[] = "%T";
+	return (Time::getCurrentCalendarInformation(FORMAT));
 }
 
+std::string
+BiometricEvaluation::Time::getCurrentDate()
+{
+	static const char FORMAT[] = "%F";
+	return (Time::getCurrentCalendarInformation(FORMAT));
+}
+
+std::string
+BiometricEvaluation::Time::getCurrentDateAndTime()
+{
+	static const char FORMAT[] = "%c";
+	return (Time::getCurrentCalendarInformation(FORMAT));
+}
+
+std::string
+BiometricEvaluation::Time::getCurrentCalendarInformation(
+    const std::string &formatString)
+{
+	auto theTime = std::chrono::system_clock::to_time_t(
+	    std::chrono::system_clock::now());
+
+	/* "For portable code tzset() should be called before localtime_r()." */
+	::tzset();
+	std::tm now;
+	::localtime_r(&theTime, &now);
+
+	std::ostringstream out;
+	out << std::put_time(&now, formatString.c_str());
+
+	return (out.str());
+}

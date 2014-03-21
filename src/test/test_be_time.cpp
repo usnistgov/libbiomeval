@@ -18,8 +18,12 @@ using namespace BiometricEvaluation;
 
 int main(int argc, char *argv[])
 {
-
 	cout << "Current time is [" << Time::getCurrentTime() << "]" << endl;
+	cout << "Current date is [" << Time::getCurrentDate() << "]" << endl;
+	cout << "Current date and time is [" << Time::getCurrentDateAndTime() <<
+	    "]" << endl;
+	cout << "Current timezone is [" <<
+	    Time::getCurrentCalendarInformation("%Z") << "]" << endl;
 
 	return (EXIT_SUCCESS);
 }

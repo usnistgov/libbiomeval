@@ -35,11 +35,38 @@ namespace BiometricEvaluation
 		const int MicrosecondsPerMillisecond = 1000;
 		const int MillisecondsPerSecond = 1000;
 
+		/** @return The current ISO 8601 time as a string. */
+		std::string
+		getCurrentTime();
+
+		/** @return The current ISO 8601 date as a string. */
+		std::string
+		getCurrentDate();
+
+		/** 
+		 * @return
+		 * The standard locale current date and time as a string.
+		 */
+		std::string
+		getCurrentDateAndTime();
+
 		/**
 		 * @brief
-		 * Return the current time as a string.
+		 * Obtain customized calendar information.
+		 *
+		 * @param formatString
+		 * A C++11 put_time-compatible format string.
+		 *
+		 * @return
+		 * The current calendar information formatted as specified in
+		 * formatString.
+		 * @note
+		 * Return value is undefined if format string is invalid.
 		 */
-		 std::string getCurrentTime();
+		std::string
+		getCurrentCalendarInformation(
+		    const std::string &formatString);
+
 	}
 }
 #endif /* __BE_TIME_H__ */
