@@ -10,9 +10,9 @@
 
 #include <chrono>
 #include <ctime>
-#include <iomanip>
-#include <sstream>
 
+#include <be_memory_autoarray.h>
+#include <be_memory_autoarrayutility.h>
 #include <be_time.h>
 
 std::string
@@ -48,8 +48,22 @@ BiometricEvaluation::Time::getCurrentCalendarInformation(
 	std::tm now;
 	::localtime_r(&theTime, &now);
 
-	std::ostringstream out;
-	out << std::put_time(&now, formatString.c_str());
+	return (Time::put_time(&now, formatString.c_str()));
+}
 
-	return (out.str());
+std::string
+BiometricEvaluation::Time::put_time(
+    const struct tm *tmb,
+    const char *fmt)
+{
+	Memory::AutoArray<char> buffer;
+	size_t size;
+
+	do {
+		buffer.resize(buffer.size() + 255);
+		size = ::strftime(buffer, buffer.size(), fmt, tmb);
+	} while (size == 0);
+	buffer.resize(size);
+
+	return (to_string(buffer));
 }

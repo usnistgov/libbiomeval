@@ -67,6 +67,19 @@ namespace BiometricEvaluation
 		getCurrentCalendarInformation(
 		    const std::string &formatString);
 
+		/** 
+		 * @brief
+		 * Manual implementation of std::put_time
+		 *
+		 * @note
+		 * Exists because g++ does not currently implement put_time
+		 * (http://gcc.gnu.org/bugzilla/show_bug.cgi?id=54354)
+		 */
+		std::string
+		put_time(
+		    const struct tm *tmb,
+		    const char *fmt);
+
 	}
 }
 #endif /* __BE_TIME_H__ */
