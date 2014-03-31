@@ -28,8 +28,7 @@ BiometricEvaluation::Image::PNG::PNG(
 		    "png_struct");
 
 	/* Read encoded PNG data from an AutoArray using our extension */
-	Memory::uint8Array imageData{this->getData()};
-	png_buffer png_buf = { imageData, 0 };
+	png_buffer png_buf = { this->getDataPointer(), this->getDataSize(), 0 };
 	png_set_read_fn(png_ptr, &png_buf, png_read_mem_src);
 	
 	/* Read the header information */
@@ -91,9 +90,8 @@ BiometricEvaluation::Image::PNG::getRawData()
 		throw Error::StrategyError("libpng could not create "
 		    "png_struct");
 
-	/* Read encoded PNG data from an AutoArray using our extension */
-	Memory::uint8Array imageData{this->getData()};
-	png_buffer png_buf = { imageData, 0 };
+	/* Read encoded PNG data from a buffer using our extension */
+	png_buffer png_buf = { this->getDataPointer(), this->getDataSize(), 0 };
 	png_set_read_fn(png_ptr, &png_buf, png_read_mem_src);
 	
 	/* Read the header information */
@@ -154,7 +152,7 @@ BiometricEvaluation::Image::PNG::png_read_mem_src(
 		throw Error::StrategyError("libpng has no io_ptr set");
 
 	png_buffer *input = (png_buffer *)png_get_io_ptr(png_ptr);
-	if (length > (input->data.size() - input->offset))
+	if (length > (input->size - input->offset))
 		throw Error::StrategyError("libpng attempted to read more "
 		    "data than what is available");
 

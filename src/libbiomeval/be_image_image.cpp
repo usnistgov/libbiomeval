@@ -223,6 +223,20 @@ BiometricEvaluation::Image::Image::setDepth(
 	_depth = depth;
 }
 
+const uint8_t *
+BiometricEvaluation::Image::Image::getDataPointer()
+    const
+{
+	return (&(*(this->_data)));
+}
+
+uint64_t
+BiometricEvaluation::Image::Image::getDataSize()
+    const
+{
+	return (this->_data.size());
+}
+
 BiometricEvaluation::Image::Image::~Image()
 {
 

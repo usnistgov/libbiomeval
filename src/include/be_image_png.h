@@ -76,8 +76,9 @@ namespace BiometricEvaluation
 			struct png_buffer
 			{
 				/** PNG-encoded buffer */
-				Memory::AutoArray<uint8_t> data;
-
+				const uint8_t *data;
+				/** Size of data */
+				const uint64_t size;
 				/** Number of bytes currently read by libpng */
 				png_size_t offset;
 

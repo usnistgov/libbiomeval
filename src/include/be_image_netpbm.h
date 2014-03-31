@@ -100,6 +100,8 @@ namespace BiometricEvaluation
 			 *
 			 * @param data
 			 *	Buffer with line to be skipped.
+			 * @param dataSize
+			 *	Size of data.
 			 * @param offset
 			 *	Position within data from which the rest of the
 			 *	line should be read.
@@ -110,7 +112,8 @@ namespace BiometricEvaluation
 			 */
 			static void
 			skipLine(
-			    Memory::uint8Array &data,
+			    const uint8_t *data,
+			    size_t dataSize,
 			    size_t &offset);
 			
 			/**
@@ -119,6 +122,8 @@ namespace BiometricEvaluation
 			 *
 			 * @param data
 			 *	Buffer with comment to be skipped.
+			 * @param dataSize
+			 *	Size of data
  			 * @param offset
 			 *	Position within data from which the rest of the
 			 *	line should be read.
@@ -129,7 +134,8 @@ namespace BiometricEvaluation
 			 */
 			static void
 			skipComment(
-			    Memory::uint8Array &data,
+			    const uint8_t *data,
+			    size_t dataSize,
 			    size_t &offset);
 			
 			/**
@@ -139,6 +145,8 @@ namespace BiometricEvaluation
 			 *
 			 * @param data
 			 *	Buffer where next value will be obtained.
+			 * @param dataSize
+			 *	Size of data.
 			 * @param offset
 			 *	Current starting position within data.
 			 * @param sizeOfValue
@@ -152,7 +160,8 @@ namespace BiometricEvaluation
 			 */
 			static std::string
 			getNextValue(
-			    Memory::uint8Array &data,
+			    const uint8_t *data,
+			    size_t dataSize,
 			    size_t &offset,
 			    size_t sizeOfValue = 0);
 			    
@@ -167,6 +176,8 @@ namespace BiometricEvaluation
 			 * 
 			 * @param bitmap
 			 *	Bitmap data buffer.
+			 * @param bitmapSize
+			 *	Size of bitmap.
 			 * @param width
 			 *	Width of image in bitmap.
 			 * @param height
@@ -180,7 +191,8 @@ namespace BiometricEvaluation
 			 */
 			static Memory::uint8Array
 			ASCIIBitmapTo8Bit(
-			    Memory::uint8Array &bitmap,
+			    const uint8_t *bitmap,
+			    uint64_t bitmapSize,
 			    uint32_t width,
 			    uint32_t height);
 			    
@@ -191,6 +203,8 @@ namespace BiometricEvaluation
 			 * 
 			 * @param ASCIIBuf
 			 *	ASCII pixel map data buffer.
+			 * @param ASCIIBufSize
+			 *	Size of ASCIIBuf.
 			 * @param width
 			 *	Width of image in pixel map.
 			 * @param height
@@ -213,7 +227,8 @@ namespace BiometricEvaluation
 			 */
 			static Memory::uint8Array
 			ASCIIPixmapToBinaryPixmap(
-			    Memory::uint8Array &ASCIIBuf,
+			    const uint8_t *ASCIIBuf,
+			    uint64_t ASCIIBufSize,
 			    uint32_t width,
 			    uint32_t height,
 			    uint8_t depth,
@@ -226,6 +241,8 @@ namespace BiometricEvaluation
 			 * 
 			 * @param bitmap
 			 *	Bitmap data buffer.
+			 * @param bitmapSize
+			 *	Size of bitmap.
 			 * @param width
 			 *	Width of image in bitmap.
 			 * @param height
@@ -239,7 +256,8 @@ namespace BiometricEvaluation
 			 */
 			static Memory::uint8Array
 			BinaryBitmapTo8Bit(
-			    Memory::uint8Array &bitmap,
+			    const uint8_t *bitmap,
+			    uint64_t bitmapSize,
 			    uint32_t width,
 			    uint32_t height);
 

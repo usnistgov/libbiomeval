@@ -407,6 +407,16 @@ namespace BiometricEvaluation
 			void
 			setDepth(
 			    const uint32_t depth);
+			    
+			/** @return Const pointer to buffer underlying _data. */
+			const uint8_t *
+			getDataPointer()
+			    const;
+
+			/** @return Size of _data. */
+			uint64_t
+			getDataSize()
+			    const;
 
 		private:
 			/** Image dimensions (width and height) in pixels */

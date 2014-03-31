@@ -27,9 +27,9 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
     size,
     CompressionAlgorithm::JPEGL)
 {
-	Memory::uint8Array jpeglData{this->getData()};
-	uint8_t *markerBuf = jpeglData;	/* Manipulated by libjpegl */
-	uint8_t *endPtr = jpeglData + jpeglData.size();
+	uint8_t *markerBuf = (uint8_t *)this->getDataPointer();
+	uint8_t *endPtr = (uint8_t *)this->getDataPointer() +
+	    this->getDataSize();
 	
 	uint16_t marker;
 	if (getc_marker_jpegl(&marker, SOI, &markerBuf, endPtr))
@@ -91,12 +91,12 @@ BiometricEvaluation::Image::JPEGL::getRawData()
 {
 	/* TODO: Extract the raw data without using the IMG_DAT struct */
 	IMG_DAT *imgDat = nullptr;
-	Memory::uint8Array jpeglData{this->getData()};
 	int32_t lossy;
-	if (jpegl_decode_mem(&imgDat, &lossy, jpeglData, jpeglData.size()))
+	if (jpegl_decode_mem(&imgDat, &lossy,
+	    (unsigned char *)this->getDataPointer(), this->getDataSize()))
 		throw Error::DataError("libjpegl: Could not decode Lossless "
 		    "JPEG data");
-	
+
 	uint8_t *rawDataPtr = nullptr;
 	int32_t width, height, depth, ppi, rawSize;
 	if (get_IMG_DAT_image(&rawDataPtr, &rawSize, &width, &height, &depth,

@@ -44,9 +44,9 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	static const uint8_t resd_box_size = 10;
 	/* The Display Resolution Box is optional under some codecs */
 	try {
-		Memory::uint8Array jpegData = this->getData();
-		setResolution(parse_resd(find_marker(resd, 4, jpegData,
-		    jpegData.size(), resd_box_size)));
+		setResolution(parse_resd(find_marker(resd, 4,
+		    (unsigned char *)this->getDataPointer(),
+		    this->getDataSize(), resd_box_size)));
 	} catch (Error::ObjectDoesNotExist) {
 		setResolution(Resolution(72, 72, Resolution::Units::PPI));
 	}
@@ -94,8 +94,8 @@ BiometricEvaluation::Image::JPEG2000::initDecoder(
 
 	/* Setup the decoder */
 	opj_setup_decoder(dinfo, &parameters);
-	Memory::uint8Array jpegData = this->getData();
-	cio = opj_cio_open((opj_common_ptr)dinfo, jpegData, jpegData.size());
+	cio = opj_cio_open((opj_common_ptr)dinfo,
+	    (unsigned char *)this->getDataPointer(), this->getDataSize());
 
 	std::shared_ptr<OpenJPEGDecoder> decoder(new OpenJPEGDecoder());
 	decoder->_dinfo = dinfo;

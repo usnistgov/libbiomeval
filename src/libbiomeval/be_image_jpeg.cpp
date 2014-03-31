@@ -36,11 +36,12 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Memory::AutoArray<uint8_t> buffer = this->getData();
 #if JPEG_LIB_VERSION >= 80
-	::jpeg_mem_src(&dinfo, buffer, buffer.size());
+	::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
+	    this->getDataSize());
 #else
-	JPEG::jpeg_mem_src(&dinfo, buffer, buffer.size());
+	JPEG::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
+	    this->getDataSize());
 #endif
 
 	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)
@@ -68,11 +69,12 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Memory::AutoArray<uint8_t> jpeg_data = this->getData();
 #if JPEG_LIB_VERSION >= 80
-	::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
+	::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
+	    this->getDataSize());
 #else
-	JPEG::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
+	JPEG::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
+	    this->getDataSize());
 #endif
 	
 	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)
@@ -115,12 +117,12 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Memory::AutoArray<uint8_t> jpeg_data{this->getData()};
-
 #if JPEG_LIB_VERSION >= 80
-	::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
+	::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
+	    this->getDataSize());
 #else
-	JPEG::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
+	JPEG::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
+	    this->getDataSize());
 #endif
 	
 	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)

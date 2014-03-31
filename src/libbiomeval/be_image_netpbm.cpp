@@ -47,15 +47,16 @@ BiometricEvaluation::Image::NetPBM::NetPBM(
 void
 BiometricEvaluation::Image::NetPBM::parseHeader()
 {
-	Memory::uint8Array data{getData()};
-	
+	const uint8_t *data = this->getDataPointer();
+	const uint64_t dataSize = this->getDataSize();
+
 	size_t offset = 0;
-	skipComment(data, offset);
-	if (data.at(offset++) != 'P')
+	skipComment(data, this->getDataSize(), offset);
+	if (data[offset++] != 'P')
 		throw Error::DataError("Not a valid NetPBM file");
 		
 	/* Integer at second byte indiciates the format of the image data */
-	switch (data.at(offset++)) {
+	switch (data[offset++]) {
 	case '1':
 		_kind = Kind::ASCIIPortableBitmap;
 		break;
@@ -79,8 +80,8 @@ BiometricEvaluation::Image::NetPBM::parseHeader()
 	}	
 	
 	/* Space separated width and height immediately follow magic number */
-	uint32_t width = atoi((char *)getNextValue(data, offset).c_str());
-	uint32_t height = atoi((char *)getNextValue(data, offset).c_str());
+	uint32_t width = atoi((char *)getNextValue(data, dataSize, offset).c_str());
+	uint32_t height = atoi((char *)getNextValue(data, dataSize, offset).c_str());
 	setDimensions(Size(width, height));
 	
 	/* Maximum color value follow dimensions on non-bitmap formats */
@@ -93,7 +94,7 @@ BiometricEvaluation::Image::NetPBM::parseHeader()
 		/* FALLTHROUGH */
 	case Kind::BinaryPortablePixmap:
 		_maxColorValue = 
-		    atoi((char *)getNextValue(data, offset).c_str());
+		    atoi((char *)getNextValue(data, dataSize, offset).c_str());
 		break;
 	default:
 		break;
@@ -132,7 +133,8 @@ BiometricEvaluation::Image::NetPBM::parseHeader()
 
 std::string
 BiometricEvaluation::Image::NetPBM::getNextValue(
-    Memory::uint8Array &data,
+    const uint8_t *data,
+    size_t dataSize,
     size_t &offset,
     size_t sizeOfValue)
 {
@@ -140,8 +142,8 @@ BiometricEvaluation::Image::NetPBM::getNextValue(
 	std::stringstream value;
 	char c;
 	
-	for ( ; offset < data.size(); offset++) {
-		c = data.at(offset);
+	for ( ; offset < dataSize; offset++) {
+		c = data[offset];
 		
 		/* 
 		 * An arbitrary amount of whitespace may be between information
@@ -157,7 +159,7 @@ BiometricEvaluation::Image::NetPBM::getNextValue(
 				continue;
 		} else if (c == '#') {
 			/* Once a comment is encountered, skip to EOL */
-			skipLine(data, offset);
+			skipLine(data, dataSize, offset);
 				
 			/* Could have a comment begin after a value */
 			if (nonSpaceEncountered)
@@ -181,19 +183,21 @@ BiometricEvaluation::Image::NetPBM::getNextValue(
 
 void
 BiometricEvaluation::Image::NetPBM::skipComment(
-    Memory::uint8Array &data,
+    const uint8_t *data,
+    size_t dataSize,
     size_t &offset)
 {
-	while (data.at(offset) == '#')
-		skipLine(data, offset);
+	while (data[offset] == '#')
+		skipLine(data, dataSize, offset);
 }
 
 void
 BiometricEvaluation::Image::NetPBM::skipLine(
-    Memory::uint8Array &data,
+    const uint8_t *data,
+    size_t dataSize,
     size_t &offset)
 {
-	while (data.at(offset) != '\n')
+	while (data[offset] != '\n')
 		offset++;
 }
 
@@ -201,35 +205,35 @@ BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::NetPBM::getRawData()
     const
 {
-	Memory::uint8Array dataWithHeader{this->getData()};
-	Memory::uint8Array data;
-	data.copy(dataWithHeader + _headerLength, 
-	    dataWithHeader.size() - _headerLength);
+	const uint8_t *data = this->getDataPointer() + this->_headerLength;
+	const uint64_t dataSize = this->getDataSize() - this->_headerLength;
 
 	switch (_kind) {
 	case Kind::ASCIIPortableBitmap:
-		return (ASCIIBitmapTo8Bit(data, getDimensions().xSize,
+		return (ASCIIBitmapTo8Bit(data, dataSize, getDimensions().xSize,
 		    getDimensions().ySize));
 	case Kind::BinaryPortableBitmap:
-		return (BinaryBitmapTo8Bit(data, getDimensions().xSize,
-		    getDimensions().ySize));
-		break;
+		return (BinaryBitmapTo8Bit(data, dataSize,
+		    getDimensions().xSize, getDimensions().ySize));
 	case Kind::ASCIIPortableGraymap:
 		/* FALLTHROUGH */
 	case Kind::ASCIIPortablePixmap:
-		return (ASCIIPixmapToBinaryPixmap(data,
+		return (ASCIIPixmapToBinaryPixmap(data, dataSize,
 		    getDimensions().xSize, getDimensions().ySize, getDepth(),
-		    _maxColorValue));
+		    this->_maxColorValue));
 	case Kind::BinaryPortableGraymap:
 		/* FALLTHROUGH */
 	case Kind::BinaryPortablePixmap:
-		return (data);
+		Memory::uint8Array rawData(dataSize);
+		rawData.copy(data);
+		return (rawData);
 	}
 }
 
 BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::NetPBM::ASCIIBitmapTo8Bit(
-    Memory::uint8Array &bitmap,
+    const uint8_t *bitmap,
+    uint64_t bitmapSize,
     uint32_t width,
     uint32_t height)
 {
@@ -237,9 +241,9 @@ BiometricEvaluation::Image::NetPBM::ASCIIBitmapTo8Bit(
 	
 	uint8_t byte;
 	size_t bitmapOffset = 0, eightBitOffset = 0;
-	while (bitmapOffset < bitmap.size()) {
+	while (bitmapOffset < bitmapSize) {
 		/* Get next one-byte non-space value */
-		byte = getNextValue(bitmap, bitmapOffset, 1).at(0);
+		byte = getNextValue(bitmap, bitmapSize, bitmapOffset, 1)[0];
 		
 		/* 0 is white, 1 is black */
 		eightBitData[eightBitOffset++] = ((byte == '0') ? 0xFF : 0x00);
@@ -250,7 +254,8 @@ BiometricEvaluation::Image::NetPBM::ASCIIBitmapTo8Bit(
 
 BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::NetPBM::ASCIIPixmapToBinaryPixmap(
-    Memory::uint8Array &ASCIIBuf,
+    const uint8_t *ASCIIBuf,
+    uint64_t ASCIIBufSize,
     uint32_t width,
     uint32_t height,
     uint8_t depth,
@@ -265,10 +270,10 @@ BiometricEvaluation::Image::NetPBM::ASCIIPixmapToBinaryPixmap(
 	
 	size_t ASCIIOffset = 0, binaryOffset = 0;
 	uint32_t decimal;
-	while (ASCIIOffset < ASCIIBuf.size()) {
+	while (ASCIIOffset < ASCIIBufSize) {
 		/* Read space separated ASCII integer and scale to colorspace */
-		decimal = valueInColorspace(atoi(getNextValue(ASCIIBuf, 
-		    ASCIIOffset).c_str()), maxColor, depth);
+		decimal = valueInColorspace(atoi(getNextValue(ASCIIBuf,
+		    ASCIIBufSize, ASCIIOffset).c_str()), maxColor, depth);
 
 		if (maxColor <= 255) {
 			/* One byte per component */
@@ -288,15 +293,16 @@ BiometricEvaluation::Image::NetPBM::ASCIIPixmapToBinaryPixmap(
 
 BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::NetPBM::BinaryBitmapTo8Bit(
-    Memory::uint8Array &bitmap,
+    const uint8_t *bitmap,
+    uint64_t bitmapSize,
     uint32_t width,
     uint32_t height)
 {
 	Memory::uint8Array eightBitData(width * height);
 	
 	uint8_t byte, mask;
-	for (size_t i = 0, offset = 0; i < bitmap.size(); i++) {
-		byte = bitmap.at(i);
+	for (size_t i = 0, offset = 0; i < bitmapSize; i++) {
+		byte = bitmap[i];
 		
 		mask = 0x80;	/* 0b10000000 */
 		for (int j = 0; j < 8; j++, mask >>= 1) {
