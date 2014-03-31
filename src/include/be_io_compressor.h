@@ -49,18 +49,18 @@ namespace BiometricEvaluation
 			 *	Uncompressed data buffer to compress.
 			 * @param uncompressedDataSize
 			 *	Size of uncompressedData.
-			 * @param compressedData
-			 *	Reference to an AutoArray to store the
-			 *	compressed buffer.
+			 *
+			 * @return
+			 * Compressed buffer.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in compression unit.
 			 */
-			virtual void
+			virtual Memory::uint8Array
 			compress(
 			    const uint8_t *const uncompressedData,
-			    uint64_t uncompressedDataSize,
-			    Memory::uint8Array &compressedData) const = 0;
+			    uint64_t uncompressedDataSize)
+			    const = 0;
 			
 			/**
 			 * @brief
@@ -68,17 +68,17 @@ namespace BiometricEvaluation
 			 *
 			 * @param uncompressedData
 			 *	Uncompressed data buffer to compress.
-			 * @param compressedData
-			 *	Reference to an AutoArray to store the
-			 *	compressed buffer.
+			 *
+			 * @return
+			 * Compressed buffer.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in decompression unit.
 			 */
-			virtual void
+			virtual Memory::uint8Array
 			compress(
-			    const Memory::uint8Array &uncompressedData,
-			    Memory::uint8Array &compressedData) const = 0;
+			    const Memory::uint8Array &uncompressedData)
+			    const = 0;
 
 			/**
 			 * @brief
@@ -127,19 +127,19 @@ namespace BiometricEvaluation
 			 *
 			 * @param inputFile
 			 *	Path to file to compress.
-			 * @param compressedData
-			 *	Reference to an AutoArray to store the
-			 *	compressed buffer.
+			 *
+			 * @return
+			 * Compressed buffer.
 			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	Input file does not exist.
 			 * @throw Error::StrategyError
 			 *	Error in decompression unit.
 			 */
-			virtual void
+			virtual Memory::uint8Array
 			compress(
-			    const std::string &inputFile,
-			    Memory::uint8Array &compressedData) const = 0;
+			    const std::string &inputFile)
+			    const = 0;
 
 			/**
 			 * @brief
@@ -171,18 +171,18 @@ namespace BiometricEvaluation
 			 *	Compressed data buffer to decompress.
 			 * @param compressedDataSize
 			 *	Size of compressedData.
-			 * @param uncompressedData
-			 *	Reference to an AutoArray to store the 
-			 *	decompressed data.
+			 *
+			 * @return
+			 * Decompressed data.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in compression unit.
 			 */
-			virtual void
+			virtual Memory::uint8Array
 			decompress(
 			    const uint8_t *const compressedData,
-			    uint64_t compressedDataSize,
-			    Memory::uint8Array &uncompressedData) const = 0;
+			    uint64_t compressedDataSize)
+			    const = 0;
 
 			/**
 			 * @brief
@@ -190,17 +190,17 @@ namespace BiometricEvaluation
 			 *
 			 * @param compressedData
 			 *	Compressed data buffer to decompress.
-			 * @param uncompressedData
-			 *	Reference to an AutoArray to store the 
-			 *	decompressed data.
+			 *
+			 * @return
+			 * Decompressed data.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in decompression unit.
 			 */
-   			virtual void
+   			virtual Memory::uint8Array
 			decompress(
-			    const Memory::uint8Array &compressedData,
-			    Memory::uint8Array &uncompressedData) const = 0;
+			    const Memory::uint8Array &compressedData)
+			    const = 0;
 
 			/**
 			 * @brief
@@ -208,19 +208,19 @@ namespace BiometricEvaluation
 			 *
 			 * @param inputFile
 			 *	Location to save compressed file.
-			 * @param uncompressedData
-			 *	Reference to an AutoArray to store the 
-			 *	decompressed data.
+			 *
+			 * @return
+			 * Decompressed data.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error in decompression unit.
 			 * @throw Error::ObjectDoesNotExists
 			 *	Output file already exists.
 			 */
-   			virtual void
+   			virtual Memory::uint8Array
 			decompress(
-			    const std::string &inputFile,
-			    Memory::uint8Array &uncompressedData) const = 0;
+			    const std::string &inputFile)
+			    const = 0;
 
 			/**
 			 * @brief

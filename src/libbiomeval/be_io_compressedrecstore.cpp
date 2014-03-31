@@ -113,9 +113,8 @@ BiometricEvaluation::IO::CompressedRecordStore::insert(
 	if (this->getMode() == IO::READONLY)
 		throw Error::StrategyError(RSREADONLYERROR);
 		
-	Memory::uint8Array compressedData;
-	_compressor->compress(static_cast<const uint8_t *const>(data), size,
-	    compressedData);
+	Memory::uint8Array compressedData = _compressor->compress(
+	    static_cast<const uint8_t *const>(data), size);
 	_rs->insert(key, compressedData);
 
 	std::ostringstream sizeStr;
@@ -149,8 +148,8 @@ BiometricEvaluation::IO::CompressedRecordStore::read(
 	Memory::uint8Array compressedData;
 	_rs->read(key, compressedData);
 	
-	Memory::uint8Array decompressedData;
-	_compressor->decompress(compressedData, decompressedData);
+	Memory::uint8Array decompressedData = _compressor->decompress(
+	    compressedData);
 	memcpy(data, decompressedData, decompressedData.size());
 
 	return (decompressedData.size());

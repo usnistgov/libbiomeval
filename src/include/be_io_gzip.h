@@ -50,16 +50,16 @@ namespace BiometricEvaluation
 
 			GZip();
 
-			void
+			Memory::uint8Array
 			compress(
 			    const uint8_t *const uncompressedData,
-			    uint64_t uncompressedDataSize,
-			    Memory::uint8Array &compressedData) const;
+			    uint64_t uncompressedDataSize)
+			    const;
 
-			void
+			Memory::uint8Array
 			compress(
-			    const Memory::uint8Array &uncompressedData,
-			    Memory::uint8Array &compressedData) const;
+			    const Memory::uint8Array &uncompressedData)
+			    const;
 
 			void
 			compress(
@@ -72,31 +72,31 @@ namespace BiometricEvaluation
 			    const Memory::uint8Array &uncompressedData,
 			    const std::string &outputFile) const;
     
-			void
+			Memory::uint8Array
 			compress(
-			    const std::string &inputFile,
-			    Memory::uint8Array &compressedData) const;
+			    const std::string &inputFile)
+			    const;
 
 			void
 			compress(
 			    const std::string &inputFile,
 			    const std::string &outputFile) const;
 
-			void
+			Memory::uint8Array
 			decompress(
 			    const uint8_t *const compressedData,
-			    uint64_t compressedDataSize,
-			    Memory::uint8Array &uncompressedData) const;
+			    uint64_t compressedDataSize)
+			    const;
 
-			void
+			Memory::uint8Array
 			decompress(
-			    const Memory::uint8Array &compressedData,
-			    Memory::uint8Array &uncompressedData) const;
+			    const Memory::uint8Array &compressedData)
+			    const;
 
-			void
+			Memory::uint8Array
 			decompress(
-			    const std::string &input,
-			    Memory::uint8Array &uncompressedData) const;
+			    const std::string &input)
+			    const;
 
 			void
 			decompress(
