@@ -26,8 +26,7 @@ BiometricEvaluation::Image::WSQ::WSQ(
     size,
     CompressionAlgorithm::WSQ20)
 {
-	Memory::uint8Array wsqData;
-	this->getData(wsqData);
+	Memory::uint8Array wsqData{this->getData()};
 	uint8_t *marker_buf = wsqData;	/* Will be manipulated by libwsq */
 	uint8_t *wsq_buf = marker_buf;
 
@@ -79,40 +78,33 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	setDepth(8);
 }
 
-void
-BiometricEvaluation::Image::WSQ::getRawData(
-    Memory::uint8Array &rawData)
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Image::WSQ::getRawData()
     const
 {
-	/* Check for cached version */
-	if (_raw_data.size() != 0) {
-		rawData.copy(_raw_data, _raw_data.size());
-		return;
-	}
-
 	uint8_t *rawbuf = nullptr;
 	int32_t depth, height, lossy, ppi, rv, width;
-	Memory::uint8Array wsqData;
-	this->getData(wsqData);
+	Memory::uint8Array wsqData = this->getData();
 	if ((rv = wsq_decode_mem(&rawbuf, &width, &height, &depth, &ppi,
 	    &lossy, wsqData, wsqData.size())))
 		throw Error::DataError("Could not convert WSQ to raw.");
-	
+
 	/* rawbuf allocated within libwsq.  Copy to manage with AutoArray. */
-	_raw_data.copy(rawbuf, 
+	/* TODO: AutoBuffer-wrapped AutoArray */
+	Memory::uint8Array rawData(
 	    width * height * (depth / Image::bitsPerComponent));
+	rawData.copy(rawbuf);
 	free(rawbuf);
-		
-	rawData.copy(_raw_data, _raw_data.size());
+
+	return (rawData);
 }
 
-void
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::WSQ::getRawGrayscaleData(
-    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
 {
-	Image::getRawGrayscaleData(rawGray, depth);
+	return (Image::getRawGrayscaleData(depth));
 }
 
 bool

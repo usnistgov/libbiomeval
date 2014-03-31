@@ -13,8 +13,23 @@
 
 #include <be_image_image.h>
 
+/*
+ * Forward-declare several libopenjpeg types instead of including openjpeg.h
+ * so that users of Image::JPEG2000 don't need to have libopenjpeg in the
+ * include path of their build.
+ */
+
 struct opj_image;
-typedef struct opj_image opj_image_t;
+using opj_image_t = struct opj_image;
+
+struct opj_codestream_info;
+using opj_codestream_info_t = struct opj_codestream_info;
+
+struct opj_dinfo;
+using opj_dinfo_t = struct opj_dinfo;
+
+struct opj_cio;
+using opj_cio_t = struct opj_cio;
 
 namespace BiometricEvaluation
 {
@@ -36,7 +51,7 @@ namespace BiometricEvaluation
 			 * @param[in] size
 			 *	The size of the image data, in bytes.
 			 * @param[in] codec
-			 *	The codec used to encode data.
+			 *	The OPJ_CODEC_FORMAT used to encode data.
 			 *
 			 * @throw Error::DataError
 			 *	Error manipulating data.
@@ -48,15 +63,14 @@ namespace BiometricEvaluation
 			    const uint64_t size,
 			    const int8_t codec = 2);
 
-			~JPEG2000();
+			~JPEG2000() = default;
 
-			void
-			getRawData(
-			    Memory::uint8Array &rawData) const;
+			Memory::uint8Array
+			getRawData()
+			    const;
 			    
-			void
+			Memory::uint8Array
 			getRawGrayscaleData(
-			    Memory::uint8Array &rawGray,
 			    uint8_t depth = 8) const;
 	
 			/**
@@ -73,9 +87,46 @@ namespace BiometricEvaluation
 			isJPEG2000(
 			    const uint8_t *data);
 
-		protected:
-
 		private:
+			/** JPEG2000 codec to use (from libopenjpeg) */
+			const int8_t _codec;
+
+			/** Container for libopenjpeg IO pointers. */
+			class OpenJPEGDecoder
+			{
+			public:
+				/** Constructor. */
+				OpenJPEGDecoder();
+				/** Destructor. */
+				~OpenJPEGDecoder();
+
+				/** Reset IO buffer pointer to beginning. */
+				void
+				rewind();
+
+				/** Internal IO stream representation. */
+				opj_cio_t *_cio;
+				/** Internal decompression info struct. */
+				opj_dinfo_t *_dinfo;
+			};
+
+			/**
+			 * @brief
+			 * Initialize libopenjpeg structures for manipulating
+			 * JPEG2000 codestreams.
+			 *
+			 * @param headerOnly
+			 * Whether or not to parse just header information,
+			 * or the entire image.
+			 *
+			 * @return
+			 * Pointer to a container of allocated libopenjpeg
+			 * structures.
+			 */
+			std::shared_ptr<OpenJPEGDecoder>
+			initDecoder(bool headerOnly)
+			    const;
+
 			/**
 			 * @brief
 			 * Callback for output from libopenjpeg.
@@ -152,17 +203,6 @@ namespace BiometricEvaluation
 			Resolution
 			parse_resd(
 			    const Memory::AutoArray<uint8_t> &resd);
-
-			/**
-			 * @brief
-			 * Populate _raw_data AutoArray.
-			 *
-			 * @param[in] image
-			 *	The decompressed image struct from libopenjpeg.
-			 */
-			void
-			decode_raw(
-			    const opj_image_t *image);
 		};
 	}
 }

@@ -68,8 +68,7 @@ printImageInfo(const Image::Image &img, const string &name,
 	    (int)(pow(2.0, (int)img.getDepth()) - 1) << "\n";
 	ofstream img_out(filename.c_str(), ofstream::binary);
 	img_out << str.str();
-	Memory::uint8Array imgData;
-	img.getRawData(imgData);
+	Memory::uint8Array imgData{img.getRawData()};
 	img_out.write((char *)&(imgData[0]), imgData.size());
 	if (img_out.good())
 		cout << "\tFile: " << filename << endl;

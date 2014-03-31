@@ -27,8 +27,7 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
     size,
     CompressionAlgorithm::JPEGL)
 {
-	Memory::uint8Array jpeglData;
-	this->getData(jpeglData);
+	Memory::uint8Array jpeglData{this->getData()};
 	uint8_t *markerBuf = jpeglData;	/* Manipulated by libjpegl */
 	uint8_t *endPtr = jpeglData + jpeglData.size();
 	
@@ -86,21 +85,13 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 	free(frameHeader);
 }
 
-void
-BiometricEvaluation::Image::JPEGL::getRawData(
-    Memory::uint8Array &rawData)
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Image::JPEGL::getRawData()
     const
 {
-	/* Check for cached version */
-	if (_raw_data.size() != 0) {
-		rawData.copy(_raw_data, _raw_data.size());
-		return;
-	}
-		
 	/* TODO: Extract the raw data without using the IMG_DAT struct */
 	IMG_DAT *imgDat = nullptr;
-	Memory::uint8Array jpeglData;
-	this->getData(jpeglData);
+	Memory::uint8Array jpeglData{this->getData()};
 	int32_t lossy;
 	if (jpegl_decode_mem(&imgDat, &lossy, jpeglData, jpeglData.size()))
 		throw Error::DataError("libjpegl: Could not decode Lossless "
@@ -113,19 +104,20 @@ BiometricEvaluation::Image::JPEGL::getRawData(
 		free_IMG_DAT(imgDat, NO_FREE_IMAGE);
 		throw Error::DataError("libjpegl: Could not extract raw data");
 	}
-	_raw_data.copy(rawDataPtr, rawSize);
+	Memory::uint8Array rawData(rawSize);
+	rawData.copy(rawDataPtr);
 	
 	free_IMG_DAT(imgDat, FREE_IMAGE);
-	rawData.copy(_raw_data, _raw_data.size());
+
+	return (rawData);
 }
 
-void
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::JPEGL::getRawGrayscaleData(
-    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
 {
-	Image::getRawGrayscaleData(rawGray, depth);
+	return (Image::getRawGrayscaleData(depth));
 }
 
 bool

@@ -36,9 +36,7 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Memory::AutoArray<uint8_t> buffer;
-	this->getData(buffer);
-
+	Memory::AutoArray<uint8_t> buffer = this->getData();
 #if JPEG_LIB_VERSION >= 80
 	::jpeg_mem_src(&dinfo, buffer, buffer.size());
 #else
@@ -57,17 +55,10 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	jpeg_destroy_decompress(&dinfo);
 }
 
-void
-BiometricEvaluation::Image::JPEG::getRawData(
-    Memory::uint8Array &rawData)
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Image::JPEG::getRawData()
     const
 {
-	/* Check for cached version */
-	if (_raw_data.size() != 0) {
-		rawData.copy(_raw_data, _raw_data.size());
-		return;
-	}
-		
 	/* Initialize custom JPEG error manager to throw exceptions */
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
@@ -77,9 +68,7 @@ BiometricEvaluation::Image::JPEG::getRawData(
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Memory::AutoArray<uint8_t> jpeg_data;
-	this->getData(jpeg_data);
-
+	Memory::AutoArray<uint8_t> jpeg_data = this->getData();
 #if JPEG_LIB_VERSION >= 80
 	::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
 #else
@@ -92,26 +81,25 @@ BiometricEvaluation::Image::JPEG::getRawData(
 		throw Error::StrategyError("jpeg_start_decompress()");
 
 	uint64_t row_stride = dinfo.output_width * dinfo.output_components;
-	_raw_data.resize(dinfo.output_height * row_stride);
+	Memory::uint8Array rawData{dinfo.output_height * row_stride};
 
 	JSAMPARRAY buffer = (*dinfo.mem->alloc_sarray)(
 	    (j_common_ptr)&dinfo, JPOOL_IMAGE, row_stride, 1);
 
 	for (int n = 0; dinfo.output_scanline < dinfo.output_height; n++) {
 		jpeg_read_scanlines(&dinfo, buffer, 1);
-		memcpy(&_raw_data[n * row_stride], buffer[0], row_stride);
+		memcpy(&rawData[n * row_stride], buffer[0], row_stride);
 	}
 
 	/* Clean up after libjpeg */
 	jpeg_finish_decompress(&dinfo);
 	jpeg_destroy_decompress(&dinfo);
-	
-	rawData.copy(_raw_data, _raw_data.size());
+
+	return (rawData);
 }
 
-void
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
-    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
 {
@@ -127,8 +115,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
 
-	Memory::AutoArray<uint8_t> jpeg_data;
-	this->getData(jpeg_data);
+	Memory::AutoArray<uint8_t> jpeg_data{this->getData()};
 
 #if JPEG_LIB_VERSION >= 80
 	::jpeg_mem_src(&dinfo, jpeg_data, jpeg_data.size());
@@ -156,7 +143,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 		throw Error::StrategyError("jpeg_start_decompress()");
 
 	uint64_t row_stride = dinfo.output_width * dinfo.output_components;
-	rawGray.resize(dinfo.output_height * row_stride);
+	Memory::uint8Array rawGray{dinfo.output_height * row_stride};
 
 	JSAMPARRAY buffer = (*dinfo.mem->alloc_sarray)(
 	    (j_common_ptr)&dinfo, JPOOL_IMAGE, row_stride, 1);
@@ -183,6 +170,8 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	/* Clean up after libjpeg */
 	jpeg_finish_decompress(&dinfo);
 	jpeg_destroy_decompress(&dinfo);
+
+	return (rawGray);
 }
 
 bool

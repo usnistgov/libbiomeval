@@ -47,8 +47,7 @@ BiometricEvaluation::Image::NetPBM::NetPBM(
 void
 BiometricEvaluation::Image::NetPBM::parseHeader()
 {
-	Memory::uint8Array data;
-	getData(data);
+	Memory::uint8Array data{getData()};
 	
 	size_t offset = 0;
 	skipComment(data, offset);
@@ -198,47 +197,34 @@ BiometricEvaluation::Image::NetPBM::skipLine(
 		offset++;
 }
 
-void
-BiometricEvaluation::Image::NetPBM::getRawData(
-    Memory::uint8Array &rawData)
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Image::NetPBM::getRawData()
     const
 {
-	/* Check for cached version */
-	if (_raw_data.size() != 0) {
-		rawData.copy(_raw_data, _raw_data.size());
-		return;
-	}
-	
-	Memory::uint8Array dataWithHeader;
-	this->getData(dataWithHeader);
+	Memory::uint8Array dataWithHeader{this->getData()};
 	Memory::uint8Array data;
 	data.copy(dataWithHeader + _headerLength, 
 	    dataWithHeader.size() - _headerLength);
 
 	switch (_kind) {
 	case Kind::ASCIIPortableBitmap:
-		_raw_data = ASCIIBitmapTo8Bit(data, getDimensions().xSize,
-		    getDimensions().ySize);
-		break;
+		return (ASCIIBitmapTo8Bit(data, getDimensions().xSize,
+		    getDimensions().ySize));
 	case Kind::BinaryPortableBitmap:
-		_raw_data = BinaryBitmapTo8Bit(data, getDimensions().xSize,
-		    getDimensions().ySize);
+		return (BinaryBitmapTo8Bit(data, getDimensions().xSize,
+		    getDimensions().ySize));
 		break;
 	case Kind::ASCIIPortableGraymap:
 		/* FALLTHROUGH */
 	case Kind::ASCIIPortablePixmap:
-		_raw_data = ASCIIPixmapToBinaryPixmap(data,
+		return (ASCIIPixmapToBinaryPixmap(data,
 		    getDimensions().xSize, getDimensions().ySize, getDepth(),
-		    _maxColorValue);
-		break;
+		    _maxColorValue));
 	case Kind::BinaryPortableGraymap:
 		/* FALLTHROUGH */
 	case Kind::BinaryPortablePixmap:
-		_raw_data.copy(data, data.size());
-		break;
+		return (data);
 	}
-	
-	rawData.copy(_raw_data, _raw_data.size());
 }
 
 BiometricEvaluation::Memory::uint8Array
@@ -327,13 +313,12 @@ BiometricEvaluation::Image::NetPBM::BinaryBitmapTo8Bit(
 	return (eightBitData);
 }
 
-void
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::NetPBM::getRawGrayscaleData(
-    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
 {
-	Image::getRawGrayscaleData(rawGray, depth);
+	return (Image::getRawGrayscaleData(depth));
 }
 
 bool

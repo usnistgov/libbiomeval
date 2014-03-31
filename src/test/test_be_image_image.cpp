@@ -152,7 +152,7 @@ compareProperties(
 	}
 	Memory::uint8Array genRawData, genRawGrayData;
 	if (imageType != "Raw") {
-		image->getRawData(genRawData);
+		genRawData = image->getRawData();
 		if (genRawData.size() != 
 		    (size_t)properties->getPropertyAsInteger("rawSize")) {
 			passed = false;
@@ -161,7 +161,7 @@ compareProperties(
 			genRawData.size() <<  ", Recorded: " << 
 			properties->getPropertyAsInteger("rawSize") << endl;
 		}
-		image->getRawGrayscaleData(genRawGrayData);
+		genRawGrayData = image->getRawGrayscaleData();
 		if (genRawGrayData.size() != 
 		    (size_t)properties->getPropertyAsInteger("rawGraySize")) {
 			passed = false;
@@ -424,16 +424,15 @@ main(
 		cout << "\tCompression Algorithm: " <<
 		    to_string(Image::Image::getCompressionAlgorithm(imageData)) << endl;
 #endif
-		Memory::uint8Array buf;
+		Memory::uint8Array buf{image->getData()};
 		cout << "\tDimensions: " << image->getDimensions() << endl;
 		cout << "\tBit-Depth: " << image->getDepth() << endl;
 		cout << "\tResolution: " << image->getResolution() << endl;
-		image->getData(buf);
 		cout << "\tNative Size: " << buf.size() << endl;
 		
 		/* Write a raw and grayscale raw version of the image */
 		try {
-			image->getRawData(buf);
+			buf = image->getRawData();
 			IO::Utility::writeFile(buf, rawKey + RawSuffix,
 			    ios_base::trunc);
 			cout << "\tRaw Size: " << buf.size() << " (" <<
@@ -444,7 +443,7 @@ main(
 		}
 		
 		try {
-			image->getRawGrayscaleData(buf);
+			buf = image->getRawGrayscaleData();
 			IO::Utility::writeFile(buf, rawKey + RawGraySuffix,
 			    ios_base::trunc);
 			cout << "\tRaw 8-bit Grayscale Size: " << buf.size() <<

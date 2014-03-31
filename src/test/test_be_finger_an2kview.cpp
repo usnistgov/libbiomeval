@@ -69,8 +69,7 @@ handleAN2KView(Finger::AN2KView &an2kv)
 
 	ofstream img_out(filename.c_str(), ofstream::binary);
 	img_out << hdr.str();
-	Memory::uint8Array imgData;
-	img->getRawData(imgData);
+	Memory::uint8Array imgData{img->getRawData()};
 	img_out.write((char *)&(imgData[0]), imgData.size());
 	if (img_out.good())
 		cout << "\tFile: " << filename << endl;

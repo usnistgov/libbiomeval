@@ -52,8 +52,8 @@ namespace BiometricEvaluation
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
 			 * 
-			 * @param rawData
-			 *	Reference to AutoArray to hold raw image data.
+			 * @return
+			 *	AutoArray holding raw image data.
 			 *
 			 * @throw Error::DataError
 			 *	Error decompressing image data.
@@ -64,13 +64,12 @@ namespace BiometricEvaluation
 			 * except in the case of 1-bit (bitmap) images, which
 			 * are expanded to 8-bit.
 			 */
-			void
-			getRawData(
-			    Memory::uint8Array &rawData) const;
+			Memory::uint8Array
+			getRawData()
+			    const;
 			    
-			void
+			Memory::uint8Array
 			getRawGrayscaleData(
-			    Memory::uint8Array &rawGray,
 			    uint8_t depth = 8) const;
 	
 			/**

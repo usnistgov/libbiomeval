@@ -123,12 +123,11 @@ namespace BiometricEvaluation
 			 * Accessor for the image data. The data returned
 			 * is likely encoded in a specialized format.
 			 * 
-			 * @param data
-			 *	Reference to an AutoArray to hold image data.
+			 * @return
+			 *	AutoArray holding image data.
 			 */
-			void
-			getData(
-			    Memory::uint8Array &data)
+			Memory::uint8Array
+			getData()
 			    const;
 
 			/**
@@ -136,27 +135,26 @@ namespace BiometricEvaluation
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
 			 * 
-			 * @param rawData
-			 *	Reference to AutoArray to hold raw image data.
+			 * @return
+			 *	AutoArray holding raw image data.
 			 *
 			 * @throw Error::DataError
 			 *	Error decompressing image data.
 			 */
-			virtual void
-			getRawData(
-			    Memory::uint8Array &rawData) const = 0;
+			virtual Memory::uint8Array
+			getRawData()
+			    const = 0;
 			    
 			/**
 			 * @brief
 			 * Accessor for decompressed data in grayscale.
 			 *
-			 * @param rawGray
-			 *	Reference to AutoArray to hold raw grayscale
-			 *	image data.
 			 * @param depth
 			 *	The desired bit depth of the resulting raw
 			 *	image.  This value may either be 8 or 1.
 			 *
+			 * @return
+			 *	AutoArray holding raw grayscale image data.
 			 *
 			 * @throw Error::DataError
 			 *	Error decompressing image data.
@@ -177,10 +175,10 @@ namespace BiometricEvaluation
 			 *	currently 1 (2 gray levels) or 8 (256 gray 
 			 *	levels).
 			 */
-			virtual void
+			virtual Memory::uint8Array
 			getRawGrayscaleData(
-			    Memory::uint8Array &rawGray,
-			    uint8_t depth = 8) const = 0;
+			    uint8_t depth = 8)
+			    const = 0;
 
 			/**
 		 	 * @brief
@@ -410,10 +408,7 @@ namespace BiometricEvaluation
 			setDepth(
 			    const uint32_t depth);
 
-			/** Raw image data, populated on demand */
-			mutable Memory::AutoArray<uint8_t> _raw_data;
-
-		private: 
+		private:
 			/** Image dimensions (width and height) in pixels */
 			Size _dimensions;
 

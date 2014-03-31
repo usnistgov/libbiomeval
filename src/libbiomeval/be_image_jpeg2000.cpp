@@ -11,7 +11,6 @@
 #include <openjpeg/openjpeg.h>
 
 #include <cmath>
-
 #include <be_image_jpeg2000.h>
 
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
@@ -21,16 +20,47 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
     Image::Image(
     data,
     size,
-    CompressionAlgorithm::JP2)
+    CompressionAlgorithm::JP2),
+    _codec(codec)
 {
-	/*
-	 * Unlike many other image formats, JPEG-2000 has no fixed header
-	 * format that encodes image metadata.  The image must first be decoded
-	 * to obtain most of this information.
-	 */
-	 
-	/* Error callbacks */
-	opj_dinfo_t* dinfo = nullptr;
+	auto decoder = this->initDecoder(true);
+
+	/* Setup codestream IO for libopenjpeg */
+	opj_codestream_info_t *cstr_info = new opj_codestream_info_t();
+	opj_image_t *image = opj_decode_with_info(decoder->_dinfo,
+	    decoder->_cio, cstr_info);
+	if (image == nullptr)
+		throw Error::StrategyError("libopenjpeg: Failed to "
+		    "decode image");
+	opj_image_destroy(image);
+
+	/* Assign Image class instance variables from codestream */
+	setDimensions(Size(cstr_info->image_w, cstr_info->image_h));
+	setDepth(cstr_info->numcomps * Image::bitsPerComponent);
+	opj_destroy_cstr_info(cstr_info);
+	delete cstr_info;
+	
+	static const uint8_t resd[4] = { 0x72, 0x65, 0x73, 0x63 };
+	static const uint8_t resd_box_size = 10;
+	/* The Display Resolution Box is optional under some codecs */
+	try {
+		Memory::uint8Array jpegData = this->getData();
+		setResolution(parse_resd(find_marker(resd, 4, jpegData,
+		    jpegData.size(), resd_box_size)));
+	} catch (Error::ObjectDoesNotExist) {
+		setResolution(Resolution(72, 72, Resolution::Units::PPI));
+	}
+}
+
+std::shared_ptr<BiometricEvaluation::Image::JPEG2000::OpenJPEGDecoder>
+BiometricEvaluation::Image::JPEG2000::initDecoder(
+    bool headerOnly)
+    const
+{
+	opj_dinfo_t *dinfo = nullptr;
+	opj_cio_t *cio = nullptr;
+
+	/* libopenjpeg error callbacks */
 	opj_event_mgr_t event_mgr;
 	event_mgr.error_handler = openjpeg_message;
 	event_mgr.warning_handler = openjpeg_message;
@@ -40,7 +70,9 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	/* Use default decoding parameters, except codec, which is "unknown" */
 	opj_dparameters parameters;
 	opj_set_default_decoder_parameters(&parameters);
-	parameters.decod_format = codec;
+	parameters.decod_format = this->_codec;
+	if (headerOnly)
+		parameters.cp_limit_decoding = LIMIT_TO_MAIN_HEADER;
 	
 	switch (parameters.decod_format) {
 	case CODEC_J2K:	/* JPEG-2000 codestream (.J2K) */
@@ -56,47 +88,33 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 		/* FALLTHROUGH */
 	default:
 		throw Error::StrategyError("libopenjpeg: unsupported decoding "
-		    "format");
+		    "format: " + std::to_string(parameters.decod_format));
 		break;
 	}
-	
+
+	/* Setup the decoder */
 	opj_setup_decoder(dinfo, &parameters);
-	Memory::uint8Array jpegData;
-	this->getData(jpegData);
-	opj_cio_t *cio = opj_cio_open((opj_common_ptr)dinfo, jpegData,
-	    jpegData.size());
-	opj_codestream_info_t cstr_info;
-	opj_image_t *image = opj_decode_with_info(dinfo, cio, &cstr_info);
-	if (image == nullptr) {
-		opj_destroy_decompress(dinfo);
-		opj_cio_close(cio);
-		throw Error::StrategyError("libopenjpeg: Failed to "
-		    "decode image");
-	}
-	opj_destroy_decompress(dinfo);
-	opj_cio_close(cio);
-	
-	setDimensions(Size(cstr_info.image_w, cstr_info.image_h));
-	setDepth(cstr_info.numcomps * Image::bitsPerComponent);
-	
-	/* The Display Resolution Box is optional under some codecs */
-	try {
-		static const uint8_t resd[4] = { 0x72, 0x65, 0x73, 0x63 };
-		static const uint8_t resd_box_size = 10;
-		setResolution(parse_resd(find_marker(resd, 4, jpegData,
-		    jpegData.size(), resd_box_size)));
-	} catch (Error::ObjectDoesNotExist) {
-		setResolution(Resolution(72, 72, Resolution::Units::PPI));
-	}
-	
-	decode_raw(image);
+	Memory::uint8Array jpegData = this->getData();
+	cio = opj_cio_open((opj_common_ptr)dinfo, jpegData, jpegData.size());
+
+	std::shared_ptr<OpenJPEGDecoder> decoder(new OpenJPEGDecoder());
+	decoder->_dinfo = dinfo;
+	decoder->_cio = cio;
+	return (decoder);
 }
 
-void
-BiometricEvaluation::Image::JPEG2000::decode_raw(
-    const opj_image_t *image)
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Image::JPEG2000::getRawData()
+    const
 {
-	_raw_data.resize(image->numcomps * image->x1 * image->y1);
+	auto rawDecoder = this->initDecoder(false);
+	opj_image_t *image = opj_decode(rawDecoder->_dinfo,
+	    rawDecoder->_cio);
+	if (image == nullptr)
+		throw Error::StrategyError("libopenjpeg: Failed to "
+		    "decode image");
+
+	Memory::uint8Array rawData(image->numcomps * image->x1 * image->y1);
 	
 	uint32_t w, h;
 	int32_t *ptr;
@@ -109,26 +127,19 @@ BiometricEvaluation::Image::JPEG2000::decode_raw(
 		ptr = image->comps[component].data;
 		for (uint32_t line = 0; line < h; line++)
 			for (uint32_t row = 0; row < w; row++, ptr++) 
-				_raw_data[offset++] = (*ptr & mask);
+				rawData[offset++] = (*ptr & mask);
 	}
+	opj_image_destroy(image);
+
+	return (rawData);
 }
 
-
-void
-BiometricEvaluation::Image::JPEG2000::getRawData(
-    Memory::uint8Array &rawData)
-    const
-{
-	rawData.copy(_raw_data, _raw_data.size());
-}
-
-void
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::JPEG2000::getRawGrayscaleData(
-    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
 {
-	Image::getRawGrayscaleData(rawGray, depth);
+	return (Image::getRawGrayscaleData(depth));
 }
 
 bool
@@ -204,8 +215,34 @@ BiometricEvaluation::Image::JPEG2000::parse_resd(
 	    Resolution::Units::PPCM));
 }
 
-BiometricEvaluation::Image::JPEG2000::~JPEG2000()
+/*
+ * OpenJPEGDecoder implementation.
+ */
+
+BiometricEvaluation::Image::JPEG2000::OpenJPEGDecoder::OpenJPEGDecoder() :
+    _cio(nullptr),
+    _dinfo(nullptr)
 {
 
 }
 
+void
+BiometricEvaluation::Image::JPEG2000::OpenJPEGDecoder::rewind()
+{
+	cio_seek(this->_cio, 0);
+}
+
+BiometricEvaluation::Image::JPEG2000::OpenJPEGDecoder::~OpenJPEGDecoder()
+{
+	/* libopenjpeg functions can throw via openjpeg_message() */
+	try {
+		if (this->_dinfo != nullptr) {
+			opj_destroy_decompress(this->_dinfo);
+			this->_dinfo = nullptr;
+		}
+		if (this->_cio != nullptr) {
+			opj_cio_close(this->_cio);
+			this->_cio = nullptr;
+		}
+	} catch (Error::Exception) {}
+}

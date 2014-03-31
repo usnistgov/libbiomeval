@@ -34,7 +34,7 @@ BiometricEvaluation::Image::Image::Image(
     _data(size),
     _compressionAlgorithm(compressionAlgorithm)
 {
-	memcpy(_data, data, size);
+	std::memcpy(_data, data, size);
 }
 
 BiometricEvaluation::Image::Image::Image(
@@ -47,7 +47,7 @@ BiometricEvaluation::Image::Image::Image(
     _data(size),
     _compressionAlgorithm(compressionAlgorithm)
 {
-	memcpy(_data, data, size);
+	std::memcpy(_data, data, size);
 }
 
 BiometricEvaluation::Image::CompressionAlgorithm
@@ -78,9 +78,8 @@ BiometricEvaluation::Image::Image::getDepth()
 	return (_depth);
 }
 
-void
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::Image::getRawGrayscaleData(
-    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
 {
@@ -88,15 +87,13 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 		throw Error::ParameterError("Invalid value for bit depth");
 		
 	/* Images that are 8-bit depth are already grayscale */
-	if (getDepth() == 8 && depth == 8) {
-		getRawData(rawGray);
-		return;
-	}
+	if (getDepth() == 8 && depth == 8)
+		return (getRawData());
 
-	Memory::AutoArray<uint8_t> rawColor;
-	getRawData(rawColor);
-	rawGray.resize(getDimensions().xSize * getDimensions().ySize);
-	
+	Memory::uint8Array rawColor{this->getRawData()};
+	Memory::uint8Array rawGray{
+	    this->getDimensions().xSize * this->getDimensions().ySize};
+	    	
 	/* Constants from ITU-R BT.601 */
 	static const float redFactor = 0.299;
 	static const float greenFactor = 0.587;
@@ -194,14 +191,15 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 		}
 		break;
 	}
+
+	return (rawGray);
 }
 
-void
-BiometricEvaluation::Image::Image::getData(
-    Memory::uint8Array &data)
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Image::Image::getData()
     const
 {
-	data.copy(_data, _data.size());
+	return (Memory::uint8Array(_data));
 }
 
 void

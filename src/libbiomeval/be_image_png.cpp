@@ -28,8 +28,7 @@ BiometricEvaluation::Image::PNG::PNG(
 		    "png_struct");
 
 	/* Read encoded PNG data from an AutoArray using our extension */
-	Memory::uint8Array imageData;
-	this->getData(imageData);
+	Memory::uint8Array imageData{this->getData()};
 	png_buffer png_buf = { imageData, 0 };
 	png_set_read_fn(png_ptr, &png_buf, png_read_mem_src);
 	
@@ -82,17 +81,10 @@ BiometricEvaluation::Image::PNG::PNG(
 	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
 }
 
-void
-BiometricEvaluation::Image::PNG::getRawData(
-    Memory::uint8Array &rawData)
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Image::PNG::getRawData()
     const
 {
-	/* Check for cached version */
-	if (_raw_data.size() != 0) {
-		rawData.copy(_raw_data, _raw_data.size());
-		return;
-	}
-
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
 	    nullptr, png_error, png_error);
 	if (png_ptr == nullptr)
@@ -100,8 +92,7 @@ BiometricEvaluation::Image::PNG::getRawData(
 		    "png_struct");
 
 	/* Read encoded PNG data from an AutoArray using our extension */
-	Memory::uint8Array imageData;
-	this->getData(imageData);
+	Memory::uint8Array imageData{this->getData()};
 	png_buffer png_buf = { imageData, 0 };
 	png_set_read_fn(png_ptr, &png_buf, png_read_mem_src);
 	
@@ -114,28 +105,27 @@ BiometricEvaluation::Image::PNG::getRawData(
 	}
 	png_read_info(png_ptr, png_info_ptr);
 	
-	/* Resize _raw_data to hold decompressed PNG data */
+	/* Determine size of decompressed data */
 	png_uint_32 rowbytes = png_get_rowbytes(png_ptr, png_info_ptr);
-	uint32_t height = getDimensions().ySize;
+	uint32_t height = this->getDimensions().ySize;
 	Memory::AutoArray<png_bytep> row_pointers(height);
-	_raw_data.resize(rowbytes * height);
+	Memory::uint8Array rawData{rowbytes * height};
 	
 	/* Tell libpng to store decompressed PNG data directly into AutoArray */
 	for (uint32_t row = 0; row < height; row++)
-		row_pointers[row] = _raw_data + row * rowbytes;
+		row_pointers[row] = rawData + row * rowbytes;
 	png_read_image(png_ptr, row_pointers);
 	
 	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
-	rawData.copy(_raw_data, _raw_data.size());
+	return (rawData);
 }
 
-void
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::PNG::getRawGrayscaleData(
-    Memory::uint8Array &rawGray,
     uint8_t depth)
     const
 {
-	Image::getRawGrayscaleData(rawGray, depth);
+	return (Image::getRawGrayscaleData(depth));
 }
 
 bool
