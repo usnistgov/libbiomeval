@@ -1,0 +1,170 @@
+%
+% Messaging
+%
+\chapter{Messaging}
+\label{chp_messaging}
+
+\lname contains a collection of classes to facilitate reciving messages 
+asynchronously over a network. What is done with these messages and how (or if)
+to respond is ultimately up to the application. \sname uses this messaging in
+a concrete way to receive text-based commands from a \code{telnet} session
+over the Internet.
+
+\section{Message Center}
+\label{sec_mesaging_message-center}
+
+\class{Process::MessageCenter} is the public-facing class
+an application uses to receive messages over a network. A \textit{message} 
+is a user-defined blob of data stored in an array of bytes.  Instantiate
+a \class{MessageCenter}, and it will dilligently await connections on the
+specified port in a separate process. During its run-loop, the appplication
+may poll or wait to determine if a message is waiting. The application has
+the choice of dealing with the message, sending a response, or ignoring the
+message entirely. Because the \class{MessageCenterListener} is in a separate
+process, the main run-loop of the application does not have to be interrupted.
+The \class{MessageCenter} classes utilize existing framework inter-process
+communication techniques to propagate messages (see
+\subsecref{subsec:communications}).
+
+\begin{lstlisting}[caption={Basic \class{MessageCenter} Usage}, label=lst:message-center]
+namespace BE = BiometricEvaluation;
+
+uint32_t clientID;
+BE::Memory::uint8Array message;
+BE::Process::MessageCenter mc;
+for (;;) {
+	/* ... do work ... */
+
+	if (mc.hasUnseenMessages()) {
+		mc.getNextMessage(clientID, message);
+		std::cout << clientID << " sent a " << message.size() <<
+		    " byte message." << std::endl;
+
+		Memory::AutoArrayUtility::setString(message, "ACK\n");
+		mc.sendResponse(clientID, message);
+	}
+}
+\end{lstlisting}
+
+Messages can be sent to the \class{MessageCenter} in a number of ways, like
+\code{telnet} connections or \code{write()}ing to a socket. Messages are
+terminated with a newline (\code{\textbackslash n}) character.
+
+\section{Command Center}
+\label{sec_messaging_command-center}
+
+It's easy to see how \class{MessageCenter} might be used for passing
+\textit{commands} to a running application. One might want to query the
+\textit{status} of an operation or ask a process to \textit{stop}. The aim of
+\class{CommandCenter} was to take this common command-passing pattern and
+make it easier.
+
+With \class{CommandCenter}, an application defines one or more
+\code{enum class}es using \namespace{Framework::\allowbreak Enumeration}s (see
+\secref{sec_framework-enumerations}).  For convenience, the application 
+should subclass the \class{Command\allowbreak Parser} \code{template}, with the
+enumeration as the templated type. The base class
+instantiates a \class{Message\allowbreak Center} and listens for connections.
+Just like
+\class{MessageCenter}, commands do not have to be dealt with or responded to,
+and the application will only know if a command is awaiting a response if 
+the application asks. 
+
+Because \class{CommandParser} operates off of strongly-typed enumerations,
+a pure virtual method, \code{parse(\allowbreak Command)}, must be implemented
+in the  child class. It is expected that this method will simply be a
+\code{switch}
+statement of all possible enumerations (\textit{commands}). The body of 
+the \code{switch} will likely call other methods, each dealing with a single
+command.
+
+\class{CommandParser} performs some additional convenience functions to help
+application developers quickly respond to commands. A \textit{usage} string
+may be automatically sent when an invalid command is received. The
+application's main run-loop will never see the failed command attempt. If a
+valid command is received, \class{CommandParser} will tokenize any extra text
+in the sent command and store it in an easily retrieved \class{vector}.
+The method called from \code{parse()} can then sanity-check the
+arguments and send an error message back to the client if the arguments are
+invalid.
+
+\begin{lstlisting}[caption={Basic \class{CommandCenter} Usage}, label=lst:comand-center]
+namespace BE = BiometricEvaluation;
+
+enum class TestCommand
+{
+	Stop,
+	Help
+};
+
+template<>
+const std::map<TestCommand, std::string>
+BE::Framework::EnumerationFunctions<TestCommand>::enumToStringMap {
+	{TestCommand::Stop, "STOP"},
+	{TestCOmmand::Help, "HELP"}
+};
+
+class TestCommandParser : public BE::Process::CommandParser<TestCommand>
+{
+public:
+	void
+	parse(
+	    const BE::Process::CommandParser<TestCommand>::Command &command)
+	{
+		switch (command.command) {
+		case TestCommand::Stop:
+			this->stop(command);
+			break;
+		case TestCommand::Help:
+			this->help(command);
+			break;
+		}
+	}
+
+private:
+	void
+	stop(
+	    const BE::Process::CommandParser<TestCommand>::Command &command)
+	{
+		/* Ensure proper arguments */
+		if (command.arguments.size() != 1) {
+			this->sendResponse(command.clientID, "Usage: " +
+			    to_string(command.command) + " <process>");
+			return;
+		}
+
+		/* ... perform stop operation ... */
+	}
+
+	void
+	help(
+	    const BE::Process::CommandParser<TestCommand>::Command &command)
+	{
+		this->sendResponse(command.clientID, "Available Commands:\n"
+		    "\tSTOP <process>\n\tHELP");
+	}
+};
+
+int
+main()
+{
+	TestCommandParser commandCenter;
+	TestCommandParser::Command command;
+	for (;;) {
+		/* ... do work ... */
+		
+		if (commandCenter.hasPendingCommands()) {
+			commandCenter.getNextCommand(command);
+			commandCenter.parse();
+		}
+	}
+
+	return (EXIT_SUCCESS);
+}
+\end{lstlisting}
+
+
+It's perfectly acceptible for an application to make use of more than one
+\code{CommandParser} for different \code{enum}s, assuming they are listening on 
+different ports.
+
