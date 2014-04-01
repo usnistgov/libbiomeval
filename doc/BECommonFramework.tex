@@ -20,6 +20,8 @@
 \usepackage{ifpdf}
 \usepackage{varioref}
 \usepackage{xspace}
+\usepackage{relsize}
+
 % Caption headers for code listings
 \usepackage{caption}
 \DeclareCaptionFont{white}{\color{white}}
@@ -84,6 +86,12 @@
 \newcommand{\lib}[1]{\texttt{#1}\xspace}
 \newcommand{\namespace}[1]{\texttt{#1}\xspace}
 \newcommand{\struct}[1]{\texttt{#1}\xspace}
+
+% C++
+\newcommand{\Rplus}{\protect\hspace{-.1em}\protect\raisebox{.35ex}{\smaller{\smaller\textbf{+}}}}
+\newcommand{\Cpp}{\mbox{C\Rplus\Rplus}\xspace}
+\newcommand{\CppIII}{\Cpp 2003\xspace}
+\newcommand{\CppXI}{\Cpp 2011\xspace}
 
 %--------------------------------------------------------------------------
 % The actual document sections, added independent of Doxygen

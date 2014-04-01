@@ -2,42 +2,87 @@
 % Framework API
 %
 \chapter{Framework}
-The \namespace{Framework} package is used to retrieve information about the
-\lname\ itself.  Version numbers, the compiler used, and other information
-can be queried by applications.  Versioning information is recorded in the
-\sname\ \code{Makefile} and populated in the function implentation at 
-compile-time.
-
 \label{chp-framework}
 
+The \namespace{Framework} package is used to retrieve information about the
+\lname itself, as well as to provide services through general purpose utility
+functions to other parts of the framework.
+
+\section{Versioning}
+Version numbers, the compiler used, and other framework metadata
+can be queried by applications.  Versioning information is recorded in the
+\sname \code{Makefile} and populated in the function implentation at
+compile-time.
+
 \begin{lstlisting}[caption={Using the \namespace{Framework} API}, label=frameworkuse]
-#include <iostream>
+/* "Framework Version: 0.4" */
+std::cout << "Framework Version: " << BE::Framework::getMajorVersion() << "." <<
+    BE::Framework::getMinorVersion() << std::endl;
 
-#include <be_framework.h>
+/* "Compiler Used: clang v5.1.0" */
+std::cout << "Compiler Used: " << BE::Framework::getCompiler() << " v" <<
+    BE::Framework::getCompilerVersion() << std::endl;
 
-using namespace BiometricEvaluation;
-using namespace std;
-
-int
-main(
-    int argc,
-    char* argv[])
-{
-	cout << "Framework Version: ";
-	cout << Framework::getMajorVersion() << "." <<
-	    Framework::getMinorVersion() << endl;
-	/* "Framework Version: 0.4" */
-
-	cout << "Compiler Used: ";
-	cout << Framework::getCompiler() << " v" <<
-	    Framework::getCompilerVersion() << endl;
-	/* "Compiler Used: clang v3.0.0" */
-
-	cout << "Date/Time Compiled: ";
-	cout << Framework::getCompileDate() << " " <<
-	    Framework::getCompileTime() << endl;
-	/* "Date/Time Compiled: Jan 24 2012 12:16:01" */
-
-	return (EXIT_SUCCESS);
-}
+/* "Date/Time Compiled: Jan 24 2014 12:16:01" */
+std::cout << "Date/Time Compiled: " << BE::Framework::getCompileDate() << " " <<
+    BE::Framework::getCompileTime() << std::endl;
 \end{lstlisting}
+
+\section{Enumerations}
+\label{sec_framework-enumerations}
+
+As of \CppXI, \code{enum}s can be strongly-typed. The \lname makes use of
+these strongly-typed \code{enum class}es throughout. As an added convenience,
+functions converting to and from \code{enum}s, \code{string}s, and \code{int}s
+are implicitly implemented easily via a \code{template}, eliminating many lines
+of boiler-plate code and creating equivalence in functionality among
+\code{enum class}es throughout \sname.
+
+At the core of \namespace{Framework::Enumeration} is a \code{const} mapping of
+\code{enum} to \code{string}, defined by you in code and instantated at
+compile-time. As demonstrated in \lstref{framework-enumeration}, simply define
+your \code{enum class} and populate the \code{map}.
+
+\begin{lstlisting}[caption={\namespace{Framework::Enumeration}}, label=framework-enumeration]
+/*
+ * color.h
+ */
+
+enum class Color
+{
+	Black,
+	Blue,
+	Green
+};
+
+/*
+ * color.cpp
+ */
+
+#include <be_framework_enumeration.h>
+
+template<>
+const std::map<Color, std::string>
+BiometricEvaluation::Framework::EnumerationFunctions<Color>::enumToStringMap {
+	{Color::Black, "Black"},
+	{Color::Black, "Blue"},
+	{Color::Green, "Green"}
+};
+
+/*
+ * application.cpp
+ */
+
+#include <color.h>
+
+/* "Black" */
+std::cout << to_string(Color::Black) << std::endl;
+/* "2" */
+std::cout << to_int_type(Color::Green) << std::endl;
+/* Color::Blue */
+Color color = to_enum<Color>("Blue");
+\end{lstlisting}
+
+While \namespace{Framework::Enumeration} was created for \sname, the
+\code{template}'s only dependency is \class{Exception}, and so it can easily be
+used in other \CppXI projects.
