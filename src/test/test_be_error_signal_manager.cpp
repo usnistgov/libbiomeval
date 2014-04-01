@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 		cout << "Caught " << e.what() << ".\n";
 		return (EXIT_FAILURE);
 	}
-	auto_ptr<Error::SignalManager> asigmgr(sigmgr);
+	std::unique_ptr<Error::SignalManager> asigmgr(sigmgr);
 
 	/*
 	 * Test setting an invalid signal set.

@@ -41,7 +41,7 @@ testWatchdogAndSignalManager(Time::Watchdog *theDog)
 	 * POSIX signal handling.
 	 */
 	Error::SignalManager *sigmgr = new Error::SignalManager();
-	auto_ptr<Error::SignalManager> asigmgr(sigmgr);
+	std::unique_ptr<Error::SignalManager> asigmgr(sigmgr);
 	char *cptr = nullptr;
 
 	/*

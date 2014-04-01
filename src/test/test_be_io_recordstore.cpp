@@ -608,7 +608,7 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	auto_ptr<IO::FileRecordStore> ars(rs);
+	std::unique_ptr<IO::FileRecordStore> ars(rs);
 #endif
 
 #ifdef DBRECORDSTORETEST
@@ -624,7 +624,7 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	auto_ptr<IO::DBRecordStore> ars(rs);
+	std::unique_ptr<IO::DBRecordStore> ars(rs);
 #endif
 
 #ifdef ARCHIVERECORDSTORETEST
@@ -640,7 +640,7 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	auto_ptr<IO::ArchiveRecordStore> ars(rs);
+	std::unique_ptr<IO::ArchiveRecordStore> ars(rs);
 #endif
 
 #ifdef SQLITERECORDSTORETEST
@@ -656,7 +656,7 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	auto_ptr<IO::SQLiteRecordStore> ars(rs);
+	std::unique_ptr<IO::SQLiteRecordStore> ars(rs);
 #endif
 
 #ifdef COMPRESSEDRECORDSTORETEST
@@ -673,7 +673,7 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	auto_ptr<IO::CompressedRecordStore> ars(rs);
+	std::unique_ptr<IO::CompressedRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED

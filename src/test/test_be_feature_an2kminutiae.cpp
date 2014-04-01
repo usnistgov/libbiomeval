@@ -33,7 +33,7 @@ main(int argc, char* argv[]) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	std::auto_ptr<Feature::AN2K7Minutiae> an2km(_an2km);
+	std::unique_ptr<Feature::AN2K7Minutiae> an2km(_an2km);
 
 	cout << "Minutiae format is " << to_string(an2km->getFormat()) << endl;
 

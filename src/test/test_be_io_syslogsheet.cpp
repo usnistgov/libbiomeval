@@ -74,7 +74,7 @@ main(int argc, char* argv[])
 		return (-1);
 	}
 	std::cout << "success." << std::endl;
-	std::auto_ptr<BE::IO::SyslogSheet> als(ls);
+	std::unique_ptr<BE::IO::SyslogSheet> als(ls);
 
 	std::cout << "Writing to SyslogSheet with default hostname: ";
 	try {

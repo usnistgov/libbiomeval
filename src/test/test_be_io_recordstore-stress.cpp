@@ -176,16 +176,16 @@ int main (int argc, char* argv[]) {
 		}
 	}
 #ifdef FILERECORDSTORETEST
-	auto_ptr<IO::FileRecordStore> ars(rs);
+	std::unique_ptr<IO::FileRecordStore> ars(rs);
 #endif
 #ifdef DBRECORDSTORETEST
-	auto_ptr<IO::DBRecordStore> ars(rs);
+	std::unique_ptr<IO::DBRecordStore> ars(rs);
 #endif
 #ifdef ARCHIVERECORDSTORETEST
-	auto_ptr<IO::ArchiveRecordStore> ars(rs);
+	std::unique_ptr<IO::ArchiveRecordStore> ars(rs);
 #endif
 #ifdef SQLITERECORDSTORETEST
-	auto_ptr<IO::SQLiteRecordStore> ars(rs);
+	std::unique_ptr<IO::SQLiteRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED

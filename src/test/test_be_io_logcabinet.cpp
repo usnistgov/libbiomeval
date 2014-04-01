@@ -84,7 +84,7 @@ doLogCabinetTests()
 		return (-1);
 	}
 	cout << "success." << endl;
-	auto_ptr<LogCabinet> alc(lc);
+	std::unique_ptr<LogCabinet> alc(lc);
 
 	shared_ptr<LogSheet> ls;
 	string lsname;
@@ -178,7 +178,7 @@ main(int argc, char* argv[])
 		return (-1);
 	}
 	cout << "success." << endl;
-	auto_ptr<LogSheet> als(ls);
+	std::unique_ptr<LogSheet> als(ls);
 
 	cout << "Writing to LogSheet not in cabinet: ";
 	try {

@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	auto_ptr<Time::Timer> atimer(timer);
+	std::unique_ptr<Time::Timer> atimer(timer);
 
 	cout << "Stop an unstarted timer... ";
 	try {

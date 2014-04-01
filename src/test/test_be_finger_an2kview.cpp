@@ -145,7 +145,7 @@ main(int argc, char* argv[]) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	std::auto_ptr<Finger::AN2KView> an2kv(_an2kv);
+	std::unique_ptr<Finger::AN2KView> an2kv(_an2kv);
 	cout << "Success." << endl;
 	if (handleAN2KView(*an2kv) != 0)
 		return(EXIT_FAILURE);

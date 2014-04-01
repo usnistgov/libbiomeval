@@ -34,7 +34,7 @@ int
 childFunction()
 {
 	/* Open the semaphore */
-	std::auto_ptr<BE::Process::Semaphore> sem;
+	std::unique_ptr<BE::Process::Semaphore> sem;
 	pMsg("Open semaphore: ");
 	try {
 		sem.reset(new
@@ -102,7 +102,7 @@ int
 main(int argc, char *argv[])
 {
 	/* Create a Semaphore */
-	std::auto_ptr<BE::Process::Semaphore> sem;
+	std::unique_ptr<BE::Process::Semaphore> sem;
 	pMsg("Create semaphore: ");
 	try {
 		sem.reset(new
