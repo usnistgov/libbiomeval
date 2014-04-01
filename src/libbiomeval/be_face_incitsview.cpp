@@ -170,7 +170,6 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
     BiometricEvaluation::Memory::IndexedBuffer &buf)
 {
 	uint8_t uval8;
-	uint16_t uval16;
 
 	/*
 	 * Facial Information block.
@@ -244,7 +243,7 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
 		uint16_t hp = buf.scanBeU16Val();
 		uint16_t vp = buf.scanBeU16Val();
 		fp.coordinate = BE::Image::Coordinate(hp, vp);
-		uval16 = buf.scanBeU16Val();	/* reserved field */
+		(void)buf.scanBeU16Val();	/* reserved field */
 		this->_featurePointSet.push_back(fp);
 		remainLen = remainLen - 8; /* Sum of above data item lengths */
 	}

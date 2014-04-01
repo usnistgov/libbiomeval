@@ -186,7 +186,6 @@ BiometricEvaluation::Iris::INCITSView::readIrisView(
 	static const uint8_t IMAGE_FORMAT_MONO_PNG = 0x0E;
 
 	uint8_t uval8;
-	uint16_t uval16;
 	uint32_t uval32;
 
 	uval32 = buf.scanBeU32Val();	/* Representation length */
@@ -229,7 +228,7 @@ BiometricEvaluation::Iris::INCITSView::readIrisView(
 		this->_qualitySet.push_back(qsb);
 	}
 
-	uval16 = buf.scanBeU16Val();	/* number of representations */
+	(void)buf.scanBeU16Val();	/* number of representations */
 
 	uval8 = buf.scanU8Val();
 	this->_eyeLabel = to_enum<BE::Iris::EyeLabel>(uval8);
