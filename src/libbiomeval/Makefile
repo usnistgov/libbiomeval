@@ -7,26 +7,32 @@
 # its use by other parties, and makes no guarantees, expressed or implied,
 # about its quality, reliability, or any other characteristic.
 #
-.PHONY: all
+.PHONY: all mpi
 
 
 COMMONINCOPT = -I/usr/local/nbis/include
 NBISLIB = -L/usr/local/nbis/lib64 -lan2k -ljpegb -lwsq -ljpegl -lfet -lioutil -lutil -lpng -lz -lopenjpeg
+COMMONLIB = -ldb -lcrypto -lsqlite3
 
 include ../common.mk
 include ../../VERSION
 
 CXXFLAGS += -Wall -pedantic
+#
+# The MPI C++ compiler wrapper must be locatable within the user's $PATH.
+#
+#CXX=/opt/local/bin/mpicxx
+CXX=mpicxx
 
 CORE = be_memory_indexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
 
-IO = be_io_properties.cpp be_io_propertiesfile.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_sqliterecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_compressedrecstore.cpp be_io_listrecstore.cpp be_io_recordstoreiterator.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_logcabinet.cpp be_io_compressor.cpp be_io_gzip.cpp
+IO = be_io_properties.cpp be_io_propertiesfile.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_sqliterecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_compressedrecstore.cpp be_io_listrecstore.cpp be_io_recordstoreiterator.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_syslogsheet.cpp be_io_logcabinet.cpp be_io_compressor.cpp be_io_gzip.cpp
 
 IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_netpbm.cpp be_image_raw.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp
 
 FEATURE = be_feature_minutiae.cpp be_feature_an2k7minutiae.cpp be_feature_incitsminutiae.cpp
 
-PROCESS_MANAGEMENT = be_process_worker.cpp be_process_workercontroller.cpp be_process_manager.cpp be_process_forkmanager.cpp be_process_posixthreadmanager.cpp
+PROCESS = be_process_worker.cpp be_process_workercontroller.cpp be_process_manager.cpp be_process_forkmanager.cpp be_process_posixthreadmanager.cpp be_process_semaphore.cpp
 
 MESSAGE_CENTER = be_process_messagecenter.cpp be_process_mclistener.cpp be_process_mcreceiver.cpp be_process_mcutility.cpp
 
@@ -39,8 +45,21 @@ FACE = be_face.cpp be_face_incitsview.cpp be_face_iso2005view.cpp
 
 DATA = be_data_interchange_an2k.cpp
 
-SOURCES = $(CORE) $(IO) $(PROCESS_MANAGEMENT) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER)
-OBJECTS = $(SOURCES:%.cpp=%.o)
+MPIBASE = be_mpi.cpp be_mpi_runtime.cpp be_mpi_workpackage.cpp be_mpi_workpackageprocessor.cpp be_mpi_resources.cpp be_mpi_recordstoreresources.cpp
+MPIDISTRIBUTOR = be_mpi_distributor.cpp be_mpi_recordstoredistributor.cpp
+MPIRECEIVER = be_mpi_receiver.cpp be_mpi_recordprocessor.cpp
+
+SOURCES = $(CORE) $(IO) $(PROCESS) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER)
+
+#
+# Keep MPI related files separate so we can use a different compiler command,
+# if needed.
+#
+MPISOURCES = $(MPIBASE) $(MPIDISTRIBUTOR) $(MPIRECEIVER)
+MPIOBJECTS = $(MPISOURCES:%.cpp=%.o)
+
+OBJECTS = $(SOURCES:%.cpp=%.o) $(MPIOBJECTS:%.cpp=%.o)
+
 LIBRARY = libbiomeval
 LOCALLIB = ../../lib
 
@@ -56,6 +75,9 @@ ifeq ($(OS), Darwin)
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).dylib
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).$(MAJOR_VERSION).dylib
 	$(CP) -R -P $(LIBRARY)*.dylib $(LOCALLIB)
+	$(CXX) $(CXXFLAGS) $(NBISLIB) -L$(DBLIBS) $(COMMONLIB) -dynamiclib $(OBJECTS) -o $(LIBRARY).dylib
+	$(CP) $(LIBRARY).dylib $(LOCALLIB)
+   
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	ar rs $(LIBRARY).a $(OBJECTS)

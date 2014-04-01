@@ -12,7 +12,7 @@ include ../common.mk
 
 CORE = test_be_time test_be_time_timer test_be_time_watchdog test_be_error test_be_error_signal_manager test_be_process_statistics test_be_system test_be_memory_autoarray test_be_text test_be_framework test_be_memory_indexedbuffer test_be_memory_orderedmap
 
-IO = test_construct_be_io_filerecstore test_be_io_filerecordstore test_be_io_dbrecordstore test_be_io_sqliterecordstore test_be_io_compressedrecordstore test_be_io_filerecordstore-stress test_be_io_dbrecordstore-stress test_be_io_archiverecordstore-stress test_be_io_sqliterecordstore-stress test_construct_be_io_archiverecstore test_be_io_archiverecordstore test_be_io_logcabinet test_be_io_properties test_be_io_propertiesfile test_be_io_utility test_be_io_listrecstore
+IO = test_construct_be_io_filerecstore test_be_io_filerecordstore test_be_io_dbrecordstore test_be_io_sqliterecordstore test_be_io_compressedrecordstore test_be_io_filerecordstore-stress test_be_io_dbrecordstore-stress test_be_io_archiverecordstore-stress test_be_io_sqliterecordstore-stress test_construct_be_io_archiverecstore test_be_io_archiverecordstore test_be_io_logcabinet test_be_io_properties test_be_io_propertiesfile test_be_io_utility test_be_io_listrecstore test_be_io_syslogsheet
 
 IMAGE = test_be_image_raw test_be_image_jpeg test_be_image_jpegl test_be_image_jpeg2000 test_be_image_png test_be_image_wsq test_be_image_netpbm test_be_image_factory 
 
@@ -22,7 +22,7 @@ IRIS = test_be_iris_incitsviews
 
 FACE = test_be_face_incitsviews
 
-PROCESS_MANAGEMENT = test_be_process_forkmanager test_be_process_posixthreadmanager
+PROCESS = test_be_process_forkmanager test_be_process_posixthreadmanager test_be_process_semaphore
 
 COMMAND_CENTER = be_process_commandcenter_example
 
@@ -30,7 +30,9 @@ FEATURE = test_be_feature_an2kminutiae
 
 OTHER = test_be_data_interchange_an2k test_be_framework_enumeration
 
-PROGS = $(CORE) $(IO) $(IMAGE) $(PROCESS_MANAGEMENT) $(FINGER) $(FEATURE) $(OTHER) $(IRIS) $(FACE) $(COMMAND_CENTER)
+MPI = test_be_mpi
+
+PROGS = $(CORE) $(IO) $(IMAGE) $(PROCESS) $(FINGER) $(FEATURE) $(IRIS) $(FACE) $(OTHER) $(COMMAND_CENTER) $(MPI)
 
 all: CXXFLAGS += -g
 all: $(PROGS)
@@ -123,11 +125,17 @@ test_be_process_forkmanager: test_be_process_manager.cpp
 	$(CXX) $(CXXFLAGS) -DFORKTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_process_posixthreadmanager: test_be_process_manager.cpp
 	$(CXX) $(CXXFLAGS) -DPOSIXTHREADTEST $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_process_semaphore: test_be_process_semaphore.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_listrecstore: test_be_io_listrecstore.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_framework_enumeration: test_be_framework_enumeration.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 be_process_commandcenter_example: be_process_commandcenter_example.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_mpi: test_be_mpi.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_io_syslogsheet: test_be_io_syslogsheet.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 
 clean:

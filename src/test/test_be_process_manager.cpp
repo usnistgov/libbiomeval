@@ -8,6 +8,10 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <sys/types.h>
+#include <signal.h>
+#include <unistd.h>
+
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -26,9 +30,21 @@
 using namespace BiometricEvaluation;
 using namespace std;
 
+static bool signalHandled;
+static void
+signalHandler(int signo)
+{
+	signalHandled = true;
+}
+
 class TestDriverWorker : public Process::Worker
 {
 public:
+
+TestDriverWorker()
+{
+	signalHandled = false;
+}
 
 /*
  * Write endless numbers to a RecordStore.
@@ -36,12 +52,22 @@ public:
 int32_t
 workerMain()
 {
-	int status = EXIT_FAILURE;
+	/*
+	 * Set up the signal handler for broadcast signals.
+	*/
+#if defined FORKTEST
+	struct sigaction sa;
+	sigemptyset(&sa.sa_mask);       /* Don't block other signals */
+	sa.sa_handler = signalHandler;
+	sigaction(SIGQUIT, &sa, NULL);
+#endif
 
 	string message = this->getParameterAsString("message");
 	uint32_t instance = this->getParameterAsInteger("instance");
-	cout << "<< (W" << instance + 1 << ") " << message <<
-	    " from instance #" << instance + 1 << endl;
+	std::stringstream sstr;
+	sstr << " (W" << instance << ") ";
+	std::string ID = sstr.str();
+	cout << "<<" << ID << message << " from instance #" << instance << endl;
 	
 	shared_ptr<IO::RecordStore> rs =
 	    static_pointer_cast<IO::RecordStore>(getParameter("rs"));
@@ -59,35 +85,46 @@ workerMain()
 			cout << e.what() << endl;
 		}
 		
+		/*
+		 * Check for signals and print a message for both no-signal
+		 * and signal received.
+		 */
+#if defined FORKTEST
+		cout << "<<" << ID << "PID " << getpid() << ", PPID "
+		    << getppid();
+		if (signalHandled)
+			cout << ": Got signal." << endl;
+		else
+			cout << ": No signal." << endl;
+#endif
 		/* Receive message from server, or continue after 2 seconds */
 		if (this->waitForMessage(2)) {
 			try {
 				this->receiveMessageFromManager(communication);
 			
-				cout << "<< (W" << instance + 1 <<
-				    ") Received: " << communication << endl;
+				cout << "<<" << ID << "Received: "
+				    << communication << endl;
 			    
 				sprintf((char *)&(*communication), "RPLY from "
-				    "instance %d", instance + 1);
-				cout << "<< (W" << instance + 1 <<
-				    ") Sending: " << communication << endl;
-				    
+				    "instance %d", instance);
+				cout << "<<" << ID << "Sending: "
+				    << communication << endl;
 				this->sendMessageToManager(communication);
-				cout << "<< (W" << instance + 1 <<
-				    ") Messsage sent" << endl;
+				cout << "<<" << ID << "Messsage sent"
+				    << endl;
 			} catch (Error::Exception &e) {
-				cerr << "<< (W " << instance + 1 <<
-				    ") CAUGHT: " << e.what() << endl;
+				cerr << "<<" << ID <<
+				    "CAUGHT: " << e.whatString() << endl;
 			}
 		}
 	}
 
 	rs->sync();
-	cout << "<< (W" << instance + 1 << ") Last value of key was " << '"' <<
+	cout << "<<" << ID << "Last value of key was " << '"' <<
 	    key.str() << '"' << endl;
 	
-	status = EXIT_SUCCESS;
-	return (status);
+	cout << "<<" << ID << "PID " << getpid() << " exiting." << endl;
+	return (EXIT_SUCCESS);
 }
 
 ~TestDriverWorker(){};
@@ -103,8 +140,16 @@ public:
 int32_t
 workerMain()
 {
-	int status = EXIT_FAILURE;
-	
+	/*
+	 * Set up the signal handler for broadcast signals.
+	*/
+#if defined FORKTEST
+	struct sigaction sa;
+	sigemptyset(&sa.sa_mask);       /* Don't block other signals */
+	sa.sa_handler = signalHandler;
+	sigaction(SIGQUIT, &sa, NULL);
+#endif
+
 	shared_ptr<Process::Manager> procMgr;
 #if defined FORKTEST
 	procMgr.reset(new Process::ForkManager());
@@ -116,28 +161,38 @@ workerMain()
 	
 	string message = this->getParameterAsString("message");
 	uint32_t instance = this->getParameterAsInteger("instance");
-	cout << message << " from instance #" << instance + 1 << endl;
+
+	std::stringstream sstr;
+	sstr << " (W" << instance << ") ";
+	std::string ID = sstr.str();
+	cout << "<<" << ID << message <<
+	    " from instance #" << instance << endl;
 	
+	uint32_t winstance = instance + 100;
 	worker->setParameter("rs", getParameter("rs"));
-	worker->setParameterFromInteger("instance", instance);
+	worker->setParameterFromInteger("instance", winstance);
 	worker->setParameterFromString("message", message +
 	    "-->Working");
-	cout << ">>>> Starting one Worker from within Worker." << endl;
+	cout << ">>>>" << ID << "PID " << getpid()
+		     << " starting Worker W(" << winstance
+		     << ") from within Worker." << endl;
 	procMgr->startWorkers(false);
 	
 	while (stopRequested() == false) {
-		cout << ">>>> Worker of Worker still alive." << endl;
+		cout << ">>>>" << ID << "Managing worker still alive." << endl;
 		cout.flush();
 		sleep(1);
 	}
 	
-	cout << ">>>> Stopping Worker of Worker..." << endl;
+	cout << ">>>>" << ID << "Stopping Worker of Worker..." << endl;
+	cout.flush();
 	try {
 		procMgr->stopWorker(worker);
 	} catch (Error::ObjectDoesNotExist) {
-		cout << ">>>> Worker of Worker was already stopped." << endl;
+		cout << ">>>>" << ID << "Worker of Worker was already stopped." 
+		   << endl;
 	}
-	cout << ">>>> Waiting for Worker to finish.";
+	cout << ">>>>" << ID << "Waiting for Worker to finish.";
 	cout.flush();
 	while (procMgr->getNumActiveWorkers() > 0) {
 		cout << '.';
@@ -146,8 +201,8 @@ workerMain()
 	}
 	cout << endl;
 	
-	status = EXIT_SUCCESS;
-	return (status);
+	cout << "<<" << ID << "PID " << getpid() << " exiting." << endl;
+	return (EXIT_SUCCESS);
 }
 ~ManagingWorker(){};
 };
@@ -201,16 +256,21 @@ main(
 			workers[i]->setParameter("rs",
 			    IO::RecordStore::createRecordStore(name.str(),
 			    "Test RS", IO::RecordStore::Kind::BerkeleyDB, "."));
-			workers[i]->setParameterFromInteger("instance", i);
+			workers[i]->setParameterFromInteger("instance", i + 1);
 		} catch (Error::Exception &e) {
 			cout << e.what() << endl;
 		}
 	}
 
-	cout << ">> (M) Starting " << numWorkers << " Workers, killed at " <<
-	    "one second intervals." << endl;
+	cout << ">> (M) PID " << getpid() << " starting " << numWorkers
+	     << " Workers, killed at " << "one second intervals." << endl;
 	procMgr->startWorkers(false, true);
 	
+	/*
+	 * Pause for a bit so we can see some worker messages.
+	 */
+	sleep(3);
+
 	/* 
 	 * Test communication.
 	 */
@@ -218,6 +278,12 @@ main(
 	sprintf((char *)&(*message), "HELO to ALL");
 	procMgr->broadcastMessage(message);
 	 
+	/* Broadcast signal to all workers */
+#if defined FORKTEST
+	static_pointer_cast<Process::ForkManager>(procMgr)->broadcastSignal(SIGQUIT);
+	cout << ">> (M) PID " << getpid() << " Sent broadcast signal." << endl;
+#endif
+
 	/* Send a message to every Worker, Worker should reply */
 	for (uint32_t i = 0; i < numWorkers; i++) {
 		sprintf((char *)&(*message), "HELO to instance %d", i + 1);
@@ -235,24 +301,24 @@ main(
 		while (procMgr->getNextMessage(sender, message, 2))
 			cout << ">> (M) Received: " << message << " " <<
 			    "(from instance " << sender->getWorker()->
-			    getParameterAsInteger("instance") + 1 << ")" <<
+			    getParameterAsInteger("instance") << ")" <<
 			    endl;
 	} catch (Error::Exception &f) {
 		cout << ">>>> (M) RCV CAUGHT: " << f.what() << endl;
 	}
-	
+
 	/* Exit all workers */
 	for (uint32_t i = 0; i < numWorkers; i++) {
 		cout << ">> (M) Stopping Worker #" << i + 1 << "..." << endl;
 		try {
 			procMgr->stopWorker(workers[i]);
 		} catch (Error::ObjectDoesNotExist) {
-			cout << ">> Worker # " << i + 1 << " was already " <<
+			cout << ">> (M) Worker # " << i + 1 << " was already "
 			    "stopped." << endl;
 		}
 	}
 	
-	cout << ">> Waiting for Workers to finish.";
+	cout << ">> (M) Waiting for Workers to finish.";
 	cout.flush();
 	while (procMgr->getNumActiveWorkers() > 0) {
 		cout << '.';
@@ -261,7 +327,7 @@ main(
 	}
 	cout << endl;
 	
-	cout << ">> Send message to dead worker...";
+	cout << ">> (M) Send message to dead worker...";
 	try {
 		workers[0]->sendMessageToWorker(message);
 		cout << "sent (FAIL)" << endl;
