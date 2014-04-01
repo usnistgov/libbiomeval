@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <sstream>
+#include <type_traits>
 
 #include <be_image_netpbm.h>
 
@@ -223,10 +224,14 @@ BiometricEvaluation::Image::NetPBM::getRawData()
 		    this->_maxColorValue));
 	case Kind::BinaryPortableGraymap:
 		/* FALLTHROUGH */
-	case Kind::BinaryPortablePixmap:
+	case Kind::BinaryPortablePixmap: {
 		Memory::uint8Array rawData(dataSize);
 		rawData.copy(data);
 		return (rawData);
+	}
+	default:
+		throw Error::NotImplemented(
+		    std::to_string(std::underlying_type<Kind>::type(_kind)));
 	}
 }
 

@@ -57,6 +57,8 @@ namespace BiometricEvaluation
 			 *
 			 * @throw Error::DataError
 			 *	Error decompressing image data.
+			 * @throw Error::NotImplemented
+			 * 	Compression type not supported.
 			 *
 			 * @note
 			 * The raw data returned from this method is encoded
