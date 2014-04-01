@@ -64,7 +64,7 @@ namespace BiometricEvaluation
 			 *
 			 * @param[out] clientID
 			 * ID of the client that sent the message.
-			 * @param[in/out] message
+			 * @param[in,out] message
 			 * Message received.
 			 * @param[in] numSeconds
 			 * Number of seconds to wait for a message, or < 0 to 

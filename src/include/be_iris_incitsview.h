@@ -155,9 +155,9 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Obtain the roll angle information.
-			 * @param[out] angle
+			 * @param[out] rollAngle
 			 * The roll angle.
-			 * @param[out] uncertainty
+			 * @param[out] rollAngleUncertainty
 			 * The roll angle uncertainty.
 		 	 */
 			void getRollAngleInfo(

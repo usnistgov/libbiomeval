@@ -332,7 +332,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Remove an element from the collection.
 			 *
-			 * @param pos
+			 * @param key
 			 *	Key of the element to remove.
 			 */
 			void
@@ -389,7 +389,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Whether or not key exists in this container.
 			 *
-			 * @notes
+			 * @note
 			 *	Complexity is O(1).
 			 */
 			bool
@@ -401,7 +401,7 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Obtain an iterator to a particular key.
 			 *
-			 * @notes
+			 * @note
 			 *	Complexity is O(n).
 			 */
 			const OrderedMapIterator<Key, T>
@@ -427,7 +427,8 @@ namespace BiometricEvaluation
 			T&
 			operator[](
 			    const Key &key);
-			    
+
+			/** @return Function that compares keys for equality. */
 			key_equal
 			key_eq()
 			    const;
@@ -476,7 +477,7 @@ BiometricEvaluation::Memory::OrderedMap<Key, T>::push_back(
 template<class Key, class T>
 void
 BiometricEvaluation::Memory::OrderedMap<Key, T>::erase(
-    OrderedMap<Key, T>::iterator pos)
+    iterator pos)
 {
 	_ordering->remove(pos->first);
 	_elements->erase(pos);
