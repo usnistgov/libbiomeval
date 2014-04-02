@@ -31,11 +31,13 @@ using namespace BiometricEvaluation;
 using namespace std;
 
 static bool signalHandled;
+#if defined FORKTEST
 static void
 signalHandler(int signo)
 {
 	signalHandled = true;
 }
+#endif
 
 class TestDriverWorker : public Process::Worker
 {

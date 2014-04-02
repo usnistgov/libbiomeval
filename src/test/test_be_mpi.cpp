@@ -65,6 +65,7 @@ dumpRecord(const std::string key, const Memory::uint8Array &val)
 		uint64_t k = rand() + 1;
 		uint64_t l = rand() + 1;
 		uint64_t m = i * k * l;
+		m++;
 	}
 	stringstream sstr;
 	std::shared_ptr<DataInterchange::AN2KRecord> an2kRecord;

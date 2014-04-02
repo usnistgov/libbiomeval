@@ -100,7 +100,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * true if command has been populated, false otherwise.
 			 */
-			inline virtual bool
+			inline bool
 			getNextCommand(
 			    Command &command,
 			    int numSeconds = -1,
@@ -233,11 +233,10 @@ namespace BiometricEvaluation
 			 * @return
 			 * true if command has been populated, false otherwise.
 			 */
-			inline virtual bool
+			inline bool
 			getNextCommand(
 			    typename CommandCenter<T>::Command &command,
 			    int numSeconds = -1)
-			    final
 			{
 				return (CommandCenter<T>::getNextCommand(
 				    command, numSeconds, this->getUsage()));
