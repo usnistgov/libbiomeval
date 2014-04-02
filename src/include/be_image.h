@@ -40,7 +40,8 @@ namespace BiometricEvaluation
 			JP2		= 5,
 			JP2L		= 6,
 			PNG		= 7,
-			NetPBM		= 8
+			NetPBM		= 8,
+			BMP		= 9
 		};
 
 		/**

@@ -24,6 +24,9 @@
 #if defined RAWTEST
 #include <be_image_raw.h>
 static const std::string imageType = "Raw";
+#elif defined BMPTEST
+#include <be_image_bmp.h>
+static const std::string imageType = "BMP";
 #elif defined JPEG2000TEST
 #include <be_image_jpeg2000.h>
 static const std::string imageType = "JPEG2000";
@@ -265,6 +268,8 @@ main(
 {
 	/* Define file extensions and which class should deal with each */
 	map<std::string, std::string> extensions;
+	extensions["bmp"] = "BMP";
+	extensions["dib"] = "BMP";
 	extensions["pbm"] = "NetPBM";
 	extensions["pgm"] = "NetPBM";
 	extensions["ppm"] = "NetPBM";
@@ -399,7 +404,14 @@ main(
 			cerr << key << " is not a NetPBM image." << endl;
 			continue;
 		}
-		image.reset(new Image::NetPBM(imageData,imageData.size()));
+		image.reset(new Image::NetPBM(imageData, imageData.size()));
+#elif defined BMPTEST
+		if (Image::BMP::isBMP(imageData, imageData.size()) ==
+		    false) {
+			cerr << key << " is not a BMP image." << endl;
+			continue;
+		}
+		image.reset(new Image::BMP(imageData, imageData.size()));
 #elif defined RAWTEST
 		/* We can't construct a raw image without properties */
 		if (doPropertyCompare == false) {

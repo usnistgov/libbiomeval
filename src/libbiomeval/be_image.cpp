@@ -59,7 +59,8 @@ const std::map<BiometricEvaluation::Image::CompressionAlgorithm, std::string>
 	{Image::CompressionAlgorithm::JP2, "JP2"},
 	{Image::CompressionAlgorithm::JP2L, "JP2L"},
 	{Image::CompressionAlgorithm::NetPBM, "NetPBM"},
-	{Image::CompressionAlgorithm::PNG, "PNG"}
+	{Image::CompressionAlgorithm::PNG, "PNG"},
+	{Image::CompressionAlgorithm::BMP, "BMP"}
 };
 
 std::ostream&
