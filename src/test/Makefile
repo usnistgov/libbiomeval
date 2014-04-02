@@ -136,7 +136,7 @@ test_be_framework_enumeration: test_be_framework_enumeration.cpp
 be_process_commandcenter_example: be_process_commandcenter_example.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_mpi: test_be_mpi.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+	$(MPICXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_syslogsheet: test_be_io_syslogsheet.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 

@@ -33,6 +33,7 @@ else
 	CC = gcc
 	CXX = g++
 endif
+MPICXX=mpicxx
 
 #
 # Determine if CXX can handle C++11 (-std=c++11 flag)
@@ -86,8 +87,8 @@ endif
 # be searched prior to the 'standard' libraries, add the to the CFLAGS
 # variable.
 
-CFLAGS := -std=c99 -D$(OS) $(ARCHOPT) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH)
-CXXFLAGS := $(ARCHOPT) -D$(OS) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH)
+CFLAGS := -Wall -pedantic -std=c99 -D$(OS) $(ARCHOPT) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH)
+CXXFLAGS := -Wall -pedantic -D$(OS) $(ARCHOPT) $(COMMONINCOPT) -I$(LOCALINC) -I$(INCPATH)
 LDFLAGS := -L$(LOCALLIB) -L$(LIBPATH)
 
 # Enable C++11 support.

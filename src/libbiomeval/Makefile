@@ -17,13 +17,6 @@ COMMONLIB = -ldb -lcrypto -lsqlite3
 include ../common.mk
 include ../../VERSION
 
-CXXFLAGS += -Wall -pedantic
-#
-# The MPI C++ compiler wrapper must be locatable within the user's $PATH.
-#
-#CXX=/opt/local/bin/mpicxx
-CXX=mpicxx
-
 CORE = be_memory_indexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
 
 IO = be_io_properties.cpp be_io_propertiesfile.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_sqliterecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_compressedrecstore.cpp be_io_listrecstore.cpp be_io_recordstoreiterator.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_syslogsheet.cpp be_io_logcabinet.cpp be_io_compressor.cpp be_io_gzip.cpp
@@ -58,36 +51,36 @@ SOURCES = $(CORE) $(IO) $(PROCESS) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS)
 MPISOURCES = $(MPIBASE) $(MPIDISTRIBUTOR) $(MPIRECEIVER)
 MPIOBJECTS = $(MPISOURCES:%.cpp=%.o)
 
-OBJECTS = $(SOURCES:%.cpp=%.o) $(MPIOBJECTS:%.cpp=%.o)
+OBJECTS = $(SOURCES:%.cpp=%.o) $(MPIOBJECTS)
 
 LIBRARY = libbiomeval
 LOCALLIB = ../../lib
+
+# MPI source files need a different compiler command
+$(MPIOBJECTS): override CXX := $(MPICXX)
 
 #
 # For OS-X, we need a later version of Berkeley DB than what comes
 # with the system. A check for the DB include directory is performed below.
 #
-all: $(OBJECTS)
+all: $(OBJECTS) $(MPIOBJECTS)
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
 
 ifeq ($(OS), Darwin)
-	$(CXX) $(CXXFLAGS) $(NBISLIB) -L$(DBLIBS) -ldb -lsqlite3 -lcrypto -dynamiclib $(OBJECTS) -Wl,-current_version,$(MAJOR_VERSION).$(MINOR_VERSION) -Wl,-compatibility_version,$(COMPATIBILITY_VERSION) -Wl,-macosx_version_min,10.6 -Wl,-install_name,$(LIBRARY).$(MAJOR_VERSION).dylib -o $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
+	$(MPICXX) $(CXXFLAGS) $(NBISLIB) -L$(DBLIBS) -ldb -lsqlite3 -lcrypto -dynamiclib $(OBJECTS) -Wl,-current_version,$(MAJOR_VERSION).$(MINOR_VERSION) -Wl,-compatibility_version,$(COMPATIBILITY_VERSION) -Wl,-macosx_version_min,10.6 -Wl,-install_name,$(LIBRARY).$(MAJOR_VERSION).dylib -o $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).dylib
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).$(MAJOR_VERSION).dylib
 	$(CP) -R -P $(LIBRARY)*.dylib $(LOCALLIB)
-	$(CXX) $(CXXFLAGS) $(NBISLIB) -L$(DBLIBS) $(COMMONLIB) -dynamiclib $(OBJECTS) -o $(LIBRARY).dylib
-	$(CP) $(LIBRARY).dylib $(LOCALLIB)
-   
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	ar rs $(LIBRARY).a $(OBJECTS)
 	ranlib $(LIBRARY).a
-	$(CXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--start-group $(NBISLIB) -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -lcrypto -ldb -lsqlite3 -Wl,--end-group -Wl,--major-image-version,$(MAJOR_VERSION) -Wl,--minor-image-version,$(MINOR_VERSION) -Wl,-soname=$(LIBRARY).dll.$(MAJOR_VERSION)
+	$(MPICXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--start-group $(NBISLIB) -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -lcrypto -ldb -lsqlite3 -Wl,--end-group -Wl,--major-image-version,$(MAJOR_VERSION) -Wl,--minor-image-version,$(MINOR_VERSION) -Wl,-soname=$(LIBRARY).dll.$(MAJOR_VERSION)
 	$(CP) $(LIBRARY).a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(CXX) $(CXXFLAGS) -Wl,--start-group $(NBISLIB) $(OBJECTS) -Wl,--end-group -shared -ldb -lcrypto -lsqlite3 -lrt -Wl,-soname=$(LIBRARY).so.$(MAJOR_VERSION) -o $(LIBRARY).so.$(MAJOR_VERSION).$(MINOR_VERSION)
+	$(MPICXX) $(CXXFLAGS) -Wl,--start-group $(NBISLIB) $(OBJECTS) -Wl,--end-group -shared -ldb -lcrypto -lsqlite3 -lrt -Wl,-soname=$(LIBRARY).so.$(MAJOR_VERSION) -o $(LIBRARY).so.$(MAJOR_VERSION).$(MINOR_VERSION)
 	/sbin/ldconfig -n $(PWD)
 	ln -f -s $(LIBRARY).so.$(MAJOR_VERSION) $(LIBRARY).so
 	$(CP) -P $(LIBRARY).so* $(LOCALLIB)
@@ -104,16 +97,13 @@ ifeq ($(OS), Darwin)
 	$(if $(wildcard $(DBINCLUDE)),\
 	,\
 	$(error Berkeley DB include directory not found!))
-	$(CXX) -c -DDB1X -I $(DBINCLUDE) $(CXXFLAGS) $<
+	$(CXX) $(CXXFLAGS)   -c -o $@ -DDB1X -I$(DBINCLUDE) $<
 else
-	$(CXX) -c -DDB1X $(CXXFLAGS) $<
+	$(CXX) $(CXXFLAGS)   -c -o $@ -DDB1X $<
 endif
 
-be_error.o: be_error.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
 be_framework.o: be_framework.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION) $<
+	$(CXX) $(CXXFLAGS)   -c -o $@ -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION) $<
 
 clean:
 	$(RM) $(DISPOSABLEFILES) $(LIBRARY).*
