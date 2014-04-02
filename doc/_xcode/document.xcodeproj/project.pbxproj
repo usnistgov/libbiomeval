@@ -25,14 +25,22 @@
 		0849355C14C8595D001499D4 /* text.tex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = text.tex; path = ../text.tex; sourceTree = "<group>"; };
 		0849355D14C8595D001499D4 /* time.tex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = time.tex; path = ../time.tex; sourceTree = "<group>"; };
 		0849355E14C8595D001499D4 /* view.tex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = view.tex; path = ../view.tex; sourceTree = "<group>"; };
-		08F7631C14C8A5CB00A770FA /* BECommonFramework.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = BECommonFramework.pdf; path = ../BECommonFramework.pdf; sourceTree = "<group>"; };
+		08A64F2918EC9DF100ED9120 /* messaging.tex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = messaging.tex; path = ../messaging.tex; sourceTree = "<group>"; };
+		08A64F2A18EC9DF100ED9120 /* BEFull.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = BEFull.pdf; path = ../BEFull.pdf; sourceTree = "<group>"; };
+		08A64F2B18EC9DF100ED9120 /* BEFull.tex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = BEFull.tex; path = ../BEFull.tex; sourceTree = "<group>"; };
+		08A64F2C18EC9DF100ED9120 /* BELatexHdr.tex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = BELatexHdr.tex; path = ../BELatexHdr.tex; sourceTree = "<group>"; };
+		08A64F2D18EC9DF100ED9120 /* BESmall.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = BESmall.pdf; path = ../BESmall.pdf; sourceTree = "<group>"; };
+		08A64F2E18EC9DF100ED9120 /* BESmall.tex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = BESmall.tex; path = ../BESmall.tex; sourceTree = "<group>"; };
+		08A64F2F18EC9DF100ED9120 /* title.tex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = title.tex; path = ../title.tex; sourceTree = "<group>"; };
+		08A64F3018EC9DF100ED9120 /* BECommonFramework.dox */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = BECommonFramework.dox; path = ../BECommonFramework.dox; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		0837C2DC155BEF140081A8AC /* products */ = {
 			isa = PBXGroup;
 			children = (
-				08F7631C14C8A5CB00A770FA /* BECommonFramework.pdf */,
+				08A64F2A18EC9DF100ED9120 /* BEFull.pdf */,
+				08A64F2D18EC9DF100ED9120 /* BESmall.pdf */,
 			);
 			name = products;
 			sourceTree = "<group>";
@@ -49,11 +57,13 @@
 				0849355514C8595D001499D4 /* intro.tex */,
 				0849355614C8595D001499D4 /* io.tex */,
 				0849355814C8595D001499D4 /* memory.tex */,
+				08A64F2918EC9DF100ED9120 /* messaging.tex */,
 				0849355914C8595D001499D4 /* overview.tex */,
 				0849355A14C8595D001499D4 /* process.tex */,
 				0849355B14C8595D001499D4 /* system.tex */,
 				0849355C14C8595D001499D4 /* text.tex */,
 				0849355D14C8595D001499D4 /* time.tex */,
+				08A64F2F18EC9DF100ED9120 /* title.tex */,
 				0849355E14C8595D001499D4 /* view.tex */,
 			);
 			name = chapters;
@@ -62,8 +72,12 @@
 		0837C2DE155BEF620081A8AC /* supplemental */ = {
 			isa = PBXGroup;
 			children = (
-				0849354914C8595C001499D4 /* BECommonFramework.tex */,
 				0849354314C8595C001499D4 /* BECommonFramework.bib */,
+				08A64F3018EC9DF100ED9120 /* BECommonFramework.dox */,
+				0849354914C8595C001499D4 /* BECommonFramework.tex */,
+				08A64F2B18EC9DF100ED9120 /* BEFull.tex */,
+				08A64F2C18EC9DF100ED9120 /* BELatexHdr.tex */,
+				08A64F2E18EC9DF100ED9120 /* BESmall.tex */,
 			);
 			name = supplemental;
 			sourceTree = "<group>";
@@ -137,21 +151,12 @@
 		0849353F14C85939001499D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEBUGGING_SYMBOLS = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
 		0849354014C85939001499D4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
