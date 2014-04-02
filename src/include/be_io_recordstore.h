@@ -480,7 +480,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual void setCursorAtKey(
-			    std::string &key) = 0;
+			    const std::string &key) = 0;
 
 			/**
 			 * @brief

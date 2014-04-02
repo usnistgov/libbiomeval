@@ -111,7 +111,7 @@ namespace BiometricEvaluation
 
 			void
 			setCursorAtKey(
-			    std::string &key);
+			    const std::string &key);
 
 			void
 			changeName(

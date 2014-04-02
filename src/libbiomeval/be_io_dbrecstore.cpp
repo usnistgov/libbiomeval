@@ -364,7 +364,7 @@ BiometricEvaluation::IO::DBRecordStore::sequence(
 
 void 
 BiometricEvaluation::IO::DBRecordStore::setCursorAtKey(
-    std::string &key)
+    const std::string &key)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");

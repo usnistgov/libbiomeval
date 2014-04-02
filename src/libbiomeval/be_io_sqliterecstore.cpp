@@ -586,7 +586,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 
 void
 BiometricEvaluation::IO::SQLiteRecordStore::setCursorAtKey(
-    std::string &key)
+    const std::string &key)
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");

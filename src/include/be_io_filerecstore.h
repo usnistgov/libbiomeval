@@ -110,7 +110,7 @@ namespace BiometricEvaluation {
 			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			void setCursorAtKey(
-			    std::string &key);
+			    const std::string &key);
 
 			void changeName(
 			    const std::string &name);

@@ -123,7 +123,7 @@ BiometricEvaluation::IO::ListRecordStore::sequence(
 
 void
 BiometricEvaluation::IO::ListRecordStore::setCursorAtKey(
-    std::string &key)
+    const std::string &key)
 {
 	this->setCursor(BE_RECSTORE_SEQ_START);
 	

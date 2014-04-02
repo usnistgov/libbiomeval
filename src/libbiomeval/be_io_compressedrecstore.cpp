@@ -231,7 +231,7 @@ BiometricEvaluation::IO::CompressedRecordStore::changeName(
 
 void
 BiometricEvaluation::IO::CompressedRecordStore::setCursorAtKey(
-    std::string &key)
+    const std::string &key)
 {
 	_rs->setCursorAtKey(key);
 }
