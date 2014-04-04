@@ -53,7 +53,7 @@ namespace BiometricEvaluation
 			static bool
 			isJPEGL(
 			    const uint8_t *data,
-			    const size_t size);
+			    uint64_t size);
 
 		protected:
 

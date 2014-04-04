@@ -66,7 +66,7 @@ namespace BiometricEvaluation
 			static bool
 			isJPEG(
 			    const uint8_t *data,
-			    const size_t size);
+			    uint64_t size);
 			
 			static int
 			getc_skip_marker_segment(

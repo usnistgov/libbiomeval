@@ -89,7 +89,7 @@ namespace BiometricEvaluation
 			static bool
 			isNetPBM(
 			    const uint8_t *data,
-			    const size_t size);			
+			    uint64_t size);
 			
 			/*
 			 * Utility methods for parsing buffers.

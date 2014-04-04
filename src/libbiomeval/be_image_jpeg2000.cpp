@@ -144,13 +144,16 @@ BiometricEvaluation::Image::JPEG2000::getRawGrayscaleData(
 
 bool
 BiometricEvaluation::Image::JPEG2000::isJPEG2000(
-    const uint8_t *data)
+    const uint8_t *data,
+    uint64_t size)
 {
 	static const uint8_t SOC_size = 12;
 	static const uint8_t SOC[SOC_size] = {
 	    0x00, 0x00, 0x00, 0x0C, 0x6A, 0x50,
 	    0x20, 0x20, 0x0D, 0x0A, 0x87, 0x0A
 	};
+	if (size < SOC_size)
+		return (false);
 	
 	return (memcmp(data, SOC, SOC_size) == 0);
 }

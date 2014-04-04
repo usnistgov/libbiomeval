@@ -78,6 +78,8 @@ namespace BiometricEvaluation
 			 *
 			 * @param[in] data
 			 *	The buffer to check.
+			 * @param[in] size
+			 *	The size of data.
 			 *
 			 * @return
 			 *	true if data appears to be a JPEG-2000 image,
@@ -85,7 +87,8 @@ namespace BiometricEvaluation
 			 */
 			static bool
 			isJPEG2000(
-			    const uint8_t *data);
+			    const uint8_t *data,
+			    uint64_t size);
 
 		private:
 			/** JPEG2000 codec to use (from libopenjpeg) */

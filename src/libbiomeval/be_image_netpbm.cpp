@@ -335,7 +335,7 @@ BiometricEvaluation::Image::NetPBM::getRawGrayscaleData(
 bool
 BiometricEvaluation::Image::NetPBM::isNetPBM(
     const uint8_t *data,
-    const size_t size)
+    uint64_t size)
 {
 	/* Skip any comments that exist before the magic bits */
 	size_t offset = 0;

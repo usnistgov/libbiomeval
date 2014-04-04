@@ -128,9 +128,12 @@ BiometricEvaluation::Image::PNG::getRawGrayscaleData(
 
 bool
 BiometricEvaluation::Image::PNG::isPNG(
-    const uint8_t *data)
+    const uint8_t *data,
+    uint64_t size)
 {
 	static const png_size_t PNG_SIG_LENGTH = 8;
+	if (size <= PNG_SIG_LENGTH)
+		return (false);
 
 	png_byte header[PNG_SIG_LENGTH];
 	std::memcpy(header, data, PNG_SIG_LENGTH);

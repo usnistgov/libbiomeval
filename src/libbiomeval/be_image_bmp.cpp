@@ -149,7 +149,7 @@ BiometricEvaluation::Image::BMP::getRawGrayscaleData(
 bool
 BiometricEvaluation::Image::BMP::isBMP(
     const uint8_t *data,
-    const uint64_t size)
+    uint64_t size)
 {
 	if (size < 2)
 		return (false);

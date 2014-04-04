@@ -43,6 +43,8 @@ namespace BiometricEvaluation
 			 *
 			 * @param[in] data
 			 *	The buffer to check.
+ 			 * @param[in] size
+			 *	The size of data.
 			 *
 			 * @return
 			 *	true if data appears to be a WSQ image, false
@@ -50,7 +52,8 @@ namespace BiometricEvaluation
 			 */
 			static bool
 			isWSQ(
-			    const uint8_t *data);
+			    const uint8_t *data,
+			    uint64_t size);
 
 		protected:
 

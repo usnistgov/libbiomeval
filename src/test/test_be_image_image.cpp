@@ -368,7 +368,7 @@ main(
 		
 		shared_ptr<Image::Image> image;
 #if defined WSQTEST
-		if (Image::WSQ::isWSQ(imageData) == false) {
+		if (Image::WSQ::isWSQ(imageData, imageData.size()) == false) {
 			cerr << key << " is not a WSQ image." << endl;
 			continue;
 		}
@@ -387,13 +387,14 @@ main(
 		}
 		image.reset(new Image::JPEGL(imageData, imageData.size()));
 #elif defined JPEG2000TEST
-		if (Image::JPEG2000::isJPEG2000(imageData) == false) {
+		if (Image::JPEG2000::isJPEG2000(imageData, imageData.size()) ==
+		    false) {
 			cerr << key << " is not a JPEG2000 image." << endl;
 			continue;
 		}
 		image.reset(new Image::JPEG2000(imageData, imageData.size()));
 #elif defined PNGTEST
-		if (Image::PNG::isPNG(imageData) == false) {
+		if (Image::PNG::isPNG(imageData, imageData.size()) == false) {
 			cerr << key << " is not a PNG image." << endl;
 			continue;
 		}

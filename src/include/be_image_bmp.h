@@ -49,6 +49,8 @@ namespace BiometricEvaluation
 			 *
 			 * @param[in] data
 			 *	The buffer to check.
+			 * @param[in] size
+			 *	The size of data.
 			 *
 			 * @return
 			 *	true if data appears to be a BMP image, false
@@ -57,7 +59,7 @@ namespace BiometricEvaluation
 			static bool
 			isBMP(
 			    const uint8_t *data,
-			    const uint64_t size);
+			    uint64_t size);
 		protected:
 
 		private:

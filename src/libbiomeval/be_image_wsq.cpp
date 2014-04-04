@@ -108,9 +108,13 @@ BiometricEvaluation::Image::WSQ::getRawGrayscaleData(
 
 bool
 BiometricEvaluation::Image::WSQ::isWSQ(
-    const uint8_t *data)
+    const uint8_t *data,
+    uint64_t size)
 {
 	static const uint8_t WSQ_SOI[2] = {0xFF, 0xA0};
+	if (size < (sizeof(WSQ_SOI) / sizeof(uint8_t)))
+		return (false);
+
 	return (memcmp(data, WSQ_SOI, 2) == 0);
 }
 

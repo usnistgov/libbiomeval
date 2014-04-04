@@ -123,12 +123,10 @@ BiometricEvaluation::Image::JPEGL::getRawGrayscaleData(
 bool
 BiometricEvaluation::Image::JPEGL::isJPEGL(
     const uint8_t *data,
-    const size_t size)
+    uint64_t size)
 {
-	Memory::uint8Array jpegData;
-	jpegData.copy(data, size);
-	uint8_t *markerBuf = jpegData;	/* Manipulated by libjpegl */
-	uint8_t *endPtr = jpegData + jpegData.size();
+	uint8_t *markerBuf = (uint8_t *)data;
+	uint8_t *endPtr = (uint8_t *)data + size;
 	
 	/*
 	 * JPEG markers (ISO/IEC 10918-1:1993)

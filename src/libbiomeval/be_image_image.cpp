@@ -13,6 +13,7 @@
 #include <memory>
 
 #include <be_image_image.h>
+#include <be_image_bmp.h>
 #include <be_image_jpeg.h>
 #include <be_image_jpeg2000.h>
 #include <be_image_jpegl.h>
@@ -279,6 +280,8 @@ BiometricEvaluation::Image::Image::openImage(
 		return (std::shared_ptr<Image>(new NetPBM(data, size)));
 	case CompressionAlgorithm::WSQ20:
 		return (std::shared_ptr<Image>(new WSQ(data, size)));
+	case CompressionAlgorithm::BMP:
+		return (std::shared_ptr<Image>(new BMP(data, size)));
 	default:
 		throw Error::StrategyError("Could not determine compression "
 		    "algorithm");
@@ -307,16 +310,19 @@ BiometricEvaluation::Image::Image::getCompressionAlgorithm(
 {
 	if (NetPBM::isNetPBM(data, size))
 		return (CompressionAlgorithm::NetPBM);
-	else if (JPEG2000::isJPEG2000(data))
+	else if (JPEG2000::isJPEG2000(data, size))
 		return (CompressionAlgorithm::JP2);
 	else if (JPEG::isJPEG(data, size))
 		return (CompressionAlgorithm::JPEGB);
 	else if (JPEGL::isJPEGL(data, size))
 		return (CompressionAlgorithm::JPEGL);
-	else if (PNG::isPNG(data))
+	else if (PNG::isPNG(data, size))
 		return (CompressionAlgorithm::PNG);
-	else if (WSQ::isWSQ(data))
+	else if (BMP::isBMP(data, size))
+		return (CompressionAlgorithm::BMP);
+	else if (WSQ::isWSQ(data, size))
 		return (CompressionAlgorithm::WSQ20);
+
 		
 	return (CompressionAlgorithm::None);
 }
