@@ -186,8 +186,9 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 	/*********************************************************************/
 	/* Optional Fields.                                                  */
 	/*********************************************************************/
+
+	/* Reuse units from SLC */
 	ir.xRes = ir.yRes = 0.0;
-	ir.units = Image::Resolution::Units::NA;
 	if (lookup_ANSI_NIST_field(&field, &idx, SHPS_ID, record) == TRUE)
 		ir.xRes = atoi((char *)field->subfields[0]->items[0]->value);
 	if (lookup_ANSI_NIST_field(&field, &idx, SVPS_ID, record) == TRUE)

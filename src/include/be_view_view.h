@@ -65,12 +65,13 @@ namespace BiometricEvaluation
 			 * Obtain the image resolution.
 			 * @details
 			 * Image resolution is taken from the biometric record,
-			 * and not from the image data. In some cases, the
-			 * resolution may be the components of the pixel
-			 * ratio, and applications must check the 
-			 * Image::Resolution::units field for value NA.
+			 * and not from the image data.
 			 * @return
 			 * The scan resolution.
+ 			 * @note
+			 * In some cases, the resolution may be the components
+			 * of the pixel ratio, and applications must check the
+			 * Image::Resolution::Units field for value NA.
 		 	 */
 			Image::Resolution getImageResolution() const;
 
@@ -111,6 +112,10 @@ namespace BiometricEvaluation
 			 * but applications can check for inconsistencies.
 			 * @return
 			 * The scan resolution.
+			 * @note
+			 * In some cases, the resolution may be the components
+			 * of the pixel ratio, and applications must check the
+			 * Image::Resolution::Units field for value NA.
 		 	 */
 			Image::Resolution getScanResolution() const;
 
