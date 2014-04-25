@@ -202,12 +202,53 @@ namespace BiometricEvaluation
 			getIsWorkingStatus(
 			    const pid_t pid)
 			    const;
-			    
+
+			void
+			waitForWorkerExit();
+
 			/**
 			 * @brief
 			 * ForkManager destructor.
 			 */
 			~ForkManager();
+
+			/**
+			 * @brief
+			 * Call a function in your program when a child
+			 * exits.
+			 * 
+			 * @param exitCallback
+			 *	Function pointer to a method that takes a
+			 *	shared_ptr to a ForkWorkerController and the
+			 *	integer status information.
+			 *
+			 * @note
+			 *	The exit callback will not have any effect if
+			 *	the Manager is not set to wait for Workers.
+			 */
+			void
+			setExitCallback(
+			    void (*exitCallback)
+			    (std::shared_ptr<ForkWorkerController> worker,
+			    int stat_loc));
+
+			/**
+			 * @brief
+			 * A default exit callback function.
+			 * @details
+			 * Writes to stdout in the form:
+			 *	PID #: Exited <description>.
+			 *
+			 * @param worker
+			 *	The ForkWorkerController object that exited.
+			 * @param status
+			 *	The status of the Worker that exited 
+			 *	(from wait(2)).
+			 */
+			static void
+			defaultExitCallback(
+			    std::shared_ptr<ForkWorkerController> worker,
+			    int status);
 			
 		private:
 			/**
@@ -234,44 +275,6 @@ namespace BiometricEvaluation
 			 */
 			void
 			_wait();
-			
-			/**
-			 * @brief
-			 * Call a function in your program when a child
-			 * exits.
-			 * 
-			 * @param exitCallback
-			 *	Function pointer to a method that takes a
-			 *	shared_ptr to a ForkWorkerController and the
-			 *	integer status information.
-			 *
-			 * @note
-			 *	The exit callback will not have any effect if
-			 *	the Manager is not set to wait for Workers.
-			 */
-			void
-			setExitCallback(
-			    void (*exitCallback)
-			    (std::shared_ptr<ForkWorkerController> worker,
-			    int stat_loc));
-			    
-			/**
-			 * @brief
-			 * A default exit callback function.
-			 * @details
-			 * Writes to stdout in the form:
-			 *	PID #: Exited <description>.
-			 *
-			 * @param worker
-			 *	The ForkWorkerController object that exited.
-			 * @param status
-			 *	The status of the Worker that exited 
-			 *	(from wait(2)).
-			 */
-			static void
-			defaultExitCallback(
-			    std::shared_ptr<ForkWorkerController> worker,
-			    int status);
 
 			/**
 			 * @brief
@@ -348,6 +351,10 @@ namespace BiometricEvaluation
 			 */
 			bool
 			isWorking()
+			    const;
+
+			bool
+			everWorked()
 			    const;
 			    
 			/**

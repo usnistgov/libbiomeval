@@ -353,6 +353,14 @@ namespace BiometricEvaluation
 			const_iterator
 			begin()
 			    const;
+
+			/**
+			 * @return
+			 *	Iterator at the first element of the collection.
+			 */ 
+			const_iterator
+			cbegin()
+			    const;
 			
 			/**
 			 * @return
@@ -369,6 +377,15 @@ namespace BiometricEvaluation
 			 */ 
 			const_iterator
 			end()
+			    const;
+
+			/**
+			 * @return
+			 *	Iterator beyond the last element of the
+			 *	collection.
+			 */ 
+			const_iterator
+			cend()
 			    const;
 			
 			/**
@@ -506,6 +523,14 @@ BiometricEvaluation::Memory::OrderedMap<Key, T>::begin()
 {
 	return (OrderedMapIterator<Key, T>(this, _ordering->begin()));
 }
+
+template<class Key, class T>
+typename BiometricEvaluation::Memory::OrderedMap<Key, T>::const_iterator
+BiometricEvaluation::Memory::OrderedMap<Key, T>::cbegin()
+    const
+{
+	return (OrderedMapIterator<Key, T>(this, _ordering->begin()));
+}
 	
 template<class Key, class T>
 typename BiometricEvaluation::Memory::OrderedMap<Key, T>::iterator
@@ -517,6 +542,14 @@ BiometricEvaluation::Memory::OrderedMap<Key, T>::end()
 template<class Key, class T>
 typename BiometricEvaluation::Memory::OrderedMap<Key, T>::const_iterator
 BiometricEvaluation::Memory::OrderedMap<Key, T>::end()
+    const
+{
+	return (OrderedMapIterator<Key, T>(this, _ordering->end()));
+}
+
+template<class Key, class T>
+typename BiometricEvaluation::Memory::OrderedMap<Key, T>::const_iterator
+BiometricEvaluation::Memory::OrderedMap<Key, T>::cend()
     const
 {
 	return (OrderedMapIterator<Key, T>(this, _ordering->end()));

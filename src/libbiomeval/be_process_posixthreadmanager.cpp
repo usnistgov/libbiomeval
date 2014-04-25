@@ -37,6 +37,11 @@ BiometricEvaluation::Process::POSIXThreadManager::startWorkers(
     bool wait,
     bool communicate)
 {
+	/* Ensure all Workers have finished their previous assignments */
+	if (this->getNumActiveWorkers() != 0)
+		throw Error::ObjectExists();
+	this->reset();
+
 	std::vector<std::shared_ptr<WorkerController>>::const_iterator it;
 	for (it = _workers.begin(); it != _workers.end(); it++)
 		std::static_pointer_cast<POSIXThreadWorkerController>(*it)->
@@ -52,6 +57,9 @@ BiometricEvaluation::Process::POSIXThreadManager::startWorker(
     bool wait,
     bool communicate)
 {
+	if (worker->isWorking())
+		throw Error::ObjectExists();
+
 	std::vector<std::shared_ptr<WorkerController>>::iterator it;
 	it = find(_workers.begin(), _workers.end(), worker);
 	if (it == _workers.end())
@@ -85,10 +93,17 @@ BiometricEvaluation::Process::POSIXThreadManager::stopWorker(
 void
 BiometricEvaluation::Process::POSIXThreadManager::_wait()
 {
+	/* TODO: This only closes threads in order. */
 	std::vector<std::shared_ptr<WorkerController>>::const_iterator it;
 	for (it = _workers.begin(); it != _workers.end(); it++)
 		pthread_join(std::static_pointer_cast<
 		    POSIXThreadWorkerController>(*it)->_thread, nullptr);
+}
+
+void
+BiometricEvaluation::Process::POSIXThreadManager::waitForWorkerExit()
+{
+	this->_wait();
 }
 
 BiometricEvaluation::Process::POSIXThreadManager::~POSIXThreadManager()
@@ -105,6 +120,7 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::
     std::shared_ptr<Worker> worker) :
     WorkerController(worker),
     _working(false),
+    _hasWorked(false),
     _rv(EXIT_FAILURE)
 {
 
@@ -114,12 +130,17 @@ void
 BiometricEvaluation::Process::POSIXThreadWorkerController::reset()
 {
 	WorkerController::reset();
+
+	this->_hasWorked = false;
+	this->_working = false;
+	this->_rv = EXIT_FAILURE;
 }
 
 void *
 BiometricEvaluation::Process::POSIXThreadWorkerController::workerMainWrapper(
     void *_this)
 {
+	((POSIXThreadWorkerController *)_this)->_hasWorked = true;
 	((POSIXThreadWorkerController *)_this)->_working = true;
 	((POSIXThreadWorkerController *)_this)->_rv = 
 	    ((POSIXThreadWorkerController *)_this)->getWorker()->workerMain();
@@ -133,6 +154,13 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::isWorking()
     const
 {
 	return (_working);
+}
+
+bool
+BiometricEvaluation::Process::POSIXThreadWorkerController::everWorked()
+    const
+{
+	return (this->_hasWorked);
 }
 
 int32_t
@@ -156,6 +184,8 @@ void
 BiometricEvaluation::Process::POSIXThreadWorkerController::start(
     bool communicate)
 {
+	if (this->isWorking())
+		throw Error::ObjectExists();
 	this->reset();
 	
 	if (communicate)

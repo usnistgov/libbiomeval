@@ -45,7 +45,7 @@ std::shared_ptr<void>
 BiometricEvaluation::Process::Worker::getParameter(
     const std::string &name)
 {
-	return (_parameters[name]);
+	return (_parameters.at(name));
 }
 
 double

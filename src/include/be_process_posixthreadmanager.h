@@ -116,6 +116,9 @@ namespace BiometricEvaluation
 			stopWorker(
 			    std::shared_ptr<WorkerController> workerController);
 
+			void
+			waitForWorkerExit();
+
 			/**
 			 * @brief
 			 * ~POSIXThreadManager destructor.
@@ -158,6 +161,10 @@ namespace BiometricEvaluation
 			 */
 			bool
 			isWorking()
+			    const;
+
+			bool
+			everWorked()
 			    const;
 			
 			/**
@@ -244,6 +251,9 @@ namespace BiometricEvaluation
 
 			/** Whether or not the Worker is working */
 			bool _working;
+
+			/** Whether or not the Worker has worked */
+			bool _hasWorked;
 
 			/** Returned status from the thread on exit */
 			int32_t _rv;

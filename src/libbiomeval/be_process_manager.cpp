@@ -37,7 +37,11 @@ uint32_t
 BiometricEvaluation::Process::Manager::getNumCompletedWorkers()
     const
 {
-	return (_workers.size() - getNumActiveWorkers());
+	uint32_t completedWorkers = 0;
+	for (const auto &worker : this->_workers)
+		if (worker->finishedWorking())
+			completedWorkers++;
+	return (completedWorkers);
 }
 
 uint32_t
@@ -64,9 +68,12 @@ BiometricEvaluation::Process::Manager::getTotalWorkers()
 void
 BiometricEvaluation::Process::Manager::reset()
 {
-	std::vector<std::shared_ptr<WorkerController>>::iterator it;
-	for (it = _workers.begin(); it != _workers.end(); it++)
-		(*it)->reset();
+	/* Make sure no workers are working before resetting any of them */
+	if (this->getNumActiveWorkers() != 0)
+		throw Error::ObjectExists();
+
+	for (auto &worker : this->_workers)
+		worker->reset();
 
 	_pendingExit.clear();
 }

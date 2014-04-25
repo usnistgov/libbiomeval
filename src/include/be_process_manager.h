@@ -142,6 +142,16 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Block until all Workers have exited.
+			 * @details
+			 * Use this method if wait=false was set during a call
+			 * to startWorker(s) but now wait=true is desired.
+			 */
+			virtual void
+			waitForWorkerExit() = 0;
+
+			/**
+			 * @brief
 			 * Reuse all Workers.
 			 *
 			 * @throw Error::ObjectExists

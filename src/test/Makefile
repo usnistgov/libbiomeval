@@ -14,7 +14,7 @@ CORE = test_be_time test_be_time_timer test_be_time_watchdog test_be_error test_
 
 IO = test_construct_be_io_filerecstore test_be_io_filerecordstore test_be_io_dbrecordstore test_be_io_sqliterecordstore test_be_io_compressedrecordstore test_be_io_filerecordstore-stress test_be_io_dbrecordstore-stress test_be_io_archiverecordstore-stress test_be_io_sqliterecordstore-stress test_construct_be_io_archiverecstore test_be_io_archiverecordstore test_be_io_logcabinet test_be_io_properties test_be_io_propertiesfile test_be_io_utility test_be_io_listrecstore test_be_io_syslogsheet
 
-IMAGE = test_be_image_raw test_be_image_jpeg test_be_image_jpegl test_be_image_jpeg2000 test_be_image_png test_be_image_wsq test_be_image_netpbm test_be_image_bmp test_be_image_factory 
+IMAGE = test_be_image_raw test_be_image_jpeg test_be_image_jpegl test_be_image_jpeg2000 test_be_image_jpeg2000l test_be_image_png test_be_image_wsq test_be_image_netpbm test_be_image_bmp test_be_image_factory 
 
 FINGER = test_be_finger_an2kview test_be_finger_an2kview_varres test_be_finger_incitsviews
 
@@ -85,6 +85,8 @@ test_be_image_jpegl: test_be_image_image.cpp
 	$(CXX) $(CXXFLAGS) -DJPEGLTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_jpeg2000: test_be_image_image.cpp
 	$(CXX) $(CXXFLAGS) -DJPEG2000TEST $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_image_jpeg2000l: test_be_image_image.cpp
+	$(CXX) $(CXXFLAGS) -DJPEG2000LTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_netpbm: test_be_image_image.cpp
 	$(CXX) $(CXXFLAGS) -DNETPBMTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_png: test_be_image_image.cpp

@@ -1,4 +1,4 @@
-Count = 44
+Count = 46
 Description = A merge of ImageRecordStore
 Name = ImageRS
 Type = BerkeleyDB

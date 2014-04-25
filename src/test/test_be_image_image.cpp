@@ -30,6 +30,9 @@ static const std::string imageType = "BMP";
 #elif defined JPEG2000TEST
 #include <be_image_jpeg2000.h>
 static const std::string imageType = "JPEG2000";
+#elif defined JPEG2000LTEST
+#include <be_image_jpeg2000.h>
+static const std::string imageType = "JPEG2000L";
 #elif defined JPEGBTEST
 #include <be_image_jpeg.h>
 static const std::string imageType = "JPEG";
@@ -281,6 +284,7 @@ main(
 	extensions["jp2"] = "JPEG2000";
 	extensions["j2k"] = "JPEG2000";
 	extensions["jp2"] = "JPEG2000";
+	extensions["p2l"] = "JPEG2000L";
 	extensions["wsq"] = "WSQ";
 
 	/* Load images */
@@ -390,6 +394,13 @@ main(
 		if (Image::JPEG2000::isJPEG2000(imageData, imageData.size()) ==
 		    false) {
 			cerr << key << " is not a JPEG2000 image." << endl;
+			continue;
+		}
+		image.reset(new Image::JPEG2000(imageData, imageData.size()));
+#elif defined JPEG2000LTEST
+		if (Image::JPEG2000::isJPEG2000(imageData, imageData.size()) ==
+		    false) {
+			cerr << key << " is not a JPEG2000L image." << endl;
 			continue;
 		}
 		image.reset(new Image::JPEG2000(imageData, imageData.size()));

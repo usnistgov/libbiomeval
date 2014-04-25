@@ -96,6 +96,8 @@ BiometricEvaluation::Process::ForkManager::startWorkers(
     bool communicate)
 {
 	/* Ensure all Workers have finished their previous assignments */
+	if (this->getNumActiveWorkers() != 0)
+		throw Error::ObjectExists();
 	this->reset();
 
 	for (uint32_t i = 0; i < getTotalWorkers(); i++) {
@@ -131,6 +133,9 @@ BiometricEvaluation::Process::ForkManager::startWorker(
     bool wait,
     bool communicate)
 {
+	if (worker->isWorking())
+		throw Error::ObjectExists();
+
 	std::vector<std::shared_ptr<WorkerController>>::iterator it;
 	it = find(_workers.begin(), _workers.end(), worker);
 	if (it == _workers.end())
@@ -166,6 +171,8 @@ void
 BiometricEvaluation::Process::ForkWorkerController::start(
     bool communicate)
 {
+	if (this->isWorking())
+		throw Error::ObjectExists();
 	this->reset();
 
 	if (communicate)
@@ -258,6 +265,18 @@ BiometricEvaluation::Process::ForkManager::getProcessWithPID(
 }
 
 void
+BiometricEvaluation::Process::ForkManager::waitForWorkerExit()
+{
+	/* "Remove" SIGCHLD handler */
+	struct sigaction removeSignal;
+	memset(&removeSignal, 0, sizeof(removeSignal));
+	removeSignal.sa_handler = SIG_DFL;
+	sigaction(SIGCHLD, &removeSignal, nullptr);
+
+	this->_wait();
+}
+
+void
 BiometricEvaluation::Process::ForkManager::_wait()
 {
 	/* No need for children to wait */
@@ -329,15 +348,24 @@ void
 BiometricEvaluation::Process::ForkManager::reap(
     int signal)
 {
+	/* This handler is for SIGCHLD only */
+	if (signal != SIGCHLD)
+		return;
+
 	int32_t status;
 	bool stop = false;
-	pid_t pid = -1;
+	pid_t pid;
 
+	/* Try to reap until there are no more available processes to reap */
 	while (!stop) {
 		/* Reap the first available child without waiting */
 		pid = ::waitpid(-1, &status, WNOHANG);
 
-		if (pid == -1) {
+		switch (pid) {
+		case 0:		/* No child ready to be reaped */
+			stop = true;
+			break;
+		case -1:	/* Error */
 			switch (errno) {
 			case ECHILD:	/* No child processes */
 				stop = true;
@@ -350,23 +378,20 @@ BiometricEvaluation::Process::ForkManager::reap(
 				 * set, this should set errno to ECHILD
 				 * on the next iteration.
 				 */
-				continue;
+				break;
 			default:
 				throw Error::StrategyError(
 				    Error::errorStr());
 			}
-		} else
-			stop = true;
+			break;
+		default:	/* Reap successful */
+			/* Update the Status list */
+			for (auto &it : FORKMANAGERS)
+				if (it->responsibleFor(pid))
+					it->setNotWorking(pid);
+			break;
+		}
 	}
-
-	/* Update the Status list */
-	std::list<ForkManager*>::iterator it;
-	for (it = BiometricEvaluation::Process::ForkManager::
-	    FORKMANAGERS.begin();
-	    it != BiometricEvaluation::Process::ForkManager::
-	    FORKMANAGERS.end(); it++)
-		if ((*it)->responsibleFor(pid))
-			(*it)->setNotWorking(pid);
 }
 
 void
@@ -453,6 +478,13 @@ BiometricEvaluation::Process::ForkWorkerController::isWorking()
 			return ((*it)->getIsWorkingStatus(getPID()));
 
 	throw Error::ObjectDoesNotExist();
+}
+
+bool
+BiometricEvaluation::Process::ForkWorkerController::everWorked()
+    const
+{
+	return (this->_pid != 0);
 }
 
 pid_t

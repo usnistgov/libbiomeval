@@ -55,9 +55,8 @@ namespace BiometricEvaluation
 			 * @return
 			 *	shared_ptr to the parameter argument.
 			 *
-			 * @attention
-			 * If name does not exist, a new shared_ptr will be 
-			 * set for name.
+			 * @throw std::out_of_range
+			 * name was not set.
 			 */
 			std::shared_ptr<void>
 			getParameter(
@@ -74,9 +73,8 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Parameter as a double.
 			 *
-			 * @attention
-			 * If name does not exist, a new shared_ptr<double>
-			 * will be set for name.
+			 * @throw std::out_of_range
+			 * name was not set.
 			 */
 			double
 			getParameterAsDouble(
@@ -93,9 +91,8 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Parameter as an integer.
 			 *
-			 * @attention
-			 * If name does not exist, a new shared_ptr<int64_t>
-			 * will be set for name.
+			 * @throw std::out_of_range
+			 * name was not set.
 			 */
 			int64_t
 			getParameterAsInteger(
@@ -112,9 +109,8 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Parameter as a string.
 			 *
-			 * @attention
-			 * If name does not exist, a new shared_ptr<string>
-			 * will be set for name.
+			 * @throw std::out_of_range
+			 * name was not set.
 			 */
 			std::string
 			getParameterAsString(

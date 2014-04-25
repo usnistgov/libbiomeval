@@ -153,6 +153,41 @@ namespace BiometricEvaluation
 			virtual bool
 			isWorking()
 			    const = 0;
+
+			/** 
+			 * @brief
+			 * Obtain whether or not this Worker has ever worked.
+			 *
+			 * @return
+		 	 * true the Worker has ever or is currently working,
+			 * false otherwise.
+			 *
+ 			 * @note
+			 * reset() will change the result of this method.
+			 */
+			virtual bool
+			everWorked()
+			    const = 0;
+
+			/**
+			 * @brief
+			 * Obtain whether or not this Worker has both started
+			 * and finished its task.
+			 *
+			 * @return
+			 * true if the Worker has both started and finished
+			 * performing its task, false otherwise.
+			 *
+			 * @note
+			 * reset() will change the result of this method.
+			 */
+			inline bool
+			finishedWorking()
+			    const
+			{
+				return (this->everWorked() &&
+				    !this->isWorking());
+			}
 			
 			/**
 			 * @brief
