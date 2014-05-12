@@ -108,6 +108,8 @@ BiometricEvaluation::IO::ListRecordStore::sequence(
 
 	Text::removeLeadingTrailingWhitespace(line);
 
+	this->setCursor(BE_RECSTORE_SEQ_NEXT);
+
 	/* Read the record from the source store; let exceptions float out */
 	uint64_t len;
 	if (data != nullptr)
@@ -115,8 +117,6 @@ BiometricEvaluation::IO::ListRecordStore::sequence(
 	else
 		len = this->_sourceRecordStore->length(line);
 	key = line;
-
-	this->setCursor(BE_RECSTORE_SEQ_NEXT);
 
 	return (len);
 }
