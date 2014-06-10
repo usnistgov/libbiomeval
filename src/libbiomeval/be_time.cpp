@@ -63,7 +63,7 @@ BiometricEvaluation::Time::put_time(
 		buffer.resize(buffer.size() + 255);
 		size = ::strftime(buffer, buffer.size(), fmt, tmb);
 	} while (size == 0);
-	buffer.resize(size);
+	buffer.resize(size + 1);
 
 	return (to_string(buffer));
 }
