@@ -1,3 +1,10 @@
+%--------------------------------------------------------------------------
+% LaTex header: This is used by Doxygen, which uses it as the
+% document front matter. This was copied from Doxygen's default
+% output, so if Doxygen or LaTex produce errors, the fix may be to
+% generate the default again (by setting LATEX_HEADER to nothing in the
+% config file) and then copying that back into this file.
+%--------------------------------------------------------------------------
 %
 % Headers & footers
 % Requres that \usepackage{fancyhdr} be done in the main document.
@@ -10,8 +17,8 @@
 \fancyhead[RO]{\fancyplain{}{\bfseries\thepage}}
 \fancyfoot[LE]{\fancyplain{}{}}
 \fancyfoot[CE]{\fancyplain{}{}}
-\fancyfoot[RE]{\fancyplain{}{\bfseries\scriptsize Generated on Tue Jan 14 2014 14\-:46\-:31 for Biometric Evaluation Common Framework by Doxygen }}
-\fancyfoot[LO]{\fancyplain{}{\bfseries\scriptsize Generated on Tue Jan 14 2014 14\-:46\-:31 for Biometric Evaluation Common Framework by Doxygen }}
+\fancyfoot[RE]{\fancyplain{}{\bfseries\scriptsize Generated for Biometric Evaluation Common Framework by Doxygen }}
+\fancyfoot[LO]{\fancyplain{}{\bfseries\scriptsize Generated for Biometric Evaluation Common Framework by Doxygen }}
 \fancyfoot[CO]{\fancyplain{}{}}
 \fancyfoot[RO]{\fancyplain{}{}}
 \renewcommand{\footrulewidth}{0.4pt}
@@ -21,3 +28,4 @@
 \renewcommand{\sectionmark}[1]{%
   \markright{\thesection\ #1}%
 }
+\newcommand{\+}{\discretionary{\mbox{\scriptsize$\hookleftarrow$}}{}{}}
