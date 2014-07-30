@@ -84,11 +84,11 @@ main(int argc, char* argv[])
 
 	cout << endl;
 
-	cout << "Text::filename() / Text::dirname()" << endl;
+	cout << "Text::basename() / Text::dirname()" << endl;
 	string path = "/this/portion/is/the/dirname/and_this_is_the_filename";
 	cout << "Path: " << path << endl;
 	cout << "Dirname: " << Text::dirname(path) << endl;
-	cout << "Filename: " << Text::filename(path) << endl;
+	cout << "Filename: " << Text::basename(path) << endl;
 
 	cout << endl;
 

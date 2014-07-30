@@ -56,8 +56,10 @@ static void
 iterateProperties(
     const IO::Properties &p)
 {
-	for (IO::Properties::const_iterator it = p.begin(); it != p.end(); it++)
-		cout << it->first << ": " << it->second << endl;
+	std::vector<std::string> keys = p.getPropertyKeys();
+	for (auto k = keys.begin(); k != keys.end(); ++k) {
+		cout << *k << ": " << p.getProperty(*k) << endl;
+        }
 }
 
 int

@@ -21,10 +21,9 @@
 static const std::string _fileArea = "theFiles";
 
 BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
-    const std::string &name,
-    const std::string &description,
-    const std::string &parentDir) :
-    RecordStore(name, description, RecordStore::Kind::File, parentDir)
+    const std::string &pathname,
+    const std::string &description) :
+    RecordStore(pathname, description, RecordStore::Kind::File)
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
@@ -35,10 +34,9 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
 }
 
 BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
-    const std::string &name,
-    const std::string &parentDir,
+    const std::string &pathname,
     uint8_t mode) :
-    RecordStore(name, parentDir, mode)
+    RecordStore(pathname, mode)
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
@@ -47,13 +45,13 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
 }
 
 void
-BiometricEvaluation::IO::FileRecordStore::changeName(
-    const std::string &name)
+BiometricEvaluation::IO::FileRecordStore::move(
+    const std::string &pathname)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	RecordStore::changeName(name);
+	RecordStore::move(pathname);
 	_theFilesDir = RecordStore::canonicalName(_fileArea);
 }
 
@@ -64,7 +62,7 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
 	this->sync();
 	
 	DIR *dir;
-	dir = opendir(_theFilesDir.c_str());
+	dir = opendir(this->_theFilesDir.c_str());
 	if (dir == nullptr)
 		throw Error::StrategyError("Cannot open store directory");
 
@@ -88,7 +86,7 @@ BiometricEvaluation::IO::FileRecordStore::getSpaceUsed()
 	if (dir != nullptr) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + 
-			    getName() + "(" + Error::errorStr() + ")");
+			    this->_theFilesDir + "(" + Error::errorStr() + ")");
 		}
 	}
 

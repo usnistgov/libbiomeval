@@ -21,15 +21,21 @@
 #include <be_error.h>
 #include <be_io_dbrecstore.h>
 #include <be_io_utility.h>
+#include <be_text.h>
+
+namespace BE = BiometricEvaluation;
 
 static const mode_t DBRS_MODE_RW =
     S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 static const mode_t DBRS_MODE_R = S_IRUSR | S_IRGRP | S_IROTH;
+static const std::string DBFILENAME = "rsdb";
 static const std::string SUBORDINATE_DBEXT = ".subordinate";
 
-/* The maximum record size supported by the underlying Berkeley DB is
+/*
+ * The maximum record size supported by the underlying Berkeley DB is
  * 2^32. This class will break larger records up into multiple key/value
- * pairs, creating the new keys using a reserved key character.
+ * pairs, inserting the 2..n segments into a separate DB file with
+ * uniquely generated key names.
  */
 static const uint64_t MAX_REC_SIZE = (uint64_t)4294967295U;
 
@@ -45,13 +51,46 @@ static void setBtreeInfo(BTREEINFO *bti)
 	bti->lorder = 4321;	/* Big-endian */
 }
 
-BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
-    const std::string &name,
-    const std::string &description,
-    const std::string &parentDir) :
-    RecordStore(name, description, RecordStore::Kind::BerkeleyDB, parentDir)
+/*
+ * The name property in the control file has been removed, but we
+ * check for it to determine whether this is an old-style DBRecordStore
+ * or the new style.
+ */
+std::string NAMEPROPERTY("Name");
+
+/*
+ * Obtain the name of the underlying Berkeley DB files:
+ * In the old format, they are named after the record store name, and
+ * that property will exists (as "non-core") in the properties file, so
+ * return it. Otherwise, assume we have a new format record store with
+ * no name, and use the new namining scheme.
+ */
+std::string
+BiometricEvaluation::IO::DBRecordStore::getDBFilePathname() const
 {
-	_dbnameP = getDirectory() + '/' + getName();
+	std::string filename;
+	std::shared_ptr<IO::Properties> props = this->getProperties();
+	try {
+		filename = props->getProperty(NAMEPROPERTY);
+	} catch (Error::ObjectDoesNotExist) {
+		filename = DBFILENAME;
+	}
+	return (this->getPathname() + '/' + filename);
+}
+
+BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
+    const std::string &pathname,
+    const std::string &description) :
+    RecordStore(pathname, description, RecordStore::Kind::BerkeleyDB)
+{
+	/*
+	 * The BDB files previously were named after the RecordStore
+	 * name, but name has been removed as concept. However, the
+	 * name was used as the directory under which the files are
+	 * stored (parentDir + name), so the last segment of the pathname
+	 * is the DB file names.
+	 */
+	_dbnameP = this->getDBFilePathname();
 	if (IO::Utility::fileExists(_dbnameP))
 		throw Error::ObjectExists("Database already exists");
 
@@ -74,12 +113,11 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 }
 
 BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
-    const std::string &name,
-    const std::string &parentDir,
+    const std::string &pathname,
     uint8_t mode) :
-    RecordStore(name, parentDir, mode)
+    RecordStore(pathname, mode)
 { 
-	_dbnameP = getDirectory() + '/' + getName();
+	_dbnameP = this->getDBFilePathname();
 	if (!IO::Utility::fileExists(_dbnameP))
 		throw Error::ObjectDoesNotExist("Database does not exist");
 
@@ -139,25 +177,43 @@ BiometricEvaluation::IO::DBRecordStore::~DBRecordStore()
 }
 
 void
-BiometricEvaluation::IO::DBRecordStore::changeName(const std::string &name)
+BiometricEvaluation::IO::DBRecordStore::move(const std::string &pathname)
 { 
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	if (_dbP != nullptr)
-		_dbP->close(_dbP);
-	if (_dbS != nullptr)
-		_dbS->close(_dbS);
+	if (this->_dbP != nullptr)
+		this->_dbP->close(this->_dbP);
+	if (this->_dbS != nullptr)
+		this->_dbS->close(this->_dbS);
+	this->_dbP = nullptr;
+	this->_dbS = nullptr;
 
 	std::string oldDBName, newDBName;
-	if (getParentDirectory().empty() || getParentDirectory() == ".") {
-		oldDBName = name + '/' + getName();
-		newDBName = name + '/' + name;
-	} else {
-		oldDBName = getParentDirectory() + '/' + name + '/' + getName();
-		newDBName = getParentDirectory() + '/' + name + '/' + name;
+	/*
+	 * Preserve the old name of the DB files.
+	 */
+	oldDBName = BE::Text::basename(this->getDBFilePathname());
+	RecordStore::move(pathname);
+
+	/*
+	 * Remove the name property if it exists and have the parent class
+	 * store the new Properties object.
+	 */
+	std::shared_ptr<IO::Properties> props = this->getProperties();
+	try {
+		props->removeProperty(NAMEPROPERTY);
+		this->setProperties(props);
+	} catch (BE::Error::ObjectDoesNotExist) {
 	}
-	RecordStore::changeName(name);
+
+	/*
+	 * The DB files are now in the new directory and will be
+	 * always named in the new manner.
+	 */
+	oldDBName = pathname + '/' + oldDBName;
+	newDBName = pathname + '/' + DBFILENAME;
+
 	if (rename(oldDBName.c_str(), newDBName.c_str()))
 		throw Error::StrategyError(
 		    "Could not rename primary DB (" + 
@@ -170,10 +226,10 @@ BiometricEvaluation::IO::DBRecordStore::changeName(const std::string &name)
 		    "Could not rename subordinate DB (" + 
 		    Error::errorStr() + ")");
 
-	_dbnameP = RecordStore::canonicalName(getName());
+	_dbnameP = this->getDBFilePathname();
 	if (!IO::Utility::fileExists(_dbnameP))
 		throw Error::StrategyError("Database " + _dbnameP + 
-		    "does not exist");
+		    " does not exist");
 	_dbnameS = _dbnameP + SUBORDINATE_DBEXT;
 	if (!IO::Utility::fileExists(_dbnameP))
 		throw Error::StrategyError("Database " + _dbnameS + 

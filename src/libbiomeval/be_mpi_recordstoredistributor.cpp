@@ -24,11 +24,22 @@ BiometricEvaluation::MPI::RecordStoreDistributor::RecordStoreDistributor(
 	try {
 		this->_resources.reset(
 		    new RecordStoreResources(propertiesFileName));
-		this->_recordsRemaining =
-		     this->_resources->getRecordStore()->getCount();
 	} catch (Error::Exception &e) {
 		//XXX log a message?
 		throw;
+	}
+	/*
+	 * If we a rank 0, we must have the input record store;
+	 * otherwise, we don't care.
+	 */
+	if (this->_resources->getRank() == 0) {
+		if (this->_resources->haveRecordStore() == false) {
+			throw (Error::Exception(
+			    "Do not have input record store"));
+		} else {
+			this->_recordsRemaining =
+			     this->_resources->getRecordStore()->getCount();
+		}
 	}
 }
 
@@ -79,6 +90,8 @@ void
 BiometricEvaluation::MPI::RecordStoreDistributor::createWorkPackage(
     MPI::WorkPackage &workPackage)
 {
+	std::shared_ptr<BE::IO::Logsheet> log = this->getLogsheet();
+
 	/* Create the package data buffer at a reasonable starting size */
 	BE::Memory::uint8Array packageData(16384);
 	
@@ -131,10 +144,7 @@ BiometricEvaluation::MPI::RecordStoreDistributor::createWorkPackage(
 			fillBufferWithKeyAndValue(packageData, key, value,
 			    index);
 		} catch (Error::Exception &e) {
-#if 0
-			*res.logSheet << " Caught " << e.getInfo();
-			res.logSheet->newEntry();
-#endif
+			log->writeDebug("Caught " + e.whatString());
 			continue;
 		}
 		realKeyCount++;

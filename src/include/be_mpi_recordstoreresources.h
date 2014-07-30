@@ -59,8 +59,16 @@ namespace BiometricEvaluation {
 			~RecordStoreResources();
 
 			uint32_t getChunkSize() const;
-			uint32_t getMaxKeySize() const;
-			
+
+			/**
+			 * @brief
+			 * Indicator that a record store has been opened.
+			 *
+			 * @return true if input record store is opened,
+			 * false otherwise.
+			 */
+			bool haveRecordStore() const;
+
 			/**
 			 * @brief
 			 * Return the RecordStore named in the property set.
@@ -68,10 +76,10 @@ namespace BiometricEvaluation {
 			 */
 			 std::shared_ptr<IO::RecordStore>
 			    getRecordStore() const;
-			
+
 		private:
 			uint32_t _chunkSize;
-			uint32_t _maxKeySize;
+			bool _haveRecordStore;
 			std::shared_ptr<IO::RecordStore> _recordStore;
 		};
 	}

@@ -15,7 +15,7 @@
 #include <memory>
 #include <pthread.h>
 
-#include <be_io_logcabinet.h>
+#include <be_io_filelogcabinet.h>
 
 namespace BiometricEvaluation {
 	namespace Process {
@@ -27,8 +27,9 @@ namespace BiometricEvaluation {
 		 *
 		 * @details
 		 * The information gathered by objects of this class are for the
-		 * current process, and can optionally be logged to a LogSheet
-		 * object contained within the provided LogCabinet.
+		 * current process, and can optionally be logged to a 
+		 * FileLogsheet object contained within the provided 
+		 * FileLogCabinet.
 		 *
 		 * @note
 		 * The resolution of a returned value for many methods may
@@ -47,23 +48,24 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Construct a Statistics object with the associated
-			 * LogCabinet.
+			 * FileLogCabinet.
 			 *
 			 * @param[in] logCabinet
-			 * 	The LogCabinet obejct where this object will
-			 * 	create a LogSheet to contain the statistic
+			 * 	The FileLogCabinet obejct where this object will
+			 * 	create a FileLogsheet to contain the statistic
 			 *	information for the process.
 			 * @throw Error::NotImplemented
 			 *	Logging is not supported on this OS. This
 			 *	exception can be thrown when any portion of
 			 *	the statistics gathering cannot be completed.
 			 * @throw Error::ObjectExists
-			 *	The LogSheet already exists. This exception
+			 *	The FileLogsheet already exists. This exception
 			 *	should rarely, if ever, occur.
 			 * @throw Error::StrategyError
-			 *	Failure to create the LogSheet in the cabinet.
+			 *	Failure to create the FileLogsheet in the
+			 *	cabinet.
 			 */
-			Statistics(IO::LogCabinet * const logCabinet);
+			Statistics(IO::FileLogCabinet * const logCabinet);
 
 			~Statistics();
 
@@ -151,13 +153,14 @@ namespace BiometricEvaluation {
 			/**
 			 * @brief
 			 * Create a snapshot of the current process statistics
-			 * in the LogSheet created in the LogCabinet.
+			 * in the FileLogsheet created in the FileLogCabinet.
 			 *
 			 * @throw Error::ObjectDoesNotExist
-			 *	The LogSheet does not exist; this object was
-			 *	not created with LogCabinet object.
+			 *	The FileLogsheet does not exist; this object was
+			 *	not created with FileLogCabinet object.
 			 * @throw Error::StrategyError
-			 *	An error occurred when writing to the LogSheet.
+			 *	An error occurred when writing to the
+			 *	FileLogsheet.
 			 * @throw Error::NotImplemented
 			 *	The statistics gathering is not implemented for
 			 *	this operating system.
@@ -181,12 +184,13 @@ namespace BiometricEvaluation {
 			 *	The gap between logging snapshots, in
 			 *	microseconds.
 			 * @throw Error::ObjectDoesNotExist
-			 *	The LogSheet does not exist; this object was
-			 *	not created with LogCabinet object.
+			 *	The FileLogsheet does not exist; this object
+			 *	was not created with FileLogCabinet object.
 			 * @throw Error::ObjectExists
 			 *	Autologging is currently invoked.
 			 * @throw Error::StrategyError
-			 *	An error occurred when writing to the LogSheet.
+			 *	An error occurred when writing to the
+			 *	FileLogsheet.
 			 * @throw Error::NotImplemented
 			 *	The statistics gathering is not implemented for
 			 *	this operating system.
@@ -216,8 +220,8 @@ namespace BiometricEvaluation {
 		private:
 
 			pid_t _pid;
-			IO::LogCabinet *_logCabinet;
-			std::shared_ptr<IO::LogSheet> _logSheet;
+			IO::FileLogCabinet *_logCabinet;
+			std::shared_ptr<IO::FileLogsheet> _logSheet;
 			bool _logging;
 			bool _autoLogging;
 			pthread_t _loggingThread;

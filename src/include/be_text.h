@@ -118,7 +118,10 @@ namespace BiometricEvaluation {
 
 		/**
 		 * @brief
-		 * Extract the filename portion of a pathname.
+		 * Extract the filename component of a pathname.
+		 * @details
+		 * Returns the component following the final ’/’. Trailing
+		 * ’/’ characters are not counted as part of the pathname.
 		 *
 		 * @param[in] path
 		 *	Path from which to extract the filename portion.
@@ -127,12 +130,14 @@ namespace BiometricEvaluation {
 		 *	Filename portion of path.
 		 */
 		std::string
-		filename(
+		basename(
 		    const std::string &path);
 
 		/**
 		 * @brief
-		 * Extract the directory part of a pathname.
+		 * Extract the directory component of a pathname.
+		 * @details
+		 * Returns the string up to, but not including, the final ’/’.
 		 *
 		 * @param[in] path
 		 *	Path from which to extract the directory portion.

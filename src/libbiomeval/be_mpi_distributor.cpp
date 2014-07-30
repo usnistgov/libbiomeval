@@ -13,6 +13,8 @@
 
 #include <mpi.h>
 
+#include <be_io_filelogsheet.h>
+#include <be_io_syslogsheet.h>
 #include <be_mpi.h>
 #include <be_mpi_distributor.h>
 #include <be_mpi_runtime.h>
@@ -28,6 +30,23 @@ BiometricEvaluation::MPI::Distributor::Distributor(
     const std::string &propertiesFileName)
 {
 	this->_resources.reset(new Resources(propertiesFileName));
+	/*
+	 * Only create the real Logsheet on the actual Distributor
+	 * node. MPI runtime will create a process for each rank,
+	 * and those processes contain the Distributor that does no work.
+	 */
+	if (::MPI::COMM_WORLD.Get_rank() == 0) {
+		this->_logsheet =
+		    BE::MPI::openLogsheet(
+			this->_resources->getLogsheetURL(),
+			"MPI::Distributor");
+	}
+}
+
+std::shared_ptr<BiometricEvaluation::IO::Logsheet>
+BiometricEvaluation::MPI::Distributor::getLogsheet() const
+{
+	return (this->_logsheet);
 }
 
 /******************************************************************************/
@@ -48,12 +67,12 @@ BiometricEvaluation::MPI::Distributor::start()
  	 */
 	//XXX This should be asynchronous because some tasks
 	//XXX may have long startup times.
-	MPI::printStatus("Sending messages to Task-N processes");
+	BE::IO::Logsheet *log = this->_logsheet.get();
+	MPI::logMessage(*log, "Sending messages to Task-N processes");
 	int taskStatus;
 	for (int task = 1; task < this->_resources->getNumTasks(); task++) {
-		std::ostringstream sstr;
-		sstr << "Tell Task-" << task << " to startup";
-		MPI::printStatus(sstr.str());
+		*log << "Tell Task-" << task << " to startup";
+		MPI::logEntry(*log);
 
 		int taskCmd = MPI::TaskCommand::Continue;
 		::MPI::COMM_WORLD.Send((void *)&taskCmd, 1, MPI_INT,
@@ -63,18 +82,19 @@ BiometricEvaluation::MPI::Distributor::start()
 		if (taskStatus == MPI::TaskStatus::OK)
 			this->_activeMpiTasks.insert(task);
 	}
-	MPI::printStatus("Done sending start messages");
+	MPI::logMessage(*log, "Done sending start messages");
 
 	if (this->_activeMpiTasks.empty())
-		MPI::printStatus("No receiver tasks available");
+		MPI::logMessage(*log, "No receiver tasks available");
 	else
 		this->distributeWork();
 
 	this->shutdown();
 }
 
-static void
-sendWorkPackage(BE::MPI::WorkPackage &workPackage, int MPITask)
+void
+BiometricEvaluation::MPI::Distributor::sendWorkPackage(
+    BE::MPI::WorkPackage &workPackage, int MPITask)
 {
 	/*
 	 * Send three pieces of information:
@@ -93,24 +113,23 @@ sendWorkPackage(BE::MPI::WorkPackage &workPackage, int MPITask)
 	    void *)&numElements, 1, MPI_UNSIGNED_LONG_LONG,
 	    MPITask, BE::MPI::MessageTag::Data);
 
+	BE::IO::Logsheet *log = this->_logsheet.get();
 	std::ostringstream sstr;
-	sstr.str("");
 	sstr << "Sent package of size " << size << " to Task-" << MPITask;
-	BE::MPI::printStatus(sstr.str());
+	MPI::logMessage(*log, sstr.str());
 }
 
 void
 BiometricEvaluation::MPI::Distributor::distributeWork()
 {
 	MPI::WorkPackage workPackage;
-
-	std::ostringstream sstr;
 	int numTasks = this->_activeMpiTasks.size();
 	int *taskStatus = new int[numTasks];
 	int *indices = new int[numTasks];
 	::MPI::Status *MPIstatus = new ::MPI::Status[numTasks];
 	::MPI::Request *requests = new ::MPI::Request[numTasks];
 	int numRequests;
+	BE::IO::Logsheet *log = this->_logsheet.get();
 
 	/*
  	 * Perform a non-blocking receive from all child tasks.
@@ -167,18 +186,17 @@ BiometricEvaluation::MPI::Distributor::distributeWork()
 	 		* then take it out of the list of
 	 		* active tasks.
 			*/
-			sstr.str("");
-			sstr << "Received ";
+			*log << "Received ";
 			int ts = taskStatus[indices[r]];
 			if ((ts== MPI::TaskStatus::Exit) ||
 			    (ts == MPI::TaskStatus::Failed)) {
-				sstr << "Exit/Failure from Task-" << task;
-				MPI::printStatus(sstr.str());
+				*log << "Exit/Failure from Task-" << task;
+				MPI::logEntry(*log);
 				this->_activeMpiTasks.erase(task);
 				continue;
 			}
-			sstr << "OK from Task-" << task;
-			MPI::printStatus(sstr.str());
+			*log << "OK from Task-" << task;
+			MPI::logEntry(*log);
 
 			this->createWorkPackage(workPackage);
 
@@ -263,10 +281,9 @@ BiometricEvaluation::MPI::Distributor::distributeWork()
 			int ts = taskStatus[indices[r]];
 			if ((ts == MPI::TaskStatus::Exit) ||
 			    (ts == MPI::TaskStatus::Failed)) {
-				sstr.str("");
-				sstr << "Received Exit/Failure from Task-"
-					    << task;
-				MPI::printStatus(sstr.str());
+				*log << "Received Exit/Failure from Task-"
+				    << task;
+				MPI::logEntry(*log);
 				this->_activeMpiTasks.erase(task);
 			} else {
 				::MPI::COMM_WORLD.Send(
@@ -287,6 +304,8 @@ BiometricEvaluation::MPI::Distributor::distributeWork()
 void
 BiometricEvaluation::MPI::Distributor::shutdown()
 {
+	BE::IO::Logsheet *log = this->_logsheet.get();
+
 	/*
 	 * Check the exit signal conditions and take appropriate action.
 	 * On Exit, we let the Task-N processes to finish the work package.
@@ -294,22 +313,21 @@ BiometricEvaluation::MPI::Distributor::shutdown()
 	 * On TermExit, tell Task-N to stop and kill off all children.
 	 */
 	int taskCmd;
-	std::ostringstream sstr;
-	sstr << "Distribution end: ";
+	*log << "Distribution end: ";
 	if (BiometricEvaluation::MPI::Exit) {
-		sstr << "Exit signal";
+		*log << "Exit signal";
 		taskCmd = MPI::TaskCommand::Exit;
 	} else if (BiometricEvaluation::MPI::QuickExit) {
-		sstr << "Quick Exit signal";
+		*log << "Quick Exit signal";
 		taskCmd = MPI::TaskCommand::QuickExit;
 	} else if (BiometricEvaluation::MPI::TermExit) {
-		sstr << "Termination Exit signal";
+		*log << "Termination Exit signal";
 		taskCmd = MPI::TaskCommand::TermExit;
 	} else {
-		sstr << "Work completed";
+		*log << "Work completed";
 		taskCmd = MPI::TaskCommand::Exit;
 	}
-	MPI::printStatus(sstr.str());
+	MPI::logEntry(*log);
 
 	/*
  	 * Wait for each child task to ask for more work, then
@@ -331,10 +349,8 @@ BiometricEvaluation::MPI::Distributor::shutdown()
 
 		this->_activeMpiTasks.erase(task);
 
-		sstr.str("");
-		//XXX use TaskCommand.to_string() when available
-		sstr << "Sent exit command to Task-" << task;
-		MPI::printStatus(sstr.str());
+		*log << "Sent exit command to Task-" << task;
+		MPI::logEntry(*log);
 	}
 
 	/* Wait for other tasks to start the shut down */
@@ -348,24 +364,23 @@ BiometricEvaluation::MPI::Distributor::shutdown()
 	for (int task = 1; task < this->_resources->getNumTasks(); task++) {
 		::MPI::COMM_WORLD.Recv(&taskStatus, 1, MPI_INT, MPI_ANY_SOURCE,
 		    MPI::MessageTag::Control, mpiStatus);
-		std::ostringstream sstr;
-		sstr << "Received "; 
+		*log << "Received "; 
 		switch (taskStatus) {
 			case MPI::TaskStatus::OK:
-				sstr << "OK";
+				*log << "OK";
 				break;
 			case MPI::TaskStatus::Exit:
-				sstr << "Exit";
+				*log << "Exit";
 				break;
 			case MPI::TaskStatus::Failed:
-				sstr << "Failure";
+				*log << "Failure";
 				break;
 			default:
-				sstr << "invalid status " << taskStatus;
+				*log << "invalid status " << taskStatus;
                                 break;
                 }
-		sstr << " from Task-" << mpiStatus.Get_source();
-		MPI::printStatus(sstr.str());
+		*log << " from Task-" << mpiStatus.Get_source();
+		MPI::logEntry(*log);
 	}
 }
 

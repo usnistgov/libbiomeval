@@ -9,6 +9,21 @@
  */
 #include <be_mpi_workpackageprocessor.h>
 
+namespace BE = BiometricEvaluation;
+
 BiometricEvaluation::MPI::WorkPackageProcessor::~WorkPackageProcessor()
 {
+}
+
+void
+BiometricEvaluation::MPI::WorkPackageProcessor::setLogsheet(
+    std::shared_ptr<BE::IO::Logsheet> &logsheet)
+{
+	this->_logsheet = logsheet;
+}
+
+std::shared_ptr<BE::IO::Logsheet>
+BiometricEvaluation::MPI::WorkPackageProcessor::getLogsheet()
+{
+	return (this->_logsheet);
 }

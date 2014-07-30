@@ -48,14 +48,12 @@ BiometricEvaluation::MPI::RecordStoreResources::RecordStoreResources(
 		throw Error::ObjectDoesNotExist("Could not read properties: " +
 		    e.whatString());
 	}
-	std::string rsBase = Text::filename(RSName);
-	std::string rsDir = Text::dirname(RSName);
 	try {
 		this->_recordStore = IO::RecordStore::openRecordStore(
-		    rsBase, rsDir,IO::READONLY);
+		    RSName, IO::READONLY);
+		this->_haveRecordStore = true;
 	} catch (Error::Exception &e) {
-		throw (Error::Exception("Could not open record store: "
-		    + e.whatString()));
+		this->_haveRecordStore = false;
 	}
 }
 
@@ -72,10 +70,10 @@ BiometricEvaluation::MPI::RecordStoreResources::getChunkSize() const
 	return (this->_chunkSize);
 }
 
-uint32_t
-BiometricEvaluation::MPI::RecordStoreResources::getMaxKeySize() const
+bool
+BiometricEvaluation::MPI::RecordStoreResources::haveRecordStore() const
 {
-	return (this->_maxKeySize);
+	return (this->_haveRecordStore);
 }
 
 std::shared_ptr<BiometricEvaluation::IO::RecordStore>

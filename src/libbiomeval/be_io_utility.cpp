@@ -187,7 +187,7 @@ BiometricEvaluation::IO::Utility::removeDirectory(
     const std::string &pathname)
 {
 	IO::Utility::removeDirectory(
-	    Text::filename(pathname),
+	    Text::basename(pathname),
 	    Text::dirname(pathname));
 }
 
@@ -230,44 +230,6 @@ BiometricEvaluation::IO::Utility::getFileSize(
 		    Error::errorStr() + ")");
 
 	return ((uint64_t)sb.st_size);
-}
-
-bool
-BiometricEvaluation::IO::Utility::validateRootName(
-    const std::string &name)
-{
-	bool validity = true;
-
-	if (name.empty())
-		validity = false;
-
-        /* Do not allow pathname delimiters in the name */
-	if (name.find("/") != std::string::npos ||
-	     name.find("\\") != std::string::npos)
-		validity = false;
-
-	if (isspace(name[0]))
-		validity = false;
-
-        return (validity);
-}
-
-bool
-BiometricEvaluation::IO::Utility::constructAndCheckPath(
-    const std::string &name,
-    const std::string &parentDir,
-    std::string &fullPath)
-{
-	if (parentDir.empty() || parentDir == ".")
-		fullPath = name;
-	else
-		fullPath = parentDir + "/" + name;
-
-	/* Check whether the directory exists */
-	if (IO::Utility::fileExists(fullPath))
-		return (true);
-	else
-		return (false);
 }
 
 int
@@ -397,9 +359,15 @@ BiometricEvaluation::IO::Utility::createTemporaryFile(
     const std::string &prefix,
     const std::string &parentDir)
 {
-	std::string tmpl = "";
-	constructAndCheckPath(((prefix == "") ? "libbiomeval" : prefix) + 
-	    "-XXXXXX", parentDir, tmpl);
+	if (parentDir.empty() || parentDir == ".")
+		path = "";
+	else
+		path = parentDir + '/';
+	std::string tmpl = "-XXXXXX";
+	if (prefix.empty() )
+		tmpl = path + "libbiomeval-XXXXXX";
+	else
+		tmpl = path + prefix + "-XXXXXX";
 
 	char *name = strdup(tmpl.c_str());
 	if (name == nullptr)

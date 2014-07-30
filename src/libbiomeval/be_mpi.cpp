@@ -9,12 +9,17 @@
  */
 
 #include <sys/types.h>
+#include <mpi.h>
 #include <unistd.h>
 
 #include <sstream>
-#include <mpi.h>
 
+#include <be_io_filelogsheet.h>
+#include <be_io_syslogsheet.h>
+#include <be_error_exception.h>
 #include <be_mpi.h>
+
+namespace BE = BiometricEvaluation;
 
 std::string
 BiometricEvaluation::MPI::generateUniqueID()
@@ -22,10 +27,17 @@ BiometricEvaluation::MPI::generateUniqueID()
 	char hn[MPI_MAX_PROCESSOR_NAME];
 	int hlen;
 	(void)MPI_Get_processor_name(hn, &hlen);
-	std::ostringstream oss;
-	oss << ::MPI::COMM_WORLD.Get_rank() << "-" << getpid();
 	std::string hostname((char *)hn);
-	return (hostname + "-" + oss.str());
+	std::ostringstream oss;
+#if 0
+	oss << hostname << ' ' 
+	    << ::MPI::COMM_WORLD.Get_rank()
+	    << '[' << getpid() << ']';
+#endif
+	oss << hostname << '-' 
+	    << ::MPI::COMM_WORLD.Get_rank()
+	    << '-' << getpid();
+	return (oss.str());
 }
 
 void
@@ -33,5 +45,85 @@ BiometricEvaluation::MPI::printStatus(const std::string &message)
 {
 	std::cout << BiometricEvaluation::MPI::generateUniqueID() << ": "
 	     << message << "." << std::endl;
+}
+
+static void writeToLogsheet(
+    BE::IO::Logsheet &logsheet,
+    std::string message)
+{
+	static bool displayedMessage = false;
+
+	/*
+	 * If logging should fail at some point, errors are
+	 * not propagated, but a message is displayed.
+	 */
+	try {
+		logsheet.writeDebug(message);
+	} catch (BE::Error::Exception &e) {
+		if (!displayedMessage) {
+			BE::MPI::printStatus("Log failure: " + e.whatString()
+			    + "; logging disabled");
+			displayedMessage = true;
+			logsheet.setCommit(false);
+			logsheet.setDebugCommit(false);
+			logsheet.setCommentCommit(false);
+		}
+	}
+}
+
+void
+BiometricEvaluation::MPI::logEntry(
+    IO::Logsheet &logsheet)
+{
+	writeToLogsheet(logsheet, logsheet.getCurrentEntry());
+	logsheet.resetCurrentEntry();
+}
+
+void
+BiometricEvaluation::MPI::logMessage(
+    IO::Logsheet &logsheet,
+    const std::string &message)
+{
+	writeToLogsheet(logsheet, message);
+}
+
+std::shared_ptr<BiometricEvaluation::IO::Logsheet>
+BiometricEvaluation::MPI::openLogsheet(
+    const std::string &url,
+    const std::string &description)
+{
+	std::shared_ptr<BE::IO::Logsheet> logsheet;
+	if (url == "") {
+		logsheet.reset(new BE::IO::Logsheet());
+		return (logsheet);
+	}
+	BE::IO::Logsheet::Kind lsKind = BE::IO::Logsheet::getTypeFromURL(url);
+	switch (lsKind) {
+		case BE::IO::Logsheet::Kind::File: {
+			std::string locURL = url + "-"
+			    + BE::MPI::generateUniqueID();
+			try {
+				logsheet.reset(new BE::IO::FileLogsheet(
+			    	locURL,
+			    	description));
+			} catch (BE::Error::ObjectExists) {
+				logsheet.reset(new BE::IO::FileLogsheet(locURL));
+			}
+			break;
+		}
+		case BE::IO::Logsheet::Kind::Syslog: {
+			/* Use the MPI rank as the application name */
+			logsheet.reset(new BE::IO::SysLogsheet(
+			    url,
+			    description,
+			    std::to_string(::MPI::COMM_WORLD.Get_rank()),
+			    true, true));
+			break;
+		}
+		default:
+			throw (
+			    BE::Error::ParameterError("Invalid Logsheet URL"));
+	}
+	return (logsheet);
 }
 

@@ -59,8 +59,10 @@ BiometricEvaluation::IO::PropertiesFile::sync()
 	if (!ofs)
 		throw Error::FileError("Could not write properties file");
 
-	for (const_iterator p = this->begin(); p != this->end(); ++p)
-		ofs << p->first << " = " << p->second << '\n';
+	std::vector<std::string> keys = this->getPropertyKeys();
+	for (auto k = keys.begin(); k != keys.end(); ++k) {
+		ofs << *k << " = " << this->getProperty(*k) << '\n';
+	}
 	ofs.close();
 }
 

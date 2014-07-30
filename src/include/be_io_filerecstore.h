@@ -38,12 +38,10 @@ namespace BiometricEvaluation {
 			/**
 			 * Create a new FileRecordStore, read/write mode.
 			 *
-			 * @param[in] name
-			 *	The name of the store.
+			 * @param[in] pathname
+			 *	The directory where the store is to be created.
 			 * @param[in] description
 			 *	The store's description.
-			 * @param[in] parentDir
-			 *	The directory where the store is to be created.
 			 * @throw  Error::ObjectExists
 			 *	The store already exists.
 			 * @throw Error::StrategyError
@@ -51,17 +49,14 @@ namespace BiometricEvaluation {
 			 * 	file system.
 			 */
 			FileRecordStore(
-			    const std::string &name,
-			    const std::string &description,
-			    const std::string &parentDir);
+			    const std::string &pathname,
+			    const std::string &description);
 
 			/**
 			 * Open an existing FileRecordStore.
 			 *
 			 * @param[in] name
-			 *	The name of the store.
-			 * @param[in] parentDir
-			 *	The directory where the store is to be created.
+			 *	The path name of the store.
 			 * @param[in] mode
 			 *	Open mode, read-only or read-write.
 			 *
@@ -73,7 +68,6 @@ namespace BiometricEvaluation {
 			 */
 			FileRecordStore(
 			    const std::string &name,
-			    const std::string &parentDir,
 			    uint8_t mode = IO::READWRITE);
 
 			/*
@@ -112,8 +106,8 @@ namespace BiometricEvaluation {
 			void setCursorAtKey(
 			    const std::string &key);
 
-			void changeName(
-			    const std::string &name);
+			void move(
+			    const std::string &pathname);
 
 			/* Prevent copying of FileRecordStore objects */
 			FileRecordStore(const FileRecordStore&) = delete;

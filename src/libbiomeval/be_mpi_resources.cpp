@@ -7,11 +7,18 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
+
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <mpi.h>
 #include <sstream>
+#include <iostream>
 
 #include <be_mpi.h>
 #include <be_io_propertiesfile.h>
+#include <be_io_filelogsheet.h>
+#include <be_io_syslogsheet.h>
 #include <be_mpi_resources.h>
 
 namespace BE = BiometricEvaluation;
@@ -21,6 +28,8 @@ namespace BE = BiometricEvaluation;
  */
 const std::string
 BiometricEvaluation::MPI::Resources::WORKERSPERNODEPROPERTY("Workers Per Node");
+const std::string
+BiometricEvaluation::MPI::Resources::LOGSHEETURLPROPERTY("Logsheet URL");
 
 /******************************************************************************/
 /* Class method definitions.                                                  */
@@ -42,6 +51,9 @@ BiometricEvaluation::MPI::Resources::Resources(
 		throw Error::FileError("Could not open properties: " +
 		    e.whatString());
 	}
+	/*
+	 * Required properties.
+	 */
 	try {
 		this->_workersPerNode = props->getPropertyAsInteger(
 		    MPI::Resources::WORKERSPERNODEPROPERTY);
@@ -49,6 +61,24 @@ BiometricEvaluation::MPI::Resources::Resources(
 		throw Error::ObjectDoesNotExist("Could not read properties: " +
 		    e.whatString());
 	}
+
+	/*
+	 * Optional properties.
+	 */
+	try {
+		this->_logsheetURL =
+		    props->getProperty(MPI::Resources::LOGSHEETURLPROPERTY);
+	} catch (Error::Exception &e) {
+		this->_logsheetURL = "";
+	}
+}
+
+std::vector<std::string>
+BiometricEvaluation::MPI::Resources::getRequiredProperties()
+{
+	std::vector<std::string> props;
+	props.push_back(MPI::Resources::WORKERSPERNODEPROPERTY);
+	return (props);
 }
 
 /******************************************************************************/
@@ -59,17 +89,15 @@ BiometricEvaluation::MPI::Resources::~Resources()
 }
 
 std::string
-BiometricEvaluation::MPI::Resources::getPropertiesFileName()
+BiometricEvaluation::MPI::Resources::getLogsheetURL() const
 {
-	return (_propertiesFileName);
+	return (this->_logsheetURL);
 }
 
-std::vector<std::string>
-BiometricEvaluation::MPI::Resources::getRequiredProperties()
+std::string
+BiometricEvaluation::MPI::Resources::getPropertiesFileName() const
 {
-	std::vector<std::string> props;
-	props.push_back(MPI::Resources::WORKERSPERNODEPROPERTY);
-	return (props);
+	return (_propertiesFileName);
 }
 
 std::string
@@ -94,11 +122,6 @@ int
 BiometricEvaluation::MPI::Resources::getWorkersPerNode() const
 {
 	return (this->_workersPerNode);
-}
-std::shared_ptr<BiometricEvaluation::IO::LogSheet>
-BiometricEvaluation::MPI::Resources::getLogSheet() const
-{
-	return (this->_logSheet);
 }
 
 

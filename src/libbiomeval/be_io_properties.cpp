@@ -210,25 +210,22 @@ BiometricEvaluation::IO::Properties::getPropertyAsDouble(
 	return (doubleValue);
 }
 
+std::vector<std::string>
+BiometricEvaluation::IO::Properties::getPropertyKeys() const
+{
+	std::vector<std::string> keys;
+	for (PropertiesMap::const_iterator it = this->_properties.begin();
+            it != this->_properties.end(); it++) {
+		keys.push_back(it->first);
+	}
+	return (keys);
+}
+
 uint8_t
 BiometricEvaluation::IO::Properties::getMode()
     const
 {
 	return (_mode);
-}
-
-BiometricEvaluation::IO::Properties::const_iterator
-BiometricEvaluation::IO::Properties::begin()
-    const
-{
-	return (_properties.begin());
-}
-
-BiometricEvaluation::IO::Properties::const_iterator
-BiometricEvaluation::IO::Properties::end()
-    const
-{
-	return (_properties.end());
 }
 
 BiometricEvaluation::IO::Properties::~Properties()

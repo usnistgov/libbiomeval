@@ -73,14 +73,31 @@ static void statusToMessage(
  * The helper class for accepting a work package in a child process.
  */
 BiometricEvaluation::MPI::Receiver::PackageWorker::PackageWorker(
-    const std::shared_ptr<MPI::WorkPackageProcessor> &workPackageProcessor)
+    const std::shared_ptr<MPI::WorkPackageProcessor> &workPackageProcessor,
+    const std::shared_ptr<MPI::Resources> &resources)
 {
 	this->_workPackageProcessor = workPackageProcessor;
+	this->_resources = resources;
 }
 
 int32_t
 BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 {
+	/*
+	 * Open a Logsheet, and if that fails, indicate that
+	 * we are finished.
+	 */
+	try {
+		this->_logsheet =
+		    BE::MPI::openLogsheet(
+			this->_resources->getLogsheetURL(),
+			"MPI::Worker");
+	} catch (Error::Exception) {
+		MPI::printStatus("Worker failed to open log sheet");
+        	return(-1);
+	}
+	BE::IO::Logsheet *log = this->_logsheet.get();
+
 	/*
 	 * At this point, we are in a child process with its
 	 * own copy of the package processor object.
@@ -96,7 +113,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 	 * file references and resources.
 	 */
 	this->_workPackageProcessor =
-	     this->_workPackageProcessor->newProcessor();
+	     this->_workPackageProcessor->newProcessor(this->_logsheet);
 
 	/*
 	 * The processing of a work package loop. We only break out
@@ -112,7 +129,8 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 		 * exists.
 		 */
 		if (MPI::Exit || MPI::QuickExit || MPI::TermExit) {
-			MPI::printStatus("Early Exit: End package requests");
+			MPI::logMessage(*log,
+			    "Early Exit: End package requests");
 			taskStatus = MPI::TaskStatus::Exit;
 		}
 
@@ -123,7 +141,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 		try {
 			this->sendMessageToManager(message);
 		} catch (Error::Exception &e) {
-			MPI::printStatus("Worker send message failure: "
+			MPI::logMessage(*log, "Worker send message failure: "
 			    + e.whatString());
 			break;
 		}
@@ -138,7 +156,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 				break;
 			this->receiveMessageFromManager(message);
 		} catch (Error::Exception &e) {
-			MPI::printStatus("Worker receive message failure: "
+			MPI::logMessage(*log, "Worker receive message failure: "
 			    + e.whatString());
 			taskStatus = MPI::TaskStatus::Failed;
 			continue; /* Attempt to send one final status */
@@ -167,7 +185,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 			workPackage = MPI::WorkPackage(message);
 			workPackage.setNumElements(wpCount);
 		} catch (Error::Exception &e) {
-			MPI::printStatus("Failed to receive work package"
+			MPI::logMessage(*log, "Failed to receive work package"
 			    + e.whatString());
 			taskStatus = MPI::TaskStatus::Failed;
 			continue; /* Attempt to send one final status */
@@ -176,7 +194,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 	}
 
 	this->_workPackageProcessor.reset();
-	MPI::printStatus("Worker process exiting");
+	MPI::logMessage(*log, "Worker process exiting");
 	return(0);
 }
 
@@ -215,7 +233,7 @@ BiometricEvaluation::MPI::Receiver::sendWorkPackage(
 	BE::Memory::uint8Array message;
 	BE::Memory::uint8Array wpData;
 	MPI::TaskStatus::Kind taskStatus;
-	std::ostringstream sstr;
+	BE::IO::Logsheet *log = this->_logsheet.get();
 
 	/*
 	 * Wait for a request from a worker. A request starts
@@ -239,11 +257,11 @@ BiometricEvaluation::MPI::Receiver::sendWorkPackage(
 			::MPI::COMM_WORLD.Recv((void *)&oobCmd, 1, MPI_INT,
 			    0, MPI::MessageTag::OOB);
 			if (oobCmd == MPI::TaskCommand::QuickExit) {
-				MPI::printStatus("OOB Quick Exit received");
+				MPI::logMessage(*log, "OOB Quick Exit received");
 				MPI::QuickExit = true;
 			}
 			if (oobCmd == MPI::TaskCommand::TermExit) {
-				MPI::printStatus("OOB Term Exit received");
+				MPI::logMessage(*log, "OOB Term Exit received");
 				MPI::TermExit = true;
 			}
 		}
@@ -284,7 +302,7 @@ BiometricEvaluation::MPI::Receiver::sendWorkPackage(
 			try {  
 				this->_processManager.stopWorker(worker);
 			} catch (Error::Exception &e) {
-				MPI::printStatus(
+				MPI::logMessage(*log,
 				    "Task-N stopping worker: Caught: "
 				    + e.whatString());
 			}
@@ -309,8 +327,8 @@ BiometricEvaluation::MPI::Receiver::sendWorkPackage(
 	worker->sendMessageToWorker(message);
 	workPackage.getData(wpData);
 	worker->sendMessageToWorker(wpData);
-	sstr << "Sent work package of size " << wpData.size() << " to worker";
-	MPI::printStatus(sstr.str());
+	*log << "Sent work package of size " << wpData.size() << " to worker";
+	MPI::logEntry(*log);
 }
 
 BiometricEvaluation::MPI::TaskStatus::Kind
@@ -322,6 +340,7 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 	int taskStatus;
 	int taskCommand;
 	MPI::TaskStatus::Kind status = MPI::TaskStatus::OK;
+	BE::IO::Logsheet *log = this->_logsheet.get();
 
 	while (true) {
 
@@ -331,7 +350,7 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 		 * exists. In all cases, tell Task-0 we are done.
 		 */
 		if (MPI::Exit) {
-			MPI::printStatus("Exit signal");
+			MPI::logMessage(*log, "Exit signal");
 			taskStatus = MPI::TaskStatus::Exit;
 			::MPI::COMM_WORLD.Send(
 			    (void *)&taskStatus, 1, MPI_INT,
@@ -340,7 +359,7 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 			break;
 		}
 		if (MPI::QuickExit) {
-			MPI::printStatus("Quick Exit signal");
+			MPI::logMessage(*log, "Quick Exit signal");
 			this->_processManager.broadcastSignal(SIGINT);
 			taskStatus = MPI::TaskStatus::Exit;
 			::MPI::COMM_WORLD.Send(
@@ -350,7 +369,7 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 			break;
 		}
 		if (MPI::TermExit) {
-			MPI::printStatus("Termination Exit signal");
+			MPI::logMessage(*log, "Termination Exit signal");
 			this->_processManager.broadcastSignal(SIGKILL);
 			taskStatus = MPI::TaskStatus::Exit;
 			::MPI::COMM_WORLD.Send(
@@ -360,7 +379,7 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 			break;
 		}
 
-		MPI::printStatus("Asking for work package");
+		MPI::logMessage(*log, "Asking for work package");
 		taskStatus = MPI::TaskStatus::OK;
 		::MPI::COMM_WORLD.Sendrecv(
 		    (void *)&taskStatus, 1, MPI_INT, 0,
@@ -368,20 +387,20 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 		    0, MPI::MessageTag::Control);
 
 		if (taskCommand == MPI::TaskCommand::Ignore) {
-			MPI::printStatus("Ignore command");
+			MPI::logMessage(*log, "Ignore command");
 			continue;
 		}
 		if (taskCommand == MPI::TaskCommand::Exit) {
-			MPI::printStatus("Exit command");
+			MPI::logMessage(*log, "Exit command");
 			break;
 		}		
 		if (taskCommand == MPI::TaskCommand::QuickExit) {
-			MPI::printStatus("QuickExit command");
+			MPI::logMessage(*log, "QuickExit command");
 			this->_processManager.broadcastSignal(SIGINT);
 			break;
 		}		
 		if (taskCommand == MPI::TaskCommand::TermExit) {
-			MPI::printStatus("TermExit command");
+			MPI::logMessage(*log, "TermExit command");
 			this->_processManager.broadcastSignal(SIGKILL);
 			break;
 		}		
@@ -407,7 +426,8 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 			workPackage.setNumElements(numElements);
 			this->sendWorkPackage(workPackage);
 		} catch (Error::Exception &e) {
-			MPI::printStatus("Failure to process work package: "
+			MPI::logMessage(*log,
+			    "Failure to process work package: "
 			    + e.whatString());
 			taskStatus = MPI::TaskStatus::Failed;
 			::MPI::COMM_WORLD.Send(
@@ -424,14 +444,16 @@ void
 BiometricEvaluation::MPI::Receiver::startWorkers()
 {
 	std::shared_ptr<Process::WorkerController> wc;
+	BE::IO::Logsheet *log = this->_logsheet.get();
 	for (int w = 0; w < this->_resources->getWorkersPerNode(); w++) {
 		std::shared_ptr<PackageWorker> pw(new PackageWorker(
-		    this->_workPackageProcessor));
+		    this->_workPackageProcessor,
+		    this->_resources));
 		wc = this->_processManager.addWorker(pw);
 		try {
 			this->_processManager.startWorker(wc, false, true);
 		} catch (Error::Exception &e) {
-			MPI::printStatus("Worker start failed: " +
+			MPI::logMessage(*log, "Worker start failed: " +
 			    e.whatString());
 			//XXX Throw exception?
 		}
@@ -444,12 +466,27 @@ BiometricEvaluation::MPI::Receiver::start()
 	/* Release other tasks to start up */
 	::MPI::COMM_WORLD.Barrier();
 
-	MPI::printStatus("Wait for startup message");
+	int taskStatus;
+	try {
+		this->_logsheet =
+		    BE::MPI::openLogsheet(
+			this->_resources->getLogsheetURL(),
+			"MPI::Receiver");
+	} catch (Error::Exception) {
+		taskStatus = MPI::TaskStatus::Failed;
+		::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT,
+		    0, MPI::MessageTag::Control);
+		this->shutdown(MPI::TaskStatus::Failed,
+		    "Failed opening Logsheet()");
+		return;
+	}
+	BE::IO::Logsheet *log = this->_logsheet.get();
+	MPI::logMessage(*log, "Wait for startup message");
 	int flag;
 	::MPI::COMM_WORLD.Recv(&flag, 1, MPI_INT, 0, MPI::MessageTag::Control);
 
 	/* Shutdown Task-N if Task-0 says not OK */
-	int taskStatus = MPI::TaskStatus::OK;
+	taskStatus = MPI::TaskStatus::OK;
 	if (flag == MPI::TaskStatus::Failed) {
 		::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT,
 		     0, MPI::MessageTag::Control);
@@ -462,9 +499,10 @@ BiometricEvaluation::MPI::Receiver::start()
 	 * processor, bailing out if that fails.
 	 */
 	try {
-		this->_workPackageProcessor.get()->performInitialization();
+		this->_workPackageProcessor.get()->performInitialization(
+		    this->_logsheet);
 	} catch (Error::Exception &e) {
-		MPI::printStatus("Could not initialize package processor: "
+		MPI::logMessage(*log, "Could not initialize package processor: "
 		    + e.whatString());
 		taskStatus = MPI::TaskStatus::Failed;
 		::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT,
@@ -475,6 +513,7 @@ BiometricEvaluation::MPI::Receiver::start()
 	}
 	this->startWorkers();
 
+	//XXX Open log sheet
 	if (this->_processManager.getNumActiveWorkers() == 0) {
 		taskStatus = MPI::TaskStatus::Failed;
 		::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT,
@@ -503,7 +542,8 @@ BiometricEvaluation::MPI::Receiver::shutdown(
     const MPI::TaskStatus::Kind &taskStatus,
     const std::string &reason)
 {
-	MPI::printStatus("Shutting down: " + reason);
+	BE::IO::Logsheet *log = this->_logsheet.get();
+	MPI::logMessage(*log, "Shutting down: " + reason);
 
 	/*
 	 * Tell all workers to shut down.
@@ -520,7 +560,7 @@ BiometricEvaluation::MPI::Receiver::shutdown(
 	// XXX manner as when TermExit signal was received.
 	//
 	if ((MPI::TermExit == false) && (workerCount > 0)) {
-		MPI::printStatus("Stopping workers");
+		MPI::logMessage(*log, "Stopping workers");
 		BE::Memory::uint8Array
 		    inMessage(sizeof(BE::MPI::TaskStatus::Kind));
 		std::shared_ptr<Process::WorkerController> worker;
@@ -531,7 +571,7 @@ BiometricEvaluation::MPI::Receiver::shutdown(
 				msgAvail = this->_processManager.getNextMessage(
 				    worker, inMessage);
 			} catch (Error::Exception &e) {
-				BE::MPI::printStatus("Task-N receiving message: "
+				MPI::logMessage(*log, "Task-N receiving message: "
 				"Caught: " + e.whatString());
 				/*
 				 * It is debatable whether to break here as
@@ -546,7 +586,7 @@ BiometricEvaluation::MPI::Receiver::shutdown(
 			try {
 				this->_processManager.stopWorker(worker);
 			} catch (Error::Exception &e) {
-				MPI::printStatus("Task-N stopping worker: "
+				MPI::logMessage(*log, "Task-N stopping worker: "
 				"Caught: " + e.whatString());
 			}
 		}
@@ -558,7 +598,7 @@ BiometricEvaluation::MPI::Receiver::shutdown(
  	 * still sending out data.
  	 */
 	::MPI::COMM_WORLD.Barrier();
-	MPI::printStatus("Sending final message");
+	MPI::logMessage(*log, "Sending final message");
 	::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT,
 	    0, MPI::MessageTag::Control);
 }

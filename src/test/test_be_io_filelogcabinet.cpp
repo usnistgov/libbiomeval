@@ -13,20 +13,24 @@
 #include <memory>
 #include <sstream>
 
-#include <be_io_logcabinet.h>
+#include <be_io_filelogcabinet.h>
+#include <be_io_utility.h>
 
 using namespace std;
 using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::IO;
 
+static const int FirstEntrySetCount = 19;
+static const int SecondEntrySetCount = 10;
+
 static int
-doLogSheetTests(LogSheet &ls)
+doLogSheetTests(Logsheet &ls)
 {
 	ostringstream test;
 	srand((unsigned)(size_t)&ls);
 	float f;
 	try {
-		for (int i = 2; i <= 19; i++) {
+		for (int i = 2; i <= FirstEntrySetCount; i++) {
 			cout << ls.getCurrentEntryNumber() << " ";
 			test.str("");
 			test << "Comment for entry " << i;
@@ -56,10 +60,10 @@ doLogCabinetTests()
 	const unsigned int LOGSHEETCOUNT = 11;
 	string lcname = "logcabinet_test";
 	bool success = false;
-	LogCabinet *lc;
+	FileLogCabinet *lc;
 	cout << "Creating Log Cabinet with bad name... ";
 	try {
-		lc = new LogCabinet("foo/bar", "Bad Log Cabinet", "");
+		lc = new FileLogCabinet("foo/bar", "Bad Log Cabinet");
 	} catch (Error::ObjectExists &e) {
 		cout << "Cabinet already exists; should not happen." << endl;
 		return (-1);
@@ -75,7 +79,7 @@ doLogCabinetTests()
 	}
 	cout << "Creating Log Cabinet... ";
 	try {
-		lc = new LogCabinet(lcname, "Test Log Cabinet", "");
+		lc = new FileLogCabinet(lcname, "Test Log Cabinet");
 	} catch (Error::ObjectExists &e) {
 		cout << "The Log Cabinet already exists." << endl;
 		return (-1);
@@ -84,9 +88,9 @@ doLogCabinetTests()
 		return (-1);
 	}
 	cout << "success." << endl;
-	std::unique_ptr<LogCabinet> alc(lc);
+	std::unique_ptr<FileLogCabinet> alc(lc);
 
-	shared_ptr<LogSheet> ls;
+	std::shared_ptr<Logsheet> ls;
 	string lsname;
 	for (size_t i = 0; i < LOGSHEETCOUNT; i++) {
 		ostringstream sbuf;
@@ -94,7 +98,7 @@ doLogCabinetTests()
 		lsname = sbuf.str();
 		cout << "Obtaining Log Sheet from Log Cabinet... ";
 		try {
-			ls = alc->newLogSheet(lsname, "Log Sheet in Cabinet");
+			ls = alc->newLogsheet(lsname, "Log Sheet in Cabinet");
 		} catch (Error::ObjectExists &e) {
 			cout << "The Log Sheet already exists." << endl;
 			return (-1);
@@ -109,10 +113,14 @@ doLogCabinetTests()
 		}
 		cout << "success." << endl;
 	}
+
+	/*
+	 * Open an existing cabinet and sheets.
+	 */
 	delete alc.release();
 	cout << "Opening existing Log Cabinet... ";
 	try {
-		lc = new LogCabinet(lcname, "");
+		lc = new FileLogCabinet(lcname);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Log Cabinet does not exist; what happened?" << endl;
 		return (-1);
@@ -122,7 +130,7 @@ doLogCabinetTests()
 	}
 	cout << "success." << endl;
 	alc.reset(lc);
-	cout << "Log Cabinet name is [" << alc->getName() << "]." << endl;
+	cout << "Log Cabinet path is [" << alc->getPathname() << "]." << endl;
 	cout << "Log Cabinet description is [" << alc->getDescription()
 	    << "]." << endl;
 	cout << "Log Cabinet count is " << alc->getCount() << "." << endl;
@@ -130,7 +138,7 @@ doLogCabinetTests()
 
 	cout << "Deleting Log Cabinet... ";
 	try {
-		BiometricEvaluation::IO::LogCabinet::remove(lcname, "");
+		BiometricEvaluation::IO::Utility::removeDirectory(lcname);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Log Cabinet does not exist; what happened?" << endl;
 		return (-1);
@@ -140,22 +148,6 @@ doLogCabinetTests()
 	}
 	cout << "success." << endl;
 
-	success = false;
-	cout << "Open deleted Log Cabinet... ";
-	try {
-		lc = new LogCabinet(lcname, "");
-	} catch (Error::ObjectDoesNotExist &e) {
-		success = true;
-	} catch (Error::StrategyError& e) {
-		cout << "Caught " << e.what() << endl;
-		return (-1);
-	}
-	if (success) {
-		cout << "success." << endl;
-	} else {
-		cout << "failed." << endl;
-		return (-1);
-	}
 	return (0);
 }
 
@@ -164,12 +156,12 @@ main(int argc, char* argv[])
 {
 	int status = EXIT_SUCCESS;
 
-	/* Call the constructor that will create a new LogSheet. */
-	string lsname = "logsheet_test";
+	/* Call the constructor that will create a new Logsheet. */
+	string lsname = "file://./logsheet_test";
 	cout << "Creating Log Sheet: ";
-	LogSheet *ls;
+	std::unique_ptr<FileLogsheet> uls;
 	try {
-		ls = new LogSheet(lsname, "Test Log Sheet", "");
+		uls.reset(new FileLogsheet(lsname, "Test Log Sheet"));
 	} catch (Error::ObjectExists &e) {
 		cout << "The Log Sheet already exists; exiting." << endl;
 		return (-1);
@@ -178,57 +170,59 @@ main(int argc, char* argv[])
 		return (-1);
 	}
 	cout << "success." << endl;
-	std::unique_ptr<LogSheet> als(ls);
 
-	cout << "Writing to LogSheet not in cabinet: ";
+	cout << "Writing to Logsheet not in cabinet: ";
 	try {
-		*als << "First entry that will be thrown away; ";
-		*als << "Should not appear in the log file.";
+		*uls << "First entry that will be thrown away; ";
+		*uls << "Should not appear in the log file.";
 		cout << "Current entry:" << endl;
-		cout << "[" << als->getCurrentEntry() << "]" << endl;
-		als->resetCurrentEntry();
+		cout << "[" << uls->getCurrentEntry() << "]" << endl;
+		uls->resetCurrentEntry();
 		cout << "Check that the entry above is NOT in the log." << endl;
-		*als << "First entry that is saved to the log file.";
-		als->newEntry();
+		*uls << "First entry that is saved to the log file.";
+		uls->newEntry();
 	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	cout << "Writing more entries... ";
-	if (doLogSheetTests(*ls) != 0) {
+	if (doLogSheetTests(*uls) != 0) {
 		cout << "failed." << endl;
 		status = EXIT_FAILURE;
 	} else {
 		cout << "success." << endl;
 	}
-	als.release();
+	uls.release();
 
-	cout << "Open existing LogSheet: ";
+	cout << "Open existing Logsheet: ";
 	try {
-		ls = new LogSheet(lsname, "");
+		uls.reset(new FileLogsheet(lsname));
 	} catch (Error::ObjectDoesNotExist &e) {
-		cout << "The LogSheet doesn't exist; exiting." << endl;
+		cout << "The Logsheet doesn't exist; exiting." << endl;
 		return (-1);
 	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.what() << endl;
 		return (-1);
 	}
 	cout << "success." << endl;
-	als.reset(ls);
+
+	uls->writeDebug("First debug entry that should be in the log");
 
 	cout << "Sequence all entries: ";
 	int sequenceCounter = 0;
-	for (;;) {
+	for (int i = 0; i < FirstEntrySetCount + 2; i++) {
 		try {
-			als->sequence();
+			uls->sequence();
+			//std::cout << "SEQ: " << uls->sequence() << std::endl;
 			sequenceCounter++;
 		} catch (Error::ObjectDoesNotExist) {
 			break;
 		} catch (Error::Exception &e) {
 			cerr << "failed! (" << e.what() << ')' << endl;
+			return (EXIT_FAILURE);
 		}
 	}
-	if (sequenceCounter != 19) {
+	if (sequenceCounter != FirstEntrySetCount) {
 		cerr << "failed!" << endl;
 		return (EXIT_FAILURE);
 	} else
@@ -237,14 +231,14 @@ main(int argc, char* argv[])
 	cout << "Writing more entries... ";
 	try {
 		ostringstream test;
-		for (int i = 0; i < 10 ; i++) {
-			cout << ls->getCurrentEntryNumber() << " ";
+		for (int i = 0; i < SecondEntrySetCount ; i++) {
+			cout << uls->getCurrentEntryNumber() << " ";
 			test.str("");
-			test << "Entry " << i << " into re-opened LogSheet";
-			ls->writeComment(test.str());
-			*ls << " Make sure entry number is one greater than";
-			*ls << " previous entry number.";
-			ls->newEntry();
+			test << "Entry " << i << " into re-opened Logsheet";
+			uls->writeComment(test.str());
+			*uls << " Make sure entry number is one greater than";
+			*uls << " previous entry number.";
+			uls->newEntry();
 		}
 	} catch (Error::StrategyError& e) {
 		cout << "Caught " << e.what() << endl;
@@ -252,9 +246,9 @@ main(int argc, char* argv[])
 	}
 	
 	cout << endl << "Sequence last written entries: ";
-	for (;;) {
+	for (int i = 0; i < SecondEntrySetCount + 2; i++) {
 		try {
-			als->sequence();
+			uls->sequence();
 			sequenceCounter++;
 		} catch (Error::ObjectDoesNotExist) {
 			break;
@@ -262,15 +256,61 @@ main(int argc, char* argv[])
 			cerr << "failed! (" << e.what() << ')' << endl;
 		}
 	}
-	if (sequenceCounter != 29) {
+	if (sequenceCounter != FirstEntrySetCount + SecondEntrySetCount) {
 		cerr << "failed!" << endl;
 		return (EXIT_FAILURE);
 	} else 
 		cout << "success." << endl;
 
-	cout << endl << "LogCabinet tests: " << endl;
-	if (doLogCabinetTests() != 0)
-		status = EXIT_FAILURE;
+	std::cout << "Turning off normal and debug entry commit." << std::endl;
+	uls->setCommit(false);
+	uls->setDebugCommit(false);
+	*uls << "!!!Entry after turning off commit; should not be in log";
+	std::cout << "Check that this entry " << std::endl;
+	std::cout << "\t" << uls->getCurrentEntry() << std::endl;
+	std::cout << "does not appear in the log." << std::endl;
+	uls->newEntry();
+	uls->writeDebug("!!!Debug entry that should NOT be in the log");
+	*uls << "Entry after turning commit back on; should be in log";
+	std::cout << "Check there is no debug entry before this entry:"
+	    << std::endl;
+	std::cout << "\t" << uls->getCurrentEntry() << std::endl;
+	uls->setCommit(true);
+	uls->newEntry();
+	uls->setDebugCommit(true);
+	uls->writeDebug("Second debug entry that should be in the log");
+	std::cout << "Check that the entry sequence numbers are in order."
+	    << std::endl;
 
+	std::cout << endl << "FileLogCabinet tests: " << std::endl;
+	if (doLogCabinetTests() != 0)
+		return(EXIT_FAILURE);
+
+	std::cout << "Sequence all normal, comment, debug entries: "
+	    << std::endl;
+	try {
+		std::cout << uls->sequence(true, false,
+		    IO::FileLogsheet::BE_FILELOGSHEET_SEQ_START) << std::endl;
+		while (true) {
+			try {
+				std::cout << uls->sequence(true, false,
+				    IO::FileLogsheet::BE_FILELOGSHEET_SEQ_NEXT)
+				    << std::endl;
+			} catch (Error::ObjectDoesNotExist) {
+				break;
+			} catch (Error::Exception &e) {
+				std::cerr << "failed! (" << e.what() << ')'
+				    << std::endl;
+				status = EXIT_FAILURE;
+				break;
+			}
+		}
+	} catch (Error::ObjectDoesNotExist) {
+		std::cerr << "failed! Could not read first entry." << std::endl;
+		status = EXIT_FAILURE;
+	} catch (Error::Exception &e) {
+		std::cerr << "failed! (" << e.what() << ')' << std::endl;
+		status = EXIT_FAILURE;
+	}
 	return(status);
 }

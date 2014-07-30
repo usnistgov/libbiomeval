@@ -26,7 +26,7 @@ namespace BiometricEvaluation {
 		/**
 		 * @brief
 		 * A class to represent an MPI task that receives work from 
-		 * the distributor.
+		 * the Distributor.
 		 * @details
 		 * A receiver object depends on a set of properties contained
 		 * in a file. The properties specify MPI settings, and other
@@ -38,7 +38,18 @@ namespace BiometricEvaluation {
 		 * has started successfully. Otherwise, a shutdown message
 		 * is expected and this receiver object will transition to
 		 * the shutdown state.
+		 *
+		 * One of the option properties is a Uniform Resource Locator
+		 * (URL) for the Logsheet. If this property does not exist,
+		 * no logging takes place (although applications can create
+		 * their own Logsheet). If the URL is present, the framework
+		 * will log at various points of processing. In the case of
+		 * a FileLogsheet the framework will create more than one log
+		 * file, each named after the ID of the MPI task created by
+		 * the MPI runtime, and the child process created by Receiver.
+		 *
 		 * @see IO::Properties
+		 * @see IO::Logsheet
 		 * @see MPI::Distributor
 		 */
 		class Receiver {
@@ -91,7 +102,8 @@ namespace BiometricEvaluation {
 			std::shared_ptr<MPI::WorkPackageProcessor>
 			    _workPackageProcessor;
 
-			std::unique_ptr<MPI::Resources> _resources;
+			std::shared_ptr<MPI::Resources> _resources;
+			std::shared_ptr<IO::Logsheet> _logsheet;
 
 			/*
 			 * Declare the class that implements process worker.
@@ -101,7 +113,9 @@ namespace BiometricEvaluation {
 			public:
 			    PackageWorker(
 				const std::shared_ptr<MPI::WorkPackageProcessor>
-				    &workPackageProcessor);
+				    &workPackageProcessor,
+				const std::shared_ptr<MPI::Resources>
+				    &resources);
 					
 			    int32_t workerMain();
 
@@ -111,6 +125,8 @@ namespace BiometricEvaluation {
 			    std::shared_ptr<
 				BiometricEvaluation::MPI::WorkPackageProcessor>
 				    _workPackageProcessor;
+				std::shared_ptr<MPI::Resources> _resources;
+				std::shared_ptr<IO::Logsheet> _logsheet;
 			};
 		};
 	}

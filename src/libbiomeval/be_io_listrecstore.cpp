@@ -21,11 +21,8 @@ const std::string BiometricEvaluation::IO::ListRecordStore::
     SOURCERECORDSTOREPROPERTY("Source Record Store");
 
 BiometricEvaluation::IO::ListRecordStore::ListRecordStore(
-    const std::string &name,
-    const std::string &parentDir) :
-    RecordStore(name,
-    parentDir,
-    IO::READONLY)
+    const std::string &pathname) :
+    RecordStore(pathname, IO::READONLY)
 {
 	std::string keyListPath = canonicalName(KEYLISTFILENAME);
 	this->_keyListFile.reset(new std::ifstream(keyListPath.c_str()));
@@ -43,10 +40,8 @@ BiometricEvaluation::IO::ListRecordStore::ListRecordStore(
 		    SOURCERECORDSTOREPROPERTY + " property");
 	}
 	try {
-		_sourceRecordStore = IO::RecordStore::openRecordStore(
-		    Text::filename(sourceRSName),
-		    Text::dirname(sourceRSName),
-	 	    IO::READONLY);
+		this->_sourceRecordStore = IO::RecordStore::openRecordStore(
+		    sourceRSName, IO::READONLY);
 	} catch (Error::Exception &e) {
 		throw Error::StrategyError("Could not open source "
 		    "RecordStore " + sourceRSName);
@@ -194,8 +189,8 @@ BiometricEvaluation::IO::ListRecordStore::sync()
 }
 
 void
-BiometricEvaluation::IO::ListRecordStore::changeName(
-    const std::string &name)
+BiometricEvaluation::IO::ListRecordStore::move(
+    const std::string &pathname)
 {
 	this->CRUDMethodCalled();
 }

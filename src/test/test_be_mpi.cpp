@@ -9,8 +9,10 @@
  */
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <stdlib.h>
 #include <stdint.h>
+#include <be_io_properties.h>
 #include <be_io_utility.h>
 #include <be_mpi_runtime.h>
 #include <be_mpi_receiver.h>
@@ -23,11 +25,38 @@ using namespace std;
 using namespace BiometricEvaluation;
 
 static const std::string DefaultPropertiesFileName("test_be_mpi.props");
+const std::string
+TestRecordProcessor::RECORDLOGSHEETURLPROPERTY("Record Logsheet URL");
 
 TestRecordProcessor::TestRecordProcessor(
     const std::string &propertiesFileName) :
     RecordProcessor(propertiesFileName)
 {
+	/*
+	 * If we have our own Logsheet property, and we can open
+	 * that Logsheet, use it for record logging; otherwise,
+	 * create a Null Logsheet for these events. We use the 
+	 * framework's Logsheet for tracing of processing, not
+	 * record handling logs.
+	 */
+	std::string url;
+	std::unique_ptr<BE::IO::PropertiesFile> props;
+	try {
+		/* It is crucial that the Properties file be
+		 * opened read-only, else it will be rewritten
+		 * when the unique ptr is destroyed, causing
+		 * a race condition with other processes that
+		 * are reading the file.
+		 */
+		props.reset(new BE::IO::PropertiesFile(
+		    propertiesFileName, IO::READONLY));
+		url = props->getProperty(
+		    TestRecordProcessor::RECORDLOGSHEETURLPROPERTY);
+	} catch (BE::Error::Exception &e) {
+		url = "";
+	}
+	this->_recordLogsheet = BE::MPI::openLogsheet(
+	    url, "Test Record Processing");
 }
 
 TestRecordProcessor::~TestRecordProcessor()
@@ -35,27 +64,39 @@ TestRecordProcessor::~TestRecordProcessor()
 }
 
 std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
-TestRecordProcessor::newProcessor()
+TestRecordProcessor::newProcessor(
+    std::shared_ptr<IO::Logsheet> &logsheet)
 {
-	return (std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
-	    (new TestRecordProcessor(
-		this->getResources()->getPropertiesFileName())));
+	std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
+	    processor;
+	processor.reset(new TestRecordProcessor(
+	    this->getResources()->getPropertiesFileName()));
+	processor->setLogsheet(logsheet);
+
+	return (processor);
 }
 
 void
-TestRecordProcessor::performInitialization()
+TestRecordProcessor::performInitialization(
+    std::shared_ptr<IO::Logsheet> &logsheet)
 {
-	MPI::printStatus(string(__FUNCTION__) + " called");
+	this->setLogsheet(logsheet);
+	BE::MPI::logMessage(*logsheet.get(),
+	     std::string(__FUNCTION__) + " called");
 }
 
 static void
-dumpRecord(const std::string key, const Memory::uint8Array &val)
+dumpRecord(
+    BE::IO::Logsheet &log,
+    const std::string key,
+    const Memory::uint8Array &val)
 {
 //#define COUNT 190000000
 //#define COUNT 19000000
 //#define COUNT 1900000
 //#define COUNT 1900
-#define COUNT 1
+//#define COUNT 1
+#define COUNT 0
 
 	/*
 	 * Simple delay loop in case the tester wants to watch the
@@ -67,52 +108,64 @@ dumpRecord(const std::string key, const Memory::uint8Array &val)
 		uint64_t m = i * k * l;
 		m++;
 	}
-	stringstream sstr;
 	std::shared_ptr<DataInterchange::AN2KRecord> an2kRecord;
 	try {  
 		an2kRecord = std::shared_ptr<DataInterchange::AN2KRecord>
 		    (new DataInterchange::AN2KRecord(
 		    const_cast<Memory::uint8Array &>(val)));
-		sstr << "Date: " << an2kRecord->getDate() << "; ";
-		sstr << "Agency: " << an2kRecord->getOriginatingAgency()<< "; ";
-		sstr << an2kRecord->getFingerLatentCount() << " latents; ";
-		sstr << an2kRecord->getFingerCaptureCount() << " captures; ";
-		sstr << an2kRecord->getMinutiaeDataRecordSet().size()
+		log << "Date: " << an2kRecord->getDate() << "; ";
+		log << "Agency: " << an2kRecord->getOriginatingAgency()<< "; ";
+		log << an2kRecord->getFingerLatentCount() << " latents; ";
+		log << an2kRecord->getFingerCaptureCount() << " captures; ";
+		log << an2kRecord->getMinutiaeDataRecordSet().size()
 		    << " minutiae data sets";
+		BE::MPI::logEntry(log);
 	} catch (Error::Exception &e) {
-		MPI::printStatus("Not AN2K: " + e.whatString());
+		log << "Not AN2K: " + e.whatString();
+		BE::MPI::logEntry(log);
+		log << "Key [" << key << "]: ";
 
 		/* Dump some bytes from the record */
 		for (uint64_t i = 0; i < 8; i++) {
-			sstr << std::hex << (int)val[i] << " ";
+			log << std::hex << (int)val[i] << " ";
 		}
-		sstr << " |";
+		log << " |";
 		for (uint64_t i = 0; i < 8; i++) {
-			sstr << (char)val[i];
+			log << (char)val[i];
 		}
-		sstr << "|";
+		log << "|";
+		BE::MPI::logEntry(log);
 	}
-
-	MPI::printStatus(string("Key [" + key + "]: ") + sstr.str());
-
 }
 
 void
 TestRecordProcessor::processRecord(const std::string &key)
 {
-	std::cout << "processRecord(key) called " << std::endl; 
+	BE::IO::Logsheet *log = this->getLogsheet().get();
+
+	if (this->getResources()->haveRecordStore() == false) {
+		BE::MPI::logMessage(*log, "processRecord(" + key + ")"
+		    + " called but have no record store; returning.");
+		return;
+	}
+	BE::MPI::logMessage(*log, "processRecord(" + key + ") called.");
 	Memory::uint8Array value(0);
 	std::shared_ptr<IO::RecordStore> inputRS =
 	    this->getResources()->getRecordStore();
 	try {
 		inputRS->read(key, value);
 	} catch (Error::Exception &e) {
-		MPI::printStatus(string(__FUNCTION__) +
-		    " could not read record: " +
-		    e.whatString());
+		*log << string(__FUNCTION__) <<
+		    " could not read record: " <<
+		    e.whatString();
 		return;
 	}
-	dumpRecord(key, value);
+	/*
+	 * Log record info to our own Logsheet instead of
+	 * the one provided by the framework.
+	 */
+	BE::IO::Logsheet *rlog = this->_recordLogsheet.get();
+	dumpRecord(*rlog, key, value);
 }
 
 void
@@ -120,8 +173,14 @@ TestRecordProcessor::processRecord(
     const std::string &key,
     const BiometricEvaluation::Memory::uint8Array &value)
 {
-	std::cout << "processRecord(key, value) called " << std::endl;
-	dumpRecord(key, value);
+	BE::IO::Logsheet *log = this->getLogsheet().get();
+	BE::MPI::logMessage(*log, "processRecord(" + key + ", [value]) called");
+	/*
+	 * Log record info to our own Logsheet instead of
+	 * the one provided by the framework.
+	 */
+	BE::IO::Logsheet *rlog = this->_recordLogsheet.get();
+	dumpRecord(*rlog, key, value);
 }
 
 /*
@@ -132,7 +191,7 @@ TestRecordProcessor::processRecord(
  * to have the properties file in place before running this program.
  */
 static int
-createPropertiesFileName()
+createPropertiesFile()
 {
 	std::ofstream ofs(DefaultPropertiesFileName.c_str());
 	if (!ofs) {
@@ -144,6 +203,7 @@ createPropertiesFileName()
 	ofs << "Chunk Size = 16" << endl;
 	ofs << "Max Key Size = 1024" << endl;
 	ofs << "Workers Per Node = 2" << endl;
+	ofs << "Logsheet URL = file://./mpi.log";
 	return (0);
 }
 
@@ -168,7 +228,7 @@ main(int argc, char* argv[])
 	std::string propFile;
 	/* Create the properties file if needed */
 	if (!IO::Utility::fileExists(DefaultPropertiesFileName)) {
-		if (createPropertiesFileName() != 0) {
+		if (createPropertiesFile() != 0) {
 			MPI::printStatus(
 			    "Could not create properties file " +
 			    DefaultPropertiesFileName);

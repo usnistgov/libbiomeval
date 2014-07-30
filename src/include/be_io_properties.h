@@ -12,6 +12,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include <be_error_exception.h>
 #include <be_io.h>
@@ -21,9 +22,6 @@ namespace BiometricEvaluation
 {
 	namespace IO
 	{
-		/** Internal structure used for storing property keys/values */
-		using PropertiesMap = std::map<std::string, std::string>;
-
 		/**
 		* @brief
 		* Maintain key/value pairs of strings, with each property
@@ -31,9 +29,6 @@ namespace BiometricEvaluation
 		*/
 		class Properties {
 		public:
-			/** Convenience const iterator over a Properties */
-			using const_iterator = PropertiesMap::const_iterator;
-			
 			/**
 			 * @brief
 			 * Construct a new Properties object.
@@ -201,26 +196,14 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Obtain iterator to the first property.
+			 * Retrieve a set of all property keys.
 			 *
 			 * @return
-			 *	Iterator to first property.
+			 * A vector of property key strings.
 			 */
-			const_iterator
-			begin()
-			    const;
-			
-			/**
-			 * @brief
-			 * Obtain iterator to one past the last property.
-			 *
-			 * @return
-			 *	Iterator one past the last property.
-			 */
-			const_iterator
-			end()
-			    const;
-			
+			std::vector<std::string>
+			getPropertyKeys() const;
+
 			/** Destructor */
 			virtual ~Properties();
 
@@ -276,6 +259,12 @@ namespace BiometricEvaluation
 			    size_t size);
 
 		private:
+			/**
+			 * Internal structure used for storing property
+			 * keys/values
+			 */
+			using PropertiesMap = std::map<std::string, std::string>;
+
 			/** The map containing the property/value pairs */
 			PropertiesMap _properties;
 			

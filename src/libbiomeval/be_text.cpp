@@ -8,7 +8,11 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <libgen.h>
+#include <libgen.h>	/*  for basename(3) and dirname(3) */
+#ifdef basename		/* GNU has this macro irresponsibly defined */
+#undef basename
+#endif
+
 #ifdef Darwin
 #include <CommonCrypto/CommonDigest.h>
 #else
@@ -199,7 +203,7 @@ BiometricEvaluation::Text::split(
 }
 
 std::string
-BiometricEvaluation::Text::filename(
+BiometricEvaluation::Text::basename(
     const std::string &path)
 {
 	static Memory::AutoArray<char> buf;

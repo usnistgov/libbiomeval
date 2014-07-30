@@ -12,10 +12,7 @@
 
 #include <memory>
 #include <string>
-
-#include <be_error_exception.h>
-#include <be_io_logsheet.h>
-#include <be_io_recordstore.h>
+#include <vector>
 
 namespace BiometricEvaluation {
 	namespace MPI {
@@ -23,9 +20,7 @@ namespace BiometricEvaluation {
 		 * A class to represent a set of resources needed by an
 		 * MPI program. The resources are based on a properties
 		 * file as well as some dynamic information, such as MPI
-		 * rank and process ID. Every MPI resources client gets
-		 * an opened LogSheet, and an opened RecordStore for input
-		 * data.
+		 * rank and process ID.
  		 */
 		class Resources {
 		public:
@@ -37,16 +32,25 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
+			 * The property string ``Logsheet URL''.
+			 */
+			static const std::string LOGSHEETURLPROPERTY;
+
+			/**
+			 * @brief
 			 * Obtain the list of required properties.
 			 * @return
 			 * A set of required property strings.
 			 */
-			static std::vector<std::string> getRequiredProperties();
+			static std::vector<std::string>
+			    getRequiredProperties();
 
 			/**
 			 * @brief
 			 * Constructor taking the name of the properties
 			 * file describing the resources.
+			 * @param[in] propertiesFileName
+			 * The name of the file containing the Properties.
 			 * @throw Error::FileError
 			 * The resources file could not be read.
 			 * @throw Error::ObjectDoesNotExist
@@ -63,7 +67,19 @@ namespace BiometricEvaluation {
 			 * @return
 			 * The name of the properties file.
 			 */
-			std::string getPropertiesFileName();
+			std::string getPropertiesFileName() const;
+
+			/**
+			 * @brief
+			 * Obtain the Uniform Resource Locator for the
+			 * IO:Logsheet object.
+			 * @details
+			 * This string my be empty, indicating that there
+			 * is no Logsheet URL in the Properties file.
+			 * @return
+			 * The Logsheet URL.
+			 */
+			std::string getLogsheetURL() const;
 
 			~Resources();
 
@@ -79,7 +95,6 @@ namespace BiometricEvaluation {
 			int getRank() const;
 			int getNumTasks() const;
 			int getWorkersPerNode() const;
-			std::shared_ptr<IO::LogSheet> getLogSheet() const;
 
 		private:
 			std::string _propertiesFileName;
@@ -87,7 +102,7 @@ namespace BiometricEvaluation {
 			int _rank;
 			int _numTasks;
 			int _workersPerNode;
-			std::shared_ptr<IO::LogSheet> _logSheet;
+			std::string _logsheetURL;
 		};
 	}
 }

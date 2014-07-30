@@ -34,8 +34,7 @@ int main (int argc, char* argv[]) {
 	string archivefn("test");
 	IO::ArchiveRecordStore *ars;
 	try {
-		ars = new IO::ArchiveRecordStore(archivefn, "Test ArchiveRS", 
-		    "");
+		ars = new IO::ArchiveRecordStore(archivefn, "Test ArchiveRS");
 	} catch (Error::ObjectExists) {
 		cout << "The archive already exists; exiting." << endl;
 		exit (EXIT_FAILURE);
@@ -50,7 +49,7 @@ int main (int argc, char* argv[]) {
 	 */
 	bool cont = false;
 	try {
-		IO::ArchiveRecordStore ars2("bogus", "");
+		IO::ArchiveRecordStore ars2("bogus");
 	} catch (Error::ObjectDoesNotExist) {
 		cout << "Passed test of opening non-existing archive." << endl;
 		cont = true;
@@ -65,7 +64,7 @@ int main (int argc, char* argv[]) {
 
 	cont = false;
 	try {
-		ars = new IO::ArchiveRecordStore(archivefn, "");
+		ars = new IO::ArchiveRecordStore(archivefn);
 		cont = true;
 	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Failed test of opening existing archive." << endl;
@@ -136,7 +135,7 @@ int main (int argc, char* argv[]) {
 	/* Create a new object to read, testing private init methods */
 	IO::ArchiveRecordStore *ars3;
 	try {
-		ars3 = new IO::ArchiveRecordStore(archivefn, "");
+		ars3 = new IO::ArchiveRecordStore(archivefn);
 		cout << "Passed test of reading manifest" << endl;
 	} catch (Error::ObjectDoesNotExist) {
 		cout << "Failed test of reading manifest" << endl;
@@ -204,7 +203,7 @@ int main (int argc, char* argv[]) {
 
 	/* Vacuum the RecordStore */
 	try {
-		IO::ArchiveRecordStore::vacuum(archivefn, "");
+		IO::ArchiveRecordStore::vacuum(archivefn);
 		cout << "Passed test of vacuuming" << endl;
 	} catch (Error::Exception) {
 		cout << "Failed test of vacuuming" << endl;
@@ -213,7 +212,7 @@ int main (int argc, char* argv[]) {
 
 	/* See if the RecordStore needs vacuuming -- it should not */
 	try {
-		if (!IO::ArchiveRecordStore::needsVacuum(archivefn, "")) {
+		if (!IO::ArchiveRecordStore::needsVacuum(archivefn)) {
 			cout << "Passed fourth test of vacuum necessity" <<
 			    endl;
 			exit(EXIT_SUCCESS);

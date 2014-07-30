@@ -4,8 +4,6 @@ This document describes the \lname\ (\sname) and application programming
 interfaces (API) used to support the evaluation of biometric software within 
 the \nistig\ \cite{org:nist:imagegroup}.
 
-\section{Rationale}
-
 When evaluating software in a ``black box'' fashion many aspects
 of program execution must be addressed, such as non-returning function calls,
 I/O errors, and other resource requirements. In addition, solutions to common
@@ -16,20 +14,20 @@ software that implements certain biometric algorithms, such as fingerprint
 matching or face recognition. The NIST Image Group defines a test process
 and API for each evaluation. Vendors implement the API in their software, which
 is delivered to NIST as a software library, where common test driver is used to
-call the vendor library to perform the biometric operation.
+call the vendor library.
 In order to support the common functionality used across all evaluations, such
 as logging, file input/output, etc., a common framework is used.
 
 Even though the \lname\ was written to support biometric software evaluations,
-much of the framework can be used for any general purpose programs where data
+much of the framework can be used for any general purpose program where data
 storage and system interaction are needed. One goal of the \sname\ is to
 reduce the low-level error processing (particularly with input and output)
 done directly by applications. The \lname\ provides several abstractions that
 are useful to applications so they can focus on the task at hand.
 
-This document describes the \sname\ in two sections: Chapters containing
-descriptions of each package as well as code examples, and reference sections
-containing auto-generated API documentation.
+This document describes each package and includes example code. The long form
+of this document includes reference sections containing auto-generated API
+documentation.
 
 The \sname\ is a work-in-progress, and future development will occur in areas
 where the need arises for the testing programs of the \nistig.

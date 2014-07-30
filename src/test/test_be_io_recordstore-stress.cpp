@@ -126,22 +126,22 @@ int main (int argc, char* argv[]) {
 #ifdef FILERECORDSTORETEST
 			/* Call the constructor that will create a new
 			 * FileRecordStore. */
-			rs = new IO::FileRecordStore(rsname, descr, "");
+			rs = new IO::FileRecordStore(rsname, descr);
 #endif
 #ifdef DBRECORDSTORETEST
 			/* Call the constructor that will create a new
 			 * DBRecordStore. */
-			rs = new IO::DBRecordStore(rsname, descr, "");
+			rs = new IO::DBRecordStore(rsname, descr);
 #endif
 #ifdef ARCHIVERECORDSTORETEST
 			/* Call the constructor that will create a new
 			 * ArchiveRecordStore. */
-			rs = new IO::ArchiveRecordStore(rsname, descr, "");
+			rs = new IO::ArchiveRecordStore(rsname, descr);
 #endif
 #ifdef SQLITERECORDSTORETEST
 			/* Call the constructor that will create a new
 			 * SQLiteRecordStore. */
-			rs = new IO::SQLiteRecordStore(rsname, descr, "");
+			rs = new IO::SQLiteRecordStore(rsname, descr);
 #endif
 		} catch (Error::ObjectExists& e) {
 			cout << "The RecordStore already exists; exiting." << endl;
@@ -172,7 +172,7 @@ int main (int argc, char* argv[]) {
 		/* The last time through, leave the store open */
 		if (i != CREATEDESETROYCOUNT) {
 			delete rs;
-			IO::RecordStore::removeRecordStore(rsname, "");
+			IO::RecordStore::removeRecordStore(rsname);
 		}
 	}
 #ifdef FILERECORDSTORETEST

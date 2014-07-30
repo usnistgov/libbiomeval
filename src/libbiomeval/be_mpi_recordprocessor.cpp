@@ -80,7 +80,8 @@ BiometricEvaluation::MPI::RecordProcessor::processWorkPackage(
 		 * finish with the work package.
 		 */
 		if (MPI::QuickExit || MPI::TermExit) {
-			MPI::printStatus("Early exit: End record processing");
+			IO::Logsheet *log = this->getLogsheet().get();
+			log->writeDebug("Early exit: End record processing");
 			break;
 		}
 		try {

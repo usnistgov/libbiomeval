@@ -127,15 +127,12 @@ main(int argc, char* argv[]) {
 	 * Open the RecordStore containing the AN2K records.
 	 */
 	cout << "Opening the Record Store" << endl;
-	string rsname = "AN2KRecordStore";
-	string datadir = "test_data";
+	string rsname = "test_data/AN2KRecordStore";
 	std::shared_ptr<IO::RecordStore> rs;
 	try {
-		rs = IO::RecordStore::openRecordStore(rsname, datadir,
-		    IO::READONLY);
+		rs = IO::RecordStore::openRecordStore(rsname, IO::READONLY);
 	} catch (Error::Exception &e) {
-		cout << "Could not open record store " << rsname 
-		    << " in directory " << datadir << ": "
+		cout << "Could not open record store " << rsname << ": "
 		    << e.what() << endl;
 		return (EXIT_FAILURE);
 	}

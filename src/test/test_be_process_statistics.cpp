@@ -13,7 +13,6 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <be_time.h>
-#include <be_io_logcabinet.h>
 #include <be_process_statistics.h>
 
 using namespace std;
@@ -156,7 +155,7 @@ main(int argc, char *argv[])
 	cout << "At end: " << systemend << ": " << endl;
 
 	cout << "Creating LogCabinet for Statistics object." << flush << endl;
-	IO::LogCabinet lc("statLogCabinet", "Cabinet for Statistics", "");
+	IO::FileLogCabinet lc("statLogCabinet", "Cabinet for Statistics");
 
 	/*
 	 * The logging tests need to be done last.

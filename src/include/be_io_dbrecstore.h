@@ -39,12 +39,10 @@ namespace BiometricEvaluation {
 			/**
 			 * Create a new DBRecordStore, read/write mode.
 			 *
-			 * @param[in] name
-			 *	The name of the store.
+			 * @param[in] pathname
+			 *	The directory where the store will be created.
 			 * @param[in] description
 			 *	The store's description.
-			 * @param[in] parentDir
-			 * 	The directory where the store is to be created.
 			 *
 			 * @throw Error::ObjectExists
 			 * 	The store already exists.
@@ -53,17 +51,14 @@ namespace BiometricEvaluation {
 			 * 	file system.
 			 */
 			DBRecordStore(
-			    const std::string &name,
-			    const std::string &description,
-			    const std::string &parentDir);
+			    const std::string &pathname,
+			    const std::string &description);
 
 			/**
 			 * Open an existing DBRecordStore.
 			 *
 			 * @param[in] name
-			 *	The name of the store.
-			 * @param[in] parentDir
-			 * 	The directory where the store is to be created.
+			 *	The path name of the store.
 			 * @param[in] mode
 			 *	Open mode, read-only or read-write.
 			 *
@@ -74,8 +69,7 @@ namespace BiometricEvaluation {
 			 *	file system.
 			 */
 			DBRecordStore(
-			    const std::string &name,
-			    const std::string &parentDir,
+			    const std::string &pathname,
 			    uint8_t mode = IO::READWRITE);
 
 			/*
@@ -121,8 +115,8 @@ namespace BiometricEvaluation {
 			void setCursorAtKey(
 			    const std::string &key);
 
-			void changeName(
-			    const std::string &name);
+			void move(
+			    const std::string &pathname);
 
 			/* Prevent copying of DBRecordStore objects */
 			DBRecordStore(const DBRecordStore&) = delete;
@@ -144,6 +138,11 @@ namespace BiometricEvaluation {
 			 * non-primary (subordinate) segments.
 			 */
 			DB *_dbS;
+
+			/*
+			 * Return the path to the underlying DB file.
+			 */
+			std::string getDBFilePathname() const;
 
 			/*
 			 * Functions to insert/read/sequence/remove all

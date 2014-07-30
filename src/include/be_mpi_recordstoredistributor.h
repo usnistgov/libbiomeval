@@ -65,7 +65,7 @@ namespace BiometricEvaluation {
 			createWorkPackage(MPI::WorkPackage &workPackage);
 
 		private:
-			std::auto_ptr<MPI::RecordStoreResources>
+			std::unique_ptr<MPI::RecordStoreResources>
 			    _resources;
 			uint64_t _recordsRemaining;
 			bool _includeValues;

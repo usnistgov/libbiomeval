@@ -13,7 +13,8 @@ SOURCECODE = ../src/include/*.h
 export BIOMEVAL_VERSION = $(shell eval `cat ../VERSION | egrep ^[A-Z]`; echo $$MAJOR_VERSION.$$MINOR_VERSION)
 LOCALINC=../../doccommon
 
-COMMONASSETS=../../doccommon/assets/nistident_cent_vec.pdf
+COMMONTEX=$(LOCALINC)/texfiles/commoncommands.tex
+COMMONASSETS=../../doccommon/assets/nistident_cent_vec.pdf ParallelJob.pdf
 include $(LOCALINC)/common.mk
 
 .DEFAULT_GOAL = all

@@ -15,6 +15,7 @@
 #include <string>
 
 #include <be_error_exception.h>
+#include <be_io_logsheet.h>
 #include <be_mpi.h>
 #include <be_mpi_resources.h>
 #include <be_mpi_workpackage.h>
@@ -35,8 +36,13 @@ namespace BiometricEvaluation {
 		 * The distributor sends an MPI message to each receiver object
 		 * indicating whether it should start and ready for accepting
 		 * work packages, or proceed immediately to the shutdown state.
-		 * Failure to start the distributor object will result in
+		 * Failure to start the Distributor object will result in
 		 * the entire MPI job shutting down before any work is done.
+		 *
+		 * If the Logsheet URL property is set, log messages will be
+		 * written to that sheet. Otherwise, log messages will be 
+		 * written to a Null Logsheet.
+		 *
 		 * @see IO::Properties
 		 * @see MPI::Receiver
 		 */
@@ -78,6 +84,14 @@ namespace BiometricEvaluation {
 			virtual void createWorkPackage(
 			    MPI::WorkPackage &workPackage) = 0;
 
+			/**
+		 	 * @brief
+			 * Get access to the Logsheet object.
+			 * @return
+			 * A shared pointer for the Logsheet object.
+			 */
+			std::shared_ptr<IO::Logsheet> getLogsheet() const;
+
 		private:
 			/**
 			* @brief
@@ -89,6 +103,14 @@ namespace BiometricEvaluation {
 			void distributeWork();
 
 			/**
+			* @brief
+			* Send a single work package to a task.
+			*/
+			void sendWorkPackage(
+			    MPI::WorkPackage &workPackage,
+			    int MPITask);
+
+			/**
 			 * @brief
 			 * Shut down all MPI processing.
 			 * @details
@@ -97,11 +119,12 @@ namespace BiometricEvaluation {
 			 */
 			void shutdown();
 
-			std::auto_ptr<MPI::Resources> _resources;
+			std::unique_ptr<MPI::Resources> _resources;
 
 			/* The list of tasks accepting work */
 			std::set<int> _activeMpiTasks;
 
+			std::shared_ptr<IO::Logsheet> _logsheet;
 		};
 	}
 }

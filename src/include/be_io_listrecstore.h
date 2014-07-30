@@ -61,8 +61,7 @@ namespace BiometricEvaluation
 
 			/** Constructor, always opening read-only */
 			ListRecordStore(
-			    const std::string &name,
-			    const std::string &parentDir);
+			    const std::string &pathname);
 
 			/** Destructor */
 			~ListRecordStore();
@@ -114,8 +113,8 @@ namespace BiometricEvaluation
 			    const std::string &key);
 
 			void
-			changeName(
-			    const std::string &name);
+			move(
+			    const std::string &pathname);
 
 			uint64_t
 			getSpaceUsed() const;

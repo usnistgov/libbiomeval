@@ -83,12 +83,9 @@ namespace BiometricEvaluation {
 			/** First segment number of a segmented record */
 			static const uint64_t KEY_SEGMENT_START = 1;
 			
- 
 			/** The name of the control file, a properties list */
 			static const std::string CONTROLFILENAME;
 
-			/** Property key for name of the RecordStore */
-			static const std::string NAMEPROPERTY;
 			/** Property key for description of the RecordStore */
 			static const std::string DESCRIPTIONPROPERTY;
 			/** Property key for the number of store items */
@@ -99,60 +96,8 @@ namespace BiometricEvaluation {
 			/** Message for READONLY RecordStore modification */
 			static const std::string RSREADONLYERROR;
 
-			/**
-			 * Constructor to create a new RecordStore.
-			 *
-			 * @param[in] name
-			 *	The name of the RecordStore to be created.
-			 * @param[in] description
-			 *	The text used to describe the store.
-			 * @param[in] kind
-			 *	The kind of RecordStore.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the store is to
-			 *	be rooted. This directory must exist.
-			 * @throw Error::ObjectExists
-			 *	The store was previously created, or the
-			 *	directory where it would be created exists.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system, or the the name malformed.
-			 */
-			RecordStore(
-			    const std::string &name,
-			    const std::string &description,
-			    const Kind &kind,
-			    const std::string &parentDir);
-
-			/**
-			 * Constructor to open an existing RecordStore.
-			 * @param[in] name
-			 *	The name of the store to be opened.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the store is rooted.
-			 * @param[in] mode
-			 *	The type of access a client of this 
-			 *	RecordStore has.
-			 * @throw Error::ObjectDoesNotExist
-			 *	The RecordStore does not exist.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system, or the name is malformed.
-			 */
-			RecordStore(
-			    const std::string &name,
-			    const std::string &parentDir,
-			    uint8_t mode = READWRITE);
-
 			virtual ~RecordStore();
 			
-			/**
-			 * Return the name of the RecordStore.
-			 * @return
-			 *	 The RecordStore's name.
-			 */
-			std::string getName() const;
-
 			/**
 			 * Obtain a textual description of the RecordStore.
 			 * @return
@@ -168,15 +113,27 @@ namespace BiometricEvaluation {
 			unsigned int getCount() const;
 
 			/**
-			 * Change the name of the RecordStore.
-			 * @param[in] name
-			 *	The new name for the RecordStore.
+			 * Return the path name of the RecordStore.
+			 * @return
+			 *	Where in the file system the RecordStore
+			 *	is located.
+			 */
+			std::string getPathname() const;
+
+			/**
+			 * @brief
+			 * Move the RecordStore.
+			 * @details
+			 * The RecordStore can be moved to a new path in the
+			 * file system.
+			 * @param[in] pathname
+			 *	The new path of the RecordStore.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
-			 *	storage system, or the name is malformed.
+			 *	storage system.
 			 */
-			virtual void changeName(
-			    const std::string &name);
+			virtual void move(
+			    const std::string &pathname);
 
 			/**
 			 * Change the description of the RecordStore.
@@ -495,10 +452,8 @@ namespace BiometricEvaluation {
 			 * when the returned pointer goes out of scope.
 			 * Applications should not delete the object.
 			 *
-			 * @param[in] name
-			 *	The name of the store to be opened.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the store is rooted.
+			 * @param[in] pathname
+			 *	The path name of the store to be opened.
 			 * @param[in] mode
 			 *	The type of access a client of this 
 			 *	RecordStore has.
@@ -508,11 +463,10 @@ namespace BiometricEvaluation {
 			 *	The RecordStore does not exist.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
-			 *	storage system, or the name is malformed.
+			 *	storage system.
 			 */
 			static std::shared_ptr<RecordStore> openRecordStore(
-			    const std::string &name,
-			    const std::string &parentDir,
+			    const std::string &pathname,
 			    uint8_t mode = READWRITE);
 
 			/**
@@ -524,38 +478,32 @@ namespace BiometricEvaluation {
 			 * when the returned pointer goes out of scope.
 			 * Applications should not delete the object.
 			 *
-			 * @param[in] name
-			 *	The name of the store to be created.
+			 * @param[in] pathname
+			 *	The directory of the store to be created.
 			 * @param[in] description
 			 *	The description of the store to be created.
 			 * @param[in] kind
 			 *	The kind of RecordStore to be created.
-			 * @param[in] destDir
-			 *	Where, in the file system, the store will be 
-			 *	created.
 			 * @return
-			 *	An auto_ptr to the object representing the
-			 *	created store.
+			 *	An managed pointer to the object representing
+			 *	the created store.
 			 * @throw Error::ObjectDoesNotExist
 			 *	The RecordStore does not exist.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
-			 *	storage system, or the name is malformed.
+			 *	storage system.
 			 */
 			static std::shared_ptr<RecordStore> createRecordStore(
-			    const std::string &name,
+			    const std::string &pathname,
 			    const std::string &description,
-			    const Kind &kind,
-			    const std::string &destDir);
+			    const Kind &kind);
 
 			/**
 			 * Remove a RecordStore by deleting all persistant
 			 * data associated with the store.
 			 *
-			 * @param[in] name
+			 * @param[in] pathname
 			 *	The name of the existing RecordStore.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the store is rooted.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record with the given key does not exist.
 			 * @throw Error::StrategyError
@@ -563,42 +511,36 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			static void removeRecordStore(
-			    const std::string &name,
-			    const std::string &parentDir);
+			    const std::string &pathname);
 
 			/**
 			 * @brief
 			 * Create a new RecordStore that contains the contents
 			 * of several other RecordStores.
 			 *
-			 * @param[in] mergedName
-			 *	The name of the new RecordStore that will be
-			 *	created.
-			 * @param[in] mergedDescription
-			 *	The text used to describe the RecordStore.
-			 * @param[in] parentDir
-			 *	Where the new RecordStore should be rooted.
+			 * @param[in] mergePathname
+			 *	The path name of the new RecordStore that
+			 *	will be created.
+			 * @param[in] description
+			 *	The text used to describe the new RecordStore.
 			 * @param[in] kind
-			 *	The kind of RecordStore that mergedName should
-			 *	be.
-			 * @param[in] path
-			 *	Vector of string paths to RecordStores to open.
-			 *	These point to the RecordStores that will
-			 *	be merged.
+			 *	The kind of the new, merged RecordStore.
+			 * @param[in] pathnames
+			 *	Vector of path names to RecordStores to open.
+			 *	These are the RecordStores that will be merged
+			 *	to create the new RecordStore.
 			 *
 			 * @throw Error::ObjectExists
-			 *	A RecordStore with mergedNamed in parentDir
-			 *	already exists.
+			 *	A RecordStore at mergePathname already exists.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
 			static void mergeRecordStores(
-			    const std::string &mergedName,
-			    const std::string &mergedDescription,
-			    const std::string &parentDir,
+			    const std::string &mergePathname,
+			    const std::string &description,
 			    const RecordStore::Kind &kind,
-			    const std::vector<std::string> &path);
+			    const std::vector<std::string> &pathnames);
 			    
 			/**
 			 * @brief
@@ -628,14 +570,54 @@ namespace BiometricEvaluation {
 			    noexcept;
 
 		protected:
-			uint8_t getMode() const;
-			std::string getDirectory() const;
-			std::string getParentDirectory() const;
-			/*
-			 * Return the full name of a file stored as part
-			 * of the RecordStore, typically _directory + name.
+			/**
+			 * Constructor to create a new RecordStore.
+			 *
+			 * @param[in] pathname
+			 *	The pathname where the RecordStore is
+			 *	to be created.
+			 * @param[in] description
+			 *	The text used to describe the store.
+			 * @param[in] kind
+			 *	The kind of RecordStore.
+			 * @throw Error::ObjectExists
+			 *	The store was previously created, or the
+			 *	directory where it would be created exists.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
 			 */
-			std::string canonicalName(const std::string &name) const;
+			RecordStore(
+			    const std::string &pathname,
+			    const std::string &description,
+			    const Kind &kind);
+
+			/**
+			 * Constructor to open an existing RecordStore.
+			 * @param[in] pathname
+			 *	The pathname where the RecordStore is
+			 *	to be created.
+			 * @param[in] mode
+			 *	The type of access a client of this 
+			 *	RecordStore has.
+			 * @throw Error::ObjectDoesNotExist
+			 *	The RecordStore does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			RecordStore(
+			    const std::string &pathname,
+			    uint8_t mode = READWRITE);
+
+			uint8_t getMode() const;
+
+			/*
+			 * Return the full path of a file stored as part
+			 * of the RecordStore, typically _pathname + name.
+			 */
+			std::string
+			canonicalName(const std::string &name) const;
 			int getCursor() const;
 			void setCursor(int cursor);
 			bool validateKeyString(
@@ -661,8 +643,8 @@ namespace BiometricEvaluation {
 			
 			/**
 			 * @brief
-			 * Replace existing Properties in RecordStore Control
-			 * File.
+			 * Replace existing Properties in RecordStore control
+			 * file.
 			 * @details
 			 * Existing properties will be updated.  RecordStore
 			 * core properties will be ignored.
@@ -696,15 +678,14 @@ namespace BiometricEvaluation {
 			std::shared_ptr<IO::PropertiesFile> _props;
 			
 			/*
-			 * The name directory where the store is rooted,
-			 * including _parentDir.
+			 * The directory where the store is contained.
 			 */
-			std::string _directory;
+			std::string _pathname;
 
 			/*
-			 * The directory containing the store.
+			 * The complete pathname of the control file.
 			 */
-			std::string _parentDir;
+			std::string _controlFile;
 
 			/*
 			 * The current record position cursor.
@@ -754,6 +735,7 @@ namespace BiometricEvaluation {
 			isKeyCoreProperty(
 			    const std::string &key)
 			    const;
+
 		};
 	}
 }

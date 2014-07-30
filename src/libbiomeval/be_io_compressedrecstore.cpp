@@ -23,19 +23,20 @@ const std::string
     BiometricEvaluation::IO::CompressedRecordStore::METADATA_SUFFIX = "_md";
 
 BiometricEvaluation::IO::CompressedRecordStore::CompressedRecordStore(
-    const std::string &name,
+    const std::string &pathname,
     const std::string &description,
     const RecordStore::Kind &recordStoreType,
-    const std::string &parentDir,
     const std::string &compressorType) :
-    RecordStore(name, description, RecordStore::Kind::Compressed, parentDir),
-    _rs(RecordStore::createRecordStore(BACKING_STORE, description,
-    recordStoreType, name)),
-    _mdrs(RecordStore::createRecordStore(BACKING_STORE + METADATA_SUFFIX,
-    description, recordStoreType, name))
+    RecordStore(pathname, description, RecordStore::Kind::Compressed)
 {
+	std::string rsPath = pathname + '/' +  BACKING_STORE;
+	this->_rs = IO::RecordStore::createRecordStore(rsPath, description,
+	    recordStoreType);
+	rsPath = rsPath + METADATA_SUFFIX;
+	this->_mdrs = IO::RecordStore::createRecordStore(rsPath, description,
+	    recordStoreType);
 	try {
-		_compressor = 
+		this->_compressor = 
 		    IO::Compressor::createCompressor(
 		        to_enum<IO::Compressor::Kind>(compressorType));
 	} catch (Error::ObjectDoesNotExist) {
@@ -50,18 +51,20 @@ BiometricEvaluation::IO::CompressedRecordStore::CompressedRecordStore(
 }
 
 BiometricEvaluation::IO::CompressedRecordStore::CompressedRecordStore(
-    const std::string &name,
+    const std::string &pathname,
     const std::string &description,
     const RecordStore::Kind &recordStoreType,
-    const std::string &parentDir,
     const Compressor::Kind &compressorType) :
-    RecordStore(name, description, RecordStore::Kind::Compressed, parentDir),
-    _rs(RecordStore::createRecordStore(BACKING_STORE, description,
-    recordStoreType, name)),
-    _mdrs(RecordStore::createRecordStore(BACKING_STORE + METADATA_SUFFIX,
-    description, recordStoreType, name)),
-    _compressor(IO::Compressor::createCompressor(compressorType))
+    RecordStore(pathname, description, RecordStore::Kind::Compressed)
 {
+	std::string rsPath = pathname + '/' +  BACKING_STORE;
+	this->_rs = IO::RecordStore::createRecordStore(rsPath, description,
+	     recordStoreType);
+	rsPath = rsPath + METADATA_SUFFIX;
+	this->_mdrs = IO::RecordStore::createRecordStore(rsPath, description,
+	    recordStoreType);
+	this->_compressor = IO::Compressor::createCompressor(compressorType);
+
 	/* Store compressor type */
 	std::shared_ptr<IO::Properties> props = this->getProperties();
 	try {
@@ -74,21 +77,21 @@ BiometricEvaluation::IO::CompressedRecordStore::CompressedRecordStore(
 }
 
 BiometricEvaluation::IO::CompressedRecordStore::CompressedRecordStore(
-    const std::string &name,
-    const std::string &parentDir,
+    const std::string &pathname,
     uint8_t mode) :
-    RecordStore(name, parentDir, mode),
-    _rs(RecordStore::openRecordStore(BACKING_STORE, name, mode)),
-    _mdrs(RecordStore::openRecordStore(BACKING_STORE + METADATA_SUFFIX, name,
-    mode))
+    RecordStore(pathname, mode)
 {    
+	std::string rsPath = pathname + '/' +  BACKING_STORE;
+	this->_rs = RecordStore::openRecordStore(rsPath, mode);
+	rsPath = rsPath + METADATA_SUFFIX;
+	this->_mdrs = RecordStore::openRecordStore(rsPath, mode);
 	std::shared_ptr<IO::Properties> props = this->getProperties();
 	std::string compressorType = props->getProperty(COMPRESSOR_TYPE_KEY);
 	
 	/* Parse compressor type */
 	/* TODO: Need string -> enum */
 	if (strncasecmp(compressorType.c_str(), "GZIP", 4) == 0)
-		_compressor =
+		this->_compressor =
 		    IO::Compressor::createCompressor(Compressor::Kind::GZIP);
 	else
 		throw Error::StrategyError(compressorType + " is not a valid "
@@ -213,8 +216,8 @@ BiometricEvaluation::IO::CompressedRecordStore::sync()
 }
 
 void
-BiometricEvaluation::IO::CompressedRecordStore::changeName(
-    const std::string &name)
+BiometricEvaluation::IO::CompressedRecordStore::move(
+    const std::string &pathname)
 {
 	if (this->getMode() == IO::READONLY)
 		throw Error::StrategyError(RSREADONLYERROR);
@@ -222,11 +225,12 @@ BiometricEvaluation::IO::CompressedRecordStore::changeName(
 	_rs.reset();	
 	_mdrs.reset();
 	
-	RecordStore::changeName(name);
-	
-	_rs = RecordStore::openRecordStore(BACKING_STORE, name, IO::READWRITE);
-	_mdrs = RecordStore::openRecordStore(BACKING_STORE + METADATA_SUFFIX,
-	    name, IO::READWRITE);
+	RecordStore::move(pathname);
+
+	std::string rsPath = pathname + '/' +  BACKING_STORE;
+	_rs = RecordStore::openRecordStore(rsPath, IO::READWRITE);
+	rsPath = rsPath + METADATA_SUFFIX;
+	_mdrs = RecordStore::openRecordStore(rsPath, IO::READWRITE);
 }
 
 void

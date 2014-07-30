@@ -165,43 +165,6 @@ namespace BiometricEvaluation
 			    const std::string &pathname);
 
 			/**
-			 * Check whether or not a string is valid as a name for
-			 * a rooted entity, such as a RecordStore or other type
-			 * of container that is persistent within the file
-			 * system. Notably, name cannot contain path name
-			 * separators ('/' and '\') or begin with whitespace.
-			 *
-			 * @param[in] name
-			 *	The proposed name for the entity.
-			 * @return
-			 *	true if the name is acceptable, false otherwise.
-			 */
-			bool validateRootName(
-			    const std::string &name);
-
-			/**
-			 * Construct a full path for a rooted entity, and
-			 * return true if that path exists; false otherwise.
-			 *
-			 * @param[in] name
-			 *	The proposed name for the entity; cannot
-			 *	be a pathname.
-			 * @param[in] parentDir
-			 *	The name of the directory to contain the entity.
-			 * @param[out] fullPath
-			 *	The complete path to the new entity, when
-			 *	when true is returned; ambiguous when
-			 *	false is returned.
-			 * @return
-			 *	true if the named entiry is present in the file
-			 *	system, false otherwise.
-			 */
-			bool constructAndCheckPath(
-			    const std::string &name,
-			    const std::string &parentDir,
-			    std::string &fullPath);
-
-			/**
 			 * @brief
 			 * Create an entire directory tree.
 			 * @details

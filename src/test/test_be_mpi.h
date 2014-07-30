@@ -15,11 +15,19 @@
 #include <be_memory_autoarray.h>
 #include <be_mpi_recordprocessor.h>
 
+namespace BE = BiometricEvaluation;
+
 /**
  * A test implementation of the MPI RecordProcessor class.
  */
 class TestRecordProcessor : public BiometricEvaluation::MPI::RecordProcessor {
 public:
+	/**
+	 * @brief
+	 * The property string ``Logsheet URL''.
+	 */
+	static const std::string RECORDLOGSHEETURLPROPERTY;
+
 	/**
 	 * @brief
 	 * Constructor.
@@ -32,14 +40,15 @@ public:
 	 * @brief
 	 * Return a new WorkPackageProcessor.
 	 */
-	std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
-	    newProcessor();
+	std::shared_ptr<BE::MPI::WorkPackageProcessor>
+	newProcessor(std::shared_ptr<BE::IO::Logsheet> &logsheet);
 
 	/**
 	 * @brief
 	 * Perform pre-fork initialization.
 	 */
-	virtual void performInitialization();
+	void
+	performInitialization(std::shared_ptr<BE::IO::Logsheet> &logsheet);
 
 	/**
 	 * Process the record associated with the given key.
@@ -51,10 +60,12 @@ public:
 	 */
 	void processRecord(
 	    const std::string &key,
-	    const BiometricEvaluation::Memory::uint8Array &value);
+	    const BE::Memory::uint8Array &value);
 
 protected:
 private:
+	std::shared_ptr<BE::IO::Logsheet> _recordLogsheet;
+	BE::Memory::uint8Array _sharedMemory;
 };
 
 #endif /* _TEST_BE_MPI_H */

@@ -257,7 +257,7 @@ main(
 		
 			workers[i]->setParameter("rs",
 			    IO::RecordStore::createRecordStore(name.str(),
-			    "Test RS", IO::RecordStore::Kind::BerkeleyDB, "."));
+			    "Test RS", IO::RecordStore::Kind::BerkeleyDB));
 			workers[i]->setParameterFromInteger("instance", i + 1);
 		} catch (Error::Exception &e) {
 			cout << e.what() << endl;

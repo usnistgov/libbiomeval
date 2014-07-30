@@ -52,7 +52,7 @@ struct _pstats {
 	uint32_t threads;
 };
 using PSTATS = struct _pstats;
-static const std::string LogSheetHeader =
+static const std::string LogsheetHeader =
     "Entry Usertime Systime RSS VMSize VMPeak VMData VMStack Threads";
 static const std::string StartAutologComment = "Autolog started. Interval: ";
 static const std::string StopAutologComment = "Autolog stopped. ";
@@ -99,7 +99,7 @@ internalGetProcName(pid_t pid)
 	if (loc != std::string::npos)
 		line.erase(loc, loc);
 
-	return (BE::Text::filename(line));
+	return (BE::Text::basename(line));
 #else
 	throw BE::Error::NotImplemented();
 #endif
@@ -236,7 +236,7 @@ BiometricEvaluation::Process::Statistics::~Statistics()
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
-    IO::LogCabinet * const logCabinet)
+    IO::FileLogCabinet * const logCabinet)
 {
 	_pid = getpid();
 	_logCabinet = logCabinet;
@@ -246,7 +246,7 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	lsname << procname << "-" << _pid << ".stats.log";
 	descr << "Statistics for " << procname << " (PID " << _pid << ")";
 	try {
-		_logSheet = logCabinet->newLogSheet(lsname.str(), descr.str());
+		_logSheet = logCabinet->newLogsheet(lsname.str(), descr.str());
 	} catch (BE::Error::ObjectExists &e) {
 		throw BE::Error::StrategyError("Logsheet already exists.");
 	} catch (BE::Error::StrategyError &e) {
@@ -255,7 +255,7 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	_logging = true;
 	_autoLogging = false;
 	pthread_mutex_init(&_logMutex, nullptr);
-	_logSheet->writeComment(LogSheetHeader);
+	_logSheet->writeComment(LogsheetHeader);
 }
 
 void

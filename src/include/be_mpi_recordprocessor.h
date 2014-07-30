@@ -97,9 +97,11 @@ namespace BiometricEvaluation {
 
 			/* Implement WorkPackageProcessor interface */
 			virtual std::shared_ptr<WorkPackageProcessor>
-			    newProcessor() = 0;
+			    newProcessor(
+				std::shared_ptr<IO::Logsheet> &logsheet) = 0;
 
-			virtual void performInitialization() = 0;
+			virtual void performInitialization(
+			    std::shared_ptr<IO::Logsheet> &logsheet) = 0;
 
 			void processWorkPackage(
 			    MPI::WorkPackage &workPackage);

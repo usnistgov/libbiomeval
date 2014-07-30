@@ -18,61 +18,55 @@
 #include <vector>
 
 #include <be_error_exception.h>
-#include <be_io_logsheet.h>
+#include <be_io_filelogsheet.h>
 
 namespace BiometricEvaluation {
     namespace IO {
 	/**
 	 * A class to represent a collection of log sheets.
 	 */
-	class LogCabinet {
+	class FileLogCabinet {
 		public:
 
 			/**
-			 * Create a new LogCabinet in the file system.
-			 * @param[in] name
-			 *	The name of the LogCabinet to be created.
+			 * Create a new FileLogCabinet in the file system.
+			 * @param[in] pathname
+			 *	The pathname where the FileLogCabinet is to
+			 *	be created.
 			 * @param[in] description
 			 *	The text used to describe the cabinet.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the cabinet is to
-			 *	be stored. This directory must exist.
 			 * @throw Error::ObjectExists
 			 *	The cabinet was previously created.
 			 * @throw Error::StrategyError
-			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
-			 *	file system, or name or parentDir is malformed.
+			 *	file system.
 			*/
-			LogCabinet(
-			    const std::string &name,
-			    const std::string &description,
-			    const std::string &parentDir);
+			FileLogCabinet(
+			    const std::string &pathname,
+			    const std::string &description);
 
 			/**
-			 * Open an existing LogCabinet.
-			 * @param[in] name
-			 *	The name of the LogCabinet to be created.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the cabinet is to
-			 *	be stored. This directory must exist.
+			 * Open an existing FileLogCabinet.
+			 * @param[in] pathname
+			 *	The pathname where the FileLogCabinet is
+			 *	located.
 			 * @throw Error::ObjectDoesNotExist
 			 *	The cabinet does not exist in the file system.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
-			 *	file system, or name or parentDir is malformed.
+			 *	file system.
 			 */
-			LogCabinet(
-			    const std::string &name,
-			    const std::string &parentDir);
+			FileLogCabinet(
+			    const std::string &pathname);
 
-			~LogCabinet();
+			~FileLogCabinet();
 			
 			/**
-			 * Create a new LogSheet within the LogCabinet.
+			 * Create a new FileLogsheet within the cabinet.
 			 *
 			 * @param[in] name
-			 *	The name of the LogSheet to be created.
+			 *	The name of the FileLogsheet to be created.
+			 *	This can not be a path name.
 			 * @param[in] description
 			 *	The text used to describe the sheet.
 			 *	This text is written into the log file
@@ -84,65 +78,40 @@ namespace BiometricEvaluation {
 			 *	The sheet was previously created.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
-			 *	file system, or name or parentDir is malformed.
+			 *	file system.
 			*/
-			std::shared_ptr<LogSheet> newLogSheet(
+			std::shared_ptr<FileLogsheet> newLogsheet(
 			    const std::string &name,
 			    const std::string &description);
 
 			/**
-			 * Obtain the name of the LogCabinet.
+			 * Obtain the pathname of the FileLogCabinet.
 			 *
 			 * @ returns
-			 *	The name of the LogCabinet.
+			 *	The pathname of the FileLogCabinet.
 			 */
-			std::string getName();
+			std::string getPathname();
 
 			/**
-			 * Obtain the description of the LogCabinet.
+			 * Obtain the description of the FileLogCabinet.
 			 *
 			 * @ returns
-			 *	The description of the LogCabinet.
+			 *	The description of the FileLogCabinet.
 			 */
 			std::string getDescription();
 
 			/**
-			 * Obtain the number of items in the LogCabinet.
+			 * Obtain the number of items in the FileLogCabinet.
 			 *
 			 * @ returns
-			 *	The number of LogSheets manages by the cabinet.
+			 *	The number of logsheets manages by the cabinet.
 			 */
 			unsigned int getCount();
 
-			/**
-			 * Remove a LogCabinet.
-			 *
-			 * @param[in] name
-			 *	The name of the LogCabinet to be removed.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the sheet is to
-			 *	be stored. This directory must exist.
-			 *
-			 * @throw Error::ObjectDoesNotExist
-			 *	The LogCabinet does not exist.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	file system, or name or parentDir is malformed.
-			 */
-			static void remove(
-			    const std::string &name,
-			    const std::string &parentDir);
-
 		private:
 			 
-			/* The name of the LogCabinet */
-			std::string _name;
-
-			/* The parent directory of the cabinet */
-			std::string _parentDir;
-
 			/* The directory where the cabinet is rooted */
-			std::string _directory;
+			std::string _pathname;
 
 			/* A textual description of the cabinet. */
 			std::string _description;
@@ -155,24 +124,24 @@ namespace BiometricEvaluation {
 
 			/*
 			 * Return the full path of a file stored as part
-			 * of the LogCabinet, typically _directory + name.
+			 * of the FileLogCabinet, typically _pathname + name.
 			 */
 			std::string canonicalName(const std::string &name);
 
 			/* Read the contents of the common control file format
-			 * for all LogCabinet.
+			 * for all FileLogCabinet.
 			 */
 			void readControlFile();
 
 			/* Write the contents of the common control file format
-			 * for all LogCabinet.
+			 * for all FileLogCabinet.
 			 */
 			void writeControlFile();
 
 		private:
-			/* Prevent copying of LogCabinet objects */
-			LogCabinet(const LogCabinet&);
-			LogCabinet& operator=(const LogCabinet&);
+			/* Prevent copying of FileLogCabinet objects */
+			FileLogCabinet(const FileLogCabinet&);
+			FileLogCabinet& operator=(const FileLogCabinet&);
 	};
     }
 }

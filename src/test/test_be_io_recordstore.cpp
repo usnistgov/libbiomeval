@@ -58,7 +58,7 @@ using namespace std;
 
 static const int SEQUENCECOUNT = 10;
 static const int RDATASIZE = 64;
-static string rsname;
+static string rsPath;
 
 /*
  * Test the ability to sequence through the entire RecordStore.
@@ -154,38 +154,38 @@ testMerge()
 #ifdef ARCHIVERECORDSTORETEST
 		merged_type = IO::RecordStore::Kind::Archive;
 		merge_rs[0] = new IO::ArchiveRecordStore(merge_rs_fn[0],
-		    "RS for merge", "");
+		    "RS for merge");
 		merge_rs[1] = new IO::ArchiveRecordStore(merge_rs_fn[1],
-		    "RS for merge", "");
+		    "RS for merge");
 		merge_rs[2] = new IO::ArchiveRecordStore(merge_rs_fn[2],
-		    "RS for merge", "");
+		    "RS for merge");
 #endif
 #ifdef DBRECORDSTORETEST
 		merged_type = IO::RecordStore::Kind::BerkeleyDB;
 		merge_rs[0] = new IO::DBRecordStore(merge_rs_fn[0],
-		    "RS for merge", "");
+		    "RS for merge");
 		merge_rs[1] = new IO::DBRecordStore(merge_rs_fn[1],
-		    "RS for merge", "");
+		    "RS for merge");
 		merge_rs[2] = new IO::DBRecordStore(merge_rs_fn[2],
-		    "RS for merge", "");
+		    "RS for merge");
 #endif
 #ifdef FILERECORDSTORETEST
 		merged_type = IO::RecordStore::Kind::File;
 		merge_rs[0] = new IO::FileRecordStore(merge_rs_fn[0],
-		    "RS for merge", "");
+		    "RS for merge");
 		merge_rs[1] = new IO::FileRecordStore(merge_rs_fn[1],
-		    "RS for merge", "");
+		    "RS for merge");
 		merge_rs[2] = new IO::FileRecordStore(merge_rs_fn[2],
-		    "RS for merge", "");
+		    "RS for merge");
 #endif
 #ifdef SQLITERECORDSTORETEST
 		merged_type = IO::RecordStore::Kind::SQLite;
 		merge_rs[0] = new IO::SQLiteRecordStore(merge_rs_fn[0],
-		    "RS for merge", "");
+		    "RS for merge");
 		merge_rs[1] = new IO::SQLiteRecordStore(merge_rs_fn[1],
-		    "RS for merge", "");
+		    "RS for merge");
 		merge_rs[2] = new IO::SQLiteRecordStore(merge_rs_fn[2],
-		    "RS for merge", "");
+		    "RS for merge");
 #endif
 		merge_rs[0]->insert("0", "0", 2);
 		merge_rs[0]->insert("1", "1", 2);
@@ -207,18 +207,18 @@ testMerge()
 		path.push_back(merge_rs_fn[2]);
 
 		IO::RecordStore::mergeRecordStores(merged_rs_fn,
-		    "A merge of 3 RS", "", merged_type, path);
+		    "A merge of 3 RS", merged_type, path);
 #ifdef ARCHIVERECORDSTORETEST
-		merged_rs = new IO::ArchiveRecordStore(merged_rs_fn, "");
+		merged_rs = new IO::ArchiveRecordStore(merged_rs_fn);
 #endif
 #ifdef DBRECORDSTORETEST
-		merged_rs = new IO::DBRecordStore(merged_rs_fn, "");
+		merged_rs = new IO::DBRecordStore(merged_rs_fn);
 #endif
 #ifdef FILERECORDSTORETEST
-		merged_rs = new IO::FileRecordStore(merged_rs_fn, "");
+		merged_rs = new IO::FileRecordStore(merged_rs_fn);
 #endif
 #ifdef SQLITERECORDSTORETEST
-		merged_rs = new IO::SQLiteRecordStore(merged_rs_fn, "");
+		merged_rs = new IO::SQLiteRecordStore(merged_rs_fn);
 #endif
 		if (merged_rs->getCount() == (num_rs * 3))
 			cout << "success." << endl;
@@ -227,19 +227,19 @@ testMerge()
 
 		if (merged_rs != nullptr) {
 			delete merged_rs; 
-			IO::RecordStore::removeRecordStore(merged_rs_fn, "");
+			IO::RecordStore::removeRecordStore(merged_rs_fn);
 		}
 		if (merge_rs[0] != nullptr) {
 			delete merge_rs[0];
-			IO::RecordStore::removeRecordStore(merge_rs_fn[0], "");
+			IO::RecordStore::removeRecordStore(merge_rs_fn[0]);
 		}
 		if (merge_rs[1] != nullptr) {
 			delete merge_rs[1];
-			IO::RecordStore::removeRecordStore(merge_rs_fn[1], "");
+			IO::RecordStore::removeRecordStore(merge_rs_fn[1]);
 		}
 		if (merge_rs[2] != nullptr) {
 			delete merge_rs[2];
-			IO::RecordStore::removeRecordStore(merge_rs_fn[2], "");
+			IO::RecordStore::removeRecordStore(merge_rs_fn[2]);
 		}
 	} catch (Error::Exception &e) {
 		cout << "Caught " << e.what() << endl;
@@ -451,13 +451,13 @@ runTests(IO::RecordStore *rs)
 	aardata.copy((uint8_t *)rdata, RDATASIZE);
 	rs->insert(tempKey, aardata);
 
-	cout << endl << "Changing RecordStore name..." << endl;
+	cout << endl << "Changing RecordStore path..." << endl;
 	try {
-		string newName = IO::Utility::createTemporaryFile("", "");
-		if (unlink(newName.c_str()))
+		string newPath = IO::Utility::createTemporaryFile("", "");
+		if (unlink(newPath.c_str()))
 			throw Error::StrategyError("Could not unlink empty "
-			    "temporary file (" + newName + ")");
-		rs->changeName(newName);
+			    "temporary file (" + newPath + ")");
+		rs->move(newPath);
 	} catch (Error::ObjectExists &e) {
 		cout << "failed: " << e.what() << "." << endl;
 		return (-1);
@@ -465,7 +465,7 @@ runTests(IO::RecordStore *rs)
 		cout << "failed: " << e.what() << "." << endl;
 		return (-1);
 	}
-	cout << "Name is now " << rs->getName() << endl;
+	cout << "Path is now " << rs->getPathname() << endl;
 
 	cout << "\nDeleting all records..." << endl;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
@@ -575,7 +575,7 @@ runTests(IO::RecordStore *rs)
 
 	cout << "\nReturn RecordStore to original name... ";
 	try {
-		rs->changeName(rsname);
+		rs->move(rsPath);
 	} catch (Error::ObjectExists &e) {
 		cout << "Caught: " << e.what();
 	} catch (Error::StrategyError &e)  {
@@ -597,10 +597,10 @@ main(int argc, char* argv[]) {
 #ifdef FILERECORDSTORETEST
 
 	/* Call the constructor that will create a new FileRecordStore. */
-	rsname = "frs_test";
+	rsPath = "frs_test";
 	IO::FileRecordStore *rs;
 	try {
-		rs = new IO::FileRecordStore(rsname, "RW Test Dir", "");
+		rs = new IO::FileRecordStore(rsPath, "RW Test Dir");
 	} catch (Error::ObjectExists& e) {
 		cout << "The File Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -613,10 +613,10 @@ main(int argc, char* argv[]) {
 
 #ifdef DBRECORDSTORETEST
 	/* Call the constructor that will create a new DBRecordStore. */
-	rsname = "dbrs_test";
+	rsPath = "dbrs_test";
 	IO::DBRecordStore *rs;
 	try {
-		rs = new IO::DBRecordStore(rsname, "RW Test Dir", "");
+		rs = new IO::DBRecordStore(rsPath, "RW Test Dir");
 	} catch (Error::ObjectExists &e) {
 		cout << "The DB Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -629,10 +629,10 @@ main(int argc, char* argv[]) {
 
 #ifdef ARCHIVERECORDSTORETEST
 	/* Call the constructor that will create a new ArchiveRecordStore. */
-	rsname = "ars_test";
+	rsPath = "ars_test";
 	IO::ArchiveRecordStore *rs;
 	try {
-		rs = new IO::ArchiveRecordStore(rsname, "RW Test Dir", "");
+		rs = new IO::ArchiveRecordStore(rsPath, "RW Test Dir");
 	} catch (Error::ObjectExists &e) {
 		cout << "The Archive Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -645,10 +645,10 @@ main(int argc, char* argv[]) {
 
 #ifdef SQLITERECORDSTORETEST
 	/* Call the constructor that will create a new ArchiveRecordStore. */
-	rsname = "srs_test";
+	rsPath = "srs_test";
 	IO::SQLiteRecordStore *rs;
 	try {
-		rs = new IO::SQLiteRecordStore(rsname, "RW Test Dir", "");
+		rs = new IO::SQLiteRecordStore(rsPath, "RW Test Dir");
 	} catch (Error::ObjectExists &e) {
 		cout << "The SQLite Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -661,11 +661,11 @@ main(int argc, char* argv[]) {
 
 #ifdef COMPRESSEDRECORDSTORETEST
 	/* Call the constructor that will create a new ArchiveRecordStore. */
-	rsname = "comprs_test";
+	rsPath = "comprs_test";
 	IO::CompressedRecordStore *rs;
 	try {
-		rs = new IO::CompressedRecordStore(rsname, "RW Test Dir",
-		    IO::RecordStore::Kind::BerkeleyDB, "", "GZIP");
+		rs = new IO::CompressedRecordStore(rsPath, "RW Test Dir",
+		    IO::RecordStore::Kind::BerkeleyDB, "GZIP");
 	} catch (Error::ObjectExists &e) {
 		cout << "The Compressed Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -686,9 +686,9 @@ main(int argc, char* argv[]) {
 #ifdef FILERECORDSTORETEST
 
 	/* Call the constructor that will open an existing FileRecordStore. */
-	rsname = "frs_test";
+	rsPath = "frs_test";
 	try {
-		rs = new IO::FileRecordStore(rsname, "");
+		rs = new IO::FileRecordStore(rsPath);
 	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "The File Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -700,9 +700,9 @@ main(int argc, char* argv[]) {
 
 #ifdef DBRECORDSTORETEST
 	/* Call the constructor that will open an existing DBRecordStore. */
-	rsname = "dbrs_test";
+	rsPath = "dbrs_test";
 	try {
-		rs = new IO::DBRecordStore(rsname, "");
+		rs = new IO::DBRecordStore(rsPath);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The DB Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -714,9 +714,9 @@ main(int argc, char* argv[]) {
 
 #ifdef ARCHIVERECORDSTORETEST
 	/* Call the constructor that will open an existing ArchiveRecordStore.*/
-	rsname = "ars_test";
+	rsPath = "ars_test";
 	try {
-		rs = new IO::ArchiveRecordStore(rsname, "");
+		rs = new IO::ArchiveRecordStore(rsPath);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Archive Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -728,9 +728,9 @@ main(int argc, char* argv[]) {
 
 #ifdef SQLITERECORDSTORETEST
 	/* Call the constructor that will open an existing SQLiteRecordStore.*/
-	rsname = "srs_test";
+	rsPath = "srs_test";
 	try {
-		rs = new IO::SQLiteRecordStore(rsname, "");
+		rs = new IO::SQLiteRecordStore(rsPath);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The SQLite Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -742,9 +742,9 @@ main(int argc, char* argv[]) {
 
 #ifdef COMPRESSEDRECORDSTORETEST
 	/* Call the constructor that will open an existing CompressedRecordStore.*/
-	rsname = "comprs_test";
+	rsPath = "comprs_test";
 	try {
-		rs = new IO::CompressedRecordStore(rsname, "");
+		rs = new IO::CompressedRecordStore(rsPath);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Compressed Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -768,7 +768,7 @@ main(int argc, char* argv[]) {
 	 */
 	cout << "Vacuuming ArchiveRecordStore... " << endl;
 	try {
-		IO::ArchiveRecordStore::vacuum(rsname, "");
+		IO::ArchiveRecordStore::vacuum(rsPath);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "Caught: " << e.what() << endl;
 	} catch (Error::StrategyError &e) {
@@ -786,7 +786,7 @@ main(int argc, char* argv[]) {
 	std::shared_ptr<IO::RecordStore> srs;
 	bool success = false;
 	try {
-		srs = IO::RecordStore::openRecordStore("bbogusss", "/tmp");
+		srs = IO::RecordStore::openRecordStore("/tmp/bbogusss");
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "Caught" << e.what() << "; success." << endl;
 		success = true;
@@ -801,7 +801,7 @@ main(int argc, char* argv[]) {
 
 	cout << "Opening existing record store using factory method: " << endl;
 	try {
-		srs = IO::RecordStore::openRecordStore(rsname, "");
+		srs = IO::RecordStore::openRecordStore(rsPath);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Record Store could not be opened by the factory; exiting." << endl;
 		cout << e.what() << endl;
@@ -827,7 +827,7 @@ main(int argc, char* argv[]) {
 	 */
 	cout << "\nRemoving store... " << endl;
 	try {
-		IO::RecordStore::removeRecordStore(rsname, "");
+		IO::RecordStore::removeRecordStore(rsPath);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "Caught: " << e.what() << endl;
 	} catch (Error::StrategyError &e) {

@@ -10,43 +10,75 @@
 
 #include <iomanip>
 
-#include <be_io_utility.h>
+#include <be_error_exception.h>
 #include <be_io_logsheet.h>
+#include <be_io_syslogsheet.h>
+#include <be_text.h>
 
 namespace BE = BiometricEvaluation;
 
-const std::string
-     BiometricEvaluation::IO::LogSheet::DescriptionTag("Description:");
+const std::string BE::IO::Logsheet::SYSLOGURLSCHEME("syslog");
+const std::string BE::IO::Logsheet::FILEURLSCHEME("file");
 
-static bool
-lineIsLogEntry(
-    std::string line)
+const std::string BE::IO::Logsheet::DescriptionTag("Description:");
+
+BiometricEvaluation::IO::Logsheet::Kind
+BiometricEvaluation::IO::Logsheet::getTypeFromURL(
+    const std::string &url)
 {
-	return (line[0] == BE::IO::LogSheet::EntryDelimiter &&
-	     std::isdigit(line[1]));
+	/*
+	 * Search for the URL scheme, then compare in a
+	 * case-insensitive manner to known schemes,
+	 * removing whitespace before-hand.
+	 */
+	std::string::size_type start = url.find("://");
+	if (start == std::string::npos)
+		throw (Error::ParameterError("Missing URL scheme"));
+
+	std::string prefix = url.substr(0, start);
+	BE::Text::removeLeadingTrailingWhitespace(prefix);
+	if (BE::Text::caseInsensitiveCompare(
+	    prefix, BE::IO::Logsheet::SYSLOGURLSCHEME) == true) {
+		return (BE::IO::Logsheet::Kind::Syslog);
+	}
+	if (BE::Text::caseInsensitiveCompare(
+	    prefix, BE::IO::Logsheet::FILEURLSCHEME) == true) {
+		return (BE::IO::Logsheet::Kind::File);
+	}
+	throw (Error::ParameterError("Invalid URL scheme"));
 }
 
-static bool
-lineIsComment(
-    std::string line)
+bool
+BiometricEvaluation::IO::Logsheet::lineIsEntry(
+    const std::string &line)
 {
-	return (line[0] == BE::IO::LogSheet::CommentDelimiter);
+	return (line[0] == BE::IO::Logsheet::EntryDelimiter &&
+	    line[1] == ' ' &&
+	    std::isdigit(line[2]));
 }
 
-void
-BiometricEvaluation::IO::LogSheet::updateCursor()
+bool
+BiometricEvaluation::IO::Logsheet::lineIsComment(
+    const std::string &line)
 {
-	if ((_cursor = _sequenceFile->tellg()) == -1)
-		throw Error::FileError("Updating sequence cursor");
+	return (line[0] == BE::IO::Logsheet::CommentDelimiter);
+}
+
+bool
+BiometricEvaluation::IO::Logsheet::lineIsDebug(
+    const std::string &line)
+{
+	return (line[0] == BE::IO::Logsheet::DebugDelimiter &&
+	     line[1] == ' ');
 }
 
 std::string
-BiometricEvaluation::IO::LogSheet::trim(
+BiometricEvaluation::IO::Logsheet::trim(
     const std::string &entry)
 {
-	/* Length of a LogSheet entry prefix */
+	/* Length of a Logsheet entry prefix */
 	static const uint8_t entryDelimiterLength = 12;
-	/* Length of a LogSheet prefix */
+	/* Length of a Logsheet prefix */
 	static const uint8_t commentDelimiterLength = 2;
 	
 	if (entry.length() <= 0)
@@ -62,276 +94,124 @@ BiometricEvaluation::IO::LogSheet::trim(
 	}
 }
 
-BiometricEvaluation::IO::LogSheet::LogSheet(
-    const std::string &name,
-    const std::string &description,
-    const std::string &parentDir) :
+BiometricEvaluation::IO::Logsheet::Logsheet() :
     std::ostringstream(),
-    _cursor(0)
+    _entryNumber(1),
+    _autoSync(false),
+    _commit(true),
+    _debugCommit(true),
+    _commentCommit(true)
 {
-	if (!IO::Utility::validateRootName(name))
-		throw Error::StrategyError("Invalid LogSheet name");
-
-	std::string pathname;
-	if (parentDir.empty() || parentDir == ".")
-                pathname = name;
-        else
-                pathname = parentDir + '/' + name;
-
-	if (IO::Utility::fileExists(pathname))
-		throw Error::ObjectExists();
-
-	/* Open the log sheet file as a file output stream */
-	std::fstream *ofs = new std::fstream(pathname.c_str(),
-	    std::ios_base::out);
-	if (!ofs)
-		throw Error::StrategyError("Could not open LogSheet file");
-
-	_theLogFile.reset(ofs);
-	*_theLogFile << DescriptionTag << " " << description << std::endl;
-	if (_theLogFile->fail())
-		throw Error::StrategyError("Could not write description to "
-		    "log file");
-	_autoSync = false;
-	_entryNumber = 1;
-	
-	_sequenceFile.reset(new std::fstream(pathname.c_str(), in));
-	if (_sequenceFile->fail())
-		throw Error::StrategyError("Could not open LogSheet sequencer");
-}
-
-BiometricEvaluation::IO::LogSheet::LogSheet(
-    const std::string &name,
-    const std::string &parentDir) :
-    std::ostringstream(),
-    _cursor(0)
-{
-	if (!IO::Utility::validateRootName(name))
-		throw Error::StrategyError("Invalid LogSheet name");
-
-	std::string pathname;
-	if (parentDir.empty() || parentDir == ".")
-                pathname = name;
-        else
-                pathname = parentDir + '/' + name;
-
-	if (!IO::Utility::fileExists(pathname))
-		throw Error::ObjectDoesNotExist();
-
-	/* Open the log sheet file as a file input stream so we can
-	 * obtain the last entry number. */
-	std::ifstream ifs(pathname.c_str(), in);
-	if (ifs.fail())
-		throw Error::StrategyError("Could not open LogSheet file");
-
-	/*
-	 * Determine the current entry number by counting lines that
-	 * begin with the entry delimiter, etc.
-	 */
-	_entryNumber = 1;
-	std::string oneline;
-	while (!ifs.eof()) {
-		std::getline(ifs, oneline);
-		if (lineIsLogEntry(oneline))
-			_entryNumber++;
-	}
-
-	/* Open the log sheet file as a file output stream */
-	std::fstream *fs = new std::fstream(pathname.c_str(), app | out);
-	if (!fs)
-		throw Error::StrategyError("Could not open LogSheet file");
-
-	_theLogFile.reset(fs);
-	_autoSync = false;
-	
-	_sequenceFile.reset(new std::fstream(pathname.c_str(), in));
-	if (_sequenceFile->fail())
-		throw Error::StrategyError("Could not open LogSheet sequencer");
 }
 
 void
-BiometricEvaluation::IO::LogSheet::write(const std::string &entry)
+BiometricEvaluation::IO::Logsheet::incrementEntryNumber()
 {
-	*_theLogFile << EntryDelimiter << std::setw(10) << std::setfill('0') <<
-	    _entryNumber << ' ' << entry << std::endl;
-	if (_theLogFile->fail()) {
-		std::ostringstream sbuf;
-		sbuf << "Failed writing entry " << _entryNumber << 
-		    " to log file";
-		throw Error::StrategyError(sbuf.str());
-	}
-	if (_autoSync)
-		this->sync();
-	_entryNumber++;
-}
-
-void
-BiometricEvaluation::IO::LogSheet::writeComment(
-    const std::string &comment)
-{
-	*_theLogFile << CommentDelimiter << ' ' << comment << std::endl;
-	if (_theLogFile->fail())
-		throw Error::StrategyError();
-	if (_autoSync)
-		this->sync();
+	this->_entryNumber++;
 }
 
 std::string
-BiometricEvaluation::IO::LogSheet::getCurrentEntry()
+BiometricEvaluation::IO::Logsheet::getCurrentEntry() const
 {
 	return (this->str());
 }
 
 uint32_t
-BiometricEvaluation::IO::LogSheet::getCurrentEntryNumber()
+BiometricEvaluation::IO::Logsheet::getCurrentEntryNumber() const
 {
-	return (_entryNumber);
+	return (this->_entryNumber);
 }
 
 void
-BiometricEvaluation::IO::LogSheet::resetCurrentEntry()
+BiometricEvaluation::IO::Logsheet::resetCurrentEntry()
 {
 	this->seekp(beg);
 	this->str("");
 }
 
 void
-BiometricEvaluation::IO::LogSheet::newEntry()
+BiometricEvaluation::IO::Logsheet::newEntry()
 {
 	try {
 		this->write(this->str());
-	} catch (Error::StrategyError &e) {
+	} catch (BE::Error::StrategyError &e) {
 		throw;
 	}
 	this->resetCurrentEntry();
 }
 
-void
-BiometricEvaluation::IO::LogSheet::sync()
+std::string
+BiometricEvaluation::IO::Logsheet::getCurrentEntryNumberAsString() const
 {
-	_theLogFile->flush();
-	if (_theLogFile->fail())
-		throw Error::StrategyError("Could not sync the log file");
+	std::stringstream sstr;
+	sstr << std::setw(10) << std::setfill('0') << this->_entryNumber;
+	return (sstr.str());
 }
 
 void
-BiometricEvaluation::IO::LogSheet::setAutoSync(
+BiometricEvaluation::IO::Logsheet::setAutoSync(
     bool state)
 {
-	_autoSync = state;	
+	this->_autoSync = state;	
 }
 
-std::string
-BiometricEvaluation::IO::LogSheet::sequence(
-    bool comments,
-    bool trim,
-    int32_t cursor)
-{	
-	if ((cursor != BE_LOGSHEET_SEQ_START) &&
-	    (cursor != BE_LOGSHEET_SEQ_NEXT))
-		throw Error::StrategyError("Invalid cursor position as " 
-		    "argument");
-	
-	/* Sync to make sure that fstream knows about recent writes */
-	_sequenceFile->sync();
-	/* Reset EOF, then perform a small read to check for new entries */
-	_sequenceFile->clear();
-	_sequenceFile->peek();
-	
-	/* Reset stream and cursor when starting over */
-	if ((cursor == BE_LOGSHEET_SEQ_START) ||
-	    ((_cursor == 0) && (cursor == BE_LOGSHEET_SEQ_NEXT))) {
-		_sequenceFile->clear();
-		_sequenceFile->seekg(0, std::ios::beg);
-		this->updateCursor();
-	} else
-		_sequenceFile->seekg(_cursor, std::ios::beg);
-		
-	/* Check that new cursor position is not the EOF */
-	if (_sequenceFile->eof())
-		throw Error::ObjectDoesNotExist();
-	
-	/* Get next entry, skipping any comments or descriptions */
-	std::string entry = "", line = "";
-	while (
-	    /* Skip description and comments */
-	    (comments == false && lineIsLogEntry(entry) == false) ||
-	    /* or just skip description */
-	    (comments == true && lineIsLogEntry(entry) == false &&
-	    lineIsComment(entry) == false)) {
-		if (_sequenceFile->eof())
-			throw Error::ObjectDoesNotExist();
-		
-		getline(*_sequenceFile, entry);
-		if (_sequenceFile->fail())
-			throw Error::StrategyError("Priming sequence "
-			    "read failed");
-	}
-	
-	/* Check for multiline entry */
-	this->updateCursor();
-	getline(*_sequenceFile, line);
-	while ((_sequenceFile->fail() == false) &&
-	    (lineIsLogEntry(line) == false) &&
-	    (lineIsComment(line) == false)) {
-		entry += '\n' + line;
-		this->updateCursor();
-		getline(*_sequenceFile, line);
-	}
-	if (_sequenceFile->eof())
-		return (trim ? LogSheet::trim(entry) : entry);
-	if (_sequenceFile->fail())
-		throw Error::StrategyError("Failed sequencing multiline entry");
-	
-	return (trim ? LogSheet::trim(entry) : entry);
+bool
+BiometricEvaluation::IO::Logsheet::getAutoSync() const
+{
+	return(this->_autoSync);
+}
+
+void
+BiometricEvaluation::IO::Logsheet::setCommit(const bool state)
+{
+	this->_commit = state;
+}
+
+bool
+BiometricEvaluation::IO::Logsheet::getCommit() const
+{
+	return (this->_commit);
+}
+
+void
+BiometricEvaluation::IO::Logsheet::setDebugCommit(const bool state)
+{
+	this->_debugCommit = state;
+}
+
+bool
+BiometricEvaluation::IO::Logsheet::getDebugCommit() const
+{
+	return (this->_debugCommit);
 }
 
 
 void
-BiometricEvaluation::IO::LogSheet::mergeLogSheets(
-    std::vector<std::shared_ptr<LogSheet>> &logSheets)
+BiometricEvaluation::IO::Logsheet::setCommentCommit(const bool state)
 {
-	if (logSheets.size() == 1)
-		return;
-		
-	std::shared_ptr<LogSheet> master;
-	try {
-		master = logSheets.at(0);
-	} catch (std::out_of_range) {
-		throw Error::StrategyError("out_of_range 0");
-	}
-	
-	bool firstEntry = true;
-	std::vector<std::shared_ptr<LogSheet>>::const_iterator it;
-	std::string entry;
-	for (it = logSheets.begin() + 1; it != logSheets.end(); it++) {
-		for (;;) {
-			try {
-				if (firstEntry)
-					entry = (*it)->sequence(true, false,
-					    BE_LOGSHEET_SEQ_START);
-				else
-					entry = (*it)->sequence(true, false,
-					    BE_LOGSHEET_SEQ_NEXT);
-			} catch (Error::ObjectDoesNotExist) {
-				break;
-			}
-
-			if (lineIsComment(entry))
-				master->writeComment(LogSheet::trim(entry));
-			else
-				master->write(LogSheet::trim(entry));
-				
-			firstEntry = false;
-		}
-		
-		master->sync();
-	}
-	
+	this->_commentCommit = state;
 }
 
-BiometricEvaluation::IO::LogSheet::~LogSheet()
+bool
+BiometricEvaluation::IO::Logsheet::getCommentCommit() const
 {
-	_theLogFile->close();
+	return (this->_commentCommit);
 }
+
+BiometricEvaluation::IO::Logsheet::~Logsheet() { }
+
+void
+BiometricEvaluation::IO::Logsheet::write(
+    const std::string &entry) { }
+
+void
+BiometricEvaluation::IO::Logsheet::writeComment(
+    const std::string &entry) { }
+
+void
+BiometricEvaluation::IO::Logsheet::writeDebug(
+    const std::string &entry) { }
+
+void
+BiometricEvaluation::IO::Logsheet::sync() { }
 

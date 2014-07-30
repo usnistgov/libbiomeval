@@ -18,6 +18,8 @@ cat > $PROPS << EOF
 Input Record Store = $INPUTRS
 Chunk Size = 4
 Workers Per Node = 2
+Logsheet URL = file://mpi.log
+Record Logsheet URL = file://record.log
 EOF
 
 #

@@ -17,8 +17,8 @@ int main(
 	cout << "Testing factory open method... ";
 	shared_ptr<IO::RecordStore> rs;
 	try {
-		rs = IO::RecordStore::openRecordStore("listRecordStore",
-	            "test_data", IO::READONLY);
+		rs = IO::RecordStore::openRecordStore(
+		    "test_data/listRecordStore", IO::READONLY);
 		cout << "success" << endl;
 	} catch (Error::Exception &e) {
 		cerr << "FAIL: " << e.what() << endl;

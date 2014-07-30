@@ -14,6 +14,9 @@
 #include <be_error.h>
 #include <be_io_sqliterecstore.h>
 #include <be_io_utility.h>
+#include <be_text.h>
+
+namespace BE = BiometricEvaluation;
 
 /* 
  * RHEL5 sqlite distributions are lacking most of the modern SQLite3 API.
@@ -50,15 +53,10 @@ const std::string
  */
 static const uint64_t MAX_REC_SIZE = (uint64_t)1000000000U;
 
-
 BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
-    const std::string &name,
-    const std::string &description,
-    const std::string &parentDir) :
-    RecordStore(name,
-    description,
-    RecordStore::Kind::SQLite,
-    parentDir),
+    const std::string &pathname,
+    const std::string &description) :
+    RecordStore(pathname, description, RecordStore::Kind::SQLite),
     _db(nullptr),
     _dbname(""),
     _sequencer(nullptr),
@@ -68,7 +66,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
 	sqlite3_initialize();
 #endif
 
-	_dbname = getDirectory() + '/' + getName();
+	_dbname = this->getDBFilename();
 	if (IO::Utility::fileExists(_dbname))
 		throw Error::ObjectExists("Database already exists");
 		
@@ -88,12 +86,9 @@ BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
 }
 
 BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
-    const std::string &name,
-    const std::string &parentDir,
+    const std::string &pathname,
     uint8_t mode) :
-    RecordStore(name,
-    parentDir,
-    mode),
+    RecordStore(pathname, mode),
     _db(nullptr),
     _dbname(""),
     _sequencer(nullptr),
@@ -103,7 +98,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
 	sqlite3_initialize();
 #endif
 
-	_dbname = getDirectory() + '/' + getName();
+	_dbname = this->getDBFilename();
 	if (!IO::Utility::fileExists(_dbname))
 		throw Error::ObjectDoesNotExist("Database does not exist");
 		
@@ -138,41 +133,45 @@ BiometricEvaluation::IO::SQLiteRecordStore::~SQLiteRecordStore()
 }
 
 void
-BiometricEvaluation::IO::SQLiteRecordStore::changeName(
-    const std::string &name)
+BiometricEvaluation::IO::SQLiteRecordStore::move(
+    const std::string &pathname)
 {
 	if (getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	this->cleanup();
-		
+
 	std::string oldDBName, newDBName;
-	if (getParentDirectory().empty() || getParentDirectory() == ".") {
-		oldDBName = name + '/' + getName();
-		newDBName = name + '/' + name;
-	} else {
-		oldDBName = getParentDirectory() + '/' + name + '/' + getName();
-		newDBName = getParentDirectory() + '/' + name + '/' + name;
-	}
-	RecordStore::changeName(name);
+        /*
+	 * Preserve the old name of the DB files, which is based on the
+	 * directory name.
+	 */
+	oldDBName = BE::Text::basename(this->getDBFilename());
+	RecordStore::move(pathname);
+
+	/*
+	 * The DB files are now in the new directory name.
+	 */
+	oldDBName = pathname + '/' + oldDBName;
+	newDBName = pathname + '/' + BE::Text::basename(pathname);
 	if (rename(oldDBName.c_str(), newDBName.c_str()))
 		throw Error::StrategyError("sqlite3: Could not rename "
 		    "database (" + Error::errorStr() + ")");
-		    
-	_dbname = RecordStore::canonicalName(getName());
-	if (!IO::Utility::fileExists(_dbname))
+
+	this->_dbname = this->getDBFilename();
+	if (!IO::Utility::fileExists(this->_dbname))
 		throw Error::StrategyError("sqlite3: Database " + _dbname + 
 		    "does not exist");
 
 #ifdef	SQLITE_V2_SUPPORT
-	int32_t rv = sqlite3_open_v2(_dbname.c_str(), &_db, 
+	int32_t rv = sqlite3_open_v2(this->_dbname.c_str(), &this->_db, 
 	    SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, nullptr);
 #else
-	int32_t rv = sqlite3_open(_dbname.c_str(), &_db);
+	int32_t rv = sqlite3_open(this->_dbname.c_str(), &this->_db);
 #endif
-    	if ((rv != SQLITE_OK) || (_db == nullptr))
+    	if ((rv != SQLITE_OK) || (this->_db == nullptr))
 		sqliteError(rv);
-	
+
 	if (this->validateSchema() == false)
 		throw Error::StrategyError("sqlite3: Invalid schema");
 }
@@ -760,5 +759,12 @@ BiometricEvaluation::IO::SQLiteRecordStore::validateKeyValueTable(
 		sqliteError(rv);
 		
 	return (valid);
+}
+
+std::string
+BiometricEvaluation::IO::SQLiteRecordStore::getDBFilename() const
+{
+	return (this->getPathname() + '/' +
+	    BE::Text::basename(this->getPathname()));
 }
 

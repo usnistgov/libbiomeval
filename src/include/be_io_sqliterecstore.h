@@ -28,18 +28,16 @@ namespace BiometricEvaluation
 		{
 		public:
 			SQLiteRecordStore(
-			    const std::string &name,
-			    const std::string &description,
-			    const std::string &parentDir);
+			    const std::string &pathname,
+			    const std::string &description);
 
 			SQLiteRecordStore(
-			    const std::string &name,
-			    const std::string &parentDir,
+			    const std::string &pathname,
 			    uint8_t mode = READWRITE);
 
 			void
-			changeName(
-			    const std::string &name);
+			move(
+			    const std::string &pathname);
 
 			void
 			changeDescription(
@@ -223,6 +221,11 @@ namespace BiometricEvaluation
 			static const std::string KEY_COL;
 			/* Name given to the column that stores values */
 			static const std::string VALUE_COL;
+			/*
+			 * Return the name of the underlying DB file.
+			 */
+			std::string getDBFilename() const;
+
 		};
 	}
 }

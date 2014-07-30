@@ -19,8 +19,7 @@
 namespace BE = BiometricEvaluation;
 
 static int
-//doLogSheetTests(LogSheet &ls)
-doLogSheetTests(BE::IO::SyslogSheet &ls)
+doLogSheetTests(BE::IO::Logsheet &ls)
 {
 	std::ostringstream test;
 	srand((unsigned)(size_t)&ls);
@@ -60,40 +59,40 @@ main(int argc, char* argv[])
 	int status = EXIT_SUCCESS;
 
 	/* Call the constructor that will create a new LogSheet. */
-	std::string url("syslog://localhost:2514");
+	std::string url(BE::IO::Logsheet::SYSLOGURLSCHEME + "://localhost:2514");
 	std::string description("Test Log Sheet");
 	std::string appname("test_be_io_syslogsheet");
 	std::cout << "Creating Log Sheet with default hostname, sequenced, "
 	    "localtime: ";
-	BE::IO::SyslogSheet *ls;
+	BE::IO::SysLogsheet *ls;
 	try {
-		ls = new BE::IO::SyslogSheet(url, description, appname,
+		ls = new BE::IO::SysLogsheet(url, description, appname,
 		    true, false);
 	} catch (BE::Error::StrategyError& e) {
 		std::cout << "Caught " << e.whatString() << std::endl;
 		return (-1);
 	}
 	std::cout << "success." << std::endl;
-	std::unique_ptr<BE::IO::SyslogSheet> als(ls);
+	std::unique_ptr<BE::IO::SysLogsheet> uls(ls);
 
-	std::cout << "Writing to SyslogSheet with default hostname: ";
+	std::cout << "Writing to SysLogsheet with default hostname: ";
 	try {
-		*als << "First entry that will be thrown away; ";
-		*als << "Should not appear in the log file.";
+		*uls << "First entry that will be thrown away; ";
+		*uls << "Should not appear in the log file.";
 		std::cout << "Current entry:" << std::endl;
-		std::cout << "[" << als->getCurrentEntry() << "]" << std::endl;
-		als->resetCurrentEntry();
+		std::cout << "[" << uls->getCurrentEntry() << "]" << std::endl;
+		uls->resetCurrentEntry();
 		std::cout << "Check that the entry above is NOT in the log."
 		    << std::endl;
-		*als << "First entry that is saved to the log file.";
-		als->newEntry();
+		*uls << "First entry that is saved to the log file.";
+		uls->newEntry();
 
 	} catch (BE::Error::StrategyError& e) {
 		std::cout << "Caught " << e.whatString() << std::endl;
 		return (-1);
 	}
 	std::cout << "Writing more entries... ";
-	if (doLogSheetTests(*als) != 0) {
+	if (doLogSheetTests(*uls) != 0) {
 		std::cout << "failed." << std::endl;
 		status = EXIT_FAILURE;
 	} else {
@@ -102,43 +101,43 @@ main(int argc, char* argv[])
 	try {
 		std::cout << "Writing some unclean entries:" << std::endl;
 
-		als->writeComment("Next entry is the empty string");
+		uls->writeComment("Next entry is the empty string");
 		std::cout << "The empty string;" << std::endl;
-		*als << ""; als->newEntry();
+		*uls << ""; uls->newEntry();
 
-		als->writeComment("Next entry ends with a newline");
+		uls->writeComment("Next entry ends with a newline");
 		std::cout << "Newline at end;" << std::endl;
-		*als << "Newline at end\n"; als->newEntry();
+		*uls << "Newline at end\n"; uls->newEntry();
 
-		als->writeComment("Next entry is a single newline");
+		uls->writeComment("Next entry is a single newline");
 		std::cout << "Single newline;" << std::endl;
-		*als << "\n"; als->newEntry();
+		*uls << "\n"; uls->newEntry();
 
-		als->writeComment("Next entry is triple newline");
+		uls->writeComment("Next entry is triple newline");
 		std::cout << "Triple newline;" << std::endl;
-		*als << "\n\n\n"; als->newEntry();
+		*uls << "\n\n\n"; uls->newEntry();
 	} catch (BE::Error::StrategyError& e) {
 		std::cout << "Caught " << e.whatString() << std::endl;
 		return (-1);
 	}
 
 	std::cout << "Turning off normal and debug entry commit." << std::endl;
-	als->setNormalCommitment(false);
-	als->setDebugCommitment(false);
-	*als << "Entry after turning off commit; should not be in log";
+	uls->setCommit(false);
+	uls->setDebugCommit(false);
+	*uls << "!!!Entry after turning off commit; should not be in log";
 	std::cout << "Check that this entry " << std::endl;
-	std::cout << "\t" << als->getCurrentEntry() << std::endl;
+	std::cout << "\t" << uls->getCurrentEntry() << std::endl;
 	std::cout << "does not appear in the log." << std::endl;
-	als->newEntry();
-	als->writeDebug("Debug entry that should NOT be in the log");
-	*als << "Entry after turning commit back on; should be in log";
+	uls->newEntry();
+	uls->writeDebug("!!!Debug entry that should NOT be in the log");
+	*uls << "Entry after turning commit back on; should be in log";
 	std::cout << "Check there is no debug entry before this entry:"
 	    << std::endl;
-	std::cout << "\t" << als->getCurrentEntry() << std::endl;
-	als->setNormalCommitment(true);
-	als->setDebugCommitment(true);
-	als->newEntry();
-	als->writeDebug("Debug entry that should be in the log");
+	std::cout << "\t" << uls->getCurrentEntry() << std::endl;
+	uls->setCommit(true);
+	uls->newEntry();
+	uls->setDebugCommit(true);
+	uls->writeDebug("Second debug entry that should be in the log");
 	std::cout << "Check that the entry sequence numbers are in order."
 	    << std::endl;
 
@@ -147,7 +146,7 @@ main(int argc, char* argv[])
 	std::cout << "Creating Log Sheet with hostname " << hostname <<
 	    " and no sequence numbers, UTC: ";
 	try {
-		als.reset(new BE::IO::SyslogSheet(url, description,
+		uls.reset(new BE::IO::SysLogsheet(url, description,
 		    appname, hostname, false, true));
 	} catch (BE::Error::StrategyError& e) {
 		std::cout << "Caught " << e.whatString() << std::endl;
@@ -156,7 +155,7 @@ main(int argc, char* argv[])
 	std::cout << "success." << std::endl;
 
 	std::cout << "Writing more entries... ";
-	if (doLogSheetTests(*als) != 0) {
+	if (doLogSheetTests(*uls) != 0) {
 		std::cout << "failed." << std::endl;
 		status = EXIT_FAILURE;
 	} else {

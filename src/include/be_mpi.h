@@ -10,7 +10,10 @@
 #ifndef _BE_MPI_H
 #define _BE_MPI_H
 
+#include <memory>
 #include <string>
+
+#include <be_io_logsheet.h>
 
 namespace BiometricEvaluation {
 	/**
@@ -22,9 +25,12 @@ namespace BiometricEvaluation {
 		/**
 		 * @brief
 		 * Obtain a unique ID for the current process.
+		 * @details
+		 * The ID is a string that is based on the host name,
+		 * MPI rank, and process ID, formatted in a manner
+		 * that can be used to uniquely name files.
 		 * @return
-		 * The unique ID for the process, based on MPI rank
-		 * and process ID.
+		 * The unique ID for the process.
 		 */
 		std::string generateUniqueID();
 
@@ -35,6 +41,52 @@ namespace BiometricEvaluation {
 		 * The messasge to be printed.
 		 */
 		void printStatus(const std::string &message);
+
+		/**
+		 * @brief
+		 * Send the current log entry to the log device.
+		 * @details
+		 * In order to prevent log errors interfering with
+		 * the MPI job, errors are managed, and therefore,
+		 * log messages may stop if the Logsheet has failed.
+		 * @param[in] logsheet
+		 * The open Logsheet to write into.
+		 */
+		void logEntry(
+		    IO::Logsheet &logsheet);
+
+		/**
+		 * @brief
+		 * Send a log message to the given Logsheet.
+		 * @param[in] logsheet
+		 * The open Logsheet to write into.
+		 * @param[in] message
+		 * The log message.
+		 */
+		void logMessage(
+		    IO::Logsheet &logsheet,
+		    const std::string &message);
+
+		/**
+		 * @brief
+		 * Open a Logsheet object for a component of the
+		 * MPI framework.
+		 * @details
+		 * Besides the throw clause below, any objects thrown
+		 * by the Logsheet constructors may also be thrown by
+		 * this method.
+		 * @param[in] url
+		 * The Uniform Resource Locator for the Logsheet.
+		 * @param[in] description
+		 * The description of the Logsheet.
+		 * @return
+		 * Shared pointer to the Logsheet object.
+		 * @throw Error::ParameterError
+		 * Invalid URL.
+		 */
+		std::shared_ptr<BiometricEvaluation::IO::Logsheet> openLogsheet(
+		    const std::string &url,
+		    const std::string &description);
 
 		/**
 		 * @brief

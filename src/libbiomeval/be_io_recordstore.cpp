@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #include <be_error.h>
 #include <be_io_archiverecstore.h>
@@ -31,6 +32,8 @@
 #include <be_memory_autoarray.h>
 #include <be_text.h>
 
+namespace BE = BiometricEvaluation;
+
 const std::string BiometricEvaluation::IO::RecordStore::INVALIDKEYCHARS(
     "/\\*&");
 
@@ -43,7 +46,6 @@ const std::string BiometricEvaluation::IO::RecordStore::CONTROLFILENAME(
 /*
  * The common properties for all RecordStore types.
  */
-const std::string BiometricEvaluation::IO::RecordStore::NAMEPROPERTY("Name");
 const std::string BiometricEvaluation::IO::RecordStore::DESCRIPTIONPROPERTY(
     "Description");
 const std::string BiometricEvaluation::IO::RecordStore::COUNTPROPERTY("Count");
@@ -80,55 +82,49 @@ BiometricEvaluation::Framework::EnumerationFunctions<
  */
 
 BiometricEvaluation::IO::RecordStore::RecordStore(
-    const std::string &name,
+    const std::string &pathname,
     const std::string &description,
-    const Kind &kind,
-    const std::string &parentDir) :
-    _parentDir(parentDir),
+    const Kind &kind) :
+    _pathname(pathname),
     _cursor(BE_RECSTORE_SEQ_START),
     _mode(IO::READWRITE)
 {
-	if (!IO::Utility::validateRootName(name))
-		throw Error::StrategyError("Invalid characters in RS name");
-	if (IO::Utility::constructAndCheckPath(name, parentDir, _directory))
-		throw Error::ObjectExists(name + " already exists in directory "
-		    + parentDir);
+	if (IO::Utility::fileExists(pathname))
+		throw Error::ObjectExists(pathname + " already exists");
+
+	_controlFile = canonicalName(RecordStore::RecordStore::CONTROLFILENAME);
 
 	/*
-	 * The RecordStore is implemented as a directory in the current
-	 * working directory by default or in parentDir if specified.
+	 * The RecordStore is implemented as a directory containing
+	 * files that are opaque to the caller.
 	 * Subclasses of this class store all their data in this directory.
 	 */
 
 	/* Make the new directory, checking for errors */
-	if (mkdir(_directory.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
+	if (mkdir(_pathname.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
 		throw Error::StrategyError("Could not create directory (" +
 		    Error::errorStr() + ")");
 	
 	this->openControlFile();
 	_props->setPropertyFromInteger(COUNTPROPERTY, 0);
-	_props->setProperty(NAMEPROPERTY, name);
 	_props->setProperty(DESCRIPTIONPROPERTY, description);
 	_props->setProperty(TYPEPROPERTY, to_string(kind));
 }
 
 BiometricEvaluation::IO::RecordStore::RecordStore(
-    const std::string &name,
-    const std::string &parentDir,
+    const std::string &pathname,
     uint8_t mode) :
-    _parentDir(parentDir),
+    _pathname(pathname),
     _cursor(BE_RECSTORE_SEQ_START),
     _mode(mode)
 {
-	if (!IO::Utility::validateRootName(name))
-		throw Error::StrategyError("Invalid characters in RS name");
-	if (!IO::Utility::constructAndCheckPath(name, parentDir, _directory))
-		throw Error::ObjectDoesNotExist("Could not find " + name
-		    + " in directory " + parentDir);
+	if (!IO::Utility::fileExists(pathname))
+		throw Error::ObjectDoesNotExist("Could not find " + pathname);
 
 	if (_mode != IO::READWRITE && _mode != IO::READONLY)
 		throw Error::StrategyError("Invalid mode");
 
+	_controlFile = canonicalName(RecordStore::RecordStore::CONTROLFILENAME);
 	try {
 		(void)validateControlFile();
 	} catch (Error::StrategyError& e) {
@@ -147,6 +143,13 @@ BiometricEvaluation::IO::RecordStore::~RecordStore()
 /******************************************************************************/
 /* Common public methods implementations.                                     */
 /******************************************************************************/
+
+std::string
+BiometricEvaluation::IO::RecordStore::canonicalName(
+    const std::string &name) const
+{
+	return (this->_pathname + '/' + name);
+}
 
 void
 BiometricEvaluation::IO::RecordStore::insert(
@@ -220,7 +223,7 @@ BiometricEvaluation::IO::RecordStore::getSpaceUsed() const
 {
 	struct stat sb;
 
-	if (stat(RecordStore::canonicalName(CONTROLFILENAME).c_str(), &sb) != 0)
+	if (stat(_controlFile.c_str(), &sb) != 0)
 		throw Error::StrategyError("Could not find control file");
 	return (sb.st_blocks * S_BLKSIZE);
 }
@@ -245,9 +248,9 @@ BiometricEvaluation::IO::RecordStore::getCount() const
 }
 
 std::string
-BiometricEvaluation::IO::RecordStore::getName() const
+BiometricEvaluation::IO::RecordStore::getPathname() const
 {
-	return (_props->getProperty(NAMEPROPERTY));
+	return (_pathname);
 }
 
 std::string
@@ -270,30 +273,26 @@ BiometricEvaluation::IO::RecordStore::containsKey(
 }
 
 void
-BiometricEvaluation::IO::RecordStore::changeName(const std::string &name)
+BiometricEvaluation::IO::RecordStore::move(const std::string &pathname)
 {
 	if (_mode == IO::READONLY)
 		throw Error::StrategyError(RSREADONLYERROR);
 
-	if (!IO::Utility::validateRootName(name))
-		throw Error::StrategyError("Invalid characters in RS name");
-
-	std::string newDirectory;
-	if (IO::Utility::constructAndCheckPath(name, _parentDir, newDirectory))
-		throw Error::ObjectExists(newDirectory);
+	if (IO::Utility::fileExists(pathname))
+		throw Error::ObjectExists(pathname);
 
 	/* Sync the old data first */
 	_props->sync();
+	_props.reset();
 
 	/* Rename the directory */
-	if (rename(_directory.c_str(), newDirectory.c_str()))
-		throw Error::StrategyError("Could not rename " + _directory + 
+	if (rename(this->_pathname.c_str(), pathname.c_str()))
+		throw Error::StrategyError("Could not rename " + _pathname + 
 		    " (" + Error::errorStr() + ")");
-	_directory = newDirectory;
+	_pathname = pathname;
+	_controlFile = canonicalName(RecordStore::RecordStore::CONTROLFILENAME);
 	
 	this->openControlFile();
-	_props->setProperty(NAMEPROPERTY, name);
-	_props->sync();
 }
 
 void
@@ -309,26 +308,21 @@ BiometricEvaluation::IO::RecordStore::changeDescription(
 
 std::shared_ptr<BiometricEvaluation::IO::RecordStore>
 BiometricEvaluation::IO::RecordStore::openRecordStore(
-    const std::string &name,
-    const std::string &parentDir,
+    const std::string &pathname,
     uint8_t mode)
 {
-	std::string path;
-	if (!IO::Utility::validateRootName(name))
-		throw Error::StrategyError("Invalid characters in RS name");
-	if (!IO::Utility::constructAndCheckPath(name, parentDir, path))
-		throw Error::ObjectDoesNotExist("Could not find " + name
-		    + " in directory " + parentDir);
+	if (!IO::Utility::fileExists(pathname))
+		throw Error::ObjectDoesNotExist("Could not find " + pathname);
 
-	if (!IO::Utility::fileExists(path + '/' +
-	    RecordStore::RecordStore::CONTROLFILENAME))
-		throw Error::StrategyError(path + " is not a "
+	std::string controlFile = pathname + '/' +
+	     RecordStore::RecordStore::CONTROLFILENAME;
+	if (!IO::Utility::fileExists(controlFile))
+		throw Error::StrategyError(pathname + " is not a "
 		    "RecordStore");
 
 	PropertiesFile *props;
 	try {
-		props = new PropertiesFile(path + '/' +
-		    RecordStore::RecordStore::CONTROLFILENAME, IO::READONLY);
+		props = new PropertiesFile(controlFile, IO::READONLY);
 	} catch (Error::StrategyError &e) {
                 throw Error::StrategyError("Could not read properties");
         } catch (Error::FileError& e) {
@@ -346,20 +340,20 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 	RecordStore *rs;
 	/* Exceptions thrown by constructors are allowed to float out */
 	if (type == to_string(RecordStore::Kind::BerkeleyDB))
-		rs = new DBRecordStore(name, parentDir, mode);
+		rs = new DBRecordStore(pathname, mode);
 	else if (type == to_string(RecordStore::Kind::Archive))
-		rs = new ArchiveRecordStore(name, parentDir, mode);
+		rs = new ArchiveRecordStore(pathname, mode);
 	else if (type == to_string(RecordStore::Kind::File))
-		rs = new FileRecordStore(name, parentDir, mode);
+		rs = new FileRecordStore(pathname, mode);
 	else if (type == to_string(RecordStore::Kind::SQLite))
-		rs = new SQLiteRecordStore(name, parentDir, mode);
+		rs = new SQLiteRecordStore(pathname, mode);
 	else if (type == to_string(RecordStore::Kind::Compressed))
-		rs = new CompressedRecordStore(name, parentDir, mode);
+		rs = new CompressedRecordStore(pathname, mode);
 	else if (type == to_string(RecordStore::Kind::List)) {
 		if (mode == IO::READWRITE)
 			throw Error::StrategyError("ListRecordStores cannot "
 			    "be opened read/write");
-		rs = new ListRecordStore(name, parentDir);
+		rs = new ListRecordStore(pathname);
 	} else
 		throw Error::StrategyError("Unknown RecordStore type");
 	return (std::shared_ptr<RecordStore>(rs));
@@ -368,30 +362,28 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 
 std::shared_ptr<BiometricEvaluation::IO::RecordStore>
 BiometricEvaluation::IO::RecordStore::createRecordStore(
-    const std::string &name,
+    const std::string &pathname,
     const std::string &description,
-    const RecordStore::Kind &kind,
-    const std::string &destDir)
+    const RecordStore::Kind &kind)
 {
 	RecordStore *rs;
 	/* Exceptions thrown by constructors are allowed to float out */
 	switch (kind) {
 	case BiometricEvaluation::IO::RecordStore::Kind::BerkeleyDB:
-		rs = new DBRecordStore(name, description, destDir);
+		rs = new DBRecordStore(pathname, description);
 		break;
 	case BiometricEvaluation::IO::RecordStore::Kind::Archive:
-		rs = new ArchiveRecordStore(name, description, destDir);
+		rs = new ArchiveRecordStore(pathname, description);
 		break;
 	case BiometricEvaluation::IO::RecordStore::Kind::File:
-		rs = new FileRecordStore(name, description, destDir);
+		rs = new FileRecordStore(pathname, description);
 		break;
 	case BiometricEvaluation::IO::RecordStore::Kind::SQLite:
-		rs = new SQLiteRecordStore(name, description, destDir);
+		rs = new SQLiteRecordStore(pathname, description);
 		break;
 	case BiometricEvaluation::IO::RecordStore::Kind::Compressed:
-		rs = new CompressedRecordStore(name, description,
-		    RecordStore::Kind::Default, destDir,
-		    IO::Compressor::Kind::GZIP);
+		rs = new CompressedRecordStore(pathname, description,
+		    RecordStore::Kind::Default, IO::Compressor::Kind::GZIP);
 		break;
 	case BiometricEvaluation::IO::RecordStore::Kind::List:
 		throw Error::StrategyError("ListRecordStores cannot be "
@@ -403,22 +395,10 @@ BiometricEvaluation::IO::RecordStore::createRecordStore(
 
 void 
 BiometricEvaluation::IO::RecordStore::removeRecordStore(
-    const std::string &name,
-    const std::string &parentDir)
+    const std::string &pathname)
 {
-	if (!IO::Utility::validateRootName(name))
-		throw Error::StrategyError("Invalid characters in RS name");
-
-	std::string newDirectory;
-	if (!IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
-		throw Error::ObjectDoesNotExist("Could not find " + name
-		    + " in directory " + parentDir);
-
 	try {
-		if (parentDir.empty())
-			IO::Utility::removeDirectory(name, ".");
-		else
-			IO::Utility::removeDirectory(name, parentDir);
+		IO::Utility::removeDirectory(pathname);
 	} catch (Error::ObjectDoesNotExist &e) {
 		throw;
 	} catch (Error::StrategyError &e) {
@@ -429,29 +409,11 @@ BiometricEvaluation::IO::RecordStore::removeRecordStore(
 /******************************************************************************/
 /* Common protected method implementations.                                   */
 /******************************************************************************/
-std::string
-BiometricEvaluation::IO::RecordStore::getDirectory() const
-{
-	return _directory;
-}
-
-std::string
-BiometricEvaluation::IO::RecordStore::getParentDirectory() const
-{
-	return _parentDir;
-}
 
 uint8_t
 BiometricEvaluation::IO::RecordStore::getMode() const
 {
 	return (_mode);
-}
-
-std::string
-BiometricEvaluation::IO::RecordStore::canonicalName(
-    const std::string &name) const
-{
-	return (_directory + '/' + name);
 }
 
 bool
@@ -491,10 +453,11 @@ BiometricEvaluation::IO::RecordStore::getProperties() const
 	std::shared_ptr<IO::Properties> exportProps(new IO::Properties());
 	
 	/* Export all except core properties */
-	for (IO::Properties::const_iterator it = _props->begin();
-	    it != _props->end(); it++) {
-		if (isKeyCoreProperty(it->first) == false)
-			exportProps->setProperty(it->first, it->second);
+	std::vector<std::string> keys = this->_props->getPropertyKeys();
+	for (auto k = keys.begin(); k != keys.end(); ++k) {
+		if (isKeyCoreProperty(*k) == false)
+			exportProps->setProperty(
+			    *k, this->_props->getProperty(*k));
 	}
 			
 	return (exportProps);
@@ -508,22 +471,32 @@ BiometricEvaluation::IO::RecordStore::setProperties(
 		throw Error::StrategyError(RSREADONLYERROR);
 	
 	/* Merge new properties */
-	for (IO::Properties::const_iterator it = importProps->begin();
-	    it != importProps->end(); it++)
-		if (isKeyCoreProperty(it->first) == false)
-			_props->setProperty(it->first, it->second);
+	std::vector<std::string> keys = importProps->getPropertyKeys();
+	for (auto k = keys.begin(); k != keys.end(); ++k) {
+		if (isKeyCoreProperty(*k) == false)
+			_props->setProperty(*k, importProps->getProperty(*k));
+	}
 			
-	/* Remove existing properties that are not imported */
-	for (IO::Properties::const_iterator it = _props->begin();
-	    it != _props->end(); it++) {
-		if (isKeyCoreProperty(it->first) == false) {
+	/*
+	 * Remove existing properties that are not imported.
+	 * Build a list of the existing property keys, then
+	 * check those keys against the new properties, removing
+	 * any non-core keys from the maintained property set.
+	 * NOTE: We cannot just delete keys from the Property object
+	 * based on the iterator as removeProperty() modifies that
+	 * map.
+	 */
+	keys = this->_props->getPropertyKeys();
+	for (auto k = keys.begin(); k != keys.end(); ++k) {
+		if (isKeyCoreProperty(*k) == false) {
 			try {
-				importProps->getProperty(it->first);
+				importProps->getProperty(*k);
 			} catch (Error::ObjectDoesNotExist) {
-				_props->removeProperty(it->first);
+				_props->removeProperty(*k);
 			}
 		}
 	}
+	_props->sync();
 }
 
 /*
@@ -534,7 +507,7 @@ bool
 BiometricEvaluation::IO::RecordStore::isKeyCoreProperty(
     const std::string &key) const
 {
-	return ((key == NAMEPROPERTY) ||
+	return (
 	    (key == DESCRIPTIONPROPERTY) ||
 	    (key == COUNTPROPERTY) ||
 	    (key == TYPEPROPERTY));
@@ -543,23 +516,17 @@ BiometricEvaluation::IO::RecordStore::isKeyCoreProperty(
 void
 BiometricEvaluation::IO::RecordStore::validateControlFile()
 {
-	if (!IO::Utility::fileExists(RecordStore::canonicalName(
-	    CONTROLFILENAME)))
-		throw Error::StrategyError(_directory + " is not a "
+	if (!IO::Utility::fileExists(_controlFile))
+		throw Error::StrategyError(_pathname + " is not a "
 		    "RecordStore");
 
 	/* Read the properties file and set the related state variables
 	 * from the Properties object, checking for errors.
-	 * _directory must be set before calling this method.
+	 * _pathname must be set before calling this method.
 	 */
 	this->openControlFile();
 
 	/* Ensure all required properties exist */
-	try {
-		_props->getProperty(NAMEPROPERTY);
-        } catch (Error::ObjectDoesNotExist& e) {
-                throw Error::StrategyError("Name property is missing");
-        }
 	try {
 		_props->getProperty(DESCRIPTIONPROPERTY);
         } catch (Error::ObjectDoesNotExist& e) {
@@ -581,8 +548,7 @@ void
 BiometricEvaluation::IO::RecordStore::openControlFile()
 {
 	try {
-		_props.reset(new IO::PropertiesFile(
-		    RecordStore::canonicalName(CONTROLFILENAME), _mode));
+		_props.reset(new IO::PropertiesFile(_controlFile, _mode));
 	} catch (Error::Exception &e) {
                 throw Error::StrategyError("Could not open properties (" +
 		    e.whatString() + ')');
@@ -606,11 +572,10 @@ BiometricEvaluation::IO::RecordStore::end()
 
 void
 BiometricEvaluation::IO::RecordStore::mergeRecordStores(
-    const std::string &mergedName,
-    const std::string &mergedDescription,
-    const std::string &parentDir,
+    const std::string &mergePathname,
+    const std::string &description,
     const RecordStore::Kind &kind,
-    const std::vector<std::string> &path)
+    const std::vector<std::string> &pathnames)
 {
 	std::shared_ptr<RecordStore> merged_rs;
 	switch (kind) {
@@ -621,8 +586,8 @@ BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 		case BiometricEvaluation::IO::RecordStore::Kind::File:
 			/* FALLTHROUGH */
 		case BiometricEvaluation::IO::RecordStore::Kind::SQLite:
-			merged_rs = RecordStore::createRecordStore(mergedName,
-			    mergedDescription, kind, parentDir);
+			merged_rs = RecordStore::createRecordStore(
+			   mergePathname, description, kind);
 			break;
 		case BiometricEvaluation::IO::RecordStore::Kind::List:
 			/* FALLTHROUGH */
@@ -635,10 +600,9 @@ BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 	std::string key;
 	BiometricEvaluation::Memory::AutoArray<uint8_t> buf;
 	std::shared_ptr<RecordStore> rs;
-	for (uint32_t i = 0; i < path.size(); i++) {
+	for (uint32_t i = 0; i < pathnames.size(); i++) {
 		try {
-			rs = openRecordStore(Text::filename(path[i]),
-			    Text::dirname(path[i]), IO::READONLY);
+			rs = openRecordStore(pathnames[i], BE::IO::READONLY);
 		} catch (Error::Exception &e) {
 			throw Error::StrategyError(e.whatString());
 		}

@@ -5,11 +5,13 @@
 % generate the default again (by setting LATEX_HEADER to nothing in the
 % config file) and then copying that back into this file.
 %--------------------------------------------------------------------------
+\input{commoncommands.tex}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 %
 \usepackage{makeidx}
 \usepackage{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
 \usepackage{multicol}
 \usepackage{float}
 \usepackage{listings}
@@ -77,10 +79,7 @@
 \newcommand{\lname}{Biometric Evaluation Framework\xspace}
 \newcommand{\nistig}{NIST Image Group\xspace}
 \newcommand{\nbis}{NIST Biometric Image Software\xspace}
-\newcommand{\chpref}[1]{Chapter~\vref{#1}\xspace}
-\newcommand{\secref}[1]{Section~\vref{#1}\xspace}
-\newcommand{\subsecref}[1]{Subsection~\vref{#1}\xspace}
-\newcommand{\lstref}[1]{Listing~\vref{#1}\xspace}
+\newcommand{\URL}{Uniform Resource Locator\xspace}
 
 \newcommand{\class}[1]{\texttt{#1}\xspace}
 \newcommand{\code}[1]{\texttt{#1}\xspace}

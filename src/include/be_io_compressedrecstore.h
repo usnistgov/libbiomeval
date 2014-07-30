@@ -28,15 +28,13 @@ namespace BiometricEvaluation
 			/**
 			 * Create a new CompressedRecordStore, read/write mode.
 			 *
-			 * @param[in] name
-			 *	The name of the store.
+			 * @param[in] pathname
+			 * 	The directory where the store is to be created.
 			 * @param[in] description
 			 *	The store's description.
 			 * @param[in] recordStoreType
 			 *	The type of RecordStore subclass the internal
 			 *	RecordStores should be.
-			 * @param[in] parentDir
-			 * 	The directory where the store is to be created.
 			 * @param[in] compressorType
 			 *	The type of compression that should be used
 			 *	within the internal RecordStores.
@@ -48,24 +46,21 @@ namespace BiometricEvaluation
 			 * 	file system.
 			 */
 			CompressedRecordStore(
-			    const std::string &name,
+			    const std::string &pathname,
 			    const std::string &description,
 		      	    const RecordStore::Kind &recordStoreType,
-			    const std::string &parentDir,
 			    const std::string &compressorType);
 
 			/**
 			 * Create a new CompressedRecordStore, read/write mode.
 			 *
-			 * @param[in] name
-			 *	The name of the store.
+			 * @param[in] pathname
+			 * 	The directory where the store is to be created.
 			 * @param[in] description
 			 *	The store's description.
 			 * @param[in] recordStoreType
 			 *	The type of RecordStore subclass the internal
 			 *	RecordStores should be.
-			 * @param[in] parentDir
-			 * 	The directory where the store is to be created.
 			 * @param[in] compressorType
 			 *	The type of compression that should be used
 			 *	within the internal RecordStores.
@@ -77,19 +72,16 @@ namespace BiometricEvaluation
 			 * 	file system.
 			 */
 			CompressedRecordStore(
-			    const std::string &name,
+			    const std::string &pathname,
 			    const std::string &description,
 		      	    const RecordStore::Kind &recordStoreType,
-			    const std::string &parentDir,
 			    const Compressor::Kind &compressorType);
 
 			/**
 			 * Open an existing CompressedRecordStore.
 			 *
-			 * @param[in] name
-			 *	The name of the store.
-			 * @param[in] parentDir
-			 * 	The directory where the store is to be created.
+			 * @param[in] pathname
+			 *	The path name of the store.
 			 * @param[in] mode
 			 *	Open mode, read-only or read-write.
 			 *
@@ -100,8 +92,7 @@ namespace BiometricEvaluation
 			 *	file system.
 			 */
 			CompressedRecordStore(
-			    const std::string &name,
-			    const std::string &parentDir,
+			    const std::string &pathname,
 			    uint8_t mode = IO::READWRITE);
 
 			/*
@@ -160,8 +151,8 @@ namespace BiometricEvaluation
 			    const std::string &key);
 
 			void
-			changeName(
-			    const std::string &name);
+			move(
+			    const std::string &pathname);
 
 			/** Name of the underlying store within this RS */
 			static const std::string BACKING_STORE;

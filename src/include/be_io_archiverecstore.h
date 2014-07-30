@@ -70,12 +70,10 @@ namespace BiometricEvaluation {
 			/**
 			 * Create a new ArchiveRecordStore, read/write mode.
 			 *
-			 * @param[in] name
-			 *	The name of the store.
+			 * @param[in] pathname
+			 * 	The directory where the store is to be created.
 			 * @param[in] description
 			 *	The store's description.
-			 * @param[in] parentDir
-			 * 	The directory where the store is to be created.
 			 *
 			 * @throw Error::ObjectExists
 			 * 	The store already exists.
@@ -84,17 +82,14 @@ namespace BiometricEvaluation {
 			 * 	file system.
 			 */
 			ArchiveRecordStore(
-			    const std::string &name,
-			    const std::string &description,
-			    const std::string &parentDir);
+			    const std::string &pathname,
+			    const std::string &description);
 
 			/**
 			 * Open an existing ArchiveRecordStore.
 			 *
-			 * @param[in] name
-			 *	The name of the store.
-			 * @param[in] parentDir
-			 * 	The directory where the store is to be created.
+			 * @param[in] pathname
+			 *	The path name of the store.
 			 * @param[in] mode
 			 *	Open mode, read-only or read-write.
 			 *
@@ -105,8 +100,7 @@ namespace BiometricEvaluation {
 			 *	file system.
 			 */
 			 ArchiveRecordStore(
-			     const std::string &name,
-			     const std::string &parentDir,
+			     const std::string &pathname,
 			     uint8_t mode = IO::READWRITE);
 
 			/**
@@ -152,8 +146,8 @@ namespace BiometricEvaluation {
 			void setCursorAtKey(
 			    const std::string &key);
 
-			void changeName(
-			    const std::string &name);
+			void move(
+			    const std::string &pathname);
 	
 			/**
 			 * See if the ArchiveRecordStore would benefit from
@@ -171,10 +165,8 @@ namespace BiometricEvaluation {
 			 * calling vacuum() to remove deleted entries, since
 			 * vacuum() is an expensive operation.
 			 *
-			 * @param[in] name
-			 *	The name of the existing RecordStore.
-			 * @param[in] parentDir
-			 *	Where, in the filesystem, the store is rooted.
+			 * @param[in] pathname
+			 *	The path name of the existing RecordStore.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record with the given key does not exist.
 			 * @throw Error::StrategyError
@@ -185,17 +177,14 @@ namespace BiometricEvaluation {
 			 *	false otherwise
 			 */
 			static bool needsVacuum(
-			    const std::string &name, 
-    			    const std::string &parentDir);
+			    const std::string &pathname);
 
 			/**
 			 * Remove deleted entries from the manifest and 
 			 * archive files to save space on disk.
 			 *
-			 * @param[in] name
-			 *	The name of the existing RecordStore.
-			 * @param[in] parentDir
-			 *	Where, in the file system, the store is rooted.
+			 * @param[in] pathname
+			 *	The pathname of the existing RecordStore.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record with the given key does not exist.
 			 * @throw Error::StrategyError
@@ -205,8 +194,7 @@ namespace BiometricEvaluation {
 			 * This is an expensive operation.
 			 */
 			static void vacuum(
-			    const std::string &name,
-			    const std::string &parentDir);
+			    const std::string &pathname);
 	
 			/**
 			 * Obtain the name of the file storing the data for 

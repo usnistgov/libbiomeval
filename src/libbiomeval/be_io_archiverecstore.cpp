@@ -23,13 +23,15 @@
 #include <be_error.h>
 #include <be_io_utility.h>
 #include <be_io_archiverecstore.h>
+#include <be_memory_autoarray.h>
 #include <be_text.h>
 
+namespace BE = BiometricEvaluation;
+
 BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
-    const std::string &name,
-    const std::string &description,
-    const std::string &parentDir) :
-    RecordStore(name, description, RecordStore::Kind::Archive, parentDir)
+    const std::string &pathname,
+    const std::string &description) :
+    RecordStore(pathname, description, RecordStore::Kind::Archive)
 {
 	_dirty = false;
 
@@ -41,10 +43,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
 }
 
 BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
-    const std::string &name,
-    const std::string &parentDir,
+    const std::string &pathname,
     uint8_t mode) :
-    RecordStore(name, parentDir, mode)
+    RecordStore(pathname, mode)
 {
 	_dirty = false;
 
@@ -524,116 +525,65 @@ BiometricEvaluation::IO::ArchiveRecordStore::efficient_insert(
 
 void
 BiometricEvaluation::IO::ArchiveRecordStore::vacuum(
-    const std::string &name, 
-    const std::string &parentDir)
+    const std::string &pathname)
 {
-	if (!IO::Utility::validateRootName(name))
-		throw Error::StrategyError("Invalid characters in RS name");
+	/* See if vacuuming is necessary */
+	std::unique_ptr<IO::ArchiveRecordStore> oldRS(
+	    new IO::ArchiveRecordStore(pathname, IO::READONLY));
+	if (!oldRS->needsVacuum())
+		return;
+	std::string description = oldRS->getDescription();
+	oldRS.reset(nullptr);
 
-	std::string newDirectory;
-	if (!IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
-		throw Error::ObjectDoesNotExist();
+	std::vector<std::string> paths{pathname};
 
-	char *data = nullptr;
-	uint64_t size;
-	std::string key;
-	ArchiveRecordStore *oldrs = nullptr, *newrs = nullptr;
+	/* Create a temporary RS, which will remove deleted items */
+	std::string parentDir = BE::Text::dirname(pathname);
+	std::string newName = IO::Utility::createTemporaryFile("", parentDir);
+	if (unlink(newName.c_str()))
+		throw Error::StrategyError("Could not unlink empty "
+		    "temporary file (" + newName + ") during vacuum.");
+	IO::RecordStore::mergeRecordStores(newName, description,
+	    IO::RecordStore::Kind::Archive, paths);
 
+	/* Delete the original RecordStore, then change the name of temp RS */
+	auto newRS = IO::RecordStore::openRecordStore(newName);
 	try {
-		oldrs = new ArchiveRecordStore(name, parentDir);
-		/* Bail if vacuuming isn't necessary */
-		if (!oldrs->needsVacuum()) {
-			if (oldrs != nullptr)
-				delete oldrs;
-			return;
-		}
-		std::string newName =
-		    IO::Utility::createTemporaryFile("", parentDir);
-		if (unlink(newName.c_str()))
-			throw Error::StrategyError("Could not unlink empty "
-			    "temporary file (" + newName + ") during vacuum.");
-		newrs = new ArchiveRecordStore(newName,
-		    oldrs->getDescription(), parentDir);
-	} catch (Error::ObjectExists &e) {
-		throw Error::StrategyError(e.what());
+		RecordStore::removeRecordStore(pathname);
+		newRS->move(pathname);
+	} catch (Error::ObjectDoesNotExist) {
+		throw Error::StrategyError("Could not remove " + pathname);
+	} catch (Error::ObjectExists) {
+		throw Error::StrategyError("Could not rename temp RS to "
+		    + pathname);
 	}
-
-	/* Copy all valid entries into a new RecordStore on disk (sequence) */
-	while (true) {
-		try {
-			size = oldrs->sequence(key, nullptr);
-			data = (char *)malloc(sizeof(char) * size);
-			if (data == nullptr)
-				throw Error::StrategyError("Couldn't allocate"
-				    " buffer");
-
-			newrs->insert(key, data, size);
-
-			if (data != nullptr) {
-				free(data);
-				data = nullptr;
-			}
-		} catch (Error::ObjectDoesNotExist &e) {
-			break;	/* Thrown at end of sequence */
-		}
-	}
-
-	if (data != nullptr) {
-		free(data);
-		data = nullptr;
-	}
-	if (oldrs != nullptr)
-		delete oldrs;
-
-	/* Delete the original RecordStore, then change the name of the temp */
-	try {
-		RecordStore::removeRecordStore(name, parentDir);
-		newrs->changeName(name);
-	} catch (Error::ObjectDoesNotExist &e) {
-		if (newrs != nullptr)
-			delete newrs;
-		throw Error::StrategyError("Could not remove " + name);
-	} catch (Error::ObjectExists &e) {
-		if (newrs != nullptr)
-			delete newrs;
-		throw Error::StrategyError("Could not rename temporary RS to " +
-		    name);
-	}
-
-	if (newrs != nullptr)
-		delete newrs;
 }
 
 void
-BiometricEvaluation::IO::ArchiveRecordStore::changeName(
-    const std::string &name)
+BiometricEvaluation::IO::ArchiveRecordStore::move(
+    const std::string &pathname)
 {
-	if (getMode() == IO::READONLY)
+	if (this->getMode() == IO::READONLY)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
-	RecordStore::changeName(name);
-	close_streams();
+	RecordStore::move(pathname);
+	this->close_streams();
 }
 
 bool
 BiometricEvaluation::IO::ArchiveRecordStore::needsVacuum()
 {
-	return _dirty;
+	return (this->_dirty);
 }
 
 bool
 BiometricEvaluation::IO::ArchiveRecordStore::needsVacuum(
-    const std::string &name, 
-    const std::string &parentDir)
+    const std::string &pathname)
 {
-	if (!IO::Utility::validateRootName(name))
-		throw Error::StrategyError("Invalid characters in RS name");
-
-	std::string newDirectory;
-	if (!IO::Utility::constructAndCheckPath(name, parentDir, newDirectory))
+	if (!IO::Utility::fileExists(pathname))
 		throw Error::ObjectDoesNotExist();
 
-	ArchiveRecordStore rs {name, parentDir};
+	ArchiveRecordStore rs {pathname};
 	return rs.needsVacuum();
 }
 

@@ -61,28 +61,27 @@ records with the same key result in an exception being thrown.
 \class{RecordStore} within an application.
 
 \begin{lstlisting}[caption={Using a \class{RecordStore}}, label=lst:recordstoreuse]
-#include <iostream>
 #include <be_io_dbrecstore.h>
 int
 main(int argc, char* argv[]) {
 
     IO::DBRecordStore *rs;
     try {
-	rs = new IO::DBRecordStore("myRecords", "My Record Store", "");
+	rs = new IO::DBRecordStore("myRecords", "My Record Store");
     } catch (Error::Exception& e) {
 	cout << "Caught " << e.what() << endl;
 	return (EXIT_FAILURE);
     }
-    auto_ptr<IO::DBRecordStore> ars(rs);
+    std::unique_ptr<IO::DBRecordStore> urs(rs);
 
     try {
-	uint8_t *theData;
+	Memory::uint8Array theData;
 
 	theData = getSomeData();
-	ars->insert("key1", theData);
+	urs->insert("key1", theData);
 
 	theData = getSomeData();
-	ars->insert("key2", theData);
+	urs->insert("key2", theData);
 
     } catch (Error::Exception& e) {
 	cout << "Caught " << e.what() << endl;
@@ -91,7 +90,7 @@ main(int argc, char* argv[]) {
 
     // Some more processing where new data for a key comes in ...
     theData = getSomeData();
-    ars->replace("key1", theData);
+    urs->replace("key1", theData);
   
     // Obtain the data for all keys ...
     string theKey;
@@ -100,7 +99,7 @@ main(int argc, char* argv[]) {
 	cout << "Read data for key " << theKey << " of length " << len << endl;
     }
     // The data for the key is no longer needed ...
-    ars->remove("key1");
+    urs->remove("key1");
 }
 \end{lstlisting}
 
@@ -113,41 +112,55 @@ call to the software under test. There is a need for the log entries to be
 consistent, yet any logging facility must be flexible in accepting the type of
 data that is to be written to the log file.
 
-The logging classes in the \namespace{IO} package provide a straight-forward method
-for applications to record their progress without the need to manage the
-low-level output details.
-There are two classes, \class{IO::LogCabinet} and \class{IO::LogSheet} that are used
-to perform consistent logging of information by applications. A \class{LogCabinet}
-contains a set of \class{LogSheet}s.
+The logging classes in the \namespace{IO} package provide a straight-forward
+method for applications to record their progress without the need to manage the
+low-level storage details. Management of the log messages to the backing store
+is done within the \class{Logsheet} implementations. \class{Logsheet} specifies
+the common interface to all implementations. In addition, objects of this class
+can be created to provide a ``Null'' \class{Logsheet} where messages are
+not saved.
 
-A \class{LogSheet} is an output stream (subclass of \class{std::ostringstream}),
+A \class{Logsheet} is an output stream (subclass of \class{std::ostringstream}),
 and therefore can handle built-in types and any class that supports streaming.
+Each entry is numbered by the \class{Logsheet} class when written to the log.
+A call to the
+\code{new\allowbreak Entry()} method commits the current entry to the log, and
+resets the write position to the beginning of the entry buffer.
+
+
+In addition to streaming by using the \code{Logsheet::\allowbreak <<} operator, 
+applications can directly commit an entry to the log file by calling the 
+\code{write()} method, thereby not disrupting the entry that is being formed.
+After an entry is committed, the entry number is automatically incremented.
+\class{Logsheet} also supports the writing of ``debug'' and comment entries.
+Each entry is prefixed with a letter code indicating the type.
+
+\subsection{FileLogsheet}
+\label{sec-filelogsheet}
+
+\class{IO::FileLogsheet} uses a file to store the log messages. Access to this
+file is not controlled, and therefore, if two instances of this class
+are made with the same file name, the results are undefined. 
+The description of the sheet is placed at the top of the file during
+construction of the object. Objects of this class can be constructed with
+a string containing a \verb=file://= \URL~(URL) or a simple file name.
+
+\class{IO::FileLogCabinet} is a container of \class{FileLogsheet} where
+each log file is contained within the same directory owned by this container
+class.
+
 The example code in \lstref{lst:logcabinetuse} shows how an application can use 
-a \class{LogSheet}, contained within a \class{LogCabinet}, to record operational
-information.
+a \class{FileLogsheet}, contained within a \class{FileLogCabinet}, to record
+operational information.
 
-Log sheets are simple text files, with each entry numbered by the \class{LogSheet}
-class when written to the file. The description of the sheet is placed at the
-top of the file during construction of the {\em LogSheet} object. A call to the
-\code{new\allowbreak Entry()} method commits the current entry to the log file, and resets
-the write position to the beginning of the entry buffer.
-
-In addition to streaming by using the \code{LogSheet::\allowbreak <<} operator, applications
-can directly commit an entry to the log file by calling the \code{write()}
-method, thereby not disrupting the entry that is being formed. After an entry
-is committed, the entry number is automatically incremented.
-
-The example in \lstref{lst:logcabinetuse} shows application use of the
-logging facility.
-
-\begin{lstlisting}[caption={Using a \class{LogSheet} within a \class{LogCabinet}}, label=lst:logcabinetuse]
-#include <be_io_logcabinet.h>
+\begin{lstlisting}[caption={Using a \class{FileLogsheet} within a \class{FileLogCabinet}}, label=lst:logcabinetuse]
+#include <be_io_filelogcabinet.h>
 using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::IO;
 
-LogCabinet *lc;
+FileLogCabinet *lc;
 try {
-    lc = new LogCabinet(lcname, "A Log Cabinet", "");
+    lc = new FileLogCabinet(lcname, "A Log Cabinet", "");
 } catch (Error::ObjectExists &e) {
     cout << "The Log Cabinet already exists." << endl;
     return (-1);
@@ -155,11 +168,11 @@ try {
     cout << "Caught " << e.what() << endl;
     return (-1);
 }
-auto_ptr<LogCabinet> alc(lc);
+std::unique_ptr<FileLogCabinet> ulc(lc);
 try {
-    ls = alc->newLogSheet(lsname, "Log Sheet in Cabinet");
+    ls = alc->newLogsheet("log01", "Log Sheet in Cabinet");
 } catch (Error::ObjectExists &e) {
-    cout << "The Log Sheet already exists." << endl;
+    cout << "The log sheet already exists." << endl;
     return (-1);
 } catch (Error::StrategyError& e) {
     cout << "Caught " << e.what() << endl;
@@ -171,8 +184,23 @@ int i = ...
 ls->newEntry();		// Forces the write of the current entry
 .........
 delete ls;
-return;			// The LogCabinet is destructed by the auto_ptr
+return;			// The LogCabinet is destructed by the unique_ptr
 \end{lstlisting}
+
+\subsection{SysLogsheet}
+\label{sec-syslogsheet}
+
+The \class{SysLogsheet} is an implementation of \class{Logsheet} which writes
+log entries to a system logger service. Objects of this class are created
+with a URL starting with \verb=syslog://=.
+When using a system logger, the URL must give the hostname of the logger as
+well as the network port: \verb=syslog://node00:4315= for example. The system
+logger must understand the Syslog protocol as specified in
+RFC5424~\cite{rfc5425}.
+
+Multiple instances of a \class{SysLogsheet} can be created with the same URL
+with the assumption that the logging server can manage multiple incoming
+message streams.
 
 \section{Properties}
 \label{sec-properties}
@@ -225,7 +253,7 @@ Support for data compression and decompression can be found in the
 an abstract base class defining several pure-virtual methods for compression
 and decompression of buffers and files.  Derived classes implement these methods
 and can be instantiated through the factory method in the base class.
-As such, children should also be enumaterated within \class{Compressor::Kind}. 
+As such, children should also be enumerated within \class{Compressor::Kind}. 
 The \lname~ comes with an example, \class{GZIP}, which compresses and
 decompresses the \lib{gzip} format through interaction with
 \lib{zlib}~\cite{zlib}.

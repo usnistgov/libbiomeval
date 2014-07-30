@@ -1,18 +1,20 @@
 %
 % Process API
 %
-\chapter{Process Information}
+\chapter{Process Information and Control}
 \label{chp-process}
 
-The \namespace{Process} package is a set of APIs used to gather information on a process,
-limit the capabilities of a process, and create manage processes.
+The \namespace{Process} package is a set of APIs used to gather information on
+a process, limit the capabilities of a process, and to manage the life cycle
+of processes.
 
 \section{Process Statistics}
 \label{sec-process_statistics}
 
-When a application is running, there is a need to obtain information of the
-process executing that application. The Process API can be used by the
-application itself to gather statistics related to the current amount of memory
+When a application is running, there may be a need to obtain information of the
+process executing that application. The \namespace{Process} can be used
+by the application itself to gather statistics related to the current amount
+of memory
 being used, the number of threads, and other items. Biometric evaluation test
 drivers are linked against a third party library, and therefore, the application
 writer does not control the thread count or memory usage for much of the
@@ -47,13 +49,14 @@ int main(int argc, char *argv[])
 }
 \end{lstlisting}
 
-In addition to using the \namespace{Process} API to gather statistics to be returned from
+In addition to using the \namespace{Process} API to gather statistics to be
+returned from
 the function call, the API provides a means to have a ``standard'' set of
 statistics logged either synchronously or asynchronously to a 
 \class{LogSheet} (See~\secref{sec-logging}) contained within a \class{LogCabinet}.
 Applications can
 start and stop logging at will to this \class{LogSheet}. Post-mortem analysis can
-then be done on the entries in the \class{LogSheet}.
+then be done on the entries in the log.
 \lstref{lst:processstatisticslogging} shows the use of logging.
 
 The \class{LogSheet} will have a file name constructed from the process name (i.e.
@@ -122,10 +125,9 @@ int main(int argc, char *argv[])
 
 During a biometric evaluation or other long-running CPU-bound task, it's 
 beneficial to make efficient use of all the hardware available on the system.
-If your application is running on a multi-core machine, why not make use of
-more than one core?  \sname\ aims to simply this by abstracting the usage of
-\code{fork(2)} and \lib{libpthread} to run multiple instances of the same
-function simultaneously.
+Applications can take advantage of a multi-core machine, for example.
+\sname\ aims to simply this by abstracting the usage of process and thread
+creation to run multiple instances of the same function in parallel.
 
 \subsection{Manager}
 \label{subsec-process_manager}
@@ -157,16 +159,16 @@ into the object through
 the parameters are then retrieved with \code{get\allowbreak Parameter()} when
 provided with the unique parameter name.
 
-A responsible \class{Worker} performs its operations as fast as it can,
-however, at any given time, the \class{Manager} may ask the \class{Worker} to
-stop.  It then becomes the {\em responsibility of the \class{Worker}} to 
+A responsible worker performs its operations as fast as it can.
+However, at any given time, the manager may ask the worker to
+stop.  It then becomes the {\em responsibility of the worker} to 
 stop as soon as possible.  The \class{Worker} is notified of the stop request
 through its \code{stop\allowbreak Requested()} method.  Note that the
-\class{Manager} does \textbf{not} force the \class{Worker} to stop, though
-prolonged work or cleanup in the \class{Worker} would likely produce
+manager does \textbf{not} force the worker to stop, though
+prolonged work or cleanup in the worker would likely produce
 undesired results in the client application.  As such, a responsible
-\class{Worker} checkpoints itself to prepare for premature stops requested by
-the \class{Manager}.  While it is important for \class{Worker}s to stop as soon
+worker checkpoints itself to prepare for premature stops requested by
+the manager. While it is important for a worker to stop as soon
 as possible after the request is received, it is also important not to leave
 work in an unsynchronized state.  In \lstref{lst:process_worker-example},
 notice how
@@ -231,13 +233,13 @@ public:
 };
 \end{lstlisting}
 
-After a \class{Manager} starts its \class{Worker}s, the \class{Manager} has the
+After a manager starts its workers, the manager has the
 option of waiting until all \class{Worker}s exit \code{worker\allowbreak Main()}
 before continuing code execution.  If not waiting,
-there are several methods the \class{Manager} can perform to keep track of the status of the
-\class{Worker}s.  Even if not waiting for \class{Worker}s to return,
-a responsible \class{Manager} will wait a reasonable amount of time for
-\class{Worker}s to \code{return} before application termination.  An example of this
+there are several methods the manager can perform to keep track of the status
+of the workers.  Even if not waiting for workers to return,
+a responsible manager will wait a reasonable amount of time for
+workers to \code{return} before application termination.  An example of this
 reasonable waiting period can be seen in \lstref{lst:process_manager-example}.
 
 \subsection{WorkerController}
@@ -324,19 +326,19 @@ main(
 \subsection{Communications}
 \label{subsec:communications}
 
-\class{Manager}s and \class{Worker}s might have good reason to communicate
-arbitrary messages directly.  A communications mechanism is built-in to the
+Managers and workers may have a good reason to send and receive
+messages directly.  A communications mechanism is built-in to the
 \nameref{sec-process_management} model to facilitate such communications. 
 The type and content of the message is completely up to the client
 implementation, since messages are sent as \class{AutoArray}s.
-A \class{Manager} does not directly send messages to a
-\class{Worker}.  This service is provided by the \class{Worker\-Controller}
+A manager does not directly send messages to a
+worker.  This service is provided by the \class{Worker\-Controller}
 (via \texttt{send\-Message\-To\-Worker()}).
 
-\class{Manager}s can keep an eye on incoming messages by calling the
+Managers can keep an eye on incoming messages by calling the
 (optionally blocking) \texttt{wait\-For\-Message()} method.  This method will
-return a handle to the \class{Worker} that sent a message.  Alternatively, the
-\class{Manager} can invoke \texttt{get\-Next\-Message()} (again, blocking 
+return a handle to the worker that sent a message.  Alternatively, the
+manager can invoke \texttt{get\-Next\-Message()} (again, blocking 
 optional) to immediately receive the next message.
 
 \lstref{lst:process-worker-communication-example} and 

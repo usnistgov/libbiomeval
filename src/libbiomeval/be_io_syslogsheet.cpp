@@ -8,9 +8,9 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
-#include <iomanip>
 
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -23,12 +23,9 @@
 #include <be_error_exception.h>
 #include <be_io_syslogsheet.h>
 #include <be_memory_autoarray.h>
+#include <be_text.h>
 
 namespace BE = BiometricEvaluation;
-
-const std::string BiometricEvaluation::IO::SyslogSheet::DescriptionTag(
-    "Description:");
-static const std::string URLScheme("syslog");
 
 /* Codes are from RFC 5424 */
 static const std::string NormalPRI("<134>");	/* 16*8 + 6 */
@@ -39,20 +36,21 @@ static const std::string SyslogNIL("-");
 static bool
 parseURL(const std::string &url, std::string &hostname, int &port)
 {
-	if (url.find(URLScheme + "://") == std::string::npos)
+	if (BE::IO::Logsheet::getTypeFromURL(url) !=
+	    BE::IO::Logsheet::Kind::Syslog)
 		return (false);
 
-	/* Find the host name */
-	std::string::size_type start = url.find_first_of("//");
-	std::string::size_type stop = url.find_last_of(":");
-	hostname = url.substr(start + 2, stop - (start + 2));
-	port = std::atoi(url.substr(stop + 1, url.length()).c_str());
+	/* Find the host name and port */
+	std::string::size_type start = url.find("://");
+	std::string::size_type stop = url.rfind(':');
+	hostname = url.substr(start + 3, stop - (start + 3));
+	port = std::stoi(url.substr(stop + 1, url.length()));
 
 	return (true);
 }
 
 void
-BiometricEvaluation::IO::SyslogSheet::setup(
+BiometricEvaluation::IO::SysLogsheet::setup(
     const std::string &url,
     const std::string &description)
 {
@@ -61,7 +59,6 @@ BiometricEvaluation::IO::SyslogSheet::setup(
 	int port;
 	if (!parseURL(url, hostname, port))
 		throw BE::Error::StrategyError("Invalid URL");
-
 	/* Open the connection to the system logger daemon */
 	int sockFD = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
 	if (sockFD == -1)
@@ -90,19 +87,16 @@ BiometricEvaluation::IO::SyslogSheet::setup(
 	// XXX Do something with the description string
 }
 
-BiometricEvaluation::IO::SyslogSheet::SyslogSheet(
+BiometricEvaluation::IO::SysLogsheet::SysLogsheet(
     const std::string &url,
     const std::string &description,
     const std::string &appname,
     bool sequenced,
     bool utc) :
-    std::ostringstream(),
-    _entryNumber(1),
+    IO::Logsheet(),
     _appname(appname),
     _sequenced(sequenced),
     _operational(false),
-    _normalCommit(true),
-    _debugCommit(true),
     _utc(utc)
 {
 	setup(url, description);
@@ -112,20 +106,18 @@ BiometricEvaluation::IO::SyslogSheet::SyslogSheet(
 	_hostname = std::string((char *)&buf[0]);
 }
 
-BiometricEvaluation::IO::SyslogSheet::SyslogSheet(
+BiometricEvaluation::IO::SysLogsheet::SysLogsheet(
     const std::string &url,
     const std::string &description,
     const std::string &appname,
     const std::string &hostname,
     bool sequenced,
     bool utc) :
-    _entryNumber(1),
+    IO::Logsheet(),
     _hostname(hostname),
     _appname(appname),
     _sequenced(sequenced),
     _operational(false),
-    _normalCommit(true),
-    _debugCommit(true),
     _utc(utc)
 {
 	setup(url, description);
@@ -156,7 +148,7 @@ createSyslogTimestamp(bool utc)
 	else
 		TZsign = '+';
 
-	int hourOffset, minOffset;
+	unsigned int hourOffset, minOffset;
 	hourOffset = std::abs(cTime.tm_gmtoff) / 3600;
 	minOffset = std::abs(cTime.tm_gmtoff) % 3600;
 	char buf[33];
@@ -169,7 +161,7 @@ createSyslogTimestamp(bool utc)
 }
 
 void
-BiometricEvaluation::IO::SyslogSheet::writeToLogger(
+BiometricEvaluation::IO::SysLogsheet::writeToLogger(
     const std::string &priority,
     const char delimiter,
     const std::string &prefix,
@@ -214,14 +206,25 @@ BiometricEvaluation::IO::SyslogSheet::writeToLogger(
 	 * and send it to the logger. If there is no newline, then
 	 * the entire message is sent.
 	 */
-	size_t msglen, end;
+	std::string::size_type msglen, end;
 	std::string logMsg;
 
 	end = message.find('\n', 0);
 	logMsg = msgCom.str() + message.substr(0, end) + "\n";
 	msglen = logMsg.length();
-	int rval = ::write(this->_sockFD, logMsg.c_str(), msglen);
-	if (rval != msglen)
+
+	/*
+	 * Ignore the SIGPIPE signal during the writing of the
+	 * pipe; save the current signal handler, then restore it.
+	 */
+	struct sigaction sa;
+	struct sigaction osa;
+	sigemptyset(&sa.sa_mask);       /* Don't block other signals */
+	sa.sa_handler = SIG_IGN;
+	(void)sigaction(SIGPIPE, &sa, &osa);
+
+	ssize_t rval = ::write(this->_sockFD, logMsg.c_str(), msglen);
+	if (rval != (ssize_t)msglen)
 		throw Error::StrategyError(
 		    "Failed write: " + Error::errorStr());
 
@@ -239,97 +242,64 @@ BiometricEvaluation::IO::SyslogSheet::writeToLogger(
 		logMsg = msgCom.str() + message.substr(start, sublen) + "\n";
 		msglen = logMsg.length();
 		rval = ::write(this->_sockFD, logMsg.c_str(), msglen);
-		if (rval != msglen)
+		if (rval != (ssize_t)msglen)
 			throw Error::StrategyError(
 			    "Failed write: " + Error::errorStr());
 	}
+	(void)sigaction(SIGPIPE, &osa, nullptr);
 }
 
 void
-BiometricEvaluation::IO::SyslogSheet::write(const std::string &entry)
+BiometricEvaluation::IO::SysLogsheet::write(const std::string &entry)
 {
-	if (this->_normalCommit == false)
+	if (this->getCommit() == false)
 		return;
 
 	/*
 	 * Send the entry string to the logger, prefixed by the
 	 * normal PRIority and entry delimiter, adding line terminator
 	 */
-	std::stringstream sstr;
-	if (this->_sequenced) {
-		sstr << std::setw(10) << std::setfill('0')
-		     << this->_entryNumber;
-	}
-	writeToLogger(NormalPRI, EntryDelimiter, sstr.str(), entry);
-	this->_entryNumber++;
+	std::string str;
+	if (this->_sequenced)
+		str = this->getCurrentEntryNumberAsString();
+	writeToLogger(NormalPRI, EntryDelimiter, str, entry);
+	this->incrementEntryNumber();
 }
 
 void
-BiometricEvaluation::IO::SyslogSheet::writeComment(const std::string &comment)
+BiometricEvaluation::IO::SysLogsheet::writeComment(const std::string &entry)
 {
+	if (this->getCommentCommit() == false)
+		return;
+
 	/*
 	 * Send the comment string to the logging daemon, prefixed by
 	 * the normal PRIority and comment delimiter.
 	 */
-	writeToLogger(NormalPRI, CommentDelimiter, "", comment);
+	writeToLogger(NormalPRI, CommentDelimiter, "", entry);
 }
 
 void
-BiometricEvaluation::IO::SyslogSheet::writeDebug(const std::string &message)
+BiometricEvaluation::IO::SysLogsheet::writeDebug(const std::string &entry)
 {
-	if (this->_debugCommit == false)
+	if (this->getDebugCommit() == false)
 		return;
 
 	/*
 	 * Send the debug message to the logging daemon, prefixed by
 	 * the debug PRIority and comment delimiter.
 	 */
-	writeToLogger(DebugPRI, DebugDelimiter, "", message);
-}
-
-std::string
-BiometricEvaluation::IO::SyslogSheet::getCurrentEntry()
-{
-	return (this->str());
-}
-
-uint32_t
-BiometricEvaluation::IO::SyslogSheet::getCurrentEntryNumber()
-{
-	return (_entryNumber);
+	writeToLogger(DebugPRI, DebugDelimiter, "", entry);
 }
 
 void
-BiometricEvaluation::IO::SyslogSheet::resetCurrentEntry()
+BiometricEvaluation::IO::SysLogsheet::sync()
 {
-	this->seekp(beg);
-	this->str("");
+	/* There is nothing to do as the server has the data */
+	return;
 }
 
-void
-BiometricEvaluation::IO::SyslogSheet::newEntry()
-{
-	try {
-		this->write(this->str());
-	} catch (Error::StrategyError &e) {
-		throw e;
-	}
-	this->resetCurrentEntry();
-}
-
-void
-BiometricEvaluation::IO::SyslogSheet::setNormalCommitment(const bool state)
-{
-	this->_normalCommit = state;
-}
-
-void
-BiometricEvaluation::IO::SyslogSheet::setDebugCommitment(const bool state)
-{
-	this->_debugCommit = state;
-}
-
-BiometricEvaluation::IO::SyslogSheet::~SyslogSheet()
+BiometricEvaluation::IO::SysLogsheet::~SysLogsheet()
 {
 	if (_operational)
 		close(_sockFD);
