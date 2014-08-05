@@ -81,6 +81,14 @@ BiometricEvaluation::MPI::Resources::getRequiredProperties()
 	return (props);
 }
 
+std::vector<std::string>
+BiometricEvaluation::MPI::Resources::getOptionalProperties()
+{
+	std::vector<std::string> props;
+	props.push_back(MPI::Resources::LOGSHEETURLPROPERTY);
+	return (props);
+}
+
 /******************************************************************************/
 /* Object method definitions.                                                 */
 /******************************************************************************/

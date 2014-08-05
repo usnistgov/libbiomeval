@@ -47,6 +47,15 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
+			 * Obtain the list of optional properties.
+			 * @return
+			 * A set of optional property strings.
+			 */
+			static std::vector<std::string>
+			    getOptionalProperties();
+
+			/**
+			 * @brief
 			 * Constructor taking the name of the properties
 			 * file describing the resources.
 			 * @param[in] propertiesFileName

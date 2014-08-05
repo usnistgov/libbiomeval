@@ -92,3 +92,11 @@ BiometricEvaluation::MPI::RecordStoreResources::getRequiredProperties()
 	return (props);
 }
 
+std::vector<std::string>
+BiometricEvaluation::MPI::RecordStoreResources::getOptionalProperties()
+{
+	std::vector<std::string> props;
+	props = MPI::Resources::getOptionalProperties();
+	return (props);
+}
+

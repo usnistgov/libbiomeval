@@ -37,10 +37,20 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
-			 * Return the required properties as strings.
-			 * @return The set of required properties.
+			 * Obtain the required properties as strings.
+			 * @return
+			 * The set of required properties.
 			 */
 			static std::vector<std::string> getRequiredProperties();
+
+			/**
+			 * @brief
+			 * Obtain the list of optional properties.
+			 * @return
+			 * A set of optional property strings.
+			 */
+			static std::vector<std::string>
+			    getOptionalProperties();
 
 			/**
 			 * @brief
