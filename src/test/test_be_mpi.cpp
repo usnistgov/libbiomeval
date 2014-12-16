@@ -119,7 +119,7 @@ dumpRecord(
 		log << an2kRecord->getFingerCaptureCount() << " captures; ";
 		log << an2kRecord->getMinutiaeDataRecordSet().size()
 		    << " minutiae data sets";
-		BE::MPI::logEntry(log);
+		log.newEntry();
 	} catch (Error::Exception &e) {
 		log << "Not AN2K: " + e.whatString();
 		BE::MPI::logEntry(log);
@@ -134,6 +134,7 @@ dumpRecord(
 			log << (char)val[i];
 		}
 		log << "|";
+		/* Error messages are logged as debug entries */
 		BE::MPI::logEntry(log);
 	}
 }
@@ -256,15 +257,39 @@ main(int argc, char* argv[])
 	try {
 		distributor.reset(
 		    new MPI::RecordStoreDistributor(propFile, includeValues));
-
+	} catch (Error::Exception &e) {
+		MPI::printStatus("Distributor reset(), caught: "
+		    + e.whatString());
+		runtime.abort(EXIT_FAILURE);
+	} catch (...) {
+		MPI::printStatus("Distributor reset(), caught some other exception");
+		runtime.abort(EXIT_FAILURE);
+	}
+	try {
 		processor.reset(new TestRecordProcessor(propFile));
-
+	} catch (Error::Exception &e) {
+		MPI::printStatus("Processor reset(), caught: "
+		    + e.whatString());
+		runtime.abort(EXIT_FAILURE);
+	} catch (...) {
+		MPI::printStatus("Processor reset(), caught some other exception");
+		runtime.abort(EXIT_FAILURE);
+	}
+	try {
 		receiver.reset(new MPI::Receiver(propFile, processor));
-
+	} catch (Error::Exception &e) {
+		MPI::printStatus("Receiver reset(), caught: "
+		    + e.whatString());
+		runtime.abort(EXIT_FAILURE);
+	} catch (...) {
+		MPI::printStatus("Receiver reset(), caught some other exception");
+		runtime.abort(EXIT_FAILURE);
+	}
+	try {
 		runtime.start(*distributor, *receiver);
 		runtime.shutdown();
 	} catch (Error::Exception &e) {
-		MPI::printStatus("Caught: " + e.whatString());
+		MPI::printStatus("start/shutdown, caught: " + e.whatString());
 		runtime.abort(EXIT_FAILURE);
 	} catch (...) {
 		MPI::printStatus("Caught some other exception");

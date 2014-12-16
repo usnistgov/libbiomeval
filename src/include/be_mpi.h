@@ -44,8 +44,11 @@ namespace BiometricEvaluation {
 
 		/**
 		 * @brief
-		 * Send the current log entry to the log device.
+		 * Send the current log stream to the log device as a
+		 * debug entry.
 		 * @details
+		 * Log messages may be streamed into the Logsheet and
+		 * written as debug messages to aid tracing.
 		 * In order to prevent log errors interfering with
 		 * the MPI job, errors are managed, and therefore,
 		 * log messages may stop if the Logsheet has failed.
@@ -57,7 +60,11 @@ namespace BiometricEvaluation {
 
 		/**
 		 * @brief
-		 * Send a log message to the given Logsheet.
+		 * Send a log message to the given Logsheet as a debug entry.
+		 * @details
+		 * In order to prevent log errors interfering with
+		 * the MPI job, errors are managed, and therefore,
+		 * log messages may stop if the Logsheet has failed.
 		 * @param[in] logsheet
 		 * The open Logsheet to write into.
 		 * @param[in] message
