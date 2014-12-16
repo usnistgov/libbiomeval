@@ -113,6 +113,7 @@ dumpRecord(
 		an2kRecord = std::shared_ptr<DataInterchange::AN2KRecord>
 		    (new DataInterchange::AN2KRecord(
 		    const_cast<Memory::uint8Array &>(val)));
+		log << key << ": ";
 		log << "Date: " << an2kRecord->getDate() << "; ";
 		log << "Agency: " << an2kRecord->getOriginatingAgency()<< "; ";
 		log << an2kRecord->getFingerLatentCount() << " latents; ";
