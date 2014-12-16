@@ -107,17 +107,30 @@ BiometricEvaluation::MPI::openLogsheet(
 			    	locURL,
 			    	description));
 			} catch (BE::Error::ObjectExists) {
-				logsheet.reset(new BE::IO::FileLogsheet(locURL));
+				try {
+					logsheet.reset(
+					    new BE::IO::FileLogsheet(locURL));
+				} catch (BE::Error::Exception &e) {
+					throw BE::Error::Exception(
+					    "Could not open FileLogsheet: " 
+					    + e.whatString());
+				}
 			}
 			break;
 		}
 		case BE::IO::Logsheet::Kind::Syslog: {
 			/* Use the MPI rank as the application name */
-			logsheet.reset(new BE::IO::SysLogsheet(
-			    url,
-			    description,
-			    std::to_string(::MPI::COMM_WORLD.Get_rank()),
-			    true, true));
+			try {
+				logsheet.reset(new BE::IO::SysLogsheet(
+				    url,
+				    description,
+				    std::to_string(::MPI::COMM_WORLD.Get_rank()),
+				    true, true));
+			} catch (BE::Error::Exception &e) {
+				throw BE::Error::Exception(
+				    "Could not open SysLogsheet: " 
+				    + e.whatString());
+			}
 			break;
 		}
 		default:
