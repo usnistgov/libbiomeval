@@ -88,8 +88,9 @@ namespace BiometricEvaluation {
 			 * The data from the record that is to be processed.
 			 *
 			 * @throw Error::Exception
-			 * An error occurred processing the record: Missing
-			 * record, input/output error, or memory allocation.
+			 * An fatal error occurred when processing the work
+			 * package; the processing responsible for this
+			 * object should shut down.
 			 */
 			virtual void processRecord(
 			    const std::string &key,

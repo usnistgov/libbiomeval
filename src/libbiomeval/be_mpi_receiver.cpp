@@ -190,7 +190,16 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 			taskStatus = MPI::TaskStatus::Failed;
 			continue; /* Attempt to send one final status */
 		}
-		this->_workPackageProcessor->processWorkPackage(workPackage);
+		try {
+			this->_workPackageProcessor->processWorkPackage(
+			    workPackage);
+		} catch (Error::Exception &e) {
+			MPI::logMessage(*log,
+			    "Package processor wants shutdown: "
+			    + e.whatString());
+			taskStatus = MPI::TaskStatus::Failed;
+			continue; /* Attempt to send one final status */
+		}
 	}
 
 	this->_workPackageProcessor.reset();

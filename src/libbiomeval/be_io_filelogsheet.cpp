@@ -65,7 +65,7 @@ BiometricEvaluation::IO::FileLogsheet::FileLogsheet(
 	/* Open the log sheet file as a file output stream */
 	std::fstream *ofs = new std::fstream(pathname.c_str(),
 	    std::ios_base::out);
-	if (!ofs)
+	if (!ofs || ofs->fail())
 		throw Error::StrategyError("Could not open FileLogsheet file");
 
 	_theLogFile.reset(ofs);
@@ -93,7 +93,7 @@ BiometricEvaluation::IO::FileLogsheet::FileLogsheet(
 
 	/* Open the log sheet file as a file input stream so we can
 	 * obtain the last entry number. */
-	std::ifstream ifs(pathname.c_str(), in);
+	std::ifstream ifs(pathname.c_str(), std::ios_base::in);
 	if (ifs.fail())
 		throw Error::StrategyError("Could not open FileLogsheet file");
 
@@ -109,11 +109,11 @@ BiometricEvaluation::IO::FileLogsheet::FileLogsheet(
 	}
 
 	/* Open the log sheet file as a file output stream */
-	std::fstream *fs = new std::fstream(pathname.c_str(), app | out);
-	if (!fs)
+	std::fstream *ofs = new std::fstream(pathname.c_str(), app | out);
+	if (!ofs || ofs->fail())
 		throw Error::StrategyError("Could not open FileLogsheet file");
 
-	_theLogFile.reset(fs);
+	_theLogFile.reset(ofs);
 	
 	_sequenceFile.reset(new std::fstream(pathname.c_str(), in));
 	if (_sequenceFile->fail())

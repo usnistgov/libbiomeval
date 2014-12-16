@@ -73,8 +73,9 @@ namespace BiometricEvaluation {
 			 * @param[in] workPackage
 			 * The work package.
 			 * @throw Error::Exception
-			 * An error occurred when processing the work package,
-			 * usually invalid contents.
+			 * An fatal error occurred when processing the work
+			 * package; the processing responsible for this
+			 * object should shut down.
 			 */
 			virtual void processWorkPackage(
 			    MPI::WorkPackage &workPackage) = 0;

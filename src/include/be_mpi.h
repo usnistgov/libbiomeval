@@ -72,6 +72,8 @@ namespace BiometricEvaluation {
 		 * Open a Logsheet object for a component of the
 		 * MPI framework.
 		 * @details
+		 * If the empty string is passed in as the URL, then
+		 * a Null Logsheet object is returned.
 		 * Besides the throw clause below, any objects thrown
 		 * by the Logsheet constructors may also be thrown by
 		 * this method.

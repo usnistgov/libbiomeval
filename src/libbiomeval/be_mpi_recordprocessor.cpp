@@ -90,9 +90,13 @@ BiometricEvaluation::MPI::RecordProcessor::processWorkPackage(
 			} else {
 				this->processRecord(key);
 			}
-		} catch (Error::Exception &e) {
-		// Handle the error, either by breaking out of the
-		// enclosing loop, or continuing to the next key.
+		/*
+		 * The record processor is asking for termination.
+		 * Rethrow the exception so the framekwork will start
+		 * the shutdown.
+		 */
+		} catch (Error::Exception) {
+			throw;
 		}
 	}
 }

@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <list>
 #include <sstream>
 
 #include <be_error.h>
@@ -230,6 +231,85 @@ BiometricEvaluation::IO::Utility::getFileSize(
 		    Error::errorStr() + ")");
 
 	return ((uint64_t)sb.st_size);
+}
+
+uint64_t
+BiometricEvaluation::IO::Utility::sumDirectoryUsage(const std::string &pathname)
+{
+	uint64_t total = 0;
+	struct stat sb;
+	struct dirent *entry;
+	DIR *dir = NULL;
+	std::string filename;
+
+	/*
+	 *  A list to contain directory entry inode numbers that have
+	 *  more than one hard link associated with it.
+	 */
+	std::list<ino_t> multiLinked;
+	std::list<ino_t>::iterator it;
+
+	if (stat(pathname.c_str(), &sb) != 0)
+		throw Error::ObjectDoesNotExist(pathname + " does not exist");
+
+	/* Add the  parent directory to the total */
+	total += sb.st_size;
+
+	dir = opendir(pathname.c_str());
+	if (dir == NULL)
+		throw Error::StrategyError("Could not open " + pathname + " ("
+		    + Error::errorStr() + ")");
+	
+	while ((entry = readdir(dir)) != NULL) {
+		if (entry->d_ino == 0)
+			continue;
+		if ((strcmp(entry->d_name, ".") == 0) ||
+		    (strcmp(entry->d_name, "..") == 0))
+			continue;
+
+		filename = pathname + "/" + entry->d_name;
+
+		if (lstat(filename.c_str(), &sb) != 0) {
+			if (dir != NULL) {
+				if (closedir(dir)) {
+					throw Error::StrategyError("Could not "
+					    "close " + pathname + " (" +
+			    		    Error::errorStr() + ")");
+				}
+			}
+			throw Error::StrategyError("Could not stat " + 
+			    filename);
+		}
+
+		/*
+		 * If there is more than one hard link to the file, we
+ 		 * only count its size once.
+ 		 */
+		if (sb.st_nlink > 1) {
+			it = std::find(
+			    multiLinked.begin(), multiLinked.end(),
+			    sb.st_ino);
+			if (it == multiLinked.end())
+				multiLinked.push_back(sb.st_ino);
+			else
+				continue;
+		}
+
+		if (S_ISDIR(sb.st_mode)) {
+			/* Recursively sum subdirectories and files */
+			total += sumDirectoryUsage(filename);
+		} else {
+			total += sb.st_size;
+		}
+	}
+
+	if (dir != NULL) {
+		if (closedir(dir)) {
+			throw Error::StrategyError("Could not close " + 
+			    pathname + " (" + Error::errorStr() + ")");
+		}
+	}
+	return (total);
 }
 
 int

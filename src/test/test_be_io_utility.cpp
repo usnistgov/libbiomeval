@@ -169,6 +169,12 @@ main(int argc, char* argv[])
 		cout << "fail." << endl;
 
 	/*
+	 * Sum the size of a directory and its contents.
+	 */
+	cout << "Size of " << tempDirName << " is "
+	    << IO::Utility::sumDirectoryUsage(tempDirName) << "." << endl;
+
+	/*
  	 * Copy the contents of a directory from the top level.
  	 * create a file at the bottom to exercise file copying as well.
  	 */

@@ -36,6 +36,10 @@
 	(_sigmgr)->stop();						\
 } while (0);
 
+#define ABORT_SIGNAL_MANAGER(_sigmgr) do {				\
+	(_sigmgr)->stop();						\
+} while (0);
+
 namespace BiometricEvaluation {
 
 	namespace Error {
@@ -60,6 +64,17 @@ namespace BiometricEvaluation {
  * The END_SIGNAL_BLOCK() macro clears the signal set, so from that point
  * forward application code signals will be handled in the system's default
  * manner until another signal block is created.
+ *
+ * The ABORT_SIGNAL_MANAGER() macro also disables the watchdog timer but does
+ * not create the code point destination for the jump point. This macro should
+ * be used to disable a SignalManager object when the application is no longer
+ * interested in the signal handling.
+ *
+ * @attention
+ * The BEGIN_SIGNAL_BLOCK() macro must be paired with either the
+ * END_SIGNAL_BLOCK() macro or ABORT_SIGNAL_MANAGER() macro. Failure
+ * to do so may result in undefined behavior as an active SignalManager
+ * may be invoked, forcing a jump into an incompletely initialized function.
  *
  * A SignalManager is passive (i.e. no signal handlers are installed)
  * until that start() method is called, and becomes passive when stop() is

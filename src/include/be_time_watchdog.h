@@ -41,6 +41,11 @@
 	(_watchdog)->stop();						\
 } while (0);
 
+#define ABORT_WATCHDOG(_watchdog) do {					\
+	(_watchdog)->clearCanSigJump();					\
+	(_watchdog)->stop();						\
+} while (0);
+
 namespace BiometricEvaluation {
 
 	namespace Time {
@@ -62,23 +67,36 @@ namespace BiometricEvaluation {
  *
  * Most applications will not directly invoke the methods of the WatchDog
  * class, instead using the BEGIN_WATCHDOG_BLOCK() and END_WATCHDOG_BLOCK()
- * macros. Applications should not install there own signal handlers, but
+ * macros. Applications should not install their own signal handlers, but
  * use the SignalManager class instead.
  *
- * The BEGIN_WATCHDOG_BLOCK macro sets up the jump block and tells the
+ * The BEGIN_WATCHDOG_BLOCK() macro sets up the jump block and tells the
  * Watchdog object to start handling the alarm signal. Applications must call
  * setInterval() before invoking the BEGIN_WATCHDOG_BLOCK() macro. 
  *
  * The END_WATCHDOG_BLOCK() macro disables the watchdog timer, but doesn't
- * affect the current interval value. Applications can set the interval once
- * and use the BEGIN/END block macros repeatedly. Failure to call setInterval()
+ * affect the assigned interval value. Applications can set the interval once
+ * and use the block macros repeatedly. Failure to call setInterval()
  * results in an effectively disabled timer, as does setting the interval to 0.
  *
- * @note Process virtual timing may not be available on all systems. In
+ * The ABORT_WATCHDOG() macro also disables the watchdog timer but does not
+ * create the code point destination for the jump point. This macro should
+ * be used to disable a Watchdog object when the application is no longer
+ * interested in the timeout condition.
+ *
+ * @attention
+ * The BEGIN_WATCHDOG_BLOCK() macro must be paired with either the
+ * END_WATCHDOG_BLOCK() macro or ABORT_WATCHDOG_BLOCK() macro. Failure
+ * to do so may result in undefined behavior as a running Watchdog timer
+ * may expire, forcing a jump into an incompletely initialized function.
+ *
+ * @note
+ * Process virtual timing may not be available on all systems. In
  * those cases, an application compilation error will occur because
  * PROCESSTIME will not be defined.
  *
- * @attention On many systems, the sleep(3) call is implemented using alarm
+ * @attention
+ * On many systems, the sleep(3) call is implemented using alarm
  * signals, the same technique used by the Watchdog class. Therefore,
  * applications should not call sleep(3) inside the Watchdog block; behavior
  * is undefined in that case, but usually results in cancellation of the

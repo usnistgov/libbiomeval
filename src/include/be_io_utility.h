@@ -135,6 +135,24 @@ namespace BiometricEvaluation
 			    const std::string &pathname);
 
 			/**
+			 * Get the sum of the sizes of all files and
+			 * directories in a given path.
+			 *
+			 * @param[in] pathname
+			 *	The name of the directory to be sized.
+			 * @return
+			 * 	The sum of file and directory sizes.
+			 * @throw Error::ObjectDoesNotExist
+			 *	The named directory does not exist.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system, or pathname is malformed.
+			 */
+
+			uint64_t
+			sumDirectoryUsage(const std::string &pathname);
+
+			/**
 			 * Indicate whether a file exists.
 			 *
 			 * @param[in] pathname
