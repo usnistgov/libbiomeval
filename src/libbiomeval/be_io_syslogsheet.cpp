@@ -155,7 +155,8 @@ createSyslogTimestamp(bool utc)
 	std::snprintf(buf, 33,
 	    "%4.4u-%2.2u-%2.2uT%2.2u:%2.2u:%2.2u.%6.6u%c%2.2u:%2.2u",
 	    cTime.tm_year + 1900, cTime.tm_mon + 1, cTime.tm_mday,
-	    cTime.tm_hour, cTime.tm_min, cTime.tm_sec, tv.tv_usec,
+	    cTime.tm_hour, cTime.tm_min, cTime.tm_sec,
+	    static_cast<unsigned int>(tv.tv_usec),
 	    TZsign, hourOffset, minOffset);
 	return(std::string(buf));
 }

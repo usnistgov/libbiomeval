@@ -95,6 +95,11 @@ LDFLAGS := -L$(LOCALLIB) -L$(LIBPATH)
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	# Cygwin's g++ currently requires the GNU dialect
 	CXXFLAGS += -std=gnu++11
+	# Cygwin's newlib does not define long double versions of many core C
+	# functions, which are ultimately required for C++11's std::to_string,
+	# and will instead cast long doubles to doubles when _LDBL_EQ_DBL is 
+	# defined.
+	CXXFLAGS += -D_GLIBCXX_USE_C99 -D_LDBL_EQ_DBL
 else
 	CXXFLAGS += -std=c++11
 endif

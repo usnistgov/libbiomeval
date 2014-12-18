@@ -575,7 +575,7 @@ BiometricEvaluation::MPI::Receiver::shutdown(
 		std::shared_ptr<Process::WorkerController> worker;
 
 		bool msgAvail;
-		for (int i = 0; i < workerCount; i++) {
+		for (uint32_t i = 0; i < workerCount; i++) {
 			try {
 				msgAvail = this->_processManager.getNextMessage(
 				    worker, inMessage);

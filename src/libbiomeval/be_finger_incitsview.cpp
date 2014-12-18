@@ -309,17 +309,16 @@ BiometricEvaluation::Finger::INCITSView::readFMRHeader(
 	    (formatStandard != Finger::INCITSView::ISO2005_STANDARD))
 		throw (Error::ParameterError("Invalid standard parameter"));
 
-	uint32_t lval;
 	uint16_t sval;
 
 	/* Record length, 2/4/6 bytes */
 	if (formatStandard == Finger::INCITSView::ANSI2004_STANDARD) {
 		sval = buf.scanBeU16Val();
 		if (sval == 0) {
-			lval = buf.scanBeU32Val();	/* record length */
+			(void)buf.scanBeU32Val();	/* record length */
 		}
 	} else {
-		lval = buf.scanBeU32Val();
+		(void)buf.scanBeU32Val();
 	}
 	
 	/* CBEFF Product ID */

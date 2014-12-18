@@ -161,4 +161,6 @@ main(int argc, char* argv[])
 	} else {
 		std::cout << "success." << std::endl;
 	}
+
+	return (status);
 }

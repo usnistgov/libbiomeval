@@ -85,7 +85,8 @@ BiometricEvaluation::Image::BMP::getRawData()
 			switch (dibHeader.bitsPerPixel) {
 			case 32:
 				/* BGRA -> RGBA */
-				for (int32_t i = 0; i <= (stride - 4); i += 4) {
+				for (uint64_t i = 0; i <= (stride - 4);
+				    i += 4) {
 					rawRow[i] = bmpRow[i + 2];
 					rawRow[i + 1] = bmpRow[i + 1];
 					rawRow[i + 2] = bmpRow[i];
@@ -94,7 +95,8 @@ BiometricEvaluation::Image::BMP::getRawData()
 				break;
 			case 24:
 				/* BGR -> RGB */
-				for (int32_t i = 0; i <= (stride - 3); i += 3) {
+				for (uint64_t i = 0; i <= (stride - 3);
+				    i += 3) {
 					rawRow[i] = bmpRow[i + 2];
 					rawRow[i + 1] = bmpRow[i + 1];
 					rawRow[i + 2] = bmpRow[i];
