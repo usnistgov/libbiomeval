@@ -32,6 +32,27 @@ TestRecordProcessor::TestRecordProcessor(
     const std::string &propertiesFileName) :
     RecordProcessor(propertiesFileName)
 {
+}
+
+TestRecordProcessor::~TestRecordProcessor()
+{
+}
+
+/*
+ * Factory object: Create a new instance of the TestRecordProcess
+ * that will work on work package records. Each instance gets
+ * its own instance of the log sheet.
+ */
+std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
+TestRecordProcessor::newProcessor(
+    std::shared_ptr<IO::Logsheet> &logsheet)
+{
+	std::string propertiesFileName =
+	    this->getResources()->getPropertiesFileName();
+	TestRecordProcessor *processor = 
+	    new TestRecordProcessor(propertiesFileName);
+	processor->setLogsheet(logsheet);
+
 	/*
 	 * If we have our own Logsheet property, and we can open
 	 * that Logsheet, use it for record logging; otherwise,
@@ -55,27 +76,17 @@ TestRecordProcessor::TestRecordProcessor(
 	} catch (BE::Error::Exception &e) {
 		url = "";
 	}
-	this->_recordLogsheet = BE::MPI::openLogsheet(
+	processor->_recordLogsheet = BE::MPI::openLogsheet(
 	    url, "Test Record Processing");
+
+	std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor> sptr;
+	sptr.reset(processor);
+	return (sptr);
 }
 
-TestRecordProcessor::~TestRecordProcessor()
-{
-}
-
-std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
-TestRecordProcessor::newProcessor(
-    std::shared_ptr<IO::Logsheet> &logsheet)
-{
-	std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
-	    processor;
-	processor.reset(new TestRecordProcessor(
-	    this->getResources()->getPropertiesFileName()));
-	processor->setLogsheet(logsheet);
-
-	return (processor);
-}
-
+/*
+ * Factory object: Simply log our call.
+ */
 void
 TestRecordProcessor::performInitialization(
     std::shared_ptr<IO::Logsheet> &logsheet)
@@ -85,6 +96,9 @@ TestRecordProcessor::performInitialization(
 	     std::string(__FUNCTION__) + " called");
 }
 
+/*
+ * Helper function to log some information about a record.
+ */
 static void
 dumpRecord(
     BE::IO::Logsheet &log,
@@ -140,6 +154,10 @@ dumpRecord(
 	}
 }
 
+/*
+ * The worker object: Log to the Framework Logsheet, obtain the data for
+ * the record, and log some information to the record Logsheet.
+ */
 void
 TestRecordProcessor::processRecord(const std::string &key)
 {
@@ -170,6 +188,10 @@ TestRecordProcessor::processRecord(const std::string &key)
 	dumpRecord(*rlog, key, value);
 }
 
+/*
+ * The worker object: Log to the Framework Logsheet, and log some record
+ * information to the record Logsheet.
+ */
 void
 TestRecordProcessor::processRecord(
     const std::string &key,
