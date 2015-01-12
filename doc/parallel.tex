@@ -53,13 +53,13 @@ how to separate the array into components.
 
 The \class{Distributor} is an abstract class than encapsulates the MPI
 functionality and is responsible for distributing work packages to other
-processing elements within the MPI job (the receivers). However, this class
+elements within the MPI job (the receivers). However, this class
 is also responsible for coordinating the startup and shutdown of the receiver
 tasks. MPI messages are used for this coordination. An MPI job may fail to
 start if the distributor fails to initialize, or if none of the receivers
 initialize.
 
-One method the the \class{Distributor} class, \code{createWorkPackage()},
+One method of the \class{Distributor} class, \code{createWorkPackage()},
 is implemented by child classes. This method creates a single work package
 with the knowledge of how the elements of the package are to be stored
 in the package's data buffer. \class{RecordStoreDistributor} is an
@@ -69,8 +69,8 @@ implementation of \class{Distributor}.
 \label{sec-recordstoredistributor}
 
 \class{RecordStoreDistributor} reads records from a \class{RecordStore},
-packs record keys and/or values into a \class{WorkPackage}. This class
-inherits all of the MPI communication, intra-job coordination, logging,
+packs record keys, and optionally, values into a \class{WorkPackage}. This
+class inherits all of the MPI communication, intra-job coordination, logging,
 and other aspects of the \class{Distributor} parent class.
 
 An application can create an instance of a \class{RecordStoreDistributor}
@@ -107,19 +107,38 @@ workers.
 The \class{WorkPackageProcessor} class is pure-virtual and provides the
 interface for any class that uses a \class{WorkPackage} to receive data from
 the MPI Framework.
-\class{WorkPackageProcessor} also maintains a \class{Logsheet} object when
+\class{WorkPackageProcessor} also maintains a \class{Logsheet} object which
 can be used by subclasses to store log messages.
 
-Two methods implemented by the subclasses require special mentions.
+Implementations of this class can be considered to have dual responsibilities.
+First is the management of common state used by all workers (Task-N:c in
+\figref{fig:paralleljob}); creating state data shared by all workers, for
+example.
+Second, as a factory to create a package consumer for the worker process.
+
 The \code{performInitialization()} method is called before the \class{Receiver}
 object forks and creates the worker processes. The application can use this
 function to load a large data set into memory (taking advantage of copy-on-write
-present in most modern operating systems), or perform any node-local setup that
-should only be done once.
+memory semantics present in most modern operating systems), or perform any
+node-local setup that should only be done once the MPI job has begun.
 
 \code{newProcessor()} returns a new instance of the package processor.
 This method is called by the Framework when a new process is started by the
-receiver to consume work packages sent by the distributor.
+receiver to consume work packages sent by the distributor. This method is a
+factory, creating new instances of the \class{WorkPackageProcessor}
+implementation. Therefore, it must create a ``fully-formed'' object that may
+have different state than that created by the class constructor. An example
+would be creating an output log file with record information.
+This output file would not be created in the constructor because the
+object returned from that will not process a work package; it is the factory
+object.
+
+It is the
+responsibility of the \code{newProcessor()} method to ensure there is no
+resource contention between instances of this class, as the methods of this
+object will be executed within a separate process. The
+\code{MPI::generateUniqueID()} function can be used to create a name string
+that to identify the process.
 
 \subsection{Record Processor}
 \label{sec-recordprocessor}
@@ -128,11 +147,10 @@ receiver to consume work packages sent by the distributor.
 of the \class{WorkPackageProcessor} interface; other methods are declared as
 pure-virtual and must be implemented by a child class. In addition,
 \class{RecordProcessor} declares a new pure-virtual method,
-\code{processRecord()} to be implemented by the subclass to process a single
+\code{processRecord()} to be implemented by a subclass to process a single
 record from the record store. In summary, \class{RecordProcessor} removes
-records from the work package to be processed within the subclass.
-
-In the current Framework design, the subclass is defined by the application.
+records from the work package to be processed within the subclass,
+which is defined by the application.
 See~\lstref{lst:mpiappclasses} and \lstref{lst:mpiappimpl} for a example of
 such an implementation.
 
@@ -285,7 +303,7 @@ private:
 \end{lstlisting}
 
 Next, \lstref{lst:mpiappimpl} shows the implementation of the class methods. In
-this simple example, each record is simply acknowledged with a log entry.
+this simple example, each record is acknowledged with a log entry.
 
 Also shown in several of the methods is the use of the \class{Logsheet} object
 provided to the application by the Framework, along with wrapper functions,
@@ -293,9 +311,9 @@ provided to the application by the Framework, along with wrapper functions,
 
 The application also creates its own
 \class{Logsheet} object in order to separate Framework log messages from the
-application messages when processing the actual record. In other cases, the
+application messages when processing the actual record. In error cases, the
 Framework log is used in order to keep the set of calls from the Framework
-to the application in sequence.
+to the application in sequence and package processing together.
 
 \begin{lstlisting}[caption={MPI Framework Application Implementation}, label=lst:mpiappimpl]
 #include <be_mpi_receiver.h>
@@ -310,21 +328,43 @@ static const std::string DefaultPropertiesFileName("test_be_mpi.props");
 
 /*
  * Implementations of the MPI RecordProcessor class interface.
+ * Calls the parent constructor to manage the properties file name.
  */
 TestRecordProcessor::TestRecordProcessor(
     const std::string &propertiesFileName) :
     RecordProcessor(propertiesFileName)
 {
+}
+
+TestRecordProcessor::~TestRecordProcessor()
+{
+}
+
+/*
+ * Factory object: Create a new instance of the TestRecordProcess
+ * that will work on work package records. Each instance gets
+ * its own instance of the log sheet.
+ */
+std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
+TestRecordProcessor::newProcessor(
+    std::shared_ptr<IO::Logsheet> &logsheet)
+{
+        std::string propertiesFileName =
+            this->getResources()->getPropertiesFileName();
+        TestRecordProcessor *processor =
+            new TestRecordProcessor(propertiesFileName);
+        processor->setLogsheet(logsheet);
+
         /*
          * If we have our own Logsheet property, and we can open
          * that Logsheet, use it for record logging; otherwise,
-         * create a Null Logsheet for these events. We use the 
+         * create a Null Logsheet for these events. We use the
          * framework's Logsheet for tracing of processing, not
          * record handling logs.
          */
         std::string url;
         std::unique_ptr<BE::IO::PropertiesFile> props;
-        try {
+        try {   
                 /* It is crucial that the Properties file be
                  * opened read-only, else it will be rewritten
                  * when the unique ptr is destroyed, causing
@@ -338,27 +378,17 @@ TestRecordProcessor::TestRecordProcessor(
         } catch (BE::Error::Exception &e) {
                 url = "";
         }
-        this->_recordLogsheet = BE::MPI::openLogsheet(
+        processor->_recordLogsheet = BE::MPI::openLogsheet(
             url, "Test Record Processing");
 
+        std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor> sptr;
+        sptr.reset(processor);
+        return (sptr);
 }
 
-TestRecordProcessor::~TestRecordProcessor()
-{
-}
-
-std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
-TestRecordProcessor::newProcessor(
-    std::shared_ptr<IO::Logsheet> &logsheet)
-{
-        std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor>
-            processor;
-        processor.reset(new TestRecordProcessor(
-                this->getResources()->getPropertiesFileName()));
-        processor->setLogsheet(logsheet);
-        return (processor);
-}
-
+/*
+ * Factory object: Simply log our call.
+ */
 void
 TestRecordProcessor::performInitialization(
     std::shared_ptr<IO::Logsheet> &logsheet)
@@ -368,6 +398,32 @@ TestRecordProcessor::performInitialization(
             *logsheet.get(), std::string(__FUNCTION__) + " called");
 }
 
+/*
+ * Helper function to log some information about a record.
+ */
+static void
+dumpRecord(
+    BE::IO::Logsheet &log,
+    const std::string key,
+    const Memory::uint8Array &val)
+{
+	log << "Key [" << key << "]: ";
+	/* Dump some bytes from the record */
+        for (uint64_t i = 0; i < 8; i++) {
+                log << std::hex << (int)val[i] << " ";
+        }
+        log << " |";
+        for (uint64_t i = 0; i < 8; i++) {
+                log << (char)val[i];
+        }
+        log << "|";
+        BE::MPI::logEntry(log);
+}
+
+/*
+ * The worker object: Log to the Framework Logsheet, obtain the data for
+ * the record, and log some information to the record Logsheet.
+ */
 void
 TestRecordProcessor::processRecord(const std::string &key)
 {
@@ -376,15 +432,20 @@ TestRecordProcessor::processRecord(const std::string &key)
         Memory::uint8Array value(0);
         std::shared_ptr<IO::RecordStore> inputRS =
             this->getResources()->getRecordStore();
-        log << "Processing record " << key << ": ";
+
         try {
                 inputRS->read(key, value);
         } catch (Error::Exception &e) {
-                log << "Could not read record: " + e.whatString());
+                *log << "Could not read record: " + e.whatString());
         }
-       	BE::MPI::logEntry(log);
+	BE::IO::Logsheet *rlog = this->_recordLogsheet.get();
+       	dumpRecord(*rlog, key, value);
 }
 
+/*
+ * The worker object: Log to the Framework Logsheet, and log some record
+ * information to the record Logsheet.
+ */
 void
 TestRecordProcessor::processRecord(
     const std::string &key,
@@ -392,12 +453,9 @@ TestRecordProcessor::processRecord(
 {
         BE::IO::Logsheet *log = this->getLogsheet().get();
         BE::MPI::logMessage(*log,"processRecord(key, value) called");
-        log << "Processing record " << key << " with value:";
-	/* Dump some bytes from the record */
-        for (uint64_t i = 0; i < 8; i++) {
-                log << std::hex << (int)val[i] << " ";
-        }
-        BE::MPI::logEntry(log);
+
+        BE::IO::Logsheet *rlog = this->_recordLogsheet.get();
+        dumpRecord(*rlog, key, value);
 }
 
 \end{lstlisting}
