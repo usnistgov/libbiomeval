@@ -45,6 +45,7 @@ namespace BiometricEvaluation {
 		 *
 		 * @see IO::Properties
 		 * @see MPI::Receiver
+		 * @see MPI::WorkPackage
 		 */
 		class Distributor {
 		public:
@@ -68,7 +69,7 @@ namespace BiometricEvaluation {
 			 * @details
 			 * Once started, the distributor will send a message
 			 * to each receiver task telling it to start and
-			 * waiting for status back from the receiver.
+			 * waiting for status back from each receiver.
 			 */
 			void start();
 
@@ -78,8 +79,8 @@ namespace BiometricEvaluation {
 			 * Create a work package for distribution.
 			 * @details
 			 * Implementations of this class create a work package
-			 * for to encapsulate the specific data type that is
-			 * to be distributed.
+			 * to encapsulate the specific data type that is to
+			 * be distributed.
 			 */
 			virtual void createWorkPackage(
 			    MPI::WorkPackage &workPackage) = 0;

@@ -18,7 +18,8 @@ namespace BiometricEvaluation {
 		/**
 		 * @brief
 		 * An implementation of a work package processor that will
-		 * extract record store keys from a work package.
+		 * extract record store keys, and optionally, values, from
+		 * a WorkPackage.
 		 * @details
 		 * Subclasses of this abstract class must implement the method
 		 * to process the records associated with the keys.

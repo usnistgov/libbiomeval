@@ -34,6 +34,25 @@ side, the keys are used to read record data (values) from the same store.
 	\label{fig:paralleljob}
 \end{figure}
 
+On the receiving side of the job, the processing is separated into two areas
+of responsibility. Each Task-N is responsible for managing the workers
+(Task-N:1 \ldots Task-N:c) by starting them, accepting work requests, and
+sending a command to have them shut down when the job finishes. Each worker
+is responsible for consuming the contents of the work packages; that
+implementation is done in the application.
+
+The partitioning of responsibility enables two features of the Framework.
+First, a worker process can handle signals or other errors and decide to
+shutdown without affecting the rest of the job. This capability is important
+when testing ``black-box'' software where function calls cannot be trusted.
+
+Second, each Task-N can perform some work before creating the workers. One
+example is the loading of a large data set into memory; again, this is done
+within the application. Because Task-N calls the POSIX function \code{fork()}
+to create the workers, each worker inherits the work done by Task-N. In the
+case of a memory load, each worker now has that memory mapped into it's address
+space. See~\secref{sec-workpackageprocessor} for more details.
+
 \section{Work Package}
 \label{sec-workpackage}
 
@@ -45,8 +64,12 @@ of elements'', that is transmitted along with the package. This value only
 has meaning to the client, and is usually equivalent to the number of
 larger-sized components making up the package. For example, this value may
 be the number of records contained in the package. It is up to the client
-(either an application or subclass) of \class{WorkPackage} to understand
-how to separate the array into components.
+of \class{WorkPackage} to understand how to separate the array into components.
+
+The classes \class{RecordStoreDistributor} (\secref{sec-recordstoredistributor})
+and \class{RecordProcessor} (\secref{sec-recordprocessor})
+are examples of \class{WorkPackage} clients that insert and remove data from
+a work package.
 
 \section{Distributor}
 \label{sec-workpackagedistributor}
@@ -275,10 +298,19 @@ be described.
 \class{RecordProcessor}. The \code{newProcessor()},
 \code{performInitialization()}, and \code{processRecord()} methods are those
 required to complete an implementation of \class{RecordProcessor}.
+A memory buffer pointer is managed with a smart pointer object.
 
 \begin{lstlisting}[caption={MPI Framework Application Classes}, label=lst:mpiappclasses]
 class TestRecordProcessor : public BiometricEvaluation::MPI::RecordProcessor {
 public:
+        /**
+         * @brief
+         * The property string ``Logsheet URL''.
+         */
+        static const std::string RECORDLOGSHEETURLPROPERTY;
+
+        static const uint32_t SHAREDMEMORYSIZE = 2048;
+
         TestRecordProcessor(
             const std::string &propertiesFileName);
         ~TestRecordProcessor();
@@ -298,6 +330,8 @@ public:
 protected:
 private:
         std::shared_ptr<BE::IO::Logsheet> _recordLogsheet;
+        std::shared_ptr<char> _sharedMemory;
+        uint32_t _sharedMemorySize;
 };
 
 \end{lstlisting}
@@ -314,6 +348,13 @@ The application also creates its own
 application messages when processing the actual record. In error cases, the
 Framework log is used in order to keep the set of calls from the Framework
 to the application in sequence and package processing together.
+
+A common memory buffer is allocated in \code{performInitialization()} method,
+and this buffer's pointer is copied to each processing instance in the
+\code{newProcessor()} method. Access to this common memory is shown in each
+\code{processRecord()} method. The actual memory buffer is not copied because
+the Framework will invoke the system call \code{fork()} which results in all
+memory of the parent process being copied into the child. 
 
 \begin{lstlisting}[caption={MPI Framework Application Implementation}, label=lst:mpiappimpl]
 #include <be_mpi_receiver.h>
@@ -338,6 +379,30 @@ TestRecordProcessor::TestRecordProcessor(
 
 TestRecordProcessor::~TestRecordProcessor()
 {
+}
+
+/*
+ * Factory object: Log our call and set up the shared memory buffer.
+ */
+void
+TestRecordProcessor::performInitialization(
+    std::shared_ptr<IO::Logsheet> &logsheet)
+{
+        this->setLogsheet(logsheet);
+
+        /*
+         * Set up the memory that will be shared across all instances.
+         */
+        char *buf = (char *)malloc(SHAREDMEMORYSIZE);
+        strcpy(buf, "SHARED MEMORY");
+        this->_sharedMemorySize = SHAREDMEMORYSIZE;
+        this->_sharedMemory = std::unique_ptr<char>(buf);
+
+        *logsheet.get() << std::string(__FUNCTION__) << " called: ";
+        *logsheet.get()
+            << "Shared memory size is " << this->_sharedMemorySize
+            << " and contents is [" << buf << "]";
+        BE::MPI::logEntry(*logsheet.get());
 }
 
 /*
@@ -380,22 +445,12 @@ TestRecordProcessor::newProcessor(
         }
         processor->_recordLogsheet = BE::MPI::openLogsheet(
             url, "Test Record Processing");
+        processor->_sharedMemory = this->_sharedMemory;
+        processor->_sharedMemorySize = this->_sharedMemorySize;
 
         std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor> sptr;
         sptr.reset(processor);
         return (sptr);
-}
-
-/*
- * Factory object: Simply log our call.
- */
-void
-TestRecordProcessor::performInitialization(
-    std::shared_ptr<IO::Logsheet> &logsheet)
-{
-        this->setLogsheet(logsheet);
-        MPI::logMessage(
-            *logsheet.get(), std::string(__FUNCTION__) + " called");
 }
 
 /*
@@ -428,18 +483,35 @@ void
 TestRecordProcessor::processRecord(const std::string &key)
 {
         BE::IO::Logsheet *log = this->getLogsheet().get();
-        BE::MPI::logMessage(*log, "processRecord(key) called.");
+        
+        if (this->getResources()->haveRecordStore() == false) {
+                BE::MPI::logMessage(*log, "processRecord(" + key + ")"
+                    + " called but have no record store; returning.");
+                return;
+        }
+        *log << "processRecord(" << key << ") called: ";
+        char *buf = this->_sharedMemory.get();
+        *log << "Shared memory size is " << this->_sharedMemorySize
+            << " and contents is [" << buf << "]";
+        BE::MPI::logEntry(*log);
+
         Memory::uint8Array value(0);
         std::shared_ptr<IO::RecordStore> inputRS =
             this->getResources()->getRecordStore();
-
         try {
                 inputRS->read(key, value);
         } catch (Error::Exception &e) {
-                *log << "Could not read record: " + e.whatString());
+                *log << string(__FUNCTION__) <<
+                    " could not read record: " <<
+                    e.whatString();
+                return; 
         }
-	BE::IO::Logsheet *rlog = this->_recordLogsheet.get();
-       	dumpRecord(*rlog, key, value);
+        /*
+         * Log record info to our own Logsheet instead of
+         * the one provided by the framework.
+         */     
+        BE::IO::Logsheet *rlog = this->_recordLogsheet.get();
+        dumpRecord(*rlog, key, value);
 }
 
 /*
@@ -452,8 +524,16 @@ TestRecordProcessor::processRecord(
     const BiometricEvaluation::Memory::uint8Array &value)
 {
         BE::IO::Logsheet *log = this->getLogsheet().get();
-        BE::MPI::logMessage(*log,"processRecord(key, value) called");
+        *log << "processRecord(" << key << ", [value]) called: ";
+        char *buf = this->_sharedMemory.get();
+        *log << "Shared memory size is " << this->_sharedMemorySize
+            << " and contents is [" << buf << "]";
+        BE::MPI::logEntry(*log);
 
+        /*
+         * Log record info to our own Logsheet instead of
+         * the one provided by the framework.
+         */
         BE::IO::Logsheet *rlog = this->_recordLogsheet.get();
         dumpRecord(*rlog, key, value);
 }

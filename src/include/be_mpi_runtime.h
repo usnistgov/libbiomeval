@@ -18,6 +18,11 @@
 
 namespace BiometricEvaluation {
 	namespace MPI {
+
+		extern bool Exit;	/* Exit signal was received */
+		extern bool QuickExit;	/* Quick exit signal received */
+		extern bool TermExit;	/* Immediate exit signal received */
+
 		/**
 		 * @brief
 		 * Runtime support for the startup/shutdown of MPI jobs.
@@ -28,11 +33,6 @@ namespace BiometricEvaluation {
 		 * which then distribute the work packages to child processes
 		 * to take action on the work package.
 		 */
-
-		extern bool Exit;	/* Exit signal was received */
-		extern bool QuickExit;	/* Quick exit signal received */
-		extern bool TermExit;	/* Immediate exit signal received */
-
 		class Runtime {
 		public:
 
@@ -58,7 +58,7 @@ namespace BiometricEvaluation {
 			 * The Distributor object that will form the basis
 			 * of the first MPI task.
 			 * @param[in] receiver
-			 * The receiver object which will form the basis of
+			 * The Receiver object which will form the basis of
 			 * MPI tasks 1..n.
 			 */
 			void start(

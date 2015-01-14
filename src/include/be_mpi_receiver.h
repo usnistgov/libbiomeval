@@ -25,21 +25,20 @@ namespace BiometricEvaluation {
 	namespace MPI {
 		/**
 		 * @brief
-		 * A class to represent an MPI task that receives work from 
-		 * the Distributor.
+		 * A class to represent an MPI task that receives WorkPackages
+		 * containers from the Distributor.
 		 * @details
 		 * A receiver object depends on a set of properties contained
 		 * in a file. The properties specify MPI settings, and other
 		 * items. Subclasses of the class can add new properties.
 		 *
 		 * Each receiver object is responsible for 1..n worker processes
-		 * that are started with the start() method. The receiver will
-		 * start workers only when the distributor indicates that it
-		 * has started successfully. Otherwise, a shutdown message
-		 * is expected and this receiver object will transition to
-		 * the shutdown state.
+		 * that are started when Receiver::start() is called. The
+		 * receiver will start workers only when the distributor
+		 * indicates that it has started successfully. Otherwise, the
+		 * Receiver transitions to the shutdown state.
 		 *
-		 * One of the option properties is a Uniform Resource Locator
+		 * One of the optional properties is a Uniform Resource Locator
 		 * (URL) for the Logsheet. If this property does not exist,
 		 * no logging takes place (although applications can create
 		 * their own Logsheet). If the URL is present, the framework
@@ -51,6 +50,7 @@ namespace BiometricEvaluation {
 		 * @see IO::Properties
 		 * @see IO::Logsheet
 		 * @see MPI::Distributor
+		 * @see Process::Worker
 		 */
 		class Receiver {
 		public:
@@ -78,10 +78,11 @@ namespace BiometricEvaluation {
 			 * @brief
 			 * Start the receiving task.
 			 * @details
-			 * Upon starting, the receiver object will begin
-			 * received and sending MPI messages from the
-			 * distributor. This receiver object will send a status
-			 * message back to the distributor indicating success
+			 * Upon starting, the Receiver object will begin
+			 * communicating with the Distributor using MPI
+			 * messages.
+			 * This Receiver object will send a status
+			 * message back to the Distributor indicating success
 			 * or failure to initialize. Success includes the
 			 * startup of at least one worker process.
 			 */

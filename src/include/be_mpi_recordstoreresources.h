@@ -21,17 +21,20 @@ namespace BiometricEvaluation {
 		 * MPI program using a RecordStore for input.
 		 * @details
 		 * Resources are opened based on the property when appropriate.
+		 * The input record store need not be accessible. Applications
+		 * should call haveRecordStore() to check whether the record
+		 * store has been opened.
  		 */
 		class RecordStoreResources : public Resources {
 		public:
 			/**
 			 * @brief
-			 * The property string ``Input Record Store''.
+			 * The property string ``Input Record Store''; required.
 			 */
 			static const std::string INPUTRSPROPERTY;
 			/**
 			 * @brief
-			 * The property string ``Chunk Size''.
+			 * The property string ``Chunk Size''; required.
 			 */
 			static const std::string CHUNKSIZEPROPERTY;
 
@@ -56,6 +59,7 @@ namespace BiometricEvaluation {
 			 * @brief
 			 * Constructor taking the name of the properties
 			 * file with the resource names.
+			 *
 			 * @throw Error::FileError
 			 * The resources file could not be read.
 			 * @throw Error::ObjectDoesNotExist

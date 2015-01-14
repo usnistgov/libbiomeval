@@ -81,9 +81,6 @@ namespace BiometricEvaluation {
 		 * @details
 		 * If the empty string is passed in as the URL, then
 		 * a Null Logsheet object is returned.
-		 * Besides the throw clause below, any objects thrown
-		 * by the Logsheet constructors may also be thrown by
-		 * this method.
 		 * @param[in] url
 		 * The Uniform Resource Locator for the Logsheet.
 		 * @param[in] description
@@ -92,6 +89,9 @@ namespace BiometricEvaluation {
 		 * Shared pointer to the Logsheet object.
 		 * @throw Error::ParameterError
 		 * Invalid URL.
+		 * @throw Error::Exception
+		 * Failed to create the Logsheet object. The exception string
+		 * will contain more information.
 		 */
 		std::shared_ptr<BiometricEvaluation::IO::Logsheet> openLogsheet(
 		    const std::string &url,
