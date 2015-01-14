@@ -10,6 +10,7 @@
 #ifndef _TEST_BE_MPI_H
 #define _TEST_BE_MPI_H
 
+#include <memory>
 #include <string>
 
 #include <be_memory_autoarray.h>
@@ -27,6 +28,8 @@ public:
 	 * The property string ``Logsheet URL''.
 	 */
 	static const std::string RECORDLOGSHEETURLPROPERTY;
+
+	static const uint32_t SHAREDMEMORYSIZE = 2048;
 
 	/**
 	 * @brief
@@ -65,7 +68,8 @@ public:
 protected:
 private:
 	std::shared_ptr<BE::IO::Logsheet> _recordLogsheet;
-	BE::Memory::uint8Array _sharedMemory;
+	std::shared_ptr<char> _sharedMemory;
+	uint32_t _sharedMemorySize;
 };
 
 #endif /* _TEST_BE_MPI_H */

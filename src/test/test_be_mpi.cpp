@@ -51,16 +51,15 @@ TestRecordProcessor::performInitialization(
 	/*
 	 * Set up the memory that will be shared across all instances.
 	 */
-	BE::Memory::AutoArrayUtility::setString(
-	    this->_sharedMemory,
-	    "I am the god of shared memory!");
+	char *buf = (char *)malloc(SHAREDMEMORYSIZE);
+	strcpy(buf, "I am the god of shared memory!");
+	this->_sharedMemorySize = SHAREDMEMORYSIZE;
+	this->_sharedMemory = std::unique_ptr<char>(buf);
 
 	*logsheet.get() << std::string(__FUNCTION__) << " called: ";
 	*logsheet.get()
-	    << "Shared memory size is " << this->_sharedMemory.size()
-	    << " and contents is ["
-	    << BE::Memory::AutoArrayUtility::cstr(this->_sharedMemory)
-	    << "]";
+	    << "Shared memory size is " << this->_sharedMemorySize
+	    << " and contents is [" << buf << "]";
 	BE::MPI::logEntry(*logsheet.get());
 }
 
@@ -105,6 +104,7 @@ TestRecordProcessor::newProcessor(
 	processor->_recordLogsheet = BE::MPI::openLogsheet(
 	    url, "Test Record Processing");
 	processor->_sharedMemory = this->_sharedMemory;
+	processor->_sharedMemorySize = this->_sharedMemorySize;
 
 	std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor> sptr;
 	sptr.reset(processor);
@@ -184,10 +184,9 @@ TestRecordProcessor::processRecord(const std::string &key)
 		return;
 	}
 	*log << "processRecord(" << key << ") called: ";
-	*log << "Shared memory size is " << this->_sharedMemory.size()
-	    << " and contents is ["
-	    << BE::Memory::AutoArrayUtility::cstr(this->_sharedMemory)
-	    << "]";
+	char *buf = this->_sharedMemory.get();
+	*log << "Shared memory size is " << this->_sharedMemorySize
+	    << " and contents is [" << buf << "]";
 	BE::MPI::logEntry(*log);
 
 	Memory::uint8Array value(0);
@@ -220,10 +219,9 @@ TestRecordProcessor::processRecord(
 {
 	BE::IO::Logsheet *log = this->getLogsheet().get();
 	*log << "processRecord(" << key << ", [value]) called: ";
-	*log << "Shared memory size is " << this->_sharedMemory.size()
-	    << " and contents is ["
-	    << BE::Memory::AutoArrayUtility::cstr(this->_sharedMemory)
-	    << "]";
+	char *buf = this->_sharedMemory.get();
+	*log << "Shared memory size is " << this->_sharedMemorySize
+	    << " and contents is [" << buf << "]";
 	BE::MPI::logEntry(*log);
 
 	/*
