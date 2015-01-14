@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <be_io_properties.h>
 #include <be_io_utility.h>
+#include <be_memory_autoarrayutility.h>
 #include <be_mpi_runtime.h>
 #include <be_mpi_receiver.h>
 #include <be_mpi_recordstoredistributor.h>
@@ -36,6 +37,31 @@ TestRecordProcessor::TestRecordProcessor(
 
 TestRecordProcessor::~TestRecordProcessor()
 {
+}
+
+/*
+ * Factory object: Log our call and set up the shared memory buffer.
+ */
+void
+TestRecordProcessor::performInitialization(
+    std::shared_ptr<IO::Logsheet> &logsheet)
+{
+	this->setLogsheet(logsheet);
+
+	/*
+	 * Set up the memory that will be shared across all instances.
+	 */
+	BE::Memory::AutoArrayUtility::setString(
+	    this->_sharedMemory,
+	    "I am the god of shared memory!");
+
+	*logsheet.get() << std::string(__FUNCTION__) << " called: ";
+	*logsheet.get()
+	    << "Shared memory size is " << this->_sharedMemory.size()
+	    << " and contents is ["
+	    << BE::Memory::AutoArrayUtility::cstr(this->_sharedMemory)
+	    << "]";
+	BE::MPI::logEntry(*logsheet.get());
 }
 
 /*
@@ -78,22 +104,11 @@ TestRecordProcessor::newProcessor(
 	}
 	processor->_recordLogsheet = BE::MPI::openLogsheet(
 	    url, "Test Record Processing");
+	processor->_sharedMemory = this->_sharedMemory;
 
 	std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor> sptr;
 	sptr.reset(processor);
 	return (sptr);
-}
-
-/*
- * Factory object: Simply log our call.
- */
-void
-TestRecordProcessor::performInitialization(
-    std::shared_ptr<IO::Logsheet> &logsheet)
-{
-	this->setLogsheet(logsheet);
-	BE::MPI::logMessage(*logsheet.get(),
-	     std::string(__FUNCTION__) + " called");
 }
 
 /*
@@ -168,7 +183,13 @@ TestRecordProcessor::processRecord(const std::string &key)
 		    + " called but have no record store; returning.");
 		return;
 	}
-	BE::MPI::logMessage(*log, "processRecord(" + key + ") called.");
+	*log << "processRecord(" << key << ") called: ";
+	*log << "Shared memory size is " << this->_sharedMemory.size()
+	    << " and contents is ["
+	    << BE::Memory::AutoArrayUtility::cstr(this->_sharedMemory)
+	    << "]";
+	BE::MPI::logEntry(*log);
+
 	Memory::uint8Array value(0);
 	std::shared_ptr<IO::RecordStore> inputRS =
 	    this->getResources()->getRecordStore();
@@ -198,7 +219,13 @@ TestRecordProcessor::processRecord(
     const BiometricEvaluation::Memory::uint8Array &value)
 {
 	BE::IO::Logsheet *log = this->getLogsheet().get();
-	BE::MPI::logMessage(*log, "processRecord(" + key + ", [value]) called");
+	*log << "processRecord(" << key << ", [value]) called: ";
+	*log << "Shared memory size is " << this->_sharedMemory.size()
+	    << " and contents is ["
+	    << BE::Memory::AutoArrayUtility::cstr(this->_sharedMemory)
+	    << "]";
+	BE::MPI::logEntry(*log);
+
 	/*
 	 * Log record info to our own Logsheet instead of
 	 * the one provided by the framework.
