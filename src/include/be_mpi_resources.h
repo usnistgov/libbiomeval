@@ -26,13 +26,13 @@ namespace BiometricEvaluation {
 		public:
 			/**
 			 * @brief
-			 * The property string ``Workers Per Node''.
+			 * The property string ``Workers Per Node''; required.
 			 */
 			static const std::string WORKERSPERNODEPROPERTY;
 
 			/**
 			 * @brief
-			 * The property string ``Logsheet URL''.
+			 * The property string ``Logsheet URL''; optional.
 			 */
 			static const std::string LOGSHEETURLPROPERTY;
 
@@ -92,22 +92,12 @@ namespace BiometricEvaluation {
 
 			~Resources();
 
-			/**
-		 	 * @brief
-			 * Return the unique ID for this process.
-			 * @return
-			 * The unique string ID, based on the MPI rank
-			 * and process ID.
-			 */
-			std::string getUniqueID() const;
-
 			int getRank() const;
 			int getNumTasks() const;
 			int getWorkersPerNode() const;
 
 		private:
 			std::string _propertiesFileName;
-			std::string _uniqueID;
 			int _rank;
 			int _numTasks;
 			int _workersPerNode;

@@ -38,7 +38,6 @@ BiometricEvaluation::MPI::Resources::Resources(
     const std::string &propertiesFileName)
 {
 	this->_propertiesFileName = propertiesFileName;
-	this->_uniqueID = MPI::generateUniqueID();
 	this->_rank = ::MPI::COMM_WORLD.Get_rank();
 	this->_numTasks = ::MPI::COMM_WORLD.Get_size();
 
@@ -106,12 +105,6 @@ std::string
 BiometricEvaluation::MPI::Resources::getPropertiesFileName() const
 {
 	return (_propertiesFileName);
-}
-
-std::string
-BiometricEvaluation::MPI::Resources::getUniqueID() const
-{
-	return (this->_uniqueID);
 }
 
 int
