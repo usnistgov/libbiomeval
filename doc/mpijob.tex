@@ -1,0 +1,91 @@
+%
+% This section is meant to be an appendix to the main document, and therefore
+% there is no \chapter{} clause, due to the manner in which the complete
+% document is built.
+%
+\label{chp-mpijob}
+\section{OpenMPI}
+
+This chapter describes how to use the OpenMPI~\cite{openmpi} runtime system
+to execute an MPI job. Some parameters passed to the \texttt{mpirun} command
+are related to the notions captured in the \lname MPI support.
+
+\section{Example Shell Script}
+
+\begin{lstlisting}[caption={Example Script to run MPI}, label=lst:mpijob]
+#
+#
+# Record store for the input.
+#
+INPUTRS=./SD29.rs
+
+#
+# Create the properties file for this run
+#
+# Logsheet URL is used by the framework for logging and is optional.
+# Record Logsheet URL is defined and used by the application and is
+# optional in the test_mpi program.
+#
+# An example config file for rsyslogd, listening on a non-default port:
+#
+#       $ModLoad imtcp
+#       # Provides TCP syslog reception
+#       $InputTCPServerRun 2514
+#       local0.info /home/wsalamon/sandbox/rsyslog/record.log
+#       local1.debug /home/wsalamon/sandbox/rsyslog/debug.log
+#
+PROPS=test_mpi.props
+cat > $PROPS << EOF
+Input Record Store = $INPUTRS
+Chunk Size = 64
+Workers Per Node = 8
+Logsheet URL = syslog://loghost:2514
+Record Logsheet URL = syslog://loghost:2514
+EOF
+
+#
+# Two forms of the nodes string, one for the script to copy all
+# files out, one for the mpirun command.
+#
+NODES="node01b node02b node03b node04b"
+MPINODES="node01b,node02b,node03b,node04b"
+
+#
+# MPIPROCS must be >= 2, is the Task-N count plus one for Task-0.
+#
+MPIPROCS=5
+
+#
+# Set any options to the OpenMPI mpirun command. The example below will
+# turn on some tracing and how processes are mapped to nodes.
+#
+#MPIOPTS=" --show-progress --debug-daemons --display-devel-map"
+
+# Where the program is run. The directory must exist on all the
+# nodes, and this script must be started here.
+DIR=$PWD
+
+#
+# LIBS is any libraries th must coexist with the program to be run.
+#
+LIBS=
+PROGRAM=test_mpi
+CPFILES="$PROGRAM $PROPS $LIBS"
+
+#
+# The test program and dependencies must exist on all nodes, so copy
+# everything to the runtime directory on all nodes. It helps to run
+# an SSH agent or something similar.
+#
+for n in $NODES; do
+        echo $n;
+        scp -p $CPFILES $n:$DIR;
+done
+
+#
+# Run the program as an MPI job. mpirun must be in the users path.
+# The properties file name is the only parameter to the program.
+#
+EXECSTR="$PROGRAM $PROPS"
+mpirun $MPIOPTS -H $MPINODES -np $MPIPROCS --path $DIR $EXECSTR
+\end{lstlisting}

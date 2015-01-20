@@ -1,0 +1,95 @@
+%
+% This section is meant to be an appendix to the main document, and therefore
+% there is no \chapter{} clause, due to the manner in which the complete
+% document is built.
+%
+\section{Language Features}
+
+The \lname was developed using the 2011 version of the C++ language standard.
+It is not possible to subset \sname to use an earlier version of C++.
+
+Two implementations of C++11 known to compile \sname are:
+\begin{itemize}
+\item GNU Compiler Collection version 4.8.2 on Linux.
+\item Apple LLVM version 6.0 (clang-600.0.56) on OS-X.
+\end{itemize}
+
+\section{The Framework Build System}
+
+The distribution of \sname includes a set of \texttt{make} files used to build
+the \sname library, as well as install the library and header files. These
+\texttt{make} file use some features of the GNU make ~\cite{gnumake}
+system, and therefore the GNU software must be installed on the user's system.
+Future versions of \sname may use a different build system.
+
+In order to tailor the build of the \sname library (file \texttt{libbiomeval}),
+the \texttt{common/src/libbiomeval/Makefile} file must be edited. At the top of
+this file are make variables for locating the header files and libraries for
+NBIS, and other libraries.
+
+The make file also sets variables that create subsets of the the \sname.
+\texttt{CORE} and \texttt{IO} are required as they form the basis of the
+\sname. The \texttt{SOURCES} variable contains a list of variables pertaining
+to the desired build of \sname.
+
+\section{External Software Dependencies}
+
+The \lname is built upon several other software packages. The packages are
+used for image processing, biometric data record formats, the message
+passing interface~\cite{mpi}, as well as operating system and compiler
+tool chains.
+
+Other common software development libraries used by \sname are documented in
+the sections that follow. Specific instructions for installing these packages
+are not given here. However, in general. many systems that provide a packaging
+system split the library support into two packages: One for runtime (containing
+the binary library file only), and one for use when developing applications.
+This second package installs the header files needed to build the \sname.
+
+\subsection{NIST Biometric Image Software}
+
+The NIST Biometric Image Software (NBIS)~\cite{nist:nbis} is a set of packages
+used for ANSI-NIST record processing, and other support. The \lname uses NBIS
+for ANSI-NIST support, and therefore the NBIS packages must be compiled and
+installed prior to building \sname.
+
+\subsection{Image Processing}
+
+\subsection{Cryptography}
+
+Cryptography support is provided by the OpenSSL~\cite{openssl} library.
+An example is the \texttt{openssl-devel} package on Linux systems which
+provides the \texttt{libcrypto} file and associated header files for
+development.
+
+\subsection{Sqlite}
+
+SQLite is an embedded Structured Query Language (SQL) database engine and is
+used by the \class{IO::SQLiteRecordStore} class to provide an
+\class{IO::RecordStore} that is backed by a SQLite database. Information
+on SQLite can be found at~\cite{sqlite}.
+
+\subsection{Berkeley Database}
+
+The Berkeley Database {BDB}~\cite{berkeleydb} is available as both open source
+and closed source commercial variants. The \sname class
+\class{IO::DBRecordStore} uses the BDB software to store key/value pairs.
+There are two versions of the BDB API; \sname uses version 1.85 as defined in
+the original open source distribution.
+
+\subsection{Message Passing Interface}
+
+An implementation of the MPI specification must be installed on the user's
+system before the full \sname can be built. However, the \code{MPI} package
+can be optionally left out of the \sname build system, if desired.
+
+One common implementation of MPI is OpenMPI~\cite{openmpi}, available as source
+code, or binary packages. Often the MPI runtime is a separate binary package
+from the MPI development software. As an example, for many Linux distributions,
+an example of the runtime package is \texttt{openmpi-1.6.4-3}, while
+the related development package would be \texttt{openmpi-devel-1.6.4-3}.
+
+To build the \sname, both packages must be installed. In order to run an MPI
+job, only the runtime package needs to be installed on all nodes that
+participate in the MPI job. Chapter~\ref{chp-mpijob} has more information on
+running an MPI job.

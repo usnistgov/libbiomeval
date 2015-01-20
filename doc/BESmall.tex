@@ -4,5 +4,14 @@
 %--------------------------------------------------------------------------
 \documentclass[letterpaper]{book}
 \usepackage[margin=1.2in]{geometry}
+\usepackage{import}
 \input{BECommonFramework}
+%--------------------------------------------------------------------------
+% The appendices
+%--------------------------------------------------------------------------
+\appendix
+\chapter{Building the Framework}
+\subimport{./}{frameworkbuild.tex}
+\chapter{Running an MPI Job}
+\subimport{./}{mpijob.tex}
 \end{document}
