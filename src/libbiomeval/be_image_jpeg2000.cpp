@@ -8,10 +8,11 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <openjpeg/openjpeg.h>
+#include <openjpeg.h>
 
 #include <cmath>
 #include <be_image_jpeg2000.h>
+#include <be_memory_indexedbuffer.h>
 
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const uint8_t *data,
@@ -52,20 +53,19 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	}
 }
 
-std::shared_ptr<BiometricEvaluation::Image::JPEG2000::OpenJPEGDecoder>
+std::unique_ptr<BiometricEvaluation::Image::JPEG2000::OpenJPEGDecoder>
 BiometricEvaluation::Image::JPEG2000::initDecoder(
     bool headerOnly)
     const
 {
-	opj_dinfo_t *dinfo = nullptr;
-	opj_cio_t *cio = nullptr;
+	std::unique_ptr<OpenJPEGDecoder> decoder(new OpenJPEGDecoder());
 
 	/* libopenjpeg error callbacks */
 	opj_event_mgr_t event_mgr;
 	event_mgr.error_handler = openjpeg_message;
 	event_mgr.warning_handler = openjpeg_message;
 	event_mgr.info_handler = nullptr;
-	opj_set_event_mgr((opj_common_ptr)dinfo, &event_mgr, nullptr);
+	opj_set_event_mgr((opj_common_ptr)decoder->_dinfo, &event_mgr, nullptr);
 
 	/* Use default decoding parameters, except codec, which is "unknown" */
 	opj_dparameters parameters;
@@ -76,13 +76,13 @@ BiometricEvaluation::Image::JPEG2000::initDecoder(
 	
 	switch (parameters.decod_format) {
 	case CODEC_J2K:	/* JPEG-2000 codestream (.J2K) */
-		dinfo = opj_create_decompress(CODEC_J2K);
+		decoder->_dinfo = opj_create_decompress(CODEC_J2K);
 		break;
 	case CODEC_JP2:	/* JPEG-2000 compressed image data (.JP2) */
-		dinfo = opj_create_decompress(CODEC_JP2);
+		decoder->_dinfo = opj_create_decompress(CODEC_JP2);
 		break;
 	case CODEC_JPT:	/* JPEG 2000, JPIP (.JPT) */
-		dinfo = opj_create_decompress(CODEC_JPT);
+		decoder->_dinfo = opj_create_decompress(CODEC_JPT);
 		break;
 	case CODEC_UNKNOWN:
 		/* FALLTHROUGH */
@@ -93,13 +93,10 @@ BiometricEvaluation::Image::JPEG2000::initDecoder(
 	}
 
 	/* Setup the decoder */
-	opj_setup_decoder(dinfo, &parameters);
-	cio = opj_cio_open((opj_common_ptr)dinfo,
+	opj_setup_decoder(decoder->_dinfo, &parameters);
+	decoder->_cio = opj_cio_open((opj_common_ptr)decoder->_dinfo,
 	    (unsigned char *)this->getDataPointer(), this->getDataSize());
 
-	std::shared_ptr<OpenJPEGDecoder> decoder(new OpenJPEGDecoder());
-	decoder->_dinfo = dinfo;
-	decoder->_cio = cio;
 	return (decoder);
 }
 
@@ -201,18 +198,15 @@ BiometricEvaluation::Image::JPEG2000::parse_resd(
 		throw Error::DataError("Invalid size for Display Resolution "
 		    "Box");
 
-	uint8_t offset = 0;
-	uint8_t two_bytes[2];
-	two_bytes[0] = resd[offset++]; two_bytes[1] = resd[offset++];
-	uint16_t VRdN = ((two_bytes[0] << 8)|(two_bytes[1]));
-	two_bytes[0] = resd[offset++]; two_bytes[1] = resd[offset++];
-	uint16_t VRdD = ((two_bytes[0] << 8)|(two_bytes[1]));
-	two_bytes[0] = resd[offset++]; two_bytes[1] = resd[offset++];
-	uint16_t HRdN = ((two_bytes[0] << 8)|(two_bytes[1]));
-	two_bytes[0] = resd[offset++]; two_bytes[1] = resd[offset++];
-	uint16_t HRdD = ((two_bytes[0] << 8)|(two_bytes[1]));
-	int8_t VRdE = resd[offset++];
-	int8_t HRdE = resd[offset];
+	Memory::IndexedBuffer ib(resd);
+
+	uint16_t VRdN = ib.scanU16Val();
+	uint16_t VRdD = ib.scanU16Val();
+	uint16_t HRdN = ib.scanU16Val();
+	uint16_t HRdD = ib.scanU16Val();
+	int8_t VRdE = static_cast<int8_t>(ib.scanU8Val());
+	int8_t HRdE = static_cast<int8_t>(ib.scanU8Val());
+
 	return (Resolution((((float)VRdN / VRdD) * pow(10.0, VRdE)) / 100.0,
 	    (((float)HRdN / HRdD) * pow(10.0, HRdE)) / 100.0,
 	    Resolution::Units::PPCM));

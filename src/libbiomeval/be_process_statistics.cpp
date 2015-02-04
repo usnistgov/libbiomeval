@@ -258,6 +258,18 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	_logSheet->writeComment(LogsheetHeader);
 }
 
+BiometricEvaluation::Process::Statistics::Statistics(
+    const std::shared_ptr<BE::IO::Logsheet> &logSheet) :
+    _pid(getpid()),
+    _logCabinet(nullptr),
+    _logSheet(logSheet),
+    _logging(true),
+    _autoLogging(false)
+{
+	pthread_mutex_init(&_logMutex, nullptr);
+	_logSheet->writeComment(LogsheetHeader);
+}
+
 void
 BiometricEvaluation::Process::Statistics::getCPUTimes(
     uint64_t *usertime,

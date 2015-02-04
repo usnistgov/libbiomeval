@@ -18,11 +18,6 @@
 #include <be_io_recordstore.h>
 #include <be_memory_orderedmap.h>
 
-/** Name of the manifest file on disk */
-const std::string manifestFileName("manifest");
-/** Name of the archive file on disk */
-const std::string archiveFileName("archive");
-
 namespace BiometricEvaluation {
 
 	namespace IO {
@@ -67,6 +62,11 @@ namespace BiometricEvaluation {
  */
 		class ArchiveRecordStore : public RecordStore {
 		public:	
+			/** Name of the manifest file on disk */
+			static const std::string MANIFEST_FILE_NAME;
+			/** Name of the archive file on disk */
+			static const std::string ARCHIVE_FILE_NAME;
+
 			/**
 			 * Create a new ArchiveRecordStore, read/write mode.
 			 *

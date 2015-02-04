@@ -61,3 +61,23 @@ BiometricEvaluation::Time::Timer::elapsed()
 	return (std::chrono::duration_cast<std::chrono::microseconds>(
 	    this->_finish - this->_start).count());
 }
+
+std::string
+BiometricEvaluation::Time::Timer::elapsedStr(
+    bool displayUnits)
+    const
+{
+	std::string ret{std::to_string(this->elapsed())};
+	if (displayUnits)
+		ret += "μs";
+	return (ret);
+}
+
+std::ostream&
+BiometricEvaluation::Time::operator<<(
+    std::ostream &s,
+    const BiometricEvaluation::Time::Timer &timer)
+{
+	return (s << timer.elapsedStr());
+}
+

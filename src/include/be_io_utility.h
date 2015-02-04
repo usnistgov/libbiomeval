@@ -279,20 +279,20 @@ namespace BiometricEvaluation
 			
 			/**
 			 * @brief
-			 * Determine if a file can be opened with read
-			 * permission.
+			 * Determine if the real user has read access
+			 * permissions to this file.
 			 *
 			 * @param[in] pathname
 			 *	Path to the file to check.
 			 *
 			 * @return
-			 *	true if the file can be opened with read
-			 *	permission, false otherwise.
+			 * true if the real user has read acccess permissions,
+			 * false otherwise.
 			 *
-			 * @note
-			 *	Could return true if the file does not exist,
-			 *	though fileExists() will return false if you
-			 *	do not have read permission.
+			 * @warning
+			 * This function should **only** be called *after*
+			 * failing to open a file, to determine a possible
+			 * failure reason.
 			 *
  			 * @see BiometricEvaluation::IO::Utility::fileExists()
 			 */
@@ -302,20 +302,20 @@ namespace BiometricEvaluation
 			
 			/**
 			 * @brief
-			 * Determine if a file can be opened with read/write
-			 * permission.
+			 * Determine if the real user has write access
+			 * permissions to this file.
 			 *
 			 * @param[in] pathname
 			 *	Path to the file to check.
 			 *
 			 * @return
-			 *	true if the file can be opened with write
-			 *	permission, false otherwise.
+			 * true if the real user has write acccess permissions,
+			 * false otherwise.
 			 *
-			 * @note
-			 *	Could return true if the file does not exist,
-			 *	though fileExists() will return false if you
-			 *	do not have read permission.
+			 * @warning
+			 * This function should **only** be called *after*
+			 * failing to write to a file, to determine a possible
+			 * failure reason.
 			 *
 			 * @see BiometricEvaluation::IO::Utility::fileExists()
 			 */

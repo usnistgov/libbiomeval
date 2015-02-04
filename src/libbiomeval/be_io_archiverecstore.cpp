@@ -28,6 +28,11 @@
 
 namespace BE = BiometricEvaluation;
 
+const std::string BiometricEvaluation::IO::ArchiveRecordStore::
+    MANIFEST_FILE_NAME{"manifest"};
+const std::string BiometricEvaluation::IO::ArchiveRecordStore::
+    ARCHIVE_FILE_NAME{"archive"};
+
 BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
     const std::string &pathname,
     const std::string &description) :
@@ -65,13 +70,14 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 {
 	struct stat sb;
 	
-	if (stat(canonicalName(manifestFileName).c_str(), &sb)) {
+	if (stat(canonicalName(MANIFEST_FILE_NAME).c_str(), &sb)) {
 		if (this->getMode() == IO::READONLY)
-			throw Error::FileError(canonicalName(manifestFileName) +
+			throw Error::FileError(canonicalName(
+			    MANIFEST_FILE_NAME) +
 			    " does not exist and object is read-only");
 		else {
 			_manifestfp.open(
-			    canonicalName(manifestFileName).c_str(),
+			    canonicalName(MANIFEST_FILE_NAME).c_str(),
 			    std::fstream::in | std::fstream::out |
 			    std::fstream::trunc);
 			if (!_manifestfp || (_manifestfp.is_open() == false))
@@ -81,24 +87,24 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 	} else if (_manifestfp.is_open() == false)  {
 		if (this->getMode() == IO::READONLY)
 			_manifestfp.open(
-			    canonicalName(manifestFileName).c_str(),
+			    canonicalName(MANIFEST_FILE_NAME).c_str(),
 			    std::fstream::in);
 		else
 			_manifestfp.open(
-			    canonicalName(manifestFileName).c_str(),
+			    canonicalName(MANIFEST_FILE_NAME).c_str(),
 			    std::fstream::in | std::fstream::out |
 			    std::fstream::app);
 		if (!_manifestfp || (_manifestfp.is_open() == false))
 			throw Error::FileError("Could not open manifest");
 	}
 
-	if (stat(canonicalName(archiveFileName).c_str(), &sb)) {
+	if (stat(canonicalName(ARCHIVE_FILE_NAME).c_str(), &sb)) {
 		if (this->getMode() == IO::READONLY)
-			throw Error::FileError(canonicalName(archiveFileName) +
+			throw Error::FileError(canonicalName(ARCHIVE_FILE_NAME) +
 			    " does not exist and obejct is read-only");
 		else {
 			_archivefp.open(
-			    canonicalName(archiveFileName).c_str(),
+			    canonicalName(ARCHIVE_FILE_NAME).c_str(),
 			    std::fstream::in | std::fstream::out |
 			    std::fstream::binary | std::fstream::trunc);
 			if (!_archivefp || (_archivefp.is_open() == false))
@@ -108,11 +114,11 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 	} else if (_archivefp.is_open() == false) {
 		if (this->getMode() == IO::READONLY)
 			_archivefp.open(
-			    canonicalName(archiveFileName).c_str(),
+			    canonicalName(ARCHIVE_FILE_NAME).c_str(),
 			    std::fstream::in | std::fstream::binary);
 		else
 			_archivefp.open(
-			    canonicalName(archiveFileName).c_str(),
+			    canonicalName(ARCHIVE_FILE_NAME).c_str(),
 			    std::fstream::in | std::fstream::out |
 			    std::fstream::app | std::fstream::binary);
 		if (!_archivefp || (_archivefp.is_open() == false))
@@ -152,11 +158,11 @@ BiometricEvaluation::IO::ArchiveRecordStore::getSpaceUsed()
 
 	total = RecordStore::getSpaceUsed();
 	sync();
-	if (stat(canonicalName(manifestFileName).c_str(), &sb) != 0)
+	if (stat(canonicalName(MANIFEST_FILE_NAME).c_str(), &sb) != 0)
 		throw Error::StrategyError("Could not find manifest file");
 	total += sb.st_blocks * S_BLKSIZE;
 
-	if (stat(canonicalName(archiveFileName).c_str(), &sb) != 0)
+	if (stat(canonicalName(ARCHIVE_FILE_NAME).c_str(), &sb) != 0)
 		throw Error::StrategyError("Could not find archive file");
 	total += sb.st_blocks * S_BLKSIZE;
 	return (total);

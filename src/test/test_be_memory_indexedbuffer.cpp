@@ -26,7 +26,7 @@ printBuf(string name, Memory::IndexedBuffer &buf)
 	cout << "Buffer Contents of " << name << endl;
 
 	for (uint32_t i = 0; i != buf.getSize(); i++)
-		cout << (buf[i]) << " ";
+		cout << (buf.get()[i]) << " ";
 	cout << endl;
 } 
 
@@ -41,19 +41,6 @@ doTests(Memory::IndexedBuffer &buf)
 	Memory::IndexedBuffer copy = buf;
 	printBuf("COPY:", copy); cout << endl;
 
-	cout << "Assigning ORIGINAL IndexedBuffer to ASSIGNED IndexedBuffer\n";
-	assign_copy = buf;
-	printBuf("ASSIGNED:", assign_copy);
-	
-	cout << "Uppercasing ASSIGNED Memory::IndexedBuffer\n";
-	char c;
-	uint32_t i;
-	for (c = 'A', i = 0; i < assign_copy.getSize(); i++, c++)
-		assign_copy[i] = c;
-	printBuf("ORIGINAL:", buf);
-	printBuf("COPY CONSTRUCTOR:", copy);
-	printBuf("ASSIGNED:", assign_copy);
-	
 	return (0);
 }
 
@@ -62,15 +49,6 @@ main (int argc, char* argv[])
 {
 	char c;
 	uint32_t i;
-
-	cout << "Testing buffer with managed memory: " << endl;
-	cout << "-------------------------------------" << endl;
-	Memory::IndexedBuffer buf(26);
-	for (c = 'a', i = 0; i < buf.getSize(); i++, c++)
-		buf[i] = c;
-	if (doTests(buf) != 0)
-		return (EXIT_FAILURE);
-	cout << "-------------------------------------" << endl;
 
 	cout << "Testing buffer with unmanaged memory: " << endl;
 	cout << "-------------------------------------" << endl;
@@ -82,9 +60,10 @@ main (int argc, char* argv[])
 		return (EXIT_FAILURE);
 	cout << "-------------------------------------" << endl;
 
-	Memory::IndexedBuffer buf3(8);
-	for (i = 0; i < buf3.getSize(); i++)
-		buf3[i] = i + 1;
+	Memory::uint8Array buf(8);
+	for (i = 0; i < buf.size(); i++)
+		buf[i] = i + 1;
+	Memory::IndexedBuffer buf3(buf);
 
 	try {
 		cout << "Getting buffer 8-bit values: " << endl;

@@ -11,9 +11,9 @@
 #ifndef __BE_PROCESS_STATISTICS_H__
 #define __BE_PROCESS_STATISTICS_H__
 
-#include <memory>
-#include <memory>
 #include <pthread.h>
+
+#include <memory>
 
 #include <be_io_filelogcabinet.h>
 
@@ -66,6 +66,22 @@ namespace BiometricEvaluation {
 			 *	cabinet.
 			 */
 			Statistics(IO::FileLogCabinet * const logCabinet);
+
+			/**
+			 * @brief
+			 * Construct a Statistic object that logs to an
+			 * existing Logsheet.
+			 *
+			 * @param[in] logSheet
+			 * Existing Logsheet that will be appended.
+			 *
+			 * @throw Error::NotImplemented
+			 * Logging is not supported on this OS. This exception
+			 * can be thrown when any portion of the statistics
+			 * gathering cannot be completed.
+			 */
+			Statistics(
+			    const std::shared_ptr<IO::Logsheet> &logSheet);
 
 			~Statistics();
 
@@ -221,7 +237,7 @@ namespace BiometricEvaluation {
 
 			pid_t _pid;
 			IO::FileLogCabinet *_logCabinet;
-			std::shared_ptr<IO::FileLogsheet> _logSheet;
+			std::shared_ptr<IO::Logsheet> _logSheet;
 			bool _logging;
 			bool _autoLogging;
 			pthread_t _loggingThread;

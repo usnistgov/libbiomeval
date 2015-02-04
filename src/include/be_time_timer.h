@@ -82,6 +82,25 @@ namespace BiometricEvaluation
 			elapsed()
 			    const;
 
+			/**
+			 * @brief
+			 * Convenience method for printing elapsed time as a
+			 * string.
+			 *
+			 * @param displayUnits
+			 * Append the elapsed time units.
+			 *
+			 * @return
+			 * String representing the elapsed time.
+			 *
+			 * @throw Error::StrategyError
+			 * Propagated from elapsed().
+			 */
+			std::string
+			elapsedStr(
+ 			   bool displayUnits = false)
+			   const;
+
 		private:
 			/**
 			 * Whether or not start() has been called and stop()
@@ -96,6 +115,27 @@ namespace BiometricEvaluation
 			/** Used to avoid a delay when checking progess. */
 			BE_CLOCK_TYPE::time_point _placeholder;
 		};
+	
+		/**
+		 * @brief
+		 * Output stream operator overload for Timer.
+		 *
+		 * @param s
+		 * Stream to append.
+		 * @param timer
+		 * Timer whose elapsed time in microseconds should be appended
+		 * to s.
+		 *
+		 * @return
+		 * s with value of elapsedStr() appended.
+		 *
+		 * @throw BE::Error::StrategyError
+		 * Propagated from elapsedStr().
+		 */
+		std::ostream&
+		operator<<(
+		    std::ostream &s,
+		    const Timer &timer);
 	}
 }
 

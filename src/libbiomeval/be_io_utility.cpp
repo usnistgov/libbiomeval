@@ -393,32 +393,14 @@ bool
 BiometricEvaluation::IO::Utility::isReadable(
     const std::string &pathname)
 {
-	bool rv = true;
-	
-	FILE *fp = fopen(pathname.c_str(), "r");
-	if (errno == EACCES)
-		rv = false;
-
-	if (fp != nullptr)
-		fclose(fp);
-	
-	return (rv);
+	return (access(pathname.c_str(), R_OK) == 0);
 }
 
 bool
 BiometricEvaluation::IO::Utility::isWritable(
     const std::string &pathname)
 {
-	bool rv = true;
-	
-	FILE *fp = fopen(pathname.c_str(), "r+");
-	if (errno == EACCES)
-		rv = false;
-
-	if (fp != nullptr)
-		fclose(fp);
-	
-	return (rv);
+	return (access(pathname.c_str(), W_OK) == 0);
 }
 
 std::string

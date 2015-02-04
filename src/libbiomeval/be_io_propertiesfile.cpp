@@ -10,7 +10,6 @@
 
 #include <sys/types.h>
 
-#include <cerrno>
 #include <climits>
 #include <cmath>
 #include <cstdlib>
@@ -18,6 +17,7 @@
 #include <iostream>
 #include <sstream>
 
+#include <be_error.h>
 #include <be_io_propertiesfile.h>
 #include <be_io_utility.h>
 #include <be_text.h>
@@ -25,23 +25,26 @@
 static std::string RO_ERR_MSG = "Object is read-only";
 
 BiometricEvaluation::IO::PropertiesFile::PropertiesFile(
-    const std::string &filename,
+    const std::string &pathname,
     uint8_t mode) :
     Properties(mode),
-    _filename(filename)
+    _pathname(pathname)
 {
-	if (filename == "")
-		throw Error::StrategyError("Invalid PropertiesFile name");
-	
+	this->initPropertiesFile();
+}
+
+void
+BiometricEvaluation::IO::PropertiesFile::initPropertiesFile()
+{
 	try {
-		this->initWithBuffer(IO::Utility::readFile(filename));
+		this->initWithBuffer(IO::Utility::readFile(this->_pathname));
 	} catch (Error::ObjectDoesNotExist) {
 		/* Create a new file if one does not exist */
-		if (mode == IO::READONLY)
+		if (this->getMode() == IO::READONLY)
 			throw Error::StrategyError("Properties file does not "
 			    "exist and mode is read-only");
 
-		FILE *fp = fopen(_filename.c_str(), "w");
+		FILE *fp = fopen(this->_pathname.c_str(), "w");
 		if (fp == nullptr)
 			throw Error::FileError("Could not create new "
 			    "properties file");
@@ -55,7 +58,7 @@ BiometricEvaluation::IO::PropertiesFile::sync()
 	if (this->getMode() == IO::READONLY)
 		throw Error::StrategyError(RO_ERR_MSG);
 
-	std::ofstream ofs(_filename.c_str());
+	std::ofstream ofs(_pathname.c_str());
 	if (!ofs)
 		throw Error::FileError("Could not write properties file");
 
@@ -68,12 +71,26 @@ BiometricEvaluation::IO::PropertiesFile::sync()
 
 void
 BiometricEvaluation::IO::PropertiesFile::changeName(
-    const std::string &filename)
+    const std::string &pathname)
 {
 	if (this->getMode() == IO::READONLY)
 		throw Error::StrategyError(RO_ERR_MSG);
-		
-	_filename = filename;
+
+	if (IO::Utility::fileExists(pathname))
+		throw Error::ObjectExists(pathname);
+
+	if (::rename(this->_pathname.c_str(), pathname.c_str()) != 0)
+		throw Error::StrategyError("Could not move \"" +
+		    this->_pathname + "\" to \"" + pathname + "\" (" +
+		    Error::errorStr() + ")");
+
+	this->_pathname = pathname;
+
+	/* 
+	 * Not strictly necessary to re-init, but this assures us that we
+	 * can still read from the file.
+	 */
+	initPropertiesFile();
 }
 
 BiometricEvaluation::IO::PropertiesFile::~PropertiesFile()

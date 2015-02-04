@@ -55,8 +55,8 @@ namespace BiometricEvaluation
 			 * or to be created properties file. The constructor
 			 * will create the file when it does not exist.
 			 *
-			 * @param[in] filename
-			 *	The name of the file to store the properties.
+			 * @param[in] pathname
+			 *	The path to the file to store the properties.
 			 * @param[in] mode
 			 * 	The read/write mode of the object.
 			 * @throw Error::StrategyError
@@ -66,7 +66,7 @@ namespace BiometricEvaluation
 			 *	storage system.
 			 */
 			PropertiesFile(
-			    const std::string &filename,
+			    const std::string &pathname,
 			    uint8_t mode = IO::READWRITE);
 
 
@@ -89,21 +89,22 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Change the name of the Properties, which means
 			 * changing the name of the underlying file that stores
-			 * the properties. The empty string ("") can be used
-			 * to indicate no backing file.
+			 * the properties.
 			 * @note
 			 * No check is made that the file is writeable at this
 			 * time.
 			 *
-			 * @param[in] filename
-			 *	The name of the properties file.
+			 * @param[in] pathname
+			 *	The path to the Properties file.
 			 *
 			 * @throw Error::StrategyError
 			 *	The object is read-only.
+			 * @throw Error::ObjectExists
+			 * A file at pathname already exists.
 			 */
 			void
 			changeName(
-			    const std::string &filename);
+			    const std::string &pathname);
 
 			/** Destructor */
 			~PropertiesFile();
@@ -141,7 +142,11 @@ namespace BiometricEvaluation
 
 		private:
 			/** The file name of the underlying properties file */
-			std::string _filename;
+			std::string _pathname;
+
+			/** Common initialization functions. */
+			void
+			initPropertiesFile();
 		};
 	}
 }

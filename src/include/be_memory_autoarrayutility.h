@@ -133,7 +133,7 @@ namespace BiometricEvaluation
  * Convert a uint8_t or char AutoArray to a string.
  *
  * @param aa
- * Null-terminated AutoArray to stringify.
+ * AutoArray to stringify.
  *
  * @return
  * String representation of aa.
@@ -146,7 +146,8 @@ to_string(
     const BiometricEvaluation::Memory::AutoArray<T> &aa)
 {
 	return (std::string(
-	    BiometricEvaluation::Memory::AutoArrayUtility::cstr(aa)));
+	    BiometricEvaluation::Memory::AutoArrayUtility::cstr(aa),
+	    aa.size()));
 }
 
 #endif /* __BE_MEMORY_AUTOARRAYUTILITY_H__ */

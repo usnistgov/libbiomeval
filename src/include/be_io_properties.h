@@ -131,6 +131,28 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Set a property with a boolean value.
+			 * @details
+			 * The actual value to be written is implementation-
+			 * defined and may not actually be preserved, but the 
+			 * boolean value is guaranteed to remain valid when
+			 * read with getPropertyAsBoolean().
+			 *
+			 * @param[in] property
+			 * The name of the property to set.
+			 * @param[in] value
+			 * The value associated with the property.
+			 *
+			 * @throw Error::StrategyError
+			 * The Properties object is read-only.
+			 */
+			virtual void
+			setPropertyFromBoolean(
+			    const std::string &property,
+			    bool value);
+
+			/**
+			 * @brief
 			 * Remove a property.
 			 *
 			 * @param[in] property
@@ -193,6 +215,24 @@ namespace BiometricEvaluation
 			virtual double
 			getPropertyAsDouble(
 			    const std::string &property) const;
+
+			/**
+			 * @brief
+			 * Retrieve a property value as a boolean value.
+			 *
+			 * @property[in] property
+			 * The name of the property to get.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * The named property does not exist.
+			 * @throw Error::StrategyError
+			 * The value of the property is not convertible to a
+			 * boolean by this implementation.
+			 */
+			virtual bool
+			getPropertyAsBoolean(
+			    const std::string &property)
+			    const;
 
 			/**
 			 * @brief

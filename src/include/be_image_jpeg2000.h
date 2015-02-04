@@ -126,7 +126,7 @@ namespace BiometricEvaluation
 			 * Pointer to a container of allocated libopenjpeg
 			 * structures.
 			 */
-			std::shared_ptr<OpenJPEGDecoder>
+			std::unique_ptr<OpenJPEGDecoder>
 			initDecoder(bool headerOnly)
 			    const;
 

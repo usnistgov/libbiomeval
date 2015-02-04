@@ -22,6 +22,8 @@
 #include <be_io_utility.h>
 #include <be_text.h>
 
+namespace BE = BiometricEvaluation;
+
 static std::string RO_ERR_MSG = "Object is read-only";
 
 BiometricEvaluation::IO::Properties::Properties(
@@ -130,6 +132,14 @@ BiometricEvaluation::IO::Properties::setPropertyFromDouble(
 }
 
 void
+BiometricEvaluation::IO::Properties::setPropertyFromBoolean(
+    const std::string &property,
+    bool value)
+{
+	setProperty(property, value ? "TRUE" : "FALSE");
+}
+
+void
 BiometricEvaluation::IO::Properties::removeProperty(
     const std::string &property)
 {
@@ -208,6 +218,29 @@ BiometricEvaluation::IO::Properties::getPropertyAsDouble(
 	
 	converter >> doubleValue;
 	return (doubleValue);
+}
+
+bool
+BiometricEvaluation::IO::Properties::getPropertyAsBoolean(
+    const std::string &property)
+    const
+{
+	std::string value = getProperty(property);
+	if (BE::Text::caseInsensitiveCompare(value, "TRUE") ||
+	    BE::Text::caseInsensitiveCompare(value, "YES") ||
+	    BE::Text::caseInsensitiveCompare(value, "ENABLE") ||
+	    BE::Text::caseInsensitiveCompare(value, "ENABLED") ||
+	    BE::Text::caseInsensitiveCompare(value, "1"))
+		return (true);
+	else if (BE::Text::caseInsensitiveCompare(value, "FALSE") ||
+	    BE::Text::caseInsensitiveCompare(value, "NO") ||
+	    BE::Text::caseInsensitiveCompare(value, "DISABLE") ||
+	    BE::Text::caseInsensitiveCompare(value, "DISABLED") ||
+	    BE::Text::caseInsensitiveCompare(value, "0"))
+		return (false);
+
+	throw BE::Error::StrategyError(property + " cannot be converted to a "
+	    "boolean value");
 }
 
 std::vector<std::string>

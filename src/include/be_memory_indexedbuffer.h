@@ -12,240 +12,236 @@
 #define __BE_MEMORY_INDEXEDBUFFER__
 
 #include <be_memory_autoarray.h>
-#include <be_error_exception.h>
 
-namespace BiometricEvaluation {
+namespace BiometricEvaluation
+{
+	namespace Memory
+	{
+		/**
+		 * @brief
+		 * Wrap a memory buffer with an index.
+		 * @details
+		 * The memory buffer is treated as an array of unsigned
+		 * eight bit values. This class provides safe access to the
+		 * array with methods to retrieve 8/16/32/64-bit elements, or
+		 * and arbitrary segment starting at the index, from the
+		 * array while advancing the current index. An exception
+		 * is thrown by these methods whenever the retrieval would
+		 * reach beyond the size of the buffer. IndexedBuffers do
+		 * not own the memory of the buffers they wrap.
+		 */
+		class IndexedBuffer
+		{
+			public:
+				/** Wrap a nullptr buffer. */
+				IndexedBuffer();
 
-    namespace Memory {
-	
-	/**
-	 * @brief
-	 * Manage a memory buffer with an index.
-	 * @details
-	 * The memory buffer is treated as an array of unsigned
-	 * eight bit values. This class provides safe access to the
-	 * array with methods to retrieve 8/16/32/64-bit elements, or
-	 * and arbitrary segment starting at the index, from the
-	 * array while advancing the current index. An exception
-	 * is thrown by these methods whenever the retrieval would
-	 * reach beyond the size of the buffer.
-	 *
-	 * The buffer can also be accessed directly by subscripting.
-	 */
-	class IndexedBuffer {
+				/**
+				 * @brief
+				 * Wrap an existing buffer of a given length.
+				 *
+				 * @param data
+				 * Buffer to wrap.
+				 * @param size
+				 * Size of buffer.
+				 */
+				IndexedBuffer(
+				    const uint8_t *data,
+				    uint64_t size);
 
-		public:
+				/**
+				 * @brief
+				 * Wrap an existing uint8Array.
+				 *
+				 * @param aa
+				 * uint8Array to wrap.
+				 */
+				IndexedBuffer(
+				    const uint8Array &aa);
+
+				/** Copy constructor (default). */
+				IndexedBuffer(
+				    const IndexedBuffer &copy) = default;
+				    
+				/**
+				 * @brief
+				 * Obtain the current size of the buffer.
+				 *
+				 * @return
+				 * The current buffer size.
+				 */
+				uint32_t
+				getSize()
+				    const;
 			
-			operator uint8_t*();
-			uint8_t* operator->();
-
-			IndexedBuffer& operator= (const IndexedBuffer& other);
-					
-			/**
-			 * @brief
-			 * Create an indexed buffer of xero length.
-			 */
-			IndexedBuffer();
-
-			/**
-			 * @brief
-			 * Create an indexed buffer of a given length.
-			 */
-			IndexedBuffer(uint32_t size);
-
-			/**
-			 * @brief
-			 * Create an indexed buffer around an existing
-			 * buffer of a given length.
-			 * @details
-			 * An object constructed in this manner will not
-			 * free the underlying data buffer.
-			 */
-			IndexedBuffer(uint8_t* data, uint32_t size);
-
-			/**
-			 * @brief
-			 * Copy constructor.
-			 */
-			IndexedBuffer(const IndexedBuffer& copy);
+				/**
+				 * @brief
+				 * Obtain the current index into the buffer.
+				 *
+				 * @return
+				 * The current buffer index.
+				 *
+				 * @note
+				 * When getIndex() == getSize(), the buffer
+				 * is exhausted from scanning.
+				 */
+				uint32_t
+				getIndex()
+				    const;
 			
-			/**
-			 * @brief
-			 * Obtain the current size of the buffer.
-			 * @returns
-			 * The current buffer size.
-			 */
-			uint32_t getSize();
+				/**
+				 * @brief
+				 * Set the current index into the buffer.
+				 *
+				 * @param[in] index
+				 * The index value to set.
+				 *
+				 * @throw Error::ParameterError
+				 * The index parameter is too large.
+				 */
+				void
+				setIndex(
+				    uint64_t index);
 			
-			/**
-			 * @brief
-			 * Obtain the current index into the buffer.
-			 * @returns
-			 * The current buffer index.
-			 */
-			uint32_t getIndex();
+				/**
+				 * @brief
+				 * Obtain the next element of the buffer and
+				 * increment the current index value.
+				 *
+				 * @return
+				 * The next element of the buffer as an
+				 * unsigned 8-bit value.
+				 *
+				 * @throw Error::DataError
+				 * The buffer is exhausted.
+				 */
+				uint8_t
+				scanU8Val();
 			
-			/**
-			 * @brief
-			 * Set the current index into the buffer.
-			 * @param[in] index
-			 * The index value to set.
-			 * @throw Error::ParameterError
-			 * The index parameter is too large.
-			 */
-			void setIndex(uint32_t index);
-			
-			/**
-			 * @brief
-			 * Obtain the next element of the buffer and increment
-			 * the current index value.
-			 * @throw Error::DataError
-			 * The buffer is exhausted.
-			 * @returns
-			 * The next element of the buffer as an unsigned 8-bit
-			 * value.
-			 */
-			uint8_t scanU8Val();
-			
-			/**
-			 * @brief
-			 * Obtain the next two elements of the buffer and
-			 * increment the current index value.
-			 * @throw Error::DataError
-			 * The buffer is exhausted.
-			 * @returns
-			 * The next element of the buffer as an unsigned 
-			 * 16-bit value.
-			 */
-			uint16_t scanU16Val();
+				/**
+				 * @brief
+				 * Obtain the next two elements of the buffer
+				 * and increment the current index value.
+				 *
+				 * @return
+				 * The next element of the buffer as an
+				 * unsigned 16-bit value.
+				 *
+				 * @throw Error::DataError
+				 * The buffer is exhausted.
+				 */
+				uint16_t
+				scanU16Val();
 		
-			/**
-			 * @brief
-			 * Obtain the next two elements of the buffer,
-			 * scanned as a big-endian value, and increment
-			 * the current index value.
-			 * @throw Error::DataError
-			 * The buffer is exhausted.
-			 * @returns
-			 * The next element of the buffer as an unsigned 
-			 * 16-bit value.
-			 */
-			uint16_t scanBeU16Val();
+				/**
+				 * @brief
+				 * Obtain the next two elements of the buffer,
+				 * scanned as a big-endian value, and increment
+				 * the current index value.
+				 *
+				 * @return
+				 * The next element of the buffer as an
+				 * unsigned 16-bit value.
+				 *
+				 * @throw Error::DataError
+				 * The buffer is exhausted.
+				 */
+				uint16_t
+				scanBeU16Val();
 
-			/**
-			 * @brief
-			 * Obtain the next four elements of the buffer and
-			 * increment the current index value by four.
-			 * @throw Error::DataError
-			 * The buffer is exhausted.
-			 * @returns
-			 * The next element of the buffer as an unsigned
-			 * 32-bit value.
-			 */
-			uint32_t scanU32Val();
+				/**
+				 * @brief
+				 * Obtain the next four elements of the buffer
+				 * and increment the current index value by
+				 * four.
+				 *
+				 * @return
+				 * The next element of the buffer as an
+				 * unsigned 32-bit value.
+				 *
+				 * @throw Error::DataError
+				 * The buffer is exhausted.
+				 */
+				uint32_t
+				scanU32Val();
 
-			/**
-			 * @brief
-			 * Obtain the next four elements of the buffer,
-			 * scanned as a big-endian value, and increment
-			 * the current index value.
-			 * @throw Error::DataError
-			 * The buffer is exhausted.
-			 * @returns
-			 * The next element of the buffer as an unsigned 
-			 * 32-bit value.
-			 */
-			uint32_t scanBeU32Val();
+				/**
+				 * @brief
+				 * Obtain the next four elements of the buffer,
+				 * scanned as a big-endian value, and increment
+				 * the current index value.
+				 *
+				 * @return
+				 * The next element of the buffer as an
+				 * unsigned 32-bit value.
+				 *
+				 * @throw Error::DataError
+				 * The buffer is exhausted.
+				 */
+				uint32_t
+				scanBeU32Val();
 
-			/**
-			 * @brief
-			 * Obtain the next eight elements of the buffer and
-			 * increment the current index value by eight.
-			 * @throw Error::DataError
-			 * The buffer is exhausted.
-			 * @returns
-			 * The next element of the buffer as an unsigned
-			 * 64-bit value.
-			 */
-			uint64_t scanU64Val();
+				/**
+				 * @brief
+				 * Obtain the next eight elements of the buffer
+				 * and increment the current index value by
+				 * eight.
+				 *
+				 * @return
+				 * The next element of the buffer as an
+				 * unsigned 64-bit value.
+				 *
+				 * @throw Error::DataError
+				 * The buffer is exhausted.
+				 */
+				uint64_t
+				scanU64Val();
 
-			/**
-			 * @brief
-			 * Obtain the next 'n' elements of the buffer and
-			 * increment the current index value by n.
-			 *
-			 * @param[in] buf
-			 *	Buffer to store the copied data. Can be nullptr.
-			 *	The current index is incremented.
-			 * @param[in] len
-			 *	The number of elements to copy.
-			 *
-			 * @throw Error::DataError
-			 *	The buffer is exhausted.
-			 *
-			 * @return
-			 *	The number of elements copied.
-			 */
-			uint32_t scan(
-			    void *buf,
-			    const uint32_t len);
+				/**
+				 * @brief
+				 * Obtain the next 'n' elements of the buffer
+				 * and increment the current index value by n.
+				 *
+				 * @param[in] buf
+				 * Buffer to store the copied data, or nullptr.
+				 * @param[in] len
+				 * The number of elements to copy.
+				 *
+				 * @throw Error::DataError
+				 * The buffer is exhausted.
+				 *
+				 * @return
+				 * The number of elements copied.
+				 */
+				uint64_t
+				scan(
+				    void *buf,
+				    uint64_t len);
 
-			/**
-			 * @brief
-			 * Subscripting operator.
-			 * @details
-			 * Provides array-like access to elements of the
-			 * buffer. This operation will not affect the current
-			 * index value.
-			 * @param[in] i
-			 * 	The subscript.
-			 *
-			 * @return
-			 *	Reference to element 'i' of the buffer.
-			 */
-			uint8_t& operator[] (ptrdiff_t i);
-		
-			/**
-			 * @brief
-			 * Constant subscripting operator.
-			 * @details
-			 * Provides read-only array-like access to elements
-			 * of the buffer. This operation will not affect the
-			 * current index value.
-			 *
-			 * @param[in] i
-			 * 	The subscript.
-			 *
-			 * @return
-			 *	Reference to const element 'i' of the buffer.
-			 */
-			const uint8_t& operator[] (ptrdiff_t i) const;
+				/**
+				 * @brief
+				 * Returns a pointer to the managed buffer.
+				 *
+				 * @return
+				 * Pointer to the managed buffer.
+				 */
+				virtual const uint8_t*
+				get()
+				    const;
 
-			~IndexedBuffer();
+				/** Destructor (default). */
+				virtual ~IndexedBuffer() = default;
 						
-		private:
-		
-			Memory::uint8Array _array;
+			private:
+				/** Pointer to unowned allocated data. */
+				const uint8_t * const _data;
 
-			/* Pointer to allocated data, either ours the
-			 * buffer that was passed in.
-			 */
-			uint8_t* _data;
+				/** Current size of the data. */
+				const uint64_t _size;
 
-			/* Current size of the data. */
-			uint32_t _size;
-
-			/* Current index into the data buffer. */
-			uint32_t _index;
-
-			/* 
-			 * True if we passed in preallocated data.  Don't 
-			 * perform any memory management, just keep track of
-			 * the pointer and index.
-			 */
-			bool _handsOff;
-			
-	};
+				/** Current index into the data buffer. */
+				uint64_t _index;
+		};
 	}
 }
 #endif /* __BE_MEMORY_INDEXEDBUFFER__ */

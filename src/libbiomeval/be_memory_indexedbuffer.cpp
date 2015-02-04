@@ -8,10 +8,11 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <cstring>
-
 #include <arpa/inet.h>
 
+#include <cstring>
+
+#include <be_error_exception.h>
 #include <be_memory_indexedbuffer.h>
 
 /******************************************************************************/
@@ -19,26 +20,32 @@
 /******************************************************************************/
 uint32_t
 BiometricEvaluation::Memory::IndexedBuffer::getSize()
+    const
 {
 	return (_size);
 }
 
 uint32_t
 BiometricEvaluation::Memory::IndexedBuffer::getIndex()
+    const
 {
 	return (_index);
 }
 
 void
-BiometricEvaluation::Memory::IndexedBuffer::setIndex(uint32_t index)
+BiometricEvaluation::Memory::IndexedBuffer::setIndex(
+    uint64_t index)
 {
-	if (index >= _size)
-		throw (Error::ParameterError("Can't set index beyond buffer end"));
+	if (index > _size)
+		throw (Error::ParameterError("Can't set index beyond "
+		    "buffer end"));
 	_index = index;
 }
 
-uint32_t
-BiometricEvaluation::Memory::IndexedBuffer::scan(void *buf, const uint32_t len)
+uint64_t
+BiometricEvaluation::Memory::IndexedBuffer::scan(
+    void *buf,
+    uint64_t len)
 {
 	if (_index + len > _size)
 		throw (Error::DataError("Can't read beyond end of buffer"));
@@ -51,18 +58,16 @@ BiometricEvaluation::Memory::IndexedBuffer::scan(void *buf, const uint32_t len)
 uint8_t
 BiometricEvaluation::Memory::IndexedBuffer::scanU8Val()
 {
-	size_t len = sizeof(uint8_t);
 	uint8_t val;
-	(void)scan(&val, len);
+	(void)scan(&val, sizeof(uint8_t));
 	return (val);
 }
 
 uint16_t
 BiometricEvaluation::Memory::IndexedBuffer::scanU16Val()
 {
-	size_t len = sizeof(uint16_t);
 	uint16_t val;
-	(void)scan(&val, len);
+	(void)scan(&val, sizeof(uint16_t));
 	return (val);
 }
 
@@ -75,9 +80,8 @@ BiometricEvaluation::Memory::IndexedBuffer::scanBeU16Val()
 uint32_t
 BiometricEvaluation::Memory::IndexedBuffer::scanU32Val()
 {
-	size_t len = sizeof(uint32_t);
 	uint32_t val;
-	(void)scan(&val, len);
+	(void)scan(&val, sizeof(uint32_t));
 	return (val);
 }
 
@@ -90,118 +94,44 @@ BiometricEvaluation::Memory::IndexedBuffer::scanBeU32Val()
 uint64_t
 BiometricEvaluation::Memory::IndexedBuffer::scanU64Val()
 {
-	size_t len = sizeof(uint64_t);
 	uint64_t val;
-	(void)scan(&val, len);
+	(void)scan(&val, sizeof(uint64_t));
 	return (val);
 }
 
-/*
- * Operators.
- */
-BiometricEvaluation::Memory::IndexedBuffer::operator uint8_t*() 
+const uint8_t*
+BiometricEvaluation::Memory::IndexedBuffer::get()
+    const
 {
 	return (_data);
-}
-
-uint8_t* 
-BiometricEvaluation::Memory::IndexedBuffer::operator->()
-{
-	return (_data);
-}
-
-BiometricEvaluation::Memory::IndexedBuffer&
-BiometricEvaluation::Memory::IndexedBuffer::operator=
-    (const BiometricEvaluation::Memory::IndexedBuffer& copy) 
-{
-	if (this != &copy) {
-		_handsOff = copy._handsOff;
-		_size = copy._size;
-		_index = copy._index;
-	
-		if (_handsOff) {
-			/* Just copy the pointer */
-			_data = copy._data;
-		} else {
-			_array = copy._array;
-			_data = _array;
-		}	
-	}
-
-	return (*this);
-}
-
-uint8_t & 
-BiometricEvaluation::Memory::IndexedBuffer::operator[] (
-	ptrdiff_t i) 
-{ 
-	return (_data[i]);
-}
-
-const uint8_t&
-BiometricEvaluation::Memory::IndexedBuffer::operator[] (
-	ptrdiff_t i) const 
-{ 
-	return (_data[i]);
 }
 
 /******************************************************************************/
 /* Constructors.                                                              */
 /******************************************************************************/
-BiometricEvaluation::Memory::IndexedBuffer::IndexedBuffer()
+BiometricEvaluation::Memory::IndexedBuffer::IndexedBuffer() :
+    _data(nullptr),
+    _size(0),
+    _index(0)
 {
-	_array.resize(0);
-	_data = _array;
-	_size = _index = 0;
-	_handsOff = false;
+
 }
 
 BiometricEvaluation::Memory::IndexedBuffer::IndexedBuffer(
-    uint32_t size) 
+    const uint8_t *data,
+    uint64_t size) :
+    _data(data),
+    _size(size),
+    _index(0)
 {
-	_array.resize(size);
-	_data = _array;
-	_size = size;
-	_index = 0;
-	_handsOff = false;
+
 }
 
 BiometricEvaluation::Memory::IndexedBuffer::IndexedBuffer(
-    uint8_t* data,
-    uint32_t size) 
+    const BiometricEvaluation::Memory::uint8Array &aa) :
+    _data(aa),
+    _size(aa.size()),
+    _index(0)
 {
-	/* 
-	 * With this constructor, the IndexedBuffer is essentially nothing more
-	 * than a bloated pointer.  The caller still must free memory manually.
-	 * This just allows for uniform usage in classes that can take an 
-	 * allocated buffer or can create one.
-	 */
-	_data = data;
-	_size = size;
-	_index = 0;
-	_handsOff = true;
-}
 
-BiometricEvaluation::Memory::IndexedBuffer::IndexedBuffer(
-    const IndexedBuffer& copy) 
-{
-	_handsOff = copy._handsOff;
-	_size = copy._size;
-	_index = copy._index;
-	
-	if (_handsOff)
-		_data = copy._data;
-	else {
-		_array = copy._array;
-		_data = _array;
-	}
 }
-
-/******************************************************************************/
-/* Destructor.                                                                */
-/******************************************************************************/
-BiometricEvaluation::Memory::IndexedBuffer::~IndexedBuffer() 
-{
-	// Managed memory is auto-destructed by ~AutoArray()
-}
-
