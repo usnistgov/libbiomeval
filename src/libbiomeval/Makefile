@@ -120,7 +120,7 @@ endif
 
 be_framework.o: CXXFLAGS += -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION)
 
-$(NBIS_OBJECTS): CXXFLAGS += $(NBISINC)
+$(NBIS_OBJECTS): CXXFLAGS := $(NBISINC) $(CXXFLAGS)
 $(NBIS_OBJECTS): $(NBIS_SOURCES)
 
 # Get include paths for libraries required third-party code
