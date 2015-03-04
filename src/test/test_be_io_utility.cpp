@@ -50,26 +50,6 @@ main(int argc, char* argv[])
 		return (EXIT_FAILURE);
 	}
 	
-	/* Write again without truncate bit set */
-	cout << "Write over existing file w/o truncate: ";
-	try {
-		IO::Utility::writeFile(textFile, tempFileName);
-		cout << "ERROR" << endl;
-		return (EXIT_FAILURE);
-	} catch (Error::Exception &e) {
-		cout << "success" << endl;
-	}
-	
-	/* Write again with truncate bit set */
-	cout << "Write over existing file w/truncate: ";
-	try {
-		IO::Utility::writeFile(textFile, tempFileName, ios_base::trunc);
-		cout << "success" << endl;
-	} catch (Error::Exception &e) {
-		cout << "ERROR (" << e.what() << ")" << endl;
-		return (EXIT_FAILURE);
-	}
-	
 	/* Diff the original file and the written file to check consistency */
 	cout << "Diff original and written files: ";
 	Memory::uint8Array textFile2;

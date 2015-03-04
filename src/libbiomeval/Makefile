@@ -15,7 +15,9 @@ NBISINC = -I/usr/nistlocal/nbis/include
 NBISLIBDIR = /usr/nistlocal/nbis/lib
 NBISLIB = -L$(NBISLIBDIR) -lan2k -ljpegb -lwsq -ljpegl -lfet -lioutil $(NBISLIBDIR)/libutil.a
 
-COMMONINCOPT = 
+COMMONINCOPT = -I/opt/local/include
+COMMONLIBOPT = -I/opt/local/lib
+
 # Under Linux, --libs won't print standard paths, but g++ will look in 
 # -L options for appropriately named libs, so without -L standard/paths,
 # NBIS image libs will be used.
@@ -23,7 +25,8 @@ OPENJPEGLIB = -L$(shell pkg-config --variable=libdir libopenjpeg) $(shell pkg-co
 PNGLIB = -L$(shell pkg-config --variable=libdir libpng) $(shell pkg-config --libs-only-l --libs-only-other libpng)
 SQLITE3LIB = -L$(shell pkg-config --variable=libdir sqlite3) $(shell pkg-config --libs-only-l --libs-only-other sqlite3)
 ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-only-l --libs-only-other zlib)
-COMMONLIB = -ldb $(SQLITE3LIB) $(PNGLIB) $(OPENJPEGLIB) $(ZLIB)
+FFMPEGLIB = -lavformat -lavutil -lswscale
+COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB)
 
 include ../common.mk
 include ../../VERSION
@@ -53,7 +56,9 @@ MPIBASE = be_mpi.cpp be_mpi_runtime.cpp be_mpi_workpackage.cpp be_mpi_workpackag
 MPIDISTRIBUTOR = be_mpi_distributor.cpp be_mpi_recordstoredistributor.cpp
 MPIRECEIVER = be_mpi_receiver.cpp be_mpi_recordprocessor.cpp
 
-SOURCES = $(CORE) $(IO) $(PROCESS) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER)
+VIDEO = be_video_container_impl.cpp be_video_container.cpp 
+
+SOURCES = $(CORE) $(IO) $(PROCESS) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER) $(VIDEO)
 
 # Source files that rely on NBIS development files being installed
 NBIS_SOURCES = be_feature_an2k7minutiae.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_wsq.cpp be_view_an2kview.cpp be_view_an2kview_varres.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_data_interchange_an2k.cpp

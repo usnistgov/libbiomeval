@@ -227,6 +227,12 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Write the contents of a buffer to a file.
+			 * @details
+			 * A thin wrapper around std::ofstream. The mode
+			 * parameter has the same semantics as that for
+			 * std::ofstream and applications must set mode
+			 * for append or truncate when writing to an existing
+			 * file.
 			 *
 			 * @param data
 			 *	Data buffer to write.
@@ -239,8 +245,7 @@ namespace BiometricEvaluation
 			 *	file stream constructor.
 			 *
 			 * @throw ObjectExists
-			 *	path exists but truncate not set, or path
-			 *	exists and is a directory.
+			 *	path exists and is a directory.
 			 * @throw StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
@@ -255,6 +260,12 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Write the contents of a buffer to a file.
+			 * @details
+			 * A thin wrapper around std::ofstream. The mode
+			 * parameter has the same semantics as that for
+			 * std::ofstream and applications must set mode
+			 * for append or truncate when writing to an existing
+			 * file.
 			 *
 			 * @param data
 			 *	Data buffer to write.
@@ -265,8 +276,7 @@ namespace BiometricEvaluation
 			 *	file stream constructor.
 			 *
 			 * @throw ObjectExists
-			 *	path exists but truncate not set, or path
-			 *	exists and is a directory.
+			 *	path exists and is a directory.
 			 * @throw StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.

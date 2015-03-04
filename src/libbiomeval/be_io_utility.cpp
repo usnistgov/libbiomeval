@@ -361,15 +361,11 @@ BiometricEvaluation::IO::Utility::writeFile(
     const std::string &path,
     std::ios_base::openmode mode)
 {
-	/* Throw exception if truncate not set and file exists */
-	if ((mode & std::ios_base::trunc) == 0)
-		if (fileExists(path))
-			throw Error::ObjectExists("Truncate disabled");
-	/* Throw exception is path exists and is directory */
+	/* Throw exception if path exists and is directory */
 	if (pathIsDirectory(path))
 		throw Error::ObjectExists(path + " is a directory");
 	
-	std::ofstream file(path.c_str(), mode | std::ios_base::out);
+	std::ofstream file(path, mode | std::ios_base::out);
 	if (file.good() == false)
 		throw Error::StrategyError("Error while opening");
 

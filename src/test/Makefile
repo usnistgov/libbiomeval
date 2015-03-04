@@ -32,7 +32,9 @@ OTHER = test_be_data_interchange_an2k test_be_framework_enumeration
 
 MPI = test_be_mpi
 
-PROGS = $(CORE) $(IO) $(IMAGE) $(PROCESS) $(FINGER) $(FEATURE) $(IRIS) $(FACE) $(OTHER) $(COMMAND_CENTER) $(MPI)
+VIDEO = test_be_video
+
+PROGS = $(CORE) $(IO) $(IMAGE) $(VIDEO) $(PROCESS) $(FINGER) $(FEATURE) $(IRIS) $(FACE) $(OTHER) $(COMMAND_CENTER) $(MPI)
 
 all: CXXFLAGS += -g
 all: $(PROGS)
@@ -140,6 +142,8 @@ be_process_commandcenter_example: be_process_commandcenter_example.cpp
 test_be_mpi: test_be_mpi.cpp
 	$(MPICXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_syslogsheet: test_be_io_syslogsheet.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_video: test_be_video.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 
 clean:
