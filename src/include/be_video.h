@@ -13,7 +13,7 @@
 
 #include <be_framework_enumeration.h>
 #include <be_image.h>
-#include <be_memory.h>
+#include <be_memory_autoarray.h>
 
 namespace BiometricEvaluation 
 {

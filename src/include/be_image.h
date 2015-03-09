@@ -44,6 +44,19 @@ namespace BiometricEvaluation
 			BMP		= 9
 		};
 
+		/** Image pixel formats. */
+		enum class PixelFormat
+		{
+			/** 1 bit/pixel, 0 is white, 1 = black */
+			MonoWhite	= 0,
+			/** 1 bit/pixel, 0 is black, 1 = white */
+			MonoBlack	= 1,
+			/** 8-bit gray */
+			Gray8		= 2,
+			/** 8-bit red/8-bit blue/8-bit green */
+			RGB24		= 3
+		};
+
 		/**
 		 * @brief
 		 * A structure to contain a two-dimensional coordinate

@@ -56,7 +56,7 @@ MPIBASE = be_mpi.cpp be_mpi_runtime.cpp be_mpi_workpackage.cpp be_mpi_workpackag
 MPIDISTRIBUTOR = be_mpi_distributor.cpp be_mpi_recordstoredistributor.cpp
 MPIRECEIVER = be_mpi_receiver.cpp be_mpi_recordprocessor.cpp
 
-VIDEO = be_video_container_impl.cpp be_video_container.cpp 
+VIDEO = be_video_impl.cpp be_video_container_impl.cpp be_video_stream_impl.cpp be_video_container.cpp be_video_stream.cpp
 
 SOURCES = $(CORE) $(IO) $(PROCESS) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER) $(VIDEO)
 

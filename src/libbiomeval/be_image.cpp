@@ -63,6 +63,16 @@ const std::map<BiometricEvaluation::Image::CompressionAlgorithm, std::string>
 	{Image::CompressionAlgorithm::BMP, "BMP"}
 };
 
+template<>
+const std::map<BiometricEvaluation::Image::PixelFormat, std::string>
+    BiometricEvaluation::Framework::EnumerationFunctions<
+    BiometricEvaluation::Image::PixelFormat>::enumToStringMap {
+	{Image::PixelFormat::MonoWhite, "Monochrome white"},
+	{Image::PixelFormat::MonoBlack, "Monochrome black"},
+	{Image::PixelFormat::Gray8, "8-Bit grayscale"},
+	{Image::PixelFormat::RGB24, "24-bit red/green/blue"}
+};
+
 std::ostream&
 BiometricEvaluation::Image::operator<< (std::ostream &s,
     const Image::Coordinate& coord)

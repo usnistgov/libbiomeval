@@ -25,7 +25,7 @@ BiometricEvaluation::Video::Container::Container(
 BiometricEvaluation::Video::Container::Container(
     const std::string &filename)
 {
-	this->pimpl = new ContainerImpl(filename);
+	this->pimpl = new BE::Video::ContainerImpl(filename);
 }
 
 uint32_t
@@ -40,43 +40,11 @@ BiometricEvaluation::Video::Container::getVideoCount()
 	return (this->pimpl->getVideoCount());
 }
 
-BiometricEvaluation::Video::Frame
-BiometricEvaluation::Video::Container::getVideoFrame(
-    uint32_t videoNum,      
-    uint32_t frameNum)
-{
-	return (pimpl->getVideoFrame(videoNum, frameNum));
-}
-
-std::vector<BiometricEvaluation::Video::Frame>
-BiometricEvaluation::Video::Container::getVideoSequence(
-    uint32_t videoNum,
-    int64_t startTime,
-    int64_t endTime)
-{
-	return (pimpl->getVideoSequence(
-	    videoNum, startTime, endTime));
-}
-
-float
-BiometricEvaluation::Video::Container::getVideoFPS(uint32_t videoNum)
-{
-	return (pimpl->getVideoFPS(videoNum));
-}
-
-uint64_t
-BiometricEvaluation::Video::Container::getVideoFrameCount(
+std::unique_ptr<BiometricEvaluation::Video::Stream>
+BiometricEvaluation::Video::Container::getVideoStream(
     uint32_t videoNum)
 {
-	return (pimpl->getVideoFrameCount(videoNum));
-}
-
-void
-BiometricEvaluation::Video::Container::setVideoFrameScale(
-    float xScale,
-    float yScale)
-{
-	pimpl->setVideoFrameScale(xScale, yScale);
+	return (pimpl->getVideoStream(videoNum));
 }
 
 BiometricEvaluation::Video::Container::~Container()

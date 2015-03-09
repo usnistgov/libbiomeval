@@ -22,17 +22,19 @@ using namespace BiometricEvaluation;
 using namespace std;
 
 static void
-savePPM(
+savePBM(
     const Video::Frame &frame,
     std::string prefix,
+    std::string pbmType,
+    std::string ext,
     uint32_t index)
 {
 	std::stringstream fn;
 	fn << prefix << frame.size.xSize << "x" << frame.size.ySize << "_"
 	    << std::setfill ('0') << std::setw(6) << index
-	    << ".ppm";
+	    << "." << ext;
 	std::stringstream hdr;
-	hdr << "P6\n" << frame.size.xSize << " "
+	hdr << pbmType << "\n" << frame.size.xSize << " "
 	    << frame.size.ySize << "\n255" << endl;
 
 	IO::Utility::writeFile(
@@ -77,16 +79,17 @@ main(int argc, char* argv[])
 	/*
 	 * Read all the frames, one at a time.
 	 */
-	uint64_t expectedCount = pvc->getVideoFrameCount(1);
-	cout << "First video stream: " << pvc->getVideoFPS(1) << " FPS, "
+	std::unique_ptr<Video::Stream> stream = pvc->getVideoStream(1);
+	uint64_t expectedCount = stream->getFrameCount();
+	cout << "First video stream: " << stream->getFPS() << " FPS, "
 	    << expectedCount << " frames." << endl;
 	cout << "Read expected number of frames from the first stream: ";
 	uint64_t count = 0;
 	for (uint64_t f = 1; f <= expectedCount; f++) {
 		try {
-			auto frame = pvc->getVideoFrame(1, f);
+			auto frame = stream->getFrame(f);
 			count++;
-			savePPM(frame, "frame-", f);
+			savePBM(frame, "frame-", "P6", "ppm", f);
 		} catch (Error::ParameterError &e) {
 			std::cout << "Caught " << e.whatString() << endl;
 			return (EXIT_FAILURE);
@@ -103,14 +106,18 @@ main(int argc, char* argv[])
 	 * Read a few frames in reverse order.
 	 */
 	float scaleFactor = 0.5;
+	Image::PixelFormat pixelFormat = Image::PixelFormat::Gray8;
 	cout << "Read a few frames again from start of the first stream, "
-	    << "scaled at " << scaleFactor << ": ";
-	pvc->setVideoFrameScale(scaleFactor, scaleFactor);
+	    << "scaled at " << scaleFactor
+	    << " with pixel format " << to_string(pixelFormat)
+	    << ": ";
+	stream->setFrameScale(scaleFactor, scaleFactor);
+	stream->setFramePixelFormat(pixelFormat);
 	success = true;
 	try {
 		for (int i = 3; i > 0; i -= 1) {
-			auto frame = pvc->getVideoFrame(1, i);
-			savePPM(frame, "frame2-", i);
+			auto frame = stream->getFrame(i);
+			savePBM(frame, "frame2-", "P5", "pgm", i);
 		}
 	} catch (Error::Exception &e) {
 		cout << "Caught: " << e.whatString() << endl;
@@ -127,15 +134,17 @@ main(int argc, char* argv[])
 	uint64_t startTS = 1000;
 	uint64_t endTS = 2000;
 	scaleFactor = 2;
+	pixelFormat = Image::PixelFormat::MonoWhite;
 	cout << "Read sequence of frames between time stamps ["
 	    << startTS << " - " << endTS << "], scaled at " << scaleFactor
+	    << " with pixel format " << to_string(pixelFormat)
 	    << ": ";
-	pvc->setVideoFrameScale(scaleFactor, scaleFactor);
+	stream->setFrameScale(scaleFactor, scaleFactor);
+	stream->setFramePixelFormat(pixelFormat);
 	try {
-		auto frames = pvc->getVideoSequence(
-		    1, startTS, endTS);
+		auto frames = stream->getFrameSequence(startTS, endTS);
 		for (unsigned int i = 0; i < frames.size(); i++) {
-			savePPM(frames[i], "seq-", i+1);
+			savePBM(frames[i], "seq-", "P4", "pbm", i+1);
 		}
 		cout << "Success; read " << frames.size() << " frames." << endl;
 	} catch (Error::Exception &e) {
