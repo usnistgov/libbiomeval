@@ -46,7 +46,6 @@ namespace BiometricEvaluation
 			AVI		= 4 
 		};
 		struct Frame {
-			int scaleFactor;
 			Image::Size size;
 			int64_t timestamp;
 			Memory::uint8Array data;
