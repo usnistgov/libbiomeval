@@ -61,10 +61,17 @@ main(int argc, char* argv[])
 	cout << "Construct an program stream from file "
 	    << filename << endl;
 	try {
-		pvc.reset(new
-		    Video::Container(filename));
 //		pvc.reset(new
-//		    Video::Container(BiometricEvaluation::IO::Utility::readFile(filename)));
+//		    Video::Container(filename));
+
+//		Memory::uint8Array buf =
+//		    IO::Utility::readFile(filename);
+//		pvc.reset(new Video::Container(buf));
+
+		std::shared_ptr<Memory::uint8Array> buf;
+		buf.reset(new Memory::uint8Array(
+		    IO::Utility::readFile(filename)));
+		pvc.reset(new Video::Container(buf));
 	} catch (Error::Exception &e) {
 		cout << "Caught: " << e.whatString() << endl;
 		return (EXIT_FAILURE);
@@ -83,13 +90,16 @@ main(int argc, char* argv[])
 	uint64_t expectedCount = stream->getFrameCount();
 	cout << "First video stream: " << stream->getFPS() << " FPS, "
 	    << expectedCount << " frames." << endl;
-	cout << "Read expected number of frames from the first stream: ";
+	cout << "Read expected number of frames from the first stream, "
+	    << " saving first 50: ";
+	cout.flush();
 	uint64_t count = 0;
 	for (uint64_t f = 1; f <= expectedCount; f++) {
 		try {
 			auto frame = stream->getFrame(f);
 			count++;
-			savePBM(frame, "frame-", "P6", "ppm", f);
+			if (count <= 50)
+				savePBM(frame, "frame-", "P6", "ppm", f);
 		} catch (Error::ParameterError &e) {
 			std::cout << "Caught " << e.whatString() << endl;
 			return (EXIT_FAILURE);

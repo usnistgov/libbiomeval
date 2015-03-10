@@ -23,6 +23,12 @@ BiometricEvaluation::Video::Container::Container(
 }
 
 BiometricEvaluation::Video::Container::Container(
+    const std::shared_ptr<Memory::uint8Array> &buffer)
+{
+	this->pimpl = new BE::Video::ContainerImpl(buffer);
+}
+
+BiometricEvaluation::Video::Container::Container(
     const std::string &filename)
 {
 	this->pimpl = new BE::Video::ContainerImpl(filename);

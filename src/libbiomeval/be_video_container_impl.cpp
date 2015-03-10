@@ -127,9 +127,16 @@ findVideoStream(
 }
 
 BiometricEvaluation::Video::ContainerImpl::ContainerImpl(
-    const Memory::uint8Array &containerBuf)
+    const Memory::uint8Array &buffer)
 {
-	this->_containerBuf.reset(new BE::Memory::uint8Array(containerBuf));
+	this->_containerBuf.reset(new BE::Memory::uint8Array(buffer));
+	this->construct();
+}
+
+BiometricEvaluation::Video::ContainerImpl::ContainerImpl(
+    const std::shared_ptr<Memory::uint8Array> &buffer)
+{
+	this->_containerBuf = buffer;
 	this->construct();
 }
 

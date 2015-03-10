@@ -32,16 +32,40 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Construct a Container from a memory buffer.
+			 * @details
+			 * Using this constructor can result in buffer memory
+			 * usage twice that of other constructors.
+			 * @throw Error::MemoryError
+			 * Error allocating memory for internal buffering.
+			 * @throw Error::StrategyError
+			 * Other error when reading the container stream.
 			 */
 			Container(const Memory::uint8Array &buffer);
+
+			/**
+			 * @brief
+			 * Construct a Container from a memory buffer wrapped
+			 * in a shared pointer.
+			 * @details
+			 * Applications must not modify the data underlying
+			 * the AutoArray.
+			 * @throw Error::MemoryError
+			 * Error allocating memory for internal buffering.
+			 * @throw Error::StrategyError
+			 * Other error when reading the container stream.
+			 */
+			Container(
+			    const std::shared_ptr<Memory::uint8Array> &buffer);
 
 			/**
 			 * @brief
 			 * Construct a Container from file.
 			 * @throw Error::ObjectDoesNotExist
 			 * File does not exist.
+			 * @throw Error::MemoryError
+			 * Error allocating memory for internal buffering.
 			 * @throw Error::StrategyError
-			 * Other error when opening the file.
+			 * Other error when reading the container stream.
 			 */
 			Container(const std::string &filename);
 

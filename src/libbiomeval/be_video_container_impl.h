@@ -34,7 +34,10 @@ namespace BiometricEvaluation
 	 	*/
 		class ContainerImpl {
 		public:
-			ContainerImpl(const Memory::uint8Array &containerBuf);
+			ContainerImpl(const Memory::uint8Array &buffer);
+			ContainerImpl(
+			    const std::shared_ptr<
+				Memory::uint8Array> &buffer);
 			ContainerImpl(const std::string &filename);
 			uint32_t getAudioCount();
 			uint32_t getVideoCount();
