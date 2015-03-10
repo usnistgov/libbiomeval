@@ -48,7 +48,7 @@ main(int argc, char* argv[])
 {
 	std::unique_ptr<Video::Container> pvc;
 
-	std::string filename = "./test_data/test01.mp4";
+	std::string filename = "./test_data/2video1audio.mp4";
 	if ((argc != 1) && (argc != 2)) {
 		cerr << "usage: " << argv[0] << " [filename]" << endl
 		    << "If <filename> is not given, " << filename
@@ -81,12 +81,29 @@ main(int argc, char* argv[])
 	cout << "Audio Count: " << pvc->getAudioCount() << endl;
 	cout << "Video Count: " << pvc->getVideoCount() << endl;
 
-	bool success = true;
 
+	std::unique_ptr<Video::Stream> stream;
+	cout << "Attempt to open invalid video stream index: ";
+	bool success = false;
+	try {
+		stream = pvc->getVideoStream(999);
+	} catch (Error::Exception &e) {
+		cout << "Success; caught \'" << e.whatString() << '\'' << endl;
+		success = true;
+	}
+	if (!success) {
+		cout << "Failed.";
+	}
+	try {
+		stream = pvc->getVideoStream(1);
+	} catch (Error::Exception &e) {
+		cout << "Could not retrieve video stream: " << e.whatString()
+		    << endl;
+		return (EXIT_FAILURE);
+	}
 	/*
 	 * Read all the frames, one at a time.
 	 */
-	std::unique_ptr<Video::Stream> stream = pvc->getVideoStream(1);
 	uint64_t expectedCount = stream->getFrameCount();
 	cout << "First video stream: " << stream->getFPS() << " FPS, "
 	    << expectedCount << " frames." << endl;

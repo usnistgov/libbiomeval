@@ -165,6 +165,8 @@ std::unique_ptr<BiometricEvaluation::Video::Stream>
 BiometricEvaluation::Video::ContainerImpl::getVideoStream(
     uint32_t videoNum)
 {
+	if ((videoNum == 0) || (videoNum > this->_videoCount))
+		throw Error::ParameterError("Requested stream not present");
 	uint32_t streamIndex = findVideoStream(this->_fmtCtx, videoNum);
 	std::unique_ptr<BiometricEvaluation::Video::Stream> ptr;
 	ptr.reset(new BE::Video::StreamImpl(streamIndex, this->_containerBuf));

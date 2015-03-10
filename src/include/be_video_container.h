@@ -88,6 +88,9 @@ namespace BiometricEvaluation
 			 * in the container.
 			 * @param videoNum
 			 * The number of the video stream within the container. 
+			 * @throw
+			 * Error::ParameterError
+			 * The requested video stream is not available.
 			 */
 			std::unique_ptr<Video::Stream>
 			    getVideoStream(uint32_t videoNum);
