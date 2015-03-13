@@ -23,11 +23,11 @@ system, and therefore the GNU software must be installed on the user's system.
 Future versions of \sname may use a different build system.
 
 In order to tailor the build of the \sname library (file \texttt{libbiomeval}),
-the \texttt{common/src/libbiomeval/Makefile} file must be edited. At the top of
+the \texttt{common/src/libbiomeval/Makefile} file needs editing. At the top of
 this file are make variables for locating the header files and libraries for
 NBIS, and other libraries.
 
-The make file also sets variables that create subsets of the the \sname.
+The make file also sets variables that create subsets of the \sname.
 \texttt{CORE} and \texttt{IO} are required as they form the basis of the
 \sname. The \texttt{SOURCES} variable contains a list of variables pertaining
 to the desired build of \sname.
@@ -41,7 +41,7 @@ tool chains.
 
 Other common software development libraries used by \sname are documented in
 the sections that follow. Specific instructions for installing these packages
-are not given here. However, in general. many systems that provide a packaging
+are not given here. However, in general, many systems that provide a packaging
 system split the library support into two packages: One for runtime (containing
 the binary library file only), and one for use when developing applications.
 This second package installs the header files needed to build the \sname.
@@ -50,10 +50,17 @@ This second package installs the header files needed to build the \sname.
 
 The NIST Biometric Image Software (NBIS)~\cite{nist:nbis} is a set of packages
 used for ANSI-NIST record processing, and other support. The \lname uses NBIS
-for ANSI-NIST support, and therefore the NBIS packages must be compiled and
+for ANSI-NIST support, and therefore the NBIS packages need to be compiled and
 installed prior to building \sname.
 
-\subsection{Image Processing}
+\subsection{Video and Image Processing}
+
+For the \namespace{Image} classes, the OpenJPEG~\cite{libopenjpeg} and
+PNG~\cite{libpng} development libraries are required.
+
+For \namespace{Video} classes, the FFmpeg~\cite{libffmpeg} libraries are used.
+When building from source, configure to build and
+install shared libraries. By default, only static libraries are built.
 
 \subsection{Cryptography}
 
@@ -89,7 +96,16 @@ from the MPI development software. As an example, for many Linux distributions,
 an example of the runtime package is \texttt{openmpi-1.6.4-3}, while
 the related development package would be \texttt{openmpi-devel-1.6.4-3}.
 
-To build the \sname, both packages must be installed. In order to run an MPI
+The location of the OpenMPI libraries may be installed in a specific location.
+For example, on the CnetOS-7 Linux distribution, the MPI libraries are installed
+on {\tt /usr/lib64/openmpi/lib/}, but the dynamic linker configuration will
+not locate those libraries, and linking of an application against the \sname
+library will fail. To fix this problem create
+{\tt /etc/ld.so.conf.d/openmpi.conf} with the line
+{\tt /usr/lib64/openmpi/lib/}, then run the {\tt ldconfig} command (as root)
+to update the dynamic linker configuration.
+
+To build the \sname, both packages are installed. In order to run an MPI
 job, only the runtime package needs to be installed on all nodes that
 participate in the MPI job. Chapter~\ref{chp-mpijob} has more information on
 running an MPI job.

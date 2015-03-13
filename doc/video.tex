@@ -1,0 +1,148 @@
+%
+% Video API
+%
+\chapter{Video}
+\label{chp-video}
+
+The \namespace{Video} package is used to access video (and, in the future,
+audio) streams from containers in several formats, such as MPEG4. The classes
+in this package rely on the FFmpeg~\cite{libffmpeg} libraries to de-multiplex
+video streams from a container, and to decode the streams and retrieve the
+frames from the video.
+
+\section{Container}
+\label{sec-videocontainer}
+
+\class{Container} objects can be instantiated in three ways:
+\begin{enumerate}
+\item With a filename: Memory usage will equal to the size of the container
+stream;
+\item With a \class{AutoArray::uint8Array}: Memory usage will be twice that of
+the size of the container stream;
+\item With a \code{std::shared\_ptr} wrapping a \class{AutoArray::uint8Array}:
+Memory usage can equal to the size of the container stream. Applications
+must not modify the container data.
+\end{enumerate}
+
+By careful coding, the application can prevent duplicate copies of the container
+buffer when using method three. By taking advantage of \CppXI move semantics,
+\sname and the application avoid duplicate copies.
+See~\lstref{lst:videouse} for examples of using all three methods.
+
+\section{Stream}
+\label{sec-videostream}
+
+\class{Stream} objects represent a single video stream within the container
+and provide access to individual frames from the video stream. In addition,
+these frames can be retrieved at their native size, or can be scaled to a
+different size. Frames can be returned as 24-bit red/green/blue images,
+grayscale, or two-color monochrome.
+
+\class{Stream} objects can be obtained only from a \class{Container} object.
+The reason for this is that video frames must be pulled from a stream that
+is de-multiplexed from the container stream shared with the \class{Container}
+object. Future versions of \sname may allow for \class{Stream}s to be directly
+instantiated with coded video streams.
+
+\lstref{lst:videouse} shows the use of \class{Container} and \class{Stream}.
+
+\begin{lstlisting}[caption={Using the Video Framework}, label=lst:videouse]
+#include <iostream>
+#include <be_memory_autoarray.h>
+#include <be_io_utility.h
+#include <be_video_container.h>
+
+using namespace BiometricEvaluation;
+using namespace std;
+
+int
+main(int argc, char* argv[])
+{
+        std::unique_ptr<Video::Container> pvc;
+
+        std::string filename = "./test_data/2video1audio.mp4";
+        if ((argc != 1) && (argc != 2)) {
+                cerr << "usage: " << argv[0] << " [filename]" << endl
+                    << "If <filename> is not given, " << filename
+                    << " is used instead." << endl;
+                return (EXIT_FAILURE);
+        }
+        if (argc == 2)
+                filename = argv[1];
+
+        cout << "Construct an program stream from file "
+            << filename << endl;
+	/*
+	 * Three ways to open the container:
+	 * 1) Have the framework open the file directly;
+	 * 2) Read the file into a local buffer and give that to the framework;
+	 * 3) Read the file into a buffer wrapped in a shared pointer and pass
+	 *    that to the framework.
+	 */
+        try {
+//              pvc.reset(new
+//                  Video::Container(filename));
+
+//              Memory::uint8Array buf =
+//                  IO::Utility::readFile(filename);
+//              pvc.reset(new Video::Container(buf));
+
+                std::shared_ptr<Memory::uint8Array> buf;
+                buf.reset(new Memory::uint8Array(
+                    IO::Utility::readFile(filename)));
+                pvc.reset(new Video::Container(buf));
+        } catch (Error::Exception &e) {
+                cout << "Caught: " << e.whatString() << endl;
+                return (EXIT_FAILURE);
+        }
+
+        cout << "Video Count: " << pvc->getVideoCount() << endl;
+
+        std::unique_ptr<Video::Stream> stream;
+	/*
+	 * Open the first video stream.
+	 */
+        try {
+                stream = pvc->getVideoStream(1);
+        } catch (Error::Exception &e) {
+                cerr << "Could not retrieve video stream: " << e.whatString()
+                    << endl;
+                return (EXIT_FAILURE);
+        }
+        /*
+         * Read all the frames, one at a time, scaled down and converted
+	 * to 8-bit grayscale.
+         */
+        float scaleFactor = 0.5;
+        Image::PixelFormat pixelFormat = Image::PixelFormat::Gray8;
+        stream->setFrameScale(scaleFactor, scaleFactor);
+        stream->setFramePixelFormat(pixelFormat);
+        uint64_t expectedCount = stream->getFrameCount();
+
+        cout << "First video stream: " << stream->getFPS() << " FPS, "
+            << expectedCount << " frames." << endl;
+        /*
+         * The frame count can be zero, meaning unknown. If that is the case,
+	 * loop until a parameter error is indicated.
+         */
+        if (expectedCount == 0)
+		expectedCount = 99999999;
+	uint64_t count = 0;
+        for (uint64_t f = 1; f <= expectedCount; f++) {
+                try {
+                        auto frame = stream->getFrame(f);
+                        count++;
+			/* Do something with the frame */
+                } catch (Error::ParameterError &e) {
+                        cout << "No more frames.";
+                        break;
+                } catch (Error::Exception &e) {
+                        std::cout << "Caught " << e.whatString() << endl;
+                        return (EXIT_FAILURE);
+                }
+        }
+        cout << "Retrieved " << count << " frames." << endl;
+        return (EXIT_SUCCESS);
+}
+\end{lstlisting}
+
