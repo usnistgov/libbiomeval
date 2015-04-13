@@ -68,9 +68,9 @@ namespace BiometricEvaluation
 			 * stream, and is not considered an error. Frames up to
 			 * and including the last will be returned.
 			 * @param startTime
-			 * Approximate time of the starting frame, microseconds.
+			 * Approximate time of the starting frame, milliseconds.
 			 * @param endTime
-			 * Approximate time of the ending frame, microseconds
+			 * Approximate time of the ending frame, milliseconds
 			 *
 			 * @throws
 			 * Error::StrategyError

@@ -95,13 +95,14 @@ namespace BiometricEvaluation
 
 			/* FFMPEG library objects */
 			struct Video::BufferData _IOCtxBufferData;
-			AVFormatContext *_fmtCtx;
 			AVIOContext *_avioCtx;
+			AVFormatContext *_fmtCtx;
+			AVCodecContext *_codecCtx;
 			SwsContext *_swsCtx;
 
 			uint32_t _streamIndex;
 			std::shared_ptr<Memory::uint8Array> _containerBuf;
-			uint32_t _lastReturnedFrame;
+			uint32_t _currentFrameNum;
 			float _xScale, _yScale;
 			Image::PixelFormat _pixelFormat;
 			AVPixelFormat _avPixelFormat;	/* FFMPEG value */

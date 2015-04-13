@@ -27,7 +27,7 @@ auto freeAVFrame = [](AVFrame* frame) { av_frame_free(&frame); };
 void
 BiometricEvaluation::Video::StreamImpl::openContainer()
 {
-	this->_lastReturnedFrame = 0;
+	this->_currentFrameNum = 0;
 
 	this->_fmtCtx = avformat_alloc_context();
 	if (this->_fmtCtx == nullptr)
@@ -63,6 +63,26 @@ BiometricEvaluation::Video::StreamImpl::openContainer()
 	if (ret < 0)
 		throw (Error::StrategyError(
 		    "Could not find stream information"));
+
+	/*
+	 * Create a codec context for the stream using the codec that
+	 * was used for the stream. This context will be closed whenever
+	 * the container is closed.
+	 */
+	AVCodec *codec = avcodec_find_decoder(
+	    this->_fmtCtx->streams[this->_streamIndex]->codec->codec_id);
+	if (codec == nullptr)
+		throw (Error::StrategyError("Unsupported codec"));
+	this->_codecCtx = avcodec_alloc_context3(codec);
+	if (this->_codecCtx == nullptr)
+		throw (Error::MemoryError(
+		    "Could not allocate codec context"));
+	AVDictionary *opts = NULL;
+	av_dict_set(&opts, "refcounted_frames", "1", 0);
+	if (avcodec_open2(this->_codecCtx, codec, &opts) < 0 )
+		throw (Error::StrategyError("Could not open codec context"));
+	av_dict_free(&opts);
+
 	this->_swsCtx = nullptr;
 }
 
@@ -73,9 +93,8 @@ BiometricEvaluation::Video::StreamImpl::openContainer()
 void
 BiometricEvaluation::Video::StreamImpl::construct()
 {
-	//XXX Replace with registration of only codecs we need
+	//XXX Replace with registration of only video codecs
 	av_register_all();
-
 	this->openContainer();
 	this->_xScale = 1.0;
 	this->_yScale = 1.0;
@@ -89,10 +108,6 @@ BiometricEvaluation::Video::StreamImpl::construct()
 void
 BiometricEvaluation::Video::StreamImpl::closeContainer()
 {
-	if (this->_fmtCtx != nullptr) {
-		avformat_close_input(&this->_fmtCtx);
-		avformat_free_context(this->_fmtCtx);
-	}
 	/*
 	 * NOTE: The internal buffer could have changed, and not be
 	 * the buffer we allocated. We don't need to free that buffer
@@ -101,6 +116,13 @@ BiometricEvaluation::Video::StreamImpl::closeContainer()
 	if (this->_avioCtx != nullptr) {
 		av_freep(&this->_avioCtx->buffer);
 		av_freep(&this->_avioCtx);
+	}
+	if (this->_fmtCtx != nullptr) {
+		avformat_close_input(&this->_fmtCtx);
+		avformat_free_context(this->_fmtCtx);
+	}
+	if (this->_codecCtx != nullptr) {
+		avcodec_free_context(&this->_codecCtx);
 	}
 	if (this->_swsCtx != nullptr) {
 		sws_freeContext(this->_swsCtx);
@@ -139,31 +161,9 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
     uint32_t frameNum,
     uint32_t prevFrameNum,
     bool useTS,
-    int64_t startTime,
-    int64_t endTime)
+    int64_t startTS,
+    int64_t endTS)
 {
-	/* Get the codec context for the video stream */
-	AVCodecContext *codecCtx;
-	codecCtx = this->_fmtCtx->streams[this->_streamIndex]->codec;
-
-	/* Find the decoder for the video stream */
-	AVCodec *codec;
-	codec = avcodec_find_decoder(codecCtx->codec_id);
-	if (codec == nullptr)
-		throw (Error::StrategyError("Unsupported codec"));
-
-	/*
-	 * Open the codec context. Because we are using a codec context 
-	 * allocated by the library, we don't need to close it. We must
-	 * open it so the codec is associated with the context, however.
-	 * That is done once, and subsequent calls return quickly.
-	 */
-	AVDictionary *opts = NULL;
-	av_dict_set(&opts, "refcounted_frames", "1", 0);
-	if (avcodec_open2(codecCtx, codec, &opts) < 0 )
-		throw (Error::StrategyError("Could not open codec"));
-	av_dict_free(&opts);
-
 	/* Allocate video frame for the FFMPEG internal encoded data */
 	AVFrame *frameNative;
 	frameNative = av_frame_alloc();
@@ -190,7 +190,7 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 	while(av_read_frame(this->_fmtCtx, &packet) >= 0) {
 		if(packet.stream_index == (int)this->_streamIndex) {
 			avcodec_decode_video2(
-			    codecCtx, frameNative, &gotFrame, &packet);
+			    this->_codecCtx, frameNative, &gotFrame, &packet);
 			av_free_packet(&packet);
 			if (gotFrame != 0) {
 				f++;
@@ -213,7 +213,7 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 	if (frameNum != f) {
 		do {
 			avcodec_decode_video2(
-			    codecCtx, frameNative, &gotFrame, &packet);
+			    this->_codecCtx, frameNative, &gotFrame, &packet);
 			av_free_packet(&packet);
 			if (gotFrame != 0) {
 				f++;
@@ -228,7 +228,7 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 	if (frameNum != f)
 		throw (Error::ParameterError("Frame could not be found"));
 
-	this->_lastReturnedFrame = f;
+	this->_currentFrameNum = f;
 
 	/*
 	 * Check that the found frame lies within the requested time interval.
@@ -238,12 +238,12 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 
 	int64_t frameTS = av_frame_get_best_effort_timestamp(frameNative);
 	if (useTS) {
-		if ((frameTS < startTime) || (frameTS > endTime)) {
+		if ((frameTS < startTS) || (frameTS > endTS)) {
 			return (staticFrame);	/* empty */
 		}
 	}
-	staticFrame.size.xSize = codecCtx->width * this->_xScale;
-	staticFrame.size.ySize = codecCtx->height * this->_yScale;
+	staticFrame.size.xSize = this->_codecCtx->width * this->_xScale;
+	staticFrame.size.ySize = this->_codecCtx->height * this->_yScale;
 	staticFrame.timestamp = frameTS;
 	/* Calculate the size of the decoded frame */
 	int frameSize = avpicture_get_size(
@@ -258,7 +258,8 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 	 */
 	this->_swsCtx = sws_getCachedContext(
 	    this->_swsCtx,
-	    codecCtx->width, codecCtx->height, codecCtx->pix_fmt,
+	    this->_codecCtx->width, this->_codecCtx->height,
+	    this->_codecCtx->pix_fmt,
 	    staticFrame.size.xSize, staticFrame.size.ySize,
 	    this->_avPixelFormat,
 	    SWS_ACCURATE_RND, nullptr, nullptr, nullptr);
@@ -290,7 +291,7 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 
 	sws_scale(
 	    this->_swsCtx, frameNative->data, frameNative->linesize,
-	    0, codecCtx->height,
+	    0, this->_codecCtx->height,
 	    frameOut->data, frameOut->linesize);
 
 //	XXX Copy is only necessary when the av_malloc'd buffer is used.
@@ -309,12 +310,12 @@ BiometricEvaluation::Video::StreamImpl::getFrame(
 	 * the contexts.
 	 * XXX The av_seek* functions do not seem to work; try again some time.
 	 */
-	if (frameNum <= this->_lastReturnedFrame) {
+	if (frameNum <= this->_currentFrameNum) {
 		this->closeContainer();
 		this->openContainer();
 	}
 	return (this->i_getFrame(
-	    frameNum, this->_lastReturnedFrame,
+	    frameNum, this->_currentFrameNum,
 	    false, 0, 0));
 }
 
@@ -331,7 +332,7 @@ BiometricEvaluation::Video::StreamImpl::getFrameSequence(
 	this->closeContainer();
 	this->openContainer();
 
-	uint32_t streamIdx =  this->_streamIndex;
+	uint32_t streamIdx = this->_streamIndex;
 	int64_t startTS = av_rescale(
 	    startTime,
 	    this->_fmtCtx->streams[streamIdx]->time_base.den,
