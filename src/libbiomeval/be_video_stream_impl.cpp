@@ -73,10 +73,19 @@ BiometricEvaluation::Video::StreamImpl::openContainer()
 	    this->_fmtCtx->streams[this->_streamIndex]->codec->codec_id);
 	if (codec == nullptr)
 		throw (Error::StrategyError("Unsupported codec"));
-	this->_codecCtx = avcodec_alloc_context3(codec);
+
+	this->_codecCtx = avcodec_alloc_context3(nullptr);
 	if (this->_codecCtx == nullptr)
 		throw (Error::MemoryError(
 		    "Could not allocate codec context"));
+	/*
+	 * Copy all the settings from the codec allocated by the
+	 * library into our codec. This is necessary for certain
+	 * stream types, H264 at least.
+	 */
+	avcodec_copy_context(this->_codecCtx,
+	    this->_fmtCtx->streams[this->_streamIndex]->codec);
+
 	AVDictionary *opts = NULL;
 	av_dict_set(&opts, "refcounted_frames", "1", 0);
 	if (avcodec_open2(this->_codecCtx, codec, &opts) < 0 )
