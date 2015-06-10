@@ -15,6 +15,11 @@
 
 #include <be_time_watchdog.h>
 
+/* Cygwin 2 does not define timerclear */
+#ifndef timerclear
+#define timerclear(tvp)         (tvp)->tv_sec = (tvp)->tv_usec = 0
+#endif
+
 namespace BE = BiometricEvaluation;
 
 bool BiometricEvaluation::Time::Watchdog::_canSigJump = false;
