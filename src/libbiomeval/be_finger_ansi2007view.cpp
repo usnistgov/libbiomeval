@@ -31,8 +31,8 @@ BiometricEvaluation::Finger::ANSI2007View::ANSI2007View(
 }
 
 BiometricEvaluation::Finger::ANSI2007View::ANSI2007View(
-    Memory::uint8Array &fmrBuffer,
-    Memory::uint8Array &firBuffer,
+    const Memory::uint8Array &fmrBuffer,
+    const Memory::uint8Array &firBuffer,
     const uint32_t viewNumber) :
     INCITSView(fmrBuffer, firBuffer, viewNumber)
 {

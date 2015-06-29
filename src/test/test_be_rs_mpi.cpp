@@ -1,4 +1,4 @@
-/**
+/*
  * This software was developed at the National Institute of Standards and
  * Technology (NIST) by employees of the Federal Government in the course
  * of their official duties.  Pursuant to title 17 Section 105 of the
@@ -20,12 +20,12 @@
 #include <be_mpi_recordstoredistributor.h>
 #include <be_data_interchange_an2k.h>
 
-#include "test_be_mpi.h"
+#include "test_be_rs_mpi.h"
 
 using namespace std;
 using namespace BiometricEvaluation;
 
-static const std::string DefaultPropertiesFileName("test_be_mpi.props");
+static const std::string DefaultPropertiesFileName("test_be_rs_mpi.props");
 const std::string
 TestRecordProcessor::RECORDLOGSHEETURLPROPERTY("Record Logsheet URL");
 

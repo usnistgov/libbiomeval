@@ -44,6 +44,7 @@ that View.
 
 \begin{lstlisting}[caption={Retrieving ANSI/NIST Finger Captures}, label=lst:an2kviewuse]
 #include <iostream>
+#include <memory>
 #include <be_error_exception.h>
 #include <be_finger_an2kview_capture.h>
 
@@ -54,7 +55,7 @@ main(int argc, char* argv[])
      * Call the constructor that will open an existing AN2K file and
      * retrieve the first finger capture (Type-14) record.
      */
-    std::auto_ptr<Finger::AN2KViewCapture> an2kv;
+    std::unique_ptr<Finger::AN2KViewCapture> an2kv;
     try {
         an2kv.reset(new Finger::AN2KViewCapture("type9-14.an2k", 1));
     } catch (Error::DataError &e) {

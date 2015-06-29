@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Script used to run the test_be_mpi test program for the Evaluation
+# Script used to run the test_be_csv_mpi test program for the Evaluation
 # framework MPI parallel processing classes.
 #
 ##############################################################################
@@ -8,14 +8,14 @@
 #
 # Record store for the input.
 #
-INPUTRS=test_data/AN2KRecordStore
+INPUTCSV=test_data/test.prop
 
 #
 # Create the properties file for this run
 #
 # Logsheet URL is used by the framework for logging and is optional.
 # Record Logsheet URL is defined and used by the application and is
-# optional in the test_be_mpi program.
+# optional in the test_be_rs_mpi program.
 #
 # An example config file for rsyslogd, listening on a non-default port:
 #
@@ -30,10 +30,12 @@ INPUTRS=test_data/AN2KRecordStore
 #
 # NOTE: rsyslogd requires full path names for files.
 #
-PROPS=test_be_mpi.props
+PROPS=test_be_csv_mpi.props
 cat > $PROPS << EOF
-Input Record Store = $INPUTRS
-Chunk Size = 4
+Input CSV = $INPUTCSV
+Chunk Size = 1
+Read Entire File = NO
+Randomize Lines = NO
 Workers Per Node = 2
 Logsheet URL = file://mpi.log
 Record Logsheet URL = file://record.log
@@ -58,7 +60,7 @@ MPINODES="localhost"
 # MPIPROCS must be >= 2
 #
 MPIPROCS=3
-PROGRAM=test_be_mpi
+PROGRAM=test_be_csv_mpi
 LIBS=""
 CPFILES="$PROGRAM $PROPS $LIBS"
 
@@ -74,14 +76,28 @@ export DYLD_LIBRARY_PATH=../../lib
 export LD_LIBRARY_PATH=../../lib
 
 #
-# Test with keys only.
+# Test reading from a file
 #
 EXECSTR="$PROGRAM"
 time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self -H $MPINODES -np $MPIPROCS $EXECSTR
 
 #
-# Test with keys and values; there just has to be one argument to the exec,
-# it doesn't matter what it is.
+# Test reading from a buffer
 #
-EXECSTR="$PROGRAM values"
-time mpirun -x LD_LIBRARY_PATH $MPIOPTS -H $MPINODES -np $MPIPROCS $EXECSTR
+cat > $PROPS << EOF
+Input CSV = $INPUTCSV
+Chunk Size = 1
+Read Entire File = YES
+Randomize Lines = YES
+Workers Per Node = 2
+Logsheet URL = file://mpi.log
+Record Logsheet URL = file://record.log
+#Logsheet URL = syslog://linc01b:2514
+#Record Logsheet URL = syslog://linc01b:2514
+EOF
+time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self -H $MPINODES -np $MPIPROCS $EXECSTR
+
+#
+# TODO: Test delimiters
+#
+

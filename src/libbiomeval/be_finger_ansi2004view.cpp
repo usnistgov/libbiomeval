@@ -21,27 +21,30 @@ BiometricEvaluation::Finger::ANSI2004View::ANSI2004View(
     const std::string &fmrFilename,
     const std::string &firFilename,
     const uint32_t viewNumber) :
-    INCITSView(fmrFilename, firFilename, viewNumber)
+    ANSI2004View(
+    BE::IO::Utility::readFile(fmrFilename),
+    BE::IO::Utility::readFile(firFilename),
+    viewNumber)
 {
-	Memory::uint8Array recordData = BE::Finger::INCITSView::getFMRData();
-	Memory::IndexedBuffer iBuf(recordData, recordData.size());
-	this->readFMRHeader(iBuf);
-	for (uint32_t i = 0; i < viewNumber; i++)
-		this->readFVMR(iBuf);
 
-	//XXX Need to read the image record
 }
 
 BiometricEvaluation::Finger::ANSI2004View::ANSI2004View(
-    Memory::uint8Array &fmrBuffer,
-    Memory::uint8Array &firBuffer,
+    const Memory::uint8Array &fmrBuffer,
+    const Memory::uint8Array &firBuffer,
     const uint32_t viewNumber) :
     INCITSView(fmrBuffer, firBuffer, viewNumber)
 {
 	Memory::IndexedBuffer iBuf(fmrBuffer, fmrBuffer.size());
 	this->readFMRHeader(iBuf);
-	for (uint32_t i = 0; i < viewNumber; i++)
-		this->readFVMR(iBuf);
+	for (uint32_t i = 0; i < viewNumber; i++) {
+		try {
+			this->readFVMR(iBuf);
+		} catch (BE::Error::DataError) {
+			throw BE::Error::ObjectDoesNotExist("Error reading "
+			    "view number = " + std::to_string(viewNumber));
+		}
+	}
 
 	//XXX Need to read the image record
 }

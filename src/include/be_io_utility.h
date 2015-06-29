@@ -392,6 +392,39 @@ namespace BiometricEvaluation
 			    std::string &path,
 			    const std::string &prefix = "",
 			    const std::string &parentDir = "/tmp");
+			
+			/**
+			 * @brief
+			 * Count the number of newline characters in a text
+			 * file.
+			 *
+			 * @param path
+			 * Path to text file.
+			 *
+			 * @return
+			 * Number of newline characters in file at path.
+			 *
+			 * @throw Error::FileError
+			 * Could not open path.
+			 */
+			uint64_t
+			countLines(
+			    const std::string &path);
+
+			/**
+			 * @brief
+			 * Count the number of newline characters in a buffer
+			 * of a text file.
+			 *
+			 * @param path
+			 * Buffer of text file that has been read in.
+			 *
+			 * @return
+			 * Number of newline characters in buffer.
+			 */
+			uint64_t
+			countLines(
+			    const Memory::uint8Array &textBuffer);
 		}
 	}
 }

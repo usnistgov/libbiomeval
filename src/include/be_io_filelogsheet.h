@@ -175,7 +175,7 @@ namespace BiometricEvaluation
 			FileLogsheet& operator=(const FileLogsheet&);
 
 			/** Stream used for writing the log file */
-			std::auto_ptr<std::fstream> _theLogFile;
+			std::unique_ptr<std::fstream> _theLogFile;
 
 			/**
 			 * @brief

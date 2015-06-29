@@ -12,6 +12,7 @@
 #include <mpi.h>
 #include <unistd.h>
 
+#include <iostream>
 #include <sstream>
 
 #include <be_io_filelogsheet.h>

@@ -42,7 +42,7 @@ BiometricEvaluation::MPI::Resources::Resources(
 	this->_numTasks = ::MPI::COMM_WORLD.Get_size();
 
 	/* Read the properties file */
-	std::auto_ptr<IO::PropertiesFile> props;
+	std::unique_ptr<IO::PropertiesFile> props;
 	try {
 		props.reset(new IO::PropertiesFile(propertiesFileName,
 		    IO::READONLY));

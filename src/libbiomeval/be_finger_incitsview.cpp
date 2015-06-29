@@ -35,50 +35,21 @@ BiometricEvaluation::Finger::INCITSView::INCITSView()
 BiometricEvaluation::Finger::INCITSView::INCITSView(
     const std::string &fmrFilename,
     const std::string &firFilename,
-    const uint32_t viewNumber)
+    const uint32_t viewNumber) :
+    INCITSView(
+    BE::IO::Utility::readFile(fmrFilename),
+    BE::IO::Utility::readFile(firFilename),
+    viewNumber)
 {
-	FILE *fp;
-	if (fmrFilename != "") {
-		if (!IO::Utility::fileExists(fmrFilename))
-			throw (Error::FileError("FMR file not found."));
-
-		fp = std::fopen(fmrFilename.c_str(), "rb");
-		if (fp == nullptr)
-			throw (Error::FileError("Could not open FMR file."));
-		uint64_t size = IO::Utility::getFileSize(fmrFilename);
-		_fmr.resize(size);
-		if (fread(_fmr, 1, size, fp) != size){
-			fclose(fp);
-			throw (Error::FileError(
-			    "Could not read minutiae record file"));
-		}
-		fclose(fp);
-	}
-	if (firFilename != "") {
-		if (!IO::Utility::fileExists(firFilename))
-			throw (Error::FileError("FIR file not found."));
-
-		fp = std::fopen(firFilename.c_str(), "rb");
-		if (fp == nullptr)
-			throw (Error::FileError("Could not open FIR file."));
-		uint64_t size = IO::Utility::getFileSize(firFilename);
-		_fir.resize(size);
-		if (fread(_fir, 1, size, fp) != size){
-			fclose(fp);
-			throw (Error::FileError(
-			    "Could not read image record file"));
-		}
-		fclose(fp);
-	}
 }
 
 BiometricEvaluation::Finger::INCITSView::INCITSView(
     const Memory::uint8Array &fmrBuffer,
     const Memory::uint8Array &firBuffer,
-    const uint32_t viewNumber)
+    const uint32_t viewNumber) :
+    _fmr(fmrBuffer),
+    _fir(firBuffer)
 {
-	_fmr = fmrBuffer;
-	_fir = firBuffer;
 }
 
 /******************************************************************************/
@@ -276,6 +247,13 @@ BiometricEvaluation::Finger::INCITSView::setViewNumber(uint32_t viewNumber)
 	_viewNumber = viewNumber;
 }
 
+uint32_t
+BiometricEvaluation::Finger::INCITSView::getViewNumber()
+    const
+{
+	return (this->_viewNumber);
+}
+
 void
 BiometricEvaluation::Finger::INCITSView::setCaptureEquipmentID(uint16_t id)
 {
@@ -296,6 +274,34 @@ BiometricEvaluation::Finger::INCITSView::setAppendixFCompliance(bool flag)
 	_appendixFCompliance = flag;
 }
 
+uint32_t
+BiometricEvaluation::Finger::INCITSView::getRecordLength()
+    const
+{
+	return (this->_recordLength);
+}
+
+uint8_t
+BiometricEvaluation::Finger::INCITSView::getNumFingerViews()
+    const
+{
+	return (this->_numFingerViews);
+}
+
+uint8_t
+BiometricEvaluation::Finger::INCITSView::getFMRReservedByte()
+    const
+{
+	return (this->_fmrReservedByte);
+}
+
+uint16_t
+BiometricEvaluation::Finger::INCITSView::getEDBLength()
+    const
+{
+	return (this->_edbLength);
+}
+
 void
 BiometricEvaluation::Finger::INCITSView::readFMRHeader(
     BiometricEvaluation::Memory::IndexedBuffer &buf,
@@ -309,16 +315,14 @@ BiometricEvaluation::Finger::INCITSView::readFMRHeader(
 	    (formatStandard != Finger::INCITSView::ISO2005_STANDARD))
 		throw (Error::ParameterError("Invalid standard parameter"));
 
-	uint16_t sval;
-
 	/* Record length, 2/4/6 bytes */
 	if (formatStandard == Finger::INCITSView::ANSI2004_STANDARD) {
-		sval = buf.scanBeU16Val();
-		if (sval == 0) {
-			(void)buf.scanBeU32Val();	/* record length */
+		this->_recordLength = buf.scanBeU16Val();
+		if (this->_recordLength == 0) {
+			this->_recordLength = buf.scanBeU32Val();
 		}
 	} else {
-		(void)buf.scanBeU32Val();
+		this->_recordLength = buf.scanBeU32Val();
 	}
 	
 	/* CBEFF Product ID */
@@ -328,7 +332,7 @@ BiometricEvaluation::Finger::INCITSView::readFMRHeader(
 	}
 
 	/* Capture equipment compliance/scanner ID */
-	sval = buf.scanBeU16Val();
+	uint16_t sval = buf.scanBeU16Val();
 	_captureEquipmentID = sval & HDR_SCANNER_ID_MASK;
 	_appendixFCompliance =
 	    (sval & HDR_COMPLIANCE_MASK) >> HDR_COMPLIANCE_SHIFT;
@@ -340,12 +344,14 @@ BiometricEvaluation::Finger::INCITSView::readFMRHeader(
 	this->setImageSize(Image::Size(xval, yval));
 	xval = buf.scanBeU16Val();
 	yval = buf.scanBeU16Val();
-	this->setImageResolution(Image::Resolution(xval, yval));
-	setScanResolution(Image::Resolution(xval, yval));
+	auto resolution = BE::Image::Resolution(xval, yval,
+	    BE::Image::Resolution::Units::PPCM);
+	this->setImageResolution(resolution);
+	setScanResolution(resolution);
 
 	/* Number of views and reserved field */
-	(void)buf.scanU8Val();
-	(void)buf.scanU8Val();
+	this->_numFingerViews = buf.scanU8Val();
+	this->_fmrReservedByte = buf.scanU8Val();
 }
 
 void
@@ -412,10 +418,11 @@ BiometricEvaluation::Finger::INCITSView::readExtendedDataBlock(
     BiometricEvaluation::Memory::IndexedBuffer &buf)
 {
 	/* Extended data block length */
-	int32_t blockLength = (int32_t)buf.scanBeU16Val();
-	if (blockLength == 0)
+	this->_edbLength = buf.scanBeU16Val();
+	if (this->_edbLength == 0)
 		return;
 
+	int32_t blockLength = static_cast<int32_t>(this->_edbLength);
 	while (blockLength > 0) {
 		uint16_t typeID = buf.scanBeU16Val();
 		uint16_t dataLength = buf.scanBeU16Val();

@@ -328,7 +328,7 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
         } catch (Error::FileError& e) {
                 throw Error::StrategyError("Could not open properties");
 	}
-	std::auto_ptr<PropertiesFile> aprops(props);
+	std::unique_ptr<PropertiesFile> aprops(props);
 
 	std::string type;
 	try {

@@ -30,7 +30,7 @@ BiometricEvaluation::MPI::RecordStoreResources::RecordStoreResources(
     Resources(propertiesFileName)
 {
 	/* Read the properties file */
-	std::auto_ptr<IO::PropertiesFile> props;
+	std::unique_ptr<IO::PropertiesFile> props;
 	try {
 		props.reset(new IO::PropertiesFile(propertiesFileName,
 		    IO::READONLY));

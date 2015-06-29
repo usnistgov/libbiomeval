@@ -1,4 +1,4 @@
-/**
+/*
  * This software was developed at the National Institute of Standards and
  * Technology (NIST) by employees of the Federal Government in the course
  * of their official duties.  Pursuant to title 17 Section 105 of the
@@ -7,21 +7,21 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
-#ifndef _TEST_BE_MPI_H
-#define _TEST_BE_MPI_H
+#ifndef TEST_BE_CSV_MPI_H_
+#define TEST_BE_CSV_MPI_H_
 
 #include <memory>
 #include <string>
 
 #include <be_memory_autoarray.h>
-#include <be_mpi_recordprocessor.h>
+#include <be_mpi_csvprocessor.h>
 
 namespace BE = BiometricEvaluation;
 
 /**
- * A test implementation of the MPI RecordProcessor class.
+ * A test implementation of the MPI CSVProcessor class.
  */
-class TestRecordProcessor : public BiometricEvaluation::MPI::RecordProcessor {
+class TestCSVProcessor : public BiometricEvaluation::MPI::CSVProcessor {
 public:
 	/**
 	 * @brief
@@ -35,9 +35,9 @@ public:
 	 * @brief
 	 * Constructor.
 	 */
-	TestRecordProcessor(
+	TestCSVProcessor(
 	    const std::string &propertiesFileName);
-	~TestRecordProcessor();
+	~TestCSVProcessor() = default;
 
 	/**
 	 * @brief
@@ -54,16 +54,9 @@ public:
 	performInitialization(std::shared_ptr<BE::IO::Logsheet> &logsheet);
 
 	/**
-	 * Process the record associated with the given key.
+	 * Process a line.
 	 */
-	void processRecord(const std::string &key);
-
-	/**
-	 * Process the record associated with the given key/value pair.
-	 */
-	void processRecord(
-	    const std::string &key,
-	    const BE::Memory::uint8Array &value);
+	void processLine(const uint64_t lineNum, const std::string &line);
 
 protected:
 private:
@@ -72,5 +65,5 @@ private:
 	uint32_t _sharedMemorySize;
 };
 
-#endif /* _TEST_BE_MPI_H */
+#endif /* TEST_BE_CSV_MPI_H_ */
 

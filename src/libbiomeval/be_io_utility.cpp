@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <iterator>
 #include <list>
 #include <sstream>
 
@@ -447,4 +448,28 @@ BiometricEvaluation::IO::Utility::createTemporaryFile(
 		    Error::errorStr() + ')');
 		    
 	return (fp);
+}
+
+uint64_t
+BiometricEvaluation::IO::Utility::countLines(
+    const std::string &path)
+{
+	std::ifstream file(path);
+	if (!file)
+		throw BE::Error::FileError("Error opening " + path);
+
+	/* Whitespace is normally skipped */
+	file.unsetf(std::ios_base::skipws);
+
+	/* Count '\n' in file */
+	return (std::count(std::istream_iterator<char>(file),
+	    std::istream_iterator<char>(), '\n'));
+}
+
+uint64_t
+BiometricEvaluation::IO::Utility::countLines(
+    const BiometricEvaluation::Memory::uint8Array &textBuffer)
+{
+	return (std::count(&textBuffer[0], &textBuffer[textBuffer.size() - 1],
+	    '\n') + 1);
 }

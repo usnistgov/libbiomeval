@@ -93,8 +93,39 @@ namespace BiometricEvaluation
 		};
 		using Coordinate = struct Coordinate;
 
+		/**
+		 * @brief
+		 * Convert Coordinate to std::string.
+		 *
+		 * @param c
+		 * Coordinate to convert to std::string.
+		 *
+		 * @return
+		 * std::string representation of c.
+		 */
+		std::string
+		to_string(
+		    const Coordinate &c);
 		std::ostream& operator<< (std::ostream&, const Coordinate&);
 		using CoordinateSet = std::vector<Image::Coordinate>;
+		bool
+		operator==(
+		    const Coordinate &lhs,
+		    const Coordinate &rhs);
+
+		/**
+		 * @brief
+		 * Convert CoordinateSet to std::string.
+		 *
+		 * @param coordinates
+		 * CoordinateSet to convert to std::string.
+		 *
+		 * @return
+		 * std::string representation of coordinates.
+		 */
+		std::string
+		to_string(
+		    const CoordinateSet &coordinates);
 		/**
 		 * @brief
 		 * Output stream overload for CoordinateSet.
@@ -139,7 +170,24 @@ namespace BiometricEvaluation
 			uint32_t ySize;
 		};
 		using Size = struct Size;
+		/**
+		 * @brief
+		 * Convert Size to std::string.
+		 *
+		 * @param s
+		 * Size to convert to std::string.
+		 *
+		 * @return
+		 * std::string representation of s.
+		 */
+		std::string
+		to_string(
+		    const Size &s);
 		std::ostream& operator<< (std::ostream&, const Size&);
+		bool
+		operator==(
+		    const Size &lhs,
+		    const Size &rhs);
 
 		/**
 		 * @brief
@@ -186,7 +234,24 @@ namespace BiometricEvaluation
 			Units units;
 		};
 		using Resolution = struct Resolution;
+		/**
+		 * @brief
+		 * Convert Resolution to std::string.
+		 *
+		 * @param r
+		 * Resolution to convert to std::string.
+		 *
+		 * @return
+		 * std::string representation of r.
+		 */
+		std::string
+		to_string(
+		    const Resolution &r);
 		std::ostream& operator<< (std::ostream&, const Resolution&);
+		bool
+		operator==(
+		    const Resolution &lhs,
+		    const Resolution &rhs);
 		
 		/**
 		 * @brief

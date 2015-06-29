@@ -71,6 +71,7 @@ Type-3 (fixed resolution image) and Type-9 (fingerprint minutiae) records.
 \begin{lstlisting}[caption={Using an AN2K Finger View}, label=lst:an2kfingerviewuse]
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <be_finger_an2kview_fixedres.h>
 using namespace std;
 using namespace BiometricEvaluation;
@@ -89,7 +90,7 @@ main(int argc, char* argv[]) {
         cerr << "A file error occurred: " << e.getInfo() << endl;
         return (EXIT_FAILURE);
     }
-    std::auto_ptr<Finger::AN2KView> an2kv(_an2kv);
+    std::unique_ptr<Finger::AN2KView> an2kv(_an2kv);
 
     cout << "Image resolution is " << an2kv->getImageResolution() << endl;
     cout << "Image size is " << an2kv->getImageSize() << endl;

@@ -73,11 +73,40 @@ const std::map<BiometricEvaluation::Image::PixelFormat, std::string>
 	{Image::PixelFormat::RGB24, "24-bit red/green/blue"}
 };
 
+std::string
+BiometricEvaluation::Image::to_string(
+    const Image::Coordinate &c)
+{
+	return ("(" + std::to_string(c.x) + "," + std::to_string(c.y) + ")");
+}
+
 std::ostream&
 BiometricEvaluation::Image::operator<< (std::ostream &s,
     const Image::Coordinate& coord)
 {
-	return (s << "(" << coord.x << "," << coord.y << ")");
+	return (s << to_string(coord));
+}
+
+bool
+BiometricEvaluation::Image::operator==(
+    const BiometricEvaluation::Image::Coordinate &lhs,
+    const BiometricEvaluation::Image::Coordinate &rhs)
+{
+	return ((lhs.x == rhs.x) && (lhs.y == rhs.y) &&
+	    (lhs.xDistance == rhs.xDistance) &&
+	    (lhs.yDistance == rhs.yDistance));
+}
+
+std::string
+BiometricEvaluation::Image::to_string(
+    const Image::CoordinateSet &coordinates)
+{
+	std::string str{'['};
+	for (size_t i = 0; i < coordinates.size() - 1; i++)
+		 str += to_string(coordinates.at(i)) + ", ";
+	str += to_string(coordinates.at(coordinates.size() - 1)) + ']';
+	
+	return (str);
 }
 
 std::ostream&
@@ -85,19 +114,29 @@ BiometricEvaluation::Image::operator<<(
     std::ostream &stream,
     const Image::CoordinateSet& coordinates)
 {
-	stream << '[';
-	for (size_t i = 0; i < coordinates.size() - 1; i++)
-		stream << coordinates.at(i) << ", ";
-	stream << coordinates.at(coordinates.size() - 1) << ']';
-	
-	return (stream);
+	return (stream << to_string(coordinates));
+}
+
+std::string
+BiometricEvaluation::Image::to_string(
+    const Image::Size &s)
+{
+	return (std::to_string(s.xSize) + "x" + std::to_string(s.ySize));
 }
 
 std::ostream&
 BiometricEvaluation::Image::operator<< (std::ostream &s,
     const Image::Size& size)
 {
-	return (s << size.xSize << "x" << size.ySize);
+	return (s << to_string(size));
+}
+
+bool
+BiometricEvaluation::Image::operator==(
+    const BiometricEvaluation::Image::Size &lhs,
+    const BiometricEvaluation::Image::Size &rhs)
+{
+	return ((lhs.xSize == rhs.xSize) && (lhs.ySize == rhs.ySize));
 }
 
 template<>
@@ -110,11 +149,28 @@ const std::map<BiometricEvaluation::Image::Resolution::Units, std::string>
 	{Image::Resolution::Units::PPCM, "PPCM"}
 };
 
+std::string
+BiometricEvaluation::Image::to_string(
+    const Image::Resolution &r)
+{
+	return (std::to_string(r.xRes) + "x" + std::to_string(r.yRes) + ' ' +
+	    ::to_string(r.units));
+}
+
 std::ostream&
 BiometricEvaluation::Image::operator<< (std::ostream &s,
     const Image::Resolution& res)
 {
-	return (s << res.xRes << "x" << res.yRes << " " << to_string(res.units));
+	return (s << to_string(res));
+}
+
+bool
+BiometricEvaluation::Image::operator==(
+    const BiometricEvaluation::Image::Resolution &lhs,
+    const BiometricEvaluation::Image::Resolution &rhs)
+{
+	return ((lhs.xRes == rhs.xRes) && (lhs.yRes == rhs.yRes) &&
+	    (lhs.units == rhs.units));
 }
 
 float

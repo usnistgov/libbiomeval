@@ -9,8 +9,8 @@
  */
 
 /*
- * Adapted from "c_array" from "The C++ Programming Language" by Bjarne 
- * Stroustrup (ISBN: 0201700735).
+ * Originally adapted from "c_array" from "The C++ Programming Language" by
+ * Bjarne Stroustrup (ISBN: 0201700735).
  */
  
 #ifndef __BE_MEMORY_AUTOARRAY_H__
@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 
 #include <be_error_exception.h>
@@ -42,8 +43,8 @@ namespace BiometricEvaluation
 				/** Type of element */
 				using value_type = T;
 				/** Type of subscripts, counts, etc. */
-				using size_type = size_t;
-				
+				using size_type = uint64_t;
+
 				/** Iterator of element */
 				using iterator = AutoArrayIterator<false, T>;
 				/** Const iterator of element */
@@ -54,7 +55,7 @@ namespace BiometricEvaluation
 				using reference = T&;
 				/** Const reference element */
 				using const_reference = const T&;
-		
+
 				/**
 				 * @brief
 				 * Convert AutoArray to T array.
@@ -388,17 +389,183 @@ namespace BiometricEvaluation
 				    std::swap(std::declval<size_type&>(),
 				    std::declval<size_type&>())));
 
-				    
+				/**
+				 * @brief
+				 * Set the object used to guard bound exceptions
+				 *
+				 * @param guard
+				 * The value to use.
+				 * @param nonIntegralType
+				 * Unused dummy variable to enable this method
+				 * for non-integral types only.
+				 *
+				 * @note
+				 * Only available to non-integral types.
+				 */
+				template <class SF = T>
+				void
+				setGuard(
+				    const value_type &guard,
+				    typename std::enable_if<
+				    !std::is_integral<SF>::value>::type
+				    *nonIntegralType = nullptr);
+
+				/** 
+				 * @brief
+				 * Check to see if the AutoArray has been
+				 * underrun or overrun.
+				 * @details
+				 * This is a "best guess" at checking for 
+				 * exceeded bounds. For instance, if the bounds
+				 * are exceeded with the guard bits used, this
+				 * method will return a false negative.
+				 *
+				 * @param integralType
+				 * Unused dummy parameter used to create an
+				 * integral-type specialization.
+				 *
+				 * @return
+				 * true if bounds have been exceeded, false
+				 * otherwise.
+				 */
+				template <class SF = value_type>
+				bool
+				boundsExceeded(
+				    typename std::enable_if<
+				    std::is_integral<SF>::value>::type
+				    *integralType = nullptr)
+				    const;
+
+				/** 
+				 * @brief
+				 * Check to see if the AutoArray has been
+				 * underrun or overrun.
+				 * @details
+				 * This is a "best guess" at checking for 
+				 * exceeded bounds. For instance, if the bounds
+				 * are exceeded with the guard bits used, this
+				 * method will return a false negative.
+				 *
+				 * @param nonIntegralType
+				 * Unused dummy parameter used to create a
+				 * non integral-type specialization.
+				 *
+				 * @return
+				 * true if bounds have been exceeded, false
+				 * otherwise.
+				 *
+				 * @note
+				 * False positives will be triggered if the
+				 * containing type does not implement
+				 * `operator=`.
+				 */
+				template <class SF = value_type>
+				bool
+				boundsExceeded(
+				    typename std::enable_if<
+				    !std::is_integral<SF>::value>::type
+				    *nonIntegralType = nullptr)
+				    const;
+
 				/** Destructor */
 				~AutoArray();
-								
+
 			private:
 				/** The underlying C-array */
 				value_type *_data;
 				/** Advertised size of _data */
-				size_type _size;
-				/** Actual size of _data */
+				size_type _advertisedSize;
+				/** Usable size of _data */
 				size_type _capacity;
+				/** Actual size of _data with guards */
+				size_type _actualSize;
+				/** Value used to guard _data */
+				value_type _guardValue;
+				/** Whether or not _guardValue has been set */
+				bool _guardSet;
+
+				/**
+				 * @brief
+				 * Allocate a buffer surrounded by guards.
+				 *
+				 * @param size
+				 * Usable size of the buffer.
+				 * @param guardValue
+				 * Value to use to guard the buffer.
+				 *
+				 * @return
+				 * pair.first = allocated buffer
+				 * pair.second = actual size of buffer
+				 *
+				 * @note
+				 * Caller is responsible for freeing
+				 * pair.first.
+				 */
+				static std::pair<value_type*, size_type>
+				initGuardedBuffer(
+				    size_type size,
+				    const value_type &guardValue)
+				{
+					/* Allocate new memory */
+					value_type *data = new (std::nothrow)
+					    value_type[size + (2 * NUM_GUARDS)];
+					if (data == nullptr)
+						throw Error::MemoryError(
+						    "Could not allocate data");
+
+					/* Insert guards */
+					std::fill(&data[0], &data[NUM_GUARDS],
+					    guardValue);
+					std::fill(&data[NUM_GUARDS + size],
+					    &data[(2 * NUM_GUARDS) + size],
+					    guardValue);
+
+					return (std::pair<value_type*,
+					    size_type>{data, size +
+					    (2 * NUM_GUARDS)});
+				}
+
+				/** Number of guards to use. */
+				static const uint8_t NUM_GUARDS = 8;
+
+				/** Set up the guard for integral types. */
+				void
+				initIntegralGuard();
+
+				/**
+				 * @brief
+				 * Assign the output of initGuardedBuffer
+				 * to an AutoArray instance.
+				 *
+				 * @param buffer
+				 * Output from initGuardedBuffe.
+				 *
+				 * @note
+				 * The AutoArray instance hereby takes
+				 * ownership of the allocated buffer from
+				 * initGuardedBuffer.
+				 */
+				inline void
+				assignGuardedBuffer(
+				    const std::pair<value_type*, size_type>
+				    &buffer);
+
+				/** @return Start of _data after guard. */
+				inline value_type*
+				getDataStart()
+				    const
+				{
+					return (this->_data + NUM_GUARDS);
+				}
+
+				/** @return End of _data before guard. */
+				inline value_type*
+				getDataEnd()
+				    const
+				{
+					return (this->getDataStart() +
+					    this->_advertisedSize);
+				}
 		};
 
 		/**************************************************************/
@@ -411,6 +578,109 @@ namespace BiometricEvaluation
 }
 
 /******************************************************************************/
+/* Guard                                                                      */
+/******************************************************************************/
+
+template<class T>
+const uint8_t
+BiometricEvaluation::Memory::AutoArray<T>::NUM_GUARDS;
+
+template<class T>
+void
+BiometricEvaluation::Memory::AutoArray<T>::assignGuardedBuffer(
+    const std::pair<value_type*, size_type> &buffer)
+{
+	delete [] this->_data;
+
+	this->_data = buffer.first;
+	this->_actualSize = buffer.second;
+	this->_advertisedSize = buffer.second - (2 * NUM_GUARDS);
+	this->_capacity = this->_advertisedSize;
+}
+
+template<class T>
+template<class SF>
+bool
+BiometricEvaluation::Memory::AutoArray<T>::boundsExceeded(
+    typename std::enable_if<std::is_integral<SF>::value>::type *integralType)
+    const
+{
+	if (!this->_guardSet)
+		throw Error::StrategyError("Unique guard was never set");
+	if (this->_actualSize < (2 * NUM_GUARDS))
+		return (false);
+
+	T *guard = new (std::nothrow) T[NUM_GUARDS];
+	if (guard == nullptr)
+		return (true);
+	std::fill(guard, guard + NUM_GUARDS, this->_guardValue);
+
+	bool rv = !(std::equal(this->_data, this->getDataStart(), guard) &&
+	    std::equal(this->getDataEnd(), this->getDataEnd() + NUM_GUARDS,
+	    guard));
+
+	delete [] guard;
+	return (rv);
+}
+
+template<class T>
+template<class SF>
+bool
+BiometricEvaluation::Memory::AutoArray<T>::boundsExceeded(
+    typename std::enable_if<!std::is_integral<SF>::value>::type
+    *nonIntegralType)
+    const
+{
+	if (!this->_guardSet)
+		throw Error::StrategyError("Unique guard was never set");
+	if (this->_actualSize < (2 * NUM_GUARDS))
+		return (true);
+
+	for (uint64_t i = 0; i < NUM_GUARDS; i++)
+		if ((this->_data[i] != this->_guardValue) ||
+		    (this->getDataEnd()[i] != this->_guardValue))
+			return (true);
+
+	return (false);
+}
+
+template<class T>
+template<class SF>
+void
+BiometricEvaluation::Memory::AutoArray<T>::setGuard(
+    const value_type &guard,
+    typename std::enable_if<!std::is_integral<SF>::value>::type
+    *nonIntegralType)
+{
+	this->_guardValue = guard;
+	this->_guardSet = true;
+
+	/* Replace existing guards */
+	std::fill(this->_data, this->getDataStart(), this->_guardValue);
+	std::fill(this->getDataEnd(), this->getDataEnd() + NUM_GUARDS,
+	    this->_guardValue);
+}
+
+template<class T>
+void
+BiometricEvaluation::Memory::AutoArray<T>::initIntegralGuard()
+{
+	if (!std::is_integral<T>::value)
+		return;
+
+	/* Use our own guard for integral types */
+	constexpr uint64_t valueTypeSize = sizeof(value_type);
+	uint8_t *guard = new (std::nothrow) uint8_t[valueTypeSize];
+	if (guard == nullptr)
+		throw Error::MemoryError("Could not allocate data for guard");
+	std::fill(guard, guard + valueTypeSize, 0x9f);
+	std::memcpy(&this->_guardValue, guard, valueTypeSize);
+	delete [] guard;
+
+	this->_guardSet = true;
+}
+
+/******************************************************************************/
 /* Method implementations.                                                    */
 /******************************************************************************/
 template<class T>
@@ -418,37 +688,71 @@ typename BiometricEvaluation::Memory::AutoArray<T>::size_type
 BiometricEvaluation::Memory::AutoArray<T>::size()
     const 
 { 
-	return (_size);
+	return (_advertisedSize);
 }
 
 template<class T>
 void
 BiometricEvaluation::Memory::AutoArray<T>::resize(
-    size_type new_size,
+    size_type size,
     bool free)
 {
-	/* If we've already allocated at least new_size space, then bail */
-	if (!free && (new_size <= _capacity)) {
-		_size = new_size;
+	if (size == _advertisedSize)
 		return;
+
+	if (_data == nullptr) {
+		this->assignGuardedBuffer(initGuardedBuffer(size,
+		    this->_guardValue));
+	} else {
+		if (size == 0) {
+			if (free) {
+				this->assignGuardedBuffer(
+				    initGuardedBuffer(size,
+				    this->_guardValue));
+			} else {
+				this->_advertisedSize = size;
+				/* Move end guard */
+				std::fill(this->getDataEnd(),
+				    this->getDataEnd() + NUM_GUARDS,
+				    this->_guardValue);
+			}
+		} else if (size > 0) {
+			/* Requested memory was already allocated */
+			if (!free && (size <= this->_capacity)) {
+				this->_advertisedSize = size;
+				/* Move end guard */
+				std::fill(this->getDataEnd(),
+				    this->getDataEnd() + NUM_GUARDS,
+				    this->_guardValue);
+			} else {
+				/* 
+				 * Don't need to worry about free anymore,
+				 * because we don't have enough memory
+				 */
+
+				/* Make a new buffer */
+				auto newData = initGuardedBuffer(size,
+				    this->_guardValue);
+				/* 
+				 * Copy all possible data from the original
+				 * buffer into new buffer.
+				 */
+				if (size < this->size())
+					std::copy(this->getDataStart(),
+					    this->getDataStart() + size,
+					    newData.first + NUM_GUARDS);
+				else
+					std::copy(this->getDataStart(),
+					    this->getDataEnd(),
+					    newData.first + NUM_GUARDS);
+				this->assignGuardedBuffer(newData);
+			}
+		} else {
+			throw Error::ParameterError("Container's size_type "
+			    "can be (and was) negative");
+		}
 	}
 
-	T* new_data = nullptr;
-	if (new_size != 0) {
-		new_data = new (std::nothrow) T[new_size];
-		if (new_data == nullptr)
-			throw Error::MemoryError("Could not allocate data");
-	}
-
-	/* Copy as much data as will fit into the new buffer */
-	std::copy(&_data[0], &_data[((new_size < _size) ? new_size : _size)],
-	    new_data);
-
-	/* Delete the old buffer and assign the new buffer to this object */
-	if (_data != nullptr)
-		delete [] _data;
-	_data = new_data;
-	_size = _capacity = new_size;
 }
 
 template<class T>
@@ -456,7 +760,7 @@ void
 BiometricEvaluation::Memory::AutoArray<T>::copy(
     const T *buffer)
 {
-	std::copy(&buffer[0], &buffer[_size], _data);
+	std::copy(&buffer[0], &buffer[_advertisedSize], this->getDataStart());
 }
 
 template<class T>
@@ -466,7 +770,7 @@ BiometricEvaluation::Memory::AutoArray<T>::copy(
     size_type size)
 {
 	this->resize(size);
-	std::copy(&buffer[0], &buffer[size], _data);
+	std::copy(&buffer[0], &buffer[size], this->getDataStart());
 }
 
 template<class T>
@@ -476,9 +780,9 @@ BiometricEvaluation::Memory::AutoArray<T>::at(
 {
 	if (index < 0)
 		throw std::out_of_range("index");
-	if ((size_type)index < _size)
-		return (_data[index]);
-	
+	if ((size_type)index < _advertisedSize)
+		return (this->operator[](index));
+
 	throw std::out_of_range("index");
 }
 
@@ -489,8 +793,8 @@ BiometricEvaluation::Memory::AutoArray<T>::at(
 {
 	if (index < 0)
 		throw std::out_of_range("index");
-	if ((size_type)index < _size)
-		return (_data[index]);
+	if ((size_type)index < _advertisedSize)
+		return (this->operator[](index));
 	
 	throw std::out_of_range("index");
 }
@@ -501,14 +805,18 @@ BiometricEvaluation::Memory::AutoArray<T>::at(
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::operator T*()
 {
-	return (_data);
+	if (this->size() == 0)
+		return (nullptr);
+	return (this->getDataStart());
 }
 
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::operator const T*()
     const
 {
-	return (_data);
+	if (this->size() == 0)
+		return (nullptr);
+	return (this->getDataStart());
 }
 
 /******************************************************************************/
@@ -518,8 +826,8 @@ template<class T>
 typename BiometricEvaluation::Memory::AutoArray<T>::reference
 BiometricEvaluation::Memory::AutoArray<T>::operator[](
     ptrdiff_t index) 
-{ 
-	return (_data[index]);
+{
+	return (*(this->getDataStart() + index));
 }
 
 template<class T>
@@ -527,8 +835,8 @@ typename BiometricEvaluation::Memory::AutoArray<T>::const_reference
 BiometricEvaluation::Memory::AutoArray<T>::operator[](
     ptrdiff_t index)
     const
-{ 
-	return (_data[index]);
+{
+	return (*(this->getDataStart() + index));
 }
 
 template<class T>
@@ -537,19 +845,21 @@ BiometricEvaluation::Memory::AutoArray<T>::operator=(
     const BiometricEvaluation::Memory::AutoArray<T> &other)
 {
 	if (this != &other) {
-		_size = _capacity = other._size;
-		if (_data != nullptr) {
-			delete [] _data;
-			_data = nullptr;
-		}
-		if (_size != 0) {
-			_data = new (std::nothrow) T[_size];
-			if (_data == nullptr)
-				throw Error::MemoryError("Could not "
-				    "allocate data");
-			std::copy(&(other._data[0]), &(other._data[_size]),
-			    _data);
-		}
+		/* 
+		 * Allocate new data (only as much as currently usable).
+		 */
+		this->assignGuardedBuffer(
+		    initGuardedBuffer(other._advertisedSize,
+		    other._guardValue));
+
+		/*
+		 * Copy other's data.
+		 */
+		if (_advertisedSize > 0)
+			this->copy(other.getDataStart());
+
+		this->_guardValue = other._guardValue;
+		this->_guardSet = other._guardSet;
 	}
 
 	return (*this);
@@ -567,9 +877,12 @@ BiometricEvaluation::Memory::AutoArray<T>::operator=(
 {
 	using std::swap;
 
-	swap(_size, other._size);
-	swap(_capacity, other._capacity);
-	swap(_data, other._data);
+	swap(this->_advertisedSize, other._advertisedSize);
+	swap(this->_capacity, other._capacity);
+	swap(this->_actualSize, other._actualSize);
+	swap(this->_data, other._data);
+	swap(this->_guardValue, other._guardValue);
+	swap(this->_guardSet, other._guardSet);
 
 	return (*this);
 }
@@ -630,29 +943,24 @@ template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
     size_type size) :
     _data(nullptr),
-    _size(size),
-    _capacity(size)
+    _guardSet(false)
 {
-	if (_size != 0) {
-		_data = new (std::nothrow) T[_size];
-		if (_data == nullptr)
-			throw Error::MemoryError("Could not allocate data");
-	}
+	if (std::is_integral<value_type>::value)
+		this->initIntegralGuard();
+	this->assignGuardedBuffer(initGuardedBuffer(size,
+	    this->_guardValue));
 }
 
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
     const AutoArray& copy) :
     _data(nullptr),
-    _size(copy._size),
-    _capacity(copy._size)
+    _guardValue(copy._guardValue),
+    _guardSet(copy._guardSet)
 {
-	if (_size != 0) {
-		_data = new (std::nothrow) T[_size];
-		if (_data == nullptr)
-			throw Error::MemoryError("Could not allocate data");
-		std::copy(&(copy._data[0]), &(copy._data[_size]), _data);
-	}
+	this->assignGuardedBuffer(initGuardedBuffer(copy.size(),
+	    copy._guardValue));
+	this->copy(copy);
 }
 
 template<class T>
@@ -660,13 +968,17 @@ BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
     AutoArray &&rvalue)
     noexcept :
     _data(rvalue._data),
-    _size(rvalue._size),
-    _capacity(rvalue._capacity)
+    _advertisedSize(rvalue._advertisedSize),
+    _capacity(rvalue._capacity),
+    _actualSize(rvalue._actualSize),
+    _guardValue(rvalue._guardValue),
+    _guardSet(rvalue._guardSet)
 {
-	/* Modify for a speedy destruction */
+	/* 
+	 * We just moved values, so rvalue._data doesn't point to anything
+	 * useful. Set it to nullptr so the destructor does the right thing.
+	 */
 	rvalue._data = nullptr;
-	rvalue._capacity = 0;
-	rvalue._size = 0;
 }
 
 /******************************************************************************/
@@ -675,8 +987,8 @@ BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
 template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::~AutoArray()
 {
-	if (_data != nullptr)
-		delete [] _data;
+	delete [] this->_data;
+	this->_data = nullptr;
 }
 
 #endif /* __BE_MEMORY_AUTOARRAY_H__ */

@@ -113,9 +113,85 @@ namespace BiometricEvaluation
 			 * @return
 			 * True if 'Appendix F' compliant, false otherwise.
 			 */
-			bool isAppendixFCompliant() const;
+			inline bool
+			isAppendixFCompliant()
+			    const
+			{
+				return (this->_appendixFCompliance);
+			}
+
+			/**
+			 * @brief
+			 * Obtain the CBEFF product identifier owner.
+			 *
+			 * @return
+			 * CBEFF product identifier owner.
+			 */
+			uint16_t
+			getProductIDOwner()
+			    const
+			{
+				return (this->_productIDOwner);
+			}
+
+			/**
+			 * @brief
+			 * Obtain the CBEFF product identifier type.
+			 *
+			 * @return
+			 * CBEFF product identifier type.
+			 */
+			inline uint16_t
+			getProductIDType()
+			    const
+			{
+				return (this->_productIDType);
+			}
+
+			/**
+			 * @return
+			 * Length of record, as recorded in the record.
+			 */
+			uint32_t
+			getRecordLength()
+			    const;
+
+			/**
+			 * @return
+			 * Number of finger views, as recorded in the record.
+			 */
+			uint8_t
+			getNumFingerViews()
+			    const;
+
+			/** @return Reserved byte from FMR header. */
+			uint8_t
+			getFMRReservedByte()
+			    const;
+
+			/** @return View number, as recorded in the record. */
+			uint32_t
+			getViewNumber()
+			    const;
+
+			/**
+			 * @return
+			 * Length of extended data block, as recorded in the
+			 * record.
+			 */
+			uint16_t
+			getEDBLength()
+			    const;
 
 			std::shared_ptr<Image::Image> getImage() const;
+
+			/**
+			 * @brief
+			 * Mutator for the Feature::INCITSMinutiae item.
+			 * @param[in] fmd
+			 * The minutiae data object.
+			 */
+			void setMinutiaeData(const Feature::INCITSMinutiae &fmd);
 
 		protected:
 
@@ -202,14 +278,6 @@ namespace BiometricEvaluation
 			 * The entire finger image record data.
 			 */
 			Memory::uint8Array const& getFIRData() const;
-
-			/**
-			 * @brief
-			 * Mutator for the Feature::INCITSMinutiae item.
-			 * @param[in] fmd
-			 * The minutiae data object.
-			 */
-			void setMinutiaeData(const Feature::INCITSMinutiae &fmd);
 
 			/**
 			 * @brief
@@ -413,6 +481,10 @@ namespace BiometricEvaluation
 			uint16_t _productIDOwner;
 			uint16_t _productIDType;
 			uint16_t _captureEquipmentID;
+			uint32_t _recordLength;
+			uint8_t _numFingerViews;
+			uint8_t _fmrReservedByte;
+			uint16_t _edbLength;
 		};
 	}
 }

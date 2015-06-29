@@ -30,7 +30,7 @@ FEATURE = test_be_feature_an2kminutiae
 
 OTHER = test_be_data_interchange_an2k test_be_framework_enumeration
 
-MPI = test_be_mpi
+MPI = test_be_rs_mpi test_be_csv_mpi
 
 VIDEO = test_be_video
 
@@ -139,7 +139,9 @@ test_be_framework_enumeration: test_be_framework_enumeration.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 be_process_commandcenter_example: be_process_commandcenter_example.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
-test_be_mpi: test_be_mpi.cpp
+test_be_rs_mpi: test_be_rs_mpi.cpp
+	$(MPICXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_csv_mpi: test_be_csv_mpi.cpp
 	$(MPICXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_syslogsheet: test_be_io_syslogsheet.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval

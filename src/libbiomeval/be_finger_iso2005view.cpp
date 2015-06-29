@@ -33,8 +33,8 @@ BiometricEvaluation::Finger::ISO2005View::ISO2005View(
 }
 
 BiometricEvaluation::Finger::ISO2005View::ISO2005View(
-    Memory::uint8Array &fmrBuffer,
-    Memory::uint8Array &firBuffer,
+    const Memory::uint8Array &fmrBuffer,
+    const Memory::uint8Array &firBuffer,
     const uint32_t viewNumber) :
     INCITSView(fmrBuffer, firBuffer, viewNumber)
 {
