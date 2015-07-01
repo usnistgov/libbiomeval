@@ -54,6 +54,18 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * ANSI2004Record constructor
+			 *
+			 * @param views
+			 * ANSI2004View objects.
+			 */
+			ANSI2004Record(
+			    const
+			    std::initializer_list<BE::Finger::ANSI2004View>
+			    &views);
+
+			/**
+			 * @brief
 			 * Obtain the INCITSMinutiae for all finger views.
 			 *
 			 * @return

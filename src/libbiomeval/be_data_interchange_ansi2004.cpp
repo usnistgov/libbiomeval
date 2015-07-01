@@ -39,6 +39,27 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
 
 }
 
+BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
+    const std::initializer_list<BE::Finger::ANSI2004View> &views)
+{
+	BE::Image::Size size(0, 0);
+	for (const auto &view : views) {
+		/* Ensure all view image sizes are identical */
+		if (size.xSize == size.ySize == 0)
+			size = view.getImageSize();
+		else {
+			auto newSize = view.getImageSize();
+			if ((newSize.xSize != size.xSize) ||
+			    (newSize.ySize != size.ySize))
+				throw BE::Error::StrategyError("Not all view "
+				    "image sizes are identical.");
+		}
+
+		/* Add to collection */
+		this->_views.push_back(view);
+	}
+}
+
 uint64_t
 BiometricEvaluation::DataInterchange::ANSI2004Record::getFMRLength()
     const
