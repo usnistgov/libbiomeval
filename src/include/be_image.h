@@ -232,8 +232,33 @@ namespace BiometricEvaluation
 			double yRes;
 			/** Units in which xRes and yRes are represented */
 			Units units;
+
+			/**
+			 * @brief
+			 * Obtain alternate representations of this resolution.
+			 *
+			 * @param units
+			 * The units to which this resolution is converted.
+			 *
+			 * @return
+			 * This resolution, in units units.
+			 *
+			 * @throw BE::Error::StrategyError
+			 * Units are not defined for either the source or
+			 * destination resolution.
+			 */
+			Resolution
+			toUnits(
+			    const Units &units)
+			    const;
 		};
 		using Resolution = struct Resolution;
+
+		/** Number of centimeters in one inch */
+		const double CentimetersPerInch = 2.54;
+		/** Number of millimeters in one inch */
+		const double MillimetersPerInch = CentimetersPerInch * 10;
+
 		/**
 		 * @brief
 		 * Convert Resolution to std::string.

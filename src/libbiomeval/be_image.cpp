@@ -180,3 +180,63 @@ BiometricEvaluation::Image::distance(
 {
 	return (sqrtf(powf(p2.x - p1.x, 2.0) + powf(p2.y - p1.y, 2.0)));
 }
+
+
+BiometricEvaluation::Image::Resolution
+BiometricEvaluation::Image::Resolution::toUnits(
+    const BiometricEvaluation::Image::Resolution::Units &units)
+    const
+{
+	switch (units) {
+	case Image::Resolution::Units::NA:
+		throw BE::Error::StrategyError("Cannot convert to an "
+		    "unknown unit");
+	case Image::Resolution::Units::PPI:
+		switch (this->units) {
+		case Image::Resolution::Units::NA:
+			throw BE::Error::StrategyError("Can't convert because "
+			    "original units are not known");
+		case Image::Resolution::Units::PPI:
+			return {this->xRes, this->yRes, this->units};
+		case Image::Resolution::Units::PPCM:
+			return {this->xRes * CentimetersPerInch,
+			    this->yRes * CentimetersPerInch,
+			    Image::Resolution::Units::PPI};
+		case Image::Resolution::Units::PPMM:
+			return {this->xRes * MillimetersPerInch,
+			    this->yRes * MillimetersPerInch,
+			    Image::Resolution::Units::PPI};
+		}
+	case Image::Resolution::Units::PPCM:
+		switch (this->units) {
+		case Image::Resolution::Units::NA:
+			throw BE::Error::StrategyError("Can't convert because "
+			    "original units are not known");
+		case Image::Resolution::Units::PPCM:
+			return {this->xRes, this->yRes, this->units};
+		case Image::Resolution::Units::PPMM:
+			return {this->xRes * 10, this->yRes * 10,
+			    Image::Resolution::Units::PPCM};
+		case Image::Resolution::Units::PPI:
+			return {this->xRes / CentimetersPerInch,
+			    this->yRes / CentimetersPerInch,
+			    Image::Resolution::Units::PPCM};
+		}
+	case Image::Resolution::Units::PPMM:
+		switch (this->units) {
+		case Image::Resolution::Units::NA:
+			throw BE::Error::StrategyError("Can't convert because "
+			    "original units are not known");
+		case Image::Resolution::Units::PPMM:
+			return {this->xRes, this->yRes, this->units};
+		case Image::Resolution::Units::PPCM:
+			return {this->xRes / 10, this->yRes / 10,
+			    Image::Resolution::Units::PPMM};
+		case Image::Resolution::Units::PPI:
+			return {this->xRes / MillimetersPerInch,
+			    this->yRes / MillimetersPerInch,
+				Image::Resolution::Units::PPMM};
+		}
+	}
+}
+
