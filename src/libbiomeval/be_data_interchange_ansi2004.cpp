@@ -45,15 +45,11 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
 	BE::Image::Size size(0, 0);
 	for (const auto &view : views) {
 		/* Ensure all view image sizes are identical */
-		if (size.xSize == size.ySize == 0)
+		if ((size.xSize == 0) && (size.ySize == 0))
 			size = view.getImageSize();
-		else {
-			auto newSize = view.getImageSize();
-			if ((newSize.xSize != size.xSize) ||
-			    (newSize.ySize != size.ySize))
-				throw BE::Error::StrategyError("Not all view "
-				    "image sizes are identical.");
-		}
+		else if (view.getImageSize() != size)
+			throw BE::Error::StrategyError("Not all view image "
+			    "sizes are identical.");
 
 		/* Add to collection */
 		this->_views.push_back(view);

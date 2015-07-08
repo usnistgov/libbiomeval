@@ -97,6 +97,14 @@ BiometricEvaluation::Image::operator==(
 	    (lhs.yDistance == rhs.yDistance));
 }
 
+bool
+BiometricEvaluation::Image::operator!=(
+    const BiometricEvaluation::Image::Coordinate &lhs,
+    const BiometricEvaluation::Image::Coordinate &rhs)
+{
+	return (!(lhs == rhs));
+}
+
 std::string
 BiometricEvaluation::Image::to_string(
     const Image::CoordinateSet &coordinates)
@@ -139,6 +147,14 @@ BiometricEvaluation::Image::operator==(
 	return ((lhs.xSize == rhs.xSize) && (lhs.ySize == rhs.ySize));
 }
 
+bool
+BiometricEvaluation::Image::operator!=(
+    const BiometricEvaluation::Image::Size &lhs,
+    const BiometricEvaluation::Image::Size &rhs)
+{
+	return (!(lhs == rhs));
+}
+
 template<>
 const std::map<BiometricEvaluation::Image::Resolution::Units, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
@@ -171,6 +187,14 @@ BiometricEvaluation::Image::operator==(
 {
 	return ((lhs.xRes == rhs.xRes) && (lhs.yRes == rhs.yRes) &&
 	    (lhs.units == rhs.units));
+}
+
+bool
+BiometricEvaluation::Image::operator!=(
+    const BiometricEvaluation::Image::Resolution &lhs,
+    const BiometricEvaluation::Image::Resolution &rhs)
+{
+	return (!(lhs == rhs));
 }
 
 float

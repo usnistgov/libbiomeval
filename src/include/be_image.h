@@ -112,6 +112,10 @@ namespace BiometricEvaluation
 		operator==(
 		    const Coordinate &lhs,
 		    const Coordinate &rhs);
+		bool
+		operator!=(
+		    const Coordinate &lhs,
+		    const Coordinate &rhs);
 
 		/**
 		 * @brief
@@ -186,6 +190,10 @@ namespace BiometricEvaluation
 		std::ostream& operator<< (std::ostream&, const Size&);
 		bool
 		operator==(
+		    const Size &lhs,
+		    const Size &rhs);
+		bool
+		operator!=(
 		    const Size &lhs,
 		    const Size &rhs);
 
@@ -275,6 +283,10 @@ namespace BiometricEvaluation
 		std::ostream& operator<< (std::ostream&, const Resolution&);
 		bool
 		operator==(
+		    const Resolution &lhs,
+		    const Resolution &rhs);
+		bool
+		operator!=(
 		    const Resolution &lhs,
 		    const Resolution &rhs);
 		
