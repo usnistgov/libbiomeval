@@ -14,6 +14,8 @@ NBISINC = -I/usr/nistlocal/nbis/include
 # Hardcode path to libutil.a so it's not confused with Linux's libutil.so
 NBISLIBDIR = /usr/nistlocal/nbis/lib
 NBISLIB = -L$(NBISLIBDIR) -lan2k -ljpegb -lwsq -ljpegl -lfet -lioutil $(NBISLIBDIR)/libutil.a
+# Paths to static NBIS libraries
+NBISSTATIC = $(patsubst -l%,$(NBISLIBDIR)/lib%.a,$(filter-out -L%,$(NBISLIB)))
 
 COMMONINCOPT = -I/opt/local/include
 COMMONLIBOPT = -I/opt/local/lib
@@ -87,6 +89,11 @@ $(MPIOBJECTS): override CXX := $(MPICXX)
 all: $(OBJECTS) $(NBIS_OBJECTS) $(MPIOBJECTS)
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
 
+# All platforms get a static library
+	ar cq $(LIBRARY).a $^
+	dir=`mktemp -d $(LIBRARY).XXXXXX`; for lib in $(NBISSTATIC); do cd $$dir; ar x $$lib; ar q ../$(LIBRARY).a *; rm *; cd ..; done; rmdir $$dir
+	ranlib $(LIBRARY).a
+	$(CP) -R -P $(LIBRARY).a $(LOCALLIB)
 ifeq ($(OS), Darwin)
 	$(MPICXX) -L$(DBLIBS) $(COMMONLIB) $(filter-out $(NBIS_OBJECTS),$^) $(NBISLIB) $(NBIS_OBJECTS) -dynamiclib -Wl,-current_version,$(MAJOR_VERSION).$(MINOR_VERSION) -Wl,-compatibility_version,$(COMPATIBILITY_VERSION) -Wl,-macosx_version_min,10.6 -Wl,-install_name,$(LIBRARY).$(MAJOR_VERSION).dylib -o $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).dylib
@@ -94,8 +101,6 @@ ifeq ($(OS), Darwin)
 	$(CP) -R -P $(LIBRARY)*.dylib $(LOCALLIB)
 else
 ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
-	ar rs $(LIBRARY).a $^
-	ranlib $(LIBRARY).a
 	$(MPICXX) -shared -o $(LIBRARY).dll -Wl,--out-implib=$(LIBRARY).dll.a -Wl,--export-all-symbols -Wl,--enable-auto-import -Wl,--start-group $(COMMONLIB) $(NBISLIB) -Wl,--whole-archive $(LIBRARY).a -Wl,--no-whole-archive -Wl,--end-group -Wl,--major-image-version,$(MAJOR_VERSION) -Wl,--minor-image-version,$(MINOR_VERSION) -Wl,-soname=$(LIBRARY).dll.$(MAJOR_VERSION)
 	$(CP) $(LIBRARY).a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
