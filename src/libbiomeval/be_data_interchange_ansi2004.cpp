@@ -8,6 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <stdexcept>
+
 #include <be_io_utility.h>
 
 #include <be_memory_mutableindexedbuffer.h>
@@ -345,3 +347,79 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::setMinutia(
 	this->_views[viewNumber - 1].setMinutiaeData(minutia);
 }
 
+BiometricEvaluation::Finger::ANSI2004View
+BiometricEvaluation::DataInterchange::ANSI2004Record::getView(
+    const uint64_t viewNumber)
+    const
+{
+	if ((viewNumber == 0) || (viewNumber > this->_views.size()))
+		throw BE::Error::StrategyError("No such view number (" +
+		    std::to_string(viewNumber) + ")");
+
+	try {
+		return (this->_views.at(viewNumber - 1));
+	} catch (std::out_of_range) {
+		throw BE::Error::ObjectDoesNotExist("No such view number (" +
+		    std::to_string(viewNumber) + ")");
+	}
+}
+
+uint64_t
+BiometricEvaluation::DataInterchange::ANSI2004Record::insertView(
+    const BiometricEvaluation::Finger::ANSI2004View &view,
+    const uint64_t viewNumber)
+{
+	if ((viewNumber == 0) || (viewNumber > (this->_views.size() + 1)))
+		throw BE::Error::StrategyError("Can't insert view number at "
+		    "position " + std::to_string(viewNumber));
+
+	this->_views.insert(this->_views.begin() + (viewNumber - 1), view);
+	return (viewNumber);
+}
+
+uint64_t
+BiometricEvaluation::DataInterchange::ANSI2004Record::insertView(
+    const BiometricEvaluation::Finger::ANSI2004View &view)
+{
+	this->_views.push_back(view);
+	return (this->_views.size());
+}
+
+uint64_t
+BiometricEvaluation::DataInterchange::ANSI2004Record::updateView(
+    const BiometricEvaluation::Finger::ANSI2004View &view,
+    const uint64_t viewNumber)
+{
+	if ((viewNumber == 0) || (viewNumber > this->_views.size()))
+		throw BE::Error::StrategyError("No such view number (" +
+		    std::to_string(viewNumber) + ")");
+
+	try {
+		this->_views.at(viewNumber - 1) = view;
+	} catch (std::out_of_range) {
+		throw BE::Error::ObjectDoesNotExist("No such view number (" +
+		    std::to_string(viewNumber) + ")");
+	}
+
+	return (viewNumber);
+}
+
+void
+BiometricEvaluation::DataInterchange::ANSI2004Record::removeView(
+    const uint64_t viewNumber)
+{
+	if ((viewNumber == 0) || (viewNumber > this->_views.size()))
+		throw BE::Error::StrategyError("No such view number (" +
+		    std::to_string(viewNumber) + ")");
+
+	this->_views.erase(this->_views.begin() + (viewNumber - 1));
+}
+
+void
+BiometricEvaluation::DataInterchange::ANSI2004Record::isolateView(
+    const uint64_t viewNumber)
+{
+	auto isolatedView = this->getView(viewNumber);
+	this->_views.clear();
+	this->_views.push_back(isolatedView);
+}

@@ -66,6 +66,114 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Obtain an ANSI2004View.
+			 *
+			 * @param viewNumber
+			 * The position of the view to obtain.
+			 *
+			 * @return
+			 * ANSI2004View for view number viewNumber.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * viewNumber does not exist.
+			 */
+			Finger::ANSI2004View
+			getView(
+			    const uint64_t viewNumber)
+			    const;
+
+			/**
+			 * @brief
+			 * Insert a finger view to the record at a specific
+			 * position
+			 *
+			 * @param view
+			 * Finger view to add.
+			 *
+			 * @return
+			 * View number for view in this record.
+			 */
+			uint64_t
+			insertView(
+			    const Finger::ANSI2004View &view);
+
+			/**
+			 * @brief
+			 * Insert a finger view to the record at a specific
+			 * position
+			 *
+			 * @param view
+			 * Finger view to add.
+			 * @param viewNumber
+			 * View number to assign to this view.
+			 *
+			 * @return
+			 * viewNumber
+
+			 * @throw BE::Error::StrategyError
+			 * viewNumber is not valid.
+			 */
+			uint64_t
+			insertView(
+			    const Finger::ANSI2004View &view,
+			    const uint64_t viewNumber);
+
+			/**
+			 * @brief
+			 * Update an entire finger view.
+			 *
+			 * @param view
+			 * Updated finger view.
+			 * @param viewNumber
+			 * View number replaced by view.
+			 *
+			 * @return
+			 * viewNumber
+
+			 * @throw BE::Error::StrategyError
+			 * viewNumber is not valid.
+			 */
+			uint64_t
+			updateView(
+			    const Finger::ANSI2004View &view,
+			    const uint64_t viewNumber);
+
+			/**
+			 * @brief
+			 * Remove a view from the record.
+			 *
+			 * @param viewNumber
+			 * The view number to remove.
+			 *
+			 * @throw BE::Error::ObjectDoesNotExist
+			 * viewNumber does not exist.
+			 *
+			 * @note
+			 * All views will be renumbered after removal.
+			 */
+			void
+			removeView(
+			    const uint64_t viewNumber);
+
+			/**
+			 * @brief
+			 * Isolate a finger view from the record.
+			 *
+			 * @param viewNumber
+			 * The view number to isolate
+			 *
+			 * @throw BE::Error::ObjectDoesNotExist
+			 * viewNumber foes not exist.
+			 *
+			 * @note
+			 * The remaining view becomes view 1.
+			 */
+			void
+			isolateView(
+			    const uint64_t viewNumber);
+
+			/**
+			 * @brief
 			 * Obtain the INCITSMinutiae for all finger views.
 			 *
 			 * @return
