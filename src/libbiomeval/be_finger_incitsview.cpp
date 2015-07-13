@@ -125,10 +125,17 @@ BiometricEvaluation::Finger::INCITSView::getCaptureEquipmentID() const
 	return (_captureEquipmentID);
 }
 
+std::vector<uint8_t>
+BiometricEvaluation::Finger::INCITSView::getMinutiaeReservedData()
+    const
+{
+	return (this->_fmdReserved);
+}
+
 /******************************************************************************/
 /* Local functions.                                                           */
 /******************************************************************************/
-static BiometricEvaluation::Feature::MinutiaPoint
+static std::tuple<BiometricEvaluation::Feature::MinutiaPoint, uint8_t>
 scanFMD(BiometricEvaluation::Memory::IndexedBuffer &buf)
 {
 	uint16_t sval;
@@ -159,6 +166,8 @@ scanFMD(BiometricEvaluation::Memory::IndexedBuffer &buf)
 	m.coordinate.x = sval & BE::Feature::INCITSMinutiae::FMD_X_COORD_MASK;
 	sval = buf.scanBeU16Val();
 	m.coordinate.y = sval & BE::Feature::INCITSMinutiae::FMD_Y_COORD_MASK;
+	uint8_t reservedValue = sval &
+	    BE::Feature::INCITSMinutiae::FMD_RESERVED_MASK;
 
 	/* Angle and quality */
 	cval = buf.scanU8Val();
@@ -167,7 +176,7 @@ scanFMD(BiometricEvaluation::Memory::IndexedBuffer &buf)
 	m.has_quality = true;
 	m.quality = cval;
 
-	return (m);
+	return (std::make_tuple(m, reservedValue));
 }
 
 static
@@ -219,6 +228,13 @@ BiometricEvaluation::Finger::INCITSView::setMinutiaeData(
     const BiometricEvaluation::Feature::INCITSMinutiae &minutiae)
 {
 	_minutiae = minutiae;
+}
+
+void
+BiometricEvaluation::Finger::INCITSView::setMinutiaeReservedData(
+    const std::vector<uint8_t> &reservedBits)
+{
+	this->_fmdReserved = reservedBits;
 }
 
 void
@@ -374,24 +390,24 @@ BiometricEvaluation::Finger::INCITSView::readFVMR(
 
 	/* Read the minutiae data items. */
 	cval = buf.scanU8Val();		/* Number of minutiae */
-	BE::Feature::MinutiaPointSet mps =
-	     this->readMinutiaeDataPoints(buf, cval);
-	_minutiae.setMinutiaPoints(mps);
+	auto minutiaData = this->readMinutiaeDataPoints(buf, cval);
+	this->_minutiae.setMinutiaPoints(std::get<0>(minutiaData));
+	this->_fmdReserved = std::get<1>(minutiaData);
 	this->readExtendedDataBlock(buf);
 }
 
-BiometricEvaluation::Feature::MinutiaPointSet
+std::tuple<BiometricEvaluation::Feature::MinutiaPointSet, std::vector<uint8_t>>
 BiometricEvaluation::Finger::INCITSView::readMinutiaeDataPoints(
     BiometricEvaluation::Memory::IndexedBuffer &buf,
     uint32_t count)
 {
 	BE::Feature::MinutiaPointSet mps(count);
+	std::vector<uint8_t> reserved(count);
 	for (uint32_t i = 0; i < count; i++) {
-		BE::Feature::MinutiaPoint mp = scanFMD(buf);
-		mp.index = i;
-		mps[i] = mp;
+		std::tie(mps[i], reserved[i]) = scanFMD(buf);
+		mps[i].index = i;
 	}
-	return (mps);
+	return (std::make_tuple(mps, reserved));
 }
 
 BiometricEvaluation::Feature::RidgeCountItemSet

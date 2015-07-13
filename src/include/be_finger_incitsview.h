@@ -11,6 +11,8 @@
 #ifndef __BE_FINGER_INCITSVIEW_H__
 #define __BE_FINGER_INCITSVIEW_H__
 
+#include <tuple>
+
 #include <be_view_view.h>
 #include <be_feature_incitsminutiae.h>
 
@@ -183,6 +185,14 @@ namespace BiometricEvaluation
 			getEDBLength()
 			    const;
 
+			/**
+			 * @return FMD reserved bits. 
+			 * @note Only lowest 2 bits are relevant.
+			 */
+			std::vector<uint8_t>
+			getMinutiaeReservedData()
+			    const;
+
 			std::shared_ptr<Image::Image> getImage() const;
 
 			/**
@@ -191,7 +201,19 @@ namespace BiometricEvaluation
 			 * @param[in] fmd
 			 * The minutiae data object.
 			 */
-			void setMinutiaeData(const Feature::INCITSMinutiae &fmd);
+			void
+			setMinutiaeData(
+			    const Feature::INCITSMinutiae &fmd);
+
+			/**
+			 * @brief
+			 * Mutator for the FMD reserved bits vector.
+			 * @param[in] reservedBits
+			 * Reserved bits from FMD.
+			 */
+			void
+			setMinutiaeReservedData(
+			    const std::vector<uint8_t> &reservedBits);
 
 		protected:
 
@@ -407,8 +429,10 @@ namespace BiometricEvaluation
 			 * @throw DataError
 			 * The INCITS record has invalid or missing data.
 			 */
-			 virtual
-			 Feature::MinutiaPointSet readMinutiaeDataPoints(
+			virtual
+			std::tuple<Feature::MinutiaPointSet,
+			std::vector<uint8_t>>
+			readMinutiaeDataPoints(
 			    Memory::IndexedBuffer &buf,
 			    uint32_t count);
 
@@ -474,6 +498,7 @@ namespace BiometricEvaluation
 			Memory::uint8Array _fir;
 			Finger::Position _position;
 			Feature::INCITSMinutiae _minutiae;
+			std::vector<uint8_t> _fmdReserved;
 			Finger::Impression _impression;
 			uint32_t _viewNumber;
 			uint32_t _quality;

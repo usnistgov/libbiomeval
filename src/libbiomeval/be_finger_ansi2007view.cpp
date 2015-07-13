@@ -120,10 +120,12 @@ BiometricEvaluation::Finger::ANSI2007View::readFVMR(
 		
 	/* Read the minutiae data items. */
 	cval = buf.scanU8Val();		/* Number of minutiae */
-	Feature::MinutiaPointSet mps = this->readMinutiaeDataPoints(buf, cval);
+	auto minutiaData = this->readMinutiaeDataPoints(buf, cval);
 	Feature::INCITSMinutiae minutiae;
-	minutiae.setMinutiaPoints(mps);
+	minutiae.setMinutiaPoints(std::get<0>(minutiaData));
 	BE::Finger::INCITSView::setMinutiaeData(minutiae);
+	BE::Finger::INCITSView::setMinutiaeReservedData(
+	    std::get<1>(minutiaData));
 
 	this->readExtendedDataBlock(buf);
 }
