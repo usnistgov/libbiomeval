@@ -66,6 +66,10 @@ BiometricEvaluation::View::AN2KViewVariableResolution::extractQuality(
 	QualityMetricSet qms;
 	
 	for (int i = 0; i < field->num_subfields; i++) {
+		if (field->subfields[i]->num_items != 4)
+			throw BE::Error::StrategyError("Missing item fields "
+			    "in FQM.");
+			
 		AN2KQualityMetric qm;
 		qm.position = Finger::AN2KView::convertPosition(
 		    atoi((char *)field->subfields[i]->items[0]->value));
