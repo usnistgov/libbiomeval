@@ -81,8 +81,10 @@ workerMain()
 		key.str("");
 		key << counter++;
 		try {
-			rs->insert(key.str(), key.str().c_str(),
-			    key.str().length());
+			Memory::uint8Array data(key.str().length() + 1);
+			data.copy((uint8_t *)key.str().c_str(),
+			    key.str().length() + 1);
+			rs->insert(key.str(), data);
 		} catch (Error::Exception &e) {
 			cout << e.what() << endl;
 		}

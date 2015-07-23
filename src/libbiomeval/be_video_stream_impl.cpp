@@ -16,18 +16,13 @@
 namespace BE = BiometricEvaluation;
 
 /*
- * Create deleter functions for any of the FFMPEG library objects
- * that have library deleters, so we can wrap them in smart pointers.
- */
-auto freeAVFrame = [](AVFrame* frame) { av_frame_free(&frame); };
-
-/*
  * Setup access to the container stream using FFMPEG libraries.
  */
 void
 BiometricEvaluation::Video::StreamImpl::openContainer()
 {
 	this->_currentFrameNum = 0;
+	this->_currentFrameTS = 0;
 
 	this->_fmtCtx = avformat_alloc_context();
 	if (this->_fmtCtx == nullptr)
@@ -165,27 +160,22 @@ BiometricEvaluation::Video::StreamImpl::getFrameCount()
 	return (this->_fmtCtx->streams[this->_streamIndex]->nb_frames);
 }
 
-BiometricEvaluation::Video::Frame
-BiometricEvaluation::Video::StreamImpl::i_getFrame(
-    uint32_t frameNum,
-    uint32_t prevFrameNum,
-    bool useTS,
-    int64_t startTS,
-    int64_t endTS)
+/*
+ */
+uptrAVFrame
+BiometricEvaluation::Video::StreamImpl::getNextAVFrame()
 {
 	/* Allocate video frame for the FFMPEG internal encoded data */
 	AVFrame *frameNative;
 	frameNative = av_frame_alloc();
 	if (frameNative == nullptr)
-		throw (Error::StrategyError("Could not allocate frame"));
-	std::unique_ptr<AVFrame, decltype(freeAVFrame)>
-	    pFrame(frameNative, freeAVFrame);
+		throw (BE::Error::StrategyError("Could not allocate frame"));
+	uptrAVFrame pFrame(frameNative, freeAVFrame);
 
 	/*
-	 * Read the stream to get the frame. Note that the stream position
+	 * Read the stream to get the next frame. Note that the stream position
 	 * within the context depends on previous calls to this function.
 	 */
-	uint32_t f = prevFrameNum;
 	int gotFrame = 0;
 	AVPacket packet;
 	av_init_packet(&packet);
@@ -193,8 +183,7 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 	packet.data = nullptr;
 
 	/*
-	 * Count the video frames from the desired video stream,
-	 * stopping when we get to the frame we want.
+	 * Grab the next frame from the video stream.
 	 */
 	while(av_read_frame(this->_fmtCtx, &packet) >= 0) {
 		if(packet.stream_index == (int)this->_streamIndex) {
@@ -202,12 +191,9 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 			    this->_codecCtx, frameNative, &gotFrame, &packet);
 			av_free_packet(&packet);
 			if (gotFrame != 0) {
-				f++;
-				if (frameNum == f) {
-					break;
-				} else {
-					av_frame_unref(frameNative);
-				}
+				break;
+			} else {
+				av_frame_unref(frameNative);
 			}
 		} else {
 			av_free_packet(&packet);
@@ -217,43 +203,37 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 	 * We need to flush any cached frames.
 	 * See http://ffmpeg.org/doxygen/trunk/decoding_encoding_8c-example.html
 	 */
-	packet.size = 0;
-	packet.data = nullptr;
-	if (frameNum != f) {
-		do {
-			avcodec_decode_video2(
-			    this->_codecCtx, frameNative, &gotFrame, &packet);
-			av_free_packet(&packet);
-			if (gotFrame != 0) {
-				f++;
-				if (frameNum == f) {
-					break;
-				} else {
-					av_frame_unref(frameNative);
-				}
-			}
-		} while (gotFrame);
+	//XXX check packet.stream_index?
+	if (gotFrame == 0) {
+		packet.size = 0;
+		packet.data = nullptr;
+		avcodec_decode_video2(
+		    this->_codecCtx, frameNative, &gotFrame, &packet);
+		av_free_packet(&packet);
 	}
-	if (frameNum != f)
-		throw (Error::ParameterError("Frame could not be found"));
+	if (gotFrame == 0) {
+		throw (BE::Error::ParameterError("Frame could not be found"));
+	}
+	this->_currentFrameNum++;
+	this->_currentFrameTS = av_frame_get_best_effort_timestamp(frameNative);
+	return (pFrame);
+}
 
-	this->_currentFrameNum = f;
-
-	/*
-	 * Check that the found frame lies within the requested time interval.
-	 */
+/*
+ * This function uses the scaling context from FFMPEG, part of this
+ * object's state data, and that context is essentially managed by the
+ * FFMPEG library. Therefore, this is a member function so the context
+ * pointer can be updated.
+ */
+BiometricEvaluation::Video::Frame
+BiometricEvaluation::Video::StreamImpl::convertAVFrame(
+    AVFrame *frameNative)
+{
 	BE::Video::Frame staticFrame;
-	staticFrame.data.resize(0);
-
-	int64_t frameTS = av_frame_get_best_effort_timestamp(frameNative);
-	if (useTS) {
-		if ((frameTS < startTS) || (frameTS > endTS)) {
-			return (staticFrame);	/* empty */
-		}
-	}
 	staticFrame.size.xSize = this->_codecCtx->width * this->_xScale;
 	staticFrame.size.ySize = this->_codecCtx->height * this->_yScale;
-	staticFrame.timestamp = frameTS;
+	staticFrame.timestamp = av_frame_get_best_effort_timestamp(frameNative);
+
 	/* Calculate the size of the decoded frame */
 	int frameSize = avpicture_get_size(
 	    this->_avPixelFormat,
@@ -288,9 +268,8 @@ BiometricEvaluation::Video::StreamImpl::i_getFrame(
 	AVFrame *frameOut;
 	frameOut = av_frame_alloc();
 	if (frameOut == nullptr)
-		throw (Error::StrategyError("Could not allocate frame"));
-	std::unique_ptr<AVFrame, decltype(freeAVFrame)>
-	    pFrameOut(frameOut, freeAVFrame);
+		throw (BE::Error::StrategyError("Could not allocate frame"));
+	uptrAVFrame pFrameOut(frameOut, freeAVFrame);
 
 //	avpicture_fill((AVPicture *)frameOut, buffer, this->_avPixelFormat,
 	staticFrame.data.resize(frameSize);
@@ -314,18 +293,25 @@ BiometricEvaluation::Video::StreamImpl::getFrame(
     uint32_t frameNum)
 {
 	/*
-	 * If we a sequencing through frames, then just read from
-	 * the current context state. Otherwise, we have to reset
-	 * the contexts.
+	 * If the last frame read from the stream is after the requested
+	 * frame, reset close and open the container stream and start
+	 * reading from the beginning.
 	 * XXX The av_seek* functions do not seem to work; try again some time.
 	 */
 	if (frameNum <= this->_currentFrameNum) {
 		this->closeContainer();
 		this->openContainer();
 	}
-	return (this->i_getFrame(
-	    frameNum, this->_currentFrameNum,
-	    false, 0, 0));
+	/*
+	 * Let exceptions float out from here.
+	 */
+	while(true) {
+		auto uptrFrame = getNextAVFrame();
+		if (frameNum == this->_currentFrameNum) {
+			AVFrame *frameNative = uptrFrame.get();
+			return (convertAVFrame(frameNative));
+		}
+	}
 }
 
 std::vector<BiometricEvaluation::Video::Frame>
@@ -333,14 +319,6 @@ BiometricEvaluation::Video::StreamImpl::getFrameSequence(
     int64_t startTime,     
     int64_t endTime)
 {
-	/*
-	 * We need to start at the beginning of the container so
-	 * we can grab frames at any point. This is the equivalent
-	 * of seeking to the beginning.
-	 */
-	this->closeContainer();
-	this->openContainer();
-
 	uint32_t streamIdx = this->_streamIndex;
 	int64_t startTS = av_rescale(
 	    startTime,
@@ -353,29 +331,35 @@ BiometricEvaluation::Video::StreamImpl::getFrameSequence(
 	    this->_fmtCtx->streams[streamIdx]->time_base.num);
 	endTS /= BE::Time::MillisecondsPerSecond;
 
-	BE::Video::Frame frame;
+	/*
+	 * If the last scanned frame has a time stamp later than
+	 * the time of the requested start of sequence, then
+	 * we need to start at the beginning of the container so
+	 * we can grab frames at any point. This is the equivalent
+	 * of seeking to the beginning.
+	 */
+	if (this->_currentFrameTS >= startTS) {
+		this->closeContainer();
+		this->openContainer();
+	}
+
 	std::vector<BE::Video::Frame> frames;
-	bool foundFrame = false;
 	while (true) {
 		try {
-			frame = this->i_getFrame(
-			    1, 0, true,
-			    startTS, endTS);
+			auto uptrFrame = getNextAVFrame();
+			AVFrame *frameNative = uptrFrame.get();
+			if (this->_currentFrameTS > endTS) {
+				break;		/* past the point of caring */
+			}
+			if ((this->_currentFrameTS >= startTS)
+			     && (this->_currentFrameTS <= endTS)) {
+				auto frame = convertAVFrame(frameNative);
+				frames.push_back(std::move(frame));
+			}
 		} catch (Error::ParameterError) {
 			break;		/* Ran out of frames */
 		}
-		uint64_t sz = frame.data.size();
-		if (sz != 0) {
-			frames.push_back(frame);
-			foundFrame = true;
-		} else {
-			if (foundFrame) {
-				break;
-			}
-		}
 	}
-	this->closeContainer();
-	this->openContainer();
 	return (frames);
 }
 

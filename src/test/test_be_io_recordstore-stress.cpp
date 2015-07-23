@@ -63,14 +63,14 @@ static int insertMany(IO::RecordStore *rs)
 {
 	string theKey;
 	totalTime = 0;
-	uint8_t *theData = (uint8_t *)malloc(RECSIZE);
+	Memory::uint8Array theData(RECSIZE);
 	cout << "Creating " << RECCOUNT << " records of size " << RECSIZE << "." << endl;
 	for (int i = 0; i < RECCOUNT; i++) {
 		snprintf(keyName, KEYNAMESIZE, "key%u", i);
 		theKey = keyName;
 		gettimeofday(&starttm, nullptr);
 		try {
-			rs->insert(theKey, theData, RECSIZE);
+			rs->insert(theKey, theData);
 		} catch (Error::ObjectExists& e) {
 			cout << "Whoops! Record exists?. Insert failed at record " << i << "." << endl;
 			return (-1);
@@ -202,7 +202,7 @@ int main (int argc, char* argv[]) {
 
 	/* Random replace test */
 	string theKey;
-	uint8_t *theData = (uint8_t *)malloc(RECSIZE);
+	Memory::uint8Array theData(RECSIZE);
 	srand(endtm.tv_sec);
 	totalTime = 0;
 	for (int i = 0; i < RECCOUNT; i++) {
@@ -211,7 +211,7 @@ int main (int argc, char* argv[]) {
 		theKey = keyName;
 		gettimeofday(&starttm, nullptr);
 		try {
-			ars->replace(theKey, theData, RECSIZE);
+			ars->replace(theKey, theData);
 		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exists?. Insert failed at record " << i << "." << endl;
 			return (EXIT_FAILURE);
@@ -232,7 +232,7 @@ int main (int argc, char* argv[]) {
 		theKey = keyName;
 		gettimeofday(&starttm, nullptr);
 		try {
-			ars->read(theKey, theData);
+			theData = ars->read(theKey);
 		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
@@ -255,7 +255,7 @@ int main (int argc, char* argv[]) {
 		theKey = keyName;
 		gettimeofday(&starttm, nullptr);
 		try {
-			ars->read(theKey, theData);
+			theData = ars->read(theKey);
 		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;

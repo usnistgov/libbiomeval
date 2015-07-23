@@ -35,7 +35,7 @@ namespace BiometricEvaluation {
 		 *
 		 * @details
 		 * A RecordStore is an abstraction that associates keys with
-		 * a specific record. Implementations of this abstraction
+		 * a specific data item. Implementations of this abstraction
 		 * can store the records in any format supported by the
 		 * operating system, such as files or databases, rooted in
 		 * the file system.
@@ -50,6 +50,28 @@ namespace BiometricEvaluation {
 		 */
 		class RecordStore {
 		public:
+			struct Record {
+				/**
+				 * Default constructor.
+				 */
+				Record();
+
+				/**
+				 * @brief
+				 * Create a Record from the key and data.
+				 * @param[in] key
+				 * The record's key.
+				 * @param[in] data
+				 * The record's data (value).
+				 */
+				Record(
+				    const std::string &key,
+				    const Memory::uint8Array &data);
+				std::string key;
+				Memory::uint8Array data;
+			};
+			using Record = struct Record;
+
 			using iterator = IO::RecordStoreIterator;
 			using const_iterator = const IO::RecordStoreIterator;
 
@@ -181,19 +203,19 @@ namespace BiometricEvaluation {
 			 *	The key of the record to be inserted.
 			 * @param[in] data
 			 *	The data for the record.
-			 * @param[in] size
-			 *	The size, in bytes, of the record.
+			 *
 			 * @throw Error::ObjectExists
 			 *	A record with the given key is already
 			 *	present.
 			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
+			 *	The RecordStore is opened read-only, or
+			 *	an error occurred when using the underlying
 			 *	storage system.
 			 */
-			virtual void insert(
+			void
+			insert(
 			    const std::string &key,
-			    const void *const data,
-			    const uint64_t size) = 0;
+			    const Memory::uint8Array &data);
 
 			/**
 			 * Insert a record into the store.
@@ -202,18 +224,22 @@ namespace BiometricEvaluation {
 			 *	The key of the record to be inserted.
 			 * @param[in] data
 			 *	The data for the record.
+			 * @param[in] size
+			 *	The size of the record, in bytes.
 			 *
 			 * @throw Error::ObjectExists
 			 *	A record with the given key is already
 			 *	present.
 			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
+			 *	The RecordStore is opened read-only, or
+			 *	an error occurred when using the underlying
 			 *	storage system.
 			 */
 			virtual void
 			insert(
 			    const std::string &key,
-			    const Memory::uint8Array &data);
+			    const void *const data,
+			    const uint64_t size) = 0;
 
 			/**
 			 * Remove a record from the store.
@@ -230,27 +256,6 @@ namespace BiometricEvaluation {
 			    const std::string &key) = 0;
 
 			/**
-			 * Read a complete record from a store. Applications
-			 * are responsible for allocating storage for the
-			 * record's data.
-			 *
-			 * @param[in] key
-			 *	The key of the record to be read.
-			 * @param[in] data
-			 *	Pointer to where the data is to be written.
-			 * @return
-			 * 	The size of the record.
-			 * @throw Error::ObjectDoesNotExist
-			 *	A record for the key does not exist.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 */	
-			virtual uint64_t read(
-			    const std::string &key,
-			    void *const data) const = 0;
-
-			/**
 			 * @brief
 			 * Read a complete record from a store.
 			 * @details
@@ -259,43 +264,17 @@ namespace BiometricEvaluation {
 			 *
 			 * @param[in] key
 			 *	The key of the record to be read.
-			 * @param[in] data
-			 *	Pointer to where the data is to be written.
-			 *
 			 * @return
-			 * 	The size of the record.
-			 *
+			 *	The record associated with the key.
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */	
-			virtual uint64_t
+			virtual Memory::uint8Array
 			read(
-			    const std::string &key,
-			    Memory::uint8Array &data) const;
-
-			/**
-			 * Replace a complete record in a store.
-			 *
-			 * @param[in] key
-			 *	The key of the record to be replaced.
-			 * @param[in] data
-			 *	The data for the record.
-			 * @param[in] size
-			 *	The size of data.
-			 * @throw Error::ObjectDoesNotExist
-			 *	A record for the key does not exist.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 */	
-			virtual void
-			replace(
-			    const std::string &key,
-			    const void *const data,
-			    const uint64_t size) = 0;
+			    const std::string &key) const = 0;
 
 			/**
 			 * Replace a complete record in a RecordStore.
@@ -308,12 +287,35 @@ namespace BiometricEvaluation {
 			 * @throw Error::ObjectDoesNotExist
 			 *	A record for the key does not exist.
 			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
+			 *	The RecordStore is opened read-only, or
+			 *	an error occurred when using the underlying
+			 *	storage system.
+			 */	
+			void replace(
+			    const std::string &key,
+			    const Memory::uint8Array &data);
+
+			/**
+			 * Replace a complete record in a RecordStore.
+			 *
+			 * @param[in] key
+			 *	The key of the record to be replaced.
+			 * @param[in] data
+			 *	The data for the record.
+			 * @param[in] size
+			 *	The size of the record, in bytes.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 *	A record for the key does not exist.
+			 * @throw Error::StrategyError
+			 *	The RecordStore is opened read-only, or
+			 *	an error occurred when using the underlying
 			 *	storage system.
 			 */	
 			virtual void replace(
 			    const std::string &key,
-			    const Memory::uint8Array &data);
+			    const void *const data,
+			    const uint64_t size);
 
 			/**
 			 * Return the length of a record.
@@ -348,41 +350,6 @@ namespace BiometricEvaluation {
 			static const int BE_RECSTORE_SEQ_START = 1;
 			/** Tell sequence to sequence from current position */
 			static const int BE_RECSTORE_SEQ_NEXT = 2;
-			/**
-			 * @brief
-			 * Sequence through a RecordStore, returning the
-			 * key/data pairs.
-			 * @details
-			 * Sequencing means to start at some point in the
-			 * store and return the record, then repeatedly
-			 * calling the sequencor to return the next record.
-			 * The starting point is typically the first record, 
-			 * and is set to that when the RecordStore object is
-			 * created. The starting point can be reset by calling
-			 * this method with the cursor parameter set to 
-			 * BE_RECSTORE_SEQ_START.
-			 *
-			 * @param[out] key
-			 *	The key of the currently sequenced record.
-			 * @param[in] data
-			 *	Pointer to where the data is to be written.
-			 *	Applications can set data to nullptr to indicate
-			 *	only the key is wanted.
-			 * @param[in] cursor
-			 *	The location within the sequence of the
-			 *	key/data pair to return.
-			 * @return
-			 *	The length of the record currently in sequence.
-			 * @throw Error::ObjectDoesNotExist
-			 *	A record for the key does not exist.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 */
-			virtual uint64_t sequence(
-			    std::string &key,
-			    void *const data = nullptr,
-			    int cursor = BE_RECSTORE_SEQ_NEXT) = 0;
 
 			/**
 			 * @brief
@@ -391,34 +358,55 @@ namespace BiometricEvaluation {
 			 * @details
 			 * Sequencing means to start at some point in the
 			 * store and return the record, then repeatedly
-			 * calling the sequencor to return the next record.
+			 * calling the function to return the next record.
 			 * The starting point is typically the first record, 
 			 * and is set to that when the RecordStore object is
 			 * created. The starting point can be reset by calling
 			 * this method with the cursor parameter set to 
 			 * BE_RECSTORE_SEQ_START.
 			 *
-			 * @param[out] key
-			 *	The key of the currently sequenced record.
-			 * @param[in] data
-			 *	Pointer to where the data is to be written.
 			 * @param[in] cursor
 			 *	The location within the sequence of the
 			 *	key/data pair to return.
-			 *
 			 * @return
-			 *	The length of the record currently in sequence.
+			 *	The record that is currently in sequence.
 			 * @throw Error::ObjectDoesNotExist
-			 *	A record for the key does not exist.
+			 *	End of sequencing.
 			 * @throw Error::StrategyError
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
-			virtual uint64_t
+			virtual RecordStore::Record
 			sequence(
-			    std::string &key,
-			    Memory::uint8Array &data,
-			    int cursor = BE_RECSTORE_SEQ_NEXT);
+			    int cursor = BE_RECSTORE_SEQ_NEXT) = 0;
+
+			/**
+			 * @brief
+			 * Sequence through a RecordStore, returning the key.
+			 * @details
+			 * Sequencing means to start at some point in the
+			 * store and return the key, then repeatedly
+			 * calling the function to return the next key.
+			 * The starting point is typically the first record, 
+			 * and is set to that when the RecordStore object is
+			 * created. The starting point can be reset by calling
+			 * this method with the cursor parameter set to 
+			 * BE_RECSTORE_SEQ_START.
+			 *
+			 * @param[in] cursor
+			 *	The location within the sequence of the
+			 *	key/data pair to return.
+			 * @return
+			 *	The key of the currently sequenced record.
+			 * @throw Error::ObjectDoesNotExist
+			 *	End of sequencing.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			virtual std::string
+			sequenceKey(
+			    int cursor = BE_RECSTORE_SEQ_NEXT) = 0;
 
 			/**
 			 * Set the sequence cursor to an arbitrary position

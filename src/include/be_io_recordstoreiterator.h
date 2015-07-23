@@ -38,7 +38,7 @@ namespace BiometricEvaluation
 		 */
 		class RecordStoreIterator : public std::iterator<
 		    std::forward_iterator_tag,
-		    std::pair<std::string, Memory::uint8Array>>
+		    RecordStore::Record>
 		{
 		public:
 			/**
@@ -85,11 +85,11 @@ namespace BiometricEvaluation
 			 * Operators.
 			 */
 
-			/** @return Reference to a key/value pair. */
+			/** @return Reference to a Record. */
 			reference
 			operator*();
 
-			/** @return A dereferenced key/value pair. */
+			/** @return A dereferenced Record. */
 			pointer
 			operator->();
 
@@ -180,8 +180,8 @@ namespace BiometricEvaluation
 			IO::RecordStore *_recordStore;
 			/** Is iterator currently at the end? */
 			bool _atEnd;
-			/** Current values returned when dereferencing */
-			value_type _currentPair;
+			/** Current record returned when dereferencing */
+			value_type _currentRecord;
 
 			/** Iterate the first object. */
 			void

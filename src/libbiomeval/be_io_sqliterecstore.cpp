@@ -50,6 +50,10 @@ const std::string
  * but this will be different system to system.  Examine the maximum for your
  * system if SQLiteRecordStore appears to be truncating data read from
  * large records created on another system.
+ * NOTE:
+ * replace() could perform an UPDATE, but with segmented records, it is much
+ * simpler to remove() all old bits and insert() new ones, so this class
+ * depends on the parent's implementation to replace().
  */
 static const uint64_t MAX_REC_SIZE = (uint64_t)1000000000U;
 
@@ -354,32 +358,15 @@ BiometricEvaluation::IO::SQLiteRecordStore::remove(
 	RecordStore::remove(key);
 }
 
-uint64_t
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::IO::SQLiteRecordStore::read(
-    const std::string &key,
-    void *const data)
+    const std::string &key)
     const
 {
-	return (this->readSegments(key, data));
-}
-
-void
-BiometricEvaluation::IO::SQLiteRecordStore::replace(
-    const std::string &key,
-    const void *const data,
-    const uint64_t size)
-{
-	if (getMode() == IO::READONLY)
-		throw Error::StrategyError("RecordStore was opened read-only");
-	if (!validateKeyString(key))
-		throw Error::StrategyError("Invalid key format");
-	
-	/* 
-	 * Could perform an UPDATE, but with segmented records, it is much
-	 * simpler to remove() all old bits and insert() new ones.
-	 */
-	this->remove(key);
-	this->insert(key, data, size);
+	BiometricEvaluation::Memory::uint8Array data;
+	data.resize(this->length(key));
+	this->readSegments(key, data);
+	return(data);
 }
 
 uint64_t
@@ -487,11 +474,9 @@ BiometricEvaluation::IO::SQLiteRecordStore::flush(
 	 */
 	this->length(key);
 }
-
-uint64_t
-BiometricEvaluation::IO::SQLiteRecordStore::sequence(
-    std::string &key,
-    void *const data,
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::SQLiteRecordStore::i_sequence(
+    bool returnData,
     int cursor)
 {
 	if ((cursor != BE_RECSTORE_SEQ_START) &&
@@ -558,20 +543,25 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 	rv = sqlite3_step(_sequencer);
 	
 	/* End of entries */
+	BiometricEvaluation::IO::RecordStore::Record record;
 	switch (rv) {
 	case SQLITE_ROW: {
-		key.assign((const char *)sqlite3_column_text(_sequencer, 0));
+		record.key.assign(
+		    (const char *)sqlite3_column_text(_sequencer, 0));
 		uint64_t bytes = sqlite3_column_bytes(_sequencer, 1);
-		if (data != nullptr)
-			memcpy(data, sqlite3_column_blob(_sequencer, 1), bytes);
-
-		return (bytes);
+		if (returnData) {
+			record.data.resize(bytes);
+			record.data.copy(
+				(uint8_t *)sqlite3_column_blob(_sequencer, 1),
+				bytes);
+		}
+		break;
 	} case SQLITE_DONE:
 		_sequenceEnd = true;
 		throw Error::ObjectDoesNotExist();
 		
 		/* Not reached */
-		return (0);
+		break;
 	default:
 		/* Free the statement */
 		rv = sqlite3_finalize(_sequencer);
@@ -579,8 +569,25 @@ BiometricEvaluation::IO::SQLiteRecordStore::sequence(
 			sqliteError(rv);
 		
 		/* Not reached */
-		return (0);
+		break;
 	}
+	return(record);
+}
+
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::SQLiteRecordStore::sequence(
+    int cursor)
+{
+	return (i_sequence(true, cursor));
+}
+
+std::string
+BiometricEvaluation::IO::SQLiteRecordStore::sequenceKey(
+    int cursor)
+{
+	BiometricEvaluation::IO::RecordStore::Record record =
+	    i_sequence(false, cursor);
+	return (record.key);
 }
 
 void

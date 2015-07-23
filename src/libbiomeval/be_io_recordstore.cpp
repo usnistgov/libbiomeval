@@ -34,6 +34,18 @@
 
 namespace BE = BiometricEvaluation;
 
+/*
+ * Constructors for Record.
+ */
+BiometricEvaluation::IO::RecordStore::Record::Record() {}
+
+BiometricEvaluation::IO::RecordStore::Record::Record(
+    const std::string &key,
+    const Memory::uint8Array &data) :
+    key(key), data(data)
+{
+}
+
 const std::string BiometricEvaluation::IO::RecordStore::INVALIDKEYCHARS(
     "/\\*&");
 
@@ -154,6 +166,14 @@ BiometricEvaluation::IO::RecordStore::canonicalName(
 void
 BiometricEvaluation::IO::RecordStore::insert(
     const std::string &key,
+    const Memory::uint8Array &data)
+{
+	this->insert(key, data, data.size());
+}
+
+void
+BiometricEvaluation::IO::RecordStore::insert(
+    const std::string &key,
     const void *const data,
     const uint64_t size)
 {
@@ -161,42 +181,25 @@ BiometricEvaluation::IO::RecordStore::insert(
 }
 
 void
-BiometricEvaluation::IO::RecordStore::insert(
-    const std::string &key,
-    const Memory::uint8Array &data)
-{
-	this->insert(key, data, data.size());
-}
-
-void
 BiometricEvaluation::IO::RecordStore::replace(
     const std::string &key,
     const Memory::uint8Array &data)
 {
-	this->remove(key);
-	this->insert(key, data);
+	this->replace(key, data, data.size());
 }
 
-uint64_t 
-BiometricEvaluation::IO::RecordStore::read(
+/*
+ * Default implementation of replace() calls the subclass implementation
+ * to remove and insert the key with data.
+ */
+void
+BiometricEvaluation::IO::RecordStore::replace(
     const std::string &key,
-    Memory::uint8Array &data)
-    const
+    const void *const data,
+    const uint64_t size)
 {
-	data.resize(this->length(key));
-	/* Cast to avoid undesired recursion */
-	return (this->read(key, static_cast<void *>(data)));
-}
-
-uint64_t
-BiometricEvaluation::IO::RecordStore::sequence(
-    std::string &key,
-    Memory::uint8Array &data,
-    int cursor)
-{
-	data.resize(this->sequence(key, nullptr, cursor));
-	/* Cast to avoid undesired recursion */
-	return (this->read(key, static_cast<void *>(data)));
+	this->remove(key);
+	this->insert(key, data, size);
 }
 
 void
@@ -341,12 +344,12 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 	/* Exceptions thrown by constructors are allowed to float out */
 	if (type == to_string(RecordStore::Kind::BerkeleyDB))
 		rs = new DBRecordStore(pathname, mode);
-	else if (type == to_string(RecordStore::Kind::Archive))
-		rs = new ArchiveRecordStore(pathname, mode);
-	else if (type == to_string(RecordStore::Kind::File))
-		rs = new FileRecordStore(pathname, mode);
 	else if (type == to_string(RecordStore::Kind::SQLite))
 		rs = new SQLiteRecordStore(pathname, mode);
+	else if (type == to_string(RecordStore::Kind::File))
+		rs = new FileRecordStore(pathname, mode);
+	else if (type == to_string(RecordStore::Kind::Archive))
+		rs = new ArchiveRecordStore(pathname, mode);
 	else if (type == to_string(RecordStore::Kind::Compressed))
 		rs = new CompressedRecordStore(pathname, mode);
 	else if (type == to_string(RecordStore::Kind::List)) {
@@ -372,14 +375,14 @@ BiometricEvaluation::IO::RecordStore::createRecordStore(
 	case BiometricEvaluation::IO::RecordStore::Kind::BerkeleyDB:
 		rs = new DBRecordStore(pathname, description);
 		break;
-	case BiometricEvaluation::IO::RecordStore::Kind::Archive:
-		rs = new ArchiveRecordStore(pathname, description);
+	case BiometricEvaluation::IO::RecordStore::Kind::SQLite:
+		rs = new SQLiteRecordStore(pathname, description);
 		break;
 	case BiometricEvaluation::IO::RecordStore::Kind::File:
 		rs = new FileRecordStore(pathname, description);
 		break;
-	case BiometricEvaluation::IO::RecordStore::Kind::SQLite:
-		rs = new SQLiteRecordStore(pathname, description);
+	case BiometricEvaluation::IO::RecordStore::Kind::Archive:
+		rs = new ArchiveRecordStore(pathname, description);
 		break;
 	case BiometricEvaluation::IO::RecordStore::Kind::Compressed:
 		rs = new CompressedRecordStore(pathname, description,
@@ -596,10 +599,8 @@ BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 	}
 
 	bool exhausted;
-	uint64_t record_size;
-	std::string key;
-	BiometricEvaluation::Memory::AutoArray<uint8_t> buf;
 	std::shared_ptr<RecordStore> rs;
+	RecordStore::Record record;
 	for (uint32_t i = 0; i < pathnames.size(); i++) {
 		try {
 			rs = openRecordStore(pathnames[i], BE::IO::READONLY);
@@ -610,16 +611,8 @@ BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 		exhausted = false;
 		while (!exhausted) {
 			try {
-				record_size = rs->sequence(key);
-				buf.resize(record_size);
-				try {
-					rs->read(key, buf);
-				} catch (Error::ObjectDoesNotExist) {
-					throw Error::StrategyError(
-					    "Could not read " + key +
-					    " from RecordStore");
-				}
-				merged_rs->insert(key, buf, record_size);
+				record = rs->sequence();
+				merged_rs->insert(record.key, record.data);
 			} catch (Error::ObjectDoesNotExist) {
 				exhausted = true;
 			}

@@ -18,6 +18,8 @@
 #include <be_io_utility.h>
 #include <be_io_filerecstore.h>
 
+namespace BE = BiometricEvaluation;
+
 static const std::string _fileArea = "theFiles";
 
 BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
@@ -113,9 +115,7 @@ BiometricEvaluation::IO::FileRecordStore::insert(
 	} catch (Error::StrategyError& e) {
 		throw;
 	}
-
 	RecordStore::insert(key, data, size);
-
 }
 
 void
@@ -137,10 +137,9 @@ BiometricEvaluation::IO::FileRecordStore::remove(
 	RecordStore::remove(key);
 }
 
-uint64_t
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::IO::FileRecordStore::read(
-    const std::string &key,
-    void *const data)
+    const std::string &key)
     const
 {
 	if (!validateKeyString(key))
@@ -156,12 +155,13 @@ BiometricEvaluation::IO::FileRecordStore::read(
 		throw Error::StrategyError("Could not open " + pathname + 
 		    " (" + Error::errorStr() + ")");
 
+	Memory::uint8Array data(size);
 	std::size_t sz = fread(data, 1, size, fp);
 	std::fclose(fp);
 	if (sz != size)
 		throw Error::StrategyError("Could not write " + pathname + 
 		    " (" + Error::errorStr() + ")");
-	return(size);
+	return(data);
 }
 
 void
@@ -220,10 +220,9 @@ BiometricEvaluation::IO::FileRecordStore::flush(
 	 */
 }
 
-uint64_t
-BiometricEvaluation::IO::FileRecordStore::sequence(
-    std::string &key,
-    void *const data,
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::FileRecordStore::i_sequence(
+    bool returnData,
     int cursor)
 {
 	if ((cursor != BE_RECSTORE_SEQ_START) &&
@@ -267,8 +266,9 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 	if (i > _cursorPos)
 		throw Error::StrategyError("Record cursor position out of "
 		    "sync");
-	std::string _key = entry->d_name;
-	key = _key;
+
+	BE::IO::RecordStore::Record record;
+	record.key = entry->d_name;
 	setCursor(BE_RECSTORE_SEQ_NEXT);
 	_cursorPos = i + 1;
 
@@ -280,9 +280,24 @@ BiometricEvaluation::IO::FileRecordStore::sequence(
 		}
 	}
 	
-	if (data == nullptr)
-		return FileRecordStore::length(_key);
-	return FileRecordStore::read(_key, data);
+	if (returnData)
+		record.data = FileRecordStore::read(record.key);
+	return (record);
+}
+
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::FileRecordStore::sequence(
+    int cursor)
+{
+	return (i_sequence(true, cursor));
+}
+
+std::string
+BiometricEvaluation::IO::FileRecordStore::sequenceKey(
+    int cursor)
+{
+	BE::IO::RecordStore::Record record = i_sequence(false, cursor);
+	return (record.key);
 }
 
 void 

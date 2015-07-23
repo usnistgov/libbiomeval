@@ -30,6 +30,14 @@ extern "C" {
  */
 #undef PixelFormat
 
+/*
+ * Create deleter functors for any of the FFMPEG library objects
+ * that have library deleters, so we can wrap them in smart pointers.
+ */
+
+auto freeAVFrame = [](AVFrame* frame) { av_frame_free(&frame); };
+using uptrAVFrame = std::unique_ptr<AVFrame, decltype(freeAVFrame)>;
+
 namespace BiometricEvaluation 
 {
 	namespace Video
@@ -86,13 +94,9 @@ namespace BiometricEvaluation
 			void openContainer();
 			void construct();
 			void closeContainer();
-			Video::Frame i_getFrame(
-			    uint32_t frameNum,
-			    uint32_t prevFrameNum,
-			    bool useTS,
-			    int64_t startTime,
-			    int64_t endTime);
-
+			BiometricEvaluation::Video::Frame
+			    convertAVFrame(AVFrame *frameNative);
+			uptrAVFrame getNextAVFrame();
 			/* FFMPEG library objects */
 			struct Video::BufferData _IOCtxBufferData;
 			AVIOContext *_avioCtx;
@@ -103,6 +107,7 @@ namespace BiometricEvaluation
 			uint32_t _streamIndex;
 			std::shared_ptr<Memory::uint8Array> _containerBuf;
 			uint32_t _currentFrameNum;
+			int64_t _currentFrameTS;
 			float _xScale, _yScale;
 			Image::PixelFormat _pixelFormat;
 			AVPixelFormat _avPixelFormat;	/* FFMPEG value */

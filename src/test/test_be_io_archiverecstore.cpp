@@ -31,13 +31,13 @@ int main (int argc, char* argv[]) {
 	string chkkey("42");
 
 	/* Try to create a new ArchiveRecordStore.  Should pass. */
-	string archivefn("test");
+	string archivefn("artestdir");
 	IO::ArchiveRecordStore *ars;
 	try {
 		ars = new IO::ArchiveRecordStore(archivefn, "Test ArchiveRS");
 	} catch (Error::ObjectExists) {
 		cout << "The archive already exists; exiting." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 	}
@@ -55,11 +55,11 @@ int main (int argc, char* argv[]) {
 		cont = true;
 	} catch (Error::StrategyError e) {
 		cout << "A strategy error occurred: " << e.what() << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	if (!cont) {
 		cout << "Test of opening non-existing archive construction failed." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 
 	cont = false;
@@ -69,10 +69,10 @@ int main (int argc, char* argv[]) {
 	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Failed test of opening existing archive." << endl;
 		cout << e.what() << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << "Failed test of opening existing archive." << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	if (!cont) {
 		cout << "Test of opening existing archive." << endl;
@@ -82,13 +82,13 @@ int main (int argc, char* argv[]) {
 
 	/* Write some records to the archive */
 	srand(time(0));
-	char randbuf[15];
+	Memory::uint8Array randbuf(15);
 	stringstream randkey;
 	for (int i = 0; i < 100; i++) {
 		randkey.str(""); randkey << i;
-		snprintf(randbuf, 14, "%d", rand());
+		snprintf((char *)&randbuf[0], 14, "%d", rand());
 		try {
-			ars->insert(randkey.str(), randbuf, strlen(randbuf));
+			ars->insert(randkey.str(), randbuf);
 			if (randkey.str() == chkkey) {
 				cout << "Passed test of inserting." << endl;
 				cout << "Wrote Key " << randkey.str() << 
@@ -96,31 +96,32 @@ int main (int argc, char* argv[]) {
 			}
 		} catch (Error::ObjectExists e) {
 			cout << "Failed test of inserting." << endl;
-			exit (EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		} catch (Error::StrategyError e) {
 			cout << "Failed test of inserting." << endl;
-			exit (EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		}
 	}
 
 	/* See if the RecordStore needs vacuuming -- it should not */
 	if (ars->needsVacuum()) {
 		cout << "Failed first test of vacuum necessity" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} else
 		cout << "Passed first test of vacuum necessity" << endl;
 
 	/* Replace the value */
 	try {
-		char buf[] = "0123456789";
-		ars->replace(chkkey, buf, strlen(buf));
+		Memory::uint8Array buf(11);
+		strncpy((char *)&buf[0], "0123456789", 11);
+		ars->replace(chkkey, buf);
 		cout << "Passed test of replacing" << endl;
 	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Failed test of replacing" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << "Failed test of replacing" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 
 	/* See if the RecordStore needs vacuuming -- it should */
@@ -128,7 +129,7 @@ int main (int argc, char* argv[]) {
 		cout << "Passed second test of vacuum necessity" << endl;
 	else {
 		cout << "Failed second test of vacuum necessity" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	delete ars;
 
@@ -139,10 +140,10 @@ int main (int argc, char* argv[]) {
 		cout << "Passed test of reading manifest" << endl;
 	} catch (Error::ObjectDoesNotExist) {
 		cout << "Failed test of reading manifest" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << "Failed test of reading manifest" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 
 	/* See if the RecordStore needs vacuuming -- it should */
@@ -150,30 +151,23 @@ int main (int argc, char* argv[]) {
 		cout << "Passed third test of vacuum necessity" << endl;
 	else {
 		cout << "Failed third test of vacuum necessity" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 	try {
-		char *buf = nullptr;
 		uint64_t size = ars3->length(chkkey);
-		buf = (char *)malloc(sizeof(char) * size);
-		if (buf == nullptr) {
-			cerr << "Could not allocate buffer" << endl;
-			exit (EXIT_FAILURE);
-		}
-		uint64_t returnedsz = ars3->read(chkkey, buf);
-		if (returnedsz != size)
+		Memory::uint8Array buf = ars3->read(chkkey);
+		if (buf.size() != size)
 			cout << "Sizes were not equal" << endl;
 		cout << "Passed test of reading replacement value" << endl;
 		cout << "Read Key " << chkkey << ": \'" << buf << "\' Size: " << size << endl;
-		if (buf != nullptr) free(buf);
 	} catch (Error::ObjectDoesNotExist e) {
 		cout << e.what() << endl;
 		cout << "Failed test of reading replacement" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << e.what() << endl;
 		cout << "Failed test of reading replacement" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 
 	/* Remove the key, and reread to show exception */
@@ -182,18 +176,17 @@ int main (int argc, char* argv[]) {
 		cout << "Passed test of removing" << endl;
 	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Failed test of removing" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << "Failed test of removing" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 
 	/* Reread the key to prove it has been removed */
 	try {
-		char *buf = nullptr;
-		ars3->read(chkkey, buf);
+		(void)ars3->read(chkkey);
 		cout << "Failed test of removing/re-reading" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	} catch (Error::StrategyError e) {
 		cout << "Failed test of removing/re-reading" << endl;
 	} catch (Error::ObjectDoesNotExist e) {
@@ -207,7 +200,7 @@ int main (int argc, char* argv[]) {
 		cout << "Passed test of vacuuming" << endl;
 	} catch (Error::Exception) {
 		cout << "Failed test of vacuuming" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
 
 	/* See if the RecordStore needs vacuuming -- it should not */
@@ -215,15 +208,25 @@ int main (int argc, char* argv[]) {
 		if (!IO::ArchiveRecordStore::needsVacuum(archivefn)) {
 			cout << "Passed fourth test of vacuum necessity" <<
 			    endl;
-			exit(EXIT_SUCCESS);
 		} else {
 			cout << "Failed fourth test of vacuum necessity" <<
 			    endl;
-			exit (EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		}
 	} catch (Error::Exception) {
 		cout << "Failed fourth test of vacuum necessity" << endl;
-		exit (EXIT_FAILURE);
+		return (EXIT_FAILURE);
 	}
+
+	/* Remove the RecordStore */
+	cout << "Removing record store...";
+	try {
+		IO::RecordStore::removeRecordStore(archivefn);
+	} catch (Error::Exception &e) {
+		cout << "Failed: " << e.whatString() << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << " Success." << endl;
+	return (EXIT_SUCCESS);
 
 }

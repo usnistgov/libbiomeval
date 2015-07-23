@@ -75,5 +75,14 @@ int main (int argc, char* argv[]) {
 	cout << "Passed test of opening existing bit store." << endl;
 	cout << "Description is \'" << frs->getDescription() << "\'" << endl;
 
-	return(EXIT_SUCCESS);
+	        /* Remove the RecordStore */
+	cout << "Removing record store...";
+	try {   
+		IO::RecordStore::removeRecordStore(frtestdir);
+	} catch (Error::Exception &e) {
+		cout << "Failed: " << e.whatString() << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << " Success." << endl;
+	return (EXIT_SUCCESS);
 }

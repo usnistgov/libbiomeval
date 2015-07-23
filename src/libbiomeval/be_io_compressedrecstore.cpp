@@ -12,8 +12,11 @@
 #include <cstring>
 #include <sstream>
 
+#include <be_memory_autoarrayutility.h>
 #include <be_io_compressedrecstore.h>
 #include <be_io_properties.h>
+
+namespace BE = BiometricEvaluation;
 
 const std::string BiometricEvaluation::IO::CompressedRecordStore::BACKING_STORE
     = "theBackingStore";
@@ -122,7 +125,9 @@ BiometricEvaluation::IO::CompressedRecordStore::insert(
 
 	std::ostringstream sizeStr;
 	sizeStr << size;
-	_mdrs->insert(key, sizeStr.str().data(), sizeStr.str().size());
+	Memory::uint8Array sizeBuf(sizeStr.str().size());
+	sizeBuf.copy((uint8_t *)sizeStr.str().data(), sizeStr.str().size());
+	_mdrs->insert(key, sizeBuf);
 	
 	RecordStore::insert(key, data, size);
 }
@@ -132,59 +137,51 @@ BiometricEvaluation::IO::CompressedRecordStore::length(
     const std::string &key)
     const
 {
-	uint64_t len = _mdrs->length(key) + 1;
-	Memory::AutoArray<char> buf(len);
-	_mdrs->read(key, buf);
-	buf.resize(len);
-	
-	buf[len - 1] = '\0';
-
-	return (static_cast<uint64_t>(atoll(buf)));
+	Memory::uint8Array buf = _mdrs->read(key);
+	return (static_cast<uint64_t>(atoll(
+	    Memory::AutoArrayUtility::getString(buf, buf.size()).c_str())));
 }
 
-uint64_t
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::IO::CompressedRecordStore::read(
-    const std::string &key,
-    void *const data)
+    const std::string &key)
     const
 {
-	Memory::uint8Array compressedData;
-	_rs->read(key, compressedData);
+	Memory::uint8Array compressedData = _rs->read(key);
 	
 	Memory::uint8Array decompressedData = _compressor->decompress(
 	    compressedData);
-	memcpy(data, decompressedData, decompressedData.size());
-
-	return (decompressedData.size());
+	return (decompressedData);
 }
 
-void
-BiometricEvaluation::IO::CompressedRecordStore::replace(
-    const std::string &key,
-    const void *const data,
-    const uint64_t size)
-{
-	if (this->getMode() == IO::READONLY)
-		throw Error::StrategyError(RSREADONLYERROR);
-		
-	this->remove(key);
-	this->insert(key, data, size);
-}
-
-uint64_t
-BiometricEvaluation::IO::CompressedRecordStore::sequence(
-    std::string &key,
-    void *data,
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::CompressedRecordStore::i_sequence(
+    bool returnData,
     int cursor)
 {
+	BE::IO::RecordStore::Record record;
 	/* Obtain the next key, but not data, since it is compressed */
-	_rs->sequence(key, nullptr, cursor);
+	record.key = _rs->sequenceKey(cursor);
 	
-	/* Can't call read() with nullptr data */
-	if (data == nullptr)
-		return (this->length(key));
-	else
-		return (this->read(key, data));
+	if (returnData == true)
+		record.data = this->read(record.key);
+	return (record);
+}
+
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::CompressedRecordStore::sequence(
+    int cursor)
+{
+	return (i_sequence(true, cursor));
+}
+
+std::string
+BiometricEvaluation::IO::CompressedRecordStore::sequenceKey(
+    int cursor)
+{
+	BiometricEvaluation::IO::RecordStore::Record record =
+	    i_sequence(false, cursor);
+	return (record.key);
 }
 
 /*

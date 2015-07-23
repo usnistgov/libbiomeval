@@ -20,7 +20,7 @@ stream;
 \item With a \class{AutoArray::uint8Array}: Memory usage will be twice that of
 the size of the container stream;
 \item With a \code{std::shared\_ptr} wrapping a \class{AutoArray::uint8Array}:
-Memory usage can equal to the size of the container stream. Applications
+Memory usage equal to the size of the container stream. Applications
 must not modify the container data.
 \end{enumerate}
 
@@ -132,7 +132,10 @@ main(int argc, char* argv[])
                 try {
                         auto frame = stream->getFrame(f);
                         count++;
-			/* Do something with the frame */
+			/* Do something with frame.data */
+			std::cout << "frame size is "
+			    << frame.size.xSize << "x" << frame.size.ySize
+			    << std::endl;
                 } catch (Error::ParameterError &e) {
                         cout << "No more frames.";
                         break;

@@ -52,54 +52,58 @@ is consistent for all strategies by the use of common exceptions.
 
 \class{RecordStore}s provide no semantic meaning to the nature of the data that passes
 through the store. Each record is an opaque object, given to the store as a
-pointer and data length, and is associated with a string the which is the key.
-Keys must
-be unique and are associated with a single record. Attempts to insert multiple
-records with the same key result in an exception being thrown.
+managed memory object, or pointer and data length, and is associated with a
+string the which is the key.  Keys must
+be unique and are associated with a single data item. Attempts to insert
+multiple records with the same key result in an exception being thrown.
 
 \lstref{lst:recordstoreuse} illustrates the use of a database
 \class{RecordStore} within an application.
 
 \begin{lstlisting}[caption={Using a \class{RecordStore}}, label=lst:recordstoreuse]
 #include <be_io_dbrecstore.h>
+#include <be_io_utility.h>
+using namespace BiometricEvaluation;
 int
 main(int argc, char* argv[]) {
 
-    IO::DBRecordStore *rs;
+    std::shared_ptr<IO::RecordStore> srs;
     try {
-	rs = new IO::DBRecordStore("myRecords", "My Record Store");
+	srs = IO::RecordStore::createRecordStore(
+	    "myRecords", "My Record Store",
+	    IO::RecordStore::Kind::BerkeleyDB);
     } catch (Error::Exception& e) {
-	cout << "Caught " << e.what() << endl;
+	cout << "Caught " << e.whatString() << endl;
 	return (EXIT_FAILURE);
     }
-    std::unique_ptr<IO::DBRecordStore> urs(rs);
 
     try {
 	Memory::uint8Array theData;
+	theData = getSomeData();
+	srs->insert("key1", theData);
 
 	theData = getSomeData();
-	urs->insert("key1", theData);
-
-	theData = getSomeData();
-	urs->insert("key2", theData);
+	srs->insert("key2", theData);
 
     } catch (Error::Exception& e) {
-	cout << "Caught " << e.what() << endl;
+	cout << "Caught " << e.whatString() << endl;
 	return (EXIT_FAILURE);
     }
 
     // Some more processing where new data for a key comes in ...
     theData = getSomeData();
-    urs->replace("key1", theData);
+    srs->replace("key1", theData);
   
-    // Obtain the data for all keys ...
-    string theKey;
+    // Obtain the data for all keys and write data to a file
     while (true) {
-	uint64_t len = rs->sequence(theKey, theData);
-	cout << "Read data for key " << theKey << " of length " << len << endl;
+	IO::RecordStore::Record record = srs->sequence();
+	cout << "Read data for key " << record.key << " of length "
+	    << record.data.size() << endl;
+	IO::Utility::writeFile(record.data, record.key);
     }
     // The data for the key is no longer needed ...
-    urs->remove("key1");
+    srs->remove("key1");
+    return (EXIT_SUCCESS);
 }
 \end{lstlisting}
 
@@ -165,7 +169,7 @@ try {
     cout << "The Log Cabinet already exists." << endl;
     return (-1);
 } catch (Error::StrategyError& e) {
-    cout << "Caught " << e.what() << endl;
+    cout << "Caught " << e.whatString() << endl;
     return (-1);
 }
 std::unique_ptr<FileLogCabinet> ulc(lc);
@@ -175,7 +179,7 @@ try {
     cout << "The log sheet already exists." << endl;
     return (-1);
 } catch (Error::StrategyError& e) {
-    cout << "Caught " << e.what() << endl;
+    cout << "Caught " << e.whatString() << endl;
     return (-1);
 }
 ls->setAutoSync(true);	// Force write of every entry when finished
@@ -215,10 +219,10 @@ string fname = "test.prop";
 try {
     props = new IO::Properties(fname);
 } catch (Error::StrategyError &e) {
-    cerr << "Caught " << e.what()  << endl;
+    cerr << "Caught " << e.whatString()  << endl;
     return;
 } catch (Error::FileError& e) {
-    cerr << "A file error occurred: " << e.what() << endl;
+    cerr << "A file error occurred: " << e.whatString() << endl;
     return;
 }
 props->setProperty("foo", "bar");
@@ -267,7 +271,7 @@ try {
 	compressor->compress("largeInputFile", "compressedOutputFile");
 	compressor->compress(largeBuffer, compressedBuffer);
 } catch (Error::Exception &e) {
-	cerr << "Could not compress (" << e.what() << ')' << endl;
+	cerr << "Could not compress (" << e.whatString() << ')' << endl;
 }
 \end{lstlisting}
 

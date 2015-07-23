@@ -15,6 +15,8 @@
 #include <be_memory_autoarray.h>
 #include <be_text.h>
 
+namespace BE = BiometricEvaluation;
+
 const std::string BiometricEvaluation::IO::ListRecordStore::
     KEYLISTFILENAME("KeyList.txt");
 const std::string BiometricEvaluation::IO::ListRecordStore::
@@ -55,13 +57,12 @@ BiometricEvaluation::IO::ListRecordStore::~ListRecordStore()
 	this->_keyListFile->close();
 }
 
-uint64_t
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::IO::ListRecordStore::read(
-    const std::string &key,
-    void *const data)
+    const std::string &key)
     const
 {
-	return (this->_sourceRecordStore->read(key, data));
+	return (this->_sourceRecordStore->read(key));
 }
 
 uint64_t
@@ -72,10 +73,9 @@ BiometricEvaluation::IO::ListRecordStore::length(
 	return (this->_sourceRecordStore->length(key));
 }
 
-uint64_t
-BiometricEvaluation::IO::ListRecordStore::sequence(
-    std::string &key,
-    void *const data,
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::ListRecordStore::i_sequence(
+    bool returnData,
     int cursor)
 {
 	if ((cursor != BE_RECSTORE_SEQ_START) &&
@@ -106,14 +106,27 @@ BiometricEvaluation::IO::ListRecordStore::sequence(
 	this->setCursor(BE_RECSTORE_SEQ_NEXT);
 
 	/* Read the record from the source store; let exceptions float out */
-	uint64_t len;
-	if (data != nullptr)
-		len = this->_sourceRecordStore->read(line, data);
-	else
-		len = this->_sourceRecordStore->length(line);
-	key = line;
+	BE::IO::RecordStore::Record record;
+	record.key = line;
+	if (returnData == true)
+		record.data = this->_sourceRecordStore->read(record.key);
+	return (record);
+}
 
-	return (len);
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::ListRecordStore::sequence(
+    int cursor)
+{
+	return (i_sequence(true, cursor));
+}
+
+std::string
+BiometricEvaluation::IO::ListRecordStore::sequenceKey(
+    int cursor)
+{
+	BiometricEvaluation::IO::RecordStore::Record record =
+	    i_sequence(false, cursor);
+	return (record.key);
 }
 
 void
@@ -127,7 +140,7 @@ BiometricEvaluation::IO::ListRecordStore::setCursorAtKey(
 	Text::removeLeadingTrailingWhitespace(searchKey);
 	for (;;) {
 		try {
-			this->sequence(sequencedKey, nullptr);
+			sequencedKey = this->sequenceKey();
 			if (sequencedKey == searchKey)
 				break;
 		} catch (Error::ObjectDoesNotExist) {

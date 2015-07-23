@@ -189,11 +189,11 @@ TestRecordProcessor::processRecord(const std::string &key)
 	    << " and contents is [" << buf << "]";
 	BE::MPI::logEntry(*log);
 
-	Memory::uint8Array value(0);
+	Memory::uint8Array value;
 	std::shared_ptr<IO::RecordStore> inputRS =
 	    this->getResources()->getRecordStore();
 	try {
-		inputRS->read(key, value);
+		value = inputRS->read(key);
 	} catch (Error::Exception &e) {
 		*log << string(__FUNCTION__) <<
 		    " could not read record: " <<

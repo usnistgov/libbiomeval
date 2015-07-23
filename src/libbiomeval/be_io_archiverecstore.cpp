@@ -259,10 +259,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::read_manifest()
 	}
 }
 
-uint64_t
+BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::IO::ArchiveRecordStore::read(
-    const std::string &key,
-    void *const data)
+    const std::string &key)
     const
 {
 	if (!validateKeyString(key))
@@ -289,11 +288,13 @@ BiometricEvaluation::IO::ArchiveRecordStore::read(
 	_archivefp.seekg(entry->second.offset, std::ios_base::beg);
 	if (!_archivefp)
 		throw Error::StrategyError("Archive cannot seek");
-	_archivefp.read(static_cast<char *>(data), entry->second.size);
+
+	Memory::uint8Array data(entry->second.size);
+	_archivefp.read((char *)&data[0], entry->second.size);
 	if (!_archivefp)
 		throw Error::StrategyError("Archive cannot read");
 
-	return (entry->second.size);
+	return (data);
 }
 
 void
@@ -391,34 +392,6 @@ BiometricEvaluation::IO::ArchiveRecordStore::remove(
 }
 
 void
-BiometricEvaluation::IO::ArchiveRecordStore::replace(
-    const std::string &key,
-    const void *const data,
-    const uint64_t size)
-{
-	if (getMode() == IO::READONLY)
-		throw Error::StrategyError("RecordStore was opened read-only");
-	if (!validateKeyString(key))
-		throw Error::StrategyError("Invalid key format");
-
-	try {
-		remove(key);
-	} catch (Error::ObjectDoesNotExist &e) {
-		throw Error::ObjectDoesNotExist(e.what());
-	} catch (Error::StrategyError &e) {
-		throw Error::StrategyError(e.what());
-	}
-
-	try {
-		insert(key, data, size);
-	} catch (Error::ObjectExists &e) {
-		throw Error::StrategyError(e.what());
-	} catch (Error::StrategyError &e) {
-		throw Error::StrategyError(e.what());
-	}
-}
-
-void
 BiometricEvaluation::IO::ArchiveRecordStore::flush(
     const std::string &key)
     const
@@ -450,10 +423,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::flush(
 	}
 }
 
-uint64_t
-BiometricEvaluation::IO::ArchiveRecordStore::sequence(
-    std::string &key,
-    void *const data,
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::ArchiveRecordStore::i_sequence(
+    bool returnData,
     int cursor)
 {
 	if ((cursor != BE_RECSTORE_SEQ_START) &&
@@ -494,10 +466,26 @@ BiometricEvaluation::IO::ArchiveRecordStore::sequence(
 		throw Error::ObjectDoesNotExist("No record at position");
 
 	setCursor(BE_RECSTORE_SEQ_NEXT);
-	key.assign(_cursorPos->first);
-	if (data == nullptr)
-		return length(key);
-	return read(key, data);
+	BE::IO::RecordStore::Record record;
+	record.key.assign(_cursorPos->first);
+	if (returnData)
+		record.data = this->read(record.key);
+	return (record);
+}
+
+BiometricEvaluation::IO::RecordStore::Record
+BiometricEvaluation::IO::ArchiveRecordStore::sequence(
+    int cursor)
+{
+	return (i_sequence(true, cursor));
+}
+
+std::string
+BiometricEvaluation::IO::ArchiveRecordStore::sequenceKey(
+    int cursor)
+{
+	RecordStore::Record record = i_sequence(false, cursor);
+	return (record.key);
 }
 
 void 

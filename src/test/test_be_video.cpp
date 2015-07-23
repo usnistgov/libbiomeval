@@ -108,7 +108,7 @@ main(int argc, char* argv[])
 	cout << "First video stream: " << stream->getFPS() << " FPS, "
 	    << expectedCount << " frames." << endl;
 	cout << "Read expected number of frames from the first stream, "
-	    << " saving first 50: ";
+	    << "saving first 50: ";
 	cout.flush();
 	uint64_t count = 0;
 	for (uint64_t f = 1; f <= expectedCount; f++) {
@@ -119,15 +119,16 @@ main(int argc, char* argv[])
 				savePBM(frame, "frame-", "P6", "ppm", f);
 		} catch (Error::ParameterError &e) {
 			std::cout << "Caught " << e.whatString() << endl;
-			return (EXIT_FAILURE);
+			break;
 		} catch (Error::Exception &e) {
 			break;
 		}
 	}
 	if (count == expectedCount)
-		cout << "Success; found " << count << " frames." << endl;
+		cout << "Success; ";
 	else
-		cout << "Fail; no frames found." << endl;
+		cout << "Fail; ";
+	cout << "found " << count << " frames." << endl;
 
 	/*
 	 * Read a few frames in reverse order.
@@ -178,6 +179,7 @@ main(int argc, char* argv[])
 		cout << "Caught: " << e.whatString() << endl;
 		cout << "Fail." << endl;
 	}
+
 	return (EXIT_SUCCESS);
 }
 

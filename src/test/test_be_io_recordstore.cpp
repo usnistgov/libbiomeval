@@ -12,12 +12,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 #include <memory>
 #include <string>
-
 #include <unistd.h>
 
 #include <be_io_utility.h>
+#include <be_memory_autoarrayutility.h>
 
 #ifdef FILERECORDSTORETEST
 #include <be_io_filerecstore.h>
@@ -57,7 +58,6 @@ using namespace BiometricEvaluation;
 using namespace std;
 
 static const int SEQUENCECOUNT = 10;
-static const int RDATASIZE = 64;
 static string rsPath;
 
 /*
@@ -66,18 +66,19 @@ static string rsPath;
 static void
 testSequence(IO::RecordStore *rs)
 {
-	char rdata[RDATASIZE];
-	string theKey;
+	BiometricEvaluation::IO::RecordStore::Record record;
 	uint64_t rlen;
 
 	try {
 		int i = 1;
 		while (true) {
 			try {
-				rlen = rs->sequence(theKey, rdata);
-				cout << "Record " << i << " key is " << theKey;
+				record = rs->sequence();
+				rlen = record.data.size();
+				cout << "Record " << i << " key is " <<
+				    record.key;
 				cout << "; record length is " << rlen << "; ";
-				printf("data is [%s]\n", rdata);
+				cout << "data is [" << record.data << "]" << endl;
 			} catch (Error::ObjectDoesNotExist &e) {
 				break;
 			} catch (Error::StrategyError &e) {
@@ -96,44 +97,44 @@ testIterator(
 {
 	cout << "for loop:" << endl;
 	for (auto it = rs->begin(); it != rs->end(); it++) {
-		cout << "Record: " << it->first << ", Length: "  <<
-		    (*it).second.size() << " ";
-		printf("data is [%s]\n", static_cast<uint8_t*>(it->second));
+		cout << "Record: " << it->key << ", Length: "  <<
+		    (*it).data.size() << " ";
+		printf("data is [%s]\n", static_cast<uint8_t*>(it->data));
 	}
 
 	cout << "for_each with lambda:" << endl;
 	std::for_each(rs->begin(), rs->end(),
 	    [](IO::RecordStore::iterator::value_type i) {
-		cout << "Record: " << i.first << ", Length: "  <<
-		    i.second.size() << " ";
-		printf("data is [%s]\n", static_cast<uint8_t*>(i.second));
+		cout << "Record: " << i.key << ", Length: "  <<
+		    i.data.size() << " ";
+		printf("data is [%s]\n", static_cast<uint8_t*>(i.data));
 	    }
 	);
 
 	/* Test searching */
 	auto findKey3 = std::find_if(rs->begin(), rs->end(),
 	[](IO::RecordStore::iterator::value_type i) -> bool {
-		return (i.first == "key3");
+		return (i.key == "key3");
 	});
 	cout << "Has \"key3\"?: " << boolalpha << (findKey3 != rs->end()) <<
 	    endl;
 	if (findKey3 != rs->end())
-		cout << "\tValue: [" << findKey3->second << "]" << endl;
+		cout << "\tValue: [" << findKey3->data << "]" << endl;
 
 	/* Test implicit STL iterator functions */
 	auto it = rs->begin();
 	it = std::next(it, 3);
-	cout << "Record 4: " << it->first << endl;
+	cout << "Record 4: " << it->key << endl;
 
 	it = rs->begin();
 	std::advance(it, 6);
-	cout << "Record 7: " << it->first << endl;
+	cout << "Record 7: " << it->key << endl;
 
 	it = rs->begin();
 	if (it != rs->begin())
 		cout << "FAILED equivalence test" << endl;
 	it = it + 2;
-	cout << "Record 3: " << it->first << endl;
+	cout << "Record 3: " << it->key << endl;
 }
 
 #ifdef MERGETESTDEFINED
@@ -187,17 +188,27 @@ testMerge()
 		merge_rs[2] = new IO::SQLiteRecordStore(merge_rs_fn[2],
 		    "RS for merge");
 #endif
-		merge_rs[0]->insert("0", "0", 2);
-		merge_rs[0]->insert("1", "1", 2);
-		merge_rs[0]->insert("2", "2", 2);
+		Memory::uint8Array data(2);
+		data.copy((uint8_t *)"0", 2);
+		merge_rs[0]->insert("0", data);
+		data.copy((uint8_t *)"1", 2);
+		merge_rs[0]->insert("1", data);
+		data.copy((uint8_t *)"2", 2);
+		merge_rs[0]->insert("2", data);
 		merge_rs[0]->sync();
-		merge_rs[1]->insert("3", "3", 2);
-		merge_rs[1]->insert("4", "4", 2);
-		merge_rs[1]->insert("5", "5", 2);
+		data.copy((uint8_t *)"3", 2);
+		merge_rs[1]->insert("3", data);
+		data.copy((uint8_t *)"4", 2);
+		merge_rs[1]->insert("4", data);
+		data.copy((uint8_t *)"5", 2);
+		merge_rs[1]->insert("5", data);
 		merge_rs[1]->sync();
-		merge_rs[2]->insert("6", "6", 2);
-		merge_rs[2]->insert("7", "7", 2);
-		merge_rs[2]->insert("8", "8", 2);
+		data.copy((uint8_t *)"6", 2);
+		merge_rs[2]->insert("6", data);
+		data.copy((uint8_t *)"7", 2);
+		merge_rs[2]->insert("7", data);
+		data.copy((uint8_t *)"8", 2);
+		merge_rs[2]->insert("8", data);
 		merge_rs[2]->sync();
 
 		const string merged_rs_fn = "test_merged";
@@ -260,17 +271,19 @@ runTests(IO::RecordStore *rs)
 	 */
 	cout << "-------------------------------------------------" << endl;
 	string theKey("firstRec");
-	string wdata = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	string dataStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	uint64_t rlen;
-	uint64_t wlen = wdata.size();
+	uint64_t wlen = dataStr.size() + 1;
+	Memory::uint8Array wdata(wlen);
+	wdata.copy((uint8_t*)dataStr.c_str(), wlen);
 	try {
-		cout << "insert(" << theKey << "): ";
-		rs->insert(theKey, wdata.c_str(), wlen);
+		cout << "insert(" << theKey << ", " << wdata << "): ";
+		rs->insert(theKey, wdata);
 	} catch (Error::ObjectExists& e) {
 		cout << "exists; deleting." << endl;
 		try {
 			rs->remove(theKey);
-			rs->insert(theKey, wdata.c_str(), wlen);
+			rs->insert(theKey, wdata);
 		} catch (Error::StrategyError& e) {
 			cout << "Could not remove, and should be able to: " <<
 			    e.what() << "." << endl;
@@ -286,7 +299,7 @@ runTests(IO::RecordStore *rs)
 	/* RecordStores must not allow duplicate keys */
 	try {
 		cout << "insert(" << theKey << ") -- duplicate: ";
-		rs->insert(theKey, wdata.c_str(), wlen);
+		rs->insert(theKey, wdata);
 		cout << "FAILED" << endl;
 		return (-1);
 	} catch (Error::ObjectExists) {
@@ -296,11 +309,11 @@ runTests(IO::RecordStore *rs)
 		return (-1);
 	}
 
-	char rdata[RDATASIZE];
-	bzero(rdata, RDATASIZE);
+	Memory::uint8Array rdata;
 	try {
 		cout << "read(" << theKey << "): ";
-		rlen = rs->read(theKey, rdata);
+		rdata = rs->read(theKey);
+		rlen = rdata.size();
 	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "failed: Does not exist. " << endl;
 		return (-1);
@@ -314,11 +327,12 @@ runTests(IO::RecordStore *rs)
 	else
 		cout << "and length is correct." << endl;
 
-	wdata = "ZYXWVUTSRQPONMLKJIHGFEDCBA0123456789";
+	dataStr = "ZYXWVUTSRQPONMLKJIHGFEDCBA0123456789";
+	Memory::AutoArrayUtility::setString(wdata, dataStr);
 	wlen = wdata.size();
 	try {
 		cout << "replace(" << theKey << "): ";
-		rs->replace(theKey, wdata.c_str(), wlen);
+		rs->replace(theKey, wdata);
 	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "does not exist!" << endl;
 		return (-1);
@@ -335,8 +349,7 @@ runTests(IO::RecordStore *rs)
 		cout << "failed:" << e.what() << "." << endl;
 	}
 
-	bzero(rdata, RDATASIZE);
-	rlen = rs->read(theKey, rdata);
+	rdata = rs->read(theKey);
 	cout << "Second read yields [" << rdata << "]" << endl;
 
 	try {
@@ -363,11 +376,10 @@ runTests(IO::RecordStore *rs)
 	/*
 	 * Try to read the record we just deleted.
 	 */
-	bzero(rdata, RDATASIZE);
 	bool success;
 	try {
 		cout << "Non-existent read(" << theKey << "): ";
-		rlen = rs->read(theKey, rdata);
+		rdata = rs->read(theKey);
 		success = false;
 	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "succeeded." << endl;
@@ -388,14 +400,17 @@ runTests(IO::RecordStore *rs)
 		return (-1);
 	}
 	cout << "\nSpace usage with no records is " << rs->getSpaceUsed() << endl;
-	cout << "Sequencing records..." << endl;
+	cout << "Re-populate then sequence records..." << endl;
 	int i;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
-		bzero(rdata, RDATASIZE);
-		snprintf(rdata, RDATASIZE, "key%u", i);
-		theKey.assign(rdata);
-		snprintf(rdata, RDATASIZE, "Bogus data for key%u", i);
-		rs->insert(theKey, rdata, RDATASIZE);
+		stringstream sstr;
+		sstr << "key" << i;
+		theKey = sstr.str();
+		sstr.str("");
+		sstr << "Bogus data for key" << i;
+		Memory::AutoArrayUtility::setString(wdata, sstr.str());
+		wlen = wdata.size();
+		rs->insert(theKey, wdata);
 	}
 	testSequence(rs);
 	cout << "Iterator version:" << endl;
@@ -403,14 +418,13 @@ runTests(IO::RecordStore *rs)
 
 	/*
 	 * 'Need to sequence to a specific location as we can't just pick
-	 * assign a key because we need to start in the middle, and the key
-	 * name we hard-code may be the last key.
+	 * a key because we need to start in the middle, and the key we
+	 * hard-code may be the last key.
 	 */
-	string tempKey;
-	rlen = rs->sequence(tempKey, nullptr,
+	string tempKey = rs->sequenceKey(
 	    IO::RecordStore::BE_RECSTORE_SEQ_START);
 	for (int i = 0; i < 3; i++)
-		rlen = rs->sequence(tempKey, nullptr);
+		tempKey = rs->sequenceKey();
 	cout << endl << "Sequence, starting from \"" << tempKey << "\"" << endl;
 	try {
 		rs->setCursorAtKey(tempKey);
@@ -436,7 +450,7 @@ runTests(IO::RecordStore *rs)
 
 	/* Test sequencing from the start */
 	cout << endl << "Sequencing from BE_RECSTORE_SEQ_START:" << endl;
-	rs->sequence(theKey, rdata, IO::RecordStore::BE_RECSTORE_SEQ_START);
+	theKey = rs->sequenceKey(IO::RecordStore::BE_RECSTORE_SEQ_START);
 	testSequence(rs);
 	cout << "Should sequence starting at 'Record 2' key from first list."
 	    << endl;
@@ -446,10 +460,9 @@ runTests(IO::RecordStore *rs)
 	    << endl;
 
 	/* Reinsert the record for the key that was deleted above */
-	snprintf(rdata, RDATASIZE, "Bogus data for %s ", tempKey.c_str());
-	Memory::uint8Array aardata;
-	aardata.copy((uint8_t *)rdata, RDATASIZE);
-	rs->insert(tempKey, aardata);
+	string str = "Bogus data for " + tempKey;
+	Memory::AutoArrayUtility::setString(rdata, str);
+	rs->insert(tempKey, rdata);
 
 	cout << endl << "Changing RecordStore path..." << endl;
 	try {
@@ -469,8 +482,9 @@ runTests(IO::RecordStore *rs)
 
 	cout << "\nDeleting all records..." << endl;
 	for (i = 0; i < SEQUENCECOUNT; i++) {
-		snprintf(rdata, RDATASIZE, "key%u", i);
-		theKey.assign(rdata);
+		stringstream sstr;
+		sstr << "key" << i;
+		theKey = sstr.str();
 		try { 
 			rs->remove(theKey);
 		} catch (Error::Exception &e) {
@@ -485,14 +499,16 @@ runTests(IO::RecordStore *rs)
 	theKey = "ZeroLength";
 	cout << "\nInserting zero-length record... ";
 	try {
-		rs->insert(theKey, wdata.c_str(), 0);
+		/* Use the other 'void *' form of insert() */
+		rs->insert(theKey, nullptr, 0);
 		cout << "success." << endl;
 	} catch (Error::Exception &e) {
 		cout << "Caught: " << e.what() << endl;
 	}
 	cout << "Read zero-length record... ";
 	try {
-		rlen = rs->read(theKey, rdata);
+		rdata = rs->read(theKey);
+		rlen = rdata.size();
 		cout << "length is " << rlen << "; ";
 		if (rlen == 0)
 			cout << "success." << endl;
@@ -521,7 +537,7 @@ runTests(IO::RecordStore *rs)
 	}
 	cout << "Replacing nonexistent key, catching exception... ";
 	try {
-		rs->replace(theKey, rdata, RDATASIZE);
+		rs->replace(theKey, rdata);
 		cout << "failed." << endl;
 		return (-1);
 	} catch (Error::ObjectDoesNotExist &e) {
@@ -529,7 +545,7 @@ runTests(IO::RecordStore *rs)
 	}
 	cout << "Read nonexistent key, catching exception... ";
 	try {
-		rs->read(theKey, rdata);
+		rdata = rs->read(theKey);
 		cout << "failed." << endl;
 		return (-1);
 	} catch (Error::ObjectDoesNotExist &e) {
@@ -563,7 +579,7 @@ runTests(IO::RecordStore *rs)
 	cout << "\nInsert with an invalid key..." << endl;
 	try {
 		string badKey("test/with/path/chars");
-		rs->insert(badKey, rdata, RDATASIZE);
+		rs->insert(badKey, rdata);
 		cout << "failed" << endl;
 		return (-1);
 	} catch (Error::ObjectExists &e) {

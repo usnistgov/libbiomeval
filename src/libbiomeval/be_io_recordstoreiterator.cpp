@@ -40,13 +40,13 @@ BiometricEvaluation::IO::RecordStoreIterator::RecordStoreIterator(
 BiometricEvaluation::IO::RecordStoreIterator::reference
 BiometricEvaluation::IO::RecordStoreIterator::operator*()
 {
-	return (_currentPair);
+	return (_currentRecord);
 }
 
 BiometricEvaluation::IO::RecordStoreIterator::pointer
 BiometricEvaluation::IO::RecordStoreIterator::operator->()
 {
-	return (&_currentPair);
+	return (&_currentRecord);
 }
 
 BiometricEvaluation::IO::RecordStoreIterator
@@ -87,7 +87,7 @@ BiometricEvaluation::IO::RecordStoreIterator::operator==(
 {
 	return ((this->_recordStore == rhs._recordStore) &&
 	    (this->_atEnd == rhs._atEnd) &&
-	    (this->_currentPair.first == rhs._currentPair.first));
+	    (this->_currentRecord.key == rhs._currentRecord.key));
 }
 
 /*
@@ -98,9 +98,8 @@ void
 BiometricEvaluation::IO::RecordStoreIterator::restart()
 {
 	try {
-		std::string key;
-		_recordStore->sequence(key, nullptr,
-		    RecordStore::BE_RECSTORE_SEQ_START);
+		std::string key = _recordStore->sequenceKey(
+		     RecordStore::BE_RECSTORE_SEQ_START);
 		_recordStore->setCursorAtKey(key);
 	} catch (Error::ObjectDoesNotExist) {
 		this->setEnd();
@@ -119,22 +118,22 @@ BiometricEvaluation::IO::RecordStoreIterator::step(
 	std::string key;
 	for (difference_type i = 0; i < numSteps; i++) {
 		try {
-			_recordStore->sequence(key, nullptr);
+			key = _recordStore->sequenceKey();
 		} catch (Error::ObjectDoesNotExist) {
 			this->setEnd();
 			return;
 		}
 	}
 
-	Memory::uint8Array value;
-	_recordStore->read(key, value);
-	_currentPair = std::make_pair(key, value);
+	Memory::uint8Array data;
+	data = _recordStore->read(key);
+	_currentRecord = RecordStore::Record(key, data);
 }
 
 void
 BiometricEvaluation::IO::RecordStoreIterator::setEnd()
 {
 	_atEnd = true;
-	_currentPair = std::make_pair("", Memory::uint8Array());
+	_currentRecord = RecordStore::Record();
 }
 

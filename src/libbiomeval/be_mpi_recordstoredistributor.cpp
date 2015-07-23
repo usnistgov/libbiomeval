@@ -120,12 +120,11 @@ BiometricEvaluation::MPI::RecordStoreDistributor::createWorkPackage(
 	
 	this->_recordsRemaining -= keyCount;
 
-	std::string key;
 	/*
 	 * The value array must be 0-sized to start, and will stay that way
 	 * if values are not to be sent.
 	 */
-	BE::Memory::uint8Array value(0);
+	BE::IO::RecordStore::Record record;
 	BE::Memory::uint8Array::size_type index = 0;
 	uint64_t realKeyCount = 0;
 	std::shared_ptr<IO::RecordStore> recordStore =
@@ -138,11 +137,11 @@ BiometricEvaluation::MPI::RecordStoreDistributor::createWorkPackage(
 	for (uint64_t n = 0; n < keyCount; n++) {
 		try {
 			if (this->_includeValues)
-				recordStore->sequence(key, value);
+				record = recordStore->sequence();
 			else
-				recordStore->sequence(key);
-			fillBufferWithKeyAndValue(packageData, key, value,
-			    index);
+				record.key = recordStore->sequenceKey();
+			fillBufferWithKeyAndValue(packageData, record.key,
+			    record.data, index);
 		} catch (Error::Exception &e) {
 			log->writeDebug("Caught " + e.whatString());
 			continue;

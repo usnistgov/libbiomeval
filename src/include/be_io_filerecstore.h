@@ -75,6 +75,12 @@ namespace BiometricEvaluation {
 			 */
 			uint64_t getSpaceUsed() const;
 
+			/*
+			 * We need the base class insert() as well; otherwise,
+			 * it is hidden by the declaration below.
+			 */
+			using RecordStore::insert;
+
 			void insert(
 			    const std::string &key,
 			    const void *const data,
@@ -83,24 +89,31 @@ namespace BiometricEvaluation {
 			void remove(
 			    const std::string &key);
 
-			uint64_t read(
-			    const std::string &key,
-			    void *const data) const;
+			Memory::uint8Array read(
+			    const std::string &key) const;
 
-			virtual void replace(
+			/*
+			 * We need the base class replace() as well; otherwise,
+			 * it is hidden by the declaration below.
+			 */
+			using RecordStore::replace;
+
+			void replace(
 			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size);
+			    const uint64_t size) override final;
 
-			virtual uint64_t length(
+			uint64_t length(
 			    const std::string &key) const;
 
 			void flush(
 			    const std::string &key) const;
 
-			uint64_t sequence(
-			    std::string &key,
-			    void *const data = nullptr,
+			RecordStore::Record sequence(
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
+
+			std::string
+			sequenceKey(
 			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			void setCursorAtKey(
@@ -125,6 +138,28 @@ namespace BiometricEvaluation {
 
 			uint64_t _cursorPos;
 			std::string _theFilesDir;
+
+			/**
+			 * Internal implementation of sequencing through a
+			 * store, returning the key, and optionally, the
+			 * data.
+			 * @param[in] returnData
+			 * 	Whether to return the data with the key.
+			 * @param[in] cursor
+			 *	The location within the sequence of the
+			 *	key/data pair to return.
+			 * @return
+			 *	The record that is next in sequence.
+			 * @throw Error::ObjectDoesNotExist
+			 *	End of sequencing.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			RecordStore::Record
+			i_sequence(
+			    bool returnData,
+			    int cursor); 
 		};
 	}
 }

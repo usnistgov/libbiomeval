@@ -82,7 +82,7 @@ static void
 printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
     const string &name, const int idx)
 {
-	cout << "[Start of View]" << endl;
+	cout << "[Start of View " << idx <<"]" << endl;
 	cout << "\tRecord Type: " <<
 	    static_cast<std::underlying_type<
 	    View::AN2KView::RecordType>::type>(an2kv.getRecordType()) << endl;
@@ -140,36 +140,26 @@ main(int argc, char* argv[]) {
 	/*
 	 * Read some AN2K records and construct the View objects.
 	 */
-	Memory::uint8Array data;
-	string key;
-	while (true) {		// Loop through all records in store
-		uint64_t rlen;
+	BiometricEvaluation::IO::RecordStore::Record record;
+	uint64_t count = rs->getCount();
+	for (uint64_t c = 0; c < count; c++) {
 		try {
-			rlen = rs->sequence(key, nullptr);
-		} catch (Error::ObjectDoesNotExist &e) {
-			break;
-		} catch (Error::Exception &e) {
-			cout << "Failed sequence: " << e.what() << endl;
-			return (EXIT_FAILURE);
-		}
-		data.resize(rlen);
-		try {
+			record = rs->sequence();
 			cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
-			cout << "AN2K record " << key << ":" << endl;
-			rs->read(key, data);
+			cout << "AN2K record " << record.key << ":" << endl;
 			
-			DataInterchange::AN2KRecord an2k(data);
+			DataInterchange::AN2KRecord an2k(record.data);
 			printRecordInfo(an2k);
 
 			std::vector<Finger::AN2KViewCapture> captures =
 			    an2k.getFingerCaptures();
 			for (size_t i = 0; i < captures.size(); i++) {
-				printViewInfo(captures[i], key + ".cap", i);
+				printViewInfo(captures[i], record.key + ".cap", i);
 			}
 			std::vector<Finger::AN2KViewLatent> latents =
 			    an2k.getFingerLatents();
 			for (size_t i = 0; i < latents.size(); i++) {
-				printViewInfo(latents[i], key + ".lat", i);
+				printViewInfo(latents[i], record.key + ".lat", i);
 			}
 			std::vector<Finger::AN2KMinutiaeDataRecord> minutiae = 
 			    an2k.getMinutiaeDataRecordSet();
@@ -188,7 +178,7 @@ main(int argc, char* argv[]) {
 			}
 			cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 		} catch (Error::Exception &e) {
-			cout << "Failed read: " << e.what() << endl;
+			cout << "Failed sequence: " << e.what() << endl;
 			return (EXIT_FAILURE);
 		}
 	}

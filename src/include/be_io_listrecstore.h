@@ -70,6 +70,12 @@ namespace BiometricEvaluation
 			 * Implementation of the RecordStore interface.
 			 */
 
+			/*
+			 * We need the base class insert() as well; otherwise,
+			 * it is hidden by the declaration below.
+			 */
+			using RecordStore::insert;
+
 			void
 			insert(
 			    const std::string &key,
@@ -80,16 +86,21 @@ namespace BiometricEvaluation
 			remove(
 			    const std::string &key);
 
-			uint64_t
+			Memory::uint8Array
 			read(
-			    const std::string &key,
-			    void *const data) const;
+			    const std::string &key) const;
+
+			/*
+			 * We need the base class replace() as well; otherwise,
+			 * it is hidden by the declaration below.
+			 */
+			using RecordStore::replace;
 
 			void
 			replace(
 			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size);
+			    const uint64_t size) override final;
 		
 			uint64_t
 			length(
@@ -102,10 +113,12 @@ namespace BiometricEvaluation
     			void
 			sync() const;
 
-			uint64_t
+			RecordStore::Record
 			sequence(
-			    std::string &key,
-			    void *const data = nullptr,
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
+
+			std::string
+			sequenceKey(
 			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			void
@@ -146,6 +159,28 @@ namespace BiometricEvaluation
 			 */
 			void
 			CRUDMethodCalled() const;
+
+			/**
+			 * Internal implementation of sequencing through a
+			 * store, returning the key, and optionally, the
+			 * data.
+			 * @param[in] returnData
+			 * 	Whether to return the data with the key.
+			 * @param[in] cursor
+			 *	The location within the sequence of the
+			 *	key/data pair to return.
+			 * @return
+			 *	The record that is next in sequence.
+			 * @throw Error::ObjectDoesNotExist
+			 *	End of sequencing.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			RecordStore::Record
+			i_sequence(
+			    bool returnData,
+			    int cursor); 
 		};
 	}
 }

@@ -14,14 +14,24 @@ int main(
 	 * Open RecordStore (factory).
 	 */
 
-	cout << "Testing factory open method... ";
+	cout << "Testing factory open method, read/write mode... ";
 	shared_ptr<IO::RecordStore> rs;
 	try {
 		rs = IO::RecordStore::openRecordStore(
-		    "test_data/listRecordStore", IO::READONLY);
-		cout << "success" << endl;
+		    "test_data/listRecordStore", IO::READWRITE);
+		cout << "FAIL." << endl;
+		return (1);
 	} catch (Error::Exception &e) {
-		cerr << "FAIL: " << e.what() << endl;
+		cout << "SUCCESS: " << e.what() << endl;
+	}
+
+	cout << "Testing factory open method, read-only mode... ";
+	try {
+		rs = IO::RecordStore::openRecordStore(
+		    "test_data/listRecordStore", IO::READONLY);
+		cout << "SUCCESS" << endl;
+	} catch (Error::Exception &e) {
+		cout << "FAIL: " << e.what() << endl;
 		return (1);
 	}
 
@@ -37,17 +47,17 @@ int main(
 	string key;
 	for (;;) {
 		try {
-			rs->sequence(key, nullptr);
+			key = rs->sequenceKey();
 			counter++;
 		} catch (Error::ObjectDoesNotExist) {
 			break;
 		} catch (Error::Exception &e) {
-			cerr << endl << "FAIL: " << e.what() << endl;
+			cout << endl << "FAIL: " << e.what() << endl;
 			return (2);
 		}
 	}
 	if (counter == numRecords)
-		cout << "success" << endl;
+		cout << "SUCCESS" << endl;
 	else {
 		cout << "FAIL" << endl;
 		return (3);
@@ -61,17 +71,17 @@ int main(
 	counter = 0;
 	for (;;) {
 		try {
-			rs->sequence(key, nullptr);
+			key = rs->sequenceKey();
 			counter++;
 		} catch (Error::ObjectDoesNotExist) {
                         break;
                 } catch (Error::Exception &e) {
-                        cerr << endl << "FAIL: " << e.what() << endl;
+                        cout << endl << "FAIL: " << e.what() << endl;
                         return (4);
                 }
 	}
 	if (counter == 0)
-		cout << "success" << endl;
+		cout << "SUCCESS" << endl;
 	else {
 		cout << "FAIL" << endl;
 		return (5);
@@ -91,23 +101,99 @@ int main(
 		return (6);
 	}
         for (;;) {
-                try {
-                        rs->sequence(key, nullptr);
-                        counter++;
-                } catch (Error::ObjectDoesNotExist) {
-                        break;
-                } catch (Error::Exception &e) {
-                        cerr << endl << "FAIL: " << e.what() << endl;
-                        return (7);
-                }
-        }
+		try {
+			key = rs->sequenceKey();
+			counter++;
+		} catch (Error::ObjectDoesNotExist) {
+			break;
+		} catch (Error::Exception &e) {
+			cout << endl << "FAIL: " << e.what() << endl;
+			return (7);
+		}
+	}
 	if (counter == 2)
-		cout << "success" << endl;
+		cout << "SUCCESS" << endl;
 	else {
 		cout << "FAIL" << endl;
 		return (8);
 	}
 
-	return (0);
+	/*
+	 * Try the imvalid methods of a ListRecordStore
+	 */
+	cout << "Attempt to call the invalid methods:" << endl;
+	int retval = 0;
+	Memory::uint8Array data;
+	cout << "  insert(uint8Array): ";
+	try {
+		rs->insert(key, data);
+		retval = 9;
+		cout << "FAIL." << endl;
+	} catch (Error::Exception &e) {
+		cout << "SUCCESS: " << e.what() << endl;
+	}
+
+	cout << "  insert(void *): ";
+	try {
+		rs->insert(key, nullptr, 0);
+		retval = 9;
+	} catch (Error::Exception &e) {
+		cout << "SUCCESS: " << e.what() << endl;
+	}
+
+	cout << "  replace(uint8Array): ";
+	try {
+		rs->replace(key, data);
+		retval = 9;
+		cout << "FAIL." << endl;
+	} catch (Error::Exception &e) {
+		cout << "SUCCESS: " << e.what() << endl;
+	}
+
+	cout << "  replace(void *): ";
+	try {
+		rs->replace(key, nullptr, 0);
+		retval = 9;
+	} catch (Error::Exception &e) {
+		cout << "SUCCESS: " << e.what() << endl;
+	}
+
+	cout << "  remove(): ";
+	try {
+		rs->remove(key);
+		retval = 9;
+		cout << "FAIL." << endl;
+	} catch (Error::Exception &e) {
+		cout << "SUCCESS: " << e.what() << endl;
+	}
+	
+	cout << "  flush(): ";
+	try {
+		rs->flush(key);
+		retval = 9;
+		cout << "FAIL." << endl;
+	} catch (Error::Exception &e) {
+		cout << "SUCCESS: " << e.what() << endl;
+	}
+
+	cout << "  sync(): ";
+	try {
+		rs->sync();
+		retval = 9;
+		cout << "FAIL." << endl;
+	} catch (Error::Exception &e) {
+		cout << "SUCCESS: " << e.what() << endl;
+	}
+
+	cout << "  move(): ";
+	try {
+		rs->move("/tmp/foo");
+		retval = 9;
+		cout << "FAIL." << endl;
+	} catch (Error::Exception &e) {
+		cout << "SUCCESS: " << e.what() << endl;
+	}
+
+	return (retval);
 }
 

@@ -222,11 +222,7 @@ compareProperties(
 	Memory::uint8Array storedRawData;
 	if (rawSizeDiffers == false) {
 		try {
-			storedRawData.resize(imageRS->length(key + RawSuffix));
-			if (imageRS->read(key + RawSuffix, storedRawData) != 
-			    storedRawData.size())
-				throw Error::DataError("Invalid size read");
-				
+			storedRawData = imageRS->read(key + RawSuffix);
 			for (size_t i = 0; i < storedRawData.size(); i++)
 				if (storedRawData.at(i) != genRawData.at(i))
 					throw Error::DataError("raw files "
@@ -241,12 +237,7 @@ compareProperties(
 	}
 	if (rawGraySizeDiffers == false) {
 		try {
-			storedRawData.resize(imageRS->length(key + 
-			    RawGraySuffix));
-			if (imageRS->read(key + RawGraySuffix, storedRawData) != 
-			    storedRawData.size())
-				throw Error::DataError("Invalid size read");
-				
+			storedRawData = imageRS->read(key + RawGraySuffix);
 			for (size_t i = 0; i < storedRawData.size(); i++)
 				if (storedRawData.at(i) != genRawGrayData.at(i))
 					throw Error::DataError("raw gray files "
@@ -310,14 +301,15 @@ main(
 	}
 
 	bool doPropertyCompare;
-	std::string key, rawKey, extension;
-	Memory::uint8Array imageData, propertyData;
+	std::string rawKey, extension;
+	Memory::uint8Array propertyData;
 	shared_ptr<IO::Properties> properties;
+	IO::RecordStore::Record record;
 	for (;;) {		
 		/* Read in image */
 		try {
-			imageData.resize(imageRS->sequence(key, nullptr));
-			rawKey = key;
+			record = imageRS->sequence();
+			rawKey = record.key;
 		} catch (Error::ObjectDoesNotExist) {
 			/* Exhausted sample images */
 			return (EXIT_SUCCESS);
@@ -327,7 +319,7 @@ main(
 		}
 			
 		/* Only evaluate those images in the RS we can handle */
-		extension = key.substr(key.length() - 3, 3);
+		extension = record.key.substr(record.key.length() - 3, 3);
 #ifdef FACTORYTEST
 		if (extension == "raw")
 			continue;
@@ -335,8 +327,6 @@ main(
 		if (extensions[extension] != imageType)
 			continue;
 #endif
-
-			
 		/* Check if we can verify the properties of the image */
 		try {
 			/*
@@ -344,13 +334,10 @@ main(
 			 * compressed version,
 			 */
 			if (imageType == "Raw")
-				rawKey = key.substr(0, 
-				    key.find_first_of(".") + 4);
+				rawKey = record.key.substr(0, 
+				    record.key.find_first_of(".") + 4);
 
-			propertyData.resize(imagePropRS->length(rawKey));
-			if (imagePropRS->read(rawKey, propertyData) != 
-			    propertyData.size())
-				throw Error::DataError("Invalid size read");
+			propertyData = imagePropRS->read(rawKey);
 			properties.reset(new IO::Properties(propertyData,
 			    propertyData.size()));
 			doPropertyCompare = true;
@@ -361,77 +348,69 @@ main(
 			continue;
 		}
 		
-		/* Read the image */
-		try {
-			if (imageRS->read(key, imageData) != imageData.size())
-				throw Error::DataError("Invalid size read");
-		} catch (Error::Exception &e) {
-			cerr << e.what() << endl;
-			continue;
-		}
-		
 		shared_ptr<Image::Image> image;
 #if defined WSQTEST
-		if (Image::WSQ::isWSQ(imageData, imageData.size()) == false) {
-			cerr << key << " is not a WSQ image." << endl;
+		if (Image::WSQ::isWSQ(record.data, record.data.size()) == false) {
+			cerr << record.key << " is not a WSQ image." << endl;
 			continue;
 		}
-		image.reset(new Image::WSQ(imageData, imageData.size()));
+		image.reset(new Image::WSQ(record.data, record.data.size()));
 #elif defined JPEGBTEST
-		if (Image::JPEG::isJPEG(imageData, imageData.size()) == false) {
-			cerr << key << " is not a Lossy JPEG image." << endl;
+		if (Image::JPEG::isJPEG(record.data, record.data.size()) == false) {
+			cerr << record.key << " is not a Lossy JPEG image." << endl;
 			continue;
 		}
-		image.reset(new Image::JPEG(imageData, imageData.size()));
+		image.reset(new Image::JPEG(record.data, record.data.size()));
 #elif defined JPEGLTEST
-		if (Image::JPEGL::isJPEGL(imageData, imageData.size()) == 
+		if (Image::JPEGL::isJPEGL(record.data, record.data.size()) == 
 		    false) {
-			cerr << key << " is not a Lossless JPEG image." << endl;
+			cerr << record.key << " is not a Lossless JPEG image." << endl;
 			continue;
 		}
-		image.reset(new Image::JPEGL(imageData, imageData.size()));
+		image.reset(new Image::JPEGL(record.data, record.data.size()));
 #elif defined JPEG2000TEST
-		if (Image::JPEG2000::isJPEG2000(imageData, imageData.size()) ==
+		if (Image::JPEG2000::isJPEG2000(record.data, record.data.size()) ==
 		    false) {
-			cerr << key << " is not a JPEG2000 image." << endl;
+			cerr << record.key << " is not a JPEG2000 image." << endl;
 			continue;
 		}
-		image.reset(new Image::JPEG2000(imageData, imageData.size()));
+		image.reset(new Image::JPEG2000(record.data, record.data.size()));
 #elif defined JPEG2000LTEST
-		if (Image::JPEG2000::isJPEG2000(imageData, imageData.size()) ==
+		if (Image::JPEG2000::isJPEG2000(record.data, record.data.size()) ==
 		    false) {
-			cerr << key << " is not a JPEG2000L image." << endl;
+			cerr << record.key << " is not a JPEG2000L image." << endl;
 			continue;
 		}
-		image.reset(new Image::JPEG2000(imageData, imageData.size()));
+		image.reset(new Image::JPEG2000(record.data, record.data.size()));
 #elif defined PNGTEST
-		if (Image::PNG::isPNG(imageData, imageData.size()) == false) {
-			cerr << key << " is not a PNG image." << endl;
+		if (Image::PNG::isPNG(record.data, record.data.size()) == false) {
+			cerr << record.key << " is not a PNG image." << endl;
 			continue;
 		}
-		image.reset(new Image::PNG(imageData, imageData.size()));
+		image.reset(new Image::PNG(record.data, record.data.size()));
 #elif defined NETPBMTEST
-		if (Image::NetPBM::isNetPBM(imageData, imageData.size()) == 
+		if (Image::NetPBM::isNetPBM(record.data, record.data.size()) == 
 		    false) {
-			cerr << key << " is not a NetPBM image." << endl;
+			cerr << record.key << " is not a NetPBM image." << endl;
 			continue;
 		}
-		image.reset(new Image::NetPBM(imageData, imageData.size()));
+		image.reset(new Image::NetPBM(record.data, record.data.size()));
 #elif defined BMPTEST
-		if (Image::BMP::isBMP(imageData, imageData.size()) ==
+		if (Image::BMP::isBMP(record.data, record.data.size()) ==
 		    false) {
-			cerr << key << " is not a BMP image." << endl;
+			cerr << record.key << " is not a BMP image." << endl;
 			continue;
 		}
-		image.reset(new Image::BMP(imageData, imageData.size()));
+		image.reset(new Image::BMP(record.data, record.data.size()));
 #elif defined RAWTEST
 		/* We can't construct a raw image without properties */
 		if (doPropertyCompare == false) {
-			cerr << key << " skipped (missing properties)" << endl;
+			cerr << record.key << " skipped (missing properties)"
+		     << endl;
 			continue;
 		}
 		
-		image.reset(new Image::Raw(imageData, imageData.size(),
+		image.reset(new Image::Raw(record.data, record.data.size(),
 		    Image::Size(properties->getPropertyAsInteger("xSize"), 
 		    properties->getPropertyAsInteger("ySize")),
 		    properties->getPropertyAsInteger("depth"),
@@ -439,14 +418,14 @@ main(
 		    properties->getPropertyAsDouble("yRes"),
 		    stringToResUnits(properties->getProperty("resUnits")))));
 #elif defined FACTORYTEST
-		image = Image::Image::openImage(imageData);
+		image = Image::Image::openImage(record.data);
 #endif
 
 		/* Print all the metadata for the Image */
-		cout << key << ':' << endl;
+		cout << record.key << ':' << endl;
 #if defined FACTORYTEST
 		cout << "\tCompression Algorithm: " <<
-		    to_string(Image::Image::getCompressionAlgorithm(imageData)) << endl;
+		    to_string(Image::Image::getCompressionAlgorithm(record.data)) << endl;
 #endif
 		Memory::uint8Array buf{image->getData()};
 		cout << "\tDimensions: " << image->getDimensions() << endl;
@@ -462,8 +441,8 @@ main(
 			cout << "\tRaw Size: " << buf.size() << " (" <<
 			    rawKey << RawSuffix << ")" << endl;
 		} catch (Error::Exception &e) {
-			cerr << "Error getRawData/writeFile for " << key <<
-			    endl;
+			cerr << "Error getRawData/writeFile for "
+			    << record.key << endl;
 		}
 		
 		try {
@@ -474,7 +453,7 @@ main(
 			    " (" << rawKey << RawGraySuffix << ")" << endl;
 		} catch (Error::Exception &e) {
 			cerr << "Error getRawGrayscaleData/writeFile " <<
-			   "for " << key << endl;
+			   "for " << record.key << endl;
 		}
 		
 		/* 
@@ -483,7 +462,8 @@ main(
 		 * generated raw images.
 		 */
 		if (doPropertyCompare)
-			compareProperties(key, image, properties, imageRS);
+			compareProperties(
+			    record.key, image, properties, imageRS);
 	}
 	
 	return (EXIT_SUCCESS);
