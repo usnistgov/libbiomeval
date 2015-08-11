@@ -10,7 +10,7 @@
 
 #include <cerrno>
 #include <cstdlib>
-#include <iostream>
+#include <thread>
 
 #include <be_system.h>
 
@@ -23,10 +23,10 @@
 uint32_t
 BiometricEvaluation::System::getCPUCount()
 {
-	long sysval = sysconf(_SC_NPROCESSORS_ONLN);
-	if (sysval <= 0)
+	int num = std::thread::hardware_concurrency();
+	if (num <= 0)
 		throw (Error::NotImplemented());
-	return ((uint32_t)sysval);
+	return ((uint32_t)num);
 }
 
 uint64_t
