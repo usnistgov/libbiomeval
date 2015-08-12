@@ -61,8 +61,15 @@ else
 
 		EXTRA_CXXFLAGS += -stdlib=libc++
 	else
-                $(warning CXX=$(CXX) is untested.  I assume you know what you are doing...)
-		SUPPORTS_CXX11 := true
+		ifeq ($(CXX_BASENAME),icpc)
+			CXX_MAJOR := $(shell expr `$(CXX) -dumpversion | cut -f1 -d.`)
+			CXX_MINOR := $(shell expr `$(CXX) -dumpversion | cut -f2 -d.`)
+			# Tested with C++11 compatibility in version 15 and later
+			SUPPORTS_CXX11 := $(shell [ $(CXX_MAJOR) -ge 15 ] && echo true)
+		else
+                	$(warning CXX=$(CXX) is untested.  I assume you know what you are doing...)
+			SUPPORTS_CXX11 := true
+		endif
 	endif
 endif
 ifneq ($(SUPPORTS_CXX11),true)
