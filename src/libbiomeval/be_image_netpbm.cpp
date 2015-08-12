@@ -18,7 +18,7 @@
 template<>
 const std::map<BiometricEvaluation::Image::NetPBM::Kind, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Image::NetPBM::Kind>::enumToStringMap {
+    BiometricEvaluation::Image::NetPBM::Kind>::enumToStringMap = {
 	{BiometricEvaluation::Image::NetPBM::Kind::ASCIIPortableBitmap, "P1"},
 	{BiometricEvaluation::Image::NetPBM::Kind::ASCIIPortableGraymap, "P2"},
 	{BiometricEvaluation::Image::NetPBM::Kind::ASCIIPortablePixmap, "P3"},

@@ -50,7 +50,7 @@ BiometricEvaluation::Image::Size::Size(
 template<>
 const std::map<BiometricEvaluation::Image::CompressionAlgorithm, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Image::CompressionAlgorithm>::enumToStringMap {
+    BiometricEvaluation::Image::CompressionAlgorithm>::enumToStringMap = {
 	{Image::CompressionAlgorithm::None, "None"},
 	{Image::CompressionAlgorithm::Facsimile, "Facsimile"},
 	{Image::CompressionAlgorithm::WSQ20, "WSQ 2.0"},
@@ -66,7 +66,7 @@ const std::map<BiometricEvaluation::Image::CompressionAlgorithm, std::string>
 template<>
 const std::map<BiometricEvaluation::Image::PixelFormat, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Image::PixelFormat>::enumToStringMap {
+    BiometricEvaluation::Image::PixelFormat>::enumToStringMap = {
 	{Image::PixelFormat::MonoWhite, "Monochrome white"},
 	{Image::PixelFormat::MonoBlack, "Monochrome black"},
 	{Image::PixelFormat::Gray8, "8-Bit grayscale"},
@@ -158,7 +158,7 @@ BiometricEvaluation::Image::operator!=(
 template<>
 const std::map<BiometricEvaluation::Image::Resolution::Units, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Image::Resolution::Units>::enumToStringMap {
+    BiometricEvaluation::Image::Resolution::Units>::enumToStringMap = {
 	{Image::Resolution::Units::NA, "NA"},
 	{Image::Resolution::Units::PPI, "PPI"},
 	{Image::Resolution::Units::PPMM, "PPMM"},

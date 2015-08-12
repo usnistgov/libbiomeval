@@ -54,7 +54,7 @@ BiometricEvaluation::Feature::DeltaPoint::DeltaPoint(
 template<>
 const std::map<BiometricEvaluation::Feature::MinutiaeFormat, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Feature::MinutiaeFormat>::enumToStringMap {
+    BiometricEvaluation::Feature::MinutiaeFormat>::enumToStringMap = {
 	{Feature::MinutiaeFormat::AN2K7, "ANSI/NIST-ITL 2007"},
 	{Feature::MinutiaeFormat::IAFIS, "IAFIS"},
 	{Feature::MinutiaeFormat::Cogent, "Cogent"},
@@ -68,7 +68,7 @@ const std::map<BiometricEvaluation::Feature::MinutiaeFormat, std::string>
 template<>
 const std::map<BiometricEvaluation::Feature::MinutiaeType, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Feature::MinutiaeType>::enumToStringMap {
+    BiometricEvaluation::Feature::MinutiaeType>::enumToStringMap = {
 	{Feature::MinutiaeType::RidgeEnding, "Ridge Ending"},
 	{Feature::MinutiaeType::Bifurcation, "Bifurcation"},
 	{Feature::MinutiaeType::Compound, "Compound"},
@@ -79,7 +79,8 @@ template<>
 const std::map<BiometricEvaluation::Feature::RidgeCountExtractionMethod,
     std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Feature::RidgeCountExtractionMethod>::enumToStringMap {
+    BiometricEvaluation::Feature::RidgeCountExtractionMethod>::
+    enumToStringMap = {
 	{Feature::RidgeCountExtractionMethod::NonSpecific, "Non-specific"},
 	{Feature::RidgeCountExtractionMethod::FourNeighbor, "Four-neighbor"},
 	{Feature::RidgeCountExtractionMethod::EightNeighbor, "Eight-neighbor"},

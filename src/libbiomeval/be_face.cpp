@@ -16,7 +16,7 @@ namespace BE = BiometricEvaluation;
 template<>
 const std::map<BiometricEvaluation::Face::Gender, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::Gender>::enumToStringMap {
+    BiometricEvaluation::Face::Gender>::enumToStringMap = {
     	{Face::Gender::Unspecified, "Unspecified"},
     	{Face::Gender::Male, "Male"},
     	{Face::Gender::Female, "Female"},
@@ -26,7 +26,7 @@ const std::map<BiometricEvaluation::Face::Gender, std::string>
 template<>
 const std::map<BiometricEvaluation::Face::EyeColor, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::EyeColor>::enumToStringMap {
+    BiometricEvaluation::Face::EyeColor>::enumToStringMap = {
     	{Face::EyeColor::Unspecified, "Unspecified"},
     	{Face::EyeColor::Black, "Black"},
     	{Face::EyeColor::Blue, "Blue"},
@@ -41,7 +41,7 @@ const std::map<BiometricEvaluation::Face::EyeColor, std::string>
 template<>
 const std::map<BiometricEvaluation::Face::HairColor, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::HairColor>::enumToStringMap {
+    BiometricEvaluation::Face::HairColor>::enumToStringMap = {
     	{Face::HairColor::Unspecified, "Unspecified"},
     	{Face::HairColor::Bald, "Bald"},
     	{Face::HairColor::Black, "Black"},
@@ -56,7 +56,7 @@ const std::map<BiometricEvaluation::Face::HairColor, std::string>
 template<>
 const std::map<BiometricEvaluation::Face::Property, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::Property>::enumToStringMap {
+    BiometricEvaluation::Face::Property>::enumToStringMap = {
     	{Face::Property::Glasses, "Glasses"},
     	{Face::Property::Moustache, "Moustache"},
     	{Face::Property::Beard, "Beard"},
@@ -72,7 +72,7 @@ const std::map<BiometricEvaluation::Face::Property, std::string>
 template<>
 const std::map<BiometricEvaluation::Face::Expression, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::Expression>::enumToStringMap {
+    BiometricEvaluation::Face::Expression>::enumToStringMap = {
     	{Face::Expression::Unspecified, "Unspecified"},
     	{Face::Expression::Neutral, "Neutral"},
     	{Face::Expression::SmileClosedJaw, "Smile Closed Jaw"},
@@ -86,7 +86,7 @@ const std::map<BiometricEvaluation::Face::Expression, std::string>
 template<>
 const std::map<BiometricEvaluation::Face::ImageType, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::ImageType>::enumToStringMap {
+    BiometricEvaluation::Face::ImageType>::enumToStringMap = {
     	{Face::ImageType::Basic, "Basic"},
     	{Face::ImageType::FullFrontal, "Full Frontal"},
     	{Face::ImageType::TokenFrontal, "Token Frontal"}
@@ -95,7 +95,7 @@ const std::map<BiometricEvaluation::Face::ImageType, std::string>
 template<>
 const std::map<BiometricEvaluation::Face::ImageDataType, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::ImageDataType>::enumToStringMap {
+    BiometricEvaluation::Face::ImageDataType>::enumToStringMap = {
     	{Face::ImageDataType::JPEG, "JPEG"},
     	{Face::ImageDataType::JPEG2000, "JPEG2000"}
 };
@@ -103,7 +103,7 @@ const std::map<BiometricEvaluation::Face::ImageDataType, std::string>
 template<>
 const std::map<BiometricEvaluation::Face::ColorSpace, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::ColorSpace>::enumToStringMap {
+    BiometricEvaluation::Face::ColorSpace>::enumToStringMap = {
     	{Face::ColorSpace::Unspecified, "Unspecified"},
     	{Face::ColorSpace::RGB24, "24 Bit RGB"},
     	{Face::ColorSpace::YUV422, "YUV422"},
@@ -114,7 +114,7 @@ const std::map<BiometricEvaluation::Face::ColorSpace, std::string>
 template<>
 const std::map<BiometricEvaluation::Face::SourceType, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::SourceType>::enumToStringMap {
+    BiometricEvaluation::Face::SourceType>::enumToStringMap = {
     	{Face::SourceType::Unspecified, "Unspecified"},
     	{Face::SourceType::StaticPhotoUnknown, "Static Photo, Unknown Source"},
     	{Face::SourceType::StaticPhotoDigitalStill,

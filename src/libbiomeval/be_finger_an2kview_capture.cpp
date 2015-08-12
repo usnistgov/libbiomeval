@@ -182,7 +182,7 @@ const std::map<BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged,
     std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
     BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged>::
-    enumToStringMap {
+    enumToStringMap = {
 	{Finger::AN2KViewCapture::AmputatedBandaged::Amputated, "Amputated"},
 	{Finger::AN2KViewCapture::AmputatedBandaged::Bandaged,
 		"Unable to print (e.g., bandaged)"},

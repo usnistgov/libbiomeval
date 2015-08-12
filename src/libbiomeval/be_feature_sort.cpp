@@ -157,7 +157,7 @@ BiometricEvaluation::Feature::Sort::updateIndicies(
 template<>
 const std::map<BiometricEvaluation::Feature::Sort::Kind, std::string>
 BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Feature::Sort::Kind>::enumToStringMap {
+    BiometricEvaluation::Feature::Sort::Kind>::enumToStringMap = {
 	{BiometricEvaluation::Feature::Sort::Kind::XYAscending, "XY Ascending"},
 	{BiometricEvaluation::Feature::Sort::Kind::XYDescending,
 	    "XY Descending"},

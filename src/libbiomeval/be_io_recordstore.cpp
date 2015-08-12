@@ -76,7 +76,7 @@ const std::string BiometricEvaluation::IO::RecordStore::RSREADONLYERROR(
 template<>
 const std::map<BiometricEvaluation::IO::RecordStore::Kind, std::string>
 BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::IO::RecordStore::Kind>::enumToStringMap {
+    BiometricEvaluation::IO::RecordStore::Kind>::enumToStringMap = {
 	{BiometricEvaluation::IO::RecordStore::Kind::BerkeleyDB, "BerkeleyDB"},
 	{BiometricEvaluation::IO::RecordStore::Kind::Archive, "Archive"},
 	{BiometricEvaluation::IO::RecordStore::Kind::File, "File"},

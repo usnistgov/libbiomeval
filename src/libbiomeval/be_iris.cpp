@@ -16,7 +16,7 @@ namespace BE = BiometricEvaluation;
 template<>
 const std::map<BiometricEvaluation::Iris::CaptureDeviceTechnology, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::CaptureDeviceTechnology>::enumToStringMap {
+    BiometricEvaluation::Iris::CaptureDeviceTechnology>::enumToStringMap = {
     	{Iris::CaptureDeviceTechnology::Unknown, "Unknown"},
     	{Iris::CaptureDeviceTechnology::CMOSCCD, "CMOS/CCD"}
 };
@@ -24,7 +24,7 @@ const std::map<BiometricEvaluation::Iris::CaptureDeviceTechnology, std::string>
 template<>
 const std::map<BiometricEvaluation::Iris::EyeLabel, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::EyeLabel>::enumToStringMap {
+    BiometricEvaluation::Iris::EyeLabel>::enumToStringMap = {
     	{Iris::EyeLabel::Undefined, "Undefined"},
     	{Iris::EyeLabel::Right, "Right"},
     	{Iris::EyeLabel::Left, "Left"}
@@ -33,7 +33,7 @@ const std::map<BiometricEvaluation::Iris::EyeLabel, std::string>
 template<>
 const std::map<BiometricEvaluation::Iris::ImageType, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::ImageType>::enumToStringMap {
+    BiometricEvaluation::Iris::ImageType>::enumToStringMap = {
     	{Iris::ImageType::Uncropped, "Uncropped"},
     	{Iris::ImageType::VGA, "VGA"},
     	{Iris::ImageType::Cropped, "Cropped"},
@@ -43,7 +43,7 @@ const std::map<BiometricEvaluation::Iris::ImageType, std::string>
 template<>
 const std::map<BiometricEvaluation::Iris::Orientation, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::Orientation>::enumToStringMap {
+    BiometricEvaluation::Iris::Orientation>::enumToStringMap = {
     	{Iris::Orientation::Undefined, "Undefined"},
     	{Iris::Orientation::Base, "Base"},
     	{Iris::Orientation::Flipped, "Flipped"}
@@ -52,7 +52,7 @@ const std::map<BiometricEvaluation::Iris::Orientation, std::string>
 template<>
 const std::map<BiometricEvaluation::Iris::ImageCompression, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::ImageCompression>::enumToStringMap {
+    BiometricEvaluation::Iris::ImageCompression>::enumToStringMap = {
     	{Iris::ImageCompression::Undefined, "Undefined"},
     	{Iris::ImageCompression::LosslessNone, "Lossless or None"},
     	{Iris::ImageCompression::Lossy, "Lossy"}
@@ -61,7 +61,7 @@ const std::map<BiometricEvaluation::Iris::ImageCompression, std::string>
 template<>
 const std::map<BiometricEvaluation::Iris::CameraRange, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::CameraRange>::enumToStringMap {
+    BiometricEvaluation::Iris::CameraRange>::enumToStringMap = {
     	{Iris::CameraRange::Unassigned, "Unassigned"},
     	{Iris::CameraRange::Failed, "Failed"},
     	{Iris::CameraRange::Overflow, "Overflow"}

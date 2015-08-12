@@ -17,7 +17,7 @@
 template<>
 const std::map<BiometricEvaluation::IO::Compressor::Kind, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::IO::Compressor::Kind>::enumToStringMap {
+    BiometricEvaluation::IO::Compressor::Kind>::enumToStringMap = {
 	{BiometricEvaluation::IO::Compressor::Kind::GZIP, "GZIP"}
 };
 

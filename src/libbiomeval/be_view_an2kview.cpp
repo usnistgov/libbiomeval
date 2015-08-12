@@ -28,7 +28,7 @@ const double BiometricEvaluation::View::AN2KView::HalfMinimumScanResolutionPPMM 
 template<>
 const std::map<BiometricEvaluation::View::AN2KView::RecordType, std::string>
 BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::View::AN2KView::RecordType>::enumToStringMap {
+    BiometricEvaluation::View::AN2KView::RecordType>::enumToStringMap = {
 	{BiometricEvaluation::View::AN2KView::RecordType::Type_1, "Type 1"},
 	{BiometricEvaluation::View::AN2KView::RecordType::Type_2, "Type 2"},
 	{BiometricEvaluation::View::AN2KView::RecordType::Type_3, "Type 3"},
@@ -54,7 +54,7 @@ const std::map<BiometricEvaluation::View::AN2KView::DeviceMonitoringMode,
 std::string>
 BiometricEvaluation::Framework::EnumerationFunctions<
     BiometricEvaluation::View::AN2KView::DeviceMonitoringMode>::
-    enumToStringMap {
+    enumToStringMap = {
 	{BE::View::AN2KView::DeviceMonitoringMode::Controlled, "Controlled"},
 	{BE::View::AN2KView::DeviceMonitoringMode::Assisted, "Assisted"},
 	{BE::View::AN2KView::DeviceMonitoringMode::Observed, "Observed"},

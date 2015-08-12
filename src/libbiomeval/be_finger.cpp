@@ -14,7 +14,7 @@ namespace BE = BiometricEvaluation;
 template<>
 const std::map<BiometricEvaluation::Finger::PatternClassification, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Finger::PatternClassification>::enumToStringMap {
+    BiometricEvaluation::Finger::PatternClassification>::enumToStringMap = {
     	{Finger::PatternClassification::PlainArch, "Plain Arch"},
     	{Finger::PatternClassification::TentedArch, "Tented Arch"},
     	{Finger::PatternClassification::RadialLoop, "Radial Loop"},
@@ -35,7 +35,7 @@ const std::map<BiometricEvaluation::Finger::PatternClassification, std::string>
 template<>
 const std::map<BiometricEvaluation::Finger::Position, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Finger::Position>::enumToStringMap {
+    BiometricEvaluation::Finger::Position>::enumToStringMap = {
 	{Finger::Position::Unknown, "Unknown"},
 	{Finger::Position::RightThumb, "Right Thumb"},
 	{Finger::Position::RightIndex, "Right Index"},
@@ -58,7 +58,7 @@ const std::map<BiometricEvaluation::Finger::Position, std::string>
 template<>
 const std::map<BiometricEvaluation::Finger::Impression, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Finger::Impression>::enumToStringMap {
+    BiometricEvaluation::Finger::Impression>::enumToStringMap = {
 	{Finger::Impression::LiveScanPlain, "Live Scan Plain"},
 	{Finger::Impression::LiveScanRolled, "Live Scan Rolled"},
 	{Finger::Impression::NonLiveScanPlain, "Non-Live Scan Plain"},
@@ -97,7 +97,7 @@ const std::map<BiometricEvaluation::Finger::Impression, std::string>
 template<>
 const std::map<BiometricEvaluation::Finger::FingerImageCode, std::string>
     BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Finger::FingerImageCode>::enumToStringMap {
+    BiometricEvaluation::Finger::FingerImageCode>::enumToStringMap = {
 	{Finger::FingerImageCode::EJI, "Entire Joint Image"},
 	{Finger::FingerImageCode::RolledTip, "Rolled Tip"},
 	{Finger::FingerImageCode::FullFingerRolled, "Full Finger Rolled Image"},

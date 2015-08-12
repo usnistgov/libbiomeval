@@ -24,7 +24,7 @@ template<>
 const std::map<BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod,
     std::string> BiometricEvaluation::Framework::EnumerationFunctions<
     BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod>::
-    enumToStringMap {
+    enumToStringMap = {
 	{BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod::Automatic,
 	    "Automatic (no possible human interaction)"},
 	{BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod::
