@@ -35,7 +35,7 @@ extern "C" {
  * that have library deleters, so we can wrap them in smart pointers.
  */
 
-auto freeAVFrame = [](AVFrame* frame) { av_frame_free(&frame); };
+static auto freeAVFrame = [](AVFrame* frame) { av_frame_free(&frame); };
 using uptrAVFrame = std::unique_ptr<AVFrame, decltype(freeAVFrame)>;
 
 namespace BiometricEvaluation 
