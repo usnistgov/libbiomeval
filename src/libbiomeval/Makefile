@@ -146,6 +146,27 @@ be_text.o: CXXFLAGS += $(shell pkg-config --cflags libcrypto)
 COMMONLIB += -L$(shell pkg-config --variable=libdir libcrypto) $(shell pkg-config --libs-only-l --libs-only-other libcrypto)
 endif
 
+install: installpaths
+	install -m 644 -o $(ROOT) $(LOCALINC)/*.h $(INCPATH)
+	install -m 755 -o $(ROOT) $(LOCALLIB)/$(LIBRARY).* $(LIBPATH)
+ifeq ($(OS), Linux)
+	ldconfig -n $(LIBPATH)
+endif
+
+installpaths: $(INCPATH) $(LIBPATH) $(BINPATH) $(MANPATH)
+$(INCPATH):
+	@echo "$(INCPATH) does not exist";
+	exit 2
+$(LIBPATH):
+	@echo "$(LIBPATH) does not exist";
+	exit 2
+$(BINPATH):
+	@echo "$(BINPATH) does not exist";
+	exit 2
+$(MANPATH):
+	@echo "$(MANPATH) does not exist";
+	exit 2
+
 clean:
 	$(RM) $(DISPOSABLEFILES) $(LIBRARY).*
 	$(RM) -r $(DISPOSABLEDIRS)

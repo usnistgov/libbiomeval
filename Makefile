@@ -22,30 +22,10 @@ all:
 		(cd $$subdir && $(MAKE) all) || exit 1; \
 	done
 
-install: installpaths
-	install -m 644 -o $(ROOT) $(LOCALINC)/*.h $(INCPATH)
-	for i in `ls $(LOCALLIB)`; do \
-		cp -R $(LOCALLIB)/$$i $(LIBPATH); \
-		chown root $(LIBPATH)/$$i; \
-		chown 755 $(LIBPATH)/$$i; \
+install:
+	@for subdir in $(SUBDIRS); do \
+		(cd $$subdir && $(MAKE) install) || exit 1; \
 	done
-ifeq ($(OS), Linux)
-	ldconfig -n $(LIBPATH)
-endif
-
-installpaths: $(INCPATH) $(LIBPATH) $(BINPATH) $(MANPATH)
-$(INCPATH):
-	@echo "$(INCPATH) does not exist";
-	exit 2
-$(LIBPATH):
-	@echo "$(LIBPATH) does not exist";
-	exit 2
-$(BINPATH):
-	@echo "$(BINPATH) does not exist";
-	exit 2
-$(MANPATH):
-	@echo "$(MANPATH) does not exist";
-	exit 2
 
 clean:
 	@for subdir in $(SUBDIRS); do \
