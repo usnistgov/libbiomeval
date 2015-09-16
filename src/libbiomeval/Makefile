@@ -27,7 +27,7 @@ OPENJPEGLIB = -L$(shell pkg-config --variable=libdir libopenjpeg) $(shell pkg-co
 PNGLIB = -L$(shell pkg-config --variable=libdir libpng) $(shell pkg-config --libs-only-l --libs-only-other libpng)
 SQLITE3LIB = -L$(shell pkg-config --variable=libdir sqlite3) $(shell pkg-config --libs-only-l --libs-only-other sqlite3)
 ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-only-l --libs-only-other zlib)
-FFMPEGLIB = -lavformat -lavutil -lswscale
+FFMPEGLIB = -lavformat -lavutil -lswscale -lavcodec
 COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB)
 
 include ../common.mk
