@@ -157,8 +157,8 @@ ifeq ($(OS), Linux)
 else
 ifeq ($(OS), Darwin)
 	$(CP) -pf $(LOCALLIB)/$(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBPATH)
-	ln -sf $(LIBPATH)/$(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION) $(LIBPATH)/$(LIBRARY).$(MAJOR_VERSION).dylib
-	ln -sf $(LIBPATH)/$(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION) $(LIBPATH)/$(LIBRARY).dylib
+	ln -sf $(LIBPATH)/$(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBPATH)/$(LIBRARY).$(MAJOR_VERSION).dylib
+	ln -sf $(LIBPATH)/$(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBPATH)/$(LIBRARY).dylib
 else
 	install -m 755 -o $(ROOT) $(LOCALLIB)/$(LIBRARY).* $(LIBPATH)
 endif
