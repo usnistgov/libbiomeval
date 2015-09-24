@@ -148,10 +148,23 @@ endif
 
 install: installpaths
 	install -m 644 -o $(ROOT) $(LOCALINC)/*.h $(INCPATH)
-	install -m 755 -o $(ROOT) $(LOCALLIB)/$(LIBRARY).* $(LIBPATH)
+	$(CP) -pf $(LIBRARY).a $(LIBPATH)
 ifeq ($(OS), Linux)
+	$(CP) -pf $(LOCALLIB)/$(LIBRARY).so.$(MAJOR_VERSION).$(MINOR_VERSION) $(LIBPATH)
+	ln -sf $(LIBPATH)/$(LIBRARY).so.$(MAJOR_VERSION).$(MINOR_VERSION) $(LIBPATH)/$(LIBRARY).so.$(MAJOR_VERSION)
+	ln -sf $(LIBPATH)/$(LIBRARY).so.$(MAJOR_VERSION).$(MINOR_VERSION) $(LIBPATH)/$(LIBRARY).so
 	ldconfig -n $(LIBPATH)
+else
+ifeq ($(OS), Darwin)
+	$(CP) -pf $(LOCALLIB)/$(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBPATH)
+	ln -sf $(LIBPATH)/$(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION) $(LIBPATH)/$(LIBRARY).$(MAJOR_VERSION).dylib
+	ln -sf $(LIBPATH)/$(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION) $(LIBPATH)/$(LIBRARY).dylib
+else
+	install -m 755 -o $(ROOT) $(LOCALLIB)/$(LIBRARY).* $(LIBPATH)
 endif
+endif
+	chown $(ROOT) $(LIBPATH)/$(LIBRARY).*
+	chmod 755 $(LIBPATH)/$(LIBRARY).*
 
 installpaths: $(INCPATH) $(LIBPATH) $(BINPATH) $(MANPATH)
 $(INCPATH):
