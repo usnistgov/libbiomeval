@@ -80,15 +80,17 @@ namespace BiometricEvaluation
 			insert(
 			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size);
+			    const uint64_t size)
+			    override;
 
 			void
 			remove(
-			    const std::string &key);
+			    const std::string &key)
+			    override;
 
 			Memory::uint8Array
 			read(
-			    const std::string &key) const;
+			    const std::string &key) const override;
 
 			/*
 			 * We need the base class replace() as well; otherwise,
@@ -104,33 +106,38 @@ namespace BiometricEvaluation
 		
 			uint64_t
 			length(
-			    const std::string &key) const;
+			    const std::string &key) const override;
 		
 			void
 			flush(
-			    const std::string &key) const;
+			    const std::string &key) const override;
 
     			void
-			sync() const;
+			sync() const override;
 
 			RecordStore::Record
 			sequence(
-			    int cursor = BE_RECSTORE_SEQ_NEXT);
+			    int cursor = BE_RECSTORE_SEQ_NEXT)
+			    override;
 
 			std::string
 			sequenceKey(
-			    int cursor = BE_RECSTORE_SEQ_NEXT);
+			    int cursor = BE_RECSTORE_SEQ_NEXT)
+			    override;
 
 			void
 			setCursorAtKey(
-			    const std::string &key);
+			    const std::string &key)
+			    override;
 
 			void
 			move(
-			    const std::string &pathname);
+			    const std::string &pathname)
+			    override;
 
 			uint64_t
-			getSpaceUsed() const;
+			getSpaceUsed() const
+			override;
 
 		private:
 			/**
