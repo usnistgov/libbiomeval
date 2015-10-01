@@ -168,17 +168,13 @@ endif
 
 installpaths: $(INCPATH) $(LIBPATH) $(BINPATH) $(MANPATH)
 $(INCPATH):
-	@echo "$(INCPATH) does not exist";
-	exit 2
+	$(error $(INCPATH) does not exist)
 $(LIBPATH):
-	@echo "$(LIBPATH) does not exist";
-	exit 2
+	$(error $(LIBPATH) does not exist)
 $(BINPATH):
-	@echo "$(BINPATH) does not exist";
-	exit 2
+	$(error $(BINPATH) does not exist)
 $(MANPATH):
-	@echo "$(MANPATH) does not exist";
-	exit 2
+	$(error $(MANPATH) does not exist)
 
 clean:
 	$(RM) $(DISPOSABLEFILES) $(LIBRARY).*
