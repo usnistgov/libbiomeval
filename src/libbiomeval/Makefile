@@ -97,7 +97,7 @@ all: $(OBJECTS) $(NBIS_OBJECTS) $(MPIOBJECTS)
 	ranlib $(LIBRARY).a
 	$(CP) -R -P $(LIBRARY).a $(LOCALLIB)
 ifeq ($(OS), Darwin)
-	$(MPICXX) -L$(DBLIBS) $(COMMONLIB) $(filter-out $(NBIS_OBJECTS),$^) $(NBISLIB) $(NBIS_OBJECTS) -dynamiclib -Wl,-current_version,$(MAJOR_VERSION).$(MINOR_VERSION) -Wl,-compatibility_version,$(COMPATIBILITY_VERSION) -Wl,-macosx_version_min,10.6 -Wl,-install_name,$(LIBRARY).$(MAJOR_VERSION).dylib -o $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
+	$(MPICXX) -L$(DBLIBS) $(COMMONLIB) $(filter-out $(NBIS_OBJECTS),$^) $(NBISLIB) $(NBIS_OBJECTS) -dynamiclib -Wl,-current_version,$(MAJOR_VERSION).$(MINOR_VERSION) -Wl,-compatibility_version,$(COMPATIBILITY_VERSION) -Wl,-macosx_version_min,$(OSX_MAJOR).$(OSX_MINOR) -Wl,-install_name,$(LIBRARY).$(MAJOR_VERSION).dylib -o $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).dylib
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).$(MAJOR_VERSION).dylib
 	$(CP) -R -P $(LIBRARY)*.dylib $(LOCALLIB)
