@@ -49,7 +49,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
 
 BiometricEvaluation::IO::ArchiveRecordStore::ArchiveRecordStore(
     const std::string &pathname,
-    uint8_t mode) :
+    IO::Mode mode) :
     RecordStore(pathname, mode)
 {
 	_dirty = false;
@@ -71,7 +71,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 	struct stat sb;
 	
 	if (stat(canonicalName(MANIFEST_FILE_NAME).c_str(), &sb)) {
-		if (this->getMode() == IO::READONLY)
+		if (this->getMode() == Mode::ReadOnly)
 			throw Error::FileError(canonicalName(
 			    MANIFEST_FILE_NAME) +
 			    " does not exist and object is read-only");
@@ -85,7 +85,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 				    "manifest file");
 		}
 	} else if (_manifestfp.is_open() == false)  {
-		if (this->getMode() == IO::READONLY)
+		if (this->getMode() == Mode::ReadOnly)
 			_manifestfp.open(
 			    canonicalName(MANIFEST_FILE_NAME).c_str(),
 			    std::fstream::in);
@@ -99,7 +99,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 	}
 
 	if (stat(canonicalName(ARCHIVE_FILE_NAME).c_str(), &sb)) {
-		if (this->getMode() == IO::READONLY)
+		if (this->getMode() == Mode::ReadOnly)
 			throw Error::FileError(canonicalName(ARCHIVE_FILE_NAME) +
 			    " does not exist and obejct is read-only");
 		else {
@@ -112,7 +112,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::open_streams()
 				    "archive file");
 		}
 	} else if (_archivefp.is_open() == false) {
-		if (this->getMode() == IO::READONLY)
+		if (this->getMode() == Mode::ReadOnly)
 			_archivefp.open(
 			    canonicalName(ARCHIVE_FILE_NAME).c_str(),
 			    std::fstream::in | std::fstream::binary);
@@ -173,7 +173,7 @@ void
 BiometricEvaluation::IO::ArchiveRecordStore::sync()
     const
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		return;
 
 	RecordStore::sync();
@@ -303,7 +303,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::insert(
     const void *const data,
     const uint64_t size)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -366,7 +366,7 @@ void
 BiometricEvaluation::IO::ArchiveRecordStore::remove(
     const std::string &key)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -396,7 +396,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::flush(
     const std::string &key)
     const
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -523,7 +523,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::vacuum(
 {
 	/* See if vacuuming is necessary */
 	std::unique_ptr<IO::ArchiveRecordStore> oldRS(
-	    new IO::ArchiveRecordStore(pathname, IO::READONLY));
+	    new IO::ArchiveRecordStore(pathname, Mode::ReadOnly));
 	if (!oldRS->needsVacuum())
 		return;
 	std::string description = oldRS->getDescription();
@@ -557,7 +557,7 @@ void
 BiometricEvaluation::IO::ArchiveRecordStore::move(
     const std::string &pathname)
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::move(pathname);

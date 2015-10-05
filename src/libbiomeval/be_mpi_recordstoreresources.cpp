@@ -33,7 +33,7 @@ BiometricEvaluation::MPI::RecordStoreResources::RecordStoreResources(
 	std::unique_ptr<IO::PropertiesFile> props;
 	try {
 		props.reset(new IO::PropertiesFile(propertiesFileName,
-		    IO::READONLY));
+		    IO::Mode::ReadOnly));
 	} catch (Error::Exception &e) {
 		throw Error::FileError("Could not open properties: " +
 		    e.whatString());
@@ -50,7 +50,7 @@ BiometricEvaluation::MPI::RecordStoreResources::RecordStoreResources(
 	}
 	try {
 		this->_recordStore = IO::RecordStore::openRecordStore(
-		    RSName, IO::READONLY);
+		    RSName, IO::Mode::ReadOnly);
 		this->_haveRecordStore = true;
 	} catch (Error::Exception &e) {
 		this->_haveRecordStore = false;

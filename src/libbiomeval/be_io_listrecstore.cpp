@@ -24,7 +24,7 @@ const std::string BiometricEvaluation::IO::ListRecordStore::
 
 BiometricEvaluation::IO::ListRecordStore::ListRecordStore(
     const std::string &pathname) :
-    RecordStore(pathname, IO::READONLY)
+    RecordStore(pathname, Mode::ReadOnly)
 {
 	std::string keyListPath = canonicalName(KEYLISTFILENAME);
 	this->_keyListFile.reset(new std::ifstream(keyListPath.c_str()));
@@ -43,7 +43,7 @@ BiometricEvaluation::IO::ListRecordStore::ListRecordStore(
 	}
 	try {
 		this->_sourceRecordStore = IO::RecordStore::openRecordStore(
-		    sourceRSName, IO::READONLY);
+		    sourceRSName, Mode::ReadOnly);
 	} catch (Error::Exception &e) {
 		throw Error::StrategyError("Could not open source "
 		    "RecordStore " + sourceRSName);
@@ -167,7 +167,7 @@ BiometricEvaluation::IO::ListRecordStore::getSpaceUsed()
 }
 
 /*
- * Unsupported CRUD methods (all ListRecordStores are IO::READONLY).
+ * Unsupported CRUD methods (all ListRecordStores are Mode::ReadOnly).
  */
 
 void
@@ -221,7 +221,7 @@ void
 BiometricEvaluation::IO::ListRecordStore::CRUDMethodCalled()
     const
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	throw Error::StrategyError("Internal inconsistency -- ListRecordStore "

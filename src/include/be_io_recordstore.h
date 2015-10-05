@@ -115,7 +115,7 @@ namespace BiometricEvaluation {
 			/** Property key for the type of RecordStore */
 			static const std::string TYPEPROPERTY;
 
-			/** Message for READONLY RecordStore modification */
+			/** Message for ReadOnly RecordStore modification */
 			static const std::string RSREADONLYERROR;
 
 			virtual ~RecordStore();
@@ -455,7 +455,7 @@ namespace BiometricEvaluation {
 			 */
 			static std::shared_ptr<RecordStore> openRecordStore(
 			    const std::string &pathname,
-			    uint8_t mode = READWRITE);
+			    IO::Mode mode = Mode::ReadWrite);
 
 			/**
 			 * @brief
@@ -596,9 +596,9 @@ namespace BiometricEvaluation {
 			 */
 			RecordStore(
 			    const std::string &pathname,
-			    uint8_t mode = READWRITE);
+			    IO::Mode mode = Mode::ReadWrite);
 
-			uint8_t getMode() const;
+			IO::Mode getMode() const;
 
 			/*
 			 * Return the full path of a file stored as part
@@ -641,7 +641,7 @@ namespace BiometricEvaluation {
 			 *	Shared pointer to Properties object.
 			 *
 			 * @throw Error::StrategyError
-			 *	RecordStore was opened READONLY.
+			 *	RecordStore was opened ReadOnly.
 			 */   
 			void
 			setProperties(
@@ -683,7 +683,7 @@ namespace BiometricEvaluation {
 			/*
 			 * Mode in which the RecordStore was opened.
 			 */
-			uint8_t _mode;
+			BiometricEvaluation::IO::Mode _mode;
 			
 			/**
 			 * @brief
@@ -702,7 +702,7 @@ namespace BiometricEvaluation {
 			 *
 			 * @throws Error::StrategyError
 			 *	Control file doesn't exist and mode is
-			 *	READONLY, error with underlying file system, 
+			 *	ReadOnly, error with underlying file system, 
 			 */
 			void
 			openControlFile();

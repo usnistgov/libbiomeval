@@ -37,7 +37,7 @@ BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
 
 BiometricEvaluation::IO::FileRecordStore::FileRecordStore(
     const std::string &pathname,
-    uint8_t mode) :
+    IO::Mode mode) :
     RecordStore(pathname, mode)
 {
 	_cursorPos = 1;
@@ -50,7 +50,7 @@ void
 BiometricEvaluation::IO::FileRecordStore::move(
     const std::string &pathname)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	RecordStore::move(pathname);
@@ -101,7 +101,7 @@ BiometricEvaluation::IO::FileRecordStore::insert(
     const void *const data,
     const uint64_t size)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -122,7 +122,7 @@ void
 BiometricEvaluation::IO::FileRecordStore::remove( 
     const std::string &key)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -170,7 +170,7 @@ BiometricEvaluation::IO::FileRecordStore::replace(
     const void *const data,
     const uint64_t size)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (!validateKeyString(key))
@@ -205,7 +205,7 @@ BiometricEvaluation::IO::FileRecordStore::flush(
     const std::string &key)
     const
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");

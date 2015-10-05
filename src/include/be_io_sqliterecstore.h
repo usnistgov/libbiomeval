@@ -33,7 +33,7 @@ namespace BiometricEvaluation
 
 			SQLiteRecordStore(
 			    const std::string &pathname,
-			    uint8_t mode = READWRITE);
+			    IO::Mode mode = Mode::ReadWrite);
 
 			void
 			move(

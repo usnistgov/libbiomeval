@@ -18,7 +18,7 @@ int main(
 	shared_ptr<IO::RecordStore> rs;
 	try {
 		rs = IO::RecordStore::openRecordStore(
-		    "test_data/listRecordStore", IO::READWRITE);
+		    "test_data/listRecordStore", IO::Mode::ReadWrite);
 		cout << "FAIL." << endl;
 		return (1);
 	} catch (Error::Exception &e) {
@@ -28,7 +28,7 @@ int main(
 	cout << "Testing factory open method, read-only mode... ";
 	try {
 		rs = IO::RecordStore::openRecordStore(
-		    "test_data/listRecordStore", IO::READONLY);
+		    "test_data/listRecordStore", Mode::ReadOnly);
 		cout << "SUCCESS" << endl;
 	} catch (Error::Exception &e) {
 		cout << "FAIL: " << e.what() << endl;

@@ -45,7 +45,7 @@ BiometricEvaluation::MPI::Resources::Resources(
 	std::unique_ptr<IO::PropertiesFile> props;
 	try {
 		props.reset(new IO::PropertiesFile(propertiesFileName,
-		    IO::READONLY));
+		    IO::Mode::ReadOnly));
 	} catch (Error::Exception &e) {
 		throw Error::FileError("Could not open properties: " +
 		    e.whatString());

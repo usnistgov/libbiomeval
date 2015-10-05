@@ -230,7 +230,7 @@ main(int argc, char* argv[]) {
 	cout << "Testing read-only properties object: ";
 	delete props;
 	try {
-		props = new IO::Properties(IO::READONLY);
+		props = new IO::Properties(Mode::ReadOnly);
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.what()  << endl;
 	cout << "success." << endl;

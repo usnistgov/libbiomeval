@@ -93,7 +93,7 @@ namespace BiometricEvaluation
 			 */
 			CompressedRecordStore(
 			    const std::string &pathname,
-			    uint8_t mode = IO::READWRITE);
+			    IO::Mode mode = IO::Mode::ReadWrite);
 
 			/*
 			 * Destructor.

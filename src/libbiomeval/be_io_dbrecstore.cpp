@@ -114,7 +114,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 
 BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
     const std::string &pathname,
-    uint8_t mode) :
+    IO::Mode mode) :
     RecordStore(pathname, mode)
 { 
 	this->_dbnameP = this->getDBFilePathname();
@@ -124,7 +124,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	BTREEINFO bti;
 	setBtreeInfo(&bti);
 	/* Open the primary DB file */
-	if (mode == READWRITE)
+	if (mode == Mode::ReadWrite)
 		this->_dbP = dbopen(this->_dbnameP.c_str(),
 		    O_RDWR, DBRS_MODE_RW, DB_BTREE, &bti);
 	else
@@ -137,7 +137,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 	/*
 	 * Open the subordinate DB file, creating if necessary in order
 	 * to migrate older DBRecordStores. If we can't open the file,
-	 * but the mode is READWRITE, throw an exception; otherwise we'll
+	 * but the mode is ReadWrite, throw an exception; otherwise we'll
 	 * just not use it later with the assumption there are no large
 	 * records in the existing record store.
 	 */
@@ -146,7 +146,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 		this->_dbS = dbopen(this->_dbnameS.c_str(),
 		    O_CREAT | O_RDWR, DBRS_MODE_RW, DB_BTREE, &bti);
 		if (this->_dbS == nullptr) {
-			if (mode == READWRITE) {
+			if (mode == Mode::ReadWrite) {
 				throw Error::StrategyError(
 				"Could not upgrade database.");
 			} else {
@@ -156,7 +156,7 @@ BiometricEvaluation::IO::DBRecordStore::DBRecordStore(
 			this->_dbS->close(this->_dbS);
 		}
 	}
-	if (mode == READWRITE)
+	if (mode == Mode::ReadWrite)
 		this->_dbS = dbopen(this->_dbnameS.c_str(),
 		    O_RDWR, DBRS_MODE_RW, DB_BTREE, &bti);
 	else
@@ -179,7 +179,7 @@ BiometricEvaluation::IO::DBRecordStore::~DBRecordStore()
 void
 BiometricEvaluation::IO::DBRecordStore::move(const std::string &pathname)
 { 
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	if (this->_dbP != nullptr)
@@ -271,7 +271,7 @@ void
 BiometricEvaluation::IO::DBRecordStore::sync()
     const
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		return;
 
 	RecordStore::sync();
@@ -296,7 +296,7 @@ BiometricEvaluation::IO::DBRecordStore::insert(
     const void *const data,
     const uint64_t size)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -309,7 +309,7 @@ void
 BiometricEvaluation::IO::DBRecordStore::remove( 
     const std::string &key)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -354,7 +354,7 @@ BiometricEvaluation::IO::DBRecordStore::flush(
     const std::string &key)
     const
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -535,7 +535,7 @@ BiometricEvaluation::IO::DBRecordStore::insertRecordSegments(
 	/*
 	 * Insert all segments.
 	 * There is no danger of not having the subordinate DB here
-	 * because when the store is opened READWRITE, the upgrade
+	 * because when the store is opened ReadWrite, the upgrade
 	 * to create the subordinate DB is done.
 	 */
 	DBT dbtkey;

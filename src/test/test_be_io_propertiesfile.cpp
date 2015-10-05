@@ -79,7 +79,7 @@ testNonMutable(IO::PropertiesFile &props)
 	cout << "\tConstructor(): ";
 	success = false;
 	try {
-		IO::PropertiesFile newProp("nonexistent", IO::READONLY);
+		IO::PropertiesFile newProp("nonexistent", Mode::ReadOnly);
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
@@ -291,7 +291,7 @@ main(int argc, char* argv[]) {
 	cout << "Testing read-only properties object: ";
 	delete props;
 	try {
-		props = new IO::PropertiesFile(fname, IO::READONLY);
+		props = new IO::PropertiesFile(fname, Mode::ReadOnly);
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.what()  << endl;
 	cout << "success." << endl;

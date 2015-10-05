@@ -89,7 +89,7 @@ TestCSVProcessor::newProcessor(
 		 * are reading the file.
 		 */
 		props.reset(new BE::IO::PropertiesFile(
-		    propertiesFileName, IO::READONLY));
+		    propertiesFileName, Mode::ReadOnly));
 		url = props->getProperty(
 		    TestCSVProcessor::RECORDLOGSHEETURLPROPERTY);
 	} catch (BE::Error::Exception &e) {

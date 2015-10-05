@@ -34,7 +34,7 @@ BiometricEvaluation::MPI::CSVResources::CSVResources(
 	std::unique_ptr<IO::Properties> props;
 	try {
 		props.reset(new BE::IO::PropertiesFile(propertiesFileName,
-		    IO::READONLY));
+		    IO::Mode::ReadOnly));
 	} catch (BE::Error::Exception &e) {
 		throw BE::Error::FileError("Could not open properties: " +
 		    e.whatString());

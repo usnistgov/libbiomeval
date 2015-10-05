@@ -99,7 +99,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
     const Kind &kind) :
     _pathname(pathname),
     _cursor(BE_RECSTORE_SEQ_START),
-    _mode(IO::READWRITE)
+    _mode(IO::Mode::ReadWrite)
 {
 	if (IO::Utility::fileExists(pathname))
 		throw Error::ObjectExists(pathname + " already exists");
@@ -125,7 +125,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 
 BiometricEvaluation::IO::RecordStore::RecordStore(
     const std::string &pathname,
-    uint8_t mode) :
+    IO::Mode mode) :
     _pathname(pathname),
     _cursor(BE_RECSTORE_SEQ_START),
     _mode(mode)
@@ -133,7 +133,7 @@ BiometricEvaluation::IO::RecordStore::RecordStore(
 	if (!IO::Utility::fileExists(pathname))
 		throw Error::ObjectDoesNotExist("Could not find " + pathname);
 
-	if (_mode != IO::READWRITE && _mode != IO::READONLY)
+	if (_mode != IO::Mode::ReadWrite && _mode != Mode::ReadOnly)
 		throw Error::StrategyError("Invalid mode");
 
 	_controlFile = canonicalName(RecordStore::RecordStore::CONTROLFILENAME);
@@ -234,7 +234,7 @@ BiometricEvaluation::IO::RecordStore::getSpaceUsed() const
 void
 BiometricEvaluation::IO::RecordStore::sync() const
 {
-	if (_mode == IO::READONLY)
+	if (_mode == Mode::ReadOnly)
 		return;
 
 	try {
@@ -278,7 +278,7 @@ BiometricEvaluation::IO::RecordStore::containsKey(
 void
 BiometricEvaluation::IO::RecordStore::move(const std::string &pathname)
 {
-	if (_mode == IO::READONLY)
+	if (_mode == Mode::ReadOnly)
 		throw Error::StrategyError(RSREADONLYERROR);
 
 	if (IO::Utility::fileExists(pathname))
@@ -302,7 +302,7 @@ void
 BiometricEvaluation::IO::RecordStore::changeDescription(
     const std::string &description)
 {
-	if (_mode == IO::READONLY)
+	if (_mode == Mode::ReadOnly)
 		throw Error::StrategyError(RSREADONLYERROR);
 
 	_props->setProperty(DESCRIPTIONPROPERTY, description);
@@ -312,7 +312,7 @@ BiometricEvaluation::IO::RecordStore::changeDescription(
 std::shared_ptr<BiometricEvaluation::IO::RecordStore>
 BiometricEvaluation::IO::RecordStore::openRecordStore(
     const std::string &pathname,
-    uint8_t mode)
+    IO::Mode mode)
 {
 	if (!IO::Utility::fileExists(pathname))
 		throw Error::ObjectDoesNotExist("Could not find " + pathname);
@@ -325,7 +325,7 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 
 	PropertiesFile *props;
 	try {
-		props = new PropertiesFile(controlFile, IO::READONLY);
+		props = new PropertiesFile(controlFile, Mode::ReadOnly);
 	} catch (Error::StrategyError &e) {
                 throw Error::StrategyError("Could not read properties");
         } catch (Error::FileError& e) {
@@ -353,7 +353,7 @@ BiometricEvaluation::IO::RecordStore::openRecordStore(
 	else if (type == to_string(RecordStore::Kind::Compressed))
 		rs = new CompressedRecordStore(pathname, mode);
 	else if (type == to_string(RecordStore::Kind::List)) {
-		if (mode == IO::READWRITE)
+		if (mode == IO::Mode::ReadWrite)
 			throw Error::StrategyError("ListRecordStores cannot "
 			    "be opened read/write");
 		rs = new ListRecordStore(pathname);
@@ -413,7 +413,7 @@ BiometricEvaluation::IO::RecordStore::removeRecordStore(
 /* Common protected method implementations.                                   */
 /******************************************************************************/
 
-uint8_t
+BiometricEvaluation::IO::Mode
 BiometricEvaluation::IO::RecordStore::getMode() const
 {
 	return (_mode);
@@ -470,7 +470,7 @@ void
 BiometricEvaluation::IO::RecordStore::setProperties(
     const std::shared_ptr<IO::Properties> importProps)
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError(RSREADONLYERROR);
 	
 	/* Merge new properties */
@@ -603,7 +603,7 @@ BiometricEvaluation::IO::RecordStore::mergeRecordStores(
 	RecordStore::Record record;
 	for (uint32_t i = 0; i < pathnames.size(); i++) {
 		try {
-			rs = openRecordStore(pathnames[i], BE::IO::READONLY);
+			rs = openRecordStore(pathnames[i], Mode::ReadOnly);
 		} catch (Error::Exception &e) {
 			throw Error::StrategyError(e.whatString());
 		}

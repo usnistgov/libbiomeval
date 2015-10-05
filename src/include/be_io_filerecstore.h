@@ -68,7 +68,7 @@ namespace BiometricEvaluation {
 			 */
 			FileRecordStore(
 			    const std::string &name,
-			    uint8_t mode = IO::READWRITE);
+			    IO::Mode mode = IO::Mode::ReadWrite);
 
 			/*
 			 * Methods that implement the RecordStore interface.

@@ -37,7 +37,7 @@ namespace BiometricEvaluation
 			 * 	The read/write mode of the object.
 			 */
 			Properties(
-			    uint8_t mode = IO::READWRITE);
+			    IO::Mode mode = IO::Mode::ReadWrite);
 			
 			/**
 			 * @brief
@@ -60,7 +60,7 @@ namespace BiometricEvaluation
 			Properties(
 			    const uint8_t *buffer,
 			    const size_t size,
-			    uint8_t mode = IO::READWRITE);
+			    IO::Mode mode = IO::Mode::ReadWrite);
 
 			/**
 			 * @brief
@@ -253,9 +253,9 @@ namespace BiometricEvaluation
 			 * Obtain the mode of the Properties object.
 			 *
 			 * @return
-			 *	Mode (IO::READONLY or IO::READWRITE)
+			 *	Mode (Mode::ReadOnly or Mode::ReadWrite)
 			 */
-			uint8_t
+			BiometricEvaluation::IO::Mode
 			getMode()
 			    const;
 			    
@@ -309,7 +309,7 @@ namespace BiometricEvaluation
 			PropertiesMap _properties;
 			
 			/** Mode in which the Properties object was opened */
-			uint8_t _mode;
+			IO::Mode _mode;
 		};
 	}
 }

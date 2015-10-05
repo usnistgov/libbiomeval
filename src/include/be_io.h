@@ -26,20 +26,25 @@ namespace BiometricEvaluation {
 	 * input and output operations and provide for robust error handling
 	 * on behalf of the application.
 	 */
-	namespace IO {
+	namespace IO
+	{
+		/** Accessibility of object. */
+		enum class Mode
+		{
 			/**
 			 * Constant indicating the state of an object
 			 * that manages some underlying file is accessible
 			 * for reading and writing.
 			 */
-			static const uint8_t READWRITE = 0;
+			ReadWrite = 0,
 
 			/**
 			 * Constant indicating the state of an object
 			 * that manages some underlying file is accessible
 			 * for reading only.
 			 */
-			static const uint8_t READONLY = 1;
+			ReadOnly = 1
+		};
 	}
 }
 #endif	/* __BE_IO_H__ */

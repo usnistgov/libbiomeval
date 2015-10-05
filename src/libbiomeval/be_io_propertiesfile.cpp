@@ -26,7 +26,7 @@ static std::string RO_ERR_MSG = "Object is read-only";
 
 BiometricEvaluation::IO::PropertiesFile::PropertiesFile(
     const std::string &pathname,
-    uint8_t mode) :
+    IO::Mode mode) :
     Properties(mode),
     _pathname(pathname)
 {
@@ -40,7 +40,7 @@ BiometricEvaluation::IO::PropertiesFile::initPropertiesFile()
 		this->initWithBuffer(IO::Utility::readFile(this->_pathname));
 	} catch (Error::ObjectDoesNotExist) {
 		/* Create a new file if one does not exist */
-		if (this->getMode() == IO::READONLY)
+		if (this->getMode() == Mode::ReadOnly)
 			throw Error::StrategyError("Properties file does not "
 			    "exist and mode is read-only");
 
@@ -55,7 +55,7 @@ BiometricEvaluation::IO::PropertiesFile::initPropertiesFile()
 void
 BiometricEvaluation::IO::PropertiesFile::sync()
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError(RO_ERR_MSG);
 
 	std::ofstream ofs(_pathname.c_str());
@@ -73,7 +73,7 @@ void
 BiometricEvaluation::IO::PropertiesFile::changeName(
     const std::string &pathname)
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError(RO_ERR_MSG);
 
 	if (IO::Utility::fileExists(pathname))
@@ -96,7 +96,7 @@ BiometricEvaluation::IO::PropertiesFile::changeName(
 BiometricEvaluation::IO::PropertiesFile::~PropertiesFile()
 {
 	try {
-		if (this->getMode() != IO::READONLY)
+		if (this->getMode() != Mode::ReadOnly)
 			this->sync();
 	} catch (Error::Exception) {}
 }

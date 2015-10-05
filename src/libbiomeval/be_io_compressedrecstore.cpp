@@ -81,7 +81,7 @@ BiometricEvaluation::IO::CompressedRecordStore::CompressedRecordStore(
 
 BiometricEvaluation::IO::CompressedRecordStore::CompressedRecordStore(
     const std::string &pathname,
-    uint8_t mode) :
+    IO::Mode mode) :
     RecordStore(pathname, mode)
 {    
 	std::string rsPath = pathname + '/' +  BACKING_STORE;
@@ -116,7 +116,7 @@ BiometricEvaluation::IO::CompressedRecordStore::insert(
     const void *const data,
     const uint64_t size)
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError(RSREADONLYERROR);
 		
 	Memory::uint8Array compressedData = _compressor->compress(
@@ -192,7 +192,7 @@ void
 BiometricEvaluation::IO::CompressedRecordStore::remove(
     const std::string &key)
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError(RSREADONLYERROR);
 		
 	_rs->remove(key);
@@ -204,7 +204,7 @@ void
 BiometricEvaluation::IO::CompressedRecordStore::sync()
     const
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		return;
 		
 	_rs->sync();
@@ -216,7 +216,7 @@ void
 BiometricEvaluation::IO::CompressedRecordStore::move(
     const std::string &pathname)
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError(RSREADONLYERROR);
 		
 	_rs.reset();	
@@ -225,9 +225,9 @@ BiometricEvaluation::IO::CompressedRecordStore::move(
 	RecordStore::move(pathname);
 
 	std::string rsPath = pathname + '/' +  BACKING_STORE;
-	_rs = RecordStore::openRecordStore(rsPath, IO::READWRITE);
+	_rs = RecordStore::openRecordStore(rsPath, IO::Mode::ReadWrite);
 	rsPath = rsPath + METADATA_SUFFIX;
-	_mdrs = RecordStore::openRecordStore(rsPath, IO::READWRITE);
+	_mdrs = RecordStore::openRecordStore(rsPath, IO::Mode::ReadWrite);
 }
 
 void
@@ -250,7 +250,7 @@ BiometricEvaluation::IO::CompressedRecordStore::flush(
     const std::string &key)
     const
 {
-	if (this->getMode() == IO::READONLY)
+	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError(RSREADONLYERROR);
 		
 	_rs->flush(key);

@@ -91,7 +91,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
 
 BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
     const std::string &pathname,
-    uint8_t mode) :
+    IO::Mode mode) :
     RecordStore(pathname, mode),
     _db(nullptr),
     _dbname(""),
@@ -108,7 +108,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::SQLiteRecordStore(
 		
 	int32_t rv;
 #ifdef	SQLITE_V2_SUPPORT
-	if (mode == READWRITE)
+	if (mode == Mode::ReadWrite)
 		/* TODO: SQLITE_OPEN_PRIVATECACHE */
 		rv = sqlite3_open_v2(_dbname.c_str(), &_db, 
 		    SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX, nullptr);
@@ -140,7 +140,7 @@ void
 BiometricEvaluation::IO::SQLiteRecordStore::move(
     const std::string &pathname)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
 	this->cleanup();
@@ -202,7 +202,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::insert(
     const void *const data,
     const uint64_t size)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
@@ -289,7 +289,7 @@ void
 BiometricEvaluation::IO::SQLiteRecordStore::remove(
     const std::string &key)
 {
-	if (getMode() == IO::READONLY)
+	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");

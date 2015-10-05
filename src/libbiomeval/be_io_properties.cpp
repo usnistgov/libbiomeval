@@ -27,7 +27,7 @@ namespace BE = BiometricEvaluation;
 static std::string RO_ERR_MSG = "Object is read-only";
 
 BiometricEvaluation::IO::Properties::Properties(
-    uint8_t mode) :
+    IO::Mode mode) :
     _mode(mode)
 {
 
@@ -36,7 +36,7 @@ BiometricEvaluation::IO::Properties::Properties(
 BiometricEvaluation::IO::Properties::Properties(
     const uint8_t *buffer,
     const size_t size,
-    uint8_t mode) :
+    IO::Mode mode) :
     _mode(mode)
 {
 	this->initWithBuffer(buffer, size);
@@ -95,7 +95,7 @@ BiometricEvaluation::IO::Properties::setProperty(
     const std::string &property,
     const std::string &value)
 {
-	if (_mode == IO::READONLY)
+	if (_mode == Mode::ReadOnly)
 		throw Error::StrategyError(RO_ERR_MSG);
 
 	std::string p = property;
@@ -110,7 +110,7 @@ BiometricEvaluation::IO::Properties::setPropertyFromInteger(
     const std::string &property,
     int64_t value)
 {
-	if (_mode == IO::READONLY)
+	if (_mode == Mode::ReadOnly)
 		throw Error::StrategyError(RO_ERR_MSG);
 
 	std::string p = property;
@@ -143,7 +143,7 @@ void
 BiometricEvaluation::IO::Properties::removeProperty(
     const std::string &property)
 {
-	if (_mode == IO::READONLY)
+	if (_mode == Mode::ReadOnly)
 		throw Error::StrategyError(RO_ERR_MSG);
 
 	std::string p = property;
@@ -254,7 +254,7 @@ BiometricEvaluation::IO::Properties::getPropertyKeys() const
 	return (keys);
 }
 
-uint8_t
+BiometricEvaluation::IO::Mode
 BiometricEvaluation::IO::Properties::getMode()
     const
 {
