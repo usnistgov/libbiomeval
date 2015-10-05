@@ -130,7 +130,8 @@ main(int argc, char* argv[]) {
 	string rsname = "test_data/AN2KRecordStore";
 	std::shared_ptr<IO::RecordStore> rs;
 	try {
-		rs = IO::RecordStore::openRecordStore(rsname, Mode::ReadOnly);
+		rs = IO::RecordStore::openRecordStore(rsname,
+		    IO::Mode::ReadOnly);
 	} catch (Error::Exception &e) {
 		cout << "Could not open record store " << rsname << ": "
 		    << e.what() << endl;

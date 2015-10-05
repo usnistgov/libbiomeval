@@ -154,16 +154,16 @@ int main (int argc, char* argv[]) {
 		/* Test the re-open of an existing RecordStore. */
 		try {
 #ifdef FILERECORDSTORETEST
-			rs = new IO::FileRecordStore(rsname);
+			rs = new IO::FileRecordStore(rsname, IO::Mode::ReadWrite);
 #endif
 #ifdef DBRECORDSTORETEST
-			rs = new IO::DBRecordStore(rsname);
+			rs = new IO::DBRecordStore(rsname, IO::Mode::ReadWrite);
 #endif
 #ifdef ARCHIVERECORDSTORETEST
-			rs = new IO::ArchiveRecordStore(rsname);
+			rs = new IO::ArchiveRecordStore(rsname, IO::Mode::ReadWrite);
 #endif
 #ifdef SQLITERECORDSTORETEST
-			rs = new IO::SQLiteRecordStore(rsname);
+			rs = new IO::SQLiteRecordStore(rsname, IO::Mode::ReadWrite);
 #endif
 		} catch (Error::ObjectDoesNotExist& e) {
 			cout << "Could not re-open RecordStore; exiting." << endl;

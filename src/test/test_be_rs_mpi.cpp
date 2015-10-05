@@ -95,7 +95,7 @@ TestRecordProcessor::newProcessor(
 		 * are reading the file.
 		 */
 		props.reset(new BE::IO::PropertiesFile(
-		    propertiesFileName, Mode::ReadOnly));
+		    propertiesFileName, IO::Mode::ReadOnly));
 		url = props->getProperty(
 		    TestRecordProcessor::RECORDLOGSHEETURLPROPERTY);
 	} catch (BE::Error::Exception &e) {

@@ -282,7 +282,7 @@ main(
 	shared_ptr<IO::RecordStore> imageRS;
 	try {
 		imageRS = IO::RecordStore::openRecordStore(
-		    RSParentDir + '/' + ImageRSName, Mode::ReadOnly);
+		    RSParentDir + '/' + ImageRSName, IO::Mode::ReadOnly);
 	} catch (Error::Exception &e) {
 		cerr << "Could not open " << RSParentDir << "/" <<
 		    ImageRSName << ": " << e.what() << endl;
@@ -293,7 +293,7 @@ main(
 	shared_ptr<IO::RecordStore> imagePropRS;
 	try {
 		imagePropRS = IO::RecordStore::openRecordStore(
-		    RSParentDir + '/' + ImagePropRSName, Mode::ReadOnly);
+		    RSParentDir + '/' + ImagePropRSName, IO::Mode::ReadOnly);
 	} catch (Error::Exception &e) {
 		cerr << "Could not open " << RSParentDir << "/" <<
 		    ImageRSName << ": " << e.what() << endl;

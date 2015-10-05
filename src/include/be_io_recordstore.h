@@ -455,7 +455,7 @@ namespace BiometricEvaluation {
 			 */
 			static std::shared_ptr<RecordStore> openRecordStore(
 			    const std::string &pathname,
-			    IO::Mode mode = Mode::ReadWrite);
+			    IO::Mode mode = Mode::ReadOnly);
 
 			/**
 			 * @brief
@@ -596,7 +596,7 @@ namespace BiometricEvaluation {
 			 */
 			RecordStore(
 			    const std::string &pathname,
-			    IO::Mode mode = Mode::ReadWrite);
+			    IO::Mode mode = Mode::ReadOnly);
 
 			IO::Mode getMode() const;
 

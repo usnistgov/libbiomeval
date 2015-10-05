@@ -158,7 +158,7 @@ namespace BiometricEvaluation
 			 *
 			 * @throw Error::StrategyError
 			 *	Always thrown -- ListRecordStores cannot be
-			 *	opened IO::Mode::ReadWrite and CRUD methods cannot
+			 *	opened Mode::ReadWrite and CRUD methods cannot
 			 *	be used on a Mode::ReadOnly object.
 			 *	
 			 * @note

@@ -220,16 +220,20 @@ testMerge()
 		IO::RecordStore::mergeRecordStores(merged_rs_fn,
 		    "A merge of 3 RS", merged_type, path);
 #ifdef ARCHIVERECORDSTORETEST
-		merged_rs = new IO::ArchiveRecordStore(merged_rs_fn);
+		merged_rs = new IO::ArchiveRecordStore(merged_rs_fn,
+		    IO::Mode::ReadWrite);
 #endif
 #ifdef DBRECORDSTORETEST
-		merged_rs = new IO::DBRecordStore(merged_rs_fn);
+		merged_rs = new IO::DBRecordStore(merged_rs_fn,
+		    IO::Mode::ReadWrite);
 #endif
 #ifdef FILERECORDSTORETEST
-		merged_rs = new IO::FileRecordStore(merged_rs_fn);
+		merged_rs = new IO::FileRecordStore(merged_rs_fn,
+		    IO::Mode::ReadWrite);
 #endif
 #ifdef SQLITERECORDSTORETEST
-		merged_rs = new IO::SQLiteRecordStore(merged_rs_fn);
+		merged_rs = new IO::SQLiteRecordStore(merged_rs_fn,
+		    IO::Mode::ReadWrite);
 #endif
 		if (merged_rs->getCount() == (num_rs * 3))
 			cout << "success." << endl;
@@ -704,7 +708,7 @@ main(int argc, char* argv[]) {
 	/* Call the constructor that will open an existing FileRecordStore. */
 	rsPath = "frs_test";
 	try {
-		rs = new IO::FileRecordStore(rsPath);
+		rs = new IO::FileRecordStore(rsPath, IO::Mode::ReadWrite);
 	} catch (Error::ObjectDoesNotExist& e) {
 		cout << "The File Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -718,7 +722,7 @@ main(int argc, char* argv[]) {
 	/* Call the constructor that will open an existing DBRecordStore. */
 	rsPath = "dbrs_test";
 	try {
-		rs = new IO::DBRecordStore(rsPath);
+		rs = new IO::DBRecordStore(rsPath, IO::Mode::ReadWrite);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The DB Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -732,7 +736,7 @@ main(int argc, char* argv[]) {
 	/* Call the constructor that will open an existing ArchiveRecordStore.*/
 	rsPath = "ars_test";
 	try {
-		rs = new IO::ArchiveRecordStore(rsPath);
+		rs = new IO::ArchiveRecordStore(rsPath, IO::Mode::ReadWrite);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Archive Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -746,7 +750,7 @@ main(int argc, char* argv[]) {
 	/* Call the constructor that will open an existing SQLiteRecordStore.*/
 	rsPath = "srs_test";
 	try {
-		rs = new IO::SQLiteRecordStore(rsPath);
+		rs = new IO::SQLiteRecordStore(rsPath, IO::Mode::ReadWrite);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The SQLite Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -760,7 +764,7 @@ main(int argc, char* argv[]) {
 	/* Call the constructor that will open an existing CompressedRecordStore.*/
 	rsPath = "comprs_test";
 	try {
-		rs = new IO::CompressedRecordStore(rsPath);
+		rs = new IO::CompressedRecordStore(rsPath, IO::Mode::ReadWrite);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Compressed Record Store does not exist; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -802,7 +806,8 @@ main(int argc, char* argv[]) {
 	std::shared_ptr<IO::RecordStore> srs;
 	bool success = false;
 	try {
-		srs = IO::RecordStore::openRecordStore("/tmp/bbogusss");
+		srs = IO::RecordStore::openRecordStore("/tmp/bbogusss",
+		    IO::Mode::ReadWrite);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "Caught" << e.what() << "; success." << endl;
 		success = true;
@@ -817,7 +822,7 @@ main(int argc, char* argv[]) {
 
 	cout << "Opening existing record store using factory method: " << endl;
 	try {
-		srs = IO::RecordStore::openRecordStore(rsPath);
+		srs = IO::RecordStore::openRecordStore(rsPath, IO::Mode::ReadWrite);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "The Record Store could not be opened by the factory; exiting." << endl;
 		cout << e.what() << endl;

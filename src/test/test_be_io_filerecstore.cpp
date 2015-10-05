@@ -61,7 +61,7 @@ int main (int argc, char* argv[]) {
 
 	cont = false;
 	try {
-		frs = new IO::FileRecordStore(frtestdir);
+		frs = new IO::FileRecordStore(frtestdir, IO::Mode::ReadWrite);
 		cont = true;
 	} catch (Error::ObjectDoesNotExist) {
 		cout << "Failed test of opening existing bit store." << endl;

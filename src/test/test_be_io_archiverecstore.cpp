@@ -64,7 +64,7 @@ int main (int argc, char* argv[]) {
 
 	cont = false;
 	try {
-		ars = new IO::ArchiveRecordStore(archivefn);
+		ars = new IO::ArchiveRecordStore(archivefn, IO::Mode::ReadWrite);
 		cont = true;
 	} catch (Error::ObjectDoesNotExist e) {
 		cout << "Failed test of opening existing archive." << endl;
@@ -136,7 +136,7 @@ int main (int argc, char* argv[]) {
 	/* Create a new object to read, testing private init methods */
 	IO::ArchiveRecordStore *ars3;
 	try {
-		ars3 = new IO::ArchiveRecordStore(archivefn);
+		ars3 = new IO::ArchiveRecordStore(archivefn, IO::Mode::ReadWrite);
 		cout << "Passed test of reading manifest" << endl;
 	} catch (Error::ObjectDoesNotExist) {
 		cout << "Failed test of reading manifest" << endl;

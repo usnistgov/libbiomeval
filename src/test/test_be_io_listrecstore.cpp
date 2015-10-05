@@ -28,7 +28,7 @@ int main(
 	cout << "Testing factory open method, read-only mode... ";
 	try {
 		rs = IO::RecordStore::openRecordStore(
-		    "test_data/listRecordStore", Mode::ReadOnly);
+		    "test_data/listRecordStore", IO::Mode::ReadOnly);
 		cout << "SUCCESS" << endl;
 	} catch (Error::Exception &e) {
 		cout << "FAIL: " << e.what() << endl;
