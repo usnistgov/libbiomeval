@@ -32,6 +32,7 @@ ifeq ($(OS),Darwin)
 	OSX_MAJOR = $(shell sw_vers -productVersion | cut -d. -f1)
 	OSX_MINOR = $(shell sw_vers -productVersion | cut -d. -f2)
 	OSX_PATCH = $(shell sw_vers -productVersion | cut -d. -f3)
+	MACOSX_DEPLOYMENT_TARGET = $(OSX_MAJOR).$(OSX_MINOR)
 else
 	CC = gcc
 	CXX = g++
