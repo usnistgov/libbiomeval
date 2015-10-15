@@ -10,6 +10,7 @@
 #ifndef __BE_TEXT_H__
 #define __BE_TEXT_H__
 
+#include <locale>
 #include <string>
 #include <vector>
 
@@ -166,6 +167,40 @@ namespace BiometricEvaluation {
 		caseInsensitiveCompare(
 		    const std::string &str1,
 		    const std::string &str2);
+
+		/**
+		 * @brief
+		 * Uppercase a string, respecting locale.
+		 *
+		 * @param str
+		 * String to uppercase.
+		 * @param locale
+		 * Locale to use when uppercasing str.
+		 *
+		 * @return
+		 * Uppercase copy of str.
+		 */
+		std::string
+		toUppercase(
+		    const std::string &str,
+		    const std::locale &locale = std::locale());
+
+		/**
+		 * @brief
+		 * Lowercase a string, respecting locale.
+		 *
+		 * @param str
+		 * String to loercase.
+		 * @param locale
+		 * Locale to use when lowercasing str.
+		 *
+		 * @return
+		 * Lowercase copy of str.
+		 */
+		std::string
+		toLowercase(
+		    const std::string &str,
+		    const std::locale &locale = std::locale());
 	}
 }
 #endif /* __BE_TEXT_H__ */

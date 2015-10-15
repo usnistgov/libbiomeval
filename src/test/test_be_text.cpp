@@ -100,6 +100,16 @@ main(int argc, char* argv[])
        	cout << "RecordStore == Record$tore ? " << boolalpha <<
 	    Text::caseInsensitiveCompare("RecordStore", "Record$tore") << endl;
 
+	cout << "Text::toUppercase()" << endl;
+	std::string testString = "Hello, World!";
+	cout << testString << "->" << Text::toUppercase(testString) << endl;
+	if (Text::toUppercase(testString) != "HELLO, WORLD!")
+		throw Error::StrategyError("toUppercase()");
+	cout << "Text::toLowercase()" << endl;
+	cout << testString << "->" << Text::toLowercase(testString) << endl;
+	if (Text::toLowercase(testString) != "hello, world!")
+		throw Error::StrategyError("toLowercase()");
+
 	return (EXIT_SUCCESS);
 }
 

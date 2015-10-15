@@ -223,6 +223,7 @@ BiometricEvaluation::Text::dirname(
 
 	return (::dirname(buf));
 }
+
 bool
 BiometricEvaluation::Text::caseInsensitiveCompare(
     const std::string &str1,
@@ -235,5 +236,31 @@ BiometricEvaluation::Text::caseInsensitiveCompare(
 	        return (std::toupper(str1Char) == std::toupper(str2Char));
 	    })
 	);
+}
+
+std::string
+BiometricEvaluation::Text::toUppercase(
+    const std::string &str,
+    const std::locale &locale)
+{
+	const auto &facet = std::use_facet<
+	    std::ctype<std::string::value_type>>(locale);
+
+	std::string retStr{str};
+	facet.toupper(&retStr[0], &retStr[0] + retStr.size());
+	return (retStr);
+}
+
+std::string
+BiometricEvaluation::Text::toLowercase(
+    const std::string &str,
+    const std::locale &locale)
+{
+	const auto &facet = std::use_facet<
+	    std::ctype<std::string::value_type>>(locale);
+
+	std::string retStr{str};
+	facet.tolower(&retStr[0], &retStr[0] + retStr.size());
+	return (retStr);
 }
 
