@@ -56,7 +56,7 @@ namespace BiometricEvaluation
 			/** Implicit conversion to std::string */
 			operator std::string();
 			/** Implicit conversion to enumeration */
-			operator T();
+			operator T() noexcept;
 
 		private:
 			/* The enumeration being stored */
@@ -238,7 +238,7 @@ namespace BiometricEvaluation
 			/** Implicit conversion to std::string */
 			operator std::string() const;
 			/** Implicit conversion to enumeration */
-			operator T() const;
+			constexpr operator T() const noexcept;
 
 		private:
 			/* The enumeration being stored */
@@ -417,9 +417,11 @@ namespace BiometricEvaluation
  * Wrapped version of kind.
  */
 template <typename T>
+constexpr
 BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
 to_string(
-    const T &kind);
+    const T &kind)
+    noexcept;
 
 /**
  * @brief
@@ -432,9 +434,11 @@ to_string(
  * Underlying integer version of kind.
  */
 template <typename T>
+constexpr
 typename std::underlying_type<T>::type
 to_int_type(
-    const T &kind);
+    const T &kind)
+    noexcept;
 
 /**
  * @brief
@@ -494,6 +498,7 @@ BiometricEvaluation::Framework::EnumMapWrapper<T>::operator std::string()
 
 template <typename T>
 BiometricEvaluation::Framework::EnumMapWrapper<T>::operator T()
+    noexcept
 {
 	return (_enumeration);
 }
@@ -514,8 +519,10 @@ BiometricEvaluation::Framework::ConstEnumMapWrapper<T>::operator std::string()
 }
 
 template <typename T>
+constexpr
 BiometricEvaluation::Framework::ConstEnumMapWrapper<T>::operator T()
     const
+    noexcept
 {
 	return (_enumeration);
 }
@@ -558,9 +565,11 @@ to_enum(
 }
 
 template <typename T>
+constexpr
 typename std::underlying_type<T>::type
 to_int_type(
     const T &kind)
+    noexcept
 {
 	return (static_cast<typename std::underlying_type<T>::type>(kind));
 }
@@ -570,9 +579,11 @@ to_int_type(
  */
 
 template <typename T>
+constexpr
 BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
 to_string(
     const T &kind)
+    noexcept
 {
 	return (BiometricEvaluation::Framework::ConstEnumMapWrapper<T>(kind));
 }
