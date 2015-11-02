@@ -133,9 +133,8 @@ internalGetPstats(pid_t pid)
 	while (!ifs.eof()) {
 		std::getline(ifs, oneline);
 		idx = oneline.find(":");
-		key = oneline.substr(0, idx);
 		value = oneline.substr(idx + 1, oneline.length());
-		BE::Text::removeLeadingTrailingWhitespace(key);
+		key = BE::Text::trimWhitespace(oneline.substr(0, idx));
 
 		//XXX May want to remove non-digits in value string
 

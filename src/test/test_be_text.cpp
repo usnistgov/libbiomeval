@@ -20,11 +20,31 @@ using namespace std;
 int
 main(int argc, char* argv[])
 {
-	cout << "Text::removeLeadingTrailingWhitespace()" << endl;
-	string whitespace = "     foo   bar      ";
-	cout << "\"" << whitespace << "\" = \"";
-	Text::removeLeadingTrailingWhitespace(whitespace);
-	cout << whitespace << "\"" << endl;
+	cout << "Text::trimWhitespace()" << endl;
+	string whitespace = "     foo   bar	  ";
+	cout << "\"" << whitespace << "\" = \"" <<
+	    Text::trimWhitespace(whitespace) << '"' << endl;
+
+	cout << "Text::rtrimWhitespace()" << endl;
+	cout << "\"" << whitespace << "\" = \"" <<
+	    Text::rtrimWhitespace(whitespace) << '"' << endl;
+
+	cout << "Text::ltrimWhitespace()" << endl;
+	cout << "\"" << whitespace << "\" = \"" <<
+	    Text::ltrimWhitespace(whitespace) << '"' << endl;
+
+	cout << "Text::trim('_')" << endl;
+	std::string underscoreStr{"__HELLO_WORLD__"};
+	cout << '"' << underscoreStr << "\" = \"" <<
+	    Text::trim(underscoreStr, '_') << '"' << endl;
+
+	cout << "Text::rtrim('_')" << endl;
+	cout << '"' << underscoreStr << "\" = \"" <<
+	    Text::rtrim(underscoreStr, '_') << '"' << endl;
+
+	cout << "Text::ltrim('_')" << endl;
+	cout << '"' << underscoreStr << "\" = \"" <<
+	    Text::ltrim(underscoreStr, '_') << '"' << endl;
 
 	cout << endl;
 

@@ -121,8 +121,7 @@ namespace BiometricEvaluation
 				std::for_each(command.arguments.begin(),
 				    command.arguments.end(),
 				    [](std::string &i) {
-					Text::
-					removeLeadingTrailingWhitespace(i);
+					i = Text::trimWhitespace(i);
 				});
 
 				/* Split actual command off of arguments */

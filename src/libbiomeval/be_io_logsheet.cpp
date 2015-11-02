@@ -35,8 +35,7 @@ BiometricEvaluation::IO::Logsheet::getTypeFromURL(
 	if (start == std::string::npos)
 		throw (Error::ParameterError("Missing URL scheme"));
 
-	std::string prefix = url.substr(0, start);
-	BE::Text::removeLeadingTrailingWhitespace(prefix);
+	std::string prefix{BE::Text::trimWhitespace(url.substr(0, start))};
 	if (BE::Text::caseInsensitiveCompare(
 	    prefix, BE::IO::Logsheet::SYSLOGURLSCHEME) == true) {
 		return (BE::IO::Logsheet::Kind::Syslog);

@@ -30,10 +30,98 @@ namespace BiometricEvaluation {
 
 		/**
 		 * @brief
-		 * Remove lead and trailing white space from a string
-		 * object.
+		 * Remove leading and trailing whitespace from a string.
+		 *
+		 * @param s
+		 * String object whose leading and trailing whitespace should
+		 * be removed.
+		 *
+		 * @return
+		 * Copy of s without leading or trailing whitespace.
 		 */
-		void removeLeadingTrailingWhitespace(std::string &s);
+		std::string
+		trimWhitespace(
+		    const std::string &s);
+
+		/**
+		 * @brief
+		 * Remove leading whitespace from a string.
+		 *
+		 * @param s
+		 * String object whose leading whitespace should be removed.
+		 *
+		 * @return
+		 * Copy of s without leading whitespace.
+		 */
+		std::string
+		ltrimWhitespace(
+		    const std::string &s);
+
+		/**
+		 * @brief
+		 * Remove trailing whitespace from a string.
+		 *
+		 * @param s
+		 * String object whose trailing whitespace should be removed.
+		 *
+		 * @return
+		 * Copy of s without trailing whitespace.
+		 */
+		std::string
+		rtrimWhitespace(
+		    const std::string &s);
+
+		/**
+		 * @brief
+		 * Remove leading and trailing characters from a string.
+		 *
+		 * @param s
+		 * String object whose leading and trailing trimChar should
+		 * be removed.
+		 * @param trimChar
+		 * Character to remove from the beginning and ending of s.
+		 *
+		 * @return
+		 * Copy of s without leading or trailing trimChar.
+		 */
+		std::string
+		trim(
+		    const std::string &s,
+		    const char trimChar);
+
+		/**
+		 * @brief
+		 * Remove leading characters from a string.
+		 *
+		 * @param s
+		 * String object whose leading trimChar should be removed.
+		 * @param trimChar
+		 * Character to remove from the beginning of s.
+		 *
+		 * @return
+		 * Copy of s without leading trimChar.
+		 */
+		std::string
+		ltrim(
+		    const std::string &s,
+		    const char trimChar);
+
+		/**
+		 * @brief
+		 * Remove trailing characters from a string.
+		 *
+		 * @param s
+		 * String object whose trailing trimChar should be removed.
+		 * @param trimChar
+		 * Character to remove from the end of s.
+		 *
+		 * @return
+		 * Copy of s without trailing trimChar.
+		 */
+		std::string
+		rtrim(
+		    const std::string &s,
+		    const char trimChar);
 
 		/**
 		 * @brief

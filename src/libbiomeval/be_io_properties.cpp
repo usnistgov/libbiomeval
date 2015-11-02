@@ -81,12 +81,10 @@ BiometricEvaluation::IO::Properties::initWithBuffer(
 		if ((idx == std::string::npos) || (idx == 0))
 			throw Error::StrategyError("Properties file has "
 			    "invalid line");
-		property = oneline.substr(0, idx);
-		Text::removeLeadingTrailingWhitespace(property);
-		value = oneline.substr(idx + 1, oneline.length());
-		Text::removeLeadingTrailingWhitespace(value);
-		
-		_properties[property] = value;
+
+		_properties[Text::trimWhitespace(oneline.substr(0, idx))] =
+		    Text::trimWhitespace(oneline.substr(idx + 1,
+		    oneline.length()));
 	}
 }
 
@@ -98,11 +96,8 @@ BiometricEvaluation::IO::Properties::setProperty(
 	if (_mode == Mode::ReadOnly)
 		throw Error::StrategyError(RO_ERR_MSG);
 
-	std::string p = property;
-	std::string v = value;
-	Text::removeLeadingTrailingWhitespace(p);
-	Text::removeLeadingTrailingWhitespace(v);
-	_properties[p] = v;
+	_properties[Text::trimWhitespace(property)] =
+	    Text::trimWhitespace(value);
 }
 
 void
@@ -113,12 +108,9 @@ BiometricEvaluation::IO::Properties::setPropertyFromInteger(
 	if (_mode == Mode::ReadOnly)
 		throw Error::StrategyError(RO_ERR_MSG);
 
-	std::string p = property;
-	Text::removeLeadingTrailingWhitespace(p);
-
 	std::stringstream buf;
 	buf << value;
-	_properties[p] = buf.str();
+	_properties[Text::trimWhitespace(property)] = buf.str();
 }
 
 void
@@ -146,8 +138,7 @@ BiometricEvaluation::IO::Properties::removeProperty(
 	if (_mode == Mode::ReadOnly)
 		throw Error::StrategyError(RO_ERR_MSG);
 
-	std::string p = property;
-	Text::removeLeadingTrailingWhitespace(p);
+	std::string p{Text::trimWhitespace(property)};
 	if (_properties.find(p) == _properties.end())
 		throw Error::ObjectDoesNotExist(property);
 	_properties.erase(p);
@@ -158,8 +149,7 @@ BiometricEvaluation::IO::Properties::getProperty(
     const std::string &property)
     const
 {
-	std::string p = property;
-	Text::removeLeadingTrailingWhitespace(p);
+	std::string p{Text::trimWhitespace(property)};
 	PropertiesMap::const_iterator it = _properties.find(p);
 	if (it == _properties.end())
 		throw Error::ObjectDoesNotExist(property);
@@ -171,8 +161,7 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
     const std::string &property)
     const
 {
-	std::string p = property;
-	Text::removeLeadingTrailingWhitespace(p);
+	std::string p{Text::trimWhitespace(property)};
 	PropertiesMap::const_iterator it = _properties.find(p);
 	if (it == _properties.end())
 		throw Error::ObjectDoesNotExist(property);

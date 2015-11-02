@@ -28,24 +28,83 @@
 #include <be_text.h>
 #include <be_memory_autoarray.h>
 
-void
-BiometricEvaluation::Text::removeLeadingTrailingWhitespace(std::string &s)
+std::string
+BiometricEvaluation::Text::trimWhitespace(
+    const std::string &s)
 {
-	for (unsigned int idx = 0; idx < s.length(); idx++) {
-		if (std::isspace(s[idx])) {
-			s.erase(idx, 1);
-			idx--;
-		} else {
-			break;
-		}
-	}
-	for (int idx = s.length() - 1; idx >= 0; idx--) {
-		if (std::isspace(s[idx])) {
-			s.erase(idx, 1);
-		} else {
-			break;
-		}
-	}
+	return (Text::ltrimWhitespace(Text::rtrimWhitespace(s)));
+}
+
+std::string
+BiometricEvaluation::Text::ltrimWhitespace(
+    const std::string &s)
+{
+	std::string output{s};
+
+	/* Erase from beginning until the first non-whitespace */
+	output.erase(output.begin(),
+	    std::find_if(output.cbegin(), output.cend(),
+	    [](const char &c) -> bool {
+		return (std::isspace(c) == 0);
+	    }));
+
+	return (output);
+}
+
+std::string
+BiometricEvaluation::Text::rtrimWhitespace(
+    const std::string &s)
+{
+	std::string output{s};
+
+	/* Erase from the last non-whitespace to the end */
+	output.erase(std::find_if(output.crbegin(), output.crend(),
+	    [](const char &c) -> bool {
+		return (std::isspace(c) == 0);
+	    }).base(), output.end());
+
+	return (output);
+}
+
+std::string
+BiometricEvaluation::Text::trim(
+    const std::string &s,
+    const char trimChar)
+{
+	return (ltrim(rtrim(s, trimChar), trimChar));
+}
+
+std::string
+BiometricEvaluation::Text::ltrim(
+    const std::string &s,
+    const char trimChar)
+{
+	std::string output{s};
+
+	/* Erase from beginning until the first non-trimChar */
+	output.erase(output.begin(),
+	    std::find_if(output.cbegin(), output.cend(),
+	    [&trimChar](const char &c) -> bool {
+		return (trimChar != c);
+	    }));
+
+	return (output);
+}
+
+std::string
+BiometricEvaluation::Text::rtrim(
+    const std::string &s,
+    const char trimChar)
+{
+	std::string output{s};
+
+	/* Erase from the last non-trimChar to the end */
+	output.erase(std::find_if(output.crbegin(), output.crend(),
+	    [&trimChar](const char &c) -> bool {
+		return (trimChar != c);
+	    }).base(), output.end());
+
+	return (output);
 }
 
 std::string

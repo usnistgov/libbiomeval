@@ -101,13 +101,11 @@ BiometricEvaluation::IO::ListRecordStore::i_sequence(
 	if (this->_keyListFile->eof())
 		throw (Error::ObjectDoesNotExist("No record at position"));
 
-	Text::removeLeadingTrailingWhitespace(line);
-
 	this->setCursor(BE_RECSTORE_SEQ_NEXT);
 
 	/* Read the record from the source store; let exceptions float out */
 	BE::IO::RecordStore::Record record;
-	record.key = line;
+	record.key = Text::trimWhitespace(line);
 	if (returnData == true)
 		record.data = this->_sourceRecordStore->read(record.key);
 	return (record);
@@ -136,8 +134,8 @@ BiometricEvaluation::IO::ListRecordStore::setCursorAtKey(
 	this->setCursor(BE_RECSTORE_SEQ_START);
 	
 	/* Sequence until we find the key */
-	std::string sequencedKey, searchKey = key;
-	Text::removeLeadingTrailingWhitespace(searchKey);
+	std::string sequencedKey;
+	std::string searchKey{Text::trimWhitespace(key)};
 	for (;;) {
 		try {
 			sequencedKey = this->sequenceKey();
