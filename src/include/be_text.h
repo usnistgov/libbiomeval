@@ -35,13 +35,17 @@ namespace BiometricEvaluation {
 		 * @param s
 		 * String object whose leading and trailing whitespace should
 		 * be removed.
+		 * @param locale
+		 * Locale to be considered when determining whitespace
+		 * characters.
 		 *
 		 * @return
 		 * Copy of s without leading or trailing whitespace.
 		 */
 		std::string
 		trimWhitespace(
-		    const std::string &s);
+		    const std::string &s,
+		    const std::locale &locale = std::locale());
 
 		/**
 		 * @brief
@@ -49,13 +53,17 @@ namespace BiometricEvaluation {
 		 *
 		 * @param s
 		 * String object whose leading whitespace should be removed.
+		 * @param locale
+		 * Locale to be considered when determining whitespace
+		 * characters.
 		 *
 		 * @return
 		 * Copy of s without leading whitespace.
 		 */
 		std::string
 		ltrimWhitespace(
-		    const std::string &s);
+		    const std::string &s,
+		    const std::locale &locale = std::locale());
 
 		/**
 		 * @brief
@@ -63,13 +71,17 @@ namespace BiometricEvaluation {
 		 *
 		 * @param s
 		 * String object whose trailing whitespace should be removed.
+		 * @param locale
+		 * Locale to be considered when determining whitespace
+		 * characters.
 		 *
 		 * @return
 		 * Copy of s without trailing whitespace.
 		 */
 		std::string
 		rtrimWhitespace(
-		    const std::string &s);
+		    const std::string &s,
+		    const std::locale &locale = std::locale());
 
 		/**
 		 * @brief

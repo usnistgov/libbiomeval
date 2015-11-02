@@ -20,7 +20,7 @@
 #endif
 
 #include <algorithm>
-#include <cctype>
+#include <locale>
 #include <iomanip>
 #include <sstream>
 #include <vector>
@@ -30,22 +30,24 @@
 
 std::string
 BiometricEvaluation::Text::trimWhitespace(
-    const std::string &s)
+    const std::string &s,
+    const std::locale &locale)
 {
 	return (Text::ltrimWhitespace(Text::rtrimWhitespace(s)));
 }
 
 std::string
 BiometricEvaluation::Text::ltrimWhitespace(
-    const std::string &s)
+    const std::string &s,
+    const std::locale &locale)
 {
 	std::string output{s};
 
 	/* Erase from beginning until the first non-whitespace */
 	output.erase(output.begin(),
 	    std::find_if(output.begin(), output.end(),
-	    [](const char &c) -> bool {
-		return (std::isspace(c) == 0);
+	    [&locale](const char &c) -> bool {
+		return (!std::isspace(c, locale));
 	    }));
 
 	return (output);
@@ -53,14 +55,15 @@ BiometricEvaluation::Text::ltrimWhitespace(
 
 std::string
 BiometricEvaluation::Text::rtrimWhitespace(
-    const std::string &s)
+    const std::string &s,
+    const std::locale &locale)
 {
 	std::string output{s};
 
 	/* Erase from the last non-whitespace to the end */
 	output.erase(std::find_if(output.rbegin(), output.rend(),
-	    [](const char &c) -> bool {
-		return (std::isspace(c) == 0);
+	    [&locale](const char &c) -> bool {
+		return (!std::isspace(c, locale));
 	    }).base(), output.end());
 
 	return (output);
