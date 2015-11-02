@@ -101,7 +101,7 @@ main(int argc, char* argv[]) {
 	IO::PropertiesFile *props;
 	string fname = "test.prop";
 	try {
-		props = new IO::PropertiesFile(fname);
+		props = new IO::PropertiesFile(fname, IO::Mode::ReadWrite);
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
