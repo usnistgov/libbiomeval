@@ -43,7 +43,7 @@ BiometricEvaluation::Text::ltrimWhitespace(
 
 	/* Erase from beginning until the first non-whitespace */
 	output.erase(output.begin(),
-	    std::find_if(output.cbegin(), output.cend(),
+	    std::find_if(output.begin(), output.end(),
 	    [](const char &c) -> bool {
 		return (std::isspace(c) == 0);
 	    }));
@@ -58,7 +58,7 @@ BiometricEvaluation::Text::rtrimWhitespace(
 	std::string output{s};
 
 	/* Erase from the last non-whitespace to the end */
-	output.erase(std::find_if(output.crbegin(), output.crend(),
+	output.erase(std::find_if(output.rbegin(), output.rend(),
 	    [](const char &c) -> bool {
 		return (std::isspace(c) == 0);
 	    }).base(), output.end());
@@ -83,7 +83,7 @@ BiometricEvaluation::Text::ltrim(
 
 	/* Erase from beginning until the first non-trimChar */
 	output.erase(output.begin(),
-	    std::find_if(output.cbegin(), output.cend(),
+	    std::find_if(output.begin(), output.end(),
 	    [&trimChar](const char &c) -> bool {
 		return (trimChar != c);
 	    }));
@@ -99,7 +99,7 @@ BiometricEvaluation::Text::rtrim(
 	std::string output{s};
 
 	/* Erase from the last non-trimChar to the end */
-	output.erase(std::find_if(output.crbegin(), output.crend(),
+	output.erase(std::find_if(output.rbegin(), output.rend(),
 	    [&trimChar](const char &c) -> bool {
 		return (trimChar != c);
 	    }).base(), output.end());
