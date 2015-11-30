@@ -11,7 +11,6 @@
 #include <cstdio>
 
 extern "C" {
-	#include <computil.h>
 	#include <dataio.h>
 	#include <jpegl.h>
 }

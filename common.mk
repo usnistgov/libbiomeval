@@ -16,6 +16,12 @@ BINPATH := /usr/local/bin
 MANPATH := /usr/local/man/man1
 
 #
+# The NBIS library to be used by the framework. Can be either the 'real'
+# NBIS installed in the system, or the locally built subset.
+NBISEVALNAME = biomeval_nbis
+NBISEVALFILE = lib$(NBISEVALNAME).a
+
+#
 # Files and directories that are created during the build process, that
 # are to be removed during 'make clean'.
 DISPOSABLEFILES = *.o *.exe .gdb_history

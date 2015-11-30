@@ -7,31 +7,42 @@
 # its use by other parties, and makes no guarantees, expressed or implied,
 # about its quality, reliability, or any other characteristic.
 #
+
 .PHONY: all mpi
 
-# NBIS
-NBISINC = -I/usr/nistlocal/nbis/include
-# Hardcode path to libutil.a so it's not confused with Linux's libutil.so
-NBISLIBDIR = /usr/nistlocal/nbis/lib
-NBISLIB = -L$(NBISLIBDIR) -lan2k -ljpegb -lwsq -ljpegl -lfet -lioutil $(NBISLIBDIR)/libutil.a
-# Paths to static NBIS libraries
+# Must use the absolute path to the NBIS static libraries
+# System install of NBIS
+#NBISINC = -I/usr/local/nbis/include
+#NBISLIBDIR = /usr/local/nbis/lib
+#NBISLIB = -L$(NBISLIBDIR) -lan2k -ljpegb -lwsq -ljpegl -lfet -lioutil $(NBISLIBDIR)/libutil.a
+
+# Use locally built NBIS subset
+NBISINC = -I../../nbis/include/
+NBISLIBDIR = $(PWD)/../../lib
+NBISLIB = -L$(NBISLIBDIR) -l$(NBISEVALNAME)
+
+# Paths to static NBIS libraries, either system or local
 NBISSTATIC = $(patsubst -l%,$(NBISLIBDIR)/lib%.a,$(filter-out -L%,$(NBISLIB)))
 
 COMMONINCOPT = -I/opt/local/include
 COMMONLIBOPT = -I/opt/local/lib
 
+# Includes must be after setting COMON* above
+include ../common.mk
+include ../../VERSION
+
 # Under Linux, --libs won't print standard paths, but g++ will look in 
 # -L options for appropriately named libs, so without -L standard/paths,
 # NBIS image libs will be used.
+# Use the installed JPEG lib, not that from NBIS as we rely on the NBIS subset
+# built within the Framework.
+JPEGLIB = -ljpeg
 OPENJPEGLIB = -L$(shell pkg-config --variable=libdir libopenjpeg) $(shell pkg-config --libs-only-l --libs-only-other libopenjpeg)
 PNGLIB = -L$(shell pkg-config --variable=libdir libpng) $(shell pkg-config --libs-only-l --libs-only-other libpng)
 SQLITE3LIB = -L$(shell pkg-config --variable=libdir sqlite3) $(shell pkg-config --libs-only-l --libs-only-other sqlite3)
 ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-only-l --libs-only-other zlib)
 FFMPEGLIB = -lavformat -lavutil -lswscale -lavcodec
-COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB)
-
-include ../common.mk
-include ../../VERSION
+COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB)
 
 CORE = be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
 
@@ -92,10 +103,12 @@ all: $(OBJECTS) $(NBIS_OBJECTS) $(MPIOBJECTS)
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
 
 # All platforms get a static library
+# Pull the NBIS .o files from the NBIS libs into the Evaluation lib
 	ar cq $(LIBRARY).a $^
 	dir=`mktemp -d $(LIBRARY).XXXXXX`; for lib in $(NBISSTATIC); do cd $$dir; ar x $$lib; ar q ../$(LIBRARY).a *; rm *; cd ..; done; rmdir $$dir
 	ranlib $(LIBRARY).a
 	$(CP) -R -P $(LIBRARY).a $(LOCALLIB)
+# Create shared libs
 ifeq ($(OS), Darwin)
 	$(MPICXX) -L$(DBLIBS) $(COMMONLIB) $(filter-out $(NBIS_OBJECTS),$^) $(NBISLIB) $(NBIS_OBJECTS) -dynamiclib -Wl,-current_version,$(MAJOR_VERSION).$(MINOR_VERSION) -Wl,-compatibility_version,$(COMPATIBILITY_VERSION) -Wl,-macosx_version_min,$(OSX_MAJOR).$(OSX_MINOR) -Wl,-install_name,$(LIBRARY).$(MAJOR_VERSION).dylib -o $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).dylib

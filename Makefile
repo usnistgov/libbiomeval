@@ -11,7 +11,7 @@
 # Top-level make file to build all of the EVALUATION common code.
 #
 include common.mk
-SUBDIRS := src
+SUBDIRS := nbis src
 
 LOCALINC := $(PWD)/src/include
 LOCALLIB := $(PWD)/lib
