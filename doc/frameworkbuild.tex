@@ -49,9 +49,11 @@ This second package installs the header files needed to build the \sname.
 \subsection{NIST Biometric Image Software}
 
 The NIST Biometric Image Software (NBIS)~\cite{nist:nbis} is a set of packages
-used for ANSI-NIST record processing, and other support. The \lname uses NBIS
-for ANSI-NIST support, and therefore the NBIS packages need to be compiled and
-installed prior to building \sname.
+used for ANSI-NIST~\cite{std:an2k}, WSQ~\cite{std:wsq} formats, and other
+support.  The \sname uses NBIS to process these biometric record formats.
+and contains a subset of the NBIS packages. Therefore there is no need to
+install NBIS.  However, the \sname build system supports using an installed
+NBIS package as an alternative.
 
 \subsection{Video and Image Processing}
 
