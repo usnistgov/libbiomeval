@@ -34,6 +34,8 @@ namespace BiometricEvaluation
 			static const std::string USEBUFFERPROPERTY;
 			/** Randomly iterate buffer */
 			static const std::string RANDOMIZEPROPERTY;
+			/** Seed for randomization */
+			static const std::string RANDOMSEEDPROPERTY;
 			/** Delimiter to tokenize sent lines */
 			static const std::string DELIMITERPROPERTY;
 
@@ -129,6 +131,20 @@ namespace BiometricEvaluation
 			getNumLines()
 			    const;
 
+			/**
+			 * @brief
+			 * Obtain the seed used to shuffle lines.
+			 * 
+			 * @return
+			 * Seed used to shuffle lines.
+			 *
+			 * @throw Error::StrategyError
+			 * Lines not randomized.
+			 */
+			std::mt19937_64::result_type
+			getRandomSeed()
+			    const;
+
 		private:
 			/**
 			 * @brief
@@ -173,6 +189,8 @@ namespace BiometricEvaluation
 			    _randomizedLines;
 			/** Random number generator */
 			std::mt19937_64 _rng;
+			/** Seed for random number generator */
+			std::mt19937_64::result_type _rngSeed;
 			/** Current offset into _csvBuffer */
 			uint64_t _offset;
 

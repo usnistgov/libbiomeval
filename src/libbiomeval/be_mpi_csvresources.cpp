@@ -23,6 +23,7 @@ const std::string BE::MPI::CSVResources::CHUNKSIZEPROPERTY{"Chunk Size"};
 const std::string BE::MPI::CSVResources::USEBUFFERPROPERTY{"Read Entire File"};
 const std::string BE::MPI::CSVResources::DELIMITERPROPERTY{"CSV Delimiter"};
 const std::string BE::MPI::CSVResources::RANDOMIZEPROPERTY{"Randomize Lines"};
+const std::string BE::MPI::CSVResources::RANDOMSEEDPROPERTY{"Random Seed"};
 
 BiometricEvaluation::MPI::CSVResources::CSVResources(
     const std::string &propertiesFileName) :
@@ -71,7 +72,13 @@ BiometricEvaluation::MPI::CSVResources::CSVResources(
 			    "was enabled, but it requires \"" +
 			    BE::MPI::CSVResources::USEBUFFERPROPERTY + ",\" "
 			    "which was not.");
-		this->_rng = std::mt19937_64(std::random_device()());
+		try {
+			this->_rngSeed = props->getPropertyAsInteger(
+			    BE::MPI::CSVResources::RANDOMSEEDPROPERTY);
+		} catch (BE::Error::ObjectDoesNotExist) {
+			this->_rngSeed = std::random_device()();
+		}
+		this->_rng = std::mt19937_64(this->_rngSeed);
 	}
 
 	this->openCSV();
@@ -101,6 +108,7 @@ BiometricEvaluation::MPI::CSVResources::getOptionalProperties()
 	props.push_back(BE::MPI::CSVResources::USEBUFFERPROPERTY);
 	props.push_back(BE::MPI::CSVResources::DELIMITERPROPERTY);
 	props.push_back(BE::MPI::CSVResources::RANDOMIZEPROPERTY);
+	props.push_back(BE::MPI::CSVResources::RANDOMSEEDPROPERTY);
 	return (props);
 }
 
@@ -190,6 +198,16 @@ BiometricEvaluation::MPI::CSVResources::getNumRemainingLines()
     const
 {
 	return (this->_remainingLines);
+}
+
+std::mt19937_64::result_type
+BiometricEvaluation::MPI::CSVResources::getRandomSeed()
+    const
+{
+	if (!this->_randomizeLines || !this->_useBuffer)
+		throw BE::Error::StrategyError("Lines not randomized.");
+
+	return (this->_rngSeed);
 }
 
 std::pair<uint64_t, std::string>
