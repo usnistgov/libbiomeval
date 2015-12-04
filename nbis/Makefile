@@ -53,9 +53,9 @@ PROGRAM = big_endian_check
 SOURCES = big_endian_check.c
 LIBRARY = ./lib/$(NBISEVALFILE)
 
-all: $(PROGRAM) $(LIBRARY)
+all: $(LIBRARY)
 
-$(LIBRARY):
+$(LIBRARY): $(PROGRAM)
 	cd ./lib && make && cd ..
 
 $(PROGRAM) : $(SOURCES)
