@@ -47,33 +47,55 @@
 #
 # ******************************************************************************
 #
-include ../../common.mk
-LIBRARY	:= $(NBISEVALFILE)
 LIBDIR = ../../lib
-GLOBALHDRSOPT := -I/opt/local/include
-LOCALHDRS := ../include
+INCPATH := /opt/local/include
+LOCALINC := ../include
 AR := ar ru
 BECHECK = ../big_endian_check
+include ../../common.mk
+LIBRARY	:= $(NBISEVALFILE)
 
 #
 SUBDIRS = wsq jpegl an2k
 
-SOURCES := *.c wsq/*.c jpegl/*.c an2k/*.c
+WSQSOURCES := $(wildcard wsq/*.c)
+JPEGLSOURCES := $(wildcard jpegl/*.c)
+AN2KSOURCES := $(wildcard an2k/*.c)
+#
+BASESOURCES := $(wildcard *.c)
+SUBDIRSOURCES := $(WSQSOURCES) $(JPEGLSOURCES) $(AN2KSOURCES)
 
-OBJFILES := $(SOURCES:%.c=%.o)
+WSQOBJFILES := $(WSQSOURCES:%.c=%.o)
+JPEGLOBJFILES := $(JPEGLSOURCES:%.c=%.o)
+AN2KOBJFILES := $(AN2KSOURCES:%.c=%.o)
+#
+WSQRENAMEDOBJS := $(WSQOBJFILES:%.o=%_wsq.o)
+JPEGLRENAMEDOBJS := $(JPEGLOBJFILES:%.o=%_jpegl.o)
+AN2KRENAMEDOBJS := $(AN2KOBJFILES:%.o=%_an2k.o)
+SUBDIRRENAMEDOBJS := $(WSQRENAMEDOBJS) $(JPEGLRENAMEDOBJS) $(AN2KRENAMEDOBJS)
+#
+BASEOBJFILES := $(BASESOURCES:%.c=%.o)
+SUBDIROBJFILES := $(WSQOBJFILES) $(JPEGLOBJFILES) $(AN2KOBJFILES)
+OBJFILES := $(BASEOBJFILES) $(SUBDIROBJFILES)
 
-all:	$(LIBRARY)
+all: $(LIBRARY)
 	test -d $(LIBDIR) || mkdir $(LIBDIR)
 	$(CP) $(LIBRARY) $(LIBDIR)
 #
-$(LIBRARY): becheck $(OBJFILES)
-	$(AR) $@ $(OBJFILES)
+$(LIBRARY): becheck $(BASEOBJFILES) $(SUBDIRRENAMEDOBJS)
+	$(AR) $@ $(BASEOBJFILES) $(SUBDIRRENAMEDOBJS)
 
-$(OBJFILES): $(SOURCES)
-	@for subdir in $(SUBDIRS); do \
-                (cd $$subdir && $(CC) -c $(CFLAGS) $(GLOBALHDRSOPT) -I../$(LOCALHDRS) *.c) || exit 1; \
-	done
-	$(CC) -c $(CFLAGS) $(GLOBALHDRSOPT) -I$(LOCALHDRS) *.c
+$(SUBDIROBJFILES): $(CFLAGS) += -I../$(LOCALHDRS)
+$(SUBDIROBJFILES): $(SUBDIRSOURCES)
+
+# Rename objects files in subdirectories or they will clash with each other
+$(SUBDIRRENAMEDOBJS): $(SUBDIROBJFILES)
+	$(shell mv $(@D)/$(shell basename $(@F) _$(@D).o).o $@)
+
+ifeq ($(OS), Darwin)
+# Requires jpeglib.h from MacPorts on OS X
+an2k/decode.o: CFLAGS += -I/opt/local/include
+endif
 
 .PHONY: becheck
 becheck: 
