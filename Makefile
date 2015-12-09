@@ -11,24 +11,25 @@
 # Top-level make file to build all of the EVALUATION common code.
 #
 include common.mk
-SUBDIRS := nbis src
+SRCDIRS := nbis src
+INSDIRS := src
 
 LOCALINC := $(PWD)/src/include
 LOCALLIB := $(PWD)/lib
 
 all:
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
-	@for subdir in $(SUBDIRS); do \
+	@for subdir in $(SRCDIRS); do \
 		(cd $$subdir && $(MAKE) all) || exit 1; \
 	done
 
 install:
-	@for subdir in $(SUBDIRS); do \
+	@for subdir in $(INSDIRS); do \
 		(cd $$subdir && $(MAKE) install) || exit 1; \
 	done
 
 clean:
-	@for subdir in $(SUBDIRS); do \
+	@for subdir in $(SRCDIRS); do \
 		(cd $$subdir && $(MAKE) clean) || exit 1; \
 	done
 	rm -rf $(LOCALLIB)
