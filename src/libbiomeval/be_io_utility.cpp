@@ -156,17 +156,19 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 			removeDirectory(entry->d_name, dirpath);
 		} else {
 			if (std::remove(filename.c_str())) {
+				const std::string rmErr{Error::errorStr()};
 				if (dir != nullptr) {
 					if (closedir(dir)) {
 						throw Error::StrategyError(
 						    "Could not close " + 
 						    dirpath + " (" + 
-						    Error::errorStr() + ")");
+						    Error::errorStr() + ") or "
+						    "remove " + filename + " "
+						    "(" + rmErr + ")");
 					}
 				}
-				throw Error::StrategyError(filename + 
-				    " could not be removed (" +
-			    	    Error::errorStr() + ")");
+				throw Error::StrategyError(filename + " "
+				    "could not be removed (" + rmErr + ")");
 			}
 		}
 	}
