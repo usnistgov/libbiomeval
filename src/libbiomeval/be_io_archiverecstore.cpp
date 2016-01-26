@@ -541,7 +541,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::vacuum(
 	    IO::RecordStore::Kind::Archive, paths);
 
 	/* Delete the original RecordStore, then change the name of temp RS */
-	auto newRS = IO::RecordStore::openRecordStore(newName);
+	auto newRS = IO::RecordStore::openRecordStore(newName, Mode::ReadWrite);
 	try {
 		RecordStore::removeRecordStore(pathname);
 		newRS->move(pathname);
