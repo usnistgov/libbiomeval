@@ -628,7 +628,6 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	std::unique_ptr<IO::FileRecordStore> ars(rs);
 #endif
 
 #ifdef DBRECORDSTORETEST
@@ -644,7 +643,6 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	std::unique_ptr<IO::DBRecordStore> ars(rs);
 #endif
 
 #ifdef ARCHIVERECORDSTORETEST
@@ -660,7 +658,6 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	std::unique_ptr<IO::ArchiveRecordStore> ars(rs);
 #endif
 
 #ifdef SQLITERECORDSTORETEST
@@ -676,7 +673,6 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	std::unique_ptr<IO::SQLiteRecordStore> ars(rs);
 #endif
 
 #ifdef COMPRESSEDRECORDSTORETEST
@@ -693,14 +689,16 @@ main(int argc, char* argv[]) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-	std::unique_ptr<IO::CompressedRecordStore> ars(rs);
 #endif
 
 #ifdef TESTDEFINED
 
 	cout << "Running tests with new record store:" << endl;
-	if (runTests(rs) != 0)
+	if (runTests(rs) != 0) {
+		delete rs;
 		return (EXIT_FAILURE);
+	}
+	delete rs;
 #endif
 
 #ifdef FILERECORDSTORETEST
@@ -776,11 +774,12 @@ main(int argc, char* argv[]) {
 
 #ifdef TESTDEFINED
 
-	ars.reset(rs);
 	cout << endl << "----------------------------------------" << endl << endl;
 	cout << "Running tests with existing record store:" << endl;
-	if (runTests(rs) != 0)
+	if (runTests(rs) != 0) {
+		delete rs;
 		return (EXIT_FAILURE);
+	}
 
 #ifdef ARCHIVERECORDSTORETEST
 	/*
@@ -801,6 +800,7 @@ main(int argc, char* argv[]) {
 		cout << "failed:" << e.what() << "." << endl;
 	}
 #endif
+	delete rs;
 
 	cout << "Open non-existing record store using factory method: ";
 	std::shared_ptr<IO::RecordStore> srs;
