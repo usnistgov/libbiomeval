@@ -171,17 +171,17 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 		}
 	}
 
-	/* Remove parent directory, now that children have been removed */
-	if (rmdir(dirpath.c_str()))
-		throw Error::StrategyError(dirpath + " could not be removed (" +
-		    Error::errorStr() + ")");
-
 	if (dir != nullptr) {
 		if (closedir(dir)) {
 			throw Error::StrategyError("Could not close " + 
 			    dirpath + " (" + Error::errorStr() + ")");
 		}
 	}
+
+	/* Remove parent directory, now that children have been removed */
+	if (rmdir(dirpath.c_str()))
+		throw Error::StrategyError(dirpath + " could not be removed (" +
+		    Error::errorStr() + ")");
 }
 
 void
