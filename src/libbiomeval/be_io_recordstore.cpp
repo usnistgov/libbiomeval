@@ -400,6 +400,13 @@ void
 BiometricEvaluation::IO::RecordStore::removeRecordStore(
     const std::string &pathname)
 {
+	/* Confirm that pathname is a RecordStore */
+	try {
+		openRecordStore(pathname);
+	} catch (Error::Exception &e) {
+		throw;
+	}
+
 	try {
 		IO::Utility::removeDirectory(pathname);
 	} catch (Error::ObjectDoesNotExist &e) {
