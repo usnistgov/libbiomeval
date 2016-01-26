@@ -534,8 +534,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::vacuum(
 	/* Create a temporary RS, which will remove deleted items */
 	std::string parentDir = BE::Text::dirname(pathname);
 	std::string newName = IO::Utility::createTemporaryFile("", parentDir);
-	if (unlink(newName.c_str()))
-		throw Error::StrategyError("Could not unlink empty "
+	if (std::remove(newName.c_str()))
+		throw Error::StrategyError("Could not remove empty "
 		    "temporary file (" + newName + ") during vacuum.");
 	IO::RecordStore::mergeRecordStores(newName, description,
 	    IO::RecordStore::Kind::Archive, paths);

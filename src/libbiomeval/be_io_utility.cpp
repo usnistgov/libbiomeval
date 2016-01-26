@@ -155,7 +155,7 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 		if (S_ISDIR(sb.st_mode)) {
 			removeDirectory(entry->d_name, dirpath);
 		} else {
-			if (unlink(filename.c_str())) {
+			if (std::remove(filename.c_str())) {
 				if (dir != nullptr) {
 					if (closedir(dir)) {
 						throw Error::StrategyError(
