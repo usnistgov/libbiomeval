@@ -104,15 +104,12 @@ namespace BiometricEvaluation
 			 *	Pointer to the WorkerController that should
 			 *	be stopped.
 			 *
-			 * @return
-			 *	Exit status of worker.
-			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	worker is not working.
 			 * @throw Error::StrategyError
 			 *	Problem sending the signal.
 			 */
-			int32_t
+			void
 			stopWorker(
 			    std::shared_ptr<WorkerController> workerController);
 
@@ -211,15 +208,12 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Tell the Worker to stop.
 			 *
-			 * @return
-			 *	Return code from Worker.
-			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	Worker is not working.
 			 * @throw Error::StrategyError
 			 *	Error asking Worker to stop.
 			 */
-			int32_t
+			void
 			stop();
 
 			/**
@@ -254,9 +248,6 @@ namespace BiometricEvaluation
 
 			/** Whether or not the Worker has worked */
 			bool _hasWorked;
-
-			/** Returned status from the thread on exit */
-			int32_t _rv;
 		};
 	}
 }

@@ -268,8 +268,27 @@ main(
 
 	cout << ">> (M) PID " << getpid() << " starting " << numWorkers
 	     << " Workers, killed at " << "one second intervals." << endl;
+
+	/* Processes are not yet running */
+	try {
+		std::cout << ">> (M) Getting exit status before run...";
+		workers[0]->getExitStatus();
+		std::cout << "successful  (FAILURE)" << std::endl;
+	} catch (Error::Exception) {
+		std::cout << "caught exception (success)" << std::endl;
+	}
+
 	procMgr->startWorkers(false, true);
-	
+
+	/* Processes should still be running */
+	try {
+		std::cout << ">> (M) Getting exit status while running...";
+		workers[0]->getExitStatus();
+		std::cout << "successful  (FAILURE)" << std::endl;
+	} catch (Error::Exception) {
+		std::cout << "caught exception (success)" << std::endl;
+	}
+
 	/*
 	 * Pause for a bit so we can see some worker messages.
 	 */
@@ -330,7 +349,17 @@ main(
 		sleep(1);
 	}
 	cout << endl;
-	
+
+	for (uint32_t i = 0; i < numWorkers; ++i) {
+		cout << ">> (M) Worker " << (i + 1) << " returned " <<
+		    workers[i]->getExitStatus();
+		if (workers[i]->getExitStatus() != EXIT_SUCCESS)
+			cout << " [FAIL]";
+		else
+			cout << " [SUCCESS]";
+		cout << endl;
+	}
+
 	cout << ">> (M) Send message to dead worker...";
 	try {
 		workers[0]->sendMessageToWorker(message);

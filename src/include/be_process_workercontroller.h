@@ -199,6 +199,24 @@ namespace BiometricEvaluation
 			std::shared_ptr<Worker>
 			getWorker()
 			    const;
+
+			/**
+			 * @brief
+			 * Obtain the exit status of the wrapped Worker.
+			 *
+			 * @return
+			 * Exit status of the wrapped Worker.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * Exit status not set.
+			 * @throw Error::StrategyError
+			 * Exit status not set (e.g., Worker has not been
+			 * started or Worker has not finished).
+			 */
+			virtual int32_t
+			getExitStatus()
+			    const
+			    final;
 			
 			/**
 			 * @brief
@@ -209,6 +227,10 @@ namespace BiometricEvaluation
 		protected:
 			/** The Worker instance that is running in this child */
 			std::shared_ptr<Worker> _worker;
+			/** Whether or not _rv contains a true value. */
+			bool _rvSet;
+			/** Exit status from _worker.workerMain() */
+			int32_t _rv;
 		
 		private:
 			/**
@@ -236,15 +258,12 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Tell the Worker to stop.
 			 *
-			 * @return
-			 *	Return code from Worker.
-			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	Worker is not working.
 			 * @throw Error::StrategyError
 			 *	Error asking Worker to stop.
 			 */
-			virtual int32_t
+			virtual void
 			stop() = 0;
 		};
 	}

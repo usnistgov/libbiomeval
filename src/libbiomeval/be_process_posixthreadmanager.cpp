@@ -74,7 +74,7 @@ BiometricEvaluation::Process::POSIXThreadManager::startWorker(
 
 }
 
-int32_t
+void
 BiometricEvaluation::Process::POSIXThreadManager::stopWorker(
     std::shared_ptr<WorkerController> workerController)
 {
@@ -86,8 +86,7 @@ BiometricEvaluation::Process::POSIXThreadManager::stopWorker(
 		    
 	_pendingExit.push_back(*it);
 	
-	return (std::static_pointer_cast<POSIXThreadWorkerController>(*it)->
-	    stop());
+	std::static_pointer_cast<POSIXThreadWorkerController>(*it)->stop();
 }
 
 void
@@ -120,8 +119,7 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::
     std::shared_ptr<Worker> worker) :
     WorkerController(worker),
     _working(false),
-    _hasWorked(false),
-    _rv(EXIT_FAILURE)
+    _hasWorked(false)
 {
 
 }
@@ -133,7 +131,6 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::reset()
 
 	this->_hasWorked = false;
 	this->_working = false;
-	this->_rv = EXIT_FAILURE;
 }
 
 void *
@@ -142,8 +139,10 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::workerMainWrapper(
 {
 	((POSIXThreadWorkerController *)_this)->_hasWorked = true;
 	((POSIXThreadWorkerController *)_this)->_working = true;
+	((POSIXThreadWorkerController *)_this)->_rvSet = false;
 	((POSIXThreadWorkerController *)_this)->_rv = 
 	    ((POSIXThreadWorkerController *)_this)->getWorker()->workerMain();
+	((POSIXThreadWorkerController *)_this)->_rvSet = true;
 	((POSIXThreadWorkerController *)_this)->_working = false;
 	    
 	return (nullptr);
@@ -163,15 +162,13 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::everWorked()
 	return (this->_hasWorked);
 }
 
-int32_t
+void
 BiometricEvaluation::Process::POSIXThreadWorkerController::stop()
 {
 	if (this->isWorking() == false)
 		throw Error::ObjectDoesNotExist();
 		
 	_worker->stop();
-	
-	return (_rv);
 }
 
 BiometricEvaluation::Process::POSIXThreadWorkerController::

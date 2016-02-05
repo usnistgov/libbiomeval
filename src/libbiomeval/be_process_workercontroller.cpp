@@ -17,7 +17,8 @@
 
 BiometricEvaluation::Process::WorkerController::WorkerController(
     std::shared_ptr<Worker> worker) :
-    _worker(worker)
+    _worker(worker),
+    _rvSet(false)
 {
 
 }
@@ -27,6 +28,8 @@ BiometricEvaluation::Process::WorkerController::reset()
 {
 	if (isWorking())
 		throw Error::ObjectExists();
+
+	this->_rvSet = false;
 }
 
 void
@@ -74,6 +77,20 @@ BiometricEvaluation::Process::WorkerController::getWorker()
 BiometricEvaluation::Process::WorkerController::~WorkerController()
 {
 
+}
+
+int32_t
+BiometricEvaluation::Process::WorkerController::getExitStatus()
+    const
+{
+	if (!this->everWorked())
+		throw Error::StrategyError("Worker was never started");
+	else if (this->isWorking())
+		throw Error::StrategyError("Worker is still working");
+	else
+		throw Error::ObjectDoesNotExist();
+
+	return (this->_rv);
 }
 
 /*

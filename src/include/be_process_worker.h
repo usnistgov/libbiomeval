@@ -133,12 +133,10 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Tell this Worker to return ASAP.
-			 * 
-			 * @attention
-			 * This method should not be overridden.
 			 */
-			void
-			stop();
+			virtual void
+			stop()
+			    final;
 			
 			/**
 			 * @brief
@@ -264,13 +262,11 @@ namespace BiometricEvaluation
 			 *
 			 * @return
 			 *	Whether or not this child should exit.
-			 *
-			 * @attention
-			 * This method should not be overridden.
 			 */
-			bool
+			virtual bool
 			stopRequested()
-			    const;
+			    const
+			    final;
 			
 			/**
 			 * @brief

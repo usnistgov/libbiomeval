@@ -230,7 +230,12 @@ namespace BiometricEvaluation
 				    const;
 
 				/** Destructor (default). */
+#ifdef __MIC__
+				virtual ~IndexedBuffer() noexcept = default;
+#else
 				virtual ~IndexedBuffer() = default;
+#endif
+
 						
 			private:
 				/** Pointer to unowned allocated data. */

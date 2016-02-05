@@ -168,15 +168,12 @@ namespace BiometricEvaluation
 			 *	Pointer to the WorkerController that should be 
 			 *	stopped.
 			 *
-			 * @return
-			 *	Return code of worker.
-			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	worker is not working.
 			 * @throw Error::StrategyError
 			 *	Problem asking worker to stop.
 			 */
-			virtual int32_t
+			virtual void
 			stopWorker(
 			    std::shared_ptr<WorkerController> worker) = 0;
 

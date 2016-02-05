@@ -38,7 +38,12 @@ namespace BiometricEvaluation
 		{
 		public:
 			/** Clock type to use, aliased for easy replacement. */
-			using BE_CLOCK_TYPE = std::chrono::steady_clock;
+			using BE_CLOCK_TYPE =
+#ifdef __MIC__
+			    std::chrono::monotonic_clock;
+#else
+			    std::chrono::steady_clock;
+#endif
 
 			/** Constructor for the Timer object. */
 			Timer();

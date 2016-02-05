@@ -66,6 +66,25 @@ BiometricEvaluation::Process::ForkManager::setNotWorking(
 	throw Error::ObjectDoesNotExist();
 }
 
+void
+BiometricEvaluation::Process::ForkManager::setExitStatus(
+    const pid_t pid,
+    const int32_t waitStatus)
+{
+	if (!WIFEXITED(waitStatus))
+		return;
+
+	for (auto &wcStatus : this->_wcStatus) {
+		if (wcStatus.second.pid == pid) {
+			wcStatus.first->_rv = WEXITSTATUS(waitStatus);
+			wcStatus.first->_rvSet = true;
+			return;
+		}
+	}
+
+	throw Error::ObjectDoesNotExist();
+}
+
 bool
 BiometricEvaluation::Process::ForkManager::getIsWorkingStatus(
     const pid_t pid)
@@ -218,7 +237,7 @@ BiometricEvaluation::Process::ForkWorkerController::start(
 	}
 }
 
-int32_t
+void
 BiometricEvaluation::Process::ForkManager::stopWorker(
     std::shared_ptr<WorkerController> workerController)
 {
@@ -233,7 +252,7 @@ BiometricEvaluation::Process::ForkManager::stopWorker(
 	
 	_pendingExit.push_back(*it);
 
-	return (std::static_pointer_cast<ForkWorkerController>(*it)->stop());
+	std::static_pointer_cast<ForkWorkerController>(*it)->stop();
 }
 
 void
@@ -325,6 +344,9 @@ BiometricEvaluation::Process::ForkManager::_wait()
 					throw Error::StrategyError(
 					    Error::errorStr());
 				}
+
+				this->setExitStatus(process, status);
+
 				if (_exitCallback != NULL) {
 					_exitCallback(
 					    getProcessWithPID(process), status);
@@ -386,9 +408,12 @@ BiometricEvaluation::Process::ForkManager::reap(
 			break;
 		default:	/* Reap successful */
 			/* Update the Status list */
-			for (auto &it : FORKMANAGERS)
-				if (it->responsibleFor(pid))
+			for (auto &it : FORKMANAGERS) {
+				if (it->responsibleFor(pid)) {
+					it->setExitStatus(pid, status);
 					it->setNotWorking(pid);
+				}
+			}
 			break;
 		}
 	}
@@ -494,7 +519,7 @@ BiometricEvaluation::Process::ForkWorkerController::getPID()
 	return (_pid);
 }
 
-int32_t
+void
 BiometricEvaluation::Process::ForkWorkerController::stop()
 {
 	if (this->isWorking() == false)
@@ -502,14 +527,6 @@ BiometricEvaluation::Process::ForkWorkerController::stop()
 		
 	if (kill(_pid, SIGUSR1) != 0)
 		throw Error::StrategyError("Could not send stop signal");
-
-	/*
-	 * We don't wait for the child to exit because that is done
-	 * either in the signal handler for the case of the application
-	 * not waiting, or in the start of a worker when the application
-	 * does wait.
-	 */
-	return (0);
 }
 
 void

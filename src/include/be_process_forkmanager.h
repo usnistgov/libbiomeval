@@ -121,9 +121,6 @@ namespace BiometricEvaluation
 			 *	Pointer to the ForkWorkerController that should
 			 *	be stopped.
 			 *
-			 * @return
-			 *	Exit status of worker.
-			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	worker is not working.
 			 * @throw Error::StrategyError
@@ -136,7 +133,7 @@ namespace BiometricEvaluation
 			 * creates a race condition for reads()/writes() when
 			 * the Worker exits.
 			 */
-			int32_t
+			void
 			stopWorker(
 			    std::shared_ptr<WorkerController> workerController);
 
@@ -249,6 +246,27 @@ namespace BiometricEvaluation
 			defaultExitCallback(
 			    std::shared_ptr<ForkWorkerController> worker,
 			    int status);
+
+			/**
+			 * @brief 
+			 * Set the exit status in the WorkerController for given
+			 * process ID.
+			 *
+			 * @param[in] pid
+			 * PID whose exit status should be set.
+			 * @param[in] status
+			 * Status, as returned from wait(2).
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * PID not under this manager's control.
+			 *
+			 * @note
+			 * Exit status is only set if process exited cleanly.
+			 */
+			void
+			setExitStatus(
+			    const pid_t pid,
+			    const int32_t waitStatus);
 			
 		private:
 			/**
@@ -443,15 +461,12 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Tell the Worker to stop.
 			 *
-			 * @return
-			 *	Return code from Worker.
-			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	Worker is not working.
 			 * @throw Error::StrategyError
 			 *	Error asking Worker to stop.
 			 */
-			int32_t
+			void
 			stop();
 
 			/** PID of the process represented by _worker */
@@ -525,15 +540,12 @@ namespace BiometricEvaluation
 			 *	Pointer to the ForkWorkerController that should
 			 *	be stopped.
 			 *
-			 * @return
-			 *	Exit status of worker.
-			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	worker is not working.
 			 * @throw Error::StrategyError
 			 *	Problem sending the signal.
 			 */
-			friend int32_t
+			friend void
 			ForkManager::stopWorker(
 			    std::shared_ptr<WorkerController> workerController);
 
@@ -550,6 +562,27 @@ namespace BiometricEvaluation
 			friend std::shared_ptr<WorkerController>
 			ForkManager::addWorker(
 			    std::shared_ptr<Worker> worker);
+
+			/**
+			 * @brief
+			 * Set the exit status in the WorkerController for given
+			 * process ID.
+			 *
+			 * @param[in] pid
+			 * PID whose exit status should be set.
+			 * @param[in] status
+			 * Status, as returned from wait(2).
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * PID not under this manager's control.
+			 *
+			 * @note
+			 * Exit status is only set if process exited cleanly.
+			 */
+			friend void
+			ForkManager::setExitStatus(
+			    const pid_t pid,
+			    const int32_t waitStatus);
 		};
 	}
 }
