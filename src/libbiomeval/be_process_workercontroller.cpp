@@ -87,7 +87,7 @@ BiometricEvaluation::Process::WorkerController::getExitStatus()
 		throw Error::StrategyError("Worker was never started");
 	else if (this->isWorking())
 		throw Error::StrategyError("Worker is still working");
-	else
+	else if (!this->_rvSet)
 		throw Error::ObjectDoesNotExist();
 
 	return (this->_rv);
