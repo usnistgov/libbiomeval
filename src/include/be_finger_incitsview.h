@@ -193,8 +193,6 @@ namespace BiometricEvaluation
 			getMinutiaeReservedData()
 			    const;
 
-			std::shared_ptr<Image::Image> getImage() const;
-
 			/**
 			 * @brief
 			 * Mutator for the Feature::INCITSMinutiae item.
