@@ -220,7 +220,12 @@ BiometricEvaluation::Process::ForkWorkerController::start(
 		sigaction(SIGUSR1, &stopSignal, nullptr);
 		    
 		/* Run workerMain() -- required method */
-		int rv = getWorker()->workerMain();
+		int32_t rv;
+		try {
+			rv = getWorker()->workerMain();
+		} catch (...) {
+			rv = EXIT_FAILURE;
+		}
 		std::exit(rv);
 		
 		/* Not reached */

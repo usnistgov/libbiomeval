@@ -41,6 +41,12 @@ namespace BiometricEvaluation
 			 * Process::ForkManager object, the implementation
 			 * of Process::Worker::workerMain() should release
 			 * all resources prior to returning. 
+			 *
+			 * @note
+			 * Any exceptions thrown by this method will cause
+			 * the worker to exit with a return status of
+			 * EXIT_FAILURE. The type and contents of the exception
+			 * is not maintained.
 			 */
 			virtual int32_t
 			workerMain() = 0;

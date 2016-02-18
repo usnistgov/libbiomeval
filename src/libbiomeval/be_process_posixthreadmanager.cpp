@@ -140,8 +140,13 @@ BiometricEvaluation::Process::POSIXThreadWorkerController::workerMainWrapper(
 	((POSIXThreadWorkerController *)_this)->_hasWorked = true;
 	((POSIXThreadWorkerController *)_this)->_working = true;
 	((POSIXThreadWorkerController *)_this)->_rvSet = false;
-	((POSIXThreadWorkerController *)_this)->_rv = 
-	    ((POSIXThreadWorkerController *)_this)->getWorker()->workerMain();
+	try {
+		((POSIXThreadWorkerController *)_this)->_rv =
+		    ((POSIXThreadWorkerController *)_this)->getWorker()->
+		    workerMain();
+	} catch (...) {
+		((POSIXThreadWorkerController *)_this)->_rv = EXIT_FAILURE;
+	}
 	((POSIXThreadWorkerController *)_this)->_rvSet = true;
 	((POSIXThreadWorkerController *)_this)->_working = false;
 	    
