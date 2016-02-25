@@ -175,9 +175,9 @@ BiometricEvaluation::Framework::EnumerationFunctions<
 	{BiometricEvaluation::Feature::Sort::Kind::PolarCOMAscending,
 	    "Polar Center of Minutia Mass Ascending"},
 	{BiometricEvaluation::Feature::Sort::Kind::PolarCOMDescending,
-	    "Angle Center of Minutia Mass Descending"},
+	    "Polar Center of Minutia Mass Descending"},
     	{BiometricEvaluation::Feature::Sort::Kind::PolarCOIAscending,
 	    "Polar Center of Image Ascending"},
 	{BiometricEvaluation::Feature::Sort::Kind::PolarCOIDescending,
-	    "Angle Center of Image Descending"}
+	    "Polar Center of Image Descending"}
 };
