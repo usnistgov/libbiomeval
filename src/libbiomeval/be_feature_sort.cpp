@@ -11,7 +11,7 @@
 #include <be_feature_sort.h>
 #include <be_framework_enumeration.h>
 
-
+namespace BE = BiometricEvaluation;
 
 bool
 BiometricEvaluation::Feature::Sort::XY::operator()(
@@ -105,14 +105,19 @@ BiometricEvaluation::Image::Coordinate
 BiometricEvaluation::Feature::Sort::Polar::centerOfMinutiaeMass(
     const BiometricEvaluation::Feature::MinutiaPointSet &mps)
 {
-	uint32_t sumX = 0, sumY = 0;
+	const uint64_t count = mps.size();
+	if (count == 0)
+		throw BE::Error::StrategyError("No minutia");
+
+	uint64_t sumX = 0, sumY = 0;
 	for (const auto &minutiae : mps) {
 		sumX += minutiae.coordinate.x;
 		sumY += minutiae.coordinate.y;
 	}
-	
-	const uint32_t count = mps.size();
-	return {(sumX / count), (sumY / count)};
+
+	/* Guaranteed to be 32-bit unsigned, so downcast is safe */
+	return {static_cast<uint32_t>(sumX / count),
+	    static_cast<uint32_t>(sumY / count)};
 }
 
 BiometricEvaluation::Image::Coordinate

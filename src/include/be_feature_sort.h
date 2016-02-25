@@ -191,6 +191,9 @@ namespace BiometricEvaluation
 				 *
 				 * @return
 				 * Center of minutiae mass for mps.
+				 *
+				 * @throw Error::StrategyError
+				 * No minutia.
 				 */
 				static BiometricEvaluation::Image::Coordinate
 				centerOfMinutiaeMass(
