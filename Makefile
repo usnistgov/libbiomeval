@@ -17,6 +17,8 @@ INSDIRS := src
 LOCALINC := $(PWD)/src/include
 LOCALLIB := $(PWD)/lib
 
+PACKAGE_DIR := libbiomeval-$(shell grep MAJOR_VERSION= VERSION | awk -F= '{print $$2}').$(shell grep MINOR_VERSION= VERSION | awk -F= '{print $$2}')
+
 all:
 	test -d $(LOCALLIB) || mkdir $(LOCALLIB)
 	@for subdir in $(SRCDIRS); do \
@@ -28,9 +30,26 @@ install:
 		(cd $$subdir && $(MAKE) install) || exit 1; \
 	done
 
+export: clean
+	mkdir -p $(PACKAGE_DIR)/src
+	cd $(PACKAGE_DIR) && ln -s	\
+	    ../nbis 			\
+	    ../common.mk 		\
+	    ../Makefile 		\
+	    ../VERSION 			\
+	    .
+	cd $(PACKAGE_DIR)/src && ln -s	\
+	    ../../src/include 		\
+	    ../../src/libbiomeval	\
+	    ../../src/Makefile		\
+	    ../../src/common.mk		\
+	    .
+	tar czfh $(PACKAGE_DIR).tar.gz $(PACKAGE_DIR)
+	$(RM) -r $(PACKAGE_DIR)
+
 clean:
 	@for subdir in $(SRCDIRS); do \
 		(cd $$subdir && $(MAKE) clean) || exit 1; \
 	done
-	rm -rf $(LOCALLIB)
-	rm -f .gdb_history
+	$(RM) -r $(LOCALLIB) $(PACKAGE_DIR)
+	$(RM) .gdb_history $(PACKAGE_DIR).tar.gz
