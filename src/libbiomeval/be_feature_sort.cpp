@@ -184,5 +184,6 @@ BiometricEvaluation::Framework::EnumerationFunctions<
     	{BiometricEvaluation::Feature::Sort::Kind::PolarCOIAscending,
 	    "Polar Center of Image Ascending"},
 	{BiometricEvaluation::Feature::Sort::Kind::PolarCOIDescending,
-	    "Polar Center of Image Descending"}
+	    "Polar Center of Image Descending"},
+	{BiometricEvaluation::Feature::Sort::Kind::Unknown, "Unknown"}
 };
