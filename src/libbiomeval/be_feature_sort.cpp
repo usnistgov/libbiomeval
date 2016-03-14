@@ -63,9 +63,7 @@ BiometricEvaluation::Feature::Sort::Quality::operator()(
     const BiometricEvaluation::Feature::MinutiaPoint &rhs)
     const
 {
-	if (lhs.has_quality && rhs.has_quality)
-		return (lhs.quality < rhs.quality);
-	return (false);
+	return (lhs.quality < rhs.quality);
 }
 
 bool
