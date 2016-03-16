@@ -167,6 +167,9 @@ BiometricEvaluation::IO::Properties::getPropertyAsInteger(
 		throw Error::ObjectDoesNotExist(property);
 
 	std::string value = it->second;	/* Whitespace already removed */
+	/* Empty values are allowed, but not for integers */
+	if (value == "")
+		throw Error::ConversionError();
 
 	int base = 10;
 	/* Check for hexadecimal value */
@@ -202,7 +205,11 @@ BiometricEvaluation::IO::Properties::getPropertyAsDouble(
     const std::string &property)
     const
 {
-	std::stringstream converter(getProperty(property));
+	std::string value = getProperty(property);
+	if (value == "")
+		throw Error::ConversionError();
+
+	std::stringstream converter(value);
 	double doubleValue;
 	
 	converter >> doubleValue;
@@ -228,8 +235,7 @@ BiometricEvaluation::IO::Properties::getPropertyAsBoolean(
 	    BE::Text::caseInsensitiveCompare(value, "0"))
 		return (false);
 
-	throw BE::Error::StrategyError(property + " cannot be converted to a "
-	    "boolean value");
+	throw BE::Error::ConversionError();
 }
 
 std::vector<std::string>

@@ -95,25 +95,30 @@ testNonMutable(IO::PropertiesFile &props)
 int
 main(int argc, char* argv[]) {
 
+	int exitStatus = EXIT_FAILURE;
+	int64_t intVal;
+	bool success;
+	string property, value;
+	std::ofstream outfile;
+
 	/* Call the constructor that will open an existing Properties file,
 	 * or create a new file.
 	 */
-	IO::PropertiesFile *props;
+	std::unique_ptr<IO::PropertiesFile> props;
 	string fname = "test.prop";
 	try {
-		props = new IO::PropertiesFile(fname, IO::Mode::ReadWrite);
+		props.reset(new IO::PropertiesFile(fname, IO::Mode::ReadWrite));
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.what()  << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	} catch (Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 
 	/*
 	 * Test insert/replace/remove.
 	 */
-	string property, value;
 	property = "   string Prop   ";	/* Note the extra spaces... */
 	value = "John   Smith    ";
 	props->setProperty(property, value);
@@ -128,16 +133,16 @@ main(int argc, char* argv[]) {
 		cout << props->getProperty(property) << "';";
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	if (value != props->getProperty(property)) {
 		cout << "Incorrect property value!" << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	cout << " success." << endl;
 
 	/* Attempt to retrieve a non-integer property as an integer */
-	bool success = false;
+	success = false;
 	cout << "Retrieving non-integer property as integer: ";
 	try {
 		(void)props->getPropertyAsInteger(property);
@@ -147,13 +152,13 @@ main(int argc, char* argv[]) {
 	}
 	if (!success) {
 		cout << "Conversion succeeded when it should not have!" << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 
 	/* Attempt to retrieve integer properties as integer */
 	property = "Positive Integer Property";
 	value = "1234";
-	int64_t intVal = 1234;
+	intVal = 1234;
 
 	props->setPropertyFromInteger(property, intVal);
 	cout << "Setting/retrieving positive integer property as integer: ";
@@ -162,11 +167,11 @@ main(int argc, char* argv[]) {
 		cout << props->getPropertyAsInteger(property) << ";";
 	} catch (Error::ConversionError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	if (intVal != props->getPropertyAsInteger(property)) {
 		cout << "Incorrect property value!" << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	cout << " success." << endl;
 
@@ -181,11 +186,11 @@ main(int argc, char* argv[]) {
 		cout << props->getPropertyAsInteger(property) << ";";
 	} catch (Error::ConversionError &e) {
 		cout << "Caught " << e.what() << ";failure." << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	if (intVal != props->getPropertyAsInteger(property)) {
 		cout << "Incorrect property value!" << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	cout << " success." << endl;
 
@@ -200,11 +205,11 @@ main(int argc, char* argv[]) {
 		cout << props->getPropertyAsInteger(property) << ";";
 	} catch (Error::ConversionError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	if (intVal != props->getPropertyAsInteger(property)) {
 		cout << "Incorrect property value!" << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	cout << " success." << endl;
 
@@ -222,7 +227,7 @@ main(int argc, char* argv[]) {
 	}
 	if (!success) {
 		cout << "Conversion succeeded when it should not have!" << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 
 	/*
@@ -239,7 +244,7 @@ main(int argc, char* argv[]) {
 	}
 	if (!success) {
 		cout << "Got non-existent property as string?!" << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 
 	success = false;
@@ -252,7 +257,7 @@ main(int argc, char* argv[]) {
 	}
 	if (!success) {
 		cout << "Got non-existent property as integer?!" << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 
 	/*
@@ -262,26 +267,31 @@ main(int argc, char* argv[]) {
 		props->sync();
 	} catch (Error::FileError &e) {
 		cout << "A file error occurred during sync.\n";
-		return (EXIT_FAILURE);
+		goto out;
 	}
 
 	/* Test the renaming of the properties file */
 	cout << "Testing rename of file: ";
-	string newfn = "newtest.prop";
-	props->changeName(newfn);
+	fname = "newtest.prop";
+	try {
+		props->changeName(fname);
+	} catch (Error::Exception &e) {
+		cout << "Caught " << e.what() << "; failed." << endl;
+		goto out;
+	}
 	try {
 		props->sync();
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failed." << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	} catch (Error::FileError &e) {
 		cout << "A file error occurred during sync.\n";
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	struct stat sb;
-	if (stat(newfn.c_str(), &sb) != 0) {
+	if (stat(fname.c_str(), &sb) != 0) {
 		cout << "failed; file not stat'd." << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	cout << "success." << endl;
 
@@ -289,20 +299,19 @@ main(int argc, char* argv[]) {
 	 * Tests of a read-only properties object.
 	 */
 	cout << "Testing read-only properties object: ";
-	delete props;
 	try {
-		props = new IO::PropertiesFile(fname, IO::Mode::ReadOnly);
+		props.reset(new IO::PropertiesFile(fname, IO::Mode::ReadOnly));
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.what()  << endl;
-	cout << "success." << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	} catch (Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 	if (testNonMutable(*props) != 0)
-		return (EXIT_FAILURE);
+		goto out;
 
+	cout << "Testing sync() of read-only properties object: ";
 	success = false;
 	try {
 		props->sync();
@@ -315,10 +324,101 @@ main(int argc, char* argv[]) {
 	}
 	if (!success) {
 		cout << "sync() succeeded when it should not have!" << endl;
-		return (EXIT_FAILURE);
+		goto out;
 	}
 
-	delete props;
-	
-	return(EXIT_SUCCESS);
+	/*
+	 * Tests of invalid property file lines.
+	 */
+	property = "Key";
+	unlink(fname.c_str());
+	outfile.open(fname);
+	outfile << property << endl;	/* No '=' */
+	outfile.close();
+	success = false;
+	cout << "Test with bad line, no '=' character: ";
+	try {
+		props.reset(new IO::PropertiesFile(fname));
+	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.what() << "; success." << endl;
+		success = true;
+	} catch (Error::FileError& e) {
+		cout << "A file error occurred: " << e.what() << endl;
+		goto out;
+	}
+	if (!success) {
+		cout << "Creation succeeded when it should not have!" << endl;
+		goto out;
+	}
+	unlink(fname.c_str());
+	outfile.open(fname);
+	outfile << property << "=      " << endl;	/* No value */
+	outfile.close();
+	cout << "Test with bad line, no value: " << endl;
+	try {
+		props.reset(new IO::PropertiesFile(fname));
+	} catch (Error::StrategyError &e) {
+		cout << "Caught " << e.what() << "; success." << endl;
+		goto out;
+	} catch (Error::FileError& e) {
+		cout << "A file error occurred: " << e.what() << endl;
+		goto out;
+	}
+	cout << "\tstring: ";
+	try {
+		value = props->getProperty(property);
+		if (value == "") {
+			cout << "success." << endl;
+		} else {
+			cout << "failure; value is '" << value << "'." << endl;
+			goto out;
+		}
+	} catch (Error::Exception &e) {
+		cout << "Caught " << e.what() << "failure." << endl;
+		goto out;
+	}
+	cout << "\tinteger: ";
+	success = false;
+	try {
+		intVal = props->getPropertyAsInteger(property);
+	} catch (Error::ConversionError &e) {
+		cout << "Caught " << e.what() << "; success." << endl;
+		success = true;
+	}
+	if (!success) {
+		cout << "Conversion succeeded when it should not have!" << endl;
+		goto out;
+	}
+	cout << "\tdouble: ";
+	success = false;
+	try {
+		intVal = props->getPropertyAsDouble(property);
+	} catch (Error::ConversionError &e) {
+		cout << "Caught " << e.what() << "; success." << endl;
+		success = true;
+	}
+	if (!success) {
+		cout << "Conversion succeeded when it should not have!" << endl;
+		goto out;
+	}
+	cout << "\tbool: ";
+	success = false;
+	try {
+		intVal = props->getPropertyAsBoolean(property);
+	} catch (Error::ConversionError &e) {
+		cout << "Caught " << e.what() << "; success." << endl;
+		success = true;
+	}
+	if (!success) {
+		cout << "Conversion succeeded when it should not have!" << endl;
+		goto out;
+	}
+	exitStatus = EXIT_SUCCESS;
+
+out:
+	/* Remove the properties file */
+	props.reset();		/* In case we have file opened R/W from above */
+	unlink(fname.c_str());
+
+	return(exitStatus);
 }

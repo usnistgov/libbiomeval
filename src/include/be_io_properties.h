@@ -195,8 +195,9 @@ namespace BiometricEvaluation
 			 * @throw Error::ObjectDoesNotExist
 			 *	The named property does not exist.
 			 * @throw Error::ConversionError
-			 *	The property value cannot be converted, usually
-			 *	 due to non-numeric characters in the string.
+			 *	The property value cannot be converted,
+			 *	due to non-numeric characters in the string,
+			 *	or the value is the empty string.
 			 */
 			virtual int64_t
 			getPropertyAsInteger(
@@ -211,6 +212,10 @@ namespace BiometricEvaluation
 			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	The named property does not exist.
+			 * @throw Error::ConversionError
+			 *	The property value cannot be converted,
+			 *	due to non-numeric characters in the string,
+			 *	or the value is the empty string.
 			 */
 			virtual double
 			getPropertyAsDouble(
@@ -225,9 +230,10 @@ namespace BiometricEvaluation
 			 *
 			 * @throw Error::ObjectDoesNotExist
 			 * The named property does not exist.
-			 * @throw Error::StrategyError
-			 * The value of the property is not convertible to a
-			 * boolean by this implementation.
+			 * @throw Error::ConversionError
+			 *	The property value cannot be converted,
+			 *	due to invalid characters in the string,
+			 *	or the value is the empty string.
 			 */
 			virtual bool
 			getPropertyAsBoolean(
