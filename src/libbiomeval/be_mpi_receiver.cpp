@@ -112,8 +112,30 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 	 * processor so that it can have a unique copy of all
 	 * file references and resources.
 	 */
-	this->_workPackageProcessor =
-	     this->_workPackageProcessor->newProcessor(this->_logsheet);
+	try {
+		this->_workPackageProcessor =
+		    this->_workPackageProcessor->newProcessor(this->_logsheet);
+	} catch (BE::Error::Exception &e) {
+		std::string error{"Worker failed to create a child package "
+		    "processor (" + e.whatString() + ")"};
+		MPI::printStatus(error);
+		MPI::logMessage(*log, error);
+		return (-1);
+	} catch (...) {
+		std::string error{"Worker failed to create a child package "
+		    "processor (caught unknown exception)"};
+		MPI::printStatus(error);
+		MPI::logMessage(*log, error);
+		return (-1);
+	}
+
+	if (this->_workPackageProcessor == nullptr) {
+		std::string error{"Worker failed to create a child package "
+		    "processor (package processor was NULL)"};
+		MPI::printStatus(error);
+		MPI::logMessage(*log, error);
+		return (-1);
+	}
 
 	/*
 	 * The processing of a work package loop. We only break out
