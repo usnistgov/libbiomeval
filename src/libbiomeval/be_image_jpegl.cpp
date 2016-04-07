@@ -153,20 +153,21 @@ BiometricEvaluation::Image::JPEGL::isJPEGL(
 	
 	/* First marker should be start of image */
 	uint16_t marker;
-	if (getc_ushort(&marker, &markerBuf, endPtr) && 
-	    (marker != startOfImage))
+	if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
+		return (false);
+	if (marker != startOfImage)
 		return (false);
 	
 	/* Read markers until end of buffer or an identifying marker is found */
 	for (;;) {
 		/* Get next 16 bits */
-		if (getc_ushort(&marker, &markerBuf, endPtr))
+		if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
 			return (false);
 			
 		/* 16-bit markers start with 0xFF but aren't 0xFF00 or 0xFFFF */ 
 		while (((marker >> 8) != 0xFF) &&
 		    ((marker == 0xFF00) || (marker == 0xFFFF)))
-			if (getc_ushort(&marker, &markerBuf, endPtr))
+			if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
 				return (false);
 		
 		switch (marker) {
