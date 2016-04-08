@@ -28,7 +28,9 @@ BiometricEvaluation::Framework::getMinorVersion()
 std::string
 BiometricEvaluation::Framework::getCompiler()
 {
-#if defined (__clang__)
+#if defined (__INTEL_COMPILER) || defined (__ICL)
+	return ("icc");
+#elif defined (__clang__)
 	return ("clang");
 #elif defined (__GNUC__)
 	return ("gcc");
@@ -41,9 +43,30 @@ std::string
 BiometricEvaluation::Framework::getCompilerVersion()
 {
 	std::stringstream version;
-	
+
+	/* Intel */
+#if defined (__INTEL_COMPILER) || defined (__ICL)
+#if defined (__INTEL_COMPILER)
+	uint16_t iccVersion = __INTEL_COMPILER;
+	uint16_t iccMajorVersion = iccVersion / 100;
+	uint16_t iccMinorVersion = iccVersion % 100;
+	version << iccMajorVersion << "." << iccMinorVersion;
+#elif defined (__ICL)
+	uint16_t iccVersion = __ICL;
+	uint16_t iccMajorVersion = iccVersion / 100;
+	uint16_t iccMinorVersion = iccVersion % 100;
+	version << iccMajorVersion << "." << iccMinorVersion;
+#else
+	version << "?.?";
+#endif /* __INTEL_COMPILER */
+#if defined (__INTEL_COMPILER_UPDATE)
+	version << "." << __INTEL_COMPILER_UPDATE;
+#else
+	version << ".?";
+#endif
+
 	/* clang */
-#if defined (__clang__)
+#elif defined (__clang__)
 #ifdef __clang_major__
 	version << __clang_major__;
 #endif /* __clang_major__ */
