@@ -9,9 +9,11 @@
  */
 
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 #include <be_error_exception.h>
 #include <be_io_propertiesfile.h>
