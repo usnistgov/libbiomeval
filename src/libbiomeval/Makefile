@@ -31,7 +31,7 @@ COMMONLIBOPT = -I/opt/local/lib
 include ../common.mk
 include ../../VERSION
 
-# Under Linux, --libs won't print standard paths, but g++ will look in 
+# Under Linux, --libs won't print standard paths, but g++ will look in
 # -L options for appropriately named libs, so without -L standard/paths,
 # NBIS image libs will be used.
 # Use the installed JPEG lib, not that from NBIS as we rely on the NBIS subset
@@ -44,11 +44,11 @@ ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-on
 FFMPEGLIB = -lavformat -lavutil -lswscale -lavcodec
 COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB)
 
-CORE = be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_process_statistics.cpp 
+CORE = be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_framework_status.cpp be_framework_api.cpp be_process_statistics.cpp
 
 IO = be_io_properties.cpp be_io_propertiesfile.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_filelogsheet.cpp be_io_syslogsheet.cpp be_io_filelogcabinet.cpp be_io_compressor.cpp be_io_gzip.cpp
 
-RECORDSTORE = be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_sqliterecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_compressedrecstore.cpp be_io_listrecstore.cpp be_io_recordstoreiterator.cpp be_io_recordstoreunion.cpp be_io_recordstoreunion_impl.cpp
+RECORDSTORE = be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_sqliterecstore.cpp be_io_filerecstore.cpp be_io_archiverecstore.cpp be_io_compressedrecstore.cpp be_io_listrecstore.cpp be_io_recordstoreiterator.cpp be_io_recordstoreunion.cpp be_io_recordstoreunion_impl.cpp be_io_persistentrecordstoreunion.cpp be_io_persistentrecordstoreunion_impl.cpp
 
 IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_netpbm.cpp be_image_raw.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp be_image_bmp.cpp
 

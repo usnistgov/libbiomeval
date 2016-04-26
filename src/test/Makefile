@@ -10,9 +10,9 @@
 COMMONINCOPT = 
 include ../common.mk
 
-CORE = test_be_time test_be_time_timer test_be_time_watchdog test_be_error test_be_error_signal_manager test_be_process_statistics test_be_system test_be_memory_autoarray test_be_text test_be_framework test_be_memory_indexedbuffer test_be_memory_orderedmap
+CORE = test_be_time test_be_time_timer test_be_time_watchdog test_be_error test_be_error_signal_manager test_be_process_statistics test_be_system test_be_memory_autoarray test_be_text test_be_framework test_be_memory_indexedbuffer test_be_memory_orderedmap test_be_framework_api
 
-RECORDSTORE = test_construct_be_io_filerecstore test_be_io_filerecordstore test_be_io_dbrecordstore test_be_io_sqliterecordstore test_be_io_compressedrecordstore test_be_io_filerecordstore-stress test_be_io_dbrecordstore-stress test_be_io_archiverecordstore-stress test_be_io_sqliterecordstore-stress test_construct_be_io_archiverecstore test_be_io_archiverecordstore test_be_io_listrecstore test_be_io_recordstoreunion
+RECORDSTORE = test_construct_be_io_filerecstore test_be_io_filerecordstore test_be_io_dbrecordstore test_be_io_sqliterecordstore test_be_io_compressedrecordstore test_be_io_filerecordstore-stress test_be_io_dbrecordstore-stress test_be_io_archiverecordstore-stress test_be_io_sqliterecordstore-stress test_construct_be_io_archiverecstore test_be_io_archiverecordstore test_be_io_listrecstore test_be_io_recordstoreunion test_be_io_persistentrecordstoreunion
 
 IO = test_be_io_filelogcabinet test_be_io_properties test_be_io_propertiesfile test_be_io_utility test_be_io_syslogsheet
 
@@ -150,6 +150,10 @@ test_be_io_syslogsheet: test_be_io_syslogsheet.cpp
 test_be_video: test_be_video.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_io_recordstoreunion: test_be_io_recordstoreunion.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_io_persistentrecordstoreunion: test_be_io_persistentrecordstoreunion.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_framework_api: test_be_framework_api.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 
 clean:
