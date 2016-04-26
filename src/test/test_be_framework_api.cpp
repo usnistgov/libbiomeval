@@ -56,16 +56,6 @@ namespace Eval
 		}
 	};
 
-	template<>
-	const std::map<Status::Code, std::string>
-	    BE::Framework::EnumerationFunctions<Eval::Status::Code>::
-	    enumToStringMap = {
-		{Eval::Status::Code::Success, "Success"},
-		{Eval::Status::Code::BadImage, "Bad Image"},
-		{Eval::Status::Code::BadTemplate, "Bad Template"},
-		{Eval::Status::Code::VendorDefined, "Vendor Defined"},
-	};
-
 /******************************************************************************
  ******************************************************************************
  ******************************************************************************/
@@ -139,6 +129,17 @@ namespace Eval
 		return {"Fingerprint Matcher 1.0"};
 	}
 }
+
+template<>
+const std::map<Eval::Status::Code, std::string>
+    BE::Framework::EnumerationFunctions<Eval::Status::Code>::
+    enumToStringMap = {
+	{Eval::Status::Code::Success, "Success"},
+	{Eval::Status::Code::BadImage, "Bad Image"},
+	{Eval::Status::Code::BadTemplate, "Bad Template"},
+	{Eval::Status::Code::VendorDefined, "Vendor Defined"},
+};
+
 
 /******************************************************************************
  ******************************************************************************
