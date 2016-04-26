@@ -13,21 +13,63 @@
 #include "be_io_recordstoreunion_impl.h"
 
 BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
-    const std::initializer_list<std::pair<const std::string, const std::string>>
-    &recordStores,
-    const BiometricEvaluation::IO::Mode &mode) :
+    const std::map<const std::string, const std::string> &recordStores) :
     _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
-    recordStores, mode))
+    recordStores))
 {
 
 }
 
 BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
-    const std::initializer_list<std::pair<const std::string,
-    const std::shared_ptr<BiometricEvaluation::IO::RecordStore>>>
-    &recordStores) :
+    std::map<const std::string, const std::string>::iterator first,
+    std::map<const std::string, const std::string>::iterator last) :
+    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
+    first, last))
+{
+
+}
+
+BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
+    std::initializer_list<std::pair<const std::string, const std::string>>
+    recordStores) :
     _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
     recordStores))
+{
+
+}
+
+BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
+    const std::map<const std::string, const std::shared_ptr<
+    BiometricEvaluation::IO::RecordStore>> &recordStores) :
+    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
+    recordStores))
+{
+
+}
+
+BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
+    std::map<const std::string, const std::shared_ptr<
+    BiometricEvaluation::IO::RecordStore>>::iterator first,
+    std::map<const std::string, const std::shared_ptr<
+    BiometricEvaluation::IO::RecordStore>>::iterator last) :
+    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
+    first, last))
+{
+
+}
+
+BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
+    std::initializer_list<std::pair<const std::string,
+    const std::shared_ptr<BiometricEvaluation::IO::RecordStore>>>
+    recordStores) :
+    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
+    recordStores))
+{
+
+}
+
+BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion() :
+    _pimpl(nullptr)
 {
 
 }
@@ -61,34 +103,6 @@ BiometricEvaluation::IO::RecordStoreUnion::length(
     const
 {
 	return (this->_pimpl->length(key));
-}
-
-void
-BiometricEvaluation::IO::RecordStoreUnion::insert(
-    const std::string &key,
-    const std::map<const std::string,
-    BiometricEvaluation::Memory::uint8Array> &data)
-    const
-{
-	this->_pimpl->insert(key, data);
-}
-
-void
-BiometricEvaluation::IO::RecordStoreUnion::remove(
-    const std::string &key)
-    const
-{
-	this->_pimpl->remove(key);
-}
-
-void
-BiometricEvaluation::IO::RecordStoreUnion::replace(
-    const std::string &key,
-    const std::map<const std::string,
-    BiometricEvaluation::Memory::uint8Array> &data)
-    const
-{
-	this->_pimpl->replace(key, data);
 }
 
 BiometricEvaluation::IO::RecordStoreUnion::~RecordStoreUnion()

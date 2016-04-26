@@ -24,9 +24,9 @@ namespace BiometricEvaluation
 {
 	namespace IO
 	{
-		/** 
+		/**
 		 * @brief
-		 * A collection of N related RecordStores, operated on
+		 * A collection of N related read-only RecordStores, operated on
 		 * simultaneously.
 		 */
 		class RecordStoreUnion
@@ -36,47 +36,96 @@ namespace BiometricEvaluation
 			 * RecordStoreUnion constructor.
 			 *
 			 * @param recordStores
-			 * List of pairs of developer-provided name and 
-			 * paths to a RecordStore.
-			 * @param mode
-			 * The mode to open each RecordStore listed in
-			 * recordStores.
-			 *
-			 * @note
-			 * Opening a RecordStore more than once in read/write
-			 * mode may cause undefined behavior.
-			 * RecordStoreUnionImpl does not attempt to follow 
-			 * symlinks, etc. to discover duplicate RecordStore
-			 * paths.
-			 * @note
-			 * Paths to RecordStores must already exist.
+			 * Map of developer-provided names to paths to a
+			 * RecordStore.
 			 */
 			RecordStoreUnion(
-			    const std::initializer_list<
-			    std::pair<const std::string, const std::string>>
-			    &recordStores,
-			    const BiometricEvaluation::IO::Mode &mode);
+			    const std::map<const std::string, const std::string>
+			    &recordStores);
+
+			/**
+			 * RecordStoreUnion constructor.
+			 *
+			 * @param first
+			 * Iterator to the start of a map of developer-provided
+			 * names to paths to a RecordStore.
+			 * @param last
+			 * Iterator to the end of a map of developer-provided
+			 * names to paths to a RecordStore.
+			 */
+			RecordStoreUnion(
+			    std::map<const std::string,
+			    const std::string>::iterator first,
+			    std::map<const std::string,
+			    const std::string>::iterator last);
 
 			/**
 			 * RecordStoreUnion constructor.
 			 *
 			 * @param recordStores
-			 * List of pairs of developer-provided name and 
-			 * open RecordStore objects.
-			 *
-			 * @note
-			 * Opening a RecordStore more than once in read/write
-			 * mode may cause undefined behavior.
-			 * RecordStoreUnionImpl does not attempt to follow 
-			 * symlinks, etc. to discover duplicate RecordStore
-			 * paths.
+			 * List of pairs of developer-provided name and
+			 * paths to a RecordStore.
 			 */
 			RecordStoreUnion(
-			    const std::initializer_list<
-			    std::pair<const std::string,
+			    std::initializer_list<std::pair<
+			    const std::string, const std::string>>
+			    recordStores);
+
+			/**
+			 * RecordStoreUnion constructor.
+			 *
+			 * @param recordStores
+			 * Map of developer-provided names and open RecordStore
+			 * objects.
+			 *
+			 * @note
+			 * Behavior when providing a RecordStore that has been
+			 * opened read/write is undefined.
+			 */
+			RecordStoreUnion(
+			    const std::map<const std::string,
+			    const std::shared_ptr<
+			    BiometricEvaluation::IO::RecordStore>>
+			    &recordStores);
+
+			/**
+			 * RecordStoreUnion constructor.
+			 *
+			 * @param first
+			 * Iterator to the start of a map of developer-provided
+			 * names and open RecordStore objects.
+			 * @param last
+			 * Iterator to the end of a map of developer-provided
+			 * names and open RecordStore objects.
+			 *
+ 			 * @note
+			 * Behavior when providing a RecordStore that has been
+			 * opened read/write is undefined.
+			 */
+			RecordStoreUnion(
+			    std::map<const std::string, const std::shared_ptr<
+			    BiometricEvaluation::IO::RecordStore>>::iterator
+			    first,
+			    std::map<const std::string, const std::shared_ptr<
+			    BiometricEvaluation::IO::RecordStore>>::iterator
+			    last);
+
+			/**
+			 * RecordStoreUnion constructor.
+			 *
+			 * @param recordStores
+			 * List of pairs of developer-provided name and
+			 * open RecordStore objects.
+			 *
+ 			 * @note
+			 * Behavior when providing a RecordStore that has been
+			 * opened read/write is undefined.
+			 */
+			RecordStoreUnion(
+			    std::initializer_list<std::pair<const std::string,
 			    const std::shared_ptr<
 			    BiometricEvaluation::IO::RecordStore>>>
-			    &recordStores);
+			    recordStores);
 
 			/**
 			 * @brief
@@ -163,166 +212,42 @@ namespace BiometricEvaluation
 			    const std::string &key)
 			    const;
 
-			/**
-			 * @brief
-			 * Insert different values into a new key in all member
-			 * RecordStores.
-			 *
-			 * @param key
-			 * The new key to be added.
-			 * @param data
-			 * A mapping of RecordStore name to the data to be
-			 * inserted.
-			 *
-			 * @throw Error::ObjectExists
-			 * Key exists (propagated from RecordStore)
-			 * @throw Error::ObjectDoesNotExist
-			 * Key in data does not name a member RecordStore.
-			 * @throw Error::ParameterError
-			 * Too few RecordStore names provided.
-			 */
-			void
-			insert(
-			    const std::string &key,
-			    const std::map<const std::string,
-			    BiometricEvaluation::Memory::uint8Array> &data)
-			    const;
-
-			/**
-			 * @brief
-			 * Insert different values into a new key in all member
-			 * RecordStores.
-			 *
-			 * @param key
-			 * The new key to be added.
-			 * @param data
-			 * A mapping of RecordStore name to the data to be
-			 * inserted.
-			 *
-			 * @throw Error::ObjectExists
-			 * Key exists (propagated from RecordStore)
-			 * @throw Error::ObjectDoesNotExist
-			 * Key in data does not name a member RecordStore.
-			 * @throw Error::ParameterError
-			 * Too few RecordStore names provided.
-			 */
-			inline void
-			insert(
-			    const std::string &key,
-			    const std::initializer_list<const std::pair<
-			    const std::string,
-			    BiometricEvaluation::Memory::uint8Array>> &data)
-			    const
-			{
-				this->insert(key, iListToMap(data));
-			}
-
-			/**
-			 * @brief
-			 * Remove a key from all member RecordStores.
-			 *
-			 * @param key
-			 * The key to remove.
-			 *
-			 * @throw Error::StrategyError
-			 * Exception propagated from RecordStore.
-			 *
-			 * @note
-			 * Exceptions are thrown after remove() has been called
-			 * on all member RecordStores.
-			 */
-			void
-			remove(
-			    const std::string &key)
-			    const;
-
-			/**
-			 * @brief
-			 * Replace different values into a new key in all member
-			 * RecordStores.
-			 *
-			 * @param key
-			 * The new key to be added.
-			 * @param data
-			 * A mapping of RecordStore name to the data to be
-			 * replaced.
-			 *
-			 * @throw Error::ObjectDoesNotExist
-			 * Key in data does not name a member RecordStore, or
-			 * key does not exist in RecordStore.
-			 * @throw Error::ParameterError
-			 * Too few RecordStore names provided.
-			 */
-			void
-			replace(
-			    const std::string &key,
-			    const std::map<const std::string,
-			    BiometricEvaluation::Memory::uint8Array> &data)
-			    const;
-
-			/**
-			 * @brief
-			 * Replace different values into a new key in all member
-			 * RecordStores.
-			 *
-			 * @param key
-			 * The new key to be added.
-			 * @param data
-			 * An initializer list of pairs of RecordStore names to
-			 * the data to be replaced.
-			 *
-			 * @throw Error::ObjectExists
-			 * Key exists (propagated from RecordStore)
-			 * @throw Error::ObjectDoesNotExist
-			 * Key in data does not name a member RecordStore.
-			 * @throw Error::ParameterError
-			 * Too few RecordStore names provided.
-			 */
-			inline void
-			replace(
-			    const std::string &key,
-			    const std::initializer_list<const std::pair<
-			    const std::string,
-			    BiometricEvaluation::Memory::uint8Array>> &data)
-			    const
-			{
-				this->replace(key, iListToMap(data));
-			}
-
 			/** Destructor. */
 			~RecordStoreUnion();
 
-		private:
 			/** Forward declaration of implementation. */
 			class Implementation;
 
-			/** Pointer to implementation */
-			const Implementation * const _pimpl;
+		protected:
+			/**
+			 * @brief
+			 * Empty constructor for children.
+			 *
+			 * @note
+			 * Implementation is not set. Callers must also call
+			 * setImpl() to provide functionality.
+			 *
+			 * @seealso setImpl
+			 */
+			RecordStoreUnion();
 
 			/**
 			 * @brief
-			 * Convert a data-in initiailzer-list to a data-in map.
+			 * Change the implementation of this object.
 			 *
-			 * @param dataList
-			 * Initializer list of RecordStore name/data pairs.
-			 *
-			 * @return
-			 * Map of dataList.
-			 *
-			 * @note
-			 * If RecordStore names were duplicated in the
-			 * initializer list, the returned map will be smaller
-			 * than the input.
+			 * @param impl
+			 * Pointer to an implementation instance.
 			 */
-			static inline std::map<const std::string,
-			BiometricEvaluation::Memory::uint8Array>
-			iListToMap(
-			    const std::initializer_list<const std::pair<
-			    const std::string,
-			    BiometricEvaluation::Memory::uint8Array>> &dataList)
+			void
+			setImpl(
+			    Implementation * pimpl)
 			{
-				return {dataList.begin(), dataList.end()};
+				this->_pimpl = pimpl;
 			}
+
+		private:
+			/** Pointer to implementation */
+			Implementation *_pimpl;
 		};
 	}
 }

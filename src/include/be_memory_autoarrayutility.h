@@ -147,7 +147,7 @@ to_string(
 {
 	return (std::string(
 	    BiometricEvaluation::Memory::AutoArrayUtility::cstr(aa),
-	    aa.size()));
+	    aa.size() - 1));
 }
 
 #endif /* __BE_MEMORY_AUTOARRAYUTILITY_H__ */

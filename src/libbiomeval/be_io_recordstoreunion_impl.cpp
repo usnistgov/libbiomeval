@@ -8,8 +8,6 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <set>
-
 #include <be_io_recordstore.h>
 
 #include "be_io_recordstoreunion_impl.h"
@@ -17,47 +15,66 @@
 namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
-    const std::initializer_list<std::pair<const std::string, const std::string>>
-    &recordStores,
-    const BiometricEvaluation::IO::Mode &mode) :
-    _recordStores(initMap(recordStores, mode))
+    const std::map<const std::string, const std::string> &recordStores) :
+    _recordStores(initRecordStoreMap(recordStores))
 {
 
 }
 
 BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
-    const std::initializer_list<std::pair<const std::string, const
-    std::shared_ptr<BiometricEvaluation::IO::RecordStore>>> &recordStores) :
+    std::map<const std::string, const std::string>::iterator first,
+    std::map<const std::string, const std::string>::iterator last) :
+    _recordStores(initRecordStoreMap({first, last}))
+{
+
+}
+
+BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+    std::initializer_list<std::pair<const std::string, const std::string>>
+    recordStores) :
+    _recordStores(initRecordStoreMap(recordStores))
+{
+
+}
+
+BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+    const std::map<const std::string, const std::shared_ptr<
+    BiometricEvaluation::IO::RecordStore>> &recordStores) :
     _recordStores(recordStores)
 {
-	/* Check that there were no duplicate RecordStore names */
-	std::set<std::string> names;
-	for (const auto &rsInfo : this->_recordStores)
-		names.insert(rsInfo.first);
-	if (names.size() != this->_recordStores.size())
-		throw BE::Error::StrategyError("Duplicate RecordStore names");
+
+}
+
+BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+    std::map<const std::string, const std::shared_ptr<
+    BiometricEvaluation::IO::RecordStore>>::iterator first,
+    std::map<const std::string, const std::shared_ptr<
+    BiometricEvaluation::IO::RecordStore>>::iterator last) :
+    _recordStores({first, last})
+{
+
+}
+
+BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+    std::initializer_list<std::pair<const std::string, const
+    std::shared_ptr<BiometricEvaluation::IO::RecordStore>>> recordStores) :
+    _recordStores(recordStores)
+{
+
 }
 
 std::map<const std::string,
 const std::shared_ptr<BiometricEvaluation::IO::RecordStore>>
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::initMap(
-    const std::initializer_list<std::pair<const std::string,
-    const std::string>> &input,
-    const BiometricEvaluation::IO::Mode &mode)
+BiometricEvaluation::IO::RecordStoreUnion::Implementation::initRecordStoreMap(
+    const std::map<const std::string, const std::string> &input)
     const
 {
-	/* Check that there are no duplicate RecordStore names */
-	std::set<std::string> names;
-	for (const auto &rsInfo : input)
-		names.insert(rsInfo.first);
-	if (names.size() != input.size())
-		throw BE::Error::StrategyError("Duplicate RecordStore names");
-
 	std::map<const std::string, const std::shared_ptr<
 	    BiometricEvaluation::IO::RecordStore>> recordStores;
 	for (const auto &rsInfo : input)
 		recordStores.emplace(std::make_pair(rsInfo.first,
-		    BE::IO::RecordStore::openRecordStore(rsInfo.second, mode)));
+		    BE::IO::RecordStore::openRecordStore(rsInfo.second,
+		    BE::IO::Mode::ReadOnly)));
 	return (recordStores);
 }
 
@@ -95,7 +112,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::getNames()
     const
 {
 	std::vector<std::string> names;
-	for (auto &rsPair : this->_recordStores)
+	for (const auto &rsPair : this->_recordStores)
 		names.push_back(rsPair.first);
 	return (names);
 }
@@ -163,80 +180,4 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::length(
 		throw BE::Error::ObjectDoesNotExist(key);
 
 	return (ret);
-}
-
-void
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::remove(
-    const std::string &key)
-    const
-{
-	std::string exceptions;
-	for (const auto &rsPair : this->_recordStores) {
-		try {
-			this->_recordStores.at(rsPair.first)->remove(key);
-		} catch (BE::Error::Exception &e) {
-			if (!exceptions.empty())
-				exceptions += '\n';
-			exceptions += e.whatString() + " (" + rsPair.first +
-			    ')';
-		}
-	}
-
-	if (!exceptions.empty())
-		throw BE::Error::StrategyError(exceptions);
-}
-
-void
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::insert(
-    const std::string &key,
-    const std::map<const std::string,
-    BiometricEvaluation::Memory::uint8Array> &data)
-    const
-{
-	this->dataInOperation(data, [&key](
-	    const std::shared_ptr<BE::IO::RecordStore> &rs,
-	    const BE::Memory::uint8Array &internalData) {
-		rs->insert(key, internalData);
-	});
-}
-
-void
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::replace(
-    const std::string &key,
-    const std::map<const std::string,
-    BiometricEvaluation::Memory::uint8Array> &data)
-    const
-{
-	this->dataInOperation(data, [&key](
-	    const std::shared_ptr<BE::IO::RecordStore> &rs,
-	    const BE::Memory::uint8Array &internalData) {
-		rs->replace(key, internalData);
-	});
-}
-
-void
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::dataInOperation(
-    const std::map<const std::string,
-    BiometricEvaluation::Memory::uint8Array> &data,
-    const std::function<void(const std::shared_ptr<BE::IO::RecordStore> &,
-    const BiometricEvaluation::Memory::uint8Array &)> &rsMethod)
-    const
-{
-	this->verifyRecordStoreNames(data);
-
-	std::string exceptions;
-	for (const auto &nameDataPair : data) {
-		try {
-			rsMethod(this->_recordStores.at(nameDataPair.first),
-			    nameDataPair.second);
-		} catch (BE::Error::Exception &e) {
-			if (!exceptions.empty())
-				exceptions += '\n';
-			exceptions += e.whatString() + " (" +
-			    nameDataPair.first + ')';
-		}
-	}
-
-	if (!exceptions.empty())
-		throw BE::Error::StrategyError(exceptions);
 }

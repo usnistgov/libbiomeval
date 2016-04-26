@@ -28,48 +28,98 @@ namespace BiometricEvaluation
 			 * RecordStoreUnionImpl constructor.
 			 *
 			 * @param recordStores
-			 * List of pairs of developer-provided name and 
-			 * paths to a RecordStore.
-			 * @param mode
-			 * The mode to open each RecordStore listed in
-			 * recordStores.
-			 *
-			 * @note
-			 * Opening a RecordStore more than once in read/write
-			 * mode may cause undefined behavior.
-			 * RecordStoreUnionImpl does not attempt to follow 
-			 * symlinks, etc. to discover duplicate RecordStore
-			 * paths.
-			 * @note
-			 * Paths to RecordStores must already exist.
+			 * Map of developer-provided names to paths to a
+			 * RecordStore.
 			 */
 			Implementation(
-			    const std::initializer_list<
-			    std::pair<const std::string, const std::string>>
-			    &recordStores,
-			    const BiometricEvaluation::IO::Mode &mode);
+			    const std::map<const std::string, const std::string>
+			    &recordStores);
+
+			/**
+			 * RecordStoreUnionImpl constructor.
+			 *
+			 * @param first
+			 * Iterator to the start of a map of developer-provided
+			 * names to paths to a RecordStore.
+			 * @param last
+			 * Iterator to the end of a map of developer-provided
+			 * names to paths to a RecordStore.
+			 */
+			Implementation(
+			    std::map<const std::string,
+			    const std::string>::iterator first,
+			    std::map<const std::string,
+			    const std::string>::iterator last);
 
 			/**
 			 * RecordStoreUnionImpl constructor.
 			 *
 			 * @param recordStores
-			 * List of pairs of developer-provided name and 
+			 * List of pairs of developer-provided name and
+			 * paths to a RecordStore.
+			 */
+			Implementation(
+			    std::initializer_list<
+			    std::pair<const std::string, const std::string>>
+			    recordStores);
+
+			/**
+			 * RecordStoreUnionImpl constructor.
+			 *
+			 * @param recordStores
+			 * Map of developer-provided names and open RecordStore
+			 * objects.
+			 *
+ 			 * @note
+			 * Behavior when providing a RecordStore that has been
+			 * opened read/write is undefined.
+			 */
+			Implementation(
+			    const std::map<const std::string,
+			    const std::shared_ptr<
+			    BiometricEvaluation::IO::RecordStore>>
+			    &recordStores);
+
+			/**
+			 * RecordStoreUnionImpl constructor.
+			 *
+			 * @param first
+			 * Iterator to the start of a map of developer-provided
+			 * names and open RecordStore objects.
+			 * @param last
+			 * Iterator to the end of a map of developer-provided
+			 * names and open RecordStore objects.
+			 *
+ 			 * @note
+			 * Behavior when providing a RecordStore that has been
+			 * opened read/write is undefined.
+			 */
+			Implementation(
+			    std::map<const std::string, const std::shared_ptr<
+			    BiometricEvaluation::IO::RecordStore>>::iterator
+			    first,
+			    std::map<const std::string, const std::shared_ptr<
+			    BiometricEvaluation::IO::RecordStore>>::iterator
+			    last);
+
+			/**
+			 * RecordStoreUnionImpl constructor.
+			 *
+			 * @param recordStores
+			 * List of pairs of developer-provided name and
 			 * open RecordStore objects.
 			 *
 			 * @note
-			 * Opening a RecordStore more than once in read/write
-			 * mode may cause undefined behavior.
-			 * RecordStoreUnionImpl does not attempt to follow 
-			 * symlinks, etc. to discover duplicate RecordStore
-			 * paths.
+			 * Behavior when providing a RecordStore that has been
+			 * opened read/write is undefined.
 			 */
 			Implementation(
-			    const std::initializer_list<
+			    std::initializer_list<
 			    std::pair<const std::string,
 			    const std::shared_ptr<
 			    BiometricEvaluation::IO::RecordStore>>>
-			    &recordStores);
-			    
+			    recordStores);
+
 			/**
 			 * @brief
 			 * Obtain a pointer to an open RecordStore.
@@ -130,50 +180,6 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Remove a key from all member RecordStores.
-			 *
-			 * @param key
-			 * The key to remove.
-			 *
-			 * @throw Error::StrategyError
-			 * Exception propagated from RecordStore.
-			 *
-			 * @note
-			 * Exceptions are thrown after remove() has been called
-			 * on all member RecordStores.
-			 */
-			void
-			remove(
-			    const std::string &key)
-			    const;
-
-			/**
-			 * @brief
-			 * Insert different values into a new key in all member
-			 * RecordStores.
-			 *
-			 * @param key
-			 * The new key to be added.
-			 * @param data
-			 * A mapping of RecordStore name to the data to be
-			 * inserted.
-			 *
-			 * @throw Error::ObjectExists
-			 * Key exists (propagated from RecordStore)
-			 * @throw Error::ObjectDoesNotExist
-			 * Key in data does not name a member RecordStore.
-			 * @throw Error::ParameterError
-			 * Too few RecordStore names provided.
-			 */
-			void
-			insert(
-			    const std::string &key,
-			    const std::map<const std::string,
-			    BiometricEvaluation::Memory::uint8Array> &data)
-			    const;
-
-			/**
-			 * @brief
 			 * Retrieve the length of a key from all member
 			 * RecordStores.
 			 *
@@ -199,31 +205,6 @@ namespace BiometricEvaluation
 			    const std::string &key)
 			    const;
 
-			/**
-			 * @brief
-			 * Replace different values into a new key in all member
-			 * RecordStores.
-			 *
-			 * @param key
-			 * The new key to be added.
-			 * @param data
-			 * A mapping of RecordStore name to the data to be
-			 * replaced.
-			 *
-			 * @throw Error::ObjectDoesNotExist
-			 * Key in data does not name a member RecordStore, or
-			 * key does not exist in RecordStore.
-			 * @throw Error::ParameterError
-			 * Too few RecordStore names provided.
-			 */
-			void
-			replace(
-			    const std::string &key,
-			    const std::map<const std::string,
-			    BiometricEvaluation::Memory::uint8Array>
-			    &data)
-			    const;
-
 			/** Default destructor */
 			~Implementation() = default;
 
@@ -235,7 +216,7 @@ namespace BiometricEvaluation
 			 *
 			 * @param data
 			 * Data map as passed to a RecordStoreUnion method.
-			 * 
+			 *
 			 * @throw Error::ObjectDoesNotExist
 			 * Key in data does not name a member RecordStore.
 			 * @throw Error::ParameterError
@@ -250,10 +231,8 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Const-initialization of _recordStores.
-			 * 
+			 *
 			 * @param recordStores
-			 * Forwarded from constructor.
-			 * @param mode
 			 * Forwarded from constructor.
 			 *
 			 * @return
@@ -261,38 +240,10 @@ namespace BiometricEvaluation
 			 */
 			std::map<const std::string, const std::shared_ptr<
 			BiometricEvaluation::IO::RecordStore>>
-			initMap(
-			    const std::initializer_list<std::pair<
-			    const std::string, const std::string>>
-			    &recordStores,
-			    const BiometricEvaluation::IO::Mode &mode)
+			initRecordStoreMap(
+			    const std::map<const std::string, const std::string>
+			    &recordStores)
 			    const;
-
-			/**
-			 * @brief
-			 * Wrapper for calling operations that place data
-			 * in RecordStores.
-			 *
-			 * @param data
-			 * Map of rsName/data pairs passed to data-in methods.
-			 * @param rsMethod
-			 * Lambda that is provided a RecordStore and data.
-			 *
-			 * @throw Error::ObjectDoesNotExist
-			 * Key in data does not name a member RecordStore.
-			 * @throw Error::ParameterError
-			 * Too few RecordStore names provided.
-			 */
-			void
-			dataInOperation(
-			   const std::map<const std::string,
-			   BiometricEvaluation::Memory::uint8Array> &data,
-			   const std::function<void(
-			   const std::shared_ptr<BiometricEvaluation::IO::
-			   RecordStore> &,
-			   const BiometricEvaluation::Memory::uint8Array &)>
-			   &rsMethod)
-			   const;
 
 			/** Mapping of name to open RecordStores */
 			const std::map<const std::string, const std::shared_ptr<
