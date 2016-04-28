@@ -14,14 +14,14 @@
 
 namespace BE = BiometricEvaluation;
 
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::Impl(
     const std::map<const std::string, const std::string> &recordStores) :
     _recordStores(initRecordStoreMap(recordStores))
 {
 
 }
 
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::Impl(
     std::map<const std::string, const std::string>::iterator first,
     std::map<const std::string, const std::string>::iterator last) :
     _recordStores(initRecordStoreMap({first, last}))
@@ -29,7 +29,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
 
 }
 
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::Impl(
     std::initializer_list<std::pair<const std::string, const std::string>>
     recordStores) :
     _recordStores(initRecordStoreMap(recordStores))
@@ -37,7 +37,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
 
 }
 
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::Impl(
     const std::map<const std::string, const std::shared_ptr<
     BiometricEvaluation::IO::RecordStore>> &recordStores) :
     _recordStores(recordStores)
@@ -45,7 +45,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
 
 }
 
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::Impl(
     std::map<const std::string, const std::shared_ptr<
     BiometricEvaluation::IO::RecordStore>>::iterator first,
     std::map<const std::string, const std::shared_ptr<
@@ -55,7 +55,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
 
 }
 
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::Impl(
     std::initializer_list<std::pair<const std::string, const
     std::shared_ptr<BiometricEvaluation::IO::RecordStore>>> recordStores) :
     _recordStores(recordStores)
@@ -65,7 +65,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::Implementation(
 
 std::map<const std::string,
 const std::shared_ptr<BiometricEvaluation::IO::RecordStore>>
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::initRecordStoreMap(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::initRecordStoreMap(
     const std::map<const std::string, const std::string> &input)
     const
 {
@@ -79,8 +79,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::initRecordStoreMap(
 }
 
 void
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::
-    verifyRecordStoreNames(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::verifyRecordStoreNames(
     const std::map<const std::string,
     BiometricEvaluation::Memory::uint8Array> &data)
     const
@@ -96,7 +95,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::
 }
 
 std::shared_ptr<BiometricEvaluation::IO::RecordStore>
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::getRecordStore(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::getRecordStore(
     const std::string &name)
     const
 {
@@ -108,7 +107,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::getRecordStore(
 }
 
 std::vector<std::string>
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::getNames()
+BiometricEvaluation::IO::RecordStoreUnion::Impl::getNames()
     const
 {
 	std::vector<std::string> names;
@@ -122,7 +121,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::getNames()
  */
 
 std::map<const std::string, BiometricEvaluation::Memory::uint8Array>
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::read(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::read(
     const std::string &key)
     const
 {
@@ -153,7 +152,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::read(
 }
 
 std::map<const std::string, uint64_t>
-BiometricEvaluation::IO::RecordStoreUnion::Implementation::length(
+BiometricEvaluation::IO::RecordStoreUnion::Impl::length(
     const std::string &key)
     const
 {
@@ -181,3 +180,4 @@ BiometricEvaluation::IO::RecordStoreUnion::Implementation::length(
 
 	return (ret);
 }
+

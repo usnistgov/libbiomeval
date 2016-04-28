@@ -136,11 +136,12 @@ main(
 		rs2->insert(NAME_KEY, data);
 		rs2.reset();
 
-		const auto rsUnion = BE::IO::RecordStoreUnion{
-		    {RS1, BE::IO::RecordStore::openRecordStore(RS1)},
-    		    {RS2, BE::IO::RecordStore::openRecordStore(RS2)}};
+		const std::unique_ptr<BE::IO::RecordStoreUnion> rsUnion(
+		    new BE::IO::RecordStoreUnion{
+			{RS1, BE::IO::RecordStore::openRecordStore(RS1)},
+			{RS2, BE::IO::RecordStore::openRecordStore(RS2)}});
 
-		doTest(rsUnion);
+		doTest(*rsUnion.get());
 	} catch (BE::Error::Exception &e) {
 		std::cout << e.whatString() << std::endl;
 		rv = EXIT_FAILURE;

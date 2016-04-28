@@ -20,7 +20,7 @@ namespace BE = BiometricEvaluation;
  * Setup access to the container stream using FFMPEG libraries.
  */
 void
-BiometricEvaluation::Video::ContainerImpl::openContainer()
+BiometricEvaluation::Video::Container::Impl::openContainer()
 {
 	this->_fmtCtx = avformat_alloc_context();
 	if (this->_fmtCtx == nullptr)
@@ -62,7 +62,7 @@ BiometricEvaluation::Video::ContainerImpl::openContainer()
  * streams.
  */
 void
-BiometricEvaluation::Video::ContainerImpl::construct()
+BiometricEvaluation::Video::Container::Impl::construct()
 {
 	av_register_all();
 	this->openContainer();
@@ -84,7 +84,7 @@ BiometricEvaluation::Video::ContainerImpl::construct()
  * Tear down an open stream be releasing FFMPEG libary objects.
  */
 void
-BiometricEvaluation::Video::ContainerImpl::closeContainer()
+BiometricEvaluation::Video::Container::Impl::closeContainer()
 {
 	if (this->_fmtCtx != nullptr) {
 		avformat_close_input(&this->_fmtCtx);
@@ -126,21 +126,21 @@ findVideoStream(
 	return (stream);
 }
 
-BiometricEvaluation::Video::ContainerImpl::ContainerImpl(
+BiometricEvaluation::Video::Container::Impl::Impl(
     const Memory::uint8Array &buffer)
 {
 	this->_containerBuf.reset(new BE::Memory::uint8Array(buffer));
 	this->construct();
 }
 
-BiometricEvaluation::Video::ContainerImpl::ContainerImpl(
+BiometricEvaluation::Video::Container::Impl::Impl(
     const std::shared_ptr<Memory::uint8Array> &buffer)
 {
 	this->_containerBuf = buffer;
 	this->construct();
 }
 
-BiometricEvaluation::Video::ContainerImpl::ContainerImpl(
+BiometricEvaluation::Video::Container::Impl::Impl(
     const std::string &filename)
 {
 	this->_containerBuf.reset(
@@ -150,19 +150,19 @@ BiometricEvaluation::Video::ContainerImpl::ContainerImpl(
 }
 
 uint32_t
-BiometricEvaluation::Video::ContainerImpl::getAudioCount()
+BiometricEvaluation::Video::Container::Impl::getAudioCount()
 {
 	return (this->_audioCount);
 }
 
 uint32_t
-BiometricEvaluation::Video::ContainerImpl::getVideoCount()
+BiometricEvaluation::Video::Container::Impl::getVideoCount()
 {
 	return (this->_videoCount);
 }
 
 std::unique_ptr<BiometricEvaluation::Video::Stream>
-BiometricEvaluation::Video::ContainerImpl::getVideoStream(
+BiometricEvaluation::Video::Container::Impl::getVideoStream(
     uint32_t videoNum)
 {
 	if ((videoNum == 0) || (videoNum > this->_videoCount))
@@ -173,7 +173,7 @@ BiometricEvaluation::Video::ContainerImpl::getVideoStream(
 	return (ptr);
 }
 
-BiometricEvaluation::Video::ContainerImpl::~ContainerImpl()
+BiometricEvaluation::Video::Container::Impl::~Impl()
 {
 	closeContainer();
 }

@@ -21,17 +21,17 @@ namespace BiometricEvaluation
 	namespace IO
 	{
 		/** Implementation of RecordStoreUnion. */
-		class RecordStoreUnion::Implementation
+		class RecordStoreUnion::Impl
 		{
 		public:
 			/**
-			 * RecordStoreUnionImpl constructor.
+			 * RecordStoreUnion::Impl constructor.
 			 *
 			 * @param recordStores
 			 * Map of developer-provided names to paths to a
 			 * RecordStore.
 			 */
-			Implementation(
+			Impl(
 			    const std::map<const std::string, const std::string>
 			    &recordStores);
 
@@ -45,7 +45,7 @@ namespace BiometricEvaluation
 			 * Iterator to the end of a map of developer-provided
 			 * names to paths to a RecordStore.
 			 */
-			Implementation(
+			Impl(
 			    std::map<const std::string,
 			    const std::string>::iterator first,
 			    std::map<const std::string,
@@ -58,7 +58,7 @@ namespace BiometricEvaluation
 			 * List of pairs of developer-provided name and
 			 * paths to a RecordStore.
 			 */
-			Implementation(
+			Impl(
 			    std::initializer_list<
 			    std::pair<const std::string, const std::string>>
 			    recordStores);
@@ -74,7 +74,7 @@ namespace BiometricEvaluation
 			 * Behavior when providing a RecordStore that has been
 			 * opened read/write is undefined.
 			 */
-			Implementation(
+			Impl(
 			    const std::map<const std::string,
 			    const std::shared_ptr<
 			    BiometricEvaluation::IO::RecordStore>>
@@ -94,7 +94,7 @@ namespace BiometricEvaluation
 			 * Behavior when providing a RecordStore that has been
 			 * opened read/write is undefined.
 			 */
-			Implementation(
+			Impl(
 			    std::map<const std::string, const std::shared_ptr<
 			    BiometricEvaluation::IO::RecordStore>>::iterator
 			    first,
@@ -103,7 +103,7 @@ namespace BiometricEvaluation
 			    last);
 
 			/**
-			 * RecordStoreUnionImpl constructor.
+			 * RecordStoreUnion::Impl constructor.
 			 *
 			 * @param recordStores
 			 * List of pairs of developer-provided name and
@@ -113,7 +113,7 @@ namespace BiometricEvaluation
 			 * Behavior when providing a RecordStore that has been
 			 * opened read/write is undefined.
 			 */
-			Implementation(
+			Impl(
 			    std::initializer_list<
 			    std::pair<const std::string,
 			    const std::shared_ptr<
@@ -206,7 +206,7 @@ namespace BiometricEvaluation
 			    const;
 
 			/** Default destructor */
-			~Implementation() = default;
+			~Impl() = default;
 
 		private:
 			/**

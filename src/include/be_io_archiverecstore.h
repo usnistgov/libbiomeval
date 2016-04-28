@@ -11,30 +11,10 @@
 #ifndef __BE_ARCHIVERECSTORE_H__
 #define __BE_ARCHIVERECSTORE_H__
 
-#include <exception>
-#include <fstream>
-#include <string>
-
 #include <be_io_recordstore.h>
-#include <be_memory_orderedmap.h>
 
 namespace BiometricEvaluation {
-
 	namespace IO {
-		/** Info about a single archive element */
-		struct ManifestEntry
-		{
-			/** The offset from the beginning of the file/memory */
-			long offset;
-			/** The length from offset this element spans */
-			uint64_t size;
-		};
-		using ManifestEntry = struct ManifestEntry;
-
-		/** Convenience alias for storing the manifest */
-		using ManifestMap =
-		    Memory::OrderedMap<std::string, ManifestEntry>;
-	
 /**
  * @brief
  * This class implements the IO::RecordStore interface by storing data items
@@ -108,18 +88,18 @@ namespace BiometricEvaluation {
 			 */
 			~ArchiveRecordStore();
 
-			uint64_t getSpaceUsed() const override;
-
 			/*
 			 * Implementations of RecordStore methods.
 			 */
-			void sync() const override;
 
 			/*
-			 * We need the base class insert() as well; otherwise,
-			 * it is hidden by the declaration below.
-			 */
-			using RecordStore::insert;
+                         * We need the base class insert() and replace() as well
+			 * otherwise, they are hidden by the declarations below.
+                         */
+                        using RecordStore::insert;
+                        using RecordStore::replace;
+
+			void sync() const override;
 
 			void insert(
 			    const std::string &key,
@@ -157,6 +137,13 @@ namespace BiometricEvaluation {
 			    const std::string &pathname)
 			    override;
 	
+			uint64_t getSpaceUsed() const override;
+			unsigned int getCount() const override;
+			std::string getPathname() const override;
+			std::string getDescription() const override;
+			void changeDescription(
+                            const std::string &description) override;
+
 			/**
 			 * See if the ArchiveRecordStore would benefit from
 			 * calling vacuum() to remove deleted entries, since
@@ -232,125 +219,8 @@ namespace BiometricEvaluation {
 			    const ArchiveRecordStore&) = delete;
 
 		private:
-			/** Manifest file handle */
-			mutable std::fstream _manifestfp;
-			/** Archive file handle */
-			mutable std::fstream _archivefp;
-	
-			/*
-			 * Offsets and sizes of data chunks within the archive.
-			 */
-			ManifestMap _entries;
-	
-			/** Position of iterator (for sequence()) */
-			ManifestMap::const_iterator _cursorPos;
-
-			/**
-			 * Whether or not the ArchiveRecordStore contains a 
-			 * deleted entry and would benefit from vacuum().
-			 */
-			bool _dirty;
-			
-			/**
-			 * @brief
-			 * Read the manifest.
-			 *
-			 * @throw Error::ConversionError
-			 *	Size or offset in manifest couldn't be parsed.
-			 * @throw Error::FileError
-			 *	Manifest is malformed or could not be read.
-			 */
-			void read_manifest();
-		
-			/**
-			 * @brief
-			 * Write to the manifest.
-			 *
-			 * @param[in] key
-			 *	A unique key for the data chunk
-			 * @param[in] entry
-			 *	Information about key, populated by caller
-			 * @throw Error::StrategyError
-			 *	Problem with storage system
-			 */
-			void
-			write_manifest_entry(
-			    const std::string &key, 
-			    ManifestEntry entry);
-	
-			/**
-			 * @brief
-			 * Open the manifest and archive file streams
-			 *
-			 * @throw Error::FileError
-			 *	Unable to open streams
-			 */
-			void
-			open_streams() const;
-	
-			/**
-			 * @brief
-			 * Close the manifest and archive file streams
-			 *
-			 * @throw Error::StrategyError
-			 *	Unable to close streams
-			 */
-			void
-			close_streams();
-	
-			/**
-			 * @brief
-			 * Use the most efficient method for inserting an item
-			 * into a map.
-			 *
-			 * @param[in] m
-			 *	Map to modify
-			 * @param[in] k
-			 *	The key value
-			 * @param[in] v
-			 *	The value relating to the key
-			 */
-			void
-			efficient_insert(
-			    ManifestMap &m,
-			    const ManifestMap::key_type &k,
-			    const ManifestMap::mapped_type &v);
-	
-			/**
-			 * @brief
-			 * Check to see if a key exists entry map.
-			 *
-			 * @param[in] k
-			 *	The key to look for.
-			 *
-			 * @return
-			 *	true if key exists, otherwise false.
-			 */
-			bool
-			keyExists(
-			    const ManifestMap::key_type &k);
-
-			/**
-			 * Internal implementation of sequencing through a
-			 * store, returning the key, and optionally, the
-			 * data.
-			 * @param[in] returnData
-			 * 	Whether to return the data with the key.
-			 * @param[in] cursor
-			 *	The location within the sequence of the
-			 *	key/data pair to return.
-			 * @return
-			 *	The record that is next in sequence.
-			 * @throw Error::ObjectDoesNotExist
-			 *	End of sequencing.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 */
-			RecordStore::Record
-			i_sequence(
-			    bool returnData,
-			    int cursor); 
+			class Impl;
+			std::unique_ptr<ArchiveRecordStore::Impl> pimpl;
 		};
 	}
 }

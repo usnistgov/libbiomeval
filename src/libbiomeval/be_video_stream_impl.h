@@ -16,7 +16,7 @@
 #include <vector>
 
 #include <be_memory_autoarray.h>
-#include <be_video_stream.h>
+#include <be_video_container.h>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -37,7 +37,6 @@ extern "C" {
 
 static auto freeAVFrame = [](AVFrame* frame) { av_frame_free(&frame); };
 using uptrAVFrame = std::unique_ptr<AVFrame, decltype(freeAVFrame)>;
-
 namespace BiometricEvaluation 
 {
 	namespace Video
@@ -71,7 +70,7 @@ namespace BiometricEvaluation
 			 * Allow the Container implementation to construct
 			 * objects of this class.
 			 */
-			friend class ContainerImpl;
+			friend class Container::Impl;
 
 			/**
 			 * @brief

@@ -14,16 +14,14 @@
 #include <string>
 #include <vector>
 
-#include <be_error_exception.h>
-#include <be_framework_enumeration.h>
 #include <be_io.h>
-#include <be_io_propertiesfile.h>
 #include <be_memory_autoarray.h>
 
 /*
  * This file contains the class declaration for the RecordStore, a virtual
  * class that represents a collection of named blobs of data.
  */
+
 namespace BiometricEvaluation {
 
 	namespace IO {
@@ -100,23 +98,6 @@ namespace BiometricEvaluation {
 			 * '/', '\', '*', '&'
 			 */
 			static const std::string INVALIDKEYCHARS;
-			/** Character used to separate key segments */
-			static const char KEY_SEGMENT_SEPARATOR = '&';
-			/** First segment number of a segmented record */
-			static const uint64_t KEY_SEGMENT_START = 1;
-			
-			/** The name of the control file, a properties list */
-			static const std::string CONTROLFILENAME;
-
-			/** Property key for description of the RecordStore */
-			static const std::string DESCRIPTIONPROPERTY;
-			/** Property key for the number of store items */
-			static const std::string COUNTPROPERTY;
-			/** Property key for the type of RecordStore */
-			static const std::string TYPEPROPERTY;
-
-			/** Message for ReadOnly RecordStore modification */
-			static const std::string RSREADONLYERROR;
 
 			virtual ~RecordStore();
 			
@@ -125,14 +106,14 @@ namespace BiometricEvaluation {
 			 * @return
 			 *	The RecordStore's description.
 			 */
-			std::string getDescription() const;
+			virtual std::string getDescription() const = 0;
 
 			/**
 			 * Obtain the number of items in the RecordStore.
 			 * @return
 			 *	The number of items in the RecordStore.
 			 */
-			unsigned int getCount() const;
+			virtual unsigned int getCount() const = 0;
 
 			/**
 			 * Return the path name of the RecordStore.
@@ -140,7 +121,7 @@ namespace BiometricEvaluation {
 			 *	Where in the file system the RecordStore
 			 *	is located.
 			 */
-			std::string getPathname() const;
+			virtual std::string getPathname() const = 0;
 
 			/**
 			 * @brief
@@ -155,7 +136,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual void move(
-			    const std::string &pathname);
+			    const std::string &pathname) = 0;
 
 			/**
 			 * Change the description of the RecordStore.
@@ -166,7 +147,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			virtual void changeDescription(
-			    const std::string &description);
+			    const std::string &description) = 0;
 
 			/**
 			 * @brief
@@ -184,7 +165,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
-			virtual uint64_t getSpaceUsed() const;
+			virtual uint64_t getSpaceUsed() const = 0;
 
 			/**
 			 * Synchronize the entire record store to persistent
@@ -194,7 +175,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when using the underlying
 			 *	storage system.
 			 */
-			virtual void sync() const;
+			virtual void sync() const = 0;
 
 			/**
 			 * Insert a record into the store.
@@ -213,7 +194,7 @@ namespace BiometricEvaluation {
 			 *	storage system.
 			 */
 			void
-			insert(
+			virtual insert(
 			    const std::string &key,
 			    const Memory::uint8Array &data);
 
@@ -291,7 +272,7 @@ namespace BiometricEvaluation {
 			 *	an error occurred when using the underlying
 			 *	storage system.
 			 */	
-			void replace(
+			virtual void replace(
 			    const std::string &key,
 			    const Memory::uint8Array &data);
 
@@ -429,6 +410,33 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
+			 * Determines whether the RecordStore contains an
+			 * element with the specified key.
+			 *
+			 * @param key
+			 *	The key to locate.
+			 *
+			 * @return
+			 *	True if the RecordStore contains an element
+			 *	with the key, false otherwise.
+			 */
+			virtual bool
+			containsKey(
+			    const std::string &key)
+			    const;
+
+			/** @return Iterator to the first record. */
+			virtual iterator
+			begin()
+			    noexcept;
+
+			/** @return Iterator past the last record. */
+			virtual iterator
+			end()
+			    noexcept;
+
+			/**
+			 * @brief
 			 * Open an existing RecordStore and return a managed
 			 * pointer to the the object representing that store.
 			 * @details
@@ -484,7 +492,7 @@ namespace BiometricEvaluation {
 			static std::shared_ptr<RecordStore> createRecordStore(
 			    const std::string &pathname,
 			    const std::string &description,
-			    const Kind &kind);
+			    const IO::RecordStore::Kind &kind);
 
 			/**
 			 * Remove a RecordStore by deleting all persistant
@@ -527,203 +535,12 @@ namespace BiometricEvaluation {
 			static void mergeRecordStores(
 			    const std::string &mergePathname,
 			    const std::string &description,
-			    const RecordStore::Kind &kind,
+			    const IO::RecordStore::Kind &kind,
 			    const std::vector<std::string> &pathnames);
-			    
-			/**
-			 * @brief
-			 * Determines whether the RecordStore contains an
-			 * element with the specified key.
-			 *
-			 * @param key
-			 *	The key to locate.
-			 *
-			 * @return
-			 *	True if the RecordStore contains an element
-			 *	with the key, false otherwise.
-			 */
-			virtual bool
-			containsKey(
-			    const std::string &key)
-			    const;
 
-			/** @return Iterator to the first record. */
-			virtual iterator
-			begin()
-			    noexcept;
-
-			/** @return Iterator past the last record. */
-			virtual iterator
-			end()
-			    noexcept;
-
+			class Impl;
 		protected:
-			/**
-			 * Constructor to create a new RecordStore.
-			 *
-			 * @param[in] pathname
-			 *	The pathname where the RecordStore is
-			 *	to be created.
-			 * @param[in] description
-			 *	The text used to describe the store.
-			 * @param[in] kind
-			 *	The kind of RecordStore.
-			 * @throw Error::ObjectExists
-			 *	The store was previously created, or the
-			 *	directory where it would be created exists.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 */
-			RecordStore(
-			    const std::string &pathname,
-			    const std::string &description,
-			    const Kind &kind);
-
-			/**
-			 * Constructor to open an existing RecordStore.
-			 * @param[in] pathname
-			 *	The pathname where the RecordStore is
-			 *	to be created.
-			 * @param[in] mode
-			 *	The type of access a client of this 
-			 *	RecordStore has.
-			 * @throw Error::ObjectDoesNotExist
-			 *	The RecordStore does not exist.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 */
-			RecordStore(
-			    const std::string &pathname,
-			    IO::Mode mode = Mode::ReadOnly);
-
-			IO::Mode getMode() const;
-
-			/*
-			 * Return the full path of a file stored as part
-			 * of the RecordStore, typically _pathname + name.
-			 */
-			std::string
-			canonicalName(const std::string &name) const;
-			int getCursor() const;
-			void setCursor(int cursor);
-			bool validateKeyString(
-			    const std::string &key)
-			    const;
-
-			/**
-			 * @brief
-			 * Generate key segment names.
-			 * 
-			 * @param key
-			 *	Base key name.
-			 * @param segnum
-			 *	Segment number for key (zero based).
-			 *
-			 * @return
-			 *	Key segment name.
-			 */
-			static std::string
-			genKeySegName(
-			    const std::string &key,
-			    const uint64_t segnum);
-			
-			/**
-			 * @brief
-			 * Replace existing Properties in RecordStore control
-			 * file.
-			 * @details
-			 * Existing properties will be updated.  RecordStore
-			 * core properties will be ignored.
-			 *
-			 * @param[in] properties
-			 *	Shared pointer to Properties object.
-			 *
-			 * @throw Error::StrategyError
-			 *	RecordStore was opened ReadOnly.
-			 */   
-			void
-			setProperties(
-			    const std::shared_ptr<IO::Properties> properties);
-
-			/**
-			 * @brief
-			 * Obtain a copy of the Properties object.
-			 * @details
-			 * RecordStore core properties will be excluded.
-			 *
-			 * @return
-			 *	Shared pointer to Properties object that may
-			 *	be modified.
-			 */
-			std::shared_ptr<IO::Properties>
-			getProperties()
-			    const;
-			
 		private:
-			/** Properties of the RecordStore */
-			std::shared_ptr<IO::PropertiesFile> _props;
-			
-			/*
-			 * The directory where the store is contained.
-			 */
-			std::string _pathname;
-
-			/*
-			 * The complete pathname of the control file.
-			 */
-			std::string _controlFile;
-
-			/*
-			 * The current record position cursor.
-			 */
-			int _cursor;
-
-			/*
-			 * Mode in which the RecordStore was opened.
-			 */
-			BiometricEvaluation::IO::Mode _mode;
-			
-			/**
-			 * @brief
-			 * Ensure all required RecordStore Property keys are
-			 * present.
-			 *
-			 * @throw Error::StrategyError
-			 *	Required key is missing or file not found.
-			 */
-			void
-			validateControlFile();
-
-			/**
-			 * @brief
-			 * Open/create the PropertiesFile for this RecordStore.
-			 *
-			 * @throws Error::StrategyError
-			 *	Control file doesn't exist and mode is
-			 *	ReadOnly, error with underlying file system, 
-			 */
-			void
-			openControlFile();
-
-			/**
-			 * @brief
-			 * Detemine if a property key is a core RecordStore
-			 * property.
-			 * 
-			 * @param[in] key
-			 *	Key to check.
-			 *
-			 * @return
-			 *	true if key is a core RecordStore property,
-			 *	false otherwise.
-			 */
-			bool
-			isKeyCoreProperty(
-			    const std::string &key)
-			    const;
-
 		};
 	}
 }

@@ -10,51 +10,22 @@
 
 #include <sys/stat.h>
 
-#include <be_error.h>
 #include <be_io_listrecstore.h>
-#include <be_memory_autoarray.h>
-#include <be_text.h>
+#include "be_io_listrecstore_impl.h"
 
 namespace BE = BiometricEvaluation;
 
-const std::string BiometricEvaluation::IO::ListRecordStore::
-    KEYLISTFILENAME("KeyList.txt");
-const std::string BiometricEvaluation::IO::ListRecordStore::
-    SOURCERECORDSTOREPROPERTY("Source Record Store");
-
 BiometricEvaluation::IO::ListRecordStore::ListRecordStore(
-    const std::string &pathname) :
-    RecordStore(pathname, Mode::ReadOnly)
+    const std::string &pathname)
 {
-	std::string keyListPath = canonicalName(KEYLISTFILENAME);
-	this->_keyListFile.reset(new std::ifstream(keyListPath.c_str()));
-	if (!this->_keyListFile->is_open())
-	    throw Error::StrategyError("Could not open key list file");
-
-	/* Check for the source RS property and open that RS */
-	std::shared_ptr<IO::Properties> props = getProperties();
-	std::string sourceRSName;
-	try {
-		sourceRSName =
-		    props->getProperty(SOURCERECORDSTOREPROPERTY);
-	} catch (Error::Exception &e) {
-		throw Error::StrategyError("Could not find " +
-		    SOURCERECORDSTOREPROPERTY + " property");
-	}
-	try {
-		this->_sourceRecordStore = IO::RecordStore::openRecordStore(
-		    sourceRSName, Mode::ReadOnly);
-	} catch (Error::Exception &e) {
-		throw Error::StrategyError("Could not open source "
-		    "RecordStore " + sourceRSName);
-	}
-	
-	this->setCursor(BE_RECSTORE_SEQ_START);
+	/*
+	 * Exceptions float out.
+	 */
+	this->pimpl.reset(new IO::ListRecordStore::Impl(pathname));
 }
 
 BiometricEvaluation::IO::ListRecordStore::~ListRecordStore()
 {
-	this->_keyListFile->close();
 }
 
 BiometricEvaluation::Memory::uint8Array
@@ -62,7 +33,7 @@ BiometricEvaluation::IO::ListRecordStore::read(
     const std::string &key)
     const
 {
-	return (this->_sourceRecordStore->read(key));
+	return (this->pimpl->read(key));
 }
 
 uint64_t
@@ -70,102 +41,67 @@ BiometricEvaluation::IO::ListRecordStore::length(
     const std::string &key)
     const
 {
-	return (this->_sourceRecordStore->length(key));
-}
-
-BiometricEvaluation::IO::RecordStore::Record
-BiometricEvaluation::IO::ListRecordStore::i_sequence(
-    bool returnData,
-    int cursor)
-{
-	if ((cursor != BE_RECSTORE_SEQ_START) &&
-	    (cursor != BE_RECSTORE_SEQ_NEXT))
-		throw Error::StrategyError("Invalid cursor position as " 
-		    "argument");
-		    
-	if ((this->getCursor() == BE_RECSTORE_SEQ_START) ||
-	    (cursor == BE_RECSTORE_SEQ_START)) {
-		/* Rewind */
-		_keyListFile->clear();
-		_keyListFile->seekg(0);
-		if (!_keyListFile)
-			throw Error::StrategyError("Could not rewind " +
-			    canonicalName(KEYLISTFILENAME));
-		if (!_keyListFile)
-			throw Error::StrategyError("Could not clear EOF on " +
-			    canonicalName(KEYLISTFILENAME));
-	}
-
-	std::string line;
-	std::getline(*this->_keyListFile, line);
-	if (this->_keyListFile->eof())
-		throw (Error::ObjectDoesNotExist("No record at position"));
-
-	this->setCursor(BE_RECSTORE_SEQ_NEXT);
-
-	/* Read the record from the source store; let exceptions float out */
-	BE::IO::RecordStore::Record record;
-	record.key = Text::trimWhitespace(line);
-	if (returnData == true)
-		record.data = this->_sourceRecordStore->read(record.key);
-	return (record);
+	return (this->pimpl->length(key));
 }
 
 BiometricEvaluation::IO::RecordStore::Record
 BiometricEvaluation::IO::ListRecordStore::sequence(
     int cursor)
 {
-	return (i_sequence(true, cursor));
+	return (this->pimpl->sequence(cursor));
 }
 
 std::string
 BiometricEvaluation::IO::ListRecordStore::sequenceKey(
     int cursor)
 {
-	BiometricEvaluation::IO::RecordStore::Record record =
-	    i_sequence(false, cursor);
-	return (record.key);
+	return (this->pimpl->sequenceKey(cursor));
 }
 
 void
 BiometricEvaluation::IO::ListRecordStore::setCursorAtKey(
     const std::string &key)
 {
-	this->setCursor(BE_RECSTORE_SEQ_START);
-	
-	/* Sequence until we find the key */
-	std::string sequencedKey;
-	std::string searchKey{Text::trimWhitespace(key)};
-	for (;;) {
-		try {
-			sequencedKey = this->sequenceKey();
-			if (sequencedKey == searchKey)
-				break;
-		} catch (Error::ObjectDoesNotExist) {
-			throw Error::ObjectDoesNotExist(key);
-		}
-	}
-	
-	/* Rewind size of one key, adding the stripped newline character */
-	_keyListFile->seekg(-(sequencedKey.size() + 1), std::ios_base::cur);
-	if (!_keyListFile)
-		throw Error::StrategyError("Could not rewind one key in " +
-		    canonicalName(KEYLISTFILENAME));
+	this->pimpl->setCursorAtKey(key);
 }
 
 uint64_t
 BiometricEvaluation::IO::ListRecordStore::getSpaceUsed()
     const
 {
-	struct stat sb;
+	return (this->pimpl->getSpaceUsed());
+}
 
-	if (stat(RecordStore::canonicalName(KEYLISTFILENAME).c_str(), &sb) != 0)
-		throw Error::StrategyError("Could not find KeyList file");
-	return (RecordStore::getSpaceUsed() + (sb.st_blocks * S_BLKSIZE));
+unsigned int
+BiometricEvaluation::IO::ListRecordStore::getCount()
+    const
+{
+	return (this->pimpl->getCount());
+}
+
+std::string
+BiometricEvaluation::IO::ListRecordStore::getPathname()
+    const
+{
+	return (this->pimpl->getPathname());
+}
+
+std::string
+BiometricEvaluation::IO::ListRecordStore::getDescription()
+    const
+{
+	return (this->pimpl->getDescription());
+}
+
+void
+BiometricEvaluation::IO::ListRecordStore::changeDescription(
+    const std::string &description)
+{
+	return (this->pimpl->changeDescription(description));
 }
 
 /*
- * Unsupported CRUD methods (all ListRecordStores are Mode::ReadOnly).
+ * Unsupported methods (all ListRecordStores are Mode::ReadOnly).
  */
 
 void
@@ -174,14 +110,14 @@ BiometricEvaluation::IO::ListRecordStore::insert(
     const void *const data,
     const uint64_t size)
 {
-	this->CRUDMethodCalled();
+	this->pimpl->CRUDMethodCalled();
 }
 
 void
 BiometricEvaluation::IO::ListRecordStore::remove(
     const std::string &key)
 {
-	this->CRUDMethodCalled();
+	this->pimpl->CRUDMethodCalled();
 }
 
 void
@@ -189,21 +125,21 @@ BiometricEvaluation::IO::ListRecordStore::flush(
     const std::string &key)
     const
 {
-	this->CRUDMethodCalled();
+	this->pimpl->CRUDMethodCalled();
 }
 
 void
 BiometricEvaluation::IO::ListRecordStore::sync()
     const
 {
-	this->CRUDMethodCalled();
+	this->pimpl->CRUDMethodCalled();
 }
 
 void
 BiometricEvaluation::IO::ListRecordStore::move(
     const std::string &pathname)
 {
-	this->CRUDMethodCalled();
+	this->pimpl->CRUDMethodCalled();
 }
 
 void
@@ -212,17 +148,6 @@ BiometricEvaluation::IO::ListRecordStore::replace(
     const void *const data,
     const uint64_t size)
 {
-	this->CRUDMethodCalled();
-}
-
-void
-BiometricEvaluation::IO::ListRecordStore::CRUDMethodCalled()
-    const
-{
-	if (this->getMode() == Mode::ReadOnly)
-		throw Error::StrategyError("RecordStore was opened read-only");
-
-	throw Error::StrategyError("Internal inconsistency -- ListRecordStore "
-	    "was opened read/write");
+	this->pimpl->CRUDMethodCalled();
 }
 

@@ -7,10 +7,11 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
-#ifndef __BE_FILERECSTORE_H__
-#define __BE_FILERECSTORE_H__
+#ifndef __BE_FILERECSTORE_IMPL_H__
+#define __BE_FILERECSTORE_IMPL_H__
 
-#include <be_io_recordstore.h>
+#include "be_io_recordstore_impl.h"
+#include <be_io_filerecstore.h>
 
 /*
  * This file contains the class declaration for an implementation of a
@@ -30,7 +31,7 @@ namespace BiometricEvaluation {
 		 * requirement that a key name may not contain path delimiter
 		 * characters ('/' and '\'), or begin with whitespace.
 		 */
-		class FileRecordStore : public RecordStore {
+		class FileRecordStore::Impl : public RecordStore::Impl {
 		public:
 			
 			/**
@@ -46,7 +47,7 @@ namespace BiometricEvaluation {
 			 * 	An error occurred when accessing the underlying
 			 * 	file system.
 			 */
-			FileRecordStore(
+			Impl(
 			    const std::string &pathname,
 			    const std::string &description);
 
@@ -64,81 +65,86 @@ namespace BiometricEvaluation {
 			 *	An error occurred when accessing the underlying
 			 *	file system.
 			 */
-			FileRecordStore(
+			Impl(
 			    const std::string &name,
 			    IO::Mode mode = IO::Mode::ReadOnly);
 
-			~FileRecordStore();
+			~Impl();
 
 			/*
 			 * Methods that implement the RecordStore interface.
 			 */
-
-			/*
-                         * We need the base class insert() and replace() as well
-			 * otherwise, they are hidden by the declarations below.
-                         */
-                        using RecordStore::insert;
-                        using RecordStore::replace;
+			uint64_t getSpaceUsed() const;
 
 			void insert(
 			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    override;
+			    const uint64_t size);
 
 			void remove(
-			    const std::string &key)
-			    override;
+			    const std::string &key);
 
 			Memory::uint8Array read(
-			    const std::string &key) const override;
+			    const std::string &key) const;
 
 			void replace(
 			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size) override final;
+ 			    const uint64_t size);
 
-			uint64_t length(
-			    const std::string &key) const override;
+			uint64_t length(const std::string &key) const;
 
-			void flush(
-			    const std::string &key) const override;
+			void flush(const std::string &key) const;
 
-			RecordStore::Record sequence(
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    override;
+			RecordStore::Record
+			sequence(int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			std::string
-			sequenceKey(
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    override;
+			sequenceKey(int cursor = BE_RECSTORE_SEQ_NEXT);
 
-			void setCursorAtKey(
-			    const std::string &key)
-			    override;
+			void setCursorAtKey(const std::string &key);
 
-			void move(
-			    const std::string &pathname)
-			    override;
-
-			uint64_t getSpaceUsed() const override;
-			void sync() const override;
-			unsigned int getCount() const override;
-			std::string getPathname() const override;
-			std::string getDescription() const override;
-			void changeDescription(
-			    const std::string &description) override;
+			void move(const std::string &pathname);
 
 			/* Prevent copying of FileRecordStore objects */
-			FileRecordStore(const FileRecordStore&) = delete;
-			FileRecordStore& operator=(const FileRecordStore&) =
-			    delete;
+			Impl(const FileRecordStore&) = delete;
+			Impl& operator=(const FileRecordStore&) = delete;
+
 		protected:
+			std::string canonicalName(
+			    const std::string &name) const;
+
 		private:
-			class Impl;
-			std::unique_ptr<FileRecordStore::Impl> pimpl;
+			void writeNewRecordFile(
+			    const std::string &name, 
+			    const void *data,
+			    const uint64_t size);
+
+			uint64_t _cursorPos;
+			std::string _theFilesDir;
+
+			/**
+			 * Internal implementation of sequencing through a
+			 * store, returning the key, and optionally, the
+			 * data.
+			 * @param[in] returnData
+			 * 	Whether to return the data with the key.
+			 * @param[in] cursor
+			 *	The location within the sequence of the
+			 *	key/data pair to return.
+			 * @return
+			 *	The record that is next in sequence.
+			 * @throw Error::ObjectDoesNotExist
+			 *	End of sequencing.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			RecordStore::Record
+			i_sequence(
+			    bool returnData,
+			    int cursor); 
 		};
 	}
 }
-#endif	/* __BE_FILERECSTORE_H__ */
+#endif	/* __BE_FILERECSTORE_IMPL_H__ */

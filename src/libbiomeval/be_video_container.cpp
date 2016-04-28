@@ -19,19 +19,19 @@ namespace BE = BiometricEvaluation;
 BiometricEvaluation::Video::Container::Container(
     const Memory::uint8Array &buffer)
 {
-	this->pimpl = new BE::Video::ContainerImpl(buffer);
+    this->pimpl.reset(new BE::Video::Container::Impl(buffer));
 }
 
 BiometricEvaluation::Video::Container::Container(
     const std::shared_ptr<Memory::uint8Array> &buffer)
 {
-	this->pimpl = new BE::Video::ContainerImpl(buffer);
+	this->pimpl.reset(new BE::Video::Container::Impl(buffer));
 }
 
 BiometricEvaluation::Video::Container::Container(
     const std::string &filename)
 {
-	this->pimpl = new BE::Video::ContainerImpl(filename);
+	this->pimpl.reset(new BE::Video::Container::Impl(filename));
 }
 
 uint32_t
@@ -55,6 +55,5 @@ BiometricEvaluation::Video::Container::getVideoStream(
 
 BiometricEvaluation::Video::Container::~Container()
 {
-	delete this->pimpl;
 }
 

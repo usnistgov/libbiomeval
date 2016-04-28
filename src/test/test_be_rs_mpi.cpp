@@ -12,7 +12,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <stdint.h>
-#include <be_io_properties.h>
+#include <be_io_propertiesfile.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarrayutility.h>
 #include <be_mpi_runtime.h>

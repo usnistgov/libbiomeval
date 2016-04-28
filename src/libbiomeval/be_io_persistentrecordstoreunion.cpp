@@ -19,7 +19,8 @@ BiometricEvaluation::IO::PersistentRecordStoreUnion::PersistentRecordStoreUnion(
     const std::string &path) :
     RecordStoreUnion()
 {
-	this->setImpl(new PersistentRecordStoreUnion::Impl(path));
+	this->setImpl(std::make_shared<PersistentRecordStoreUnion::Impl>(
+	    path));
 }
 
 BiometricEvaluation::IO::PersistentRecordStoreUnion::PersistentRecordStoreUnion(
@@ -27,7 +28,8 @@ BiometricEvaluation::IO::PersistentRecordStoreUnion::PersistentRecordStoreUnion(
     const std::map<const std::string, const std::string> &recordStores) :
     RecordStoreUnion()
 {
-	this->setImpl(new PersistentRecordStoreUnion::Impl(path, recordStores));
+	this->setImpl(std::make_shared<PersistentRecordStoreUnion::Impl>(
+	    path, recordStores));
 }
 
 BiometricEvaluation::IO::PersistentRecordStoreUnion::PersistentRecordStoreUnion(

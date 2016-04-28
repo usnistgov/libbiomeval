@@ -65,7 +65,8 @@ existingPRSTest(
 	std::cout << "Opening existing PersistentRecordStoreUnion with " <<
 	    std::to_string(numberOfRS) << " children...\n";
 
-	auto *prs = new BE::IO::PersistentRecordStoreUnion(path);
+	std::unique_ptr<BE::IO::PersistentRecordStoreUnion>prs(
+	    new BE::IO::PersistentRecordStoreUnion(path));
 
 	std::cout << "Available RecordStores (should be " <<
 	    std::to_string(numberOfRS) << "): " << std::endl;
@@ -90,9 +91,10 @@ newPRSTest(
 	for (const auto &r : rsNames)
 		children.emplace(BE::Text::basename(r), r);
 
-	auto newPRS = BE::IO::PersistentRecordStoreUnion(path, children);
+	std::unique_ptr<BE::IO::PersistentRecordStoreUnion> newPRS(
+	    new BE::IO::PersistentRecordStoreUnion(path, children));
 	std::cout << "Reading \"key3\" from new PRSU:" << std::endl;
-	auto result = newPRS.read("key3");
+	auto result = newPRS->read("key3");
 	for (const auto &r : result)
 		std::cout << r.first << " = " << to_string(r.second) << '\n';
 	std::cout << std::endl;

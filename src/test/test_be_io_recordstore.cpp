@@ -270,6 +270,8 @@ testMerge()
 int
 runTests(IO::RecordStore *rs)
 {
+	cout << "RecordStore description: " << rs->getDescription() << endl;
+
 	/*
 	 * Insert a record to the RecordStore so we can read/write it.
 	 */
@@ -620,7 +622,7 @@ main(int argc, char* argv[]) {
 	rsPath = "frs_test";
 	IO::FileRecordStore *rs;
 	try {
-		rs = new IO::FileRecordStore(rsPath, "RW Test Dir");
+		rs = new IO::FileRecordStore(rsPath, "FileRecordStore Test");
 	} catch (Error::ObjectExists& e) {
 		cout << "The File Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -635,7 +637,7 @@ main(int argc, char* argv[]) {
 	rsPath = "dbrs_test";
 	IO::DBRecordStore *rs;
 	try {
-		rs = new IO::DBRecordStore(rsPath, "RW Test Dir");
+		rs = new IO::DBRecordStore(rsPath, "DBRecordStore Test");
 	} catch (Error::ObjectExists &e) {
 		cout << "The DB Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -650,7 +652,7 @@ main(int argc, char* argv[]) {
 	rsPath = "ars_test";
 	IO::ArchiveRecordStore *rs;
 	try {
-		rs = new IO::ArchiveRecordStore(rsPath, "RW Test Dir");
+		rs = new IO::ArchiveRecordStore(rsPath, "ArchiveRecordStore Test");
 	} catch (Error::ObjectExists &e) {
 		cout << "The Archive Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -661,11 +663,11 @@ main(int argc, char* argv[]) {
 #endif
 
 #ifdef SQLITERECORDSTORETEST
-	/* Call the constructor that will create a new ArchiveRecordStore. */
+	/* Call the constructor that will create a new SQLiteRecordStore. */
 	rsPath = "srs_test";
 	IO::SQLiteRecordStore *rs;
 	try {
-		rs = new IO::SQLiteRecordStore(rsPath, "RW Test Dir");
+		rs = new IO::SQLiteRecordStore(rsPath, "SQLiteRecordStore Test");
 	} catch (Error::ObjectExists &e) {
 		cout << "The SQLite Record Store exists; exiting." << endl;
 		return (EXIT_FAILURE);
@@ -676,11 +678,11 @@ main(int argc, char* argv[]) {
 #endif
 
 #ifdef COMPRESSEDRECORDSTORETEST
-	/* Call the constructor that will create a new ArchiveRecordStore. */
+	/* Call the constructor that will create a new CompressedRecordStore. */
 	rsPath = "comprs_test";
 	IO::CompressedRecordStore *rs;
 	try {
-		rs = new IO::CompressedRecordStore(rsPath, "RW Test Dir",
+		rs = new IO::CompressedRecordStore(rsPath, "CompressedRecordStore Test",
 		    IO::RecordStore::Kind::BerkeleyDB, "GZIP");
 	} catch (Error::ObjectExists &e) {
 		cout << "The Compressed Record Store exists; exiting." << endl;

@@ -10,15 +10,7 @@
 #ifndef __BE_DBRECSTORE_H__
 #define __BE_DBRECSTORE_H__
 
-#include <string>
-#include <vector>
 #include <be_io_recordstore.h>
-
-#ifdef DB1X
-#include <db_185.h>
-#else
-#include <db.h>
-#endif
 
 /*
  * This file contains the class declaration for an implementation of a
@@ -80,19 +72,17 @@ namespace BiometricEvaluation {
 			/*
 			 * Implementation of the RecordStore interface.
 			 */
-			uint64_t getSpaceUsed() const override;
 
-			void sync() const override;
+			/*
+                         * We need the base class insert() and replace() as well
+			 * otherwise, they are hidden by the declarations below.
+                         */
+                        using RecordStore::insert;
+                        using RecordStore::replace;
 
 			Memory::uint8Array
 			read(
 			    const std::string &key) const override;
-
-			/*
-			 * We need the base class insert() as well; otherwise,
-			 * it is hidden by the declaration below.
-			 */
-			using RecordStore::insert;
 
 			void insert(
 			    const std::string &key,
@@ -127,66 +117,21 @@ namespace BiometricEvaluation {
 			    const std::string &pathname)
 			    override;
 
+			uint64_t getSpaceUsed() const override;
+			void sync() const override;
+			unsigned int getCount() const override;
+			std::string getPathname() const override;
+			std::string getDescription() const override;
+			void changeDescription(
+                            const std::string &description) override;
+
 			/* Prevent copying of DBRecordStore objects */
 			DBRecordStore(const DBRecordStore&) = delete;
 			DBRecordStore& operator=(const DBRecordStore&) = delete;
 
 		private:
-			/* The file names of the underlying databases. */
-			std::string _dbnameP;
-			std::string _dbnameS;
-
-			/*
-			 * The handle to the underlying database for the
-			 * primary segments of a record.
-			 */
-			DB *_dbP;
-
-			/*
-			 * The handle for the underlying database for the
-			 * non-primary (subordinate) segments.
-			 */
-			DB *_dbS;
-
-			/*
-			 * Return the path to the underlying DB file.
-			 */
-			std::string getDBFilePathname() const;
-
-			/*
-			 * Functions to insert/read/sequence/remove all
-			 * segments of a record. 
-			 */
-			void insertRecordSegments(const std::string &key,
-			    const void *data, const uint64_t size);
-
-			uint64_t readRecordSegments(
-			    const std::string &key,
-			    void *const data) const;
-
-			void removeRecordSegments(const std::string &key);
-
-			/**
-			 * Internal implementation of sequencing through a
-			 * store, returning the key, and optionally, the
-			 * data.
-			 * @param[in] returnData
-			 * 	Whether to return the data with the key.
-			 * @param[in] cursor
-			 *	The location within the sequence of the
-			 *	key/data pair to return.
-			 * @return
-			 *	The record that is next in sequence.
-			 * @throw Error::ObjectDoesNotExist
-			 *	End of sequencing.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 */
-			RecordStore::Record
-			i_sequence(
-			    bool returnData,
-			    int cursor); 
+			class Impl;
+			std::unique_ptr<DBRecordStore::Impl> pimpl;
 		};
 	}
 }

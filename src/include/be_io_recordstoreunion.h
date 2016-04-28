@@ -12,6 +12,7 @@
 #define BE_IO_RECORDSTOREUNION_H_
 
 #include <map>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -28,6 +29,9 @@ namespace BiometricEvaluation
 		 * @brief
 		 * A collection of N related read-only RecordStores, operated on
 		 * simultaneously.
+		 * @details
+		 * A RecordStoreUnion object is not copyable due to the
+		 * fact that most RecordStore objects are not copyable.
 		 */
 		class RecordStoreUnion
 		{
@@ -212,13 +216,18 @@ namespace BiometricEvaluation
 			    const std::string &key)
 			    const;
 
+			/* Prevent copying of RecordStoreUnion objects */
+			RecordStoreUnion(const RecordStoreUnion&) = delete;
+			RecordStoreUnion& operator=(const RecordStoreUnion&)
+			    = delete;
+
 			/** Destructor. */
 			~RecordStoreUnion();
 
-			/** Forward declaration of implementation. */
-			class Implementation;
-
 		protected:
+			/** Forward declaration of implementation. */
+			class Impl;
+
 			/**
 			 * @brief
 			 * Empty constructor for children.
@@ -239,15 +248,12 @@ namespace BiometricEvaluation
 			 * Pointer to an implementation instance.
 			 */
 			void
-			setImpl(
-			    Implementation * pimpl)
-			{
-				this->_pimpl = pimpl;
-			}
+			setImpl(const
+			    std::shared_ptr<RecordStoreUnion::Impl> &pimpl);
 
 		private:
 			/** Pointer to implementation */
-			Implementation *_pimpl;
+			std::shared_ptr<RecordStoreUnion::Impl> pimpl;
 		};
 	}
 }

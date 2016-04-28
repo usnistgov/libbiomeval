@@ -13,6 +13,7 @@
 
 #include <be_io_persistentrecordstoreunion.h>
 
+#include "be_io_recordstore_impl.h"
 #include "be_io_recordstoreunion_impl.h"
 
 namespace BiometricEvaluation
@@ -21,7 +22,7 @@ namespace BiometricEvaluation
 	{
 		/** A RecordStoreUnion whose mappings are saved to disk. */
 		class PersistentRecordStoreUnion::Impl :
-		    public RecordStoreUnion::Implementation
+		    public RecordStoreUnion::Impl
 		{
 		public:
 			/**

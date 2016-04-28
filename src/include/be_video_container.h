@@ -14,7 +14,6 @@
 #include <memory.h>
 #include <be_video_stream.h>
 
-class ContainerImpl;
 namespace BiometricEvaluation 
 {
 	namespace Video
@@ -96,8 +95,10 @@ namespace BiometricEvaluation
 			    getVideoStream(uint32_t videoNum);
 
 			~Container();
+
+			class Impl;
 		private:
-			ContainerImpl *pimpl;
+			std::unique_ptr<Container::Impl> pimpl;
 		};
 	}
 }

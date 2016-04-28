@@ -8,12 +8,11 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#ifndef __BE_IO_COMPRESSEDRECSTORE_H__
-#define __BE_IO_COMPRESSEDRECSTORE_H__
+#ifndef __BE_IO_COMPRESSEDRECSTORE_IMPL_H__
+#define __BE_IO_COMPRESSEDRECSTORE_IMPL_H__
 
-#include <memory>
-#include <be_io_compressor.h>
-#include <be_io_recordstore.h>
+#include <be_io_compressedrecstore.h>
+#include "be_io_recordstore_impl.h"
 
 namespace BiometricEvaluation
 {
@@ -21,9 +20,9 @@ namespace BiometricEvaluation
 	{
 		/**
 		 * @brief
-		 * Sibling-implemented RecordStore with Compression.
+		 * Implementation of CompressedRecordStore.
 		 */
-		class CompressedRecordStore : public RecordStore
+		class CompressedRecordStore::Impl : public RecordStore::Impl
 		{
 		public:
 			/**
@@ -46,7 +45,7 @@ namespace BiometricEvaluation
 			 * 	An error occurred when accessing the underlying
 			 * 	file system.
 			 */
-			CompressedRecordStore(
+			Impl(
 			    const std::string &pathname,
 			    const std::string &description,
 		      	    const RecordStore::Kind &recordStoreType,
@@ -72,7 +71,7 @@ namespace BiometricEvaluation
 			 * 	An error occurred when accessing the underlying
 			 * 	file system.
 			 */
-			CompressedRecordStore(
+			Impl(
 			    const std::string &pathname,
 			    const std::string &description,
 		      	    const RecordStore::Kind &recordStoreType,
@@ -92,7 +91,7 @@ namespace BiometricEvaluation
 			 *	An error occurred when accessing the underlying
 			 *	file system.
 			 */
-			CompressedRecordStore(
+			Impl(
 			    const std::string &pathname,
 			    IO::Mode mode = IO::Mode::ReadOnly);
 
@@ -100,70 +99,51 @@ namespace BiometricEvaluation
 			 * Destructor.
 			 */
 			 
-			~CompressedRecordStore();
-
-			/*
-			 * Implementation of the RecordStore interface.
-			 */
-
-			/*
-                         * We need the base class insert() and replace() as well
-			 * otherwise, they are hidden by the declarations below.
-                         */
-                        using RecordStore::insert;
-                        using RecordStore::replace;
+			~Impl();
 
 			uint64_t
-			getSpaceUsed() const override;
-			void sync() const override;
-			unsigned int getCount() const override;
-			std::string getPathname() const override;
-			std::string getDescription() const override;
-			void changeDescription(
-                            const std::string &description) override;
+			getSpaceUsed() const;
+
+			void
+			sync() const;
 
 			void
 			insert(
 			    const std::string &key,
 			    const void *const data,
-			    const uint64_t size)
-			    override;
+			    const uint64_t size);
 
 			void
 			remove(
-			    const std::string &key) override;
+			    const std::string &key);
 
 			Memory::uint8Array
 			read(
-			    const std::string &key) const override;
+			    const std::string &key) const;
 
 			uint64_t
 			length(
-			    const std::string &key) const override;
+			    const std::string &key) const;
 
 			void
 			flush(
-			    const std::string &key) const override;
+			    const std::string &key) const;
 
 			RecordStore::Record
 			sequence(
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    override;
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			std::string
 			sequenceKey(
-			    int cursor = BE_RECSTORE_SEQ_NEXT)
-			    override;
+			    int cursor = BE_RECSTORE_SEQ_NEXT);
 
 			void
 			setCursorAtKey(
-			    const std::string &key)
-			    override;
+			    const std::string &key);
 
 			void
 			move(
-			    const std::string &pathname)
-			    override;
+			    const std::string &pathname);
 
 			/**
 			 * @brief
@@ -175,7 +155,7 @@ namespace BiometricEvaluation
 			 * @param rhs
 			 *	CompressedRecordStore object to copy.
 			 */
-			 CompressedRecordStore(
+			 Impl(
 			    const CompressedRecordStore &rhs) = delete;
 
 			/**
@@ -192,14 +172,42 @@ namespace BiometricEvaluation
 			 * 	CompressedRecordStore object, now containing
 			 *	the contents of rhs.
 			 */
-			CompressedRecordStore&
+			Impl&
 			operator=(
 			    const CompressedRecordStore &rhs) = delete;
 
 		private:
-			class Impl;
-			std::unique_ptr<CompressedRecordStore::Impl> pimpl;
+			/** Underlying RecordStore */
+			std::shared_ptr<IO::RecordStore> _rs;
+			
+			/** Metadata RecordStore */
+			std::shared_ptr<IO::RecordStore> _mdrs;
+			
+			/** Underlying Compressor */
+			std::shared_ptr<IO::Compressor> _compressor;
+			
+			/**
+			 * Internal implementation of sequencing through a
+			 * store, returning the key, and optionally, the
+			 * data.
+			 * @param[in] returnData
+			 * 	Whether to return the data with the key.
+			 * @param[in] cursor
+			 *	The location within the sequence of the
+			 *	key/data pair to return.
+			 * @return
+			 *	The record that is next in sequence.
+			 * @throw Error::ObjectDoesNotExist
+			 *	End of sequencing.
+			 * @throw Error::StrategyError
+			 *	An error occurred when using the underlying
+			 *	storage system.
+			 */
+			RecordStore::Record
+			i_sequence(
+			    bool returnData,
+			    int cursor); 
 		};
 	}
 }
-#endif	/* __BE_IO_COMPRESSEDRECSTORE_H__ */
+#endif	/* __BE_IO_COMPRESSEDRECSTORE_IMPL_H__ */

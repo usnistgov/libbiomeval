@@ -10,6 +10,7 @@
 #include <mpi.h>
 #include <sstream>
 
+#include <be_io_propertiesfile.h>
 #include <be_mpi_recordstoreresources.h>
 #include <be_text.h>
 

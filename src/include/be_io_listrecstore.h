@@ -11,11 +11,7 @@
 #ifndef __BE_IO_LISTRECSTORE_H__
 #define __BE_IO_LISTRECSTORE_H__
 
-#include <fstream>
-#include <list>
-#include <memory>
-
-#include <be_error_exception.h>
+#include <memory.h>
 #include <be_io_recordstore.h>
 
 namespace BiometricEvaluation
@@ -54,11 +50,6 @@ namespace BiometricEvaluation
 		 */
 		class ListRecordStore : public RecordStore {
 		public:
-			/** Property key for the source RecordStore */
-			static const std::string SOURCERECORDSTOREPROPERTY;
-			/** File name containing the list of keys */
-			static const std::string KEYLISTFILENAME;
-
 			/** Constructor, always opening read-only */
 			ListRecordStore(
 			    const std::string &pathname);
@@ -71,10 +62,11 @@ namespace BiometricEvaluation
 			 */
 
 			/*
-			 * We need the base class insert() as well; otherwise,
-			 * it is hidden by the declaration below.
-			 */
-			using RecordStore::insert;
+                         * We need the base class insert() and replace() as well
+			 * otherwise, they are hidden by the declarations below.
+                         */
+                        using RecordStore::insert;
+                        using RecordStore::replace;
 
 			void
 			insert(
@@ -91,12 +83,6 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			read(
 			    const std::string &key) const override;
-
-			/*
-			 * We need the base class replace() as well; otherwise,
-			 * it is hidden by the declaration below.
-			 */
-			using RecordStore::replace;
 
 			void
 			replace(
@@ -139,55 +125,15 @@ namespace BiometricEvaluation
 			getSpaceUsed() const
 			override;
 
-		private:
-			/**
-			 * Textfile containing a subset of keys from
-			 * the source RecordStore
-			 */
-			std::shared_ptr<std::ifstream> _keyListFile;
-			/**
-			 * RecordStore containing data referenced by KeyList
-			 * file keys
-			 */
-			std::shared_ptr<IO::RecordStore> _sourceRecordStore;
-			
-			/**
-			 * @brief
-			 * Called from CRUD methods to stop execution and
-			 * warn the user.
-			 *
-			 * @throw Error::StrategyError
-			 *	Always thrown -- ListRecordStores cannot be
-			 *	opened Mode::ReadWrite and CRUD methods cannot
-			 *	be used on a Mode::ReadOnly object.
-			 *	
-			 * @note
-			 * Always throws an exception.
-			 */
-			void
-			CRUDMethodCalled() const;
+			unsigned int getCount() const override;
+			std::string getPathname() const override;
+			std::string getDescription() const override;
+			void changeDescription(
+                            const std::string &description) override;
 
-			/**
-			 * Internal implementation of sequencing through a
-			 * store, returning the key, and optionally, the
-			 * data.
-			 * @param[in] returnData
-			 * 	Whether to return the data with the key.
-			 * @param[in] cursor
-			 *	The location within the sequence of the
-			 *	key/data pair to return.
-			 * @return
-			 *	The record that is next in sequence.
-			 * @throw Error::ObjectDoesNotExist
-			 *	End of sequencing.
-			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying
-			 *	storage system.
-			 */
-			RecordStore::Record
-			i_sequence(
-			    bool returnData,
-			    int cursor); 
+		private:
+			class Impl;
+			std::unique_ptr<ListRecordStore::Impl> pimpl;
 		};
 	}
 }

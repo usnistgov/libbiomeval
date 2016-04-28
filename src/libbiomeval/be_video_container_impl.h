@@ -15,6 +15,7 @@
 #include <string>
 
 #include "be_video_impl.h"
+#include <be_video_container.h>
 #include <be_memory_autoarray.h>
 #include <be_video_stream.h>
 
@@ -32,18 +33,18 @@ namespace BiometricEvaluation
 	 	* Implementation of a video container using the
 		* FFMPEG libraries.
 	 	*/
-		class ContainerImpl {
+		class Container::Impl {
 		public:
-			ContainerImpl(const Memory::uint8Array &buffer);
-			ContainerImpl(
+			Impl(const Memory::uint8Array &buffer);
+			Impl(
 			    const std::shared_ptr<
 				Memory::uint8Array> &buffer);
-			ContainerImpl(const std::string &filename);
+			Impl(const std::string &filename);
 			uint32_t getAudioCount();
 			uint32_t getVideoCount();
 			std::unique_ptr<BiometricEvaluation::Video::Stream>
 			    getVideoStream(uint32_t videoNum);
-			~ContainerImpl();
+			~Impl();
 		private:
 			struct BufferData _IOCtxBufferData;
 

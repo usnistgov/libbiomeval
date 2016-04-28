@@ -48,7 +48,7 @@ getRecordStoresFromPropertiesFile(
 
 BiometricEvaluation::IO::PersistentRecordStoreUnion::Impl::Impl(
     const std::string &path) :
-    RecordStoreUnion::Implementation(getRecordStoresFromPropertiesFile(
+    RecordStoreUnion::Impl(getRecordStoresFromPropertiesFile(
     Impl::getControlFilePath(path)))
 {
 
@@ -57,7 +57,7 @@ BiometricEvaluation::IO::PersistentRecordStoreUnion::Impl::Impl(
 BiometricEvaluation::IO::PersistentRecordStoreUnion::Impl::Impl(
     const std::string &path,
     const std::map<const std::string, const std::string> &recordStores) :
-    RecordStoreUnion::Implementation(recordStores)
+    RecordStoreUnion::Impl(recordStores)
 {
 	/* Make containing directory */
 	BE::IO::Utility::makePath(path, S_IRWXU | S_IRWXG | S_IRWXO);
@@ -81,6 +81,6 @@ std::string
 BiometricEvaluation::IO::PersistentRecordStoreUnion::Impl::getControlFilePath(
     const std::string &unionPath)
 {
-	return {unionPath + '/' + BE::IO::RecordStore::CONTROLFILENAME};
+	return {unionPath + '/' + BE::IO::RecordStore::Impl::CONTROLFILENAME};
 }
 

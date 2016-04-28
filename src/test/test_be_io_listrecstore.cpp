@@ -44,10 +44,11 @@ int main(
 
 	cout << "Sequencing all records (" << numRecords << ")... ";
 	uint32_t counter = 0;
-	string key;
 	for (;;) {
 		try {
-			key = rs->sequenceKey();
+			IO::RecordStore::Record rec = rs->sequence();
+			cout << "[" << counter << "] " << rec.key << "=>" <<
+			    rec.data << endl;
 			counter++;
 		} catch (Error::ObjectDoesNotExist) {
 			break;
@@ -66,7 +67,7 @@ int main(
 	/*
 	 * Sequence from end.
 	 */
-	
+	string key;
 	cout << "Sequencing from end (0)... ";
 	counter = 0;
 	for (;;) {

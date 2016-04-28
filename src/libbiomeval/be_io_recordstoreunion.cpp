@@ -14,8 +14,8 @@
 
 BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
     const std::map<const std::string, const std::string> &recordStores) :
-    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
-    recordStores))
+    pimpl{new BiometricEvaluation::IO::RecordStoreUnion::Impl(
+    recordStores)}
 {
 
 }
@@ -23,8 +23,8 @@ BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
 BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
     std::map<const std::string, const std::string>::iterator first,
     std::map<const std::string, const std::string>::iterator last) :
-    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
-    first, last))
+    pimpl{new BiometricEvaluation::IO::RecordStoreUnion::Impl(
+    first, last)}
 {
 
 }
@@ -32,8 +32,8 @@ BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
 BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
     std::initializer_list<std::pair<const std::string, const std::string>>
     recordStores) :
-    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
-    recordStores))
+    pimpl{new BiometricEvaluation::IO::RecordStoreUnion::Impl(
+    recordStores)}
 {
 
 }
@@ -41,8 +41,8 @@ BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
 BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
     const std::map<const std::string, const std::shared_ptr<
     BiometricEvaluation::IO::RecordStore>> &recordStores) :
-    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
-    recordStores))
+    pimpl{new BiometricEvaluation::IO::RecordStoreUnion::Impl(
+    recordStores)}
 {
 
 }
@@ -52,8 +52,8 @@ BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
     BiometricEvaluation::IO::RecordStore>>::iterator first,
     std::map<const std::string, const std::shared_ptr<
     BiometricEvaluation::IO::RecordStore>>::iterator last) :
-    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
-    first, last))
+    pimpl{new BiometricEvaluation::IO::RecordStoreUnion::Impl(
+    first, last)}
 {
 
 }
@@ -62,14 +62,14 @@ BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion(
     std::initializer_list<std::pair<const std::string,
     const std::shared_ptr<BiometricEvaluation::IO::RecordStore>>>
     recordStores) :
-    _pimpl(new BiometricEvaluation::IO::RecordStoreUnion::Implementation(
-    recordStores))
+    pimpl{new BiometricEvaluation::IO::RecordStoreUnion::Impl(
+    recordStores)}
 {
 
 }
 
 BiometricEvaluation::IO::RecordStoreUnion::RecordStoreUnion() :
-    _pimpl(nullptr)
+    pimpl{nullptr}
 {
 
 }
@@ -79,14 +79,14 @@ BiometricEvaluation::IO::RecordStoreUnion::getRecordStore(
     const std::string &name)
     const
 {
-	return (this->_pimpl->getRecordStore(name));
+	return (this->pimpl->getRecordStore(name));
 }
 
 std::vector<std::string>
 BiometricEvaluation::IO::RecordStoreUnion::getNames()
     const
 {
-	return (this->_pimpl->getNames());
+	return (this->pimpl->getNames());
 }
 
 std::map<const std::string, BiometricEvaluation::Memory::uint8Array>
@@ -94,7 +94,7 @@ BiometricEvaluation::IO::RecordStoreUnion::read(
     const std::string &key)
     const
 {
-	return (this->_pimpl->read(key));
+	return (this->pimpl->read(key));
 }
 
 std::map<const std::string, uint64_t>
@@ -102,10 +102,16 @@ BiometricEvaluation::IO::RecordStoreUnion::length(
     const std::string &key)
     const
 {
-	return (this->_pimpl->length(key));
+	return (this->pimpl->length(key));
+}
+
+void
+BiometricEvaluation::IO::RecordStoreUnion::setImpl(
+    const std::shared_ptr<RecordStoreUnion::Impl> &pimpl)
+{
+	this->pimpl = pimpl;
 }
 
 BiometricEvaluation::IO::RecordStoreUnion::~RecordStoreUnion()
 {
-	delete this->_pimpl;
 }
