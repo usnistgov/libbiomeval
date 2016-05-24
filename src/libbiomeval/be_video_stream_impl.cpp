@@ -189,14 +189,14 @@ BiometricEvaluation::Video::StreamImpl::getNextAVFrame()
 		if(packet.stream_index == (int)this->_streamIndex) {
 			avcodec_decode_video2(
 			    this->_codecCtx, frameNative, &gotFrame, &packet);
-			av_free_packet(&packet);
+			av_packet_unref(&packet);
 			if (gotFrame != 0) {
 				break;
 			} else {
 				av_frame_unref(frameNative);
 			}
 		} else {
-			av_free_packet(&packet);
+			av_packet_unref(&packet);
 		}
 	}
 	/*
@@ -209,7 +209,7 @@ BiometricEvaluation::Video::StreamImpl::getNextAVFrame()
 		packet.data = nullptr;
 		avcodec_decode_video2(
 		    this->_codecCtx, frameNative, &gotFrame, &packet);
-		av_free_packet(&packet);
+		av_packet_unref(&packet);
 	}
 	if (gotFrame == 0) {
 		throw (BE::Error::ParameterError("Frame could not be found"));
@@ -235,9 +235,9 @@ BiometricEvaluation::Video::StreamImpl::convertAVFrame(
 	staticFrame.timestamp = av_frame_get_best_effort_timestamp(frameNative);
 
 	/* Calculate the size of the decoded frame */
-	int frameSize = avpicture_get_size(
+	int frameSize = av_image_get_buffer_size(
 	    this->_avPixelFormat,
-	    staticFrame.size.xSize, staticFrame.size.ySize);
+	    staticFrame.size.xSize, staticFrame.size.ySize, 1);
 
 	/*
 	 * Reuse the scaling context, if possible. If there is more than
@@ -271,11 +271,10 @@ BiometricEvaluation::Video::StreamImpl::convertAVFrame(
 		throw (BE::Error::StrategyError("Could not allocate frame"));
 	uptrAVFrame pFrameOut(frameOut, freeAVFrame);
 
-//	avpicture_fill((AVPicture *)frameOut, buffer, this->_avPixelFormat,
 	staticFrame.data.resize(frameSize);
-	avpicture_fill((AVPicture *)frameOut, &staticFrame.data[0],
-	    this->_avPixelFormat,
-	    staticFrame.size.xSize, staticFrame.size.ySize);
+	av_image_fill_arrays(frameOut->data, frameOut->linesize,
+	    &staticFrame.data[0], this->_avPixelFormat, staticFrame.size.xSize,
+	    staticFrame.size.ySize, 1);
 
 	sws_scale(
 	    this->_swsCtx, frameNative->data, frameNative->linesize,
