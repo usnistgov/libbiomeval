@@ -159,7 +159,7 @@ size_t fbread(void *ptr, size_t size, size_t nitems, FILE *stream, AN2KBDB *bdb)
 				return (n);
 			}
 			(void)memcpy(ptr, bdb->bdb_current, size);
-			ptr += size;
+			ptr = (char *)ptr + size;
 			bdb->bdb_current += size;
 		}
 		return (n);

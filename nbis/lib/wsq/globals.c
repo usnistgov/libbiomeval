@@ -76,19 +76,19 @@ int debug;
 
    FRM_HEADER_WSQ frm_header_wsq;
 #else
-   QUANT_VALS quant_vals = {};
+   QUANT_VALS quant_vals = {0};
 
-   W_TREE w_tree[W_TREELEN] = {};
+   W_TREE w_tree[W_TREELEN] = {{0}};
 
-   Q_TREE q_tree[Q_TREELEN] = {};
+   Q_TREE q_tree[Q_TREELEN] = {{0}};
 
-   DTT_TABLE dtt_table = {};
+   DTT_TABLE dtt_table = {NULL};
 
-   DQT_TABLE dqt_table = {};
+   DQT_TABLE dqt_table = {0};
 
-   DHT_TABLE dht_table[MAX_DHT_TABLES] = {};
+   DHT_TABLE dht_table[MAX_DHT_TABLES] = {{0}};
 
-   FRM_HEADER_WSQ frm_header_wsq = {};
+   FRM_HEADER_WSQ frm_header_wsq = {0};
 #endif
 
 #ifdef FILTBANK_EVEN_8X8_1

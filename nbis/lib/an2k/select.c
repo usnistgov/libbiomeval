@@ -105,23 +105,23 @@ typedef struct rec_sel_named_sets_s {
 
 /* Logical Record Types, based on ANSI/NIST-ITL 1-2007, Table 4, p. 13. */
 static const REC_SEL_NAMED_SETS lrt_names[] = {
-   {{ "grey print", "gp", NULL },    3, {{num:4}, {num:13}, {num:14}}},
-   {{ "Transaction information", "ti", NULL },            1, {{num:1}}},
-   {{ "User-defined descriptive text", "udt", NULL },     1, {{num:2}}},
-   {{ "Low-resolution grayscale fingerprint image", "lrgsfi", NULL }, 1, {{num:3}}},
-   {{ "High-resolution grayscale fingerprint image", "hrgsfi",NULL }, 1, {{num:4}}},
-   {{ "Low-resolution binary fingerprint image", "lrbfi", NULL },     1, {{num:5}}},
-   {{ "High-resolution binary fingerprint image", "hrbfi", NULL },    1, {{num:6}}},
-   {{ "User-defined image", "udi", NULL },                1, {{num:7}}},
-   {{ "Signature image", "si", NULL },                    1, {{num:8}}},
-   {{ "Minutiae data", "md", NULL },                      1, {{num:9}}},
-   {{ "Facial & SMT image", "fsmti", NULL },              1, {{num:10}}},
-   {{ "Variable-resolution latent image", "vrli", NULL }, 1, {{num:13}}},
-   {{ "Variable-resolution fingerprint image", "vrfi", NULL }, 1, {{num:14}}},
-   {{ "Variable-resolution palmprint image", "vrpi", NULL },   1, {{num:15}}},
-   {{ "User-defined variable-resolution testing image","udvrti",NULL},1,{{num:16}}},
-   {{ "Iris image", "ii", NULL },                         1, {{num:17}}},
-   {{ "CBEFF Biometric data record", "cbdr", NULL },      1, {{num:99}}},
+   {{ "grey print", "gp", NULL },    3, {{.num = 4}, {.num = 13}, {.num = 14}}},
+   {{ "Transaction information", "ti", NULL },            1, {{.num = 1}}},
+   {{ "User-defined descriptive text", "udt", NULL },     1, {{.num = 2}}},
+   {{ "Low-resolution grayscale fingerprint image", "lrgsfi", NULL }, 1, {{.num = 3}}},
+   {{ "High-resolution grayscale fingerprint image", "hrgsfi",NULL }, 1, {{.num = 4}}},
+   {{ "Low-resolution binary fingerprint image", "lrbfi", NULL },     1, {{.num = 5}}},
+   {{ "High-resolution binary fingerprint image", "hrbfi", NULL },    1, {{.num = 6}}},
+   {{ "User-defined image", "udi", NULL },                1, {{.num = 7}}},
+   {{ "Signature image", "si", NULL },                    1, {{.num = 8}}},
+   {{ "Minutiae data", "md", NULL },                      1, {{.num = 9}}},
+   {{ "Facial & SMT image", "fsmti", NULL },              1, {{.num = 10}}},
+   {{ "Variable-resolution latent image", "vrli", NULL }, 1, {{.num = 13}}},
+   {{ "Variable-resolution fingerprint image", "vrfi", NULL }, 1, {{.num = 14}}},
+   {{ "Variable-resolution palmprint image", "vrpi", NULL },   1, {{.num = 15}}},
+   {{ "User-defined variable-resolution testing image","udvrti",NULL},1,{{.num = 16}}},
+   {{ "Iris image", "ii", NULL },                         1, {{.num = 17}}},
+   {{ "CBEFF Biometric data record", "cbdr", NULL },      1, {{.num = 99}}},
 };
 static const REC_SEL_VALUE lrt_values[] = {
    {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, /* 11 & 12 reserved */
@@ -138,68 +138,66 @@ static const REC_SEL_VALUE lrt_values[] = {
 /* Finger Positions, based on ANSI/NIST-ITL 1-2007, Table 12, p. 31. */
 /* and Palm Position Codes, based on ANSI/NIST-ITL 1-2007, Table 35, p. 84. */
 
-static const int fgp_names_count = 24; /* the rest are PLPs */
 #define FGP_NAMES_COUNT 24
-static const int fgp_values_count = 17;  
 #define FGP_VALUES_COUNT 17
 
 static const REC_SEL_NAMED_SETS fgplp_names[] = {
-   {{ "thumb", "t", NULL },                         4, {{num:1},{num:6},{num:11},{num:12}}}, /*0*/
-   {{ "index finger", "i", "if", NULL },            2, {{num:2}, {num:7}}},       /*1*/
-   {{ "middle finger", "m", "mf", NULL },           2, {{num:3}, {num:8}}},       /*2*/
-   {{ "ring finger", "r", "rf", NULL },             2, {{num:4}, {num:9}}},       /*3*/
-   {{ "little finger", "l", "lf", NULL },           2, {{num:5}, {num:10}}},      /*4*/
+   {{ "thumb", "t", NULL },                         4, {{.num = 1},{.num = 6},{.num = 11},{.num = 12}}}, /*0*/
+   {{ "index finger", "i", "if", NULL },            2, {{.num = 2}, {.num = 7}}},       /*1*/
+   {{ "middle finger", "m", "mf", NULL },           2, {{.num = 3}, {.num = 8}}},       /*2*/
+   {{ "ring finger", "r", "rf", NULL },             2, {{.num = 4}, {.num = 9}}},       /*3*/
+   {{ "little finger", "l", "lf", NULL },           2, {{.num = 5}, {.num = 10}}},      /*4*/
    {{ "right hand finger", "rhf", NULL }, 7, 
-                                 {{num:1}, {num:2}, {num:3}, {num:4}, {num:5}, {num:11}, {num:13}}}, /*5*/
+                                 {{.num = 1}, {.num = 2}, {.num = 3}, {.num = 4}, {.num = 5}, {.num = 11}, {.num = 13}}}, /*5*/
    {{ "left hand finger", "lhf", NULL },  7, 
-                                 {{num:6}, {num:7}, {num:8}, {num:9}, {num:10}, {num:12}, {num:14}}}, /*6*/
-   {{ "unknown finger", "uf", NULL },	            1, {{num:0}}},            /*7*/
-   {{ "right thumb", "rt", NULL },                  2, {{num:1}, {num:11}}},      /*8*/
-   {{ "right index finger", "rif", "ri", NULL },    1, {{num:2}}},            /*9*/
-   {{ "right middle finger", "rmf", NULL },         1, {{num:3}}},           /*10*/
-   {{ "right ring finger", "rrf", NULL },           1, {{num:4}}},           /*11*/
-   {{ "right little finger", "rlf", "rl", NULL },   1, {{num:5}}},           /*12*/
-   {{ "left thumb", "lt", NULL },                   2, {{num:6}, {num:12}}}, /*13*/
-   {{ "left index finger", "lif", NULL },           1, {{num:7}}},           /*14*/
-   {{ "left middle finger", "lmf", NULL },          1, {{num:8}}},           /*15*/
-   {{ "left ring finger", "lrf", NULL },            1, {{num:9}}},           /*16*/
-   {{ "left little finger", "llf", NULL },          1, {{num:10}}},          /*17*/
-   {{ "plain right thumb", "prt", NULL },           1, {{num:11}}},          /*18*/
-   {{ "plain left thumb", "plt", NULL },            1, {{num:12}}},          /*19*/
-   {{ "plain right four fingers", "prff", "r4", NULL },      1, {{num:13}}}, /*20*/
-   {{ "plain left four fingers", "plff", "l4", NULL },       1, {{num:14}}}, /*21*/
-   {{ "left & right thumbs", "both thumbs", "rlt", "bt", "2t",NULL}, 1, {{num:15}}},
-   {{ "eji", "tip", NULL },                                  1, {{num:19}}}, /*23*/
+                                 {{.num = 6}, {.num = 7}, {.num = 8}, {.num = 9}, {.num = 10}, {.num = 12}, {.num = 14}}}, /*6*/
+   {{ "unknown finger", "uf", NULL },	            1, {{.num = 0}}},            /*7*/
+   {{ "right thumb", "rt", NULL },                  2, {{.num = 1}, {.num = 11}}},      /*8*/
+   {{ "right index finger", "rif", "ri", NULL },    1, {{.num = 2}}},            /*9*/
+   {{ "right middle finger", "rmf", NULL },         1, {{.num = 3}}},           /*10*/
+   {{ "right ring finger", "rrf", NULL },           1, {{.num = 4}}},           /*11*/
+   {{ "right little finger", "rlf", "rl", NULL },   1, {{.num = 5}}},           /*12*/
+   {{ "left thumb", "lt", NULL },                   2, {{.num = 6}, {.num = 12}}}, /*13*/
+   {{ "left index finger", "lif", NULL },           1, {{.num = 7}}},           /*14*/
+   {{ "left middle finger", "lmf", NULL },          1, {{.num = 8}}},           /*15*/
+   {{ "left ring finger", "lrf", NULL },            1, {{.num = 9}}},           /*16*/
+   {{ "left little finger", "llf", NULL },          1, {{.num = 10}}},          /*17*/
+   {{ "plain right thumb", "prt", NULL },           1, {{.num = 11}}},          /*18*/
+   {{ "plain left thumb", "plt", NULL },            1, {{.num = 12}}},          /*19*/
+   {{ "plain right four fingers", "prff", "r4", NULL },      1, {{.num = 13}}}, /*20*/
+   {{ "plain left four fingers", "plff", "l4", NULL },       1, {{.num = 14}}}, /*21*/
+   {{ "left & right thumbs", "both thumbs", "rlt", "bt", "2t",NULL}, 1, {{.num = 15}}},
+   {{ "eji", "tip", NULL },                                  1, {{.num = 19}}}, /*23*/
    /* End of Finger Position Codes, Beginning of Palmprint Codes. */
-   {{ "interdigital", NULL },                   2, {{num:31}, {num:34}}},        /*24*/
-   {{ "thenar", NULL },                         2, {{num:32}, {num:35}}},
-   {{ "hypothenar", NULL },                     2, {{num:33}, {num:36}}},
+   {{ "interdigital", NULL },                   2, {{.num = 31}, {.num = 34}}},        /*24*/
+   {{ "thenar", NULL },                         2, {{.num = 32}, {.num = 35}}},
+   {{ "hypothenar", NULL },                     2, {{.num = 33}, {.num = 36}}},
    {{ "right palm", "rp", NULL },   8,
-                             {{num:21}, {num:22}, {num:25}, {num:26}, {num:29}, {num:31}, {num:32}, {num:33}}},
+                             {{.num = 21}, {.num = 22}, {.num = 25}, {.num = 26}, {.num = 29}, {.num = 31}, {.num = 32}, {.num = 33}}},
    {{ "left palm", "lp", NULL },    8, 
-                             {{num:23}, {num:24}, {num:27}, {num:28}, {num:30}, {num:34}, {num:35}, {num:36}}},
-   {{ "unknown palm", "up", NULL },             1, {{num:20}}},
-   {{ "right full palm", "rfp", NULL },         1, {{num:21}}},
-   {{ "right writer's palm", "rwp", NULL },     1, {{num:22}}},
-   {{ "left full palm", "lfp", NULL },          1, {{num:23}}},
-   {{ "left writer's palm", "lwp", NULL },      1, {{num:24}}},
-   {{ "full palm", "fp", NULL },                2, {{num:21}, {num:23}}},
-   {{ "writer's palm", "wp", NULL },            2, {{num:22}, {num:24}}},
-   {{ "right lower palm", "rlp", NULL },        1, {{num:25}}},
-   {{ "right upper palm", "rup", NULL },        1, {{num:26}}},
-   {{ "left lower palm", "llp", NULL },         1, {{num:27}}},
-   {{ "left upper palm", "lup", NULL },         1, {{num:28}}},
-   {{ "lower palm", "lp", NULL },               2, {{num:25}, {num:27}}},
-   {{ "upper palm", "up", NULL },               2, {{num:26}, {num:28}}},
-   {{ "right other", "ro", NULL },              1, {{num:29}}},
-   {{ "left other", "lo", NULL },               1, {{num:30}}},
-   {{ "other palm", "op", NULL },               2, {{num:29}, {num:30}}},
-   {{ "right interdigital", "rin", NULL },      1, {{num:31}}},
-   {{ "right thenar", "rthe", NULL },           1, {{num:32}}},
-   {{ "right hypothenar", "rhy", NULL },        1, {{num:33}}},
-   {{ "left interdigital", "lin", NULL },       1, {{num:34}}},
-   {{ "left thenar", "lthe", NULL },            1, {{num:35}}},
-   {{ "left hypothenar", "lhy", NULL },         1, {{num:36}}},
+                             {{.num = 23}, {.num = 24}, {.num = 27}, {.num = 28}, {.num = 30}, {.num = 34}, {.num = 35}, {.num = 36}}},
+   {{ "unknown palm", "up", NULL },             1, {{.num = 20}}},
+   {{ "right full palm", "rfp", NULL },         1, {{.num = 21}}},
+   {{ "right writer's palm", "rwp", NULL },     1, {{.num = 22}}},
+   {{ "left full palm", "lfp", NULL },          1, {{.num = 23}}},
+   {{ "left writer's palm", "lwp", NULL },      1, {{.num = 24}}},
+   {{ "full palm", "fp", NULL },                2, {{.num = 21}, {.num = 23}}},
+   {{ "writer's palm", "wp", NULL },            2, {{.num = 22}, {.num = 24}}},
+   {{ "right lower palm", "rlp", NULL },        1, {{.num = 25}}},
+   {{ "right upper palm", "rup", NULL },        1, {{.num = 26}}},
+   {{ "left lower palm", "llp", NULL },         1, {{.num = 27}}},
+   {{ "left upper palm", "lup", NULL },         1, {{.num = 28}}},
+   {{ "lower palm", "lp", NULL },               2, {{.num = 25}, {.num = 27}}},
+   {{ "upper palm", "up", NULL },               2, {{.num = 26}, {.num = 28}}},
+   {{ "right other", "ro", NULL },              1, {{.num = 29}}},
+   {{ "left other", "lo", NULL },               1, {{.num = 30}}},
+   {{ "other palm", "op", NULL },               2, {{.num = 29}, {.num = 30}}},
+   {{ "right interdigital", "rin", NULL },      1, {{.num = 31}}},
+   {{ "right thenar", "rthe", NULL },           1, {{.num = 32}}},
+   {{ "right hypothenar", "rhy", NULL },        1, {{.num = 33}}},
+   {{ "left interdigital", "lin", NULL },       1, {{.num = 34}}},
+   {{ "left thenar", "lthe", NULL },            1, {{.num = 35}}},
+   {{ "left hypothenar", "lhy", NULL },         1, {{.num = 36}}},
 };
 static const REC_SEL_VALUE fgplp_values[] = {
      {0},  {1},  {2},  {3},  {4},  {5},  {6},  {7},  {8},  {9}, 
@@ -211,41 +209,41 @@ static const REC_SEL_VALUE fgplp_values[] = {
 
 /* Impression Type, based on ANSI/NIST-ITL {1}-{2007}, Table {11}, p. {30}. */
 static const REC_SEL_NAMED_SETS imp_names[] = {
-   {{ "rolled", "r", NULL },   6, {{num:1}, {num:3}, {num:21}, {num:23}, {num:25}, {num:27}}},
-   {{ "plain", "p", NULL },    6, {{num:0}, {num:2}, {num:20}, {num:22}, {num:24}, {num:26}}},
-   {{ "latent", "lat", NULL }, 8, {{num:4}, {num:5}, {num:6}, {num:7}, {num:12}, {num:13}, {num:14}, {num:15}}},
+   {{ "rolled", "r", NULL },   6, {{.num = 1}, {.num = 3}, {.num = 21}, {.num = 23}, {.num = 25}, {.num = 27}}},
+   {{ "plain", "p", NULL },    6, {{.num = 0}, {.num = 2}, {.num = 20}, {.num = 22}, {.num = 24}, {.num = 26}}},
+   {{ "latent", "lat", NULL }, 8, {{.num = 4}, {.num = 5}, {.num = 6}, {.num = 7}, {.num = 12}, {.num = 13}, {.num = 14}, {.num = 15}}},
    /* don't move live-scan without fixing the pointer definition below */
-   {{ "live-scan", "live", NULL },   12, {{num:0},  {num:1},  {num:8},  {num:10}, {num:20}, {num:21},
-				          {num:22}, {num:23}, {num:24}, {num:25}, {num:26}, {num:27}}},
-   {{ "nonlive-scan", "nonlive", NULL },            3, {{num:2}, {num:3}, {num:11}}},
-   {{ "palm", NULL },                               4, {{num:12},{num:13},{num:14},{num:15}}},
-   {{ "live-scan plain", "lsp", "lspl", NULL },     1, {{num:0}}},
-   {{ "live-scan rolled", "lsr", "lsro", NULL },    1, {{num:1}}},
-   {{ "nonlive-scan plain", "nsp", "nspl", NULL },  1, {{num:2}}},
-   {{ "nonlive-scan rolled", "nsr", "nsro", NULL }, 1, {{num:3}}},
-   {{ "latent impression", "li", NULL },            1, {{num:4}}},
-   {{ "latent tracing", "lt", NULL },               1, {{num:5}}},
-   {{ "latent photo", "lp", NULL },                 1, {{num:6}}},
-   {{ "latent lift", "ll", NULL },                  1, {{num:7}}},
-   {{ "live-scan vertical swipe", "lsvs", NULL },   1, {{num:8}}},
+   {{ "live-scan", "live", NULL },   12, {{.num = 0},  {.num = 1},  {.num = 8},  {.num = 10}, {.num = 20}, {.num = 21},
+				          {.num = 22}, {.num = 23}, {.num = 24}, {.num = 25}, {.num = 26}, {.num = 27}}},
+   {{ "nonlive-scan", "nonlive", NULL },            3, {{.num = 2}, {.num = 3}, {.num = 11}}},
+   {{ "palm", NULL },                               4, {{.num = 12},{.num = 13},{.num = 14},{.num = 15}}},
+   {{ "live-scan plain", "lsp", "lspl", NULL },     1, {{.num = 0}}},
+   {{ "live-scan rolled", "lsr", "lsro", NULL },    1, {{.num = 1}}},
+   {{ "nonlive-scan plain", "nsp", "nspl", NULL },  1, {{.num = 2}}},
+   {{ "nonlive-scan rolled", "nsr", "nsro", NULL }, 1, {{.num = 3}}},
+   {{ "latent impression", "li", NULL },            1, {{.num = 4}}},
+   {{ "latent tracing", "lt", NULL },               1, {{.num = 5}}},
+   {{ "latent photo", "lp", NULL },                 1, {{.num = 6}}},
+   {{ "latent lift", "ll", NULL },                  1, {{.num = 7}}},
+   {{ "live-scan vertical swipe", "lsvs", NULL },   1, {{.num = 8}}},
    /* 9 omitted */
-   {{ "live-scan palm", "lspa", NULL },             1, {{num:10}}},
-   {{ "nonlive-scan palm", "nspa", NULL },          1, {{num:11}}},
-   {{ "latent palm impression", "lpi", NULL },      1, {{num:12}}},
-   {{ "latent palm tracing", "lpt", NULL },         1, {{num:13}}},
-   {{ "latent palm photo", "lpp", NULL },           1, {{num:14}}},
-   {{ "latent palm lift", "lpl", NULL },            1, {{num:15}}},
+   {{ "live-scan palm", "lspa", NULL },             1, {{.num = 10}}},
+   {{ "nonlive-scan palm", "nspa", NULL },          1, {{.num = 11}}},
+   {{ "latent palm impression", "lpi", NULL },      1, {{.num = 12}}},
+   {{ "latent palm tracing", "lpt", NULL },         1, {{.num = 13}}},
+   {{ "latent palm photo", "lpp", NULL },           1, {{.num = 14}}},
+   {{ "latent palm lift", "lpl", NULL },            1, {{.num = 15}}},
    /* 16 through 19 omitted */
-   {{ "live-scan optical contact plain", "lsocp", NULL },           1, {{num:20}}},
-   {{ "live-scan optical contact rolled", "lsocr", NULL },          1, {{num:21}}},
-   {{ "live-scan non-optical contact plain", "lsnocp", NULL },      1, {{num:22}}},
-   {{ "live-scan non-optical contact rolled", "lsnocr", NULL },     1, {{num:23}}},
-   {{ "live-scan optical contactless plain", "lsoclp", NULL },      1, {{num:24}}},
-   {{ "live-scan optical contactless rolled", "lsoclr", NULL },     1, {{num:25}}},
-   {{ "live-scan non-optical contactless plain", "lsnoclp", NULL }, 1, {{num:26}}},
-   {{ "live-scan non-optical contactless rolled", "lsnoclr", NULL },1, {{num:27}}},
-   {{ "other", NULL },                             1, {{num:28}}},
-   {{ "unknown", NULL },                           1, {{num:29}}},
+   {{ "live-scan optical contact plain", "lsocp", NULL },           1, {{.num = 20}}},
+   {{ "live-scan optical contact rolled", "lsocr", NULL },          1, {{.num = 21}}},
+   {{ "live-scan non-optical contact plain", "lsnocp", NULL },      1, {{.num = 22}}},
+   {{ "live-scan non-optical contact rolled", "lsnocr", NULL },     1, {{.num = 23}}},
+   {{ "live-scan optical contactless plain", "lsoclp", NULL },      1, {{.num = 24}}},
+   {{ "live-scan optical contactless rolled", "lsoclr", NULL },     1, {{.num = 25}}},
+   {{ "live-scan non-optical contactless plain", "lsnoclp", NULL }, 1, {{.num = 26}}},
+   {{ "live-scan non-optical contactless rolled", "lsnoclr", NULL },1, {{.num = 27}}},
+   {{ "other", NULL },                             1, {{.num = 28}}},
+   {{ "unknown", NULL },                           1, {{.num = 29}}},
 };
 static const REC_SEL_VALUE imp_values[] = {
     {0},  {1},  {2},  {3},  {4},  {5},  {6},  {7},  {8}, /* 9 omitted */
@@ -260,32 +258,32 @@ static const REC_SEL_NAMED_SETS *imp_live_scan_set = &imp_names[3];
 
 /* NIST IR {7175}, August {2004}, Fingerprint Image Quality, Table {2}, p. {12}. */
 static const REC_SEL_NAMED_SETS nqm_names[] = {
-   {{ "excellent", NULL },       1, {{num:1}}},
-   {{ "very good", "vg", NULL }, 1, {{num:2}}},
-   {{ "good", NULL },            1, {{num:3}}},
-   {{ "fair", NULL },            1, {{num:4}}},
-   {{ "poor", NULL },            1, {{num:5}}},
+   {{ "excellent", NULL },       1, {{.num = 1}}},
+   {{ "very good", "vg", NULL }, 1, {{.num = 2}}},
+   {{ "good", NULL },            1, {{.num = 3}}},
+   {{ "fair", NULL },            1, {{.num = 4}}},
+   {{ "poor", NULL },            1, {{.num = 5}}},
 };
 
 /* Image Type, based on ANSI/NIST-ITL 1-2007, Section 15.1.4, p. 45. */
 static const REC_SEL_NAMED_SETS imt_names[] = {
-   {{ "face",   NULL }, 1, {{str : "FACE"}}},
-   {{ "scar",   NULL }, 1, {{str : "SCAR"}}},
-   {{ "mark",   NULL }, 1, {{str : "MARK"}}},
-   {{ "tattoo", NULL }, 1, {{str : "TATTOO"}}},
+   {{ "face",   NULL }, 1, {{.str = "FACE"}}},
+   {{ "scar",   NULL }, 1, {{.str = "SCAR"}}},
+   {{ "mark",   NULL }, 1, {{.str = "MARK"}}},
+   {{ "tattoo", NULL }, 1, {{.str = "TATTOO"}}},
 };
 
 /* Subject Pose, based on ANSI/NIST-ITL 1-2007, Table 11, p. 30.19, p. 51. */
 static const REC_SEL_VALUE pos_values[] = {
-   {str : "F"}, {str : "R"}, {str : "L"}, {str : "A"}, {str : "D"}
+   {.str = "F"}, {.str = "R"}, {.str = "L"}, {.str = "A"}, {.str = "D"}
 };
 
 static const REC_SEL_NAMED_SETS pos_names[] = {
-   {{ "full face frontal", "fff", NULL },   1, {{str : "F"}}},
-   {{ "right profile", "rp", NULL },        1, {{str : "R"}}},
-   {{ "left profile", "lp", NULL },         1, {{str : "L"}}},
-   {{ "angled pose", "ap", NULL },          1, {{str : "A"}}},
-   {{ "determined 3d pose", "d3dp", NULL }, 1, {{str : "D"}}},
+   {{ "full face frontal", "fff", NULL },   1, {{.str = "F"}}},
+   {{ "right profile", "rp", NULL },        1, {{.str = "R"}}},
+   {{ "left profile", "lp", NULL },         1, {{.str = "L"}}},
+   {{ "angled pose", "ap", NULL },          1, {{.str = "A"}}},
+   {{ "determined 3d pose", "d3dp", NULL }, 1, {{.str = "D"}}},
 };
 
 /* The structure below ties together the structures and arrays defined
@@ -505,8 +503,8 @@ int select_ANSI_NIST_record(RECORD *record,
 	       break;
 	    if (subfield_i > AR_SZ(fgp_value)) {
 	       fprintf(stderr, ERRHDR
-		       "unsupported number of FGP items > %d\n",
-		       AR_SZ(fgp_value));
+		       "unsupported number of FGP items > %lu\n",
+		       (unsigned long)AR_SZ(fgp_value));
 	       return FALSE;
 	    }
 	    fgp_value[fgp_count++] = new_fgp_int;
@@ -833,8 +831,9 @@ int add_rec_sel(REC_SEL **head, const REC_SEL *const new_sel)
       
       new_ptr = realloc(*head, new_size);
       if (new_ptr == NULL) {
-	 fprintf(stderr, ERRHDR "connot realloc from %d bytes to %d\n",
-		 (*head)->alloc_values * sizeof(REC_SEL_VALUE), new_size);
+	 fprintf(stderr, ERRHDR "connot realloc from %lu bytes to %d\n",
+		 (unsigned long)((*head)->alloc_values * sizeof(REC_SEL_VALUE)),
+		 new_size);
 	 return -1;
       }
       *head = new_ptr;
@@ -1081,8 +1080,8 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
       /* check for an empty string, which could happen after ignoring spaces */
       if (startp == strendp) {
 	 fprintf(stderr, ERRHDR
-		 "missing value near character %d in argument : '%s'\n",
-		 startp-optstr+1, optstr);
+		 "missing value near character %lu in argument : '%s'\n",
+		 (unsigned long)(startp-optstr+1), optstr);
 	 return -1;
       }
       
@@ -1191,7 +1190,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
 	    if (num_problem_dups && !exact_match) {
 	       fprintf(stderr, ERRHDR 
 		       "ambiguous abbreviation '%.*s', could match ",
-		       strendp-startp, startp);
+		       (int)(strendp-startp), startp);
 	       for (dup_i = 0; dup_i < num_dups; dup_i++) {
 		  fprintf(stderr, "'%s', ", dups[dup_i]);
 	       }
@@ -1219,7 +1218,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
 	 } else {
 	    fprintf(stderr, ERRHDR "unimplemented %s (%s) name : '%.*s'\n",
 		    type_params->description, type_params->name,
-		    strendp-startp, startp);
+		    (int)(strendp-startp), startp);
 	    return -10;
 	 }
       }
@@ -1493,8 +1492,8 @@ int read_rec_sel(FILE *fpin, REC_SEL **sel)
 	 *cp++ = ci;	  /* append another character to the string */
 	 if (cp - buffer > sizeof(buffer)) {
 	    fprintf(stderr, ERRHDR
-		    "buffer overflow, exceeded %d bytes, reading '%.*s'\n",
-		    sizeof(buffer), sizeof(buffer), buffer);
+		    "buffer overflow, exceeded %lu bytes, reading '%.*s'\n",
+		    (unsigned long)sizeof(buffer), (int)sizeof(buffer), buffer);
 	    return -1;
 	 }
 
@@ -1558,8 +1557,8 @@ int read_rec_sel(FILE *fpin, REC_SEL **sel)
 	    
 	 } else {	    /* unexpected record selector type name, or other */
 	    fprintf(stderr, ERRHDR
-		    "unexpected token '%s' at line %d, column %d\n",
-		    buffer, line_no, col_no - (cp - buffer));
+		    "unexpected token '%s' at line %d, column %lu\n",
+		    buffer, line_no, (unsigned long)(col_no - (cp - buffer)));
 	    return -9;
 	 }
 	 

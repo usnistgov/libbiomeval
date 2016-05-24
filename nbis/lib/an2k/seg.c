@@ -107,7 +107,8 @@ int lookup_type14_segments(SEG **osegs, int *onsgs, RECORD *record)
    
   if(segs == NULL){
     fprintf(stderr, "ERROR : lookup_type14_segments : "
-	    "malloc : %d segs (%u bytes)\n", nsgs, nsgs * sizeof(SEG));
+	    "malloc : %d segs (%lu bytes)\n", nsgs,
+	    (unsigned long)(nsgs * sizeof(SEG)));
     return(-3);
   }
 

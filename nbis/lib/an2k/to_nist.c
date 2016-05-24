@@ -1661,7 +1661,8 @@ int iafis2nist_ridgecount(char **onist_rc, char *iafis_rc)
    nist_rc = (char *)calloc(7, sizeof(char));
    if(nist_rc == NULL){
       fprintf(stderr, "ERROR : iafis2nist_ridgecount : "
-	      "calloc : nist_rc (%u bytes)\n", 7 * sizeof(char));
+	      "calloc : nist_rc (%lu bytes)\n",
+	      (unsigned long)(7 * sizeof(char)));
       return(-5);
    }
    /* Construct new NIST formateed ridge count string. */

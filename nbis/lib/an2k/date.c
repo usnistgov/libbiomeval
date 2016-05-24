@@ -156,7 +156,8 @@ int get_ANSI_NIST_date(char **odate_str)
    /* Allocate ANSI/NIST date string "CCYYMMDD". */
    if((date_str = (char *)calloc(9, sizeof(char))) == NULL){
       fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
-	      "calloc : date_str (%u bytes)\n", 9 * sizeof(char));
+	      "calloc : date_str (%lu bytes)\n",
+	      (unsigned long)(9 * sizeof(char)));
       return(-7);
    }
 

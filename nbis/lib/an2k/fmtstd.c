@@ -1744,6 +1744,8 @@ static int i_read_ANSI_NIST(FILE *fpin, AN2KBDB *buf, ANSI_NIST *ansi_nist)
    RECORD *record;
    FIELD *dcsfield;
    int dcsfield_i;
+   int subfield;
+   char dcsASCII_ID[4];
 
    /* Parse Type-1 record. */
    if((ret = i_read_Type1_record(fpin, buf, &record, &version)) != 0) {
@@ -1752,13 +1754,30 @@ static int i_read_ANSI_NIST(FILE *fpin, AN2KBDB *buf, ANSI_NIST *ansi_nist)
    ansi_nist->version = version;
 
    /* Check if DCS field is included in the record.  If it is, */
-   /* then flag an error, because Base-64 encoding of text     */
-   /* is not currently supported.                              */
+   /* then flag an error when not ASCII/7-bit English, because */
+   /* Base-64 encoding of text is not currently supported.     */
    if(lookup_ANSI_NIST_field(&dcsfield, &dcsfield_i, DCS_ID, record) != 0){
-      free_ANSI_NIST_record(record);
-      fprintf(stderr, "ERROR : read_ANSI_NIST : DCS field (1.015) found: "
-	      "alternate character sets not supported\n");
-      return(-2);
+      if (snprintf(dcsASCII_ID, 4, "%03d", ASCII_CSID) != 3) {
+         free_ANSI_NIST_record(record);
+         fprintf(stderr, "ERROR : read_ANSI_NIST : DCS field (1.015) found: "
+                         "error creating ASCII DCS ID\n");
+         return(-2);
+      }
+      for (subfield = 0; subfield < dcsfield->num_subfields; ++subfield) {
+         if (dcsfield->subfields[subfield]->num_items < 2) {
+            free_ANSI_NIST_record(record);
+            fprintf(stderr, "ERROR : read_ANSI_NIST : DCS field (1.015) found: "
+                            "invalid number of items in subfield\n");
+            return(-2);
+         }
+         if (strncmp((char *)dcsfield->subfields[subfield]->items[0]->value,
+           dcsASCII_ID, 3) != 0) {
+            free_ANSI_NIST_record(record);
+            fprintf(stderr, "ERROR : read_ANSI_NIST : DCS field (1.015) found: "
+                            "alternate character sets not supported\n");
+            return(-2);
+         }
+      }
    }
 
    /* Add Type-1 record to ANSI/NIST structure. */

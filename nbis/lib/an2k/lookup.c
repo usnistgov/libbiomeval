@@ -135,7 +135,7 @@ int lookup_ANSI_NIST_subfield(SUBFIELD **osubfield,
 			      const unsigned int subfield_index,
 			      const FIELD *const field)
 {
-   if((subfield_index >= 0) && (subfield_index < field->num_subfields)){
+   if(subfield_index < field->num_subfields){
       *osubfield = field->subfields[subfield_index];
       return(TRUE);
    }
@@ -160,7 +160,7 @@ int lookup_ANSI_NIST_subfield(SUBFIELD **osubfield,
 int lookup_ANSI_NIST_item(ITEM **oitem, const unsigned int item_index,
 			  const SUBFIELD *const subfield)
 {
-   if((item_index >= 0) && (item_index < subfield->num_items)){
+   if(item_index < subfield->num_items){
       *oitem = subfield->items[item_index];
       return(TRUE);
    }

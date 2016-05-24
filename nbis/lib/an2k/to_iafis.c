@@ -1876,7 +1876,8 @@ int nist2iafis_ridgecount(char **oiafis_rc, char *nist_rc)
    iafis_rc = (char *)calloc(6, sizeof(char));
    if(iafis_rc == NULL){
       fprintf(stderr, "ERROR : nist2iafis_ridgecount : "
-	      "calloc : iafis_rc (%u bytes)\n", 6 * sizeof(char));
+	      "calloc : iafis_rc (%lu bytes)\n",
+	      (unsigned long)(6 * sizeof(char)));
       return(-4);
    }
    /* Check format of neighbor index. */

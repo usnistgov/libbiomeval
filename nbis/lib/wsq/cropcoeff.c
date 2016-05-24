@@ -134,7 +134,7 @@ int wsq_crop_qdata(
    int height,           /* Crop region height */
    short *scp)           /* Cropped quantized data pointer       */
 {
-   int row, col;  /* cover counter and row/column counters */
+   int row;  /* row counter */
    short *cptr;   /* image pointers */
    short *sptr;
    short *bptr;
