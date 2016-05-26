@@ -111,6 +111,8 @@ namespace BiometricEvaluation
 			 * field number.
 			 * @throw Error::ParameterError
 			 *	Invalid value for field.
+			 * @throw Error::StrategyError
+			 * Field could not be cached.
 			 */
 			Memory::uint8Array
 			getUserDefinedField(
@@ -129,6 +131,9 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Raw bytes from field.
 			 *
+ 			 * @throw Error::ObjectDoesNotExist
+			 * There is no user-defined field with the requested
+			 * field number.
 			 * @throw Error::ParameterError
 			 *	Invalid value for fieldID.
 			 */

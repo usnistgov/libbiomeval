@@ -97,7 +97,8 @@ BiometricEvaluation::View::AN2KViewVariableResolution::getUserDefinedField(
 	    parseUserDefinedField(AN2KView::getAN2KRecord(), field));
 	if (ret.second)
 		return (ret.first->second);
-	throw BE::Error::ObjectDoesNotExist();
+	throw Error::StrategyError("Field " + std::to_string(field) +
+	    " could not be cached");
 }
 
 /******************************************************************************/
@@ -223,20 +224,19 @@ BiometricEvaluation::View::AN2KViewVariableResolution::parseUserDefinedField(
     const RECORD* const record,
     int fieldID)
 {
-	FIELD *field;
-	int idx;
-	Memory::uint8Array buf;
 	
 	if (fieldID < 200 || fieldID > 998)
 		throw Error::DataError("Invalid user-defined field number");
 
-	/* If field doesn't exist, return an empty buffer */
+	FIELD *field;
+	int idx;
 	if (lookup_ANSI_NIST_field(&field, &idx, fieldID, record) == FALSE)
-		return (buf);
+		throw Error::ObjectDoesNotExist("Field " +
+		    std::to_string(fieldID) + " does not exist");
 
 	/* Byte-for-byte copy of the field as would appear in an AN2K file */
 	size_t offset = 0;
-	buf.resize(field->num_bytes);
+	Memory::uint8Array buf(field->num_bytes);
 	for (int sf = 0; sf < field->num_subfields; sf++) {
 		for (int item = 0; item < field->subfields[sf]->num_items;
 		    item++) {
