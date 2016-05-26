@@ -87,16 +87,17 @@ BiometricEvaluation::View::AN2KViewVariableResolution::getUserDefinedField(
     const uint16_t field)
     const
 {
-	std::map<uint16_t, Memory::uint8Array>::const_iterator it;
-	
 	/* Check for cached version of this field */
-	it = _udf.find(field);
+	const auto it = this->_udf.find(field);
 	if (it != _udf.end())
 		return (it->second);
 
 	/* Insert pair and return the data */
-	return ((_udf.insert(std::pair<uint16_t, Memory::uint8Array>(field, 
-	    parseUserDefinedField(AN2KView::getAN2KRecord(), field)))).second);
+	const auto ret = this->_udf.emplace(field,
+	    parseUserDefinedField(AN2KView::getAN2KRecord(), field));
+	if (ret.second)
+		return (ret.first->second);
+	throw BE::Error::ObjectDoesNotExist();
 }
 
 /******************************************************************************/

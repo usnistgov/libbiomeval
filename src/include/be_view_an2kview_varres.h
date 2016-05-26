@@ -106,6 +106,9 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Raw bytes read from the field.
 			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * There is no user-defined field with the requested
+			 * field number.
 			 * @throw Error::ParameterError
 			 *	Invalid value for field.
 			 */
