@@ -27,35 +27,40 @@ namespace BE = BiometricEvaluation;
 static std::string RO_ERR_MSG = "Object is read-only";
 
 BiometricEvaluation::IO::Properties::Properties(
-    IO::Mode mode) :
+    IO::Mode mode,
+    const std::map<std::string, std::string> &defaults) :
     _mode(mode)
 {
-
+	this->registerDefaults(defaults);
 }
 
 BiometricEvaluation::IO::Properties::Properties(
     const uint8_t *buffer,
     const size_t size,
-    IO::Mode mode) :
+    IO::Mode mode,
+    const BiometricEvaluation::IO::Properties::PropertiesMap &defaults) :
     _mode(mode)
 {
-	this->initWithBuffer(buffer, size);
+	this->initWithBuffer(buffer, size, defaults);
 }
 
 void
 BiometricEvaluation::IO::Properties::initWithBuffer(
-    const Memory::uint8Array &buffer)
+    const Memory::uint8Array &buffer,
+    const BiometricEvaluation::IO::Properties::PropertiesMap &defaults)
 {
-	this->initWithBuffer(buffer, buffer.size());
+	this->initWithBuffer(buffer, buffer.size(), defaults);
 }
 
 void
 BiometricEvaluation::IO::Properties::initWithBuffer(
     const uint8_t *const buffer,
-    size_t size)
+    size_t size,
+    const BiometricEvaluation::IO::Properties::PropertiesMap &defaults)
 {
 	/* Initialize the PropertiesMap */
 	_properties.clear();
+	this->registerDefaults(defaults);
 
 	bool eof = false;
 	size_t offset = 0;
@@ -259,4 +264,13 @@ BiometricEvaluation::IO::Properties::getMode()
 BiometricEvaluation::IO::Properties::~Properties()
 {
 	
+}
+
+void
+BiometricEvaluation::IO::Properties::registerDefaults(
+    const BiometricEvaluation::IO::Properties::PropertiesMap &defaults)
+{
+	for (const auto &p : defaults)
+		this->_properties.emplace(BE::Text::trimWhitespace(p.first),
+		    BE::Text::trimWhitespace(p.second));
 }

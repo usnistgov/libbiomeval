@@ -35,9 +35,13 @@ namespace BiometricEvaluation
 			 *
 			 * @param[in] mode
 			 * 	The read/write mode of the object.
+			 * @param[in] defaults
+			 *	Default property/value pairs to insert.
 			 */
 			Properties(
-			    IO::Mode mode = IO::Mode::ReadWrite);
+			    IO::Mode mode = IO::Mode::ReadWrite,
+			    const std::map<std::string, std::string>
+			    &defaults = {});
 			
 			/**
 			 * @brief
@@ -54,13 +58,17 @@ namespace BiometricEvaluation
 			 * 	The size of buffer.
  			 * @param[in] mode
 			 * 	The read/write mode of the object.
+ 			 * @param[in] defaults
+			 *	Default property/value pairs to insert.
 			 * @throw Error::StrategyError
 			 *	A line in the properties file is malformed.
 			 */
 			Properties(
 			    const uint8_t *buffer,
 			    const size_t size,
-			    IO::Mode mode = IO::Mode::ReadWrite);
+			    IO::Mode mode = IO::Mode::ReadWrite,
+			    const std::map<std::string, std::string>
+			    &defaults = {});
 
 			/**
 			 * @brief
@@ -275,13 +283,16 @@ namespace BiometricEvaluation
 			 *
 			 * @param buffer
 			 *	Contents of a properties file.
+			 * @param defaults
+			 *	Default property/value pairs.
 			 *
  			 * @throw Error::StrategyError
 			 *	A line of the buffer is malformed.
 			 */
 			void
 			initWithBuffer(
-			    const Memory::uint8Array &buffer);
+			    const Memory::uint8Array &buffer,
+			    const std::map<std::string, std::string> &defaults);
 
 			/**
 			 * @brief
@@ -295,6 +306,8 @@ namespace BiometricEvaluation
 			 *	Contents of a properties file.
 			 * @param size
 			 *	Size of the buffer.
+			 * @param defaults
+			 *	Default property/value pairs.
 			 *
  			 * @throw Error::StrategyError
 			 *	A line of the buffer is malformed.
@@ -302,7 +315,8 @@ namespace BiometricEvaluation
 			void
 			initWithBuffer(
 			    const uint8_t *const buffer,
-			    size_t size);
+			    size_t size,
+			    const std::map<std::string, std::string> &defaults);
 
 		private:
 			/**
@@ -316,6 +330,17 @@ namespace BiometricEvaluation
 			
 			/** Mode in which the Properties object was opened */
 			IO::Mode _mode;
+
+			/**
+			 * @brief
+			 * Insert default property/value pairs.
+			 *
+			 * @param defaults
+			 * Default property/value pairs to insert.
+			 */
+			void
+			registerDefaults(
+			    const PropertiesMap &defaults);
 		};
 	}
 }

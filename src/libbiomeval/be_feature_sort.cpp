@@ -185,3 +185,130 @@ BiometricEvaluation::Framework::EnumerationFunctions<
 	    "Polar Center of Image Descending"},
 	{BiometricEvaluation::Feature::Sort::Kind::Unknown, "Unknown"}
 };
+
+std::vector<BiometricEvaluation::Feature::MinutiaPoint>
+BiometricEvaluation::Feature::Sort::sort(
+    std::vector<BiometricEvaluation::Feature::MinutiaPoint> &minutia,
+    const BiometricEvaluation::Feature::Sort::Kind &sortOrder)
+{
+	switch (sortOrder) {
+	case BE::Feature::Sort::Kind::XYAscending:
+		std::sort(minutia.begin(), minutia.end(),
+		    BE::Feature::Sort::XY());
+		break;
+	case BE::Feature::Sort::Kind::XYDescending:
+		std::sort(minutia.rbegin(), minutia.rend(),
+		    BE::Feature::Sort::XY());
+		break;
+	case BE::Feature::Sort::Kind::YXAscending:
+		std::sort(minutia.begin(), minutia.end(),
+		    BE::Feature::Sort::YX());
+		break;
+	case BE::Feature::Sort::Kind::YXDescending:
+		std::sort(minutia.rbegin(), minutia.rend(),
+		    BE::Feature::Sort::YX());
+		break;
+	case BE::Feature::Sort::Kind::QualityAscending:
+		std::sort(minutia.begin(), minutia.end(),
+		    BE::Feature::Sort::Quality());
+		break;
+	case BE::Feature::Sort::Kind::QualityDescending:
+		std::sort(minutia.rbegin(), minutia.rend(),
+		    BE::Feature::Sort::Quality());
+		break;
+	case BE::Feature::Sort::Kind::AngleAscending:
+		std::sort(minutia.begin(), minutia.end(),
+		    BE::Feature::Sort::Angle());
+		break;
+	case BE::Feature::Sort::Kind::AngleDescending:
+		std::sort(minutia.rbegin(), minutia.rend(),
+		    BE::Feature::Sort::Angle());
+		break;
+	case BE::Feature::Sort::Kind::PolarCOMAscending:
+		try {
+			std::sort(minutia.begin(), minutia.end(),
+			    BE::Feature::Sort::Polar(BE::Feature::Sort::Polar::
+			    centerOfMinutiaeMass(minutia)));
+		} catch (BE::Error::StrategyError) {
+			/* No minutia, sorting not important */
+		}
+		break;
+	case BE::Feature::Sort::Kind::PolarCOMDescending:
+		try {
+			std::sort(minutia.rbegin(), minutia.rend(),
+			    BE::Feature::Sort::Polar(BE::Feature::Sort::Polar::
+			    centerOfMinutiaeMass(minutia)));
+		} catch (BE::Error::StrategyError) {
+			/* No minutia, sorting not important */
+		}
+		break;
+	default:
+		throw BE::Error::NotImplemented(to_string(sortOrder));
+	}
+
+	return (minutia);
+}
+
+std::vector<BiometricEvaluation::Feature::MinutiaPoint>
+BiometricEvaluation::Feature::Sort::stableSort(
+    std::vector<BiometricEvaluation::Feature::MinutiaPoint> &minutia,
+    const BiometricEvaluation::Feature::Sort::Kind &sortOrder)
+{
+	switch (sortOrder) {
+	case BE::Feature::Sort::Kind::XYAscending:
+		std::stable_sort(minutia.begin(), minutia.end(),
+		    BE::Feature::Sort::XY());
+		break;
+	case BE::Feature::Sort::Kind::XYDescending:
+		std::stable_sort(minutia.rbegin(), minutia.rend(),
+		    BE::Feature::Sort::XY());
+		break;
+	case BE::Feature::Sort::Kind::YXAscending:
+		std::stable_sort(minutia.begin(), minutia.end(),
+		    BE::Feature::Sort::YX());
+		break;
+	case BE::Feature::Sort::Kind::YXDescending:
+		std::stable_sort(minutia.rbegin(), minutia.rend(),
+		    BE::Feature::Sort::YX());
+		break;
+	case BE::Feature::Sort::Kind::QualityAscending:
+		std::stable_sort(minutia.begin(), minutia.end(),
+		    BE::Feature::Sort::Quality());
+		break;
+	case BE::Feature::Sort::Kind::QualityDescending:
+		std::stable_sort(minutia.rbegin(), minutia.rend(),
+		    BE::Feature::Sort::Quality());
+		break;
+	case BE::Feature::Sort::Kind::AngleAscending:
+		std::stable_sort(minutia.begin(), minutia.end(),
+		    BE::Feature::Sort::Angle());
+		break;
+	case BE::Feature::Sort::Kind::AngleDescending:
+		std::stable_sort(minutia.rbegin(), minutia.rend(),
+		    BE::Feature::Sort::Angle());
+		break;
+	case BE::Feature::Sort::Kind::PolarCOMAscending:
+		try {
+			std::stable_sort(minutia.begin(), minutia.end(),
+			    BE::Feature::Sort::Polar(BE::Feature::Sort::Polar::
+			    centerOfMinutiaeMass(minutia)));
+		} catch (BE::Error::StrategyError) {
+			/* No minutia, sorting not important */
+		}
+		break;
+	case BE::Feature::Sort::Kind::PolarCOMDescending:
+		try {
+			std::stable_sort(minutia.rbegin(), minutia.rend(),
+			    BE::Feature::Sort::Polar(BE::Feature::Sort::Polar::
+			    centerOfMinutiaeMass(minutia)));
+		} catch (BE::Error::StrategyError) {
+			/* No minutia, sorting not important */
+		}
+		break;
+	default:
+		throw BE::Error::NotImplemented(to_string(sortOrder));
+	}
+
+	return (minutia);
+}
+

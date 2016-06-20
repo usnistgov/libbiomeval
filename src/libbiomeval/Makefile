@@ -60,7 +60,7 @@ MESSAGE_CENTER = be_process_messagecenter.cpp be_process_mclistener.cpp be_proce
 
 VIEW = be_view_view.cpp be_view_an2kview.cpp be_view_an2kview_varres.cpp
 
-FINGER = be_finger.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_finger_incitsview.cpp be_finger_ansi2004view.cpp be_finger_ansi2007view.cpp be_finger_iso2005view.cpp
+FINGER = be_finger.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_finger_incitsview.cpp be_finger_ansi2004view.cpp be_finger_ansi2007view.cpp be_finger_iso2005view.cpp be_data_interchange_finger.cpp
 
 IRIS = be_iris.cpp be_iris_incitsview.cpp be_iris_iso2011view.cpp
 FACE = be_face.cpp be_face_incitsview.cpp be_face_iso2005view.cpp

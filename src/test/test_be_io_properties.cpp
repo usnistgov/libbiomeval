@@ -52,6 +52,70 @@ testNonMutable(IO::Properties &props)
 	return (rv);
 }
 
+static int
+testDefaults()
+{
+	int rv = 0;
+
+	IO::Properties roProps{IO::Mode::ReadOnly, {
+	    {"One", "1"}, {"Two", "Two"}, {"Three", "3.0"}}};
+	try {
+		if (roProps.getPropertyAsInteger("One") != 1)
+			throw Error::StrategyError();
+		if (roProps.getProperty("Two") != "Two")
+			throw Error::StrategyError();
+		if (roProps.getPropertyAsDouble("Three") != 3.0)
+			throw Error::StrategyError();
+	} catch (Error::Exception) {
+		std::cout << "Failed to read the default" << std::endl;
+		rv = -1;
+	}
+
+	try {
+		if (roProps.getProperty("Four") == "Four")
+			rv = -1;
+	} catch (Error::ObjectDoesNotExist) {}
+
+	IO::Properties rwProps{IO::Mode::ReadWrite, {
+	    {"One", "1"}, {"Two", "Two"}, {"Three", "3.0"}}};
+	try {
+		if (rwProps.getPropertyAsInteger("One") != 1)
+			throw Error::StrategyError();
+		if (rwProps.getProperty("Two") != "Two")
+			throw Error::StrategyError();
+		if (rwProps.getPropertyAsDouble("Three") != 3.0)
+			throw Error::StrategyError();
+	} catch (Error::Exception) {
+		std::cout << "Failed to read the default" << std::endl;
+		rv = -1;
+	}
+
+	/* Set a new property */
+	try {
+		if (rwProps.getProperty("Four") == "Four")
+			rv = -1;
+	} catch (Error::ObjectDoesNotExist) {}
+	rwProps.setProperty("Four", "Four");
+	try {
+		if (rwProps.getProperty("Four") != "Four")
+			rv = -1;
+	} catch (Error::ObjectDoesNotExist) {
+		rv = -1;
+	}
+
+	/* Overwrite a default property */
+	try {
+		rwProps.setProperty("One", "New Value");
+		if (rwProps.getProperty("One") != "New Value")
+			rv = -1;
+	} catch (Error::Exception) {
+		std::cout << "Failed to overwrite a default value" << std::endl;
+		rv = -1;
+	}
+
+	return (rv);
+}
+
 static void
 iterateProperties(
     const IO::Properties &p)
@@ -264,6 +328,10 @@ main(int argc, char* argv[]) {
 		return (EXIT_FAILURE);
 	}
 	
+
+	std::cout << "Testing default properties...";
+	if (testDefaults() == 0)
+		std::cout << "success" << std::endl;
 
 	return(EXIT_SUCCESS);
 }

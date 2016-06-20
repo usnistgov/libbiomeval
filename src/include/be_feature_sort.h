@@ -249,6 +249,45 @@ namespace BiometricEvaluation
 			void
 			updateIndicies(
 			    BiometricEvaluation::Feature::MinutiaPointSet &mps);
+
+			/**
+			 * @brief
+			 * Sort minutia.
+			 *
+			 * @param minutia
+			 * Minutia to be sorted.
+			 * @param sortOrder
+			 * Order in which to sort minutia.
+			 *
+			 * @throw Error::NotImplemented
+			 * sortOrder is not implemented.
+			 * @throw Error::StrategyError
+			 * Center of mass is specified, but no minutia.
+			 */
+			std::vector<Feature::MinutiaPoint>
+			sort(
+			    std::vector<Feature::MinutiaPoint> &minutia,
+			    const Kind &sortOrder);
+
+			/**
+			 * @brief
+			 * Sort minutia, maintaining existing order if
+			 * elements are otherwise deemed equal.
+			 *
+			 * @param minutia
+			 * Minutia to be sorted.
+			 * @param sortOrder
+			 * Order in which to sort minutia.
+			 *
+			 * @throw Error::NotImplemented
+			 * sortOrder is not implemented.
+			 * @throw Error::StrategyError
+			 * Center of mass is specified, but no minutia.
+			 */
+			std::vector<Feature::MinutiaPoint>
+			stableSort(
+			    std::vector<Feature::MinutiaPoint> &minutia,
+			    const Kind &sortOrder);
 		}
 	}
 }

@@ -94,6 +94,52 @@ testNonMutable(IO::PropertiesFile &props)
 	return (rv);
 }
 
+static int
+testDefaults(
+    const std::string &fname)
+{
+	int rv = 0;
+
+	IO::PropertiesFile rwProps{fname, IO::Mode::ReadWrite,
+	    {{"One", "1"}, {"Two", "Two"}, {"Three", "3.0"}}};
+	try {
+		if (rwProps.getPropertyAsInteger("One") != 1)
+			throw Error::StrategyError();
+		if (rwProps.getProperty("Two") != "Two")
+			throw Error::StrategyError();
+		if (rwProps.getPropertyAsDouble("Three") != 3.0)
+			throw Error::StrategyError();
+	} catch (Error::Exception) {
+		std::cout << "Failed to read the default" << std::endl;
+		rv = -1;
+	}
+
+	/* Set a new property */
+	try {
+		if (rwProps.getProperty("Four") == "Four")
+			rv = -1;
+	} catch (Error::ObjectDoesNotExist) {}
+	rwProps.setProperty("Four", "Four");
+	try {
+		if (rwProps.getProperty("Four") != "Four")
+			rv = -1;
+	} catch (Error::ObjectDoesNotExist) {
+		rv = -1;
+	}
+
+	/* Overwrite a default property */
+	try {
+		rwProps.setProperty("One", "New Value");
+		if (rwProps.getProperty("One") != "New Value")
+			rv = -1;
+	} catch (Error::Exception) {
+		std::cout << "Failed to overwrite a default value" << std::endl;
+		rv = -1;
+	}
+
+	return (rv);
+}
+
 int
 main(int argc, char* argv[]) {
 
@@ -415,6 +461,12 @@ main(int argc, char* argv[]) {
 		cout << "Conversion succeeded when it should not have!" << endl;
 		goto out;
 	}
+
+	std::cout << "Testing defaults...";
+	if (testDefaults(fname) == 0)
+		std::cout << "success" << std::endl;
+	else
+		goto out;
 	exitStatus = EXIT_SUCCESS;
 
 out:

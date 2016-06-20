@@ -59,6 +59,9 @@ namespace BiometricEvaluation
 			 *	The path to the file to store the properties.
 			 * @param[in] mode
 			 * 	The read/write mode of the object.
+			 * @param[in] defaults
+			 *	Default property/value pairs to insert.
+			 *
 			 * @throw Error::StrategyError
 			 *	A line in the properties file is malformed.
 			 * @throw Error::FileError
@@ -67,8 +70,9 @@ namespace BiometricEvaluation
 			 */
 			PropertiesFile(
 			    const std::string &pathname,
-			    IO::Mode mode = IO::Mode::ReadOnly);
-
+			    IO::Mode mode = IO::Mode::ReadOnly,
+			    const std::map<std::string, std::string>
+			    &defaults = {});
 
 			/**
 			 * @brief
@@ -144,9 +148,16 @@ namespace BiometricEvaluation
 			/** The file name of the underlying properties file */
 			std::string _pathname;
 
-			/** Common initialization functions. */
+			/**
+			 * @brief.
+			 * Common initialization function.
+			 * 
+			 * @param defaults
+			 * Default property/value pairs.
+			 */
 			void
-			initPropertiesFile();
+			initPropertiesFile(
+			    const std::map<std::string, std::string> &defaults);
 		};
 	}
 }

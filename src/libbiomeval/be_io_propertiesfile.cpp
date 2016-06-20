@@ -26,18 +26,21 @@ static std::string RO_ERR_MSG = "Object is read-only";
 
 BiometricEvaluation::IO::PropertiesFile::PropertiesFile(
     const std::string &pathname,
-    IO::Mode mode) :
-    Properties(mode),
+    IO::Mode mode,
+    const std::map<std::string, std::string> &defaults) :
+    Properties(mode, defaults),
     _pathname(pathname)
 {
-	this->initPropertiesFile();
+	this->initPropertiesFile(defaults);
 }
 
 void
-BiometricEvaluation::IO::PropertiesFile::initPropertiesFile()
+BiometricEvaluation::IO::PropertiesFile::initPropertiesFile(
+    const std::map<std::string, std::string> &defaults)
 {
 	try {
-		this->initWithBuffer(IO::Utility::readFile(this->_pathname));
+		this->initWithBuffer(IO::Utility::readFile(this->_pathname),
+		    defaults);
 	} catch (Error::ObjectDoesNotExist) {
 		/* Create a new file if one does not exist */
 		if (this->getMode() == Mode::ReadOnly)
@@ -85,12 +88,6 @@ BiometricEvaluation::IO::PropertiesFile::changeName(
 		    Error::errorStr() + ")");
 
 	this->_pathname = pathname;
-
-	/* 
-	 * Not strictly necessary to re-init, but this assures us that we
-	 * can still read from the file.
-	 */
-	initPropertiesFile();
 }
 
 BiometricEvaluation::IO::PropertiesFile::~PropertiesFile()
