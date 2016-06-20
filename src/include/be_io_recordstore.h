@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 
+#include <be_framework_enumeration.h>
 #include <be_io.h>
 #include <be_memory_autoarray.h>
 
