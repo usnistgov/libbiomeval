@@ -268,9 +268,18 @@ std::string
 BiometricEvaluation::Text::basename(
     const std::string &path)
 {
+	/* Erase trailing slashes */
+	std::string pathCopy{path};
+	pathCopy.erase(std::find_if_not(pathCopy.rbegin(), pathCopy.rend(),
+	    [](const char &c) -> bool {	return (c == '/'); }).base(),
+	    pathCopy.end());
+	/* path was only slashes */
+	if (pathCopy.length() == 0)
+		pathCopy = path;
+
 	static Memory::AutoArray<char> buf;
-	buf.resize(strlen(path.c_str()) + 1);
-	strncpy(buf, path.c_str(), strlen(path.c_str()) + 1);
+	buf.resize(pathCopy.length() + 1);
+	strncpy(buf, pathCopy.c_str(), pathCopy.length() + 1);
 
 	return (::basename(buf));
 }

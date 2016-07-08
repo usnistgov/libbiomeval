@@ -105,11 +105,17 @@ main(int argc, char* argv[])
 	cout << endl;
 
 	cout << "Text::basename() / Text::dirname()" << endl;
-	string path = "/this/portion/is/the/dirname/and_this_is_the_filename";
-	cout << "Path: " << path << endl;
-	cout << "Dirname: " << Text::dirname(path) << endl;
-	cout << "Filename: " << Text::basename(path) << endl;
-
+	cout << "----------------------------------" << endl;
+	std::vector<std::string> paths{
+	    "/this/portion/is/the/dirname/and_this_is_the_filename",
+	    "./foobar", "foobar/", "foobar", "/foobar", ".", "/",
+	    "/////", "foobar////", "foobar////a", "", "foo/bar/"};
+	for (const auto &path : paths) {
+		cout << "Path: " << path << endl;
+		cout << "Dirname: " << Text::dirname(path) << endl;
+		cout << "Filename: " << Text::basename(path) << endl;
+		cout << endl;
+	}
 	cout << endl;
 
 	cout << "Text::caseInsensitiveCompare()" << endl;
