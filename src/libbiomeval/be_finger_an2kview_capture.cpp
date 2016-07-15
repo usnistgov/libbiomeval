@@ -99,13 +99,15 @@ BiometricEvaluation::Finger::AN2KViewCapture::convertFingerSegmentPosition(
 		    "position -- not enough items");
 
 	Finger::Position position = Finger::AN2KView::convertPosition(
-	    atoi((char *)sf->items[0]));
+	    atoi((char *)sf->items[0]->value));
 	    
 	Image::CoordinateSet coordinates;
 	coordinates.push_back(Image::Coordinate(
-	    atoi((char *)sf->items[1]), atoi((char *)sf->items[2])));
+	    atoi((char *)sf->items[1]->value),
+	    atoi((char *)sf->items[2]->value)));
 	coordinates.push_back(Image::Coordinate(
-	    atoi((char *)sf->items[3]), atoi((char *)sf->items[4])));
+	    atoi((char *)sf->items[3]->value),
+	    atoi((char *)sf->items[4]->value)));
 	
 	return (FingerSegmentPosition(position, coordinates));
 }
@@ -138,14 +140,14 @@ convertAlternateFingerSegmentPosition(
 		    "segment position -- not enough items");
 
 	Finger::Position position = Finger::AN2KView::convertPosition(
-	    atoi((char *)sf->items[0]));
+	    atoi((char *)sf->items[0]->value));
 	
 	/* Coordinates begin at offset 2, with X and Y in sequential items */
 	Image::CoordinateSet coordinates;
 	for (int i = 2; i < sf->num_items; i += 2) {
 		coordinates.push_back(Image::Coordinate(
-		    atoi((char *)sf->items[i]),
-		    atoi((char *)sf->items[i + 1])));
+		    atoi((char *)sf->items[i]->value),
+		    atoi((char *)sf->items[i + 1]->value)));
 	}
 	
 	return (FingerSegmentPosition(position, coordinates));
