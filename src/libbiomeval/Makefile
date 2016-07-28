@@ -27,6 +27,17 @@ NBISSTATIC = $(patsubst -l%,$(NBISLIBDIR)/lib%.a,$(filter-out -L%,$(NBISLIB)))
 COMMONINCOPT = -I/opt/local/include
 COMMONLIBOPT = -I/opt/local/lib
 
+#
+# On Linux, winscard.h may #include<pcsclite.h>, so we need the complete
+# path to that file.
+#
+ifneq ($(OS), Darwin)
+PCSCLIB = -lpcsclite
+COMMONINCOPT += -I/usr/include/PCSC
+else
+PCSCLIB = -framework PCSC
+endif
+
 # Includes must be after setting COMMON* above
 include ../common.mk
 include ../../VERSION
@@ -42,12 +53,6 @@ PNGLIB = -L$(shell pkg-config --variable=libdir libpng) $(shell pkg-config --lib
 SQLITE3LIB = -L$(shell pkg-config --variable=libdir sqlite3) $(shell pkg-config --libs-only-l --libs-only-other sqlite3)
 ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-only-l --libs-only-other zlib)
 FFMPEGLIB = -lavformat -lavutil -lswscale -lavcodec
-
-ifneq ($(OS), Darwin)
-PCSCLIB = -lpcsclite
-else
-PCSCLIB = -framework PCSC
-endif
 
 COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB) $(PCSCLIB)
 
