@@ -25,18 +25,12 @@ NBISLIB = -L$(NBISLIBDIR) -l$(NBISEVALNAME)
 NBISSTATIC = $(patsubst -l%,$(NBISLIBDIR)/lib%.a,$(filter-out -L%,$(NBISLIB)))
 
 COMMONINCOPT = -I/opt/local/include
-COMMONLIBOPT = -I/opt/local/lib
-
 #
 # On Linux, winscard.h may #include<pcsclite.h>, so we need the complete
 # path to that file.
 #
-ifneq ($(OS), Darwin)
-PCSCLIB = -lpcsclite
 COMMONINCOPT += -I/usr/include/PCSC
-else
-PCSCLIB = -framework PCSC
-endif
+COMMONLIBOPT = -I/opt/local/lib
 
 # Includes must be after setting COMMON* above
 include ../common.mk
@@ -55,6 +49,12 @@ ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-on
 FFMPEGLIB = -lavformat -lavutil -lswscale -lavcodec
 
 COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB) $(PCSCLIB)
+
+ifneq ($(OS), Darwin)
+PCSCLIB = -lpcsclite
+else
+PCSCLIB = -framework PCSC
+endif
 
 CORE = be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_framework_status.cpp be_framework_api.cpp be_process_statistics.cpp
 
