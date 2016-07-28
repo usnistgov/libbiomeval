@@ -92,8 +92,8 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 		return (getRawData());
 
 	Memory::uint8Array rawColor{this->getRawData()};
-	Memory::uint8Array rawGray{
-	    this->getDimensions().xSize * this->getDimensions().ySize};
+	Memory::uint8Array rawGray(
+	    this->getDimensions().xSize * this->getDimensions().ySize);
 	    	
 	/* Constants from ITU-R BT.601 */
 	static const float redFactor = 0.299;

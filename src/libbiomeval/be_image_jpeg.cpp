@@ -83,7 +83,7 @@ BiometricEvaluation::Image::JPEG::getRawData()
 		throw Error::StrategyError("jpeg_start_decompress()");
 
 	uint64_t row_stride = dinfo.output_width * dinfo.output_components;
-	Memory::uint8Array rawData{dinfo.output_height * row_stride};
+	Memory::uint8Array rawData(dinfo.output_height * row_stride);
 
 	JSAMPARRAY buffer = (*dinfo.mem->alloc_sarray)(
 	    (j_common_ptr)&dinfo, JPOOL_IMAGE, row_stride, 1);
@@ -145,7 +145,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 		throw Error::StrategyError("jpeg_start_decompress()");
 
 	uint64_t row_stride = dinfo.output_width * dinfo.output_components;
-	Memory::uint8Array rawGray{dinfo.output_height * row_stride};
+	Memory::uint8Array rawGray(dinfo.output_height * row_stride);
 
 	JSAMPARRAY buffer = (*dinfo.mem->alloc_sarray)(
 	    (j_common_ptr)&dinfo, JPOOL_IMAGE, row_stride, 1);

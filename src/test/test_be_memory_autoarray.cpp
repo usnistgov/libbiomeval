@@ -88,6 +88,20 @@ testIterator()
 	cout << endl;
 }
 
+static void
+testAndPrintContents(const Memory::uint8Array &aa, size_t size)
+{
+	if (aa.size() != size) {
+		std::cout << "Failed, AutoArray size is incorrect;"
+		    << " expected " << size << ", got " << aa.size() << "."
+		    << std::endl;
+	} else {
+		for (auto i : aa)
+			std::printf("0x%02x ", i);
+		std::cout << std::endl;
+	}
+}
+
 int main (int argc, char* argv[]) {
 	Memory::AutoArray<char> buf = Memory::AutoArray<char>(0);
 	buf.resize(0);
@@ -206,6 +220,15 @@ int main (int argc, char* argv[]) {
 
 	/* Test non-integral AutoArray */
 	testStringAutoArray();
+
+	/* Test initializer list construction and assignment. */
+	std::cout << "Initializer list construction: ";
+	Memory::AutoArray<uint8_t> listA{0x01, 0x02, 0x03, 0x04};
+	testAndPrintContents(listA, 4);
+
+	std::cout << "Initializer list assignment: ";
+	Memory::AutoArray<uint8_t> listB = {0x11, 0x22, 0x33, 0x44};
+	testAndPrintContents(listB, 4);
 
 	return (0);
 }

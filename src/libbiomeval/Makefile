@@ -27,7 +27,7 @@ NBISSTATIC = $(patsubst -l%,$(NBISLIBDIR)/lib%.a,$(filter-out -L%,$(NBISLIB)))
 COMMONINCOPT = -I/opt/local/include
 COMMONLIBOPT = -I/opt/local/lib
 
-# Includes must be after setting COMON* above
+# Includes must be after setting COMMON* above
 include ../common.mk
 include ../../VERSION
 
@@ -42,7 +42,14 @@ PNGLIB = -L$(shell pkg-config --variable=libdir libpng) $(shell pkg-config --lib
 SQLITE3LIB = -L$(shell pkg-config --variable=libdir sqlite3) $(shell pkg-config --libs-only-l --libs-only-other sqlite3)
 ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-only-l --libs-only-other zlib)
 FFMPEGLIB = -lavformat -lavutil -lswscale -lavcodec
-COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB)
+
+ifneq ($(OS), Darwin)
+PCSCLIB = -lpcsclite
+else
+PCSCLIB = -framework PCSC
+endif
+
+COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB) $(PCSCLIB)
 
 CORE = be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_framework_status.cpp be_framework_api.cpp be_process_statistics.cpp
 
@@ -73,7 +80,9 @@ MPIRECEIVER = be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocessor
 
 VIDEO = be_video_impl.cpp be_video_container_impl.cpp be_video_stream_impl.cpp be_video_container.cpp be_video_stream.cpp
 
-SOURCES = $(CORE) $(IO) $(RECORDSTORE) $(PROCESS) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER) $(VIDEO)
+DEVICE = be_device_tlv_impl.cpp be_device_tlv.cpp be_device_smartcard_impl.cpp be_device_smartcard.cpp
+
+SOURCES = $(CORE) $(IO) $(RECORDSTORE) $(PROCESS) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER) $(VIDEO) $(DEVICE)
 
 # Source files that rely on NBIS development files being installed
 NBIS_SOURCES = be_feature_an2k7minutiae.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_wsq.cpp be_view_an2kview.cpp be_view_an2kview_varres.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_data_interchange_an2k.cpp

@@ -11,6 +11,8 @@
 #ifndef __BE_MEMORY__
 #define __BE_MEMORY__
 
+#include<memory>
+
 namespace BiometricEvaluation {
 	/**
 	 * @brief
@@ -21,6 +23,18 @@ namespace BiometricEvaluation {
 	 */
 	namespace Memory
 	{
+
+		/**
+		 * Framework version of std::make_unique, coming in
+		 * C++14. This implementation is taken from "Effective
+		 * Modern C++" by Scott Meyers.
+		 */
+		template<typename T, typename... Ts>
+		std::unique_ptr<T> make_unique(Ts&&... params)
+		{
+			return (std::unique_ptr<T>
+			    (new T(std::forward<Ts>(params)...)));
+		}
 	}
 }
 #endif /* __BE_MEMORY__ */

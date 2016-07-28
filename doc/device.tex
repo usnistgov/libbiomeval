@@ -1,0 +1,99 @@
+%
+% Device API
+%
+\chapter{Device}
+\label{chp-device}
+The \namespace{Device} package consists of classes, constants, and other
+structures used to communicate with hardware devices. These include
+smartcards that conforms to the ISO Smartcard standard~\cite{std:iso7816-4}.
+
+\section{TLV}
+The \class{TLV} class represents a single tag-length-value object as described
+in~\cite{std:iso7816-4}. The data for a TLV can be represented in two manners:
+\begin{itemize}
+\item As a ``raw'' set of octets; this is the format used by smartcards;
+\item As an object giving accessed to the parsed fields, data, and children.
+\end{itemize}
+
+Both ``constructed'' and ``primitive'' basic-encoding-rule (BER) TLV objects
+are supported by the \class{TLV} class. Methods are provided to obtain the
+children of a constructed BER-TLV and to obtain the data of a primitive
+BER-TLV.
+
+\section{Smartcard}
+\subsection{APDU}
+
+The \class{APDU} represents an \gls{apdu} that is sent to a card. An \gls{apdu}
+object directly represents the data according to~\cite{std:iso7816-4} as all
+fields of the the class are public. Applications can send an \gls{apdu} to the
+card, but the more effective approach is to subclass \class{Smartcard} and wrap
+\gls{apdu} communication with methods that are specific to the type of card.
+
+\subsection{Smartcard Communication}
+
+The \class{Smartcard} class provides generic access to a any card that is
+inserted
+in the system. An application on the card can be activated during construction.
+Card data objects can be retrieved based on the object ID, and any \gls{apdu}
+can be sent to the card.
+
+Because communicating with a card depends on a command/response protocol,
+\class{Smartcard} provides methods to retrieve the response returned by the
+card. This retrieval is useful when the status words must be examined as many
+commands can result in several values for each status word.
+
+\newpage
+
+\begin{lstlisting}[caption={Accessing a PIV smartcard}, label=lst:smc-example]
+#include <iostream>
+#include <be_device_smartcard.h>
+#include <be_device_tlv.h>
+#include <be_error_exception.h>
+
+int main(int argc, char *argv[])
+{
+        std::cout << "Attempt to activate PIV: " << std::endl;
+        for (int i = 0; i < 4; i++) {
+                try {
+                        std::cout << "\tReader " << i << ": ";
+                        BE::Device::Smartcard smc(i,
+                             {0xA0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00,
+                              0x10, 0x00, 0x01, 0x00});
+                        std::cout << "Found." << std::endl;
+
+                        std::cout << "Get Card Capability Container: "
+                            << std::endl;;
+                        BE::Memory::uint8Array
+                            objID{0x5C, 0x03, 0x5F, 0xC1, 0x07};
+                        auto obj = smc.getDedicatedFileObject(objID);
+
+			/* The CCC is contained within a TLV */
+                        std::cout << BE::Device::TLV::stringFromTLV(obj, 1);
+
+			/* Do something with the TLV data, which is the CCC */
+			BE::Device::TLV tlv(obj);
+			processCCC(tlv.getPrimitive());
+
+                // The card responded with something other than normal
+                // processing complete, catch the exception from the
+                // Framework so the status words can be examined.
+                } catch (BE::Device::Smartcard::APDUException &e) {
+                                std::cout << "Bad response: ";
+                                printf("0x%02hhX%02hhX\n",
+                                    e.response.sw1, e.response.sw2);
+                                std::cout << "Sent APDU: " << std::endl;
+				// Dump the octets from the sent APDU
+                                dumpUint8Array(e.apdu);
+                } catch (BE::Error::ParameterError &e) {
+                                std::cout << "Caught " << e.whatString();
+                } catch (BE::Error::StrategyError &e) {
+                        std::cout << "Other error: " << e.whatString();
+                }
+                std::cout << std::endl;
+        }
+        return (EXIT_SUCCESS);
+}
+\end{lstlisting}
+
+The example code in \lstref{lst:smc-example} shows how to activate the PIV
+smartcard and retrieve one of its data objects.

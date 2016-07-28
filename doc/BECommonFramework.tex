@@ -4,25 +4,39 @@
 % output, so if Doxygen or LaTex produce errors, the fix may be to
 % generate the default again (by setting LATEX_HEADER to nothing in the
 % config file) and then copying that back into this file.
+%
+% Requires Doxygen 1.8.12 (possibly later?) to build the full version of the
+% document.
 %--------------------------------------------------------------------------
 \input{commoncommands.tex}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 %
-\usepackage{makeidx}
+% Packages required by doxygen
+% As of Doxygen version 1.8.12 not all packages are needed, just comment them
+% out for now.
+%
+%\usepackage{calc}
+%\usepackage{doxygen}
+%\usepackage[export]{adjustbox} % also loads graphicx
 \usepackage{graphicx}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
-\usepackage{multicol}
-\usepackage{float}
-\usepackage{listings}
-\usepackage[table]{xcolor}
+%\usepackage[utf8]{inputenc}
+\usepackage{makeidx}
+%\usepackage{multicol}
+%\usepackage{multirow}
+%\PassOptionsToPackage{warn}{textcomp}
 \usepackage{textcomp}
+%\usepackage[nointegrals]{wasysym}
+%\usepackage[table]{xcolor}
+
+% Packages used by NIST
+\usepackage{listings}
+\usepackage{xspace}
 \usepackage{alltt}
 \usepackage{times}
-\usepackage{ifpdf}
-\usepackage{varioref}
-\usepackage{xspace}
 \usepackage{relsize}
+\usepackage{varioref}
 
 % Caption headers for code listings
 \usepackage{caption}
@@ -61,10 +75,35 @@
 	showstringspaces=false,
 	basicstyle=\small\ttfamily
 }
-\makeindex
+
+% Indices & bibliography
+\usepackage{natbib}
+\usepackage[titles]{tocloft}
 \setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{5}
+\makeindex
+
+\RequirePackage[toc]{glossaries}
+\loadglsentries{commonglossary}
+\makeglossaries
+
+% Custom commands
+
+\newcommand{\clearemptydoublepage}{%
+  \newpage{\pagestyle{empty}\cleardoublepage}%
+}
+
+%===== C O N T E N T S =====
+
 \begin{document}
-\hypersetup{pageanchor=false}
+
+% Titlepage & ToC
+\hypersetup{pageanchor=false,
+             bookmarks=true,
+             bookmarksnumbered=true,
+             pdfencoding=unicode
+            }
+
 \pagenumbering{roman}
 \input{title}
 \tableofcontents
@@ -102,22 +141,29 @@
 \input{memory}
 \input{error}
 \input{io}
+\input{text}
 \input{time}
 \input{process}
 \input{system}
 \input{image}
 \input{video}
-\input{text}
+\input{device}
 \input{feature}
 \input{finger}
 \input{view}
 \input{datainterchange}
 \input{messaging}
 \input{parallel}
+
 %--------------------------------------------------------------------------
 % Generate and add the bibliography to the table of contents
 %--------------------------------------------------------------------------
-\renewcommand\bibname{References}
 \bibliographystyle{plain}
-\bibliography{BECommonFramework}
+% Change the name of the generated 'Bibliography'
+\renewcommand\bibname{References}
+\cleardoublepage
+\phantomsection
 \addcontentsline{toc}{chapter}{References}
+\bibliography{BECommonFramework}
+\printglossaries
+

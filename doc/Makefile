@@ -8,12 +8,12 @@
 # about its quality, reliability, or any other characteristic.
 #
 ROOTNAME = BECommonFramework
-SOURCETEX = $(ROOTNAME).tex title.tex intro.tex overview.tex framework.tex error.tex io.tex time.tex image.tex video.tex process.tex system.tex memory.tex text.tex feature.tex finger.tex view.tex datainterchange.tex parallel.tex messaging.tex frameworkbuild.tex mpijob.tex
+SOURCETEX = $(ROOTNAME).tex title.tex intro.tex overview.tex framework.tex error.tex io.tex time.tex image.tex video.tex process.tex system.tex memory.tex text.tex feature.tex finger.tex view.tex datainterchange.tex parallel.tex messaging.tex frameworkbuild.tex mpijob.tex device.tex
 SOURCECODE = ../src/include/*.h
 export BIOMEVAL_VERSION = $(shell eval `cat ../VERSION | egrep ^[A-Z]`; echo $$MAJOR_VERSION.$$MINOR_VERSION)
 LOCALINC=../../doccommon
 
-COMMONTEX=$(LOCALINC)/texfiles/commoncommands.tex
+COMMONTEX=$(LOCALINC)/texfiles/commonglossary.tex $(LOCALINC)/texfiles/commoncommands.tex
 COMMONASSETS=../../doccommon/assets/nistident_cent_vec.pdf ParallelJob.pdf
 include $(LOCALINC)/common.mk
 

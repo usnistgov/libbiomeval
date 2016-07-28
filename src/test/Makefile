@@ -36,7 +36,9 @@ MPI = test_be_rs_mpi test_be_csv_mpi
 
 VIDEO = test_be_video
 
-PROGS = $(CORE) $(IO) $(RECORDSTORE) $(IMAGE) $(VIDEO) $(PROCESS) $(FINGER) $(FEATURE) $(IRIS) $(FACE) $(OTHER) $(COMMAND_CENTER) $(MPI)
+DEVICE = test_be_device_tlv test_be_device_smartcard
+
+PROGS = $(CORE) $(IO) $(RECORDSTORE) $(IMAGE) $(VIDEO) $(PROCESS) $(FINGER) $(FEATURE) $(IRIS) $(FACE) $(OTHER) $(COMMAND_CENTER) $(MPI) $(DEVICE)
 
 all: CXXFLAGS += -g
 all: $(PROGS)
@@ -154,6 +156,10 @@ test_be_io_recordstoreunion: test_be_io_recordstoreunion.cpp
 test_be_io_persistentrecordstoreunion: test_be_io_persistentrecordstoreunion.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_framework_api: test_be_framework_api.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_device_tlv: test_be_device_tlv.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_device_smartcard: test_be_device_smartcard.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 
 clean:

@@ -34,6 +34,11 @@ namespace BiometricEvaluation
 		/**
 		 * @brief
 		 * A C-style array wrapped in the facade of a C++ STL container.
+		 * @details
+		 * Objects of this type should be treated in the traditional
+		 * manner for containers, where (size_type) construction creates
+		 * an array of the given size, while {...} construction creates
+		 * an array with the given elements.
 		 */
 		template<class T> 
 		class AutoArray
@@ -315,7 +320,7 @@ namespace BiometricEvaluation
 				 * @throw Error::MemoryError
 				 *	Could not allocate new memory.
 				 */
-				AutoArray(
+				explicit AutoArray(
 				    size_type size = 0);
 
 				/**
@@ -344,6 +349,16 @@ namespace BiometricEvaluation
 				AutoArray(
 				    AutoArray &&rvalue)
 				    noexcept;
+
+				/**
+				 * @brief
+				 * Construct an AutoArray.
+				 *
+				 * @param[in] ilist
+				 *	An initializer list of type T.
+				 */
+				AutoArray(
+				    std::initializer_list<T> ilist);
 
 				/**
 				 * @brief
@@ -667,6 +682,14 @@ BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
 	rvalue._data = nullptr;
 	rvalue._capacity = 0;
 	rvalue._size = 0;
+}
+
+template<class T>
+BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
+    std::initializer_list<T> ilist) : AutoArray(ilist.size())
+{
+	for (int i = 0; i != ilist.size(); ++i)
+		_data[i] = ilist.begin()[i];
 }
 
 /******************************************************************************/

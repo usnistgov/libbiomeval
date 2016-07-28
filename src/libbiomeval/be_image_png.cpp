@@ -107,7 +107,7 @@ BiometricEvaluation::Image::PNG::getRawData()
 	png_uint_32 rowbytes = png_get_rowbytes(png_ptr, png_info_ptr);
 	uint32_t height = this->getDimensions().ySize;
 	Memory::AutoArray<png_bytep> row_pointers(height);
-	Memory::uint8Array rawData{rowbytes * height};
+	Memory::uint8Array rawData(rowbytes * height);
 	
 	/* Tell libpng to store decompressed PNG data directly into AutoArray */
 	for (uint32_t row = 0; row < height; row++)
