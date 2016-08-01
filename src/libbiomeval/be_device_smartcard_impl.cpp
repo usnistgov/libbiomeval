@@ -291,9 +291,8 @@ BiometricEvaluation::Device::Smartcard::Impl::sendChained(
 	}
 	ncIndex = 0;
 
-	bool done = false;
 	unsigned int lastAPDUIndex = 0;
-	while (done == false) {
+	while (LcLen > 0) {
 		sendIndex = 4;
 		if (apdu.field_mask & APDU::FIELD_LC) {
 			if (LcLen > maxLcLen) {
@@ -305,19 +304,15 @@ BiometricEvaluation::Device::Smartcard::Impl::sendChained(
 				ncIndex += maxLcLen;
 				sendIndex += maxLcLen;
 				LcLen -= maxLcLen;
-			} else {
+			} else {	/* Note that LcLen cannot be 0 here */
 				bSendBuffer[0] &= ~APDU::FLAG_CLA_CHAIN;
-				/* If we have no Nc, then Lc is absent too */
-				if (LcLen != 0) {
-					bSendBuffer[sendIndex] = (uint8_t)LcLen;
-					sendIndex += 1;
-				}
+				bSendBuffer[sendIndex] = (uint8_t)LcLen;
+				sendIndex += 1;
 				std::memcpy(&bSendBuffer[sendIndex],
 				    &apdu.nc[ncIndex], LcLen);
 				ncIndex += LcLen;
 				sendIndex += LcLen;
 				LcLen = 0;
-				done = true;
 			}
 		}
 		if (apdu.field_mask & APDU::FIELD_LE) {
@@ -349,8 +344,13 @@ BiometricEvaluation::Device::Smartcard::Impl::sendChained(
 			    bRecvBuffer, recvLength, response,
 			    sw1, sw2);
 			this->_lastResponseData = response;
+			/*
+			 * If we fail in the middle of the chain, send no more
+			 * data. The client can retrieve the response and
+			 * status.
+			 */
 			if (sw1 != APDU::NORMAL_COMPLETE)
-				done = true;
+				LcLen = 0;	/* Send no more data */
 		} else {
 			sw1 = APDU::NORMAL_COMPLETE;
 			sw2 = 0;
