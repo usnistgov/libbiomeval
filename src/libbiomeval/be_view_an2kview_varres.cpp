@@ -257,7 +257,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::parseUserDefinedField(
 }
 
 std::ostream&
-operator<<(
+BiometricEvaluation::View::operator<<(
     std::ostream &stream,
     const BiometricEvaluation::View::AN2KViewVariableResolution::
     AN2KQualityMetric &qm)
