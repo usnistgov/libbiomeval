@@ -517,7 +517,8 @@ insertIntoDB(
 			break;
 		case 1:
 			throw BiometricEvaluation::Error::ObjectExists(
-			    "Key already in database");
+			    std::string(static_cast<char*>(dbtkey.data),
+			    dbtkey.size));
 		case -1:
 			throw BiometricEvaluation::Error::StrategyError(
 			    "Could not insert to database (" +
