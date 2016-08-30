@@ -53,7 +53,8 @@ struct _pstats {
 };
 using PSTATS = struct _pstats;
 static const std::string LogsheetHeader =
-    "Entry Usertime Systime RSS VMSize VMPeak VMData VMStack Threads";
+    "EntryType EntryNum Usertime Systime RSS VMSize VMPeak VMData VMStack "
+    "Threads";
 static const std::string StartAutologComment = "Autolog started. Interval: ";
 static const std::string StopAutologComment = "Autolog stopped. ";
 
