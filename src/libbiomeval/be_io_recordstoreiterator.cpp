@@ -112,9 +112,21 @@ void
 BiometricEvaluation::IO::RecordStoreIterator::step(
     difference_type numSteps)
 {
+	/* Backwards */
 	if (numSteps <= 0)
 		return;
 
+	/* Forward one step */
+	if (numSteps == 1) {
+		try {
+			this->_currentRecord = this->_recordStore->sequence();
+		} catch (Error::ObjectDoesNotExist) {
+			this->setEnd();
+		}
+		return;
+	}
+
+	/* Forward 2..n steps */
 	std::string key;
 	for (difference_type i = 0; i < numSteps; i++) {
 		try {
