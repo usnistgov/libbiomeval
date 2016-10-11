@@ -60,7 +60,7 @@ namespace BiometricEvaluation
 
 		private:
 			/* The enumeration being stored */
-			T &_enumeration;
+			T _enumeration;
 		};
 		
 		/**
@@ -242,7 +242,7 @@ namespace BiometricEvaluation
 
 		private:
 			/* The enumeration being stored */
-			const T &_enumeration;
+			const T _enumeration;
 		};
 
 		/**

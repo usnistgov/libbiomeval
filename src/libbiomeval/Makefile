@@ -79,7 +79,7 @@ FACE = be_face.cpp be_face_incitsview.cpp be_face_iso2005view.cpp
 
 DATA = be_data_interchange_an2k.cpp be_data_interchange_ansi2004.cpp
 
-MPIBASE = be_mpi.cpp be_mpi_runtime.cpp be_mpi_workpackage.cpp be_mpi_workpackageprocessor.cpp be_mpi_resources.cpp be_mpi_recordstoreresources.cpp be_mpi_csvresources.cpp
+MPIBASE = be_mpi.cpp be_mpi_csvresources.cpp be_mpi_exception.cpp be_mpi_runtime.cpp be_mpi_workpackage.cpp be_mpi_workpackageprocessor.cpp be_mpi_resources.cpp be_mpi_recordstoreresources.cpp
 MPIDISTRIBUTOR = be_mpi_distributor.cpp be_mpi_recordstoredistributor.cpp be_mpi_csvdistributor.cpp
 MPIRECEIVER = be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocessor.cpp
 

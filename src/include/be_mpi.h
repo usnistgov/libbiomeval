@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 
+#include <be_framework_enumeration.h>
 #include <be_io_logsheet.h>
 
 namespace BiometricEvaluation {
@@ -97,81 +98,58 @@ namespace BiometricEvaluation {
 		    const std::string &url,
 		    const std::string &description);
 
-		/**
-		 * @brief
-		 * The command given to an MPI task.
-		 */
-		class TaskCommand {
-		public:
-			typedef enum {
-				Continue = 0,
-				/**
-				 * Normal operation.
-				 */
-				Ignore = 1,
-				/**
-				 * Ignore the message.
-				 */
-				Exit = 2,
-				/**
-				 * Transition to the normal shutdown state.
-				 */
-				QuickExit = 3,
-				/**
-				 * Transition to the quick shutdown state.
-				 */
-				TermExit = 4
-				/**
-				 * Transition to the immeditate shutdown state.
-				 */
-			} Kind;
+		/** The command given to an MPI task. */
+		enum class TaskCommand : int32_t
+		{
+			/** Normal operation. */
+			Continue = 0,
+			/** Ignore the message. */
+			Ignore = 1,
+			/** Transition to the normal shutdown state. */
+			Exit = 2,
+			/** Transition to the quick shutdown state. */
+			QuickExit = 3,
+			/** Transition to the immeditate shutdown state. */
+			TermExit = 4
 		};
 
-		/**
-		 * @brief
-		 * The status of an MPI distributor or receiver task.
-		 */
-		class TaskStatus {
-		public:
-			typedef enum {
-				OK = 0,
-				/**
-				 * Normal operation.
-				 */
-				Failed = 1,
-				/**
-				 * Failed to complete an operation.
-				 */
-				Exit = 2
-				/**
-				 * Transitioned to the shutdown state.
-				 */
-			} Kind;
+		/** Storage type for TaskCommand. */
+		using taskcmd_t = std::underlying_type<TaskCommand>::type;
+
+		/** The status of an MPI distributor or receiver task. */
+		enum class TaskStatus : int32_t
+		{
+			/** Normal operation. */
+			OK = 0,
+			/** Failed to complete an operation. */
+			Failed = 1,
+			/** Transitioned to the shutdown state. */
+			Exit = 2,
+			/** Requesting that Distributor stops the job. */
+			RequestJobTermination = 3
 		};
 
-		/**
-		 * @brief
-		 * The types of messages sent between MPI task processes.
-		 */
-		class MessageTag {
-		public:
-			typedef enum {
-				Control = 0,
-				/**
-				 * A control message (start, exit, etc.
-				 */
-				Data = 1,
-				/**
-				 * A data message.
-				 */
-				OOB = 2
-				/**
-				 * An out-of-band message, used when the
-				 * normal control/data messaging cannot
-				 * be used.
-				 */
-			} Kind;
+		/** Storage type for TaskStatus. */
+		using taskstat_t = std::underlying_type<TaskStatus>::type;
+
+		/** The types of messages sent between MPI task processes. */
+		enum class MessageTag : int32_t
+		{
+			/** A control message (start, exit, etc.) */
+			Control = 0,
+			/** A data message. */
+			Data = 1,
+			/**
+			 * @brief
+			 * An out-of-band message, used when the
+			 * normal control/data messaging cannot
+			 * be used.
+			 */
+			OOB = 2
 		};
+
+		/** Storage type for MessageTag. */
+		using msgtag_t = std::underlying_type<MessageTag>::type;
 	}
 }
 

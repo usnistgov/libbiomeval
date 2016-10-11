@@ -11,7 +11,8 @@
 #ifndef __BE_MEMORY__
 #define __BE_MEMORY__
 
-#include<memory>
+#include <memory>
+#include <type_traits>
 
 namespace BiometricEvaluation {
 	/**
@@ -23,18 +24,109 @@ namespace BiometricEvaluation {
 	 */
 	namespace Memory
 	{
+		/**
+		 * @brief
+		 * Define a type that is visible when T is not an array.
+		 *
+		 * @note
+		 * Coming in C++14. This implementation is taken from the
+		 * LLVM implementation.
+		 */
+		template<class T>
+		struct unique_if
+		{
+			/** Type to use when T is not an array. */
+			using unique_single = std::unique_ptr<T>;
+		};
 
 		/**
-		 * Framework version of std::make_unique, coming in
-		 * C++14. This implementation is taken from "Effective
-		 * Modern C++" by Scott Meyers.
+		 * @brief
+		 * Define a type that is visible when T is an unknown-bound
+		 * array.
+		 *
+		 * @note
+		 * Coming in C++14. This implementation is taken from the
+		 * LLVM implementation.
+		 */
+		template<class T>
+		struct unique_if<T[]>
+		{
+			/** Type to use when T is unknown-bound array. */
+			using unique_array_unknown_bound = std::unique_ptr<T[]>;
+		};
+
+		/**
+		 * @brief
+		 * Define a type that is visible when T is an known-bound array.
+		 *
+		 * @note
+		 * Coming in C++14. This implementation is taken from the
+		 * LLVM implementation.
+		 */
+		template<class T, size_t S>
+		struct unique_if<T[S]>
+		{
+			/** Type to use when T is known-bound array. */
+			using unique_array_known_bound = void;
+		};
+
+		/**
+		 * @brief
+		 * Framework version of std::make_unique for non-array types.
+		 *
+		 * @note
+		 * Coming in C++14. This implementation is taken from "Effective
+		 * Modern C++" by Scott Meyers, modified to participate
+		 * in the overload resolution only when T is not an array.
+		 *
+		 * @note
+		 * This function shall not participate in overload resolution
+		 * unless T is not an array.
 		 */
 		template<typename T, typename... Ts>
-		std::unique_ptr<T> make_unique(Ts&&... params)
+		typename unique_if<T>::unique_single
+		make_unique(Ts&&... params)
 		{
 			return (std::unique_ptr<T>
 			    (new T(std::forward<Ts>(params)...)));
 		}
+
+		/**
+		 * @brief
+		 * Framework version of std::make_unique for unknown-bound
+		 * arrays.
+		 *
+		 * @note
+		 * Coming in C++14. This implementation is taken from the
+		 * LLVM implementation.
+		 *
+		 * @note
+		 * This function shall not participate in overload resolution
+		 * unless T is an array of unknown bound.
+		 */
+		template<class T>
+		typename unique_if<T>::unique_array_unknown_bound
+		make_unique(size_t size)
+		{
+			typedef typename std::remove_extent<T>::type U;
+			return (std::unique_ptr<T>(new U[size]()));
+		}
+
+		/**
+		 * @brief
+		 * Framework version of std::make_unique for known-bound arrays.
+		 *
+		 * @note
+		 * Coming in C++14. This implementation is taken from the
+		 * LLVM implementation.
+		 *
+		 * @note
+		 * This function shall not participate in overload resolution
+		 * unless T is an array of known bound.
+		 */
+		template<class T, class... Ts>
+		typename unique_if<T>::unique_array_known_bound
+		make_unique(Ts&&...) = delete;
 	}
 }
 #endif /* __BE_MEMORY__ */

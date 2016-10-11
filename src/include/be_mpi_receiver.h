@@ -91,11 +91,11 @@ namespace BiometricEvaluation {
 		protected:
 
 		private:
-			MPI::TaskStatus::Kind requestWorkPackages();
+			MPI::TaskStatus requestWorkPackages();
 			void sendWorkPackage(MPI::WorkPackage &workPackage);
 			void startWorkers();
 			void shutdown(
-			    const MPI::TaskStatus::Kind &status,
+			    const MPI::TaskStatus &status,
 			    const std::string &reason);
 
 			Process::ForkManager _processManager;

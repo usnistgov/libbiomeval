@@ -248,7 +248,7 @@ the current work item. However, distributors and receivers will shutdown in a
 clean manner.
 
 Any of the signals can be sent to the distributor process, which then sends
-messages to the receivers. In addition, if a signal is sent to a receiver, or
+messages to the receivers. In addition, if a signal is sent to a receiver or
 worker process, only that process (receiver or worker) is affected, but the
 termination condition is communicated ``up'' the chain. By selectively sending
 signals to certain processes, a user can shutdown the entire job (send to the
@@ -256,6 +256,15 @@ distributor), an entire node (send to the receiver on that node), or a single
 worker. A worker receiving a signal sends a message back to the receiver.
 Likewise, a receiver will communicate the shutdown state back to the
 distributor.
+
+In addition to sending signals from outside the process, a worker can shutdown
+itself or the entire job through exceptions. Any type of exception thrown
+from within a worker will cause that individual worker to shutdown, and its
+status will be communicated up the chain. A special type of exception,
+\class{TerminateJob}, will shutdown the individual worker, and additionally
+communicate up the chain to the distributor that all other workers should
+immediately exit. Throwing \class{TerminateJob} from a worker is similar in
+result to sending \texttt{SIGTERM} to a distributor.
 
 \section{Logging}
 \label{sec-mpilogging}
