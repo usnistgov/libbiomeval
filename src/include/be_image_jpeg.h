@@ -17,9 +17,21 @@
 
 /* jpeglib.h forward-declares */
 extern "C" {
-#ifndef HAVE_BOOLEAN
-	typedef int boolean;
-#endif
+/* libjpeg 9b no longer needs "boolean" defined */
+#if JPEG_LIB_VERSION <= 90
+	#if JPEG_LIB_VERSION == 90
+		#if JPEG_LIB_VERSION_MINOR < 2
+			#ifndef HAVE_BOOLEAN
+				typedef int boolean;
+			#endif /* HAVE_BOOLEAN */
+		#endif /* JPEG_LIB_VERSION_MINOR < 2 */
+	#else /* JPEG_LIB_VERSION == 90 */
+		#ifndef HAVE_BOOLEAN
+			typedef int boolean;
+		#endif /* HAVE_BOOLEAN */
+	#endif /* JPEG_LIB_VERSION == 90 */
+#endif /* JPEG_LIB_VERSION */
+
 	struct jpeg_decompress_struct;
 	struct jpeg_common_struct;
 	typedef struct jpeg_common_struct *j_common_ptr;
