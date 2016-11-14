@@ -79,7 +79,7 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 	FRM_HEADER_JPEGL *frameHeader;
 	if (getc_frame_header_jpegl(&frameHeader, &markerBuf, endPtr))
 		throw Error::DataError("libjpegl: Could not read frame header");
-	setDepth((uint16_t)frameHeader->Nf * Image::bitsPerComponent);
+	setDepth((uint16_t)frameHeader->Nf * 8);
 	setDimensions(Size(frameHeader->x, frameHeader->y));
 	free(frameHeader);
 }

@@ -67,6 +67,34 @@ testStringAutoArray()
 }
 
 void
+testVector()
+{
+	Memory::uint8Array aa(30);
+	std::srand(std::time(0));
+	std::generate(aa.begin(), aa.end(), std::rand);
+
+	const auto v = aa.to_vector();
+	if (!std::equal(aa.cbegin(), aa.cend(), v.cbegin())) {
+		std::cout << "FAIL" << std::endl;
+		return;
+	}
+
+	Memory::AutoArray<std::string> stringAA(26);
+	for (uint64_t i = 0; i < stringAA.size(); ++i)
+		stringAA[i] = std::string(1, 'a' + i);
+
+	std::string result{};
+	std::vector<std::string> stringVec = stringAA.to_vector();
+	std::for_each(stringVec.begin(), stringVec.end(),
+	    [&](const std::string &i) { result += i; });
+
+	if (result == "abcdefghijklmnopqrstuvwxyz")
+		std::cout << "PASS" << std::endl;
+	else
+		std::cout << "FAIL" << std::endl;
+}
+
+void
 testIterator()
 {
 	/* Fill an array with random numbers */
@@ -86,6 +114,72 @@ testIterator()
 	std::copy(aa.cbegin(), aa.cend(),
 	    std::ostream_iterator<int>(std::cout, " "));
 	cout << endl;
+}
+
+void
+testComparisons()
+{
+	Memory::AutoArray<std::string> a(26);
+	for (uint64_t i = 0; i < a.size(); ++i)
+		a[i] = std::string(1, 'a' + i);
+
+	Memory::AutoArray<std::string> b(26);
+	for (uint64_t i = 0; i < b.size(); ++i)
+		b[i] = std::string(1, 'a' + i);
+
+	if (a != a) {
+		std::cout << "FAIL (!=)" << std::endl;
+		return;
+	}
+
+	if (a != b) {
+		std::cout << "FAIL (!=)" << std::endl;
+		return;
+	}
+
+	if (a < b) {
+		std::cout << "FAIL (<)" << std::endl;
+		return;
+	}
+
+	b.resize(27);
+	if (a == b) {
+		std::cout << "FAIL (==)" << std::endl;
+		return;
+	}
+
+	a.resize(27);
+	a[26] = 'a';
+	b[26] = 'z';
+	if (a != a) {
+		std::cout << "FAIL (!=)" << std::endl;
+		return;
+	}
+
+	if (a >= b) {
+		std::cout << "FAIL (>=)" << std::endl;
+		return;
+	}
+	if (a > b) {
+		std::cout << "FAIL (>=)" << std::endl;
+		return;
+	}
+	if (a <= b) {
+		if (a == b) {
+			std::cout << "FAIL (<=)" << std::endl;
+			return;
+		}
+	} else {
+		std::cout << "FAIL (<=)" << std::endl;
+		return;
+	}
+
+	b[26] = 'a';
+	if (a != b) {
+		std::cout << "FAIL (!=)" << std::endl;
+	} else {
+		std::cout << "PASS" << std::endl;
+	}
 }
 
 static void
@@ -229,6 +323,12 @@ int main (int argc, char* argv[]) {
 	std::cout << "Initializer list assignment: ";
 	Memory::AutoArray<uint8_t> listB = {0x11, 0x22, 0x33, 0x44};
 	testAndPrintContents(listB, 4);
+
+	std::cout << "to_vector(): ";
+	testVector();
+
+	std::cout << "Comparison: ";
+	testComparisons();
 
 	return (0);
 }

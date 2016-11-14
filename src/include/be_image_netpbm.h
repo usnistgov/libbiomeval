@@ -72,7 +72,7 @@ namespace BiometricEvaluation
 			    
 			Memory::uint8Array
 			getRawGrayscaleData(
-			    uint8_t depth = 8) const;
+			    uint8_t depth) const;
 	
 			/**
 			 * Whether or not data is a netpbm image.
@@ -225,7 +225,7 @@ namespace BiometricEvaluation
 			 *	Error extracting a value from the pixel map.
 			 * @throw Error::ParameterError
 			 *	Invalid value for depth, must be a multiple of
-			 *	Image::bitsPerComponent.
+			 *	8.
 			 */
 			static Memory::uint8Array
 			ASCIIPixmapToBinaryPixmap(

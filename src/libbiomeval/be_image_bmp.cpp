@@ -56,7 +56,7 @@ BiometricEvaluation::Image::BMP::getRawData()
 		throw Error::DataError(e.what());
 	}
 	Memory::uint8Array rawData(dibHeader.width * dibHeader.height *
-	    (dibHeader.bitsPerPixel / bitsPerComponent));
+	    (dibHeader.bitsPerPixel / 8));
 
 	/* Image size is not required */
 	uint64_t imageSize = dibHeader.bitmapSize;
@@ -65,8 +65,7 @@ BiometricEvaluation::Image::BMP::getRawData()
 	if ((bmpDataSize + 12 + 40) < imageSize)
 		throw Error::DataError("Buffer length too small");
 
-	uint64_t stride = (dibHeader.bitsPerPixel / Image::bitsPerComponent) *
-	    dibHeader.width;
+	uint64_t stride = (dibHeader.bitsPerPixel / 8) * dibHeader.width;
 	switch (dibHeader.compressionMethod) {
 	case BI_RGB: {
 		const uint8_t *bmpRow = nullptr;

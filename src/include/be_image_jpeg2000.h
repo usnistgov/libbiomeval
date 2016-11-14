@@ -13,24 +13,6 @@
 
 #include <be_image_image.h>
 
-/*
- * Forward-declare several libopenjpeg types instead of including openjpeg.h
- * so that users of Image::JPEG2000 don't need to have libopenjpeg in the
- * include path of their build.
- */
-
-struct opj_image;
-using opj_image_t = struct opj_image;
-
-struct opj_codestream_info;
-using opj_codestream_info_t = struct opj_codestream_info;
-
-struct opj_dinfo;
-using opj_dinfo_t = struct opj_dinfo;
-
-struct opj_cio;
-using opj_cio_t = struct opj_cio;
-
 namespace BiometricEvaluation
 {
 	namespace Image
@@ -61,7 +43,7 @@ namespace BiometricEvaluation
 			JPEG2000(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const int8_t codec = 2);
+			    const int8_t codecFormat = 2);
 
 			~JPEG2000() = default;
 
@@ -71,7 +53,7 @@ namespace BiometricEvaluation
 			    
 			Memory::uint8Array
 			getRawGrayscaleData(
-			    uint8_t depth = 8) const;
+			    uint8_t depth) const;
 	
 			/**
 			 * Whether or not data is a JPEG-2000 image.
@@ -92,43 +74,7 @@ namespace BiometricEvaluation
 
 		private:
 			/** JPEG2000 codec to use (from libopenjpeg) */
-			const int8_t _codec;
-
-			/** Container for libopenjpeg IO pointers. */
-			class OpenJPEGDecoder
-			{
-			public:
-				/** Constructor. */
-				OpenJPEGDecoder();
-				/** Destructor. */
-				~OpenJPEGDecoder();
-
-				/** Reset IO buffer pointer to beginning. */
-				void
-				rewind();
-
-				/** Internal IO stream representation. */
-				opj_cio_t *_cio;
-				/** Internal decompression info struct. */
-				opj_dinfo_t *_dinfo;
-			};
-
-			/**
-			 * @brief
-			 * Initialize libopenjpeg structures for manipulating
-			 * JPEG2000 codestreams.
-			 *
-			 * @param headerOnly
-			 * Whether or not to parse just header information,
-			 * or the entire image.
-			 *
-			 * @return
-			 * Pointer to a container of allocated libopenjpeg
-			 * structures.
-			 */
-			std::unique_ptr<OpenJPEGDecoder>
-			initDecoder(bool headerOnly)
-			    const;
+			const int8_t _codecFormat;
 
 			/**
 			 * @brief
@@ -188,15 +134,15 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Parse display resolution information from the 
-			 * resd marker.
+			 * resc or resd markers.
 			 *
-			 * @param resd
+			 * @param res
 			 *	AutoArray containing the contents of the
-			 *	resd box.
+			 *	resc/resd box.
 			 *
 			 * @return
 			 *	Resolution struct as parsed from the contents of
-			 *	the resd box.
+			 *	the resc/resd box.
 			 *
 			 * @throw Error::DataError
 			 *	Format of the box was not as expected.
@@ -204,8 +150,101 @@ namespace BiometricEvaluation
 			 * @see find_marker()
 			 */
 			Resolution
-			parse_resd(
-			    const Memory::AutoArray<uint8_t> &resd);
+			parse_res(
+			    const Memory::AutoArray<uint8_t> &res);
+
+			/*
+			 * libopenjp2 stream callbacks.
+			 *
+			 * Note that libopenjp2 types have been converted to
+			 * void* below so that openjpeg.h does not need to
+			 * be in the include path of applications that use this
+			 * file.
+			 */
+
+			/** @return libopenjp2 IO decompression stream. */
+			void*
+			getDecompressionStream()
+			    const;
+
+			/** @return libopenjp2 decompression codec. */
+			void*
+			getDecompressionCodec()
+			    const;
+
+			/*
+			 * libopenjp2 callbacks.
+ 			 *
+			 * Note that libopenjp2 types have been converted
+			 * to standard types below so that openjpeg.h
+			 * does not need to be in the include path of
+			 * applications that use this file.
+			 */
+
+			/**
+			 * @brief
+			 * libopenjp2 callback to free data wrapped in stream.
+			 * 
+			 * @param p_user_data
+			 * Pointer to a Memory::IndexedBuffer.
+			 */
+			static void
+			libopenjp2Free(
+			    void *p_user_data);
+
+			/**
+			 * @brief
+			 * libopenjp2 callback to read from a stream.
+			 *
+			 * @param p_buffer
+			 * Buffer that read data should be placed in.
+			 * @param p_nb_bytes
+			 * Number of bytes requested
+			 * @param p_user_data
+			 * Pointer to a Memory::IndexedBuffer.
+			 *
+			 * @return
+			 * Actual number of bytes placed into p_buffer.
+			 */
+			static size_t
+			libopenjp2Read(
+			    void *p_buffer,
+			    size_t p_nb_bytes,
+			    void *p_user_data);
+
+			/**
+			 * @brief
+			 * libopenjp2 callback to skip data in stream.
+			 *
+			 * @param p_nb_bytes
+			 * Number of bytes to skip.
+			 * @param p_user_data
+			 * Pointer to a Memory::IndexedBuffer.
+			 *
+			 * @return
+			 * Number of bytes remaining in p_user_data.
+			 */
+			static int64_t
+			libopenjp2Skip(
+			    int64_t p_nb_bytes,
+			    void *p_user_data);
+
+			/**
+			 * @brief
+			 * libopenjp2 callback to determine if stream can seek.
+			 *
+			 * @param p_nb_bytes
+			 * Number of bytes to seek.
+			 * @param p_user_data
+			 * Pointer to a Memory::IndexedBuffer.
+			 *
+			 * @return
+			 * OPJ_TRUE if can seek p_nb_bytes, OPJ_FALSE otherwise.
+			 */
+			static int
+			libopenjp2Seek(
+			    int64_t p_nb_bytes,
+			    void *p_user_data);
 		};
 	}
 }

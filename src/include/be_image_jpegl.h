@@ -32,7 +32,7 @@ namespace BiometricEvaluation
 
 			Memory::uint8Array
 			getRawGrayscaleData(
-			    uint8_t depth = 8) const;
+			    uint8_t depth) const;
 
 			Memory::uint8Array
 			getRawData()

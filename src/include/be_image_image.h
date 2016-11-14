@@ -151,14 +151,15 @@ namespace BiometricEvaluation
 			 *
 			 * @param depth
 			 *	The desired bit depth of the resulting raw
-			 *	image.  This value may either be 8 or 1.
+			 *	image.  This value may either be 16, 8, or 1.
 			 *
 			 * @return
 			 *	AutoArray holding raw grayscale image data.
 			 *
 			 * @throw Error::DataError
 			 *	Error decompressing image data.
-			 *	
+			 * @throw Error::NotImplemented
+			 * Unsupported conversion based on source color depth.
 			 * @throw Error::ParameterError
 			 *	Invalid value for depth.
 			 *
@@ -168,16 +169,19 @@ namespace BiometricEvaluation
 			 *	image can be changed between calls.
 			 *
 			 * @note
-			 *	This method always returns an image that uses
-			 *	8 bits to represent a single pixel.  depth 
-			 *	adjusts the number of pixels used to determine
-			 *	the color of the pixel in the 8 bit container,
-			 *	currently 1 (2 gray levels) or 8 (256 gray 
-			 *	levels).
+			 * When depth is 1, this method returns an image that
+			 * uses 8 bits to represent a single pixel. The depth
+			 * parameter is used to adjust the number of gray
+			 * levels. When depth is 1, there are only 2 gray levels
+			 * (black and white), despite using 8 bits to represent
+			 * each pixel.
+			 * @note
+			 * Alpha channels are completely ignored when converting
+			 * to grayscale.
 			 */
 			virtual Memory::uint8Array
 			getRawGrayscaleData(
-			    uint8_t depth = 8)
+			    uint8_t depth)
 			    const = 0;
 
 			/**
@@ -366,13 +370,6 @@ namespace BiometricEvaluation
 			static CompressionAlgorithm
 			getCompressionAlgorithm(
 			    const std::string &path);
-			
-			/*
-			 * Useful constants 
-			 */
-
-			/** Number of bits per color component */
-			static const uint32_t bitsPerComponent = 8;
 
 		protected:
 			/**

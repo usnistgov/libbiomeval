@@ -13,7 +13,9 @@
 #include <sstream>
 #include <type_traits>
 
+#include <be_memory.h>
 #include <be_image_netpbm.h>
+#include <be_memory_mutableindexedbuffer.h>
 
 template<>
 const std::map<BiometricEvaluation::Image::NetPBM::Kind, std::string>
@@ -227,6 +229,13 @@ BiometricEvaluation::Image::NetPBM::getRawData()
 	case Kind::BinaryPortablePixmap: {
 		Memory::uint8Array rawData(dataSize);
 		rawData.copy(data);
+
+		/* NetPBM stores data big-endian */
+		if ((this->getDepth() == 16 || this->getDepth() == 48) &&
+		    Memory::isLittleEndian())
+			for (uint64_t i = 0; i < (rawData.size() - 1); i += 2)
+				std::swap(rawData[i], rawData[i + 1]);
+
 		return (rawData);
 	}
 	default:
@@ -243,15 +252,23 @@ BiometricEvaluation::Image::NetPBM::ASCIIBitmapTo8Bit(
     uint32_t height)
 {
 	Memory::uint8Array eightBitData(width * height);
-	
+	Memory::MutableIndexedBuffer buffer(eightBitData);
+
+	std::string nextValue;
 	uint8_t byte;
-	size_t bitmapOffset = 0, eightBitOffset = 0;
+	size_t bitmapOffset = 0;
 	while (bitmapOffset < bitmapSize) {
 		/* Get next one-byte non-space value */
-		byte = getNextValue(bitmap, bitmapSize, bitmapOffset, 1)[0];
+		nextValue = getNextValue(bitmap, bitmapSize, bitmapOffset, 1);
+
+		/* Extraneous spaces/newline at end of file */
+		if (nextValue.empty())
+			break;
+
+		byte = nextValue[0];
 		
 		/* 0 is white, 1 is black */
-		eightBitData[eightBitOffset++] = ((byte == '0') ? 0xFF : 0x00);
+		buffer.pushU8Val((byte == '0') ? 0xFF : 0x00);
 	}
 	
 	return (eightBitData);
@@ -267,29 +284,34 @@ BiometricEvaluation::Image::NetPBM::ASCIIPixmapToBinaryPixmap(
     uint32_t maxColor)
 {
 	/* Ensure valid bit depth */
-	if (((depth % Image::bitsPerComponent) != 0) || (depth > 48))
+	if (((depth % 8) != 0) || (depth > 48))
 		throw Error::ParameterError("Invalid depth");
-	uint8_t bytesPerPixel = (depth / Image::bitsPerComponent);
+	const uint8_t bytesPerPixel = (depth / 8);
 
 	Memory::uint8Array binaryBuf(width * height * bytesPerPixel);
+	Memory::MutableIndexedBuffer buffer(binaryBuf);
 	
-	size_t ASCIIOffset = 0, binaryOffset = 0;
+	size_t ASCIIOffset = 0;
+	std::string nextValue;
 	uint32_t decimal;
 	while (ASCIIOffset < ASCIIBufSize) {
-		/* Read space separated ASCII integer and scale to colorspace */
-		decimal = valueInColorspace(atoi(getNextValue(ASCIIBuf,
-		    ASCIIBufSize, ASCIIOffset).c_str()), maxColor, depth);
+		/* Read space separated ASCII integer */
+		nextValue = getNextValue(ASCIIBuf, ASCIIBufSize, ASCIIOffset);
+
+		/* Extraneous spaces/newline at end of file */
+		if (nextValue.empty())
+			break;
+
+		/* Scale to colorspace */
+		decimal = valueInColorspace(std::stol(nextValue),
+		    maxColor, depth);
 
 		if (maxColor <= 255) {
 			/* One byte per component */
-			binaryBuf[binaryOffset] = decimal;
-			binaryOffset++;
+			buffer.pushU8Val(decimal);
 		} else {
 			/* Two bytes per component (max color limited) */
-			binaryBuf[binaryOffset] = (decimal >> 8);
-			binaryOffset++;
-			binaryBuf[binaryOffset] = decimal;
-			binaryOffset++;
+			buffer.pushU16Val(decimal);
 		}
 	}
 
@@ -304,6 +326,7 @@ BiometricEvaluation::Image::NetPBM::BinaryBitmapTo8Bit(
     uint32_t height)
 {
 	Memory::uint8Array eightBitData(width * height);
+	Memory::MutableIndexedBuffer buffer(eightBitData);
 	
 	uint8_t byte, mask;
 	for (size_t i = 0, offset = 0; i < bitmapSize; i++) {
@@ -312,11 +335,10 @@ BiometricEvaluation::Image::NetPBM::BinaryBitmapTo8Bit(
 		mask = 0x80;	/* 0b10000000 */
 		for (int j = 0; j < 8; j++, mask >>= 1) {
 			/* 0 is white, 1 is black */
-			eightBitData[offset++] = 
-			    (((byte & mask) == 0) ? 0xFF : 0x00);
-			
+			buffer.pushU8Val(((byte & mask) == 0) ? 0xFF : 0x00);
+
 			/* Skip filler bits when width not a multiple of 8 */
-			if ((offset % width) == 0)
+			if ((++offset % width) == 0)
 				break;
 		}
 	}

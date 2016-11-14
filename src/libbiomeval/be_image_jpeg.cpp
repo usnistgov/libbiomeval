@@ -48,7 +48,7 @@ BiometricEvaluation::Image::JPEG::JPEG(
 		throw Error::DataError("jpeg_read_header()");
 
 	setDimensions(Size(dinfo.image_width, dinfo.image_height));
-	setDepth(dinfo.num_components * bitsPerComponent);
+	setDepth(dinfo.num_components * 8);
 	setResolution(Resolution(dinfo.X_density, dinfo.Y_density,
 	    Resolution::Units::PPI));
 

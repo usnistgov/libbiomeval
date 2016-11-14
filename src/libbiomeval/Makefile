@@ -42,7 +42,7 @@ include ../../VERSION
 # Use the installed JPEG lib, not that from NBIS as we rely on the NBIS subset
 # built within the Framework.
 JPEGLIB = -ljpeg
-OPENJPEGLIB = -L$(shell pkg-config --variable=libdir libopenjpeg) $(shell pkg-config --libs-only-l --libs-only-other libopenjpeg)
+OPENJPEGLIB = -L$(shell PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig pkg-config --variable=libdir libopenjp2) $(shell PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig pkg-config --libs-only-l --libs-only-other libopenjp2)
 PNGLIB = -L$(shell pkg-config --variable=libdir libpng) $(shell pkg-config --libs-only-l --libs-only-other libpng)
 SQLITE3LIB = -L$(shell pkg-config --variable=libdir sqlite3) $(shell pkg-config --libs-only-l --libs-only-other sqlite3)
 ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-only-l --libs-only-other zlib)
@@ -164,7 +164,7 @@ $(NBIS_OBJECTS): $(NBIS_SOURCES)
 
 # Get include paths for libraries required third-party code
 be_image_png.o: CXXFLAGS += $(shell pkg-config --cflags libpng)
-be_image_jpeg2000.o: CXXFLAGS += $(shell pkg-config --cflags libopenjpeg)
+be_image_jpeg2000.o: CXXFLAGS += $(shell PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig pkg-config --cflags libopenjp2)
 be_io_gzip.o: CXXFLAGS += $(shell pkg-config --cflags zlib)
 be_io_sqliterecstore.o: CXXFLAGS += $(shell pkg-config --cflags sqlite3)
 

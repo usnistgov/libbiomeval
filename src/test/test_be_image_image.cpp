@@ -167,7 +167,7 @@ compareProperties(
 			genRawData.size() <<  ", Recorded: " << 
 			properties->getPropertyAsInteger("rawSize") << endl;
 		}
-		genRawGrayData = image->getRawGrayscaleData();
+		genRawGrayData = image->getRawGrayscaleData(8);
 		if (genRawGrayData.size() != 
 		    (size_t)properties->getPropertyAsInteger("rawGraySize")) {
 			passed = false;
@@ -446,7 +446,7 @@ main(
 		}
 		
 		try {
-			buf = image->getRawGrayscaleData();
+			buf = image->getRawGrayscaleData(8);
 			IO::Utility::writeFile(buf, rawKey + RawGraySuffix,
 			    ios_base::trunc);
 			cout << "\tRaw 8-bit Grayscale Size: " << buf.size() <<

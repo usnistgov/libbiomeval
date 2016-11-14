@@ -10,6 +10,7 @@
 
 #include <png.h>
 
+#include <be_memory.h>
 #include <be_image_png.h>
 #include <be_memory_autoarray.h>
 
@@ -102,18 +103,23 @@ BiometricEvaluation::Image::PNG::getRawData()
 		    "png_info");
 	}
 	png_read_info(png_ptr, png_info_ptr);
+
+	/* PNG default storage is big-endian */
+	if ((png_get_bit_depth(png_ptr, png_info_ptr) > 8) &&
+	    BiometricEvaluation::Memory::isLittleEndian())
+		png_set_swap(png_ptr);
 	
 	/* Determine size of decompressed data */
-	png_uint_32 rowbytes = png_get_rowbytes(png_ptr, png_info_ptr);
-	uint32_t height = this->getDimensions().ySize;
+	const png_uint_32 rowbytes = png_get_rowbytes(png_ptr, png_info_ptr);
+	const uint32_t height = this->getDimensions().ySize;
 	Memory::AutoArray<png_bytep> row_pointers(height);
 	Memory::uint8Array rawData(rowbytes * height);
-	
+
 	/* Tell libpng to store decompressed PNG data directly into AutoArray */
 	for (uint32_t row = 0; row < height; row++)
-		row_pointers[row] = rawData + row * rowbytes;
+		row_pointers[row] = rawData + (row * rowbytes);
 	png_read_image(png_ptr, row_pointers);
-	
+
 	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
 	return (rawData);
 }

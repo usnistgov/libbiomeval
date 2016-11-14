@@ -41,7 +41,7 @@ namespace BiometricEvaluation
 			    
 			Memory::AutoArray<uint8_t>
 			getRawGrayscaleData(
-			    uint8_t depth = 8)
+			    uint8_t depth)
 			    const;
 	
 			/**

@@ -61,14 +61,20 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	setDimensions(Size(wsq_header.width, wsq_header.height));
 
 	/* Read PPI from NISTCOM, if present */
-	int ppi;
-	if ((rv = getc_ppi_wsq(&ppi, wsq_buf, size)))
-		throw Error::DataError("libwsq could not read NISTCOM");
-	/* Resolution does not have to be defined */
-	if (ppi == -1)
-		setResolution(Resolution(0, 0));
-	else
-		setResolution(Resolution(ppi, ppi, Resolution::Units::PPI));
+	int ppi{-1};
+	if (getc_ppi_wsq(&ppi, wsq_buf, size) == 0) {
+		/* Resolution does not have to be defined */
+		if (ppi == -1)
+			/* WSQ is a 500 ppi specification */
+			setResolution(Resolution(500, 500,
+			    Resolution::Units::PPI));
+		else
+			setResolution(Resolution(ppi, ppi,
+			    Resolution::Units::PPI));
+	} else {
+		/* WSQ is a 500 ppi specification */
+		setResolution(Resolution(500, 500, Resolution::Units::PPI));
+	}
 	
 	/* 
 	 * "Source fingerprint images shall be captured with 8 bits of 
@@ -90,8 +96,7 @@ BiometricEvaluation::Image::WSQ::getRawData()
 
 	/* rawbuf allocated within libwsq.  Copy to manage with AutoArray. */
 	/* TODO: AutoBuffer-wrapped AutoArray */
-	Memory::uint8Array rawData(
-	    width * height * (depth / Image::bitsPerComponent));
+	Memory::uint8Array rawData(width * height * (depth / 8));
 	rawData.copy(rawbuf);
 	free(rawbuf);
 
