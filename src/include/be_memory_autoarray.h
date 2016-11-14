@@ -22,15 +22,15 @@
 #include <cstring>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 #include <be_error_exception.h>
+#include <be_memory_autoarrayiterator.h>
 
 namespace BiometricEvaluation
 {
 	namespace Memory
 	{
-		template <bool B, class T> class AutoArrayIterator;
-
 		/**
 		 * @brief
 		 * A C-style array wrapped in the facade of a C++ STL container.
@@ -311,6 +311,27 @@ namespace BiometricEvaluation
 
 				/**
 				 * @brief
+				 * Obtain a copy of elements in this AutoArray
+				 * as a vector.
+				 *
+				 * @warning
+				 * A key difference between vectors and
+				 * AutoArrays is that all elements of a vector
+				 * must be initialized. Calling this method
+				 * on an AutoArray where not all elements have
+				 * been initialized will likely cause undefined
+				 * behavior.
+				 *
+				 * @return
+				 * A vector containing the contents of 
+				 * this AutoArray.
+				 */
+				std::vector<T>
+				to_vector()
+				    const;
+
+				/**
+				 * @brief
 				 * Construct an AutoArray.
 				 * 
 				 * @param[in] size
@@ -422,6 +443,48 @@ namespace BiometricEvaluation
 		using uint8Array = AutoArray<uint8_t>;
 		using uint16Array = AutoArray<uint16_t>;
 		using uint32Array = AutoArray<uint32_t>;
+
+		/** @return Equivalence of all accessible entries and size. */
+		template<typename T>
+		bool
+		operator==(
+		    const AutoArray<T> &lhs,
+		    const AutoArray<T> &rhs);
+
+		/** @return Whether size or any accessible entries differ. */
+		template<typename T>
+		bool
+		operator!=(
+		    const AutoArray<T> &lhs,
+		    const AutoArray<T> &rhs);
+
+		/** @return Lexicographical comparison of accessible entries. */
+		template<typename T>
+		bool
+		operator<(
+		    const AutoArray<T> &lhs,
+		    const AutoArray<T> &rhs);
+
+		/** @return Lexicographical comparison of accessible entries. */
+		template<typename T>
+		bool
+		operator<=(
+		    const AutoArray<T> &lhs,
+		    const AutoArray<T> &rhs);
+
+		/** @return Lexicographical comparison of accessible entries. */
+		template<typename T>
+		bool
+		operator>(
+		    const AutoArray<T> &lhs,
+		    const AutoArray<T> &rhs);
+
+		/** @return Lexicographical comparison of accessible entries. */
+		template<typename T>
+		bool
+		operator>=(
+		    const AutoArray<T> &lhs,
+		    const AutoArray<T> &rhs);
 	}
 }
 
@@ -508,6 +571,19 @@ BiometricEvaluation::Memory::AutoArray<T>::at(
 		return (_data[index]);
 	
 	throw std::out_of_range("index");
+}
+
+template<class T>
+typename std::vector<T>
+BiometricEvaluation::Memory::AutoArray<T>::to_vector()
+    const
+{
+	std::vector<T> vec;
+	vec.reserve(this->size());
+	std::for_each(this->cbegin(), this->cend(), [&](const T &t) {
+		vec.push_back(t);
+	});
+	return (vec);
 }
 
 /******************************************************************************/
@@ -700,6 +776,68 @@ BiometricEvaluation::Memory::AutoArray<T>::~AutoArray()
 {
 	if (_data != nullptr)
 		delete [] _data;
+}
+
+/******************************************************************************/
+/* Comparison operators.                                                      */
+/******************************************************************************/
+
+template<typename T>
+bool
+BiometricEvaluation::Memory::operator==(
+   const typename BiometricEvaluation::Memory::AutoArray<T> &lhs,
+   const typename BiometricEvaluation::Memory::AutoArray<T> &rhs)
+{
+	if (lhs.size() != rhs.size())
+		return (false);
+
+	return (std::equal(lhs.cbegin(), lhs.cend(), rhs.cbegin()));
+}
+
+template<typename T>
+bool
+BiometricEvaluation::Memory::operator!=(
+   const typename BiometricEvaluation::Memory::AutoArray<T> &lhs,
+   const typename BiometricEvaluation::Memory::AutoArray<T> &rhs)
+{
+	return (!(lhs == rhs));
+}
+
+template<typename T>
+bool
+BiometricEvaluation::Memory::operator<(
+   const typename BiometricEvaluation::Memory::AutoArray<T> &lhs,
+   const typename BiometricEvaluation::Memory::AutoArray<T> &rhs)
+{
+	return (std::lexicographical_compare(lhs.cbegin(), lhs.cend(),
+	    rhs.cbegin(), rhs.cend()));
+}
+
+template<typename T>
+bool
+BiometricEvaluation::Memory::operator<=(
+   const typename BiometricEvaluation::Memory::AutoArray<T> &lhs,
+   const typename BiometricEvaluation::Memory::AutoArray<T> &rhs)
+{
+	return (!(rhs < lhs));
+}
+
+template<typename T>
+bool
+BiometricEvaluation::Memory::operator>(
+   const typename BiometricEvaluation::Memory::AutoArray<T> &lhs,
+   const typename BiometricEvaluation::Memory::AutoArray<T> &rhs)
+{
+	return (rhs < lhs);
+}
+
+template<typename T>
+bool
+BiometricEvaluation::Memory::operator>=(
+   const typename BiometricEvaluation::Memory::AutoArray<T> &lhs,
+   const typename BiometricEvaluation::Memory::AutoArray<T> &rhs)
+{
+	return (!(lhs < rhs));
 }
 
 #endif /* __BE_MEMORY_AUTOARRAY_H__ */

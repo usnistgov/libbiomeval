@@ -127,6 +127,33 @@ namespace BiometricEvaluation {
 		template<class T, class... Ts>
 		typename unique_if<T>::unique_array_known_bound
 		make_unique(Ts&&...) = delete;
+
+		/**
+		 * @brief
+		 * Determine endianess of current platform.
+		 *
+		 * @return
+		 * true if current platform is little endian. false otherwise.
+		 */
+		inline bool
+		isLittleEndian()
+		{
+			/* Anonymous union */
+			union { uint32_t i; uint8_t c; } u;
+			u.i = 1;
+
+			/*
+			 * Explore contents of octet 1 via properties of union.
+			 *
+			 *		i = 0x00000001
+			 *
+			 *		|1	|2	|3	|4
+			 *		|-------|-------|-------|-------
+			 * Little Endian|01	|00	|00	|00
+			 *    Big Endian|00	|00	|00	|01
+			 */
+			return (u.c == 1);
+		}
 	}
 }
 #endif /* __BE_MEMORY__ */
