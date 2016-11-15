@@ -44,7 +44,7 @@ printViewInfo(std::shared_ptr<Finger::AN2KViewVariableResolution> an2kv) {
 	cout << "----------------------------------------------" << endl;
 	cout << "Image resolution: " << an2kv->getImageResolution() << endl;
 	cout << "Image size: " << an2kv->getImageSize() << endl;
-	cout << "Image depth: " << an2kv->getImageDepth() << endl;
+	cout << "Image color depth: " << an2kv->getImageColorDepth() << endl;
 	cout << "Compression: " <<
 	    to_string(an2kv->getCompressionAlgorithm()) << endl;
 	cout << "Scan resolution: " << an2kv->getScanResolution() << endl;
@@ -138,7 +138,7 @@ main(int argc, char* argv[]) {
 		    to_string(img->getCompressionAlgorithm()) << endl;
 		cout << "\tDimensions: " << img->getDimensions() << endl;
 		cout << "\tResolution: " << img->getResolution() << endl;
-		cout << "\tDepth: " << img->getDepth() << endl;
+		cout << "\tDepth: " << img->getColorDepth() << endl;
 		
 		string filename = "rawimg_test";
 		ofstream img_out(filename.c_str(), ofstream::binary);

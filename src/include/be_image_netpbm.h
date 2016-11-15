@@ -45,7 +45,10 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    const uint64_t size);
 
-			~NetPBM();
+			NetPBM(
+			    const Memory::uint8Array &data);
+
+			~NetPBM() = default;
 
 			/**
 		 	 * @brief

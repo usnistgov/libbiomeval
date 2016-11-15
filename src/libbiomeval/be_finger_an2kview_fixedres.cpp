@@ -111,7 +111,7 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
 	 */
 	AN2KView::setImageResolution(ir);
 	AN2KView::setScanResolution(ir);
-	AN2KView::setImageDepth(FixedResolutionBitDepth);
+	AN2KView::setImageColorDepth(FixedResolutionBitDepth);
 		
 	if (lookup_ANSI_NIST_field(&field, &idx, BIN_CA_ID, record) != TRUE)
 		throw Error::DataError("Field BIN_CA not found");

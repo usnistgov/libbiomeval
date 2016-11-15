@@ -15,12 +15,14 @@ BiometricEvaluation::Image::Raw::Raw(
     const uint8_t *data, 
     const uint64_t size, 
     const Size dimensions,
-    const unsigned int depth,
+    const uint32_t colorDepth,
+    const uint16_t bitDepth,
     const Resolution resolution) :
     Image(data,
     size,
     dimensions,
-    depth,
+    colorDepth,
+    bitDepth,
     resolution,
     CompressionAlgorithm::None)
 {
@@ -41,9 +43,3 @@ BiometricEvaluation::Image::Raw::getRawGrayscaleData(
 {
 	return (Image::getRawGrayscaleData(depth));
 }
-
-BiometricEvaluation::Image::Raw::~Raw()
-{
-
-}
-

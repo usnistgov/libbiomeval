@@ -266,7 +266,7 @@ BiometricEvaluation::Iris::INCITSView::readIrisView(
 	uint16_t height = buf.scanBeU16Val();	/* Image height */
 	this->setImageSize(BE::Image::Size(width, height));
 	uval8 = buf.scanU8Val();	/* Image bit depth */
-	this->setImageDepth((uint32_t)uval8);
+	this->setImageColorDepth((uint32_t)uval8);
 
 	this->_cameraRange = buf.scanBeU16Val();
 	this->_rollAngle = buf.scanBeU16Val();

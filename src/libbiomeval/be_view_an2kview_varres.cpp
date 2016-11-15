@@ -177,7 +177,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 
 	 if (lookup_ANSI_NIST_field(&field, &idx, BPX_ID, record) != TRUE)
                 throw Error::DataError("Field BPX not found");
-        AN2KView::setImageDepth(
+        AN2KView::setImageColorDepth(
 	    atoi((char *)field->subfields[0]->items[0]->value));
 
 	/* Read the image data */

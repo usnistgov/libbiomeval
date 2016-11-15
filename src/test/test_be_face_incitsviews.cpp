@@ -27,7 +27,7 @@ printViewInfo(Face::INCITSView &facev)
 	cout << "Image resolution is " << facev.getImageResolution() << endl;
 	cout << "Scan resolution is " << facev.getScanResolution() << endl;
 	cout << "Image size is " << facev.getImageSize() << endl;
-	cout << "Image depth is " << facev.getImageDepth() << endl;
+	cout << "Image depth is " << facev.getImageColorDepth() << endl;
 	cout << "Compression is " <<
 	    to_string(facev.getCompressionAlgorithm()) << endl;
 
@@ -36,7 +36,7 @@ printViewInfo(Face::INCITSView &facev)
 		cout << "Information from the Image data item:" << endl;
 		cout << "\tResolution: " << theImage->getResolution() << endl;
 		cout << "\tDimensions: " << theImage->getDimensions() << endl;
-		cout << "\tDepth: " << theImage->getDepth() << endl;
+		cout << "\tDepth: " << theImage->getColorDepth() << endl;
 	} catch (Error::Exception &e) {
 		cout << "Caught " << e.what() << endl;
 	}

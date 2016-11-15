@@ -77,7 +77,7 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Obtain the image depth.
+			 * Obtain the image color depth in bits-per-pixel.
 			 * @details
 			 * This value is as present in the biometric record,
 			 * and not in the image data itself. Normally, this
@@ -88,7 +88,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The image depth.
 		 	 */
-			uint32_t getImageDepth() const;
+			uint32_t getImageColorDepth() const;
 
 			/**
 			 * @brief
@@ -134,11 +134,11 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Mutator for the image size.
-			 * @param[in] imageDepth
-			 * The image depth.
+			 * Mutator for the image color depth.
+			 * @param[in] imageColorDepth
+			 * The image color depth.
 			 */
-			void setImageDepth(uint32_t imageDepth);
+			void setImageColorDepth(uint32_t imageColorDepth);
 
 			/**
 			 * @brief
@@ -186,7 +186,7 @@ namespace BiometricEvaluation
 			Image::Resolution _scanResolution;
 			Memory::AutoArray<uint8_t> _imageData;
 			Image::CompressionAlgorithm _compressionAlgorithm;
-			uint32_t _imageDepth;
+			uint32_t _imageColorDepth;
 
 		};
 	}

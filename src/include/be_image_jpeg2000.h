@@ -45,6 +45,9 @@ namespace BiometricEvaluation
 			    const uint64_t size,
 			    const int8_t codecFormat = 2);
 
+			JPEG2000(
+			    const Memory::uint8Array &data);
+
 			~JPEG2000() = default;
 
 			Memory::uint8Array

@@ -28,7 +28,7 @@ printViewInfo(Finger::INCITSView &fngv)
 	 */
 	cout << "Image resolution is " << fngv.getImageResolution() << endl;
 	cout << "Image size is " << fngv.getImageSize() << endl;
-	cout << "Image depth is " << fngv.getImageDepth() << endl;
+	cout << "Image depth is " << fngv.getImageColorDepth() << endl;
 	cout << "Compression is " <<
 	    to_string(fngv.getCompressionAlgorithm()) << endl;
 	cout << "Scan resolution is " << fngv.getScanResolution() << endl;

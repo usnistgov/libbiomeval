@@ -53,7 +53,10 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    const uint64_t size);
 
-			~JPEG();
+			JPEG(
+			    const Memory::uint8Array &data);
+
+			~JPEG() = default;
 
 			Memory::uint8Array
 			getRawGrayscaleData(

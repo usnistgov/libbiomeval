@@ -1,4 +1,3 @@
 Count = 15
 Description = <Description>
-Name = ImagePropertiesRS
 Type = BerkeleyDB

@@ -55,7 +55,7 @@ printImageInfo(const Image::Image &img, const string &name,
 	    endl;
 	cout << "\tDimensions: " << img.getDimensions() << endl;
 	cout << "\tResolution: " << img.getResolution() << endl;
-	cout << "\tDepth: " << img.getDepth() << endl;
+	cout << "\tDepth: " << img.getColorDepth() << endl;
 
 	ostringstream str;
 	
@@ -65,7 +65,7 @@ printImageInfo(const Image::Image &img, const string &name,
 	str << "# " << filename << "\n";
 	str << "P5 " << img.getDimensions().xSize <<
         " " << img.getDimensions().ySize << " " <<
-	    (int)(pow(2.0, (int)img.getDepth()) - 1) << "\n";
+	    (int)(pow(2.0, (int)img.getColorDepth()) - 1) << "\n";
 	ofstream img_out(filename.c_str(), ofstream::binary);
 	img_out << str.str();
 	Memory::uint8Array imgData{img.getRawData()};
@@ -88,7 +88,7 @@ printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
 	    View::AN2KView::RecordType>::type>(an2kv.getRecordType()) << endl;
 	cout << "\tImage resolution: " << an2kv.getImageResolution() << endl;
 	cout << "\tImage size: " << an2kv.getImageSize() << endl;
-	cout << "\tImage depth: " << an2kv.getImageDepth() << endl;
+	cout << "\tImage color depth: " << an2kv.getImageColorDepth() << endl;
 	cout << "\tCompression: " <<
 	    to_string(an2kv.getCompressionAlgorithm()) << endl;
 	cout << "\tScan resolution: " << an2kv.getScanResolution() << endl;

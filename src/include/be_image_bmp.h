@@ -33,7 +33,10 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    const uint64_t size);
 
-			~BMP();
+			BMP(
+			    const Memory::uint8Array &data);
+
+			~BMP() = default;
 
 			Memory::AutoArray<uint8_t>
 			getRawData()

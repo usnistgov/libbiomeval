@@ -79,9 +79,17 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 	FRM_HEADER_JPEGL *frameHeader;
 	if (getc_frame_header_jpegl(&frameHeader, &markerBuf, endPtr))
 		throw Error::DataError("libjpegl: Could not read frame header");
-	setDepth((uint16_t)frameHeader->Nf * 8);
+	setColorDepth((uint16_t)frameHeader->Nf * 8);
+	this->setBitDepth(8);
 	setDimensions(Size(frameHeader->x, frameHeader->y));
 	free(frameHeader);
+}
+
+BiometricEvaluation::Image::JPEGL::JPEGL(
+    const BiometricEvaluation::Memory::uint8Array &data) :
+    BiometricEvaluation::Image::JPEGL::JPEGL(data, data.size())
+{
+
 }
 
 BiometricEvaluation::Memory::uint8Array
@@ -214,7 +222,3 @@ BiometricEvaluation::Image::JPEGL::isJPEGL(
 	return (false);
 }
 
-BiometricEvaluation::Image::JPEGL::~JPEGL()
-{
-
-}

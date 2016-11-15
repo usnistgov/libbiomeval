@@ -41,8 +41,9 @@ BiometricEvaluation::Image::PNG::PNG(
 	}
 	png_read_info(png_ptr, png_info_ptr);
 
-	setDepth(png_get_bit_depth(png_ptr, png_info_ptr) *
-	    png_get_channels(png_ptr, png_info_ptr));	
+	setColorDepth(png_get_bit_depth(png_ptr, png_info_ptr) *
+	    png_get_channels(png_ptr, png_info_ptr));
+	this->setBitDepth(png_get_bit_depth(png_ptr, png_info_ptr));
 	setDimensions(Size(png_get_image_width(png_ptr, png_info_ptr),
 	    png_get_image_height(png_ptr, png_info_ptr)));
 	    
@@ -79,6 +80,13 @@ BiometricEvaluation::Image::PNG::PNG(
 	}
 
 	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
+}
+
+BiometricEvaluation::Image::PNG::PNG(
+    const BiometricEvaluation::Memory::uint8Array &data) :
+    BiometricEvaluation::Image::PNG::PNG(data, data.size())
+{
+
 }
 
 BiometricEvaluation::Memory::uint8Array
@@ -176,9 +184,3 @@ BiometricEvaluation::Image::PNG::png_error(
 {
 	throw Error::StrategyError("libpng: " + std::string(msg));
 }
-
-BiometricEvaluation::Image::PNG::~PNG()
-{
-
-}
-

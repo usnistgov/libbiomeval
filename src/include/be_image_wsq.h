@@ -28,7 +28,10 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    const uint64_t size);
 
-			~WSQ();
+			WSQ(
+			    const Memory::uint8Array &data);
+
+			~WSQ() = default;
 
 			Memory::uint8Array
 			getRawData()

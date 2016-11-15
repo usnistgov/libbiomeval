@@ -48,12 +48,20 @@ BiometricEvaluation::Image::JPEG::JPEG(
 		throw Error::DataError("jpeg_read_header()");
 
 	setDimensions(Size(dinfo.image_width, dinfo.image_height));
-	setDepth(dinfo.num_components * 8);
+	setColorDepth(dinfo.num_components * 8);
+	this->setBitDepth(8);
 	setResolution(Resolution(dinfo.X_density, dinfo.Y_density,
 	    Resolution::Units::PPI));
 
 	/* Clean up after libjpeg */
 	jpeg_destroy_decompress(&dinfo);
+}
+
+BiometricEvaluation::Image::JPEG::JPEG(
+    const BiometricEvaluation::Memory::uint8Array &data) :
+    BiometricEvaluation::Image::JPEG::JPEG(data, data.size())
+{
+
 }
 
 BiometricEvaluation::Memory::uint8Array
@@ -269,11 +277,6 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 	}
 	
 	return (false);
-}
-
-BiometricEvaluation::Image::JPEG::~JPEG()
-{
-
 }
 
 void

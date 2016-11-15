@@ -54,7 +54,8 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 		if (image->comps[component].prec != prec)
 			throw Error::NotImplemented("Non-equivalent component "
 			    "bit depths");
-	setDepth(image->numcomps * prec);
+	setColorDepth(image->numcomps * prec);
+	this->setBitDepth(prec);
 
 	/* Resolution */
 	static const uint8_t resc[4] = { 0x72, 0x65, 0x73, 0x63 };
@@ -67,6 +68,13 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	} catch (Error::ObjectDoesNotExist) {
 		setResolution(Resolution(72, 72, Resolution::Units::PPI));
 	}
+}
+
+BiometricEvaluation::Image::JPEG2000::JPEG2000(
+    const BiometricEvaluation::Memory::uint8Array &data) :
+    BiometricEvaluation::Image::JPEG2000::JPEG2000(data, data.size())
+{
+
 }
 
 BiometricEvaluation::Memory::uint8Array

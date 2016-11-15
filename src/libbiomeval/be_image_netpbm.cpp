@@ -109,19 +109,32 @@ BiometricEvaluation::Image::NetPBM::parseHeader()
 		/* FALLTHROUGH */
 	case Kind::BinaryPortableBitmap:
 		/* Bitmaps are 1-bit depth by definition */
-		setDepth(1);
+		setColorDepth(1);
+		this->setBitDepth(1);
 		break;
 	case Kind::ASCIIPortableGraymap:
 		/* FALLTHROUGH */
 	case Kind::BinaryPortableGraymap:
 		/* Graymaps can provide gray levels in the 1 - 65535 range */
-		setDepth(((_maxColorValue < 256) ? 8 : 16));
+		if (this->_maxColorValue < 256) {
+			this->setColorDepth(8);
+			this->setBitDepth(8);
+		} else {
+			this->setColorDepth(16);
+			this->setBitDepth(16);
+		}
 		break;
 	case Kind::ASCIIPortablePixmap:
 		/* FALLTHROUGH */
 	case Kind::BinaryPortablePixmap:
 		/* Pixmaps can provide R, G, B values in the 1 - 65535 range */
-		setDepth(((_maxColorValue < 256) ? 24 : 48));
+		if (this->_maxColorValue < 256) {
+			this->setColorDepth(24);
+			this->setBitDepth(8);
+		} else {
+			this->setColorDepth(48);
+			this->setBitDepth(16);
+		}
 		break;
 	default:
 		break;
@@ -132,6 +145,13 @@ BiometricEvaluation::Image::NetPBM::parseHeader()
 
 	/* Payload comes a minimum of one whitespace after last header item */
 	_headerLength = offset + 1;
+}
+
+BiometricEvaluation::Image::NetPBM::NetPBM(
+    const BiometricEvaluation::Memory::uint8Array &data) :
+    BiometricEvaluation::Image::NetPBM::NetPBM(data, data.size())
+{
+
 }
 
 std::string
@@ -222,8 +242,8 @@ BiometricEvaluation::Image::NetPBM::getRawData()
 		/* FALLTHROUGH */
 	case Kind::ASCIIPortablePixmap:
 		return (ASCIIPixmapToBinaryPixmap(data, dataSize,
-		    getDimensions().xSize, getDimensions().ySize, getDepth(),
-		    this->_maxColorValue));
+		    getDimensions().xSize, getDimensions().ySize,
+		    getColorDepth(), this->_maxColorValue));
 	case Kind::BinaryPortableGraymap:
 		/* FALLTHROUGH */
 	case Kind::BinaryPortablePixmap: {
@@ -231,8 +251,8 @@ BiometricEvaluation::Image::NetPBM::getRawData()
 		rawData.copy(data);
 
 		/* NetPBM stores data big-endian */
-		if ((this->getDepth() == 16 || this->getDepth() == 48) &&
-		    Memory::isLittleEndian())
+		if ((this->getColorDepth() == 16 ||
+		    this->getColorDepth() == 48) && Memory::isLittleEndian())
 			for (uint64_t i = 0; i < (rawData.size() - 1); i += 2)
 				std::swap(rawData[i], rawData[i + 1]);
 
@@ -379,7 +399,3 @@ BiometricEvaluation::Image::NetPBM::isNetPBM(
 	return (false);
 }
 
-BiometricEvaluation::Image::NetPBM::~NetPBM()
-{
-
-}

@@ -25,7 +25,7 @@ printViewInfo(Iris::INCITSView &irisv)
 	 */
 	cout << "Image resolution is " << irisv.getImageResolution() << endl;
 	cout << "Image size is " << irisv.getImageSize() << endl;
-	cout << "Image depth is " << irisv.getImageDepth() << endl;
+	cout << "Image depth is " << irisv.getImageColorDepth() << endl;
 	cout << "Compression is " <<
 	    to_string(irisv.getCompressionAlgorithm()) << endl;
 	cout << "Scan resolution is " << irisv.getScanResolution() << endl;
@@ -35,7 +35,8 @@ printViewInfo(Iris::INCITSView &irisv)
 		cout << "Information from the Image data item:" << endl;
 		cout << "\tResolution: " << theImage->getResolution() << endl;
 		cout << "\tDimensions: " << theImage->getDimensions() << endl;
-		cout << "\tDepth: " << theImage->getDepth() << endl;
+		cout << "\tColor bit-depth: " << theImage->getColorDepth() <<
+		    endl;
 	} catch (Error::Exception &e) {
 		cout << "Caught " << e.what() << endl;
 	}

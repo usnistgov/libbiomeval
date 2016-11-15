@@ -27,13 +27,25 @@ std::shared_ptr<BE::Image::Image>
 BiometricEvaluation::View::View::getImage() const
 {
 	switch (_compressionAlgorithm) {
-	case BE::Image::CompressionAlgorithm::None:
+	case BE::Image::CompressionAlgorithm::None: {
+		uint16_t bitDepth{0};
+		if (this->_imageData.size() ==
+		    (this->_imageSize.xSize * this->_imageSize.ySize *
+		    (this->_imageColorDepth / 8)))
+			bitDepth = 8;
+		else if (this->_imageData.size() ==
+		    (this->_imageSize.xSize * this->_imageSize.ySize *
+		    (this->_imageColorDepth / 16)))
+			bitDepth = 16;
+		else
+			throw BE::Error::NotImplemented("> 16-bit depth");
+
 		return (std::shared_ptr<BE::Image::Image>(
 		    new BE::Image::Raw(
 			this->_imageData, this->_imageData.size(),
-			this->_imageSize, this->_imageDepth,
-			this->_imageResolution)));
-
+			this->_imageSize, this->_imageColorDepth,
+			bitDepth, this->_imageResolution)));
+	}
 	case BE::Image::CompressionAlgorithm::WSQ20:
 		return (std::shared_ptr<Image::Image>(
 		    new BE::Image::WSQ(
@@ -82,9 +94,9 @@ BiometricEvaluation::View::View::getImageResolution() const
 }
 
 uint32_t
-BiometricEvaluation::View::View::getImageDepth() const
+BiometricEvaluation::View::View::getImageColorDepth() const
 {
-	return (_imageDepth);
+	return (_imageColorDepth);
 }
 
 BiometricEvaluation::Image::CompressionAlgorithm
@@ -132,10 +144,10 @@ BiometricEvaluation::View::View::setImageResolution(
 }
 
 void
-BiometricEvaluation::View::View::setImageDepth(
-    const uint32_t depth)
+BiometricEvaluation::View::View::setImageColorDepth(
+    const uint32_t imageColorDepth)
 {
-	this->_imageDepth = depth;
+	this->_imageColorDepth = imageColorDepth;
 }
 
 void

@@ -54,8 +54,10 @@ namespace BiometricEvaluation
 			 *	The size of the image data, in bytes.
 			 * @param[in] dimensions
 			 *	The width and height of the image in pixels.
-			 * @param[in] depth
-			 *	The image depth, in bits-per-pixel.
+			 * @param[in] colorDepth
+			 *	The image color depth, in bits-per-pixel.
+			 * @param[in] bitDepth
+			 *	The number of bits per color component.
 			 * @param[in] resolution
 			 *	The resolution of the image
 			 * @param[in] compression
@@ -70,7 +72,8 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    const uint64_t size,
 			    const Size dimensions,
-			    const uint32_t depth, 
+			    const uint32_t colorDepth,
+			    const uint16_t bitDepth,
 			    const Resolution resolution,
 			    const CompressionAlgorithm compression);
 
@@ -204,7 +207,18 @@ namespace BiometricEvaluation
 			 * 	The color depth of the image (bit).
 			 */
 			uint32_t
-			getDepth()
+			getColorDepth()
+			    const;
+
+			/**
+			 * @brief
+			 * Accessor for the number of bits per color component.
+			 *
+			 * @return
+			 * The bit depth of the image (in bits).
+			 */
+			uint16_t
+			getBitDepth()
 			    const;
 
 			virtual ~Image();
@@ -398,12 +412,24 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Mutator for the color depth of the image in bits.
 			 *
-			 * @param[in] depth
+			 * @param[in] colorDepth
 			 * 	The color depth of the image (bit).
 			 */
 			void
-			setDepth(
-			    const uint32_t depth);
+			setColorDepth(
+			    const uint32_t colorDepth);
+
+			/**
+			 * @brief
+			 * Mutator for the number of bits per component for 
+			 * color components in the image, in bits.
+			 *
+			 * @param[in] bitDepth
+			 *	The number of bits per color component.
+			 */
+			void
+			setBitDepth(
+			    const uint16_t bitDepth);
 			    
 			/** @return Const pointer to buffer underlying _data. */
 			const uint8_t *
@@ -419,8 +445,11 @@ namespace BiometricEvaluation
 			/** Image dimensions (width and height) in pixels */
 			Size _dimensions;
 
-			/** Color depth */
-			uint32_t _depth;
+			/** Number of bits per pixel */
+			uint32_t _colorDepth;
+
+			/** Number of bits per color componeny */
+			uint16_t _bitDepth;
 
 			/** Resolution */
 			Resolution _resolution;

@@ -37,7 +37,15 @@ BiometricEvaluation::Image::BMP::BMP(
 	this->setDimensions(Size(dibHeader.width, abs(dibHeader.height)));
 	this->setResolution(Resolution((dibHeader.xResolution / 1000.0),
 	    (dibHeader.yResolution / 1000.0), Resolution::Units::PPMM));
-	this->setDepth(dibHeader.bitsPerPixel);
+	this->setColorDepth(dibHeader.bitsPerPixel);
+	this->setBitDepth(8);
+}
+
+BiometricEvaluation::Image::BMP::BMP(
+    const BiometricEvaluation::Memory::uint8Array &data) :
+    BiometricEvaluation::Image::BMP::BMP(data, data.size())
+{
+
 }
 
 BiometricEvaluation::Memory::AutoArray<uint8_t>
@@ -167,12 +175,6 @@ BiometricEvaluation::Image::BMP::isBMP(
 	default:
 		return (false);
 	}
-}
-
-
-BiometricEvaluation::Image::BMP::~BMP()
-{
-
 }
 
 void

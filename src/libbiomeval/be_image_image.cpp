@@ -30,11 +30,13 @@ BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
     const uint64_t size,
     const Size dimensions,
-    const uint32_t depth,
+    const uint32_t colorDepth,
+    const uint16_t bitDepth,
     const Resolution resolution,
     const CompressionAlgorithm compressionAlgorithm) :
     _dimensions(dimensions),
-    _depth(depth),
+    _colorDepth(colorDepth),
+    _bitDepth(bitDepth),
     _resolution(resolution),
     _data(size),
     _compressionAlgorithm(compressionAlgorithm)
@@ -46,13 +48,16 @@ BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
     const uint64_t size,
     const CompressionAlgorithm compressionAlgorithm) :
-    _dimensions(Size()),
-    _depth(0),
-    _resolution(Resolution()),
-    _data(size),
-    _compressionAlgorithm(compressionAlgorithm)
+    BiometricEvaluation::Image::Image::Image(
+    data,
+    size,
+    Size(),
+    0,
+    0,
+    Resolution(),
+    compressionAlgorithm)
 {
-	std::memcpy(_data, data, size);
+
 }
 
 BiometricEvaluation::Image::CompressionAlgorithm
@@ -77,10 +82,17 @@ BiometricEvaluation::Image::Image::getDimensions()
 }
 
 uint32_t 
-BiometricEvaluation::Image::Image::getDepth()
+BiometricEvaluation::Image::Image::getColorDepth()
     const
 {
-	return (_depth);
+	return (_colorDepth);
+}
+
+uint16_t
+BiometricEvaluation::Image::Image::getBitDepth()
+    const
+{
+	return (this->_bitDepth);
 }
 
 BiometricEvaluation::Memory::uint8Array
@@ -92,11 +104,11 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 		throw Error::ParameterError("Invalid value for bit depth");
 		
 	/* Return no-effort conversion */
-	if (this->getDepth() == depth)
+	if (this->getColorDepth() == depth)
 		return (this->getRawData());
 
 	const uint8_t bpcIn = static_cast<uint8_t>(
-	    std::ceil(this->getDepth() / 8.0));
+	    std::ceil(this->getColorDepth() / 8.0));
 	const Memory::uint8Array rawColor{this->getRawData()};
 	Memory::IndexedBuffer inBuffer{rawColor};
 
@@ -117,7 +129,7 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 	 * after converting to 8-bit.
 	 */
 	for (uint32_t i = 0; i < rawColor.size(); i += bpcIn) {
-		switch (this->getDepth()) {
+		switch (this->getColorDepth()) {
 		case 1:
 			/* Bitmap images are upped to 8-bit in getRawData() */
 			/* FALLTHROUGH */
@@ -167,7 +179,7 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 			}
 
 			/* Increment over the alpha channel */
-			if (this->getDepth() == 32)
+			if (this->getColorDepth() == 32)
 				inBuffer.scanU8Val();
 
 			break;
@@ -200,13 +212,13 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 			}
 
 			/* Increment over the alpha channel */
-			if (this->getDepth() == 64)
+			if (this->getColorDepth() == 64)
 				inBuffer.scanU16Val();
 
 			break;
 		default:
 			throw BE::Error::NotImplemented("Grayscale conversion "
-			    "for " + std::to_string(this->getDepth()) + "-bit "
+			    "for " + std::to_string(this->getColorDepth()) + "-bit "
 			    "depth imagery");
 		}
 	}
@@ -241,10 +253,17 @@ BiometricEvaluation::Image::Image::setDimensions(
 }
 	
 void
-BiometricEvaluation::Image::Image::setDepth(
-    const uint32_t depth)
+BiometricEvaluation::Image::Image::setColorDepth(
+    const uint32_t colorDepth)
 {
-	_depth = depth;
+	_colorDepth = colorDepth;
+}
+
+void
+BiometricEvaluation::Image::Image::setBitDepth(
+    const uint16_t bitDepth)
+{
+	this->_bitDepth = bitDepth;
 }
 
 const uint8_t *

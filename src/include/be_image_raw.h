@@ -28,9 +28,11 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    const uint64_t size,
 			    const Size dimensions,
-			    const unsigned int depth,
+			    const uint32_t colorDepth,
+			    const uint16_t bitDepth,
 			    const Resolution resolution);
-			~Raw();
+
+			~Raw() = default;
 
 			/*
 			 * Implementations of the Image interface.

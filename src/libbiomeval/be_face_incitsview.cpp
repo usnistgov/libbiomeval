@@ -280,7 +280,7 @@ BiometricEvaluation::Face::INCITSView::readFaceView(
 	/*
 	 * Image data
 	 */
-	this->setImageDepth(0);
+	this->setImageColorDepth(0);
 	this->setImageResolution(
 	    Image::Resolution(0, 0, BE::Image::Resolution::Units::NA));
 	this->setScanResolution(

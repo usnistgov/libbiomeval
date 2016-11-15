@@ -80,7 +80,15 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	 * "Source fingerprint images shall be captured with 8 bits of 
 	 * precision per pixel."
 	 */
-	setDepth(8);
+	setColorDepth(8);
+	this->setBitDepth(8);
+}
+
+BiometricEvaluation::Image::WSQ::WSQ(
+    const BiometricEvaluation::Memory::uint8Array &data) :
+    BiometricEvaluation::Image::WSQ::WSQ(data, data.size())
+{
+
 }
 
 BiometricEvaluation::Memory::uint8Array
@@ -122,9 +130,3 @@ BiometricEvaluation::Image::WSQ::isWSQ(
 
 	return (memcmp(data, WSQ_SOI, 2) == 0);
 }
-
-BiometricEvaluation::Image::WSQ::~WSQ()
-{
-
-}
-

@@ -150,11 +150,19 @@ compareProperties(
 		    image->getDimensions().xSize << ", Recorded: " <<
 		    properties->getPropertyAsInteger("ySize") << endl;
 	}
-	if (image->getDepth() != properties->getPropertyAsInteger("depth")) {
+	if (image->getColorDepth() !=
+	    properties->getPropertyAsInteger("colorDepth")) {
 		passed = false;
-		cerr << "\t*** depth differs -- Image: " << 
-		    image->getDepth() << ", Recorded: " <<
-		    properties->getPropertyAsInteger("depth") << endl;
+		cerr << "\t*** Color depth differs -- Image: " << 
+		    image->getColorDepth() << ", Recorded: " <<
+		    properties->getPropertyAsInteger("colorDepth") << endl;
+	}
+	if (image->getBitDepth() !=
+	    properties->getPropertyAsInteger("bitDepth")) {
+		passed = false;
+		cerr << "\t*** Bit depth differs -- Image: " <<
+		    image->getBitDepth() << ", Recorded: " <<
+		    properties->getPropertyAsInteger("bitDepth") << endl;
 	}
 	Memory::uint8Array genRawData, genRawGrayData;
 	if (imageType != "Raw") {
@@ -296,7 +304,7 @@ main(
 		    RSParentDir + '/' + ImagePropRSName, IO::Mode::ReadOnly);
 	} catch (Error::Exception &e) {
 		cerr << "Could not open " << RSParentDir << "/" <<
-		    ImageRSName << ": " << e.what() << endl;
+		    ImagePropRSName << ": " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
 
@@ -341,6 +349,13 @@ main(
 			properties.reset(new IO::Properties(propertyData,
 			    propertyData.size()));
 			doPropertyCompare = true;
+
+			/* Can't use parent depth for grayscale */
+			if (record.key.find("gray") != std::string::npos) {
+				properties->setPropertyFromInteger("colorDepth",
+				    properties->getPropertyAsInteger(
+				    "bitDepth"));
+			}
 		} catch (Error::ObjectDoesNotExist) {
 			doPropertyCompare = false;
 		} catch (Error::Exception &e) {
@@ -413,7 +428,8 @@ main(
 		image.reset(new Image::Raw(record.data, record.data.size(),
 		    Image::Size(properties->getPropertyAsInteger("xSize"), 
 		    properties->getPropertyAsInteger("ySize")),
-		    properties->getPropertyAsInteger("depth"),
+		    properties->getPropertyAsInteger("colorDepth"),
+		    properties->getPropertyAsInteger("bitDepth"),
 		    Image::Resolution(properties->getPropertyAsDouble("xRes"),
 		    properties->getPropertyAsDouble("yRes"),
 		    stringToResUnits(properties->getProperty("resUnits")))));
@@ -429,7 +445,8 @@ main(
 #endif
 		Memory::uint8Array buf{image->getData()};
 		cout << "\tDimensions: " << image->getDimensions() << endl;
-		cout << "\tBit-Depth: " << image->getDepth() << endl;
+		cout << "\tImage depth: " << image->getColorDepth() << endl;
+		cout << "\tChannel depth: " << image->getBitDepth() << endl;
 		cout << "\tResolution: " << image->getResolution() << endl;
 		cout << "\tNative Size: " << buf.size() << endl;
 		
@@ -454,6 +471,7 @@ main(
 		} catch (Error::Exception &e) {
 			cerr << "Error getRawGrayscaleData/writeFile " <<
 			   "for " << record.key << endl;
+			cerr << e.whatString() << endl;
 		}
 		
 		/* 

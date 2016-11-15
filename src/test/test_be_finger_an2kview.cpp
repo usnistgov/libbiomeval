@@ -35,7 +35,7 @@ handleAN2KView(Finger::AN2KView &an2kv)
 	    an2kv.getRecordType()) << endl;
 	cout << "Image resolution is " << an2kv.getImageResolution() << endl;
 	cout << "Image size is " << an2kv.getImageSize() << endl;
-	cout << "Image depth is " << an2kv.getImageDepth() << endl;
+	cout << "Image color depth is " << an2kv.getImageColorDepth() << endl;
 	cout << "Compression is " <<
 	    to_string(an2kv.getCompressionAlgorithm()) << endl;
 	cout << "Scan resolution is " << an2kv.getScanResolution() << endl;
@@ -65,7 +65,7 @@ handleAN2KView(Finger::AN2KView &an2kv)
 	hdr << "# " << filename << "\n";
 	hdr << "P5 " << img->getDimensions().xSize <<
 	    " " << img->getDimensions().ySize << " " <<
-	    (int)(pow(2.0, (int)img->getDepth()) - 1) << "\n";
+	    (int)(pow(2.0, (int)img->getColorDepth()) - 1) << "\n";
 
 	ofstream img_out(filename.c_str(), ofstream::binary);
 	img_out << hdr.str();
