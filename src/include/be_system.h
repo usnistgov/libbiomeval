@@ -42,7 +42,7 @@ namespace BiometricEvaluation
 		/**
 		 * @brief
 		 * Obtain the amount of real memory in the system.
-		 * @return The real memory size, in kilobytes.
+		 * @return The real memory size, in kibibytes.
 		 * @throw Error::NotImplemented
 		 *	Not implemented for this operating system, or the
 		 *	underlying OS feature is not installed.
