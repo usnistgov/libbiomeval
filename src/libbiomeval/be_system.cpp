@@ -24,9 +24,10 @@ uint32_t
 BiometricEvaluation::System::getCPUCount()
 {
 	int num = std::thread::hardware_concurrency();
-	if (num <= 0)
+	if (num <= 0) {
 		throw (Error::NotImplemented());
-	return ((uint32_t)num);
+	}
+	return (static_cast<uint32_t>(num));
 }
 
 uint64_t
@@ -74,8 +75,9 @@ BiometricEvaluation::System::getLoadAverage()
 #else
 	double avg[1];
 	int retval = getloadavg(avg, 1);
-	if (retval == -1)
+	if (retval == -1) {
 		throw (Error::NotImplemented());
+	}
 	return (avg[0]);
 #endif
 }

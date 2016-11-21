@@ -12,21 +12,13 @@
 
 namespace BE = BiometricEvaluation;
 
-BiometricEvaluation::Device::Smartcard::APDUResponse::APDUResponse()
-{
-}
-
 BiometricEvaluation::Device::Smartcard::APDUResponse::APDUResponse(
     const BE::Memory::uint8Array &data,
     const uint8_t sw1,
-    const uint8_t sw2)
-{
-	this->data = data;
-	this->sw1 = sw1;
-	this->sw2 = sw2;
-}
-
-BiometricEvaluation::Device::Smartcard::APDUException::APDUException()
+    const uint8_t sw2) :
+    sw1{sw1},
+    sw2{sw2},
+    data{data}
 {
 }
 
@@ -50,6 +42,10 @@ BiometricEvaluation::Device::Smartcard::Smartcard(
 {
 	this->pimpl.reset(new BE::Device::Smartcard::Impl(
 	    cardNum, appID));
+}
+
+BiometricEvaluation::Device::Smartcard::~Smartcard()
+{
 }
 
 BiometricEvaluation::Memory::uint8Array
@@ -88,10 +84,6 @@ void
 BiometricEvaluation::Device::Smartcard::setDryrun(bool state)
 {
 	this->pimpl->setDryrun(state);
-}
-
-BiometricEvaluation::Device::Smartcard::~Smartcard()
-{
 }
 
 BiometricEvaluation::Device::Smartcard::Smartcard(

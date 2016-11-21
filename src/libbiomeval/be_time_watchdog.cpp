@@ -20,14 +20,12 @@
 #define timerclear(tvp)         (tvp)->tv_sec = (tvp)->tv_usec = 0
 #endif
 
-namespace BE = BiometricEvaluation;
-
 bool BiometricEvaluation::Time::Watchdog::_canSigJump = false;
 sigjmp_buf BiometricEvaluation::Time::Watchdog::_sigJumpBuf;
 
 void
 BiometricEvaluation::Time::WatchdogSignalHandler(
-    int signo, siginfo_t *info, void *uap)
+    int /* signo */, siginfo_t * /* info */, void * /* uap */)
 {
 	if (Time::Watchdog::_canSigJump) {
 		siglongjmp(
@@ -38,11 +36,13 @@ BiometricEvaluation::Time::WatchdogSignalHandler(
 BiometricEvaluation::Time::Watchdog::Watchdog(
     const uint8_t type)
 {
-	if ((type != Watchdog::PROCESSTIME) && (type != Watchdog::REALTIME))
+	if ((type != Watchdog::PROCESSTIME) && (type != Watchdog::REALTIME)) {
 		throw (Error::ParameterError());
+	}
 #ifdef __CYGWIN__
-	if (type == Watchdog::PROCESSTIME)
+	if (type == Watchdog::PROCESSTIME) {
 		throw (Error::NotImplemented());
+	}
 #endif
 
 	_type = type;
@@ -73,53 +73,58 @@ BiometricEvaluation::Time::Watchdog::internalMapWatchdogType(
 void
 BiometricEvaluation::Time::Watchdog::start()
 {
-	if (_interval == 0)
+	if (_interval == 0) {
 		return;
+	}
 
-	struct sigaction sa;
+	struct sigaction sa{};
 	int signo;
 	int which;
 	internalMapWatchdogType(&signo, &which);
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_SIGINFO;
 	sa.sa_sigaction = WatchdogSignalHandler;
-	if (sigaction(signo, &sa, nullptr) != 0)
+	if (sigaction(signo, &sa, nullptr) != 0) {
 		throw (Error::StrategyError("Registering signal handler failed"));
+	}
 	time_t sec, usec;
-	struct itimerval timerval;
+	struct itimerval timerval{};
 	/*
 	 * Convert _interval to sec/usec from usec
 	 */
-	sec = (time_t)(_interval / Time::MicrosecondsPerSecond);
-	usec = (time_t)(_interval % Time::MicrosecondsPerSecond);
+	sec = static_cast<time_t>(_interval / Time::MicrosecondsPerSecond);
+	usec = static_cast<time_t>(_interval % Time::MicrosecondsPerSecond);
 	timerclear(&timerval.it_interval);
 	timerval.it_value.tv_sec = sec;
 	timerval.it_value.tv_usec = usec;
-	if (setitimer(which, &timerval, nullptr) != 0)
+	if (setitimer(which, &timerval, nullptr) != 0) {
 		throw (Error::StrategyError("Registering system timer failed"));
+	}
 }
 
 void
 BiometricEvaluation::Time::Watchdog::stop()
 {
-	struct sigaction sa;
+	struct sigaction sa{};
 	int signo;
 	int which;
 	internalMapWatchdogType(&signo, &which);
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	sa.sa_handler = SIG_DFL;
-	if (sigaction(signo, &sa, nullptr) == -1)
+	if (sigaction(signo, &sa, nullptr) == -1) {
 		throw (Error::StrategyError("Clearing signal handler failed"));
+	}
 
 	/*
 	 * Cancel the timer.
 	 */
-	struct itimerval timerval;
+	struct itimerval timerval{};
 	timerclear(&timerval.it_interval);
 	timerclear(&timerval.it_value);
-	if (setitimer(which, &timerval, nullptr) != 0)
+	if (setitimer(which, &timerval, nullptr) != 0) {
 		throw (Error::StrategyError("Clearing system timer failed"));
+	}
 }
 
 void

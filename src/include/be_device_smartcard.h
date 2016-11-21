@@ -39,13 +39,17 @@ namespace BiometricEvaluation
 			 */
 			struct APDUResponse {
 				/** status word one */
-				uint8_t sw1;
+				uint8_t sw1{0};
+
 				/** status word two */
-				uint8_t sw2;
+				uint8_t sw2{0};
+
 				/** The response data, possibly incomplete */
 				Memory::uint8Array data;
+
 				/** Constructor */
-				APDUResponse();
+				APDUResponse() = default;
+
 				/** Constructor
 				 * @param data
 				 * The response data; may be empty.
@@ -58,6 +62,8 @@ namespace BiometricEvaluation
 				    const Memory::uint8Array &data,
 				    const uint8_t sw1,
 				    const uint8_t sw2);
+
+				~APDUResponse() = default;
 			};
 
 			/**
@@ -76,13 +82,14 @@ namespace BiometricEvaluation
 				 * from the failed command.
 				 */
 				APDUResponse response;
+
 				/**
 				 * The raw APDU that was sent.
 				 */
 				Memory::uint8Array apdu;
 
 				/** Constructor. */
-				APDUException();
+				APDUException() = default;
 
 				/** Constructor.
 				 * @param repines
@@ -224,6 +231,13 @@ namespace BiometricEvaluation
 			 */
 			void setDryrun(bool state);
 
+			/*
+			 * We cannot use the default destructor here due to the
+			 * Impl smart pointer contained within this object.
+			 */
+			/**
+			 * Destructor.
+			 */
 			~Smartcard();
 
 			/**
@@ -249,7 +263,7 @@ namespace BiometricEvaluation
 			 Smartcard& operator=(Smartcard&& other) noexcept;
 		private:
 			class Impl;
-			std::unique_ptr<Smartcard::Impl> pimpl;
+			std::unique_ptr<Smartcard::Impl> pimpl{nullptr};
 		};
 	}
 }

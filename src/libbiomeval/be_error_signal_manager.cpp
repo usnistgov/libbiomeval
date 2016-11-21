@@ -14,8 +14,6 @@
 
 #include <be_error_signal_manager.h>
 
-namespace BE = BiometricEvaluation;
-
 bool BiometricEvaluation::Error::SignalManager::_canSigJump = false;
 sigjmp_buf BiometricEvaluation::Error::SignalManager::_sigJumpBuf;
 
@@ -24,7 +22,7 @@ sigjmp_buf BiometricEvaluation::Error::SignalManager::_sigJumpBuf;
  */
 void
 BiometricEvaluation::Error::SignalManagerSighandler(
-    int signo, siginfo_t *info, void *uap)
+    int /* signo */, siginfo_t * /* info */, void * /* uap */)
 {
 	if (Error::SignalManager::_canSigJump) {
 		siglongjmp(
@@ -35,10 +33,12 @@ BiometricEvaluation::Error::SignalManagerSighandler(
 static bool
 validSignalSet(const sigset_t sigset)
 {
-	if (sigismember(&sigset, SIGKILL))
+	if (sigismember(&sigset, SIGKILL)) {
 		return (false);
-	if (sigismember(&sigset, SIGSTOP))
+	}
+	if (sigismember(&sigset, SIGSTOP)) {
 		return (false);
+	}
 	return (true);
 }
 
@@ -51,8 +51,9 @@ BiometricEvaluation::Error::SignalManager::SignalManager()
 BiometricEvaluation::Error::SignalManager::SignalManager(
     const sigset_t signalSet)
 {
-	if (!validSignalSet(signalSet))
+	if (!validSignalSet(signalSet)) {
 		throw (Error::ParameterError("Invalid signal set"));
+	}
 	_canSigJump = false;
 	_signalSet = signalSet;
 }
@@ -61,8 +62,9 @@ void
 BiometricEvaluation::Error::SignalManager::setSignalSet(
     const sigset_t signalSet)
 {
-	if (!validSignalSet(signalSet))
+	if (!validSignalSet(signalSet)) {
 		throw (Error::ParameterError("Invalid signal set"));
+	}
 	_signalSet = signalSet;
 }
 
@@ -89,13 +91,14 @@ BiometricEvaluation::Error::SignalManager::sigHandled()
 void
 BiometricEvaluation::Error::SignalManager::start()
 {
-	struct sigaction sa;
+	struct sigaction sa{};
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_SIGINFO;
 	sa.sa_sigaction = SignalManagerSighandler;
 	for (int sig = SIGHUP; sig <= SIGUSR2; sig++) {
-		if ((sig == SIGKILL) || (sig == SIGSTOP))
+		if ((sig == SIGKILL) || (sig == SIGSTOP)) {
 			continue;
+		}
 		if (sigismember(&_signalSet, sig)) {
 			if (sigaction(sig, &sa, nullptr) == -1) {
 				throw (Error::StrategyError(
@@ -109,13 +112,14 @@ BiometricEvaluation::Error::SignalManager::start()
 void
 BiometricEvaluation::Error::SignalManager::stop()
 {
-	struct sigaction sa;
+	struct sigaction sa{};
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	sa.sa_handler = SIG_DFL;
 	for (int sig = SIGHUP; sig <= SIGUSR2; sig++) {
-		if ((sig == SIGKILL) || (sig == SIGSTOP))
+		if ((sig == SIGKILL) || (sig == SIGSTOP)) {
 			continue;
+		}
 		if (sigismember(&_signalSet, sig)) {
 			if (sigaction(sig, &sa, nullptr) == -1) {
 				throw (Error::StrategyError(

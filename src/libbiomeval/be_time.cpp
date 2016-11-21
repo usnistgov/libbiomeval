@@ -45,7 +45,7 @@ BiometricEvaluation::Time::getCurrentCalendarInformation(
 
 	/* "For portable code tzset() should be called before localtime_r()." */
 	::tzset();
-	std::tm now;
+	std::tm now{};
 	::localtime_r(&theTime, &now);
 
 	return (Time::put_time(&now, formatString.c_str()));

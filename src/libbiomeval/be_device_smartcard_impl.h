@@ -75,10 +75,10 @@ namespace BiometricEvaluation
  			 */
 			void connectToCard(unsigned int cardNum);
 			
-			SCARDHANDLE _hCard;
+			SCARDHANDLE _hCard{0};
 			Memory::uint8Array _lastAPDU;
 			Memory::uint8Array _lastResponseData;
-			bool _dryrun;
+			bool _dryrun{false};
 			std::string _readerID;
 		};
 	}

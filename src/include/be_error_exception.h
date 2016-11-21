@@ -45,9 +45,13 @@ namespace BiometricEvaluation {
 				 *	The information string associated
 				 *	with the exception.
 				 */
+				/*
+				 * Pass info by value so we can use move
+				 * semantics when setting object state.
+				 */
 				Exception(std::string info);
 
-				virtual ~Exception() noexcept;
+				virtual ~Exception() = default;
 				
 				/**
 				 * Obtain the information string associated
@@ -90,7 +94,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				FileError(std::string info);
+				FileError(const std::string &info);
 		};
 
 		/**
@@ -110,7 +114,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				ParameterError(std::string info);
+				ParameterError(const std::string &info);
 		};
 		
 		/**
@@ -131,7 +135,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				ConversionError(std::string info);
+				ConversionError(const std::string &info);
 		};
 
 		/**
@@ -155,7 +159,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				DataError(std::string info);
+				DataError(const std::string &info);
 		};
 
 		/**
@@ -175,7 +179,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				MemoryError(std::string info);
+				MemoryError(const std::string &info);
 		};
 	
 		/**
@@ -195,7 +199,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				ObjectExists(std::string info);
+				ObjectExists(const std::string &info);
 		};
 		
 		/**
@@ -215,7 +219,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				ObjectDoesNotExist(std::string info);
+				ObjectDoesNotExist(const std::string &info);
 		};
 
 		/**
@@ -235,7 +239,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				ObjectIsOpen(std::string info);
+				ObjectIsOpen(const std::string &info);
 		};
 
 		/**
@@ -255,7 +259,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				ObjectIsClosed(std::string info);
+				ObjectIsClosed(const std::string &info);
 		};
 	
 		/**
@@ -276,7 +280,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				StrategyError(std::string info);
+				StrategyError(const std::string &info);
 		};
 	
 		/**
@@ -298,7 +302,7 @@ namespace BiometricEvaluation {
 				 * an information string appended to the
 				 * default information string.
 				 */
-				NotImplemented(std::string info);
+				NotImplemented(const std::string &info);
 		};
 	}
 }

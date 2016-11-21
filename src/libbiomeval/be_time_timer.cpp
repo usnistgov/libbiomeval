@@ -26,8 +26,9 @@ BiometricEvaluation::Time::Timer::start()
 	/* Get the time immediately */
 	this->_placeholder = BE_CLOCK_TYPE::now();
 
-	if (this->_inProgress)
+	if (this->_inProgress) {
 		throw Error::StrategyError("Timing already in progress");
+	}
 
 	this->_start = this->_placeholder;
 	this->_inProgress = true;
@@ -39,8 +40,9 @@ BiometricEvaluation::Time::Timer::stop()
 	/* Get the time immediately */
 	_placeholder = BE_CLOCK_TYPE::now();
 
-	if (!_inProgress)
+	if (!_inProgress) {
 		throw Error::StrategyError("Timing not in progress");
+	}
 
 	this->_finish = this->_placeholder;
 	this->_inProgress = false;
@@ -50,8 +52,9 @@ uint64_t
 BiometricEvaluation::Time::Timer::elapsed()
     const
 {
-	if (this->_inProgress)
+	if (this->_inProgress) {
 		throw Error::StrategyError("Timing in progress");
+	}
 
 	/* 
 	 * On some systems with some clocks, we may be losing precision by 
@@ -68,8 +71,9 @@ BiometricEvaluation::Time::Timer::elapsedStr(
     const
 {
 	std::string ret{std::to_string(this->elapsed())};
-	if (displayUnits)
+	if (displayUnits) {
 		ret += "μs";
+	}
 	return (ret);
 }
 

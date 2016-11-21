@@ -14,15 +14,14 @@
 #include <memory>
 #include <vector>
 
-#include <be_memory_mutableindexedbuffer.h>
-#include <be_device_smartcard_apdu.h>
 #include "be_device_smartcard_impl.h"
+#include <be_device_smartcard_apdu.h>
+#include <be_memory_mutableindexedbuffer.h>
 
 namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::Device::Smartcard::Impl::Impl(
-    unsigned int cardNum) :
-    _dryrun{false}
+    unsigned int cardNum)
 {
 	/* Exceptions float out */
 	this->connectToCard(cardNum);
@@ -30,8 +29,7 @@ BiometricEvaluation::Device::Smartcard::Impl::Impl(
 
 BiometricEvaluation::Device::Smartcard::Impl::Impl(
     unsigned int cardNum,
-    const Memory::uint8Array &appID) :
-    _dryrun{false}
+    const Memory::uint8Array &appID)
 {
 	if (appID.size() > APDU::MAX_NC_SIZE)
 		throw (BE::Error::ParameterError("Application ID too large"));
@@ -39,7 +37,7 @@ BiometricEvaluation::Device::Smartcard::Impl::Impl(
 	/* Exceptions float out */
 	this->connectToCard(cardNum);
 
-	BE::Device::Smartcard::APDU apdu;
+	BE::Device::Smartcard::APDU apdu{};
 	apdu.cla        = 0x00;
         apdu.ins        = 0xA4;		/* SELECT command */
         apdu.p1         = 0x04;		/* command data is DF name */
@@ -76,7 +74,7 @@ BiometricEvaluation::Device::Smartcard::Impl::getDedicatedFileObject(
 	if (objectID.size() > APDU::MAX_NC_SIZE)
 		throw (BE::Error::ParameterError("Data object ID too large"));
 
-	BE::Device::Smartcard::APDU apdu;
+	BE::Device::Smartcard::APDU apdu{};
 	apdu.cla        = 0x00;
 	apdu.ins        = 0xCB;		/* P1-P2 contains file ID */
 	apdu.p1         = 0x3F;		/* Use the current dedicated file */
@@ -144,7 +142,7 @@ getAPDUResponse(
 		bGetRes[4] = lsw2;	/* The Le field */
 		lRecvLen = (0 == lsw2) ? 256 : lsw2;
 		lRecvLen += 2;	/* Account for the SW */
-		rc = SCardTransmit(hCard, &pioSendPci, bGetRes, 5, NULL,
+		rc = SCardTransmit(hCard, &pioSendPci, bGetRes, 5, nullptr,
 		    recvBuf, &lRecvLen);
 
 		if (rc != SCARD_S_SUCCESS) {
@@ -179,7 +177,8 @@ BiometricEvaluation::Device::Smartcard::Impl::connectToCard(
 	LONG rc;
 
 	SCARDCONTEXT context;
-	if (SCardEstablishContext(SCARD_SCOPE_SYSTEM, NULL, NULL, &context) !=
+	if (SCardEstablishContext(
+	    SCARD_SCOPE_SYSTEM, nullptr, nullptr, &context) !=
 	    SCARD_S_SUCCESS) {
 		throw BE::Error::StrategyError(
 		    "Could not establish PCSC context");
@@ -187,7 +186,7 @@ BiometricEvaluation::Device::Smartcard::Impl::connectToCard(
 
 	/* Retrieve the available readers list */
 	DWORD dwReaders;
-	rc = SCardListReaders(context, NULL, NULL, &dwReaders);
+	rc = SCardListReaders(context, nullptr, nullptr, &dwReaders);
 	if (rc != SCARD_S_SUCCESS) {
 		throw BE::Error::StrategyError(
 		    "Could not list readers: "
@@ -200,7 +199,7 @@ BiometricEvaluation::Device::Smartcard::Impl::connectToCard(
 	}
 	std::unique_ptr<void, decltype(freeCStyle)>
 	    pmszReaders(mszReaders, freeCStyle);
-	rc = SCardListReaders(context, NULL, mszReaders, &dwReaders);
+	rc = SCardListReaders(context, nullptr, mszReaders, &dwReaders);
 	if (rc != SCARD_S_SUCCESS) {
 		throw BE::Error::StrategyError(
 		    "Could not list readers: "
@@ -279,10 +278,11 @@ BiometricEvaluation::Device::Smartcard::Impl::sendChained(
 
 	LcLen = apdu.lc;
 	maxLcLen = APDU::MAX_SHORT_LC - APDU::HEADER_LEN - APDU::FLEN_TRAILER;
-	if (apdu.field_mask & APDU::FIELD_LC)
+	if ((apdu.field_mask & APDU::FIELD_LC) != 0) {
 		maxLcLen -= APDU::FLEN_LC_SHORT;
+	}
 
-	if (apdu.field_mask & APDU::FIELD_LE) {
+	if ((apdu.field_mask & APDU::FIELD_LE) != 0) {
 		if (apdu.le > APDU::MAX_SHORT_LE) {
 			throw BE::Error::ParameterError(
 			    "Invalid Le value");
@@ -294,7 +294,7 @@ BiometricEvaluation::Device::Smartcard::Impl::sendChained(
 	unsigned int lastAPDUIndex = 0;
 	while (LcLen > 0) {
 		sendIndex = 4;
-		if (apdu.field_mask & APDU::FIELD_LC) {
+		if ((apdu.field_mask & APDU::FIELD_LC) != 0) {
 			if (LcLen > maxLcLen) {
 				bSendBuffer[0] |= APDU::FLAG_CLA_CHAIN;
 				bSendBuffer[sendIndex] = (uint8_t)maxLcLen;
@@ -315,7 +315,7 @@ BiometricEvaluation::Device::Smartcard::Impl::sendChained(
 				LcLen = 0;
 			}
 		}
-		if (apdu.field_mask & APDU::FIELD_LE) {
+		if ((apdu.field_mask & APDU::FIELD_LE) != 0) {
 			bSendBuffer[sendIndex] = (uint8_t)apdu.le;
 			sendIndex += 1;
 		}
@@ -334,7 +334,7 @@ BiometricEvaluation::Device::Smartcard::Impl::sendChained(
 		if (this->_dryrun == false) {
 			rc = SCardTransmit(this->_hCard,
 			    &pioSendPci, bSendBuffer,
-			    sendIndex, NULL, bRecvBuffer, &recvLength);
+			    sendIndex, nullptr, bRecvBuffer, &recvLength);
 			if (rc != SCARD_S_SUCCESS) {
 				throw BE::Error::StrategyError(
 				    "Transmit failed: "
@@ -349,8 +349,9 @@ BiometricEvaluation::Device::Smartcard::Impl::sendChained(
 			 * data. The client can retrieve the response and
 			 * status.
 			 */
-			if (sw1 != APDU::NORMAL_COMPLETE)
+			if (sw1 != APDU::NORMAL_COMPLETE) {
 				LcLen = 0;	/* Send no more data */
+			}
 		} else {
 			sw1 = APDU::NORMAL_COMPLETE;
 			sw2 = 0;
@@ -368,7 +369,7 @@ BiometricEvaluation::Device::Smartcard::Impl::sendExtended(
     uint8_t &sw1, uint8_t &sw2)
 {
 	LONG rc;
-	int lcle_extended;
+	bool lcle_extended;
 	uint8_t bSendBuffer[MAX_BUFFER_SIZE_EXTENDED];
 	uint8_t bRecvBuffer[MAX_BUFFER_SIZE_EXTENDED];
 	DWORD sendIndex;
@@ -393,11 +394,12 @@ BiometricEvaluation::Device::Smartcard::Impl::sendExtended(
 	 * hoping its tiny little head doesn't explode; that can be detected.)
 	 */
 	if ((apdu.lc > APDU::MAX_SHORT_LC) ||
-	    (apdu.le > APDU::MAX_SHORT_LE))
-		lcle_extended = 1;
-	else
-		lcle_extended = 0;
-	if (apdu.field_mask & APDU::FIELD_LC) {
+	    (apdu.le > APDU::MAX_SHORT_LE)) {
+		lcle_extended = true;
+	} else {
+		lcle_extended = false;
+	}
+	if ((apdu.field_mask & APDU::FIELD_LC) != 0) {
 		if (lcle_extended) {
 			bSendBuffer[sendIndex] = 0;
 			uint16_t val = (uint16_t)htons(apdu.lc);
@@ -410,7 +412,7 @@ BiometricEvaluation::Device::Smartcard::Impl::sendExtended(
 		std::memcpy(bSendBuffer + sendIndex, apdu.nc, apdu.lc);
 		sendIndex += apdu.lc;
 	}
-	if (apdu.field_mask & APDU::FIELD_LE) {
+	if ((apdu.field_mask & APDU::FIELD_LE) != 0) {
 		if (lcle_extended) {
 			bSendBuffer[sendIndex] = 0;
 			uint16_t val = (uint16_t)htons(apdu.le);
@@ -433,7 +435,7 @@ BiometricEvaluation::Device::Smartcard::Impl::sendExtended(
 	if (this->_dryrun == false) {
 		rc = SCardTransmit(this->_hCard, &pioSendPci,
 		    bSendBuffer, sendIndex,
-		    NULL, bRecvBuffer, &recvLength);
+		    nullptr, bRecvBuffer, &recvLength);
 		if (rc != SCARD_S_SUCCESS) {
 			throw BE::Error::StrategyError(
 			    "Transmit failed: "
