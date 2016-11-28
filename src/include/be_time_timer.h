@@ -13,6 +13,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <functional>
 
 #include <be_time.h>
 
@@ -47,6 +48,19 @@ namespace BiometricEvaluation
 
 			/** Constructor for the Timer object. */
 			Timer();
+
+			/**
+			 * @brief
+			 * Construct a timer and time a function immediately.
+			 *
+			 * @param func
+			 * A function to time immediately.
+			 *
+			 * @throw Error::StrategyError
+			 * Propagated from time().
+			 */
+			Timer(
+			    const std::function<void()> &func);
 
 			/**
 			 * @brief
@@ -105,6 +119,24 @@ namespace BiometricEvaluation
 			elapsedStr(
  			   bool displayUnits = false)
 			   const;
+
+			/**
+			 * @brief
+			 * Record the runtime of a function.
+			 *
+			 * @param func
+			 * Function to time.
+			 * 
+			 * @return
+			 * Reference to this class.
+			 *
+			 * @throw Error::StrategyError
+			 * Propagated from start() or stop(), and/or func
+			 * is nullptr.
+			 */
+			Timer&
+			time(
+			    const std::function<void()> &func);
 
 		private:
 			/**

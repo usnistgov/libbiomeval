@@ -20,14 +20,10 @@
 using namespace std;
 using namespace BiometricEvaluation;
 
+void sleepCallback() { sleep(1); }
+
 int main(int argc, char *argv[])
 {
-#if defined(WIN32) || defined(__CYGWIN__)
-	cout << "Testing with QueryPerformanceCounter()" << endl;
-#else
-	cout << "Testing with gettimeofday()" << endl;
-#endif
-	
 	Time::Timer *timer = nullptr;
 
 	cout << "Creating a Timer... ";
@@ -97,6 +93,31 @@ int main(int argc, char *argv[])
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
+
+	try {
+		cout << "Time sleep(1) in lambda... " << flush;
+		const auto timer = Time::Timer([]{ sleep(1); });
+		cout << "passed" << endl;
+		cout << "Time for sleep(1) in lambda: " << timer << endl;
+	} catch (Error::StrategyError &e) {
+		cout << "failed" << endl;
+		cout << "Caught " << e.what() << endl;
+		return (EXIT_FAILURE);
+	}
+
+	try {
+		cout << "Time sleep(1) in time(function pointer)... " << endl;
+		Time::Timer timer;
+		cout << "Time for sleep(1) in time(function pointer): " <<
+		    timer.time(sleepCallback) << endl;
+		cout << "Chained elapsed time for sleep(1): " <<
+		    timer.time(sleepCallback).elapsedStr() << endl;
+	} catch (Error::StrategyError &e) {
+		cout << "failed" << endl;
+		cout << "Caught " << e.what() << endl;
+		return (EXIT_FAILURE);
+	}
+
 
 	return (EXIT_SUCCESS);
 }

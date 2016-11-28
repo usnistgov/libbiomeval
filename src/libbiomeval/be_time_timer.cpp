@@ -20,6 +20,13 @@ BiometricEvaluation::Time::Timer::Timer() :
 
 }
 
+BiometricEvaluation::Time::Timer::Timer(
+    const std::function<void()> &func) :
+    BiometricEvaluation::Time::Timer::Timer()
+{
+	this->time(func);
+}
+
 void
 BiometricEvaluation::Time::Timer::start()
 {
@@ -75,6 +82,22 @@ BiometricEvaluation::Time::Timer::elapsedStr(
 		ret += "μs";
 	}
 	return (ret);
+}
+
+
+BiometricEvaluation::Time::Timer&
+BiometricEvaluation::Time::Timer::time(
+    const std::function<void()> &func)
+{
+	if (func == nullptr)
+		throw BiometricEvaluation::Error::StrategyError(
+		    "Timing nullptr function");
+
+	this->start();
+	func();
+	this->stop();
+
+	return (*this);
 }
 
 std::ostream&
