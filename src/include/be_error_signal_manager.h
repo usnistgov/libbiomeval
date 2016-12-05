@@ -198,7 +198,7 @@ namespace BiometricEvaluation {
 			/**
 			 * Current signal set.
 			 */
-			sigset_t _signalSet{0};
+			sigset_t _signalSet;
 
 			/**
 			 * Flag indicated that a signal was handled.

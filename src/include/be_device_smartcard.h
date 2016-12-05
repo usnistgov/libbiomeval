@@ -263,7 +263,7 @@ namespace BiometricEvaluation
 			 Smartcard& operator=(Smartcard&& other) noexcept;
 		private:
 			class Impl;
-			std::unique_ptr<Smartcard::Impl> pimpl{nullptr};
+			std::unique_ptr<Smartcard::Impl> pimpl;
 		};
 	}
 }
