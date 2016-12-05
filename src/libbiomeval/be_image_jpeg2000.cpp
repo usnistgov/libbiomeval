@@ -49,8 +49,8 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	this->setDimensions(Size(image->x1, image->y1));
 
 	/* Color depth */
-	const int32_t prec = image->comps[0].prec;
-	for (int32_t component = 1; component < image->numcomps; ++component)
+	const uint32_t prec = image->comps[0].prec;
+	for (uint32_t component = 1; component < image->numcomps; ++component)
 		if (image->comps[component].prec != prec)
 			throw Error::NotImplemented("Non-equivalent component "
 			    "bit depths");
@@ -104,12 +104,12 @@ BiometricEvaluation::Image::JPEG2000::getRawData()
 	if (opj_decode(codec.get(), stream.get(), image.get()) == OPJ_FALSE)
 		throw Error::StrategyError("libopenjp2: opj_decode");
 
-	const int32_t w = this->getDimensions().xSize;
-	const int32_t h = this->getDimensions().ySize;
+	const uint32_t w = this->getDimensions().xSize;
+	const uint32_t h = this->getDimensions().ySize;
 	const uint8_t bpc = image->comps[0].prec;
 
 	std::vector<int32_t*> ptr;
-	for (int32_t i = 0; i < image->numcomps; ++i) {
+	for (uint32_t i = 0; i < image->numcomps; ++i) {
 		ptr.push_back(image->comps[i].data);
 		if ((image->comps[i].w != w) || (image->comps[i].h != h) ||
 		    (image->comps[i].prec != bpc))
@@ -125,12 +125,12 @@ BiometricEvaluation::Image::JPEG2000::getRawData()
 	for (uint32_t row = 0; row < h; ++row) {
 		for (uint32_t col = 0; col < w; ++col) {
 			if (bpc <= 8) {
-				for (int32_t i = 0; i < image->numcomps; ++i) {
+				for (uint32_t i = 0; i < image->numcomps; ++i) {
 					buffer.pushU8Val(*ptr[i] & mask);
 					ptr[i]++;
 				}
 			} else if (bpc <= 16) {
-				for (int32_t i = 0; i < image->numcomps; ++i) {
+				for (uint32_t i = 0; i < image->numcomps; ++i) {
 					buffer.pushU16Val(*ptr[i] & mask);
 					ptr[i]++;
 				}

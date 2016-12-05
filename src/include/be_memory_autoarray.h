@@ -764,8 +764,7 @@ template<class T>
 BiometricEvaluation::Memory::AutoArray<T>::AutoArray(
     std::initializer_list<T> ilist) : AutoArray(ilist.size())
 {
-	for (int i = 0; i != ilist.size(); ++i)
-		_data[i] = ilist.begin()[i];
+	std::copy(ilist.begin(), ilist.end(), _data);
 }
 
 /******************************************************************************/
