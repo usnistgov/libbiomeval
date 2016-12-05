@@ -104,7 +104,7 @@ test_be_image_bmp: test_be_image_image.cpp
 test_be_image_factory: test_be_image_image.cpp
 	$(CXX) $(CXXFLAGS) -DFACTORYTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_process_statistics: test_be_process_statistics.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval -lpthread
 test_be_system: test_be_system.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_memory_autoarray: test_be_memory_autoarray.cpp
