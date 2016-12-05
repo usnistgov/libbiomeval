@@ -124,7 +124,7 @@ all: $(OBJECTS) $(NBIS_OBJECTS) $(MPIOBJECTS)
 	$(CP) -R -P $(LIBRARY).a $(LOCALLIB)
 # Create shared libs
 ifeq ($(OS), Darwin)
-	$(MPICXX) -L$(DBLIBS) $(COMMONLIB) $(filter-out $(NBIS_OBJECTS),$^) $(NBISLIB) $(NBIS_OBJECTS) -dynamiclib -Wl,-current_version,$(MAJOR_VERSION).$(MINOR_VERSION) -Wl,-compatibility_version,$(COMPATIBILITY_VERSION) -Wl,-macosx_version_min,$(OSX_MAJOR).$(OSX_MINOR) -Wl,-install_name,$(LIBRARY).$(MAJOR_VERSION).dylib -o $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
+	$(MPICXX) $(filter-out $(NBIS_OBJECTS),$^) $(NBISLIB) $(NBIS_OBJECTS) -L$(DBLIBS) $(COMMONLIB) -dynamiclib -Wl,-current_version,$(MAJOR_VERSION).$(MINOR_VERSION) -Wl,-compatibility_version,$(COMPATIBILITY_VERSION) -Wl,-macosx_version_min,$(OSX_MAJOR).$(OSX_MINOR) -Wl,-install_name,$(LIBRARY).$(MAJOR_VERSION).dylib -o $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).dylib
 	ln -f -s $(LIBRARY).$(MAJOR_VERSION).$(MINOR_VERSION).dylib $(LIBRARY).$(MAJOR_VERSION).dylib
 	$(CP) -R -P $(LIBRARY)*.dylib $(LOCALLIB)
@@ -135,7 +135,7 @@ ifeq ($(findstring CYGWIN,$(OS)), CYGWIN)
 	$(CP) $(LIBRARY).dll.a $(LOCALLIB)
 	$(CP) $(LIBRARY).dll $(LOCALLIB)
 else
-	$(MPICXX) $(COMMONLIB) -lrt $(filter-out $(NBIS_OBJECTS),$^) -Wl,--start-group $(NBISLIB) $(NBIS_OBJECTS) -Wl,--end-group -shared -Wl,-soname=$(LIBRARY).so.$(MAJOR_VERSION) -o $(LIBRARY).so.$(MAJOR_VERSION).$(MINOR_VERSION)
+	$(MPICXX) $(filter-out $(NBIS_OBJECTS),$^) -Wl,--start-group $(NBISLIB) $(NBIS_OBJECTS) -Wl,--end-group -shared $(COMMONLIB) -lrt -Wl,-soname=$(LIBRARY).so.$(MAJOR_VERSION) -o $(LIBRARY).so.$(MAJOR_VERSION).$(MINOR_VERSION)
 	/sbin/ldconfig -n $(PWD)
 	ln -f -s $(LIBRARY).so.$(MAJOR_VERSION) $(LIBRARY).so
 	$(CP) -P $(LIBRARY).so* $(LOCALLIB)
