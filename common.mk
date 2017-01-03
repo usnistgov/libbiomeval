@@ -10,10 +10,11 @@
 
 # This set of directories is where the header files, libraries, programs,
 # and man pages are to be installed.
-INCPATH := /usr/local/include
-LIBPATH := /usr/local/lib
-BINPATH := /usr/local/bin
-MANPATH := /usr/local/man/man1
+PREFIX := /usr/local
+INCPATH := $(PREFIX)/include
+LIBPATH := $(PREFIX)/lib
+BINPATH := $(PREFIX)/bin
+MANPATH := $(PREFIX)/man/man1
 
 #
 # The NBIS library to be used by the framework. Can be either the 'real'
