@@ -78,7 +78,10 @@ BiometricEvaluation::Image::PNG::PNG(
 		 */
 		setResolution(Resolution(72, 72, Resolution::Units::PPI));
 	}
-
+	png_byte color_type{png_get_color_type(png_ptr, png_info_ptr)};
+	this->setHasAlphaChannel((color_type & PNG_COLOR_MASK_ALPHA) ==
+	    PNG_COLOR_MASK_ALPHA);
+	    
 	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
 }
 

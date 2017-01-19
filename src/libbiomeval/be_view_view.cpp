@@ -44,7 +44,7 @@ BiometricEvaluation::View::View::getImage() const
 		    new BE::Image::Raw(
 			this->_imageData, this->_imageData.size(),
 			this->_imageSize, this->_imageColorDepth,
-			bitDepth, this->_imageResolution)));
+			bitDepth, this->_imageResolution, false)));
 	}
 	case BE::Image::CompressionAlgorithm::WSQ20:
 		return (std::shared_ptr<Image::Image>(

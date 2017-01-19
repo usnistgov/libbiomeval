@@ -111,6 +111,7 @@ BiometricEvaluation::Image::NetPBM::parseHeader()
 		/* Bitmaps are 1-bit depth by definition */
 		setColorDepth(1);
 		this->setBitDepth(1);
+		this->setHasAlphaChannel(false);
 		break;
 	case Kind::ASCIIPortableGraymap:
 		/* FALLTHROUGH */
@@ -123,6 +124,7 @@ BiometricEvaluation::Image::NetPBM::parseHeader()
 			this->setColorDepth(16);
 			this->setBitDepth(16);
 		}
+		this->setHasAlphaChannel(false);
 		break;
 	case Kind::ASCIIPortablePixmap:
 		/* FALLTHROUGH */
@@ -135,6 +137,7 @@ BiometricEvaluation::Image::NetPBM::parseHeader()
 			this->setColorDepth(48);
 			this->setBitDepth(16);
 		}
+		this->setHasAlphaChannel(false);
 		break;
 	default:
 		break;

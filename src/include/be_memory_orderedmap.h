@@ -28,24 +28,25 @@ namespace BiometricEvaluation
 		
 		/** Iterator for OrderedMaps. */
 		template<class Key, class T>
-		class OrderedMapIterator :
-		    public std::iterator<std::bidirectional_iterator_tag,
-		    std::pair<Key, T>>
+		class OrderedMapIterator
 		{
 		public:
-			using reference =
-			    typename std::iterator_traits<OrderedMapIterator>::
-			    reference;
-			using pointer =
-			    typename std::iterator_traits<OrderedMapIterator>::
-			    pointer;
-			using value_type =
-			    typename std::iterator_traits<OrderedMapIterator>::
-			    value_type;
-			using difference_type =
-			    typename std::iterator_traits<OrderedMapIterator>::
-			    difference_type;
-		
+			/*
+			 * Satisfy std::iterator_traits<> expectations.
+			 */
+
+			/** Type of iterator */
+			using iterator_category =
+			    std::bidirectional_iterator_tag;
+			/** Type when dereferencing iterators */
+			using value_type = std::pair<Key, T>;
+			/** Type used to measure distance between iterators */
+			using difference_type = std::ptrdiff_t;
+			/** Pointer to the type iterated over */
+			using pointer = value_type*;
+			/** Reference to the type iterated over */
+			using reference = value_type&;
+
 			friend class OrderedMap<Key, T>;
 			friend class OrderedMapConstIterator<Key, T>;
 			
@@ -75,7 +76,7 @@ namespace BiometricEvaluation
 			operator++();
 		
 			/** Move to the next pair */
-			OrderedMapIterator&
+			OrderedMapIterator
 			operator++(
 			    int dummy);
 			
@@ -84,7 +85,7 @@ namespace BiometricEvaluation
 			operator--();
 			
 			/** Move to the previous pair. */
-			OrderedMapIterator&
+			OrderedMapIterator
 			operator--(
 			    int dummy);
 		
@@ -145,29 +146,24 @@ namespace BiometricEvaluation
 		
 		/** Const Iterator for OrderedMaps. */
 		template<class Key, class T>
-		class OrderedMapConstIterator :
-		    public std::iterator<std::bidirectional_iterator_tag,
-		    std::pair<Key, T>>
+		class OrderedMapConstIterator
 		{
 		public:
-			using reference =
-			    typename std::iterator_traits<
-			    OrderedMapConstIterator>::reference;
-			using const_reference =
-			    const typename std::iterator_traits<
-			    OrderedMapConstIterator>::reference;
-			using pointer = typename
-			    std::iterator_traits<OrderedMapConstIterator>::
-			    pointer;
-			using const_pointer =
-			    const typename std::iterator_traits<
-			    OrderedMapConstIterator>::pointer;
-			using value_type =
-			    typename std::iterator_traits<
-			    OrderedMapConstIterator>::value_type;
-			using difference_type =
-			    typename std::iterator_traits<
-			    OrderedMapConstIterator>::difference_type;
+			/*
+			 * Satisfy std::iterator_traits<> expectations.
+			 */
+
+			/** Type of iterator */
+			using iterator_category =
+			    std::bidirectional_iterator_tag;
+			/** Type when dereferencing iterators */
+			using value_type = std::pair<Key, T>;
+			/** Type used to measure distance between iterators */
+			using difference_type = std::ptrdiff_t;
+			/** Pointer to the type iterated over */
+			using pointer = const value_type*;
+			/** Reference to the type iterated over */
+			using reference = const value_type&;
 		
 			friend class OrderedMap<Key, T>;
 			
@@ -183,7 +179,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Reference to the current iterated pair.
 			 */
-			const_reference
+			reference
 			operator*()
 			    const;
 			
@@ -191,7 +187,7 @@ namespace BiometricEvaluation
 			 * @return
 			 *	Pointer to the current iterated pair.
 			 */
-			const_pointer
+			pointer
 			operator->()
 			    const;
 			
@@ -200,7 +196,7 @@ namespace BiometricEvaluation
 			operator++();
 		
 			/** Move to the next pair */
-			OrderedMapConstIterator&
+			OrderedMapConstIterator
 			operator++(
 			    int dummy);
 			
@@ -209,7 +205,7 @@ namespace BiometricEvaluation
 			operator--();
 			
 			/** Move to the previous pair. */
-			OrderedMapConstIterator&
+			OrderedMapConstIterator
 			operator--(
 			    int dummy);
 		
@@ -640,8 +636,6 @@ template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::OrderedMapIterator(
     const OrderedMap<Key, T> *orderedMap,
     const typename std::list<Key>::iterator listIter) :
-    std::iterator<std::bidirectional_iterator_tag,
-    std::pair<Key, T>>(),
     _orderedMap(orderedMap),
     _listIter(listIter)
 {
@@ -675,12 +669,13 @@ BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::operator++()
 }
 
 template<class Key, class T>
-BiometricEvaluation::Memory::OrderedMapIterator<Key, T>&
+BiometricEvaluation::Memory::OrderedMapIterator<Key, T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::operator++(
     int dummy)
 {
-	_listIter++;
-	return (*this);
+	OrderedMapIterator previousIterator(*this);
+	++(*this);
+	return (previousIterator);
 }
 
 template<class Key, class T>
@@ -692,12 +687,13 @@ BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::operator--()
 }
 
 template<class Key, class T>
-BiometricEvaluation::Memory::OrderedMapIterator<Key, T>&
+BiometricEvaluation::Memory::OrderedMapIterator<Key, T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::operator--(
     int dummy)
 {
-	_listIter--;
-	return (*this);
+	OrderedMapIterator previousIterator(*this);
+	--(*this);
+	return (previousIterator);
 }
 
 template<class Key, class T>
@@ -743,8 +739,6 @@ BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::
 OrderedMapConstIterator(
     const OrderedMap<Key, T> *orderedMap,
     const typename std::list<Key>::iterator listIter) :
-    std::iterator<std::bidirectional_iterator_tag,
-    std::pair<Key, T>>(),
     _orderedMap(orderedMap),
     _listIter(listIter)
 {
@@ -753,7 +747,7 @@ OrderedMapConstIterator(
 
 template<class Key, class T>
 typename
-BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::const_reference
+BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::reference
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator*()
     const
 {
@@ -763,7 +757,7 @@ BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator*()
 
 template<class Key, class T>
 typename
-BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::const_pointer
+BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::pointer
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator->()
     const
 {
@@ -780,12 +774,13 @@ BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator++()
 }
 
 template<class Key, class T>
-BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>&
+BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator++(
     int dummy)
 {
-	_listIter++;
-	return (*this);
+	OrderedMapConstIterator previousIterator(*this);
+	++(*this);
+	return (previousIterator);
 }
 
 template<class Key, class T>
@@ -797,12 +792,13 @@ BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator--()
 }
 
 template<class Key, class T>
-BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>&
+BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator--(
     int dummy)
 {
-	_listIter--;
-	return (*this);
+	OrderedMapConstIterator previousIterator(*this);
+	--(*this);
+	return (previousIterator);
 }
 
 template<class Key, class T>

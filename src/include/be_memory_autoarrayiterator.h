@@ -32,44 +32,35 @@ namespace BiometricEvaluation
 		 * The second is the contained type of the AutoArray.
 		 */
 		template <bool CONST, class T>
-		class AutoArrayIterator : public std::iterator<
-		    std::random_access_iterator_tag,
-		    typename std::conditional<CONST, const T, T>::type>
+		class AutoArrayIterator
 		{
 		public:
+			/*
+			 * Satisfy std::iterator_traits<> expectations.
+			 */
+
+			/** Type of iterator */
+			using iterator_category =
+			    std::random_access_iterator_tag;
+			/** Type when dereferencing iterators */
+			using value_type = typename
+			    std::conditional<CONST, const T, T>::type;
+			/** Type used to measure distance between iterators */
+			using difference_type = std::ptrdiff_t;
+			/** Pointer to the type iterated over */
+			using pointer = typename
+			    std::conditional<CONST, const T*, T*>::type;
+			/** Reference to the type iterated over */
+			using reference = typename
+			    std::conditional<CONST, const T&, T&>::type;
+
 			/**
 			 * @brief
 			 * Convenience definition for a reference to the
 			 * iterated type with appropriate constness.
 			 */
-			using CONTAINER = typename std::conditional<CONST,
+			using container = typename std::conditional<CONST,
 			    const AutoArray<T>*, AutoArray<T>*>::type;
-
-			/**
-			 * @brief
-			 * Convenience definition for a pointer to the
-			 * iterated type with appropriate constness.
-			 */
-			using POINTER = typename std::conditional<CONST,
-			    const typename
-			    AutoArrayIterator<CONST, T>::pointer,
-			    typename
-			    AutoArrayIterator<CONST, T>::pointer>::type;
-
-			/**
-			 * @brief
-			 * Convenience definition for a reference to the
-			 * iterated type with appropriate constness.
-			 */
-			using REFERENCE = typename std::conditional<CONST,
-			    const typename
-			    AutoArrayIterator<CONST, T>::reference,
-			    typename
-			    AutoArrayIterator<CONST, T>::reference>::type;
-
-			/** Convenience definition for difference_type */
-			using DIFFERENCE = typename
-			    AutoArrayIterator<CONST, T>::difference_type;
 
 			/*
 			 * Constructors
@@ -86,8 +77,8 @@ namespace BiometricEvaluation
 			 *	iterator should start.
 			 */
 			AutoArrayIterator(
-			    CONTAINER autoArray = nullptr,
-			    DIFFERENCE offset = 0) :
+			    container autoArray = nullptr,
+			    difference_type offset = 0) :
 			    _autoArray(autoArray),
 			    _offset(offset)
 			{
@@ -110,7 +101,7 @@ namespace BiometricEvaluation
 			/** @return This object with offset set to rhs. */
 			inline AutoArrayIterator&
 			operator=(
-			    POINTER rhs)
+			    pointer rhs)
 			{
 				_offset = rhs;
 				return (*this);
@@ -124,7 +115,7 @@ namespace BiometricEvaluation
 			/** @return This object with rhs added to offset. */
 			inline AutoArrayIterator&
 			operator+=(
-			    const DIFFERENCE &rhs)
+			    const difference_type &rhs)
 			{
 				_offset += rhs;
 				return (*this);
@@ -133,7 +124,7 @@ namespace BiometricEvaluation
 			/** @return This object with rhs removed from offset. */
 			inline AutoArrayIterator&
 			operator-=(
-			    const DIFFERENCE &rhs)
+			    const difference_type &rhs)
 			{
 				_offset -= rhs;
 				return (*this);
@@ -144,7 +135,7 @@ namespace BiometricEvaluation
 			 */
 
 			/** @return Object at the current offset. */
-			inline REFERENCE
+			inline reference
 			operator*()
 			    const
 			{
@@ -152,7 +143,7 @@ namespace BiometricEvaluation
 			}
 
 			/** @return Address of object at the current offset. */
-			inline POINTER
+			inline pointer
 			operator->()
 			    const
 			{
@@ -160,9 +151,9 @@ namespace BiometricEvaluation
 			}
 
 			/** @return Object at rhs. */
-			inline REFERENCE
+			inline reference
 			operator[](
-			    const DIFFERENCE &rhs)
+			    const difference_type &rhs)
 			    const
 			{
 				return (_autoArray->operator[](rhs));
@@ -194,7 +185,7 @@ namespace BiometricEvaluation
 			    int postfix)
 			{
 				const AutoArrayIterator previous(*this);
-				_offset++;
+				++(*this);
 				return (previous);
 			}
 
@@ -204,7 +195,7 @@ namespace BiometricEvaluation
 			    int postfix)
 			{
 				AutoArrayIterator previous(*this);
-				_offset--;
+				--(*this);
 				return (previous);
 			}
 
@@ -222,7 +213,7 @@ namespace BiometricEvaluation
 			}
 
 			/** @return Offset decremented by rhs' offset. */
-			inline DIFFERENCE
+			inline difference_type
 			operator-(
 			    const AutoArrayIterator<CONST, T> &rhs)
 			    const
@@ -233,7 +224,7 @@ namespace BiometricEvaluation
 			/** @return This object with offset incremented rhs. */
 			inline AutoArrayIterator
 			operator+(
-			    const DIFFERENCE &rhs)
+			    const difference_type &rhs)
 			    const
 			{
 				return (AutoArrayIterator(_autoArray,
@@ -243,7 +234,7 @@ namespace BiometricEvaluation
 			/** @return This object with offset decremented rhs. */
 			inline AutoArrayIterator
 			operator-(
-			    const DIFFERENCE &rhs)
+			    const difference_type &rhs)
 			    const
 			{
 				return (AutoArrayIterator(_autoArray,
@@ -253,7 +244,7 @@ namespace BiometricEvaluation
 			/** @return New iterator combining offsets. */
 			friend inline AutoArrayIterator
 			operator+(
-			    const DIFFERENCE &lhs,
+			    const difference_type &lhs,
 			    const AutoArrayIterator &rhs)
 			{
 				return (AutoArrayIterator(rhs._autoArray,
@@ -266,7 +257,7 @@ namespace BiometricEvaluation
 			 */
 			friend inline AutoArrayIterator
 			operator-(
-			    const DIFFERENCE &lhs,
+			    const difference_type &lhs,
 			    const AutoArrayIterator &rhs)
 			{
 				return (AutoArrayIterator(rhs._autoArray,
@@ -333,9 +324,9 @@ namespace BiometricEvaluation
 
 		private:
 			/** Unowned pointer to the AutoArray being iterated. */
-			CONTAINER _autoArray;
+			container _autoArray;
 			/** Current offset into _autoArray. */
-			DIFFERENCE _offset;
+			difference_type _offset;
 		};
 	}
 }

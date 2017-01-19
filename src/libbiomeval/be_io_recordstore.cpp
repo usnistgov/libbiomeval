@@ -10,7 +10,6 @@
 
 #include "be_io_recordstore_impl.h"
 #include <be_io_recordstore.h>
-#include <be_io_recordstoreiterator.h>
 #include <be_framework_enumeration.h>
 
 namespace BE = BiometricEvaluation;
@@ -132,7 +131,7 @@ BiometricEvaluation::IO::RecordStore::iterator
 BiometricEvaluation::IO::RecordStore::begin()
     noexcept
 {
-	return (RecordStoreIterator(this));
+	return (RecordStoreIterator(this, false));
 }
 
 BiometricEvaluation::IO::RecordStore::iterator
@@ -142,4 +141,129 @@ BiometricEvaluation::IO::RecordStore::end()
 	return (
 	    RecordStoreIterator(this, true));
 }
+
+/******************************************************************************/
+/* RecordStoreIterator                                                        */
+/******************************************************************************/
+
+BiometricEvaluation::IO::RecordStoreIterator::RecordStoreIterator(
+    BiometricEvaluation::IO::RecordStore *recordStore,
+    bool atEnd) :
+    _recordStore{recordStore},
+    _atEnd{atEnd}
+{
+	if (_atEnd)
+		this->setEnd();
+	else
+		this->setBegin();
+}
+
+BiometricEvaluation::IO::RecordStoreIterator::reference
+BiometricEvaluation::IO::RecordStoreIterator::operator*()
+{
+	return (this->_currentRecord);
+}
+
+BiometricEvaluation::IO::RecordStoreIterator::pointer
+BiometricEvaluation::IO::RecordStoreIterator::operator->()
+{
+	return (&(this->_currentRecord));
+}
+
+BiometricEvaluation::IO::RecordStoreIterator&
+BiometricEvaluation::IO::RecordStoreIterator::operator++()
+{
+	this->step(1);
+	return (*this);
+}
+
+BiometricEvaluation::IO::RecordStoreIterator
+BiometricEvaluation::IO::RecordStoreIterator::operator++(
+    int postfix)
+{
+	BE::IO::RecordStoreIterator previousIterator(*this);
+	++(*this);
+	return (previousIterator);
+}
+
+BiometricEvaluation::IO::RecordStoreIterator
+BiometricEvaluation::IO::RecordStoreIterator::operator+=(
+    BiometricEvaluation::IO::RecordStoreIterator::difference_type rhs)
+{
+	this->step(rhs);
+	return (*this);
+}
+
+BiometricEvaluation::IO::RecordStoreIterator
+BiometricEvaluation::IO::RecordStoreIterator::operator+(
+    BiometricEvaluation::IO::RecordStoreIterator::difference_type rhs)
+{
+	this->step(rhs);
+	return (*this);
+}
+
+bool
+BiometricEvaluation::IO::RecordStoreIterator::operator==(
+    const BiometricEvaluation::IO::RecordStoreIterator &rhs)
+{
+	return ((this->_recordStore == rhs._recordStore) &&
+	    (this->_atEnd == rhs._atEnd) &&
+	    (this->_currentRecord.key == rhs._currentRecord.key));
+}
+
+void
+BiometricEvaluation::IO::RecordStoreIterator::setBegin()
+{
+	try {
+		std::string key = this->_recordStore->sequenceKey(
+		     RecordStore::BE_RECSTORE_SEQ_START);
+		this->_recordStore->setCursorAtKey(key);
+	} catch (Error::ObjectDoesNotExist) {
+		this->setEnd();
+	}
+
+	this->step(1);
+}
+
+void
+BiometricEvaluation::IO::RecordStoreIterator::step(
+    BiometricEvaluation::IO::RecordStoreIterator::difference_type numSteps)
+{
+	/* Backwards */
+	if (numSteps <= 0)
+		return;
+
+	/* Forward one step */
+	if (numSteps == 1) {
+		try {
+			this->_currentRecord = this->_recordStore->sequence();
+		} catch (Error::ObjectDoesNotExist) {
+			this->setEnd();
+		}
+		return;
+	}
+
+	/* Forward 2..n steps */
+	std::string key;
+	for (difference_type i = 0; i < numSteps; i++) {
+		try {
+			key = this->_recordStore->sequenceKey();
+		} catch (Error::ObjectDoesNotExist) {
+			this->setEnd();
+			return;
+		}
+	}
+
+	Memory::uint8Array data;
+	data = this->_recordStore->read(key);
+	this->_currentRecord = RecordStore::Record(key, data);
+}
+
+void
+BiometricEvaluation::IO::RecordStoreIterator::setEnd()
+{
+	this->_atEnd = true;
+	this->_currentRecord = RecordStore::Record();
+}
+
 

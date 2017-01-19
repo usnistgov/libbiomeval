@@ -47,6 +47,7 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)
 		throw Error::DataError("jpeg_read_header()");
 
+	this->setHasAlphaChannel(false);
 	setDimensions(Size(dinfo.image_width, dinfo.image_height));
 	setColorDepth(dinfo.num_components * 8);
 	this->setBitDepth(8);

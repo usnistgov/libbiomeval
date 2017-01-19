@@ -18,6 +18,7 @@
 #include <be_image_jpeg2000.h>
 #include <be_image_jpegl.h>
 #include <be_image_netpbm.h>
+#include <be_image_raw.h>
 #include <be_image_png.h>
 #include <be_image_wsq.h>
 #include <be_io_utility.h>
@@ -33,9 +34,11 @@ BiometricEvaluation::Image::Image::Image(
     const uint32_t colorDepth,
     const uint16_t bitDepth,
     const Resolution resolution,
-    const CompressionAlgorithm compressionAlgorithm) :
+    const CompressionAlgorithm compressionAlgorithm,
+    const bool hasAlphaChannel) :
     _dimensions(dimensions),
     _colorDepth(colorDepth),
+    _hasAlphaChannel(hasAlphaChannel),
     _bitDepth(bitDepth),
     _resolution(resolution),
     _data(size),
@@ -55,7 +58,8 @@ BiometricEvaluation::Image::Image::Image(
     0,
     0,
     Resolution(),
-    compressionAlgorithm)
+    compressionAlgorithm,
+    false)
 {
 
 }
@@ -93,6 +97,23 @@ BiometricEvaluation::Image::Image::getBitDepth()
     const
 {
 	return (this->_bitDepth);
+}
+
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Image::Image::getRawData(
+    const bool removeAlphaChannelIfPresent)
+    const
+{
+	if (!removeAlphaChannelIfPresent || !this->hasAlphaChannel())
+		return (this->getRawData());
+
+	/* Set the last channel to be removed */
+	std::vector<bool> components(this->getColorDepth() /
+	    this->getBitDepth(), false);
+	*(std::prev(components.end(), 1)) = true;
+
+	return (BiometricEvaluation::Image::removeComponents(this->getRawData(),
+	    this->getBitDepth(), components));
 }
 
 BiometricEvaluation::Memory::uint8Array
@@ -382,5 +403,15 @@ BiometricEvaluation::Image::Image::getCompressionAlgorithm(
 {
 	Memory::uint8Array data = IO::Utility::readFile(path);
 	return (Image::getCompressionAlgorithm(data));
+}
+
+BiometricEvaluation::Image::Raw
+BiometricEvaluation::Image::Image::getRawImage(
+    const std::shared_ptr<BiometricEvaluation::Image::Image> &image)
+{
+	return (BE::Image::Raw{
+	    image->getRawData(), image->getDimensions(),
+	    image->getColorDepth(), image->getBitDepth(),
+	    image->getResolution(), image->hasAlphaChannel()});
 }
 

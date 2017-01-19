@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <be_framework_enumeration.h>
+#include <be_memory_autoarray.h>
 
 namespace BiometricEvaluation 
 {
@@ -306,6 +307,37 @@ namespace BiometricEvaluation
 		distance(
 		    const Coordinate &p1,
 		    const Coordinate &p2);
+
+		/**
+		 * @brief
+		 * Remove components from a decompressed image's raw byte
+		 * representation.
+		 *
+		 * @param[in] rawData
+		 * Raw byte representation of an image.
+		 * @param[in] bitDepth
+		 * The number of bits that represents a single component in
+		 * `rawData` (only 8 and 16 are supported).
+		 * @param[in] components
+		 * A bitset representing the components of the image, where
+		 * true values represent components to be removed. For example,
+		 * in a 4-component image where fourth component should be
+		 * removed, this parameter would be {false, false, false, true}.
+		 *
+		 * @return
+		 * Copy of `rawData` with true `components` removed.
+		 *
+		 * @throw BiometricEvaluation::Error::ParameterError
+		 * Invalid `bitDepth` parameter.
+		 * @throw BiometricEvaluation::Error::StrategyError
+		 * `rawData` does not appear to be sized large enough for the
+		 * `bitsPerComponent` and `components` provided.
+		 */
+		BiometricEvaluation::Memory::uint8Array
+		removeComponents(
+		    const BiometricEvaluation::Memory::uint8Array &rawData,
+		    const uint8_t bitDepth,
+		    const std::vector<bool> &components);
 	}
 }
 #endif /* __BE_IMAGE_H__ */

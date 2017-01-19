@@ -17,14 +17,34 @@ BiometricEvaluation::Image::Raw::Raw(
     const Size dimensions,
     const uint32_t colorDepth,
     const uint16_t bitDepth,
-    const Resolution resolution) :
+    const Resolution resolution,
+    const bool hasAlphaChannel) :
     Image(data,
     size,
     dimensions,
     colorDepth,
     bitDepth,
     resolution,
-    CompressionAlgorithm::None)
+    CompressionAlgorithm::None,
+    hasAlphaChannel)
+{
+
+}
+
+BiometricEvaluation::Image::Raw::Raw(
+    const BiometricEvaluation::Memory::uint8Array &data,
+    const Size dimensions,
+    const uint32_t colorDepth,
+    const uint16_t bitDepth,
+    const Resolution resolution,
+    const bool hasAlphaChannel) :
+    BiometricEvaluation::Image::Raw::Raw(data,
+    data.size(),
+    dimensions,
+    colorDepth,
+    bitDepth,
+    resolution,
+    hasAlphaChannel)
 {
 
 }

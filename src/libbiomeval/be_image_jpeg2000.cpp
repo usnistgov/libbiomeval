@@ -14,6 +14,8 @@
 #include <be_image_jpeg2000.h>
 #include <be_memory_mutableindexedbuffer.h>
 
+namespace BE = BiometricEvaluation;
+
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const uint8_t *data,
     const uint64_t size,
@@ -42,6 +44,12 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	if (image->numcomps <= 0)
 		throw Error::StrategyError("libopenjpeg: No components");
 
+	if ((image->color_space != OPJ_CLRSPC_SRGB) &&
+	    (image->color_space != OPJ_CLRSPC_GRAY) &&
+	    (image->color_space != OPJ_CLRSPC_UNSPECIFIED))
+		throw Error::NotImplemented("Colorspace " +
+		    std::to_string(image->color_space));
+
 	/* 
 	 * Assign Image class instance variables.
 	 */
@@ -63,10 +71,29 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	/* The Capture Resolution Box is optional under some codecs */
 	try {
 		setResolution(parse_res(find_marker(resc, 4,
-		    (unsigned char *)this->getDataPointer(),
-		    this->getDataSize(), resc_box_size)));
+		    this->getDataPointer(), this->getDataSize(),
+		    resc_box_size)));
 	} catch (Error::ObjectDoesNotExist) {
 		setResolution(Resolution(72, 72, Resolution::Units::PPI));
+	}
+
+	/* 
+	 * Component definition optional, but appears to only be present when
+	 * not Grayscale or RGB (such as RGBA).
+	 */
+	try {
+		this->setHasAlphaChannel(checkForAlphaInCDEF());
+	} catch (BE::Error::Exception &e) {
+		/* Take best guess on alpha channel presence */
+		this->setHasAlphaChannel((
+		    (image->color_space == OPJ_CLRSPC_GRAY) &&
+		    (image->numcomps == 2)) ||
+		    ((image->color_space == OPJ_CLRSPC_SRGB) &&
+		    (image->numcomps == 4)) ||
+		    ((image->color_space == OPJ_CLRSPC_UNSPECIFIED) &&
+		    (image->numcomps == 2)) ||
+		    ((image->color_space == OPJ_CLRSPC_UNSPECIFIED) &&
+		    (image->numcomps == 4)));
 	}
 }
 
@@ -177,29 +204,71 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_message(
 	throw Error::StrategyError("libopenjp2: " + std::string(msg));
 }
 
+bool
+BiometricEvaluation::Image::JPEG2000::checkForAlphaInCDEF()
+{
+	static constexpr uint8_t cdef[4] = { 0x63, 0x64, 0x65, 0x66 };
+	static constexpr uint8_t cdefTagSize{4};
+
+	const uint64_t offset{find_marker_offset(cdef, cdefTagSize,
+	    this->getDataPointer(), this->getDataSize())};
+
+	BE::Memory::IndexedBuffer ib(this->getDataPointer(),
+	    this->getDataSize());
+	ib.scan(nullptr, offset + cdefTagSize);
+
+	volatile uint16_t typ{};
+	uint16_t numCDEF{ib.scanBeU16Val()};
+	for (uint16_t c{0}; c < numCDEF; ++c) {
+		typ = ib.scanBeU16Val(); /* cn */
+
+		typ = ib.scanBeU16Val();
+		if (typ == 1)
+			return (true);
+
+		typ = ib.scanBeU16Val(); /* asoc */
+	}
+
+	return (false);
+}
+
+uint64_t
+BiometricEvaluation::Image::JPEG2000::find_marker_offset(
+    const uint8_t *marker,
+    uint64_t marker_size,
+    const uint8_t *buffer,
+    uint64_t buffer_size)
+{
+	uint64_t step;
+	const uint64_t max{buffer_size - marker_size};
+	for (step = 0; step < max; ++step) {
+		if (memcmp(buffer, marker, marker_size))
+			++buffer;
+		else
+			break;
+	}
+
+	if (step >= max)
+		throw BE::Error::ObjectDoesNotExist();
+
+	return (step);
+}
+
 BiometricEvaluation::Memory::AutoArray<uint8_t>
 BiometricEvaluation::Image::JPEG2000::find_marker(
     const uint8_t *marker,
     uint64_t marker_size,
-    uint8_t *buffer,
+    const uint8_t *buffer,
     uint64_t buffer_size,
     uint64_t value_size)
 {
-	uint64_t step;
-	for (step = 0; step < buffer_size; step++) {
-		if (memcmp(buffer, marker, marker_size))
-			buffer++;
-		else {
-			buffer += marker_size;
-			break;
-		}
-	}
-
+	uint64_t step{find_marker_offset(marker, marker_size, buffer,
+	    buffer_size)};
 	if ((step + marker_size + value_size) > buffer_size)
 		throw Error::ObjectDoesNotExist();
-	
+
 	Memory::AutoArray<uint8_t> ret(value_size);
-	ret.copy(buffer, value_size);
+	ret.copy(buffer + step + marker_size, value_size);
 	return (ret);
 }
 
@@ -213,10 +282,11 @@ BiometricEvaluation::Image::JPEG2000::parse_res(
 
 	Memory::IndexedBuffer ib(res);
 
-	uint16_t VR_N = ib.scanU16Val();
-	uint16_t VR_D = ib.scanU16Val();
-	uint16_t HR_N = ib.scanU16Val();
-	uint16_t HR_D = ib.scanU16Val();
+	/* I.7.3.6.1: Capture resolution box */
+	uint16_t VR_N = ib.scanBeU16Val();
+	uint16_t VR_D = ib.scanBeU16Val();
+	uint16_t HR_N = ib.scanBeU16Val();
+	uint16_t HR_D = ib.scanBeU16Val();
 	int8_t VR_E = static_cast<int8_t>(ib.scanU8Val());
 	int8_t HR_E = static_cast<int8_t>(ib.scanU8Val());
 

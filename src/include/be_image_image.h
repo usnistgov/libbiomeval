@@ -26,6 +26,9 @@ namespace BiometricEvaluation
 	 */
 	namespace Image
 	{
+		/* Forward declaration */
+		class Raw;
+
 		/**
 		 * @brief
 		 * Represent attributes common to all images.
@@ -62,6 +65,8 @@ namespace BiometricEvaluation
 			 *	The resolution of the image
 			 * @param[in] compression
 			 *	The CompressionAlgorithm of data.
+			 * @param[in] hasAlphaChannel
+			 *	Presence of an alpha channel.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error manipulating data.
@@ -75,7 +80,8 @@ namespace BiometricEvaluation
 			    const uint32_t colorDepth,
 			    const uint16_t bitDepth,
 			    const Resolution resolution,
-			    const CompressionAlgorithm compression);
+			    const CompressionAlgorithm compression,
+			    const bool hasAlphaChannel);
 
 			/**
 		 	 * @brief
@@ -147,6 +153,31 @@ namespace BiometricEvaluation
 			virtual Memory::uint8Array
 			getRawData()
 			    const = 0;
+
+			/**
+		 	 * @brief
+			 * Accessor for the raw image data. The data returned
+			 * should not be compressed or encoded.
+			 * 
+			 * @param[in] removeAlphaChannelIfPresent
+			 * Whether or not to remove an alpha channel if one
+			 * exists.
+			 *
+			 * @return
+			 * AutoArray holding raw image data, without an alpha
+			 * channel if requested.
+			 *
+			 * @throw Error::DataError
+			 * Error decompressing image data.
+			 * @throw Error::ParameterError
+			 * Propagated from Image::removeComponents.
+ 			 * @throw Error::StrategyError
+			 * Propagated from Image::removeComponents.
+			 */
+			virtual Memory::uint8Array
+			getRawData(
+			    const bool removeAlphaChannelIfPresent)
+			    const;
 			    
 			/**
 			 * @brief
@@ -220,6 +251,20 @@ namespace BiometricEvaluation
 			uint16_t
 			getBitDepth()
 			    const;
+
+			/**
+			 * @brief
+			 * Accessor for the presence of an alpha channel.
+			 *
+			 * @return
+			 * Whether or not an alpha channel is present.
+			 */
+			bool
+			hasAlphaChannel()
+			    const
+			{
+				return (this->_hasAlphaChannel);
+			}
 
 			virtual ~Image();
 			
@@ -385,6 +430,25 @@ namespace BiometricEvaluation
 			getCompressionAlgorithm(
 			    const std::string &path);
 
+			/**
+			 * @brief
+			 * Obtain Image::Raw version of an Image::Image.
+			 *
+			 * @param[in] image
+			 * Shared pointer to an Image::Image.
+			 *
+			 * @return
+			 * Shared pointer to an Image::Raw version of `image`.
+			 *
+			 * @note
+			 * If `image` is already an Image::Raw, `image` is
+			 * returned to avoid a copy.
+			 */
+			static BiometricEvaluation::Image::Raw
+			getRawImage(
+			    const std::shared_ptr<BiometricEvaluation::Image::
+			    Image> &image);
+
 		protected:
 			/**
 		 	 * @brief
@@ -441,12 +505,29 @@ namespace BiometricEvaluation
 			getDataSize()
 			    const;
 
+			/**
+			 * @brief
+			 * Mutator for the presence of an alpha channel.
+			 *
+			 * @param[in] hasAlphaChannel
+			 * Whether or not image has an alpha channel.
+			 */
+			void
+			setHasAlphaChannel(
+			    const bool hasAlphaChannel)
+			{
+				this->_hasAlphaChannel = hasAlphaChannel;
+			}
+
 		private:
 			/** Image dimensions (width and height) in pixels */
 			Size _dimensions;
 
 			/** Number of bits per pixel */
 			uint32_t _colorDepth;
+
+			/** Presence of alpha channel */
+			bool _hasAlphaChannel;
 
 			/** Number of bits per color componeny */
 			uint16_t _bitDepth;

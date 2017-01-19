@@ -81,6 +81,7 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 		throw Error::DataError("libjpegl: Could not read frame header");
 	setColorDepth((uint16_t)frameHeader->Nf * 8);
 	this->setBitDepth(8);
+	this->setHasAlphaChannel(false);
 	setDimensions(Size(frameHeader->x, frameHeader->y));
 	free(frameHeader);
 }

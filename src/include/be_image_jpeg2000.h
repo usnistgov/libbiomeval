@@ -81,6 +81,20 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Parse CDEF box to check for an opacity component.
+			 *
+			 * @return
+			 * true if there is a separate opacity component. false
+			 * otherwise.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * No CDEF box.
+			 */
+			bool
+			checkForAlphaInCDEF();
+
+			/**
+			 * @brief
 			 * Callback for output from libopenjpeg.
 			 *
 			 * @param msg
@@ -102,6 +116,32 @@ namespace BiometricEvaluation
 			openjpeg_message(
 			    const char *msg,
 			    void *client_data);
+
+			/**
+			 * @brief
+			 * Return the value for a JPEG-2000 marker.
+			 *
+			 * @param[in] marker
+			 * The marker to search for.
+			 * @param[in] marker_size
+			 * The length of marker in bytes.
+			 * @param[in] buffer
+			 * The JPEG-2000 buffer in which to search.
+			 * @param[in] buffer_size
+			 * The length of buffer in bytes.
+			 *
+			 * @return
+			 * 0-based offset of the start of the marker.
+			 * 
+			 * @throw Error::ObjectDoesNotExist
+			 * marker not found within buffer.
+			 */
+			uint64_t
+			static find_marker_offset(
+			    const uint8_t *marker,
+			    uint64_t marker_size,
+			    const uint8_t *buffer,
+			    uint64_t buffer_size);
 
 			/**
 			 * @brief
@@ -130,7 +170,7 @@ namespace BiometricEvaluation
 			static find_marker(
 			    const uint8_t *marker,
 			    uint64_t marker_size,
-			    uint8_t *buffer,
+			    const uint8_t *buffer,
 			    uint64_t buffer_size,
 			    uint64_t value_size);
 

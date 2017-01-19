@@ -30,7 +30,16 @@ namespace BiometricEvaluation
 			    const Size dimensions,
 			    const uint32_t colorDepth,
 			    const uint16_t bitDepth,
-			    const Resolution resolution);
+			    const Resolution resolution,
+			    const bool hasAlphaChannel);
+
+			Raw(
+			    const BiometricEvaluation::Memory::uint8Array &data,
+			    const Size dimensions,
+			    const uint32_t colorDepth,
+			    const uint16_t bitDepth,
+			    const Resolution resolution,
+			    const bool hasAlphaChannel);
 
 			~Raw() = default;
 

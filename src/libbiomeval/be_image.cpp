@@ -9,8 +9,9 @@
  */
  
 #include <cmath>
- 
+
 #include <be_image.h>
+#include <be_memory_mutableindexedbuffer.h>
 
 namespace BE = BiometricEvaluation;
 
@@ -261,3 +262,61 @@ BiometricEvaluation::Image::Resolution::toUnits(
 	    "are not known");
 }
 
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Image::removeComponents(
+    const BiometricEvaluation::Memory::uint8Array &rawData,
+    const uint8_t bitDepth,
+    const std::vector<bool> &components)
+{
+	/* Useful derived definitions */
+	uint8_t numComponentsToRemove{0};
+	std::for_each(components.begin(), components.end(), [&](const bool &c) {
+		if (c) { ++numComponentsToRemove; }
+	});
+	const uint8_t numComponents = components.size();
+	const uint8_t pixelStride = ((numComponents * bitDepth) / 8);
+	const uint8_t componentStride = (bitDepth / 8);
+
+	/* If we aren't removing anything */
+	if (numComponentsToRemove == 0)
+		return {rawData};
+
+	/* If we're removing everything */
+	if (numComponentsToRemove == components.size())
+		return (BE::Memory::uint8Array());
+
+	/* Only support 8-bit and 16-bit images */
+	if ((bitDepth != 8) && (bitDepth != 16))
+		throw BE::Error::ParameterError("Unsupported bit depth (" +
+		    std::to_string(bitDepth) + ")");
+
+	/* Check that raw data appears to be large enough */
+	if ((rawData.size() % pixelStride) != 0)
+		throw BE::Error::StrategyError("Raw data is sized incorrectly "
+		    "for " + std::to_string(numComponents) + ' ' +
+		    std::to_string(bitDepth) + "-bit components");
+
+	BE::Memory::uint8Array out((rawData.size() / pixelStride) *
+	    (numComponents - numComponentsToRemove) * componentStride);
+	BE::Memory::MutableIndexedBuffer outBuf(out);
+
+	/* Naively loop over image, skipping over specified components */
+	for (uint64_t px = 0; px < rawData.size(); px += pixelStride) {
+		for (uint8_t comp = 0; comp < numComponents; ++comp) {
+			if (!components[comp]) {
+				switch (bitDepth) {
+				case 8:
+					outBuf.pushU8Val(rawData[px +
+					    (comp * componentStride)]);
+					break;
+				case 16:
+					outBuf.pushBeU16Val(rawData[px +
+					    (comp * componentStride)]);
+					break;
+				}
+			}
+		}
+	}
+
+	return (out);
+}

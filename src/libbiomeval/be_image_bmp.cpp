@@ -28,7 +28,13 @@ BiometricEvaluation::Image::BMP::BMP(
 		 */
 		BMPHeader bmpHeader;
 		BMP::getBMPHeader(data, size, &bmpHeader);
-		
+
+		/* 
+		 * The types of BMP supported in this class do not support
+		 * alpha channels. Other types of BMP do.
+		 */
+		this->setHasAlphaChannel(false);
+
 		BMP::getDIBHeader(data, size, &dibHeader);
 	} catch (Error::NotImplemented &e) {
 		throw Error::StrategyError(e.what());

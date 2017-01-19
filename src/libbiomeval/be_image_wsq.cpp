@@ -82,6 +82,8 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	 */
 	setColorDepth(8);
 	this->setBitDepth(8);
+
+	this->setHasAlphaChannel(false);
 }
 
 BiometricEvaluation::Image::WSQ::WSQ(

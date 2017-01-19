@@ -51,7 +51,6 @@
 #endif
 
 #ifdef TESTDEFINED
-#include <be_io_recordstoreiterator.h>
 using namespace BiometricEvaluation;
 #endif
 

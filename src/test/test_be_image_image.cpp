@@ -217,6 +217,18 @@ compareProperties(
 		    endl;
 	}	
 
+	/*
+	 * Boolean properties
+	 */
+	if (image->hasAlphaChannel() != properties->getPropertyAsBoolean(
+	    "hasAlphaChannel")) {
+		passed = false;
+		cerr << "\t*** alpha channel presence differs -- Image: " <<
+		    boolalpha << image->hasAlphaChannel() << ", Recorded: " <<
+		    properties->getPropertyAsBoolean("hasAlphaChannel") <<
+		    endl;
+	}
+
 	/* It does not make sense to diff raw versions with themselves */
 	if (imageType == "Raw") {
 		if (passed)
@@ -432,7 +444,8 @@ main(
 		    properties->getPropertyAsInteger("bitDepth"),
 		    Image::Resolution(properties->getPropertyAsDouble("xRes"),
 		    properties->getPropertyAsDouble("yRes"),
-		    stringToResUnits(properties->getProperty("resUnits")))));
+		    stringToResUnits(properties->getProperty("resUnits"))),
+		    properties->getPropertyAsBoolean("hasAlphaChannel")));
 #elif defined FACTORYTEST
 		image = Image::Image::openImage(record.data);
 #endif
@@ -449,6 +462,8 @@ main(
 		cout << "\tChannel depth: " << image->getBitDepth() << endl;
 		cout << "\tResolution: " << image->getResolution() << endl;
 		cout << "\tNative Size: " << buf.size() << endl;
+		cout << "\tHas alpha channel?: " << boolalpha <<
+		    image->hasAlphaChannel() << endl;
 		
 		/* Write a raw and grayscale raw version of the image */
 		try {

@@ -29,7 +29,6 @@
 #include <be_io_filerecstore.h>
 #include <be_io_listrecstore.h>
 #include <be_io_propertiesfile.h>
-#include <be_io_recordstoreiterator.h>
 #include <be_io_sqliterecstore.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
