@@ -14,7 +14,7 @@
 #
 # Increment this number when applications should be forced to relink with a
 # newer version of the library (changes to .h files).
-MAJOR_VERSION=8
+MAJOR_VERSION=9
 
 # Minor version number
 #
