@@ -34,6 +34,10 @@ namespace BiometricEvaluation
 		 * or one; this is known as a binary semaphore.
 		 * @note
 		 * The counter value is not exposed to clients of the object.
+		 * @note
+		 * Because a Semaphore object wraps a system resource, the
+		 * Semaphore can be passed to other functions, or inherited
+		 * across a fork boundary.
 		 */
 		class Semaphore
 		{
@@ -45,16 +49,16 @@ namespace BiometricEvaluation
 			 * The name of the semaphore, which must obey the
 			 * syntax documented for the sem_open(2) call.
 			 * If the semaphore already exists in the name space,
-			 * construction will fail unless the exclusive flag
-			 * is true. In that case, the existing semaphore will
+			 * construction will fail unless the force flag is
+			 * true. In that case, the existing semaphore will
 			 * be removed.
 			 * @param[in] mode
 			 * The permission mode of the semaphore.
 			 * @param[in] value
 			 * The initial value of the semaphore.
-			 * @param[in] exclusive
-			 * The semaphore is created only when it doesn't
-			 * already exist.
+			 * @param[in] force
+			 * The semaphore is created, disassociating an existing
+			 * semaphore of the same name.
 			 * @throw Error::ObjectExists
 			 * The semaphore already exists with the given name.
 			 * @throw Error::StrategyError
@@ -72,6 +76,10 @@ namespace BiometricEvaluation
 			 * @param[in] name
 			 * The name of the semaphore, which must obey the
 			 * syntax documented for the sem_open(2) call.
+			 * @throw Error::ObjectDoesNotExist
+			 * A semaphore does not exist with the given name.
+			 * @throw Error::StrategyError
+			 * An error occurred when creating the semaphore.
 			 */
 			Semaphore(
 			    const std::string &name);

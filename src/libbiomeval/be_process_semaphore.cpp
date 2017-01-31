@@ -28,17 +28,37 @@ BiometricEvaluation::Process::Semaphore::Semaphore(
     _name(name)
 {
 	this->_creatorPID = getpid();
-	int oflag= O_CREAT;
-	if (exclusive)
-		oflag |= O_EXCL;
+	int oflag = O_CREAT | O_EXCL;
+	if (exclusive) {
+		/*
+		 * Try to remove an existing semaphore, and test whether
+		 * it existed afterwards.
+		 */
+		if (sem_unlink(name.c_str()) != 0) {
+			/*
+			 * OS-X returns EINVAL when the semaphore doesn't
+			 * exist, contrary to POSIX.
+			 */
+			if ((errno != ENOENT) && (errno != EINVAL)) {
+				throw BE::Error::StrategyError(
+				    "Could not remove semaphore: " +
+					BE::Error::errorStr());
+			}
+		}
+	}
 	sem_t *sem = sem_open(
 	    name.c_str(), 
 	    oflag,
 	    mode,
 	    value);
 	if (sem == SEM_FAILED) {
-		throw BE::Error::StrategyError("Could not create semaphore: " +
-		    BE::Error::errorStr());
+		if (errno == EEXIST) {
+			throw BE::Error::ObjectExists();
+		} else {
+			throw BE::Error::StrategyError(
+			    "Could not create semaphore: " +
+				BE::Error::errorStr());
+		}
 	}
 	this->_semaphore = sem;
 }
@@ -47,11 +67,16 @@ BiometricEvaluation::Process::Semaphore::Semaphore(
     const std::string &name) :
     _name(name)
 {
-	_creatorPID = getpid();
+	this->_creatorPID = getpid();
 	sem_t *sem = sem_open(name.c_str(), 0);
 	if (sem == SEM_FAILED) {
-		throw BE::Error::StrategyError("Could not open semaphore: " +
-		    BE::Error::errorStr());
+		if (errno == ENOENT) {
+			throw BE::Error::ObjectDoesNotExist();
+		} else {
+			throw BE::Error::StrategyError(
+			    "Could not open semaphore: " +
+				BE::Error::errorStr());
+		}
 	}
 	this->_semaphore = sem;
 }
@@ -59,8 +84,15 @@ BiometricEvaluation::Process::Semaphore::Semaphore(
 BiometricEvaluation::Process::Semaphore::~Semaphore()
 {
 	sem_close(this->_semaphore);
-	if (this->_creatorPID == getpid())
+
+	/*
+	 * Prevent unecessary unlinks of the semaphore when
+	 * inherited by children, although no harm is done
+	 * if a semaphore is unlinked more than once.
+	 */
+	if (this->_creatorPID == getpid()) {
 		sem_unlink(this->_name.c_str());
+	}
 }
 
 bool
