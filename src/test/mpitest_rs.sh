@@ -60,12 +60,15 @@ MPINODES="localhost"
 MPIPROCS=3
 PROGRAM=test_be_rs_mpi
 LIBS=""
+MPIHOSTFN=mpi.hosts
 CPFILES="$PROGRAM $PROPS $LIBS"
 
 for n in $NODES; do
 	echo $n;
 	scp -p $CPFILES $n:$DIR;
 done
+
+echo "$MPINODES slots=$MPIPROCS" > $MPIHOSTFN
 
 #
 # Export the dynamic library path to each MPI task
@@ -77,11 +80,13 @@ export LD_LIBRARY_PATH=../../lib
 # Test with keys only.
 #
 EXECSTR="$PROGRAM"
-time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self -H $MPINODES -np $MPIPROCS $EXECSTR
+time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
 
 #
 # Test with keys and values; there just has to be one argument to the exec,
 # it doesn't matter what it is.
 #
 EXECSTR="$PROGRAM values"
-time mpirun -x LD_LIBRARY_PATH $MPIOPTS -H $MPINODES -np $MPIPROCS $EXECSTR
+time mpirun -x LD_LIBRARY_PATH $MPIOPTS --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
+
+rm -f $MPIHOSTFN

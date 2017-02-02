@@ -62,12 +62,15 @@ MPINODES="localhost"
 MPIPROCS=3
 PROGRAM=test_be_csv_mpi
 LIBS=""
+MPIHOSTFN=mpi.hosts
 CPFILES="$PROGRAM $PROPS $LIBS"
 
 for n in $NODES; do
 	echo $n;
 	scp -p $CPFILES $n:$DIR;
 done
+
+echo "$MPINODES slots=$MPIPROCS" > $MPIHOSTFN
 
 #
 # Export the dynamic library path to each MPI task
@@ -79,7 +82,7 @@ export LD_LIBRARY_PATH=../../lib
 # Test reading from a file
 #
 EXECSTR="$PROGRAM"
-time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self -H $MPINODES -np $MPIPROCS $EXECSTR
+time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
 
 #
 # Test reading from a buffer
@@ -95,9 +98,10 @@ Record Logsheet URL = file://record.log
 #Logsheet URL = syslog://linc01b:2514
 #Record Logsheet URL = syslog://linc01b:2514
 EOF
-time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self -H $MPINODES -np $MPIPROCS $EXECSTR
+time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
 
 #
 # TODO: Test delimiters
 #
 
+rm -r $MPIHOSTFN
