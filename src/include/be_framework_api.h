@@ -33,7 +33,11 @@ namespace BiometricEvaluation
 			/** Watchdog timer expired. */
 			WatchdogExpired,
 			/** Signal handler was invoked. */
-			SignalCaught
+			SignalCaught,
+			/** Operation is running. */
+			Running,
+			/** Operation has returned. */
+			Completed
 		};
 
 		/**
@@ -55,8 +59,6 @@ namespace BiometricEvaluation
 				/** Constructor */
 				Result();
 
-				/** Whether or not operation returned. */
-				bool completed;
 				/** Time elapsed while calling operation. */
 				double elapsed;
 				/**
@@ -64,7 +66,8 @@ namespace BiometricEvaluation
 				 * Value returned from operation.
 				 *
 				 * @note
-				 * Only populated when completed == true.
+				 * Only populated when currentState ==
+				 * APICurrentState::Completed.
 				 */
 				T status;
 				/**
@@ -85,7 +88,8 @@ namespace BiometricEvaluation
 				operator!()
 				    const
 				{
-					return (completed == false);
+					return (currentState !=
+					    APICurrentState::Completed);
 				}
 
 				/**
@@ -99,7 +103,8 @@ namespace BiometricEvaluation
 				bool()
 				    const
 				{
-					return (completed == true);
+					return (currentState ==
+					    APICurrentState::Completed);
 				}
 			};
 
@@ -127,8 +132,9 @@ namespace BiometricEvaluation
 			 * Analytics about the return of operation.
 			 *
 			 * @note
-			 * success is called and completed == true if operation
-			 * returns, regardless of the Code of of operation's
+			 * success is called and currentState ==
+			 * APICurrentState::Completed if operation
+			 * returns, regardless of the Code of operation's
 			 * Status.
 			 */
 			Result
@@ -194,7 +200,6 @@ namespace BiometricEvaluation
 
 template<typename T>
 BiometricEvaluation::Framework::API<T>::Result::Result() :
-    completed(false),
     currentState(BE::Framework::APICurrentState::NeverCalled)
 {
 
@@ -220,6 +225,7 @@ BiometricEvaluation::Framework::API<T>::call(
 
 	BEGIN_SIGNAL_BLOCK(this->getSignalManager(), SM_BLOCK);
 	BEGIN_WATCHDOG_BLOCK(this->getWatchdog(), WD_BLOCK);
+		ret.currentState = APICurrentState::Running;
 		this->getTimer()->start();
 		ret.status = operation();
 		this->getTimer()->stop();
@@ -227,7 +233,6 @@ BiometricEvaluation::Framework::API<T>::call(
 	END_SIGNAL_BLOCK(this->getSignalManager(), SM_BLOCK);
 	if (this->getSignalManager()->sigHandled()) {
 		this->getTimer()->stop();
-		ret.completed = false;
 		ret.elapsed = this->getTimer()->elapsed();
 		ret.currentState = APICurrentState::SignalCaught;
 
@@ -235,14 +240,13 @@ BiometricEvaluation::Framework::API<T>::call(
 			failure(ret);
 	} else if (this->getWatchdog()->expired()) {
 		this->getTimer()->stop();
-		ret.completed = false;
 		ret.elapsed = this->getTimer()->elapsed();
 		ret.currentState = APICurrentState::WatchdogExpired;
 
 		if (failure)
 			failure(ret);
 	} else {
-		ret.completed = true;
+		ret.currentState = APICurrentState::Completed;
 		ret.elapsed = this->getTimer()->elapsed();
 
 		if (success)

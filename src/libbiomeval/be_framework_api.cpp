@@ -20,5 +20,9 @@ BiometricEvaluation::Framework::EnumerationFunctions<
     {BiometricEvaluation::Framework::APICurrentState::WatchdogExpired,
         "Watchdog Expired"},
     {BiometricEvaluation::Framework::APICurrentState::SignalCaught,
-        "Signal Caught"}
+        "Signal Caught"},
+    {BiometricEvaluation::Framework::APICurrentState::Running,
+        "Running"},
+    {BiometricEvaluation::Framework::APICurrentState::Completed,
+        "Completed"}
 };
