@@ -26,7 +26,7 @@ namespace BE = BiometricEvaluation;
 const std::string semName("/sem1");
 
 static int shmID = 0;
-static int shmCount = 10;
+static uint32_t shmCount = 10;
 static uint32_t *shmPtr;
 
 static void
@@ -110,7 +110,7 @@ int
 childCounter(BE::Process::Semaphore *sem)
 {
 	/* Shared memory testing with mediation by a Semaphore */
-	for (int i = 0; i < shmCount; i++) {
+	for (uint32_t i = 0; i < shmCount; i++) {
 		sem->wait(false);
 		uint32_t val = *shmPtr;
 		val++;
@@ -172,7 +172,7 @@ parentCounter()
 		break;
 	default:		/* parent */
 		shmctl(shmID, IPC_STAT, &buf);
-		for (int i = 0; i < shmCount; i++) {
+		for (uint32_t i = 0; i < shmCount; i++) {
 			sem->wait(false);
 			uint32_t val = *shmPtr;
 			val++;

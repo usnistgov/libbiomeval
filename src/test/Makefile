@@ -136,7 +136,7 @@ test_be_process_forkmanager: test_be_process_manager.cpp
 test_be_process_posixthreadmanager: test_be_process_manager.cpp
 	$(CXX) $(CXXFLAGS) -DPOSIXTHREADTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_process_semaphore: test_be_process_semaphore.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval -lpthread
 test_be_io_listrecstore: test_be_io_listrecstore.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_framework_enumeration: test_be_framework_enumeration.cpp
