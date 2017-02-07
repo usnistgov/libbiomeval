@@ -7,7 +7,6 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <cstdlib>
@@ -50,7 +49,8 @@ TestCSVProcessor::performInitialization(
 	this->_sharedMemorySize = SHAREDMEMORYSIZE;
 	this->_sharedMemory = std::unique_ptr<char>(buf);
 
-	*logsheet.get() << std::string(__FUNCTION__) << " called: ";
+	*logsheet.get() << std::string(__FUNCTION__) << " called in PID "
+	    << getpid() << ": ";
 	*logsheet.get()
 	    << "Shared memory size is " << this->_sharedMemorySize
 	    << " and contents is [" << buf << "]";
@@ -120,6 +120,18 @@ TestCSVProcessor::processLine(
 	*log << "Shared memory size is " << this->_sharedMemorySize
 	    << " and contents is [" << buf << "]";
 	BE::MPI::logEntry(*log);
+}
+
+/*
+ * Factory object: Log our call.
+ */
+void
+TestCSVProcessor::performShutdown()
+{
+	std::shared_ptr<BE::IO::Logsheet> logsheet = this->getLogsheet();
+	*logsheet.get() << std::string(__FUNCTION__)
+	    << " called in PID " << getpid() << ": ";
+	BE::MPI::logEntry(*logsheet.get());
 }
 
 /*

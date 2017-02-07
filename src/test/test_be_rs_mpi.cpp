@@ -7,11 +7,11 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <be_io_propertiesfile.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarrayutility.h>
@@ -56,7 +56,8 @@ TestRecordProcessor::performInitialization(
 	this->_sharedMemorySize = SHAREDMEMORYSIZE;
 	this->_sharedMemory = std::unique_ptr<char>(buf);
 
-	*logsheet.get() << std::string(__FUNCTION__) << " called: ";
+	*logsheet.get() << std::string(__FUNCTION__) << " called in PID "
+	    << getpid() << ": ";
 	*logsheet.get()
 	    << "Shared memory size is " << this->_sharedMemorySize
 	    << " and contents is [" << buf << "]";
@@ -109,6 +110,18 @@ TestRecordProcessor::newProcessor(
 	std::shared_ptr<BiometricEvaluation::MPI::WorkPackageProcessor> sptr;
 	sptr.reset(processor);
 	return (sptr);
+}
+
+/*
+ * Factory object: Log our call.
+ */
+void
+TestRecordProcessor::performShutdown()
+{
+	std::shared_ptr<BE::IO::Logsheet> logsheet = this->getLogsheet();
+	*logsheet.get() << std::string(__FUNCTION__)
+	    << " called in PID " << getpid() << ": ";
+	BE::MPI::logEntry(*logsheet.get());
 }
 
 /*

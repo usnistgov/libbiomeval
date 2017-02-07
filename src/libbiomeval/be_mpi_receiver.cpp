@@ -644,6 +644,16 @@ BiometricEvaluation::MPI::Receiver::shutdown(
 			}
 		}
 	}
+	/*
+	 * Call shutdown function in the work package processor. If that
+	 * fails, continue with the shutdown.
+	 */
+	try {
+		this->_workPackageProcessor.get()->performShutdown();
+	} catch (Error::Exception &e) {
+		MPI::logMessage(*log, "Could not shutdown package processor: "
+		    + e.whatString());
+	}
 
 	/*
  	 * We must synchronize here so these messages don't end up in

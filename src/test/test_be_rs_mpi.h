@@ -65,6 +65,13 @@ public:
 	    const std::string &key,
 	    const BE::Memory::uint8Array &value);
 
+	/**
+	 * @brief
+	 * Perform shutdown tasks.
+	 */
+	void
+	performShutdown();
+
 protected:
 private:
 	std::shared_ptr<BE::IO::Logsheet> _recordLogsheet;

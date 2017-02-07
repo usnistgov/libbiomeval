@@ -58,6 +58,13 @@ public:
 	 */
 	void processLine(const uint64_t lineNum, const std::string &line);
 
+	/**
+	 * @brief
+	 * Perform shutdown tasks.
+	 */
+	void
+	performShutdown();
+
 protected:
 private:
 	std::shared_ptr<BE::IO::Logsheet> _recordLogsheet;
