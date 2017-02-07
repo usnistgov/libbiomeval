@@ -106,7 +106,8 @@ namespace BiometricEvaluation {
 			 * @details
 			 * Implementations of this class can use this function
 			 * to do any processing necessary after all work is
-			 * given to the processors.
+			 * given to the processors. The default implementation
+			 * does nothing.
 			 *
 			 * This method is part of the factory personality.
 			 * All state that is created in performInitialization()
@@ -116,7 +117,7 @@ namespace BiometricEvaluation {
 			 * An implementation specific error occurred. The
 			 * exception string will be logged by the Framework.
 			 */
-			virtual void performShutdown() = 0;
+			virtual void performShutdown();
 
 			/**
 			 * @brief

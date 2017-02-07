@@ -27,3 +27,8 @@ BiometricEvaluation::MPI::WorkPackageProcessor::getLogsheet()
 {
 	return (this->_logsheet);
 }
+
+void
+BiometricEvaluation::MPI::WorkPackageProcessor::performShutdown()
+{
+}

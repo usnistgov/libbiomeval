@@ -119,7 +119,6 @@ namespace BiometricEvaluation
 			void processWorkPackage(
 			    MPI::WorkPackage &workPackage);
 
-			virtual void performShutdown() = 0;
 		protected:
 			std::shared_ptr<MPI::CSVResources>
 			getResources();
