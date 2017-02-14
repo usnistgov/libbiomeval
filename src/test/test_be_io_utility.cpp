@@ -8,17 +8,82 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 
+#include <be_error.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
+#include <be_memory_autoarrayutility.h>
 
 using namespace BiometricEvaluation;
 using namespace std;
+
+static int
+testPipe()
+{
+	cout << "Testing pipe functions.\n";
+	std::string msg("Test Message; pay attention!");
+	int msgSize = msg.length();
+
+	int pipeFD[2];
+	if (pipe(pipeFD) != 0) {
+		cerr << "Could not create pipe: " << Error::errorStr() << ".\n";
+		return (EXIT_FAILURE);
+	}
+	Memory::uint8Array cMsgArr(msgSize + 1);
+	Memory::uint8Array pMsgArr(msgSize + 1);
+	string rMsg;
+	pid_t pid = fork();
+	switch(pid) {
+	case 0:		/* child */
+		close(pipeFD[1]);
+		try {
+			cout << "Child read: ";
+			IO::Utility::readPipe(cMsgArr, msgSize, pipeFD[0]);
+		} catch (Error::Exception &e) {
+			cout << "Failed : " << e.whatString() << ".\n";
+			return (EXIT_FAILURE);
+		}
+		rMsg = to_string(cMsgArr);
+		cout << "Got '" << rMsg << "': ";
+		if (rMsg != msg) {
+			cout << "Messages do not match; failure.\n";
+			return (EXIT_FAILURE);
+		}
+		cout << "Success.\n";
+		try {
+			cout << "Child read of non-existant message: ";
+			IO::Utility::readPipe(cMsgArr, 2, pipeFD[0]);
+			cout << "Failed; something was read.\n";
+			return (EXIT_FAILURE);
+		} catch (Error::Exception &e) {
+			cout << "'" << e.whatString() << "': Success.\n";
+		}
+		return (EXIT_SUCCESS);
+	case -1:	/* error */
+		cerr << "Could not fork: " << Error::errorStr() << ".\n";
+		return (EXIT_FAILURE);
+	default:	/* parent */
+		close(pipeFD[0]);
+		Memory::AutoArrayUtility::setString(pMsgArr, msg);
+		try {
+			IO::Utility::writePipe(pMsgArr, msgSize, pipeFD[1]);
+		} catch (Error::Exception &e) {
+			cerr << "Parent failed to write message: "
+			    << e.whatString() << ".\n";
+			return (EXIT_FAILURE);
+		}
+		close(pipeFD[1]);
+		int status;
+		wait(&status);
+		return (EXIT_SUCCESS);
+	}
+}
 
 int
 main(int argc, char* argv[])
@@ -238,6 +303,6 @@ main(int argc, char* argv[])
 	fclose(tempFp);
 	unlink(testTempFile.c_str());
 			
-	return (EXIT_SUCCESS);
+	return (testPipe());
 }
 
