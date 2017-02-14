@@ -156,11 +156,15 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 		}
 
 		/*
-		 * Send a status message to ask for more work.
+		 * Send a status message to report status, asking for more
+		 * work unless we are in a bad state; then exit.
 		 */
 		statusToMessage(taskStatus, message);
 		try {
 			this->sendMessageToManager(message);
+			if (taskStatus != MPI::TaskStatus::OK) {
+				break;
+			}
 		} catch (Error::Exception &e) {
 			MPI::logMessage(*log, "Worker send message failure: "
 			    + e.whatString());
@@ -206,7 +210,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 			workPackage = MPI::WorkPackage(message);
 			workPackage.setNumElements(wpCount);
 		} catch (Error::Exception &e) {
-			MPI::logMessage(*log, "Failed to receive work package"
+			MPI::logMessage(*log, "Failed to receive work package: "
 			    + e.whatString());
 			taskStatus = MPI::TaskStatus::Failed;
 			continue; /* Attempt to send one final status */
@@ -332,13 +336,13 @@ BiometricEvaluation::MPI::Receiver::sendWorkPackage(
 		 * the work package, so no checks for Exit conditions here.
 		 */
 		taskStatus = messageToStatus(message);
+
 		/*
 		 * When a worker gets into trouble, have it stop processing.
 		 */
 		if (taskStatus == MPI::TaskStatus::RequestJobTermination)
 			throw MPI::TerminateJob();
 		if (taskStatus != MPI::TaskStatus::OK) {
-
 			try {  
 				this->_processManager.stopWorker(worker);
 			} catch (Error::Exception &e) {

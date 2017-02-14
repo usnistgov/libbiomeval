@@ -7,7 +7,6 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  ******************************************************************************/
-
 #define __STDC_LIMIT_MACROS
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -26,6 +25,7 @@
 #include <sstream>
 
 #include <be_error.h>
+#include <be_error_signal_manager.h>
 #include <be_text.h>
 #include <be_io_utility.h>
 
@@ -386,6 +386,79 @@ BiometricEvaluation::IO::Utility::writeFile(
     std::ios_base::openmode mode)
 {
 	writeFile(data, data.size(), path, mode);
+}
+
+void
+BiometricEvaluation::IO::Utility::readPipe(
+    void *data,
+    size_t size,
+    int pipeFD)
+{
+	size_t remaining = size;
+	uint8_t *ptr = (uint8_t *)data;;
+	while (true) {
+		ssize_t sz = read(pipeFD, ptr, remaining);
+		if (sz == -1) {
+			throw (Error::StrategyError("Could not read pipe: "
+			    + Error::errorStr()));
+		}
+		remaining -= sz;
+		ptr += sz;
+		if (remaining == 0) {
+			break;
+		}
+		if (sz == 0) {
+			throw Error::ObjectDoesNotExist("Widowed pipe");
+		}
+	}
+}
+
+void
+BiometricEvaluation::IO::Utility::readPipe(
+    BiometricEvaluation::Memory::uint8Array &data,
+    int pipeFD)
+{	
+	readPipe(data, data.size(), pipeFD);
+}
+
+void
+BiometricEvaluation::IO::Utility::writePipe(
+    const void *data,
+    size_t size,
+    int pipeFD)
+{	
+	sigset_t sigset;
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGPIPE);
+	Error::SignalManager signalManager(sigset);
+	size_t sz = 0;
+
+	size_t remaining = size;
+	uint8_t *ptr = (uint8_t *)data;;
+	while (true) {
+		BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
+			sz = write(pipeFD, data, remaining);
+		END_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
+		if (sz == -1) {
+			throw (Error::StrategyError("Could not write pipe: "
+			    + Error::errorStr()));
+		}
+		remaining -= sz;
+		ptr += sz;
+		if (signalManager.sigHandled())
+			throw Error::ObjectDoesNotExist("Widowed pipe");
+		if (remaining == 0) {
+			break;
+		}
+	}
+}
+
+void
+BiometricEvaluation::IO::Utility::writePipe(
+    const BiometricEvaluation::Memory::uint8Array &data,
+    int pipeFD)
+{
+	writePipe(data, data.size(), pipeFD);
 }
 
 bool

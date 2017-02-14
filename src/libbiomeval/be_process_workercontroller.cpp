@@ -11,8 +11,7 @@
 #include <unistd.h>
 
 #include <be_error.h>
-#include <be_error_signal_manager.h>
-
+#include <be_io_utility.h>
 #include <be_process_workercontroller.h>
 
 BiometricEvaluation::Process::WorkerController::WorkerController(
@@ -102,27 +101,12 @@ BiometricEvaluation::Process::WorkerController::sendMessageToWorker(
     const Memory::uint8Array &message)
 {
 	uint64_t length = message.size();
-	sigset_t sigset;
-	sigemptyset(&sigset);
-	sigaddset(&sigset, SIGPIPE);
-	Error::SignalManager signalManager(sigset);
-	
-	size_t sz = 0;
 	int pipeFD = getWorker()->getSendingPipe();
-	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
-		sz = write(pipeFD, &length, sizeof(length));
-	END_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
-	if (signalManager.sigHandled())
-		throw Error::ObjectDoesNotExist("Widowed pipe");
-	if (sz != sizeof(length))
-		throw (Error::StrategyError("Could not write message length: "
-		    + Error::errorStr()));
-	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
-		sz = write(pipeFD, message, length);
-	END_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
-	if (signalManager.sigHandled())
-		throw Error::ObjectDoesNotExist("Widowed pipe");
-	if (sz != length)
-		throw (Error::StrategyError("Could not write message data: "
-		    + Error::errorStr()));
+
+	/*
+	 * Send the message length, then the message contents.
+	 * All exceptions float out.
+	 */
+	IO::Utility::writePipe(&length, sizeof(length), pipeFD);
+	IO::Utility::writePipe(message, pipeFD);
 }

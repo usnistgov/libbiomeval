@@ -15,7 +15,7 @@
 #include <cerrno>
 
 #include <be_error.h>
-#include <be_error_signal_manager.h>
+#include <be_io_utility.h>
 #include <be_process_worker.h>
 
 BiometricEvaluation::Process::Worker::Worker() :
@@ -23,7 +23,6 @@ BiometricEvaluation::Process::Worker::Worker() :
     _parameters(ParameterList()),
     _communicationEnabled(false)
 {
-
 }
 
 bool
@@ -164,29 +163,13 @@ BiometricEvaluation::Process::Worker::sendMessageToManager(
 	if (_communicationEnabled == false)
 		throw Error::StrategyError("Communication is not enabled");
 
+	/*
+	 * Send the message length, then the message contents.
+	 * All exceptions float out.
+	 */
 	uint64_t length = message.size();
-	sigset_t sigset;
-	sigemptyset(&sigset);
-	sigaddset(&sigset, SIGPIPE);
-	Error::SignalManager signalManager(sigset);
-
-	size_t sz = 0;
-	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
-		sz = write(_pipeFromChild[1], &length, sizeof(length));
-	END_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
-	if (signalManager.sigHandled())
-		throw Error::ObjectDoesNotExist("Widowed pipe");
-	if (sz != sizeof(length))
-		throw (Error::StrategyError("Could not write message length: "
-		    + Error::errorStr()));
-	BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
-		sz = write(_pipeFromChild[1], message, length);
-	END_SIGNAL_BLOCK(&signalManager, pipe_write_message_block);
-	if (signalManager.sigHandled())
-		throw Error::ObjectDoesNotExist("Widowed pipe");
-	if (sz != length)
-		throw (Error::StrategyError("Could not write message data: "
-		    + Error::errorStr()));
+	IO::Utility::writePipe(&length, sizeof(length), _pipeFromChild[1]);
+	IO::Utility::writePipe(message, _pipeFromChild[1]);
 }
 
 void
@@ -197,21 +180,9 @@ BiometricEvaluation::Process::Worker::receiveMessageFromManager(
 		throw Error::StrategyError("Communication is not enabled");
 
 	uint64_t length;
-	size_t sz = read(_pipeToChild[0], &length, sizeof(length));
-	if (sz != sizeof(length)) {
-		if (sz == 0)
-			throw Error::ObjectDoesNotExist("Widowed pipe");
-		throw (Error::StrategyError("Could not read message length: "
-		    + Error::errorStr()));
-	}
+	IO::Utility::readPipe(&length, sizeof(length), _pipeToChild[0]);
 	message.resize(length);
-	sz = read(_pipeToChild[0], message, length);
-	if (sz != length) {
-		if (sz == 0)
-			throw Error::ObjectDoesNotExist("Widowed pipe");
-		throw (Error::StrategyError("Could not read message data: "
-		    + Error::errorStr()));
-	}
+	IO::Utility::readPipe(message, _pipeToChild[0]);
 }
 
 int

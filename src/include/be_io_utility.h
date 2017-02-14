@@ -202,7 +202,7 @@ namespace BiometricEvaluation
 			
 			/**
 			 * @brief
-			 * Read the contents of a file into a buffer.
+			 * Read the contents of a file into an 8-bit AutoArray.
 			 *
 			 * @param path
 			 *	Path to a file to be read.
@@ -211,7 +211,7 @@ namespace BiometricEvaluation
 			 *	file stream constructor.
 			 *
 			 * @return
-			 *	Contents of path in a buffer.
+			 *	Contents of path in an AutoArray.
 			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	path does not exist.
@@ -259,7 +259,7 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Write the contents of a buffer to a file.
+			 * Write the contents of an 8-bit AutoArray to a file.
 			 * @details
 			 * A thin wrapper around std::ofstream. The mode
 			 * parameter has the same semantics as that for
@@ -268,7 +268,7 @@ namespace BiometricEvaluation
 			 * file.
 			 *
 			 * @param data
-			 *	Data buffer to write.
+			 *	Data array to write.
 			 * @param path
 			 *	Path to file to create with contents of data.
 			 * @param mode
@@ -286,7 +286,104 @@ namespace BiometricEvaluation
 			    const Memory::uint8Array data,
 			    const std::string &path,
 			    std::ios_base::openmode mode = std::ios_base::binary);
-			
+
+			/**
+			 * @brief
+			 * Read from an open pipe into a buffer.
+			 * @details
+			 * Wraps the read(2) system call by reading the
+			 * requested amount of data from a pipe file descriptor,
+			 *  handling all errors and signals.
+			 *
+			 * @param data
+			 *	Data buffer to store the data being read.
+			 * @param size
+			 *	Size of data to read.
+			 * @param pipeFD
+			 *	The file descriptor of the pipe.
+			 * @throw ObjectDoesNotExist
+			 *	The writing end of the pipe has been closed.
+			 * @throw FileError
+			 *	The data could not be written in the entirety;
+			 *	Error::errorStr() may contain more information.
+			 */
+    			void
+			readPipe(
+			    void *data,
+			    size_t size,
+			    int pipeFD);
+
+			/**
+			 * @brief
+			 * Read from an open pipe into an 8-bit AutoArray.
+			 * @details
+			 * Wraps the read(2) system call by reading the
+			 * requested amount of data from a pipe file descriptor,			 * handling all errors and signals.
+			 *
+			 * @param data
+			 *	Data array to read into.
+			 * @param pipeFD
+			 *	The file descriptor of the pipe.
+			 * @throw ObjectDoesNotExist
+			 *	The reading end of the pipe has been closed.
+			 * @throw FileError
+			 *	The data could not be written in the entirety;
+			 *	Error::errorStr() may contain more information.
+			 */
+			void
+			readPipe(
+    			    Memory::uint8Array &data,
+			    int pipeFD);
+
+			/**
+			 * @brief
+			 * Write the contents of a buffer to a pipe.
+			 * @details
+			 * Wraps the write(2) system call by writing all
+			 * data to a pipe file descriptor, handling all
+			 * errors and signals.
+			 *
+			 * @param data
+			 *	Data buffer to write.
+			 * @param size
+			 *	Size of data.
+			 * @param pipeFD
+			 *	The file descriptor of the pipe.
+			 * @throw ObjectDoesNotExist
+			 *	The reading end of the pipe has been closed.
+			 * @throw FileError
+			 *	The data could not be written in the entirety;
+			 *	Error::errorStr() may contain more information.
+			 */
+    			void
+			writePipe(
+			    const void *data,
+			    size_t size,
+			    int pipeFD);
+
+			/**
+			 * @brief
+			 * Write the contents of an 8-bit AutoArray to a pipe.
+			 * @details
+			 * Wraps the write(2) system call by writing all
+			 * data to a pipe file descriptor, handling all
+			 * errors and signals.
+			 *
+			 * @param data
+			 *	Data array to write.
+			 * @param pipeFD
+			 *	The file descriptor of the pipe.
+			 * @throw ObjectDoesNotExist
+			 *	The reading end of the pipe has been closed.
+			 * @throw FileError
+			 *	The data could not be written in the entirety;
+			 *	Error::errorStr() may contain more information.
+			 */
+    			void
+			writePipe(
+			    const Memory::uint8Array &data,
+			    int pipeFD);
+
 			/**
 			 * @brief
 			 * Determine if the real user has read access

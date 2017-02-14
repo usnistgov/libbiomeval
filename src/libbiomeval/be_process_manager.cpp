@@ -10,13 +10,11 @@
 
 #include <sys/select.h>
 
-#include <unistd.h>
-
 #include <algorithm>
 #include <cerrno>
 
 #include <be_error.h>
-
+#include <be_io_utility.h>
 #include <be_process_manager.h>
 
 BiometricEvaluation::Process::Manager::Manager()
@@ -185,21 +183,11 @@ BiometricEvaluation::Process::Manager::getNextMessage(
 	int fd = 0;
 	if (this->waitForMessage(sender, &fd, timeout) == false)
 		return (false);
-	
-	uint64_t length;
-	size_t sz = read(fd, &length, sizeof(length));
-	if (sz != sizeof(length)) {
-		if (sz == 0)
-			throw Error::ObjectDoesNotExist("Widowed pipe");
-		throw (Error::StrategyError("Could not read message length: "
-		    + Error::errorStr()));
-	}
 
+	uint64_t length;
+	IO::Utility::readPipe(&length, sizeof(length), fd);
 	message.resize(length);
-	sz = read(fd, message, length);
-	if (sz != length)
-		throw (Error::StrategyError("Could not read message data: "
-			+ Error::errorStr()));
+	IO::Utility::readPipe(message, fd);
 
 	return (true);
 }
