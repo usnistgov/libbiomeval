@@ -60,7 +60,7 @@ namespace BiometricEvaluation
 				Result();
 
 				/** Time elapsed while calling operation. */
-				double elapsed;
+				uint64_t elapsed;
 				/**
 				 * @brief
 				 * Value returned from operation.
