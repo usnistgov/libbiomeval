@@ -409,7 +409,10 @@ BiometricEvaluation::Image::JPEG2000::libopenjp2Seek(
 	Memory::IndexedBuffer *ib = static_cast<Memory::IndexedBuffer *>(
 	    p_user_data);
 
-	if ((ib->getIndex() + p_nb_bytes) <= ib->getSize())
+	try {
+		ib->setIndex(p_nb_bytes);
 		return (OPJ_TRUE);
-	return (OPJ_FALSE);
+	} catch (BE::Error::ParameterError) {
+		return (OPJ_FALSE);
+	}
 }
