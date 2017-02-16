@@ -24,12 +24,12 @@ BiometricEvaluation::Process::Semaphore::Semaphore(
     const std::string &name,
     const mode_t mode,
     const int value,
-    bool exclusive) :
+    bool force) :
     _name(name)
 {
 	this->_creatorPID = getpid();
 	int oflag = O_CREAT | O_EXCL;
-	if (exclusive) {
+	if (force) {
 		/*
 		 * Try to remove an existing semaphore, and test whether
 		 * it existed afterwards.
@@ -209,5 +209,11 @@ BiometricEvaluation::Process::Semaphore::post()
 			break;		/* Not reached */
 		}
 	}
+}
+
+std::string
+BiometricEvaluation::Process::Semaphore::getName()
+{
+	return (this->_name);
 }
 

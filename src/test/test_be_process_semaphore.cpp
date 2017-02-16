@@ -278,6 +278,7 @@ main(int argc, char *argv[])
 	switch (pid) {
 	case 0:			/* child */
 	{
+		pMsg("Semaphore name in child is " + sem->getName() + ".\n");
 		/*
 		 * Close the Semaphore so we can re-open it by name in
 		 * the child function.
@@ -295,6 +296,7 @@ main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 		break;
 	default:		/* parent */
+		pMsg("Semaphore name in parent is " + sem->getName() + ".\n");
 		pMsg("Post the semaphore (1): ");
 		try {
 			sem->post();

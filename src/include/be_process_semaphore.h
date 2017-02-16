@@ -68,7 +68,7 @@ namespace BiometricEvaluation
 			    const std::string &name,
 			    const mode_t mode,
 			    const int value,
-			    const bool exclusive = false);
+			    const bool force = false);
 
 			/**
 			 * @brief
@@ -148,6 +148,15 @@ namespace BiometricEvaluation
 			 * System error obtaining the semaphore.
 			 */
 			void post();
+
+			/**
+			 * @brief
+			 * Obtain the name of the Semaphore.
+			 *
+			 * @return
+			 * The name of the Sempahore.
+			 */
+			std::string getName();
 
 		protected:
 
