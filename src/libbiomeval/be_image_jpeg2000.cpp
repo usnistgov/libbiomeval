@@ -394,8 +394,7 @@ BiometricEvaluation::Image::JPEG2000::libopenjp2Skip(
 	    p_nb_bytes, ib->getSize() - ib->getIndex()));
 
 	try {
-		ib->scan(nullptr, actualSkipSize);
-		return (ib->getSize() - ib->getIndex());
+		return (ib->scan(nullptr, actualSkipSize));
 	} catch (Error::Exception &e) {
 		return (0);
 	}
