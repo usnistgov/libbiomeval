@@ -265,7 +265,7 @@ namespace BiometricEvaluation
 			 * Pointer to a Memory::IndexedBuffer.
 			 *
 			 * @return
-			 * Number of bytes remaining in p_user_data.
+			 * Actual number of bytes skipped.
 			 */
 			static int64_t
 			libopenjp2Skip(
