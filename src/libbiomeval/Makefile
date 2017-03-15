@@ -168,7 +168,9 @@ be_image_jpeg2000.o: CXXFLAGS += $(shell PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/l
 be_io_gzip.o: CXXFLAGS += $(shell pkg-config --cflags zlib)
 be_io_sqliterecstore.o: CXXFLAGS += $(shell pkg-config --cflags sqlite3)
 
-ifneq ($(OS), Darwin)
+ifeq ($(OS), Darwin)
+COMMONLIB += -framework Foundation -framework Security
+else
 be_text.o: CXXFLAGS += $(shell pkg-config --cflags libcrypto)
 COMMONLIB += -L$(shell pkg-config --variable=libdir libcrypto) $(shell pkg-config --libs-only-l --libs-only-other libcrypto)
 endif

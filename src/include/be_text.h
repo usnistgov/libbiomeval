@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <be_error_exception.h>
+#include <be_memory_autoarray.h>
 
 namespace BiometricEvaluation {
 
@@ -301,6 +302,34 @@ namespace BiometricEvaluation {
 		toLowercase(
 		    const std::string &str,
 		    const std::locale &locale = std::locale());
+
+		/**
+		 * @brief
+		 * Perform Base64 encoding.
+		 *
+		 * @param data
+		 * Data to encoded.
+		 *
+		 * @return
+		 * Base64 encoding of data.
+		 */
+		std::string
+		encodeBase64(
+		    const BiometricEvaluation::Memory::uint8Array &data);
+
+		/**
+		 * @brief
+		 * Perform Base64 decoding.
+		 *
+		 * @param data
+		 * Base64 data to decode.
+		 *
+		 * @return
+		 * Base64 decoding of data.
+		 */
+		BiometricEvaluation::Memory::uint8Array
+		decodeBase64(
+		    const std::string &data);
 	}
 }
 #endif /* __BE_TEXT_H__ */

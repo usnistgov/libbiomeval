@@ -15,7 +15,10 @@
 
 #ifdef Darwin
 #include <CommonCrypto/CommonDigest.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <Security/Security.h>
 #else
+#include <openssl/buffer.h>
 #include <openssl/evp.h>
 #endif
 
@@ -27,6 +30,8 @@
 
 #include <be_text.h>
 #include <be_memory_autoarray.h>
+
+namespace BE = BiometricEvaluation;
 
 std::string
 BiometricEvaluation::Text::trimWhitespace(
@@ -335,3 +340,141 @@ BiometricEvaluation::Text::toLowercase(
 	return (retStr);
 }
 
+std::string
+BiometricEvaluation::Text::encodeBase64(
+    const BiometricEvaluation::Memory::uint8Array &data)
+{
+#ifdef Darwin
+	CFErrorRef error = nullptr;
+
+	SecTransformRef transform = SecEncodeTransformCreate(
+	    kSecBase64Encoding, &error);
+	if (error != nullptr) {
+		CFRelease(transform);
+		throw BE::Error::StrategyError("SecEncodeTransformCreate(): " +
+		    std::to_string(CFErrorGetCode(error)));
+	}
+
+	/* Convert to CFString */
+	CFDataRef sourceData = static_cast<CFDataRef>(CFDataCreate(
+	    kCFAllocatorDefault, data, data.size() + 1));
+
+	/* Set data to be encoded */
+	SecTransformSetAttribute(transform, kSecTransformInputAttributeName,
+	    sourceData, &error);
+	CFRelease(sourceData);
+	if (error != nullptr) {
+		CFRelease(transform);
+		throw BE::Error::StrategyError("SecTransformSetAttribute(): " +
+		    std::to_string(CFErrorGetCode(error)));
+	}
+
+	/* Encode */
+	auto encodedData = static_cast<CFDataRef>(SecTransformExecute(
+	    transform, &error));
+	CFRelease(transform);
+	if (error != nullptr)
+		throw BE::Error::StrategyError("SecTransformExecute(): " +
+		    std::to_string(CFErrorGetCode(error)));
+
+	/* Convert result to CFString */
+	auto stringRef = CFStringCreateFromExternalRepresentation(
+	    kCFAllocatorDefault, encodedData, kCFStringEncodingASCII);
+	CFRelease(encodedData);
+
+	/* Convert CFString to C string */
+	auto bufferSize = CFStringGetLength(stringRef) + 1;
+	std::unique_ptr<char[]> buffer(new char[bufferSize]);
+	auto rv = CFStringGetCString(stringRef, buffer.get(), bufferSize,
+	    kCFStringEncodingASCII);
+	CFRelease(stringRef);
+	if (!rv)
+		throw BE::Error::StrategyError("CFStringGetCString");
+
+	return (std::string(buffer.get(), bufferSize));
+#else
+	BIO *handle = BIO_new(BIO_s_mem());
+	handle = BIO_push(BIO_new(BIO_f_base64()), handle);
+
+	/* One line output */
+	BIO_set_flags(handle, BIO_FLAGS_BASE64_NO_NL);
+
+	/* Encode */
+	BIO_write(handle, data, data.size());
+	(void)BIO_flush(handle);
+
+	BUF_MEM *buffer;
+	BIO_get_mem_ptr(handle, &buffer);
+
+	std::string encodedString(buffer->data, buffer->length);
+	BIO_free_all(handle);
+
+	return (encodedString);
+#endif /* Darwin */
+}
+
+BiometricEvaluation::Memory::uint8Array
+BiometricEvaluation::Text::decodeBase64(
+    const std::string &data)
+{
+#ifdef Darwin
+	CFErrorRef error = nullptr;
+
+	SecTransformRef transform = SecDecodeTransformCreate(
+	    kSecBase64Encoding, &error);
+	if (error != nullptr) {
+		CFRelease(transform);
+		throw BE::Error::StrategyError("SecDecodeTransformCreate(): " +
+		    std::to_string(CFErrorGetCode(error)));
+	}
+
+	/* Convert to CFData */
+	CFDataRef sourceData = static_cast<CFDataRef>(CFDataCreate(
+	    kCFAllocatorDefault, (uint8_t *)data.c_str(),
+	    data.size() + 1));
+
+	/* Set data to be decoded */
+	SecTransformSetAttribute(transform, kSecTransformInputAttributeName,
+	    sourceData, &error);
+	CFRelease(sourceData);
+	if (error != nullptr) {
+		CFRelease(transform);
+		throw BE::Error::StrategyError("SecTransformSetAttribute(): " +
+		    std::to_string(CFErrorGetCode(error)));
+	}
+
+	/* Decode */
+	CFDataRef decodedData = static_cast<CFDataRef>(SecTransformExecute(
+	    transform, &error));
+	CFRelease(transform);
+	if (error != nullptr)
+		throw BE::Error::StrategyError("SecTransformExecute(): " +
+		    std::to_string(CFErrorGetCode(error)));
+
+	/* Convert to AutoArray */
+	BE::Memory::uint8Array aa(CFDataGetLength(decodedData));
+	CFDataGetBytes(decodedData, CFRangeMake(0, aa.size()), aa);
+	CFRelease(decodedData);
+
+	return (aa);
+#else
+	if (data.find_first_of('\n') != std::string::npos)
+		throw BE::Error::NotImplemented("Newlines in encoded data");
+
+	BIO *handle = BIO_new_mem_buf(const_cast<char *>(data.c_str()), -1);
+	handle = BIO_push(BIO_new(BIO_f_base64()), handle);
+
+	/* One line input */
+	BIO_set_flags(handle, BIO_FLAGS_BASE64_NO_NL);
+
+	/* TODO: Avoid over-allocation */
+	BE::Memory::uint8Array decodedData(data.size());
+
+	const auto len = BIO_read(handle, decodedData, decodedData.size());
+	decodedData.resize(len);
+
+	BIO_free_all(handle);
+
+	return (decodedData);
+#endif /* Darwin */
+}
