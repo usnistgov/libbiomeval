@@ -407,6 +407,10 @@ BiometricEvaluation::IO::Utility::readPipe(
 		if (remaining == 0) {
 			break;
 		}
+		/*
+		 * Reading from a pipe that is closed on the write end
+		 * results in no data being returned; no signal.
+		 */
 		if (sz == 0) {
 			throw Error::ObjectDoesNotExist("Widowed pipe");
 		}
@@ -431,10 +435,10 @@ BiometricEvaluation::IO::Utility::writePipe(
 	sigemptyset(&sigset);
 	sigaddset(&sigset, SIGPIPE);
 	Error::SignalManager signalManager(sigset);
-	size_t sz = 0;
 
 	size_t remaining = size;
 	uint8_t *ptr = (uint8_t *)data;;
+	ssize_t sz = 0;
 	while (true) {
 		BEGIN_SIGNAL_BLOCK(&signalManager, pipe_write_length_block);
 			sz = write(pipeFD, data, remaining);
@@ -445,6 +449,10 @@ BiometricEvaluation::IO::Utility::writePipe(
 		}
 		remaining -= sz;
 		ptr += sz;
+		/*
+		 * Writing to a pipe that is closed on the read end
+		 * results in a signal.
+		 */
 		if (signalManager.sigHandled())
 			throw Error::ObjectDoesNotExist("Widowed pipe");
 		if (remaining == 0) {
