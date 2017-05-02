@@ -13,7 +13,6 @@
 #include <iostream>
 #include <memory>
 
-#include <time.h>
 #include <unistd.h>
 
 #include <be_time_timer.h>
@@ -99,18 +98,15 @@ int main(int argc, char *argv[])
 	}
 
 	try {
-		cout << "Time nanosleep(333)... ";
+		cout << "Time no-operation ... ";
 		fflush(stdout);
 		atimer->start();
-		struct timespec ts;
-		ts.tv_sec = 0; ts.tv_nsec = 333;
-		nanosleep(&ts, nullptr);
 		atimer->stop();
 		cout << "passed" << endl;
-		cout << "Time in microseconds for nanosleep(333): "
+		cout << "Time in microseconds for no-op: "
 		    << atimer->elapsed()
 		    << " (" << atimer->elapsedStr(true) << ")\n";
-		cout << "Time in nanoseconds for nanosleep(333):  "
+		cout << "Time in nanoseconds for no-op:  "
 		    << atimer->elapsed(true)
 		    << " (" << atimer->elapsedStr(true, true) << ")\n";
 	} catch (Error::StrategyError &e) {
