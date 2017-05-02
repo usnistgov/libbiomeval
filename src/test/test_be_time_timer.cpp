@@ -13,6 +13,7 @@
 #include <iostream>
 #include <memory>
 
+#include <time.h>
 #include <unistd.h>
 
 #include <be_time_timer.h>
@@ -87,7 +88,31 @@ int main(int argc, char *argv[])
 		sleep(1);
 		atimer->stop();
 		cout << "passed" << endl;
-		cout << "Time for sleep(1): " << atimer->elapsed() << endl;
+		cout << "Time in microseconds for sleep(1): "
+		    << atimer->elapsed() << endl;
+		cout << "Time in nanoseconds for sleep(1):  "
+		    << atimer->elapsed(true) << endl;
+	} catch (Error::StrategyError &e) {
+		cout << "failed" << endl;
+		cout << "Caught " << e.what() << endl;
+		return (EXIT_FAILURE);
+	}
+
+	try {
+		cout << "Time nanosleep(333)... ";
+		fflush(stdout);
+		atimer->start();
+		struct timespec ts;
+		ts.tv_sec = 0; ts.tv_nsec = 333;
+		nanosleep(&ts, nullptr);
+		atimer->stop();
+		cout << "passed" << endl;
+		cout << "Time in microseconds for nanosleep(333): "
+		    << atimer->elapsed()
+		    << " (" << atimer->elapsedStr(true) << ")\n";
+		cout << "Time in nanoseconds for nanosleep(333):  "
+		    << atimer->elapsed(true)
+		    << " (" << atimer->elapsedStr(true, true) << ")\n";
 	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;

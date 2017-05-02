@@ -56,7 +56,8 @@ BiometricEvaluation::Time::Timer::stop()
 }
 
 uint64_t
-BiometricEvaluation::Time::Timer::elapsed()
+BiometricEvaluation::Time::Timer::elapsed(
+    bool nano)
     const
 {
 	if (this->_inProgress) {
@@ -68,18 +69,28 @@ BiometricEvaluation::Time::Timer::elapsed()
 	 * returning microseconds. Therefore, we must use a duration_cast
 	 * instead of simply instantiating a microseconds object.
 	 */
-	return (std::chrono::duration_cast<std::chrono::microseconds>(
-	    this->_finish - this->_start).count());
+	if (nano) {
+		return (std::chrono::duration_cast<std::chrono::nanoseconds>(
+		    this->_finish - this->_start).count());
+	} else {
+		return (std::chrono::duration_cast<std::chrono::microseconds>(
+		    this->_finish - this->_start).count());
+	}
 }
 
 std::string
 BiometricEvaluation::Time::Timer::elapsedStr(
-    bool displayUnits)
+    bool displayUnits,
+    bool nano)
     const
 {
-	std::string ret{std::to_string(this->elapsed())};
+	std::string ret{std::to_string(this->elapsed(nano))};
 	if (displayUnits) {
-		ret += "μs";
+		if (nano) {
+			ret += "ns";
+		} else {
+			ret += "μs";
+		}
 	}
 	return (ret);
 }

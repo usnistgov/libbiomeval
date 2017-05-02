@@ -86,19 +86,21 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Get the elapsed time in microseconds between calls
-			 * to this object's start() and stop() methods.
+			 * Get the elapsed time in microseconds or nanoseconds
+			 * between calls to this object's start() and stop()
+			 * methods.
 			 *
+			 * @param nano
+			 * True if to return nanoseconds, false otherwise.
 			 * @return
-			 * The number of microseconds between calls to
-			 * this object's start() and stop() methods.
+			 * The number of microseconds or nanoseconds.
 			 *
 			 * @throw Error::StrategyError
 			 * This object is currently timing an operation or an
 			 * error occurred when obtaining timing information.
 			 */
 			uint64_t
-			elapsed()
+			elapsed(bool nano = false)
 			    const;
 
 			/**
@@ -108,6 +110,8 @@ namespace BiometricEvaluation
 			 *
 			 * @param displayUnits
 			 * Append the elapsed time units.
+			 * @param nano
+			 * True if to return nanoseconds, false otherwise.
 			 *
 			 * @return
 			 * String representing the elapsed time.
@@ -117,7 +121,8 @@ namespace BiometricEvaluation
 			 */
 			std::string
 			elapsedStr(
- 			   bool displayUnits = false)
+ 			   bool displayUnits = false,
+ 			   bool nano = false)
 			   const;
 
 			/**
