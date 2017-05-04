@@ -15,6 +15,7 @@
 #include <be_io_propertiesfile.h>
 #include <be_memory_autoarrayutility.h>
 #include <be_mpi_csvresources.h>
+#include <be_text.h>
 
 namespace BE = BiometricEvaluation;
 
@@ -24,6 +25,7 @@ const std::string BE::MPI::CSVResources::USEBUFFERPROPERTY{"Read Entire File"};
 const std::string BE::MPI::CSVResources::DELIMITERPROPERTY{"CSV Delimiter"};
 const std::string BE::MPI::CSVResources::RANDOMIZEPROPERTY{"Randomize Lines"};
 const std::string BE::MPI::CSVResources::RANDOMSEEDPROPERTY{"Random Seed"};
+const std::string BE::MPI::CSVResources::TRIMPROPERTY{"Trim CSV Whitespace"};
 
 BiometricEvaluation::MPI::CSVResources::CSVResources(
     const std::string &propertiesFileName) :
@@ -35,7 +37,9 @@ BiometricEvaluation::MPI::CSVResources::CSVResources(
 	std::unique_ptr<IO::Properties> props;
 	try {
 		props.reset(new BE::IO::PropertiesFile(propertiesFileName,
-		    IO::Mode::ReadOnly));
+		    IO::Mode::ReadOnly, {
+		        {BE::MPI::CSVResources::TRIMPROPERTY, "true"}
+		    }));
 	} catch (BE::Error::Exception &e) {
 		throw BE::Error::FileError("Could not open properties: " +
 		    e.whatString());
@@ -80,6 +84,8 @@ BiometricEvaluation::MPI::CSVResources::CSVResources(
 		}
 		this->_rng = std::mt19937_64(this->_rngSeed);
 	}
+	this->_trimWhitespace = props->getPropertyAsBoolean(
+	    BE::MPI::CSVResources::TRIMPROPERTY);
 
 	this->openCSV();
 }
@@ -109,6 +115,7 @@ BiometricEvaluation::MPI::CSVResources::getOptionalProperties()
 	props.push_back(BE::MPI::CSVResources::DELIMITERPROPERTY);
 	props.push_back(BE::MPI::CSVResources::RANDOMIZEPROPERTY);
 	props.push_back(BE::MPI::CSVResources::RANDOMSEEDPROPERTY);
+	props.push_back(BE::MPI::CSVResources::TRIMPROPERTY);
 	return (props);
 }
 
@@ -216,8 +223,15 @@ BiometricEvaluation::MPI::CSVResources::readLine()
 	if (this->_useBuffer) {
 		if (this->_randomizeLines) {
 			this->_remainingLines -= 1;
-			return (this->_randomizedLines[this->_numLines - 
-			    this->_remainingLines - 1]);
+			if (this->_trimWhitespace) {
+				const auto ret = this->_randomizedLines[
+				    this->_numLines - this->_remainingLines -
+				    1];
+				return {ret.first, BE::Text::trimWhitespace(
+				    ret.second)};
+			} else
+				return (this->_randomizedLines[this->_numLines -
+				    this->_remainingLines - 1]);
 		} else {
 			uint64_t bufferSize = this->_csvBuffer.size();
 			if (this->_offset >= bufferSize)
@@ -231,6 +245,8 @@ BiometricEvaluation::MPI::CSVResources::readLine()
 	
 			std::string line((char *)&this->_csvBuffer[
 			    this->_offset], endOffset - this->_offset);
+			if (this->_trimWhitespace)
+				line = BE::Text::trimWhitespace(line);
 			this->_offset = endOffset + 1;
 
 			this->_remainingLines -= 1;
@@ -243,6 +259,8 @@ BiometricEvaluation::MPI::CSVResources::readLine()
 
 		std::string line;
 		std::getline(*this->_csvStream, line);
+		if (this->_trimWhitespace)
+			line = BE::Text::trimWhitespace(line);
 		if (!this->_csvStream)
 			throw BE::Error::ObjectDoesNotExist("Stream exhausted");
 

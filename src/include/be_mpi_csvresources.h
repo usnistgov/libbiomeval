@@ -38,6 +38,8 @@ namespace BiometricEvaluation
 			static const std::string RANDOMSEEDPROPERTY;
 			/** Delimiter to tokenize sent lines */
 			static const std::string DELIMITERPROPERTY;
+			/** Trim whitespace from lines read */
+			static const std::string TRIMPROPERTY;
 
 			static std::vector<std::string>
 			getRequiredProperties();
@@ -178,6 +180,8 @@ namespace BiometricEvaluation
 			/** Open file (when _useBuffer == false) */
 			std::shared_ptr<std::ifstream> _csvStream;
 
+			/** Whether or not to trim whitespace from lines */
+			bool _trimWhitespace;
 			/** Whether or not to read entire file first */
 			bool _useBuffer;
 			/** Contents of _csvPath (when _useBuffer == true) */
