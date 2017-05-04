@@ -154,8 +154,6 @@ namespace BiometricEvaluation
 			BE_CLOCK_TYPE::time_point _start;
 			/** Time when end() was called */
 			BE_CLOCK_TYPE::time_point _finish;
-			/** Used to avoid a delay when checking progess. */
-			BE_CLOCK_TYPE::time_point _placeholder;
 		};
 	
 		/**

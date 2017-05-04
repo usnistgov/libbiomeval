@@ -12,10 +12,9 @@
 #include <be_time_timer.h>
 
 BiometricEvaluation::Time::Timer::Timer() :
-    _inProgress(false),
-    _start(),
-    _finish(),
-    _placeholder()
+    _inProgress{false},
+    _start{},
+    _finish{}
 {
 
 }
@@ -30,28 +29,23 @@ BiometricEvaluation::Time::Timer::Timer(
 void
 BiometricEvaluation::Time::Timer::start()
 {
-	/* Get the time immediately */
-	this->_placeholder = BE_CLOCK_TYPE::now();
-
 	if (this->_inProgress) {
 		throw Error::StrategyError("Timing already in progress");
 	}
-
-	this->_start = this->_placeholder;
 	this->_inProgress = true;
+	this->_start = BE_CLOCK_TYPE::now();
 }
 
 void
 BiometricEvaluation::Time::Timer::stop()
 {
 	/* Get the time immediately */
-	_placeholder = BE_CLOCK_TYPE::now();
+	const auto stopTime = BE_CLOCK_TYPE::now();
 
-	if (!_inProgress) {
+	if (!this->_inProgress) {
 		throw Error::StrategyError("Timing not in progress");
 	}
-
-	this->_finish = this->_placeholder;
+	this->_finish = stopTime;
 	this->_inProgress = false;
 }
 
