@@ -34,6 +34,8 @@ namespace BiometricEvaluation
 			WatchdogExpired,
 			/** Signal handler was invoked. */
 			SignalCaught,
+			/** An exception was caught. */
+			ExceptionCaught,
 			/** Operation is running. */
 			Running,
 			/** Operation has returned. */
@@ -127,15 +129,26 @@ namespace BiometricEvaluation
 			 * Operations invoked if operation returns.
 			 * @param failure
 			 * Operations invoked if we abort the operation.
+			 * @param rethrowExceptions
+			 * Whether or not to rethrow an exception caught
+			 * from `operation`.
 			 *
 			 * @return
 			 * Analytics about the return of operation.
+			 *
+			 * @throw ...
+			 * Exceptions raised from `operation`, if caught, are
+			 * rethrown when `rethrowExceptions` is `true`.
 			 *
 			 * @note
 			 * success is called and currentState ==
 			 * APICurrentState::Completed if operation
 			 * returns, regardless of the Code of operation's
 			 * Status.
+			 *
+			 * @note
+			 * Exceptions caught are rethrown after calling
+			 * failure().
 			 */
 			Result
 			call(
@@ -143,7 +156,8 @@ namespace BiometricEvaluation
 			    const std::function<void(const Result&)>
 			    &success = {},
 			    const std::function<void(const Result&)>
-			    &failure = {});
+			    &failure = {},
+			    const bool rethrowExceptions = false);
 
 			/** 
 			 * @brief
@@ -219,7 +233,8 @@ typename BiometricEvaluation::Framework::API<T>::Result
 BiometricEvaluation::Framework::API<T>::call(
     const std::function<T(void)> &operation,
     const std::function<void(const Framework::API<T>::Result&)> &success,
-    const std::function<void(const Framework::API<T>::Result&)> &failure)
+    const std::function<void(const Framework::API<T>::Result&)> &failure,
+    const bool rethrowExceptions)
 {
 	Result ret;
 
@@ -227,7 +242,21 @@ BiometricEvaluation::Framework::API<T>::call(
 	BEGIN_WATCHDOG_BLOCK(this->getWatchdog(), WD_BLOCK);
 		ret.currentState = APICurrentState::Running;
 		this->getTimer()->start();
-		ret.status = operation();
+		try {
+			ret.status = operation();
+		} catch (...) {
+			this->getTimer()->stop();
+			ret.elapsed = this->getTimer()->elapsed();
+			ret.currentState = APICurrentState::ExceptionCaught;
+
+			if (failure)
+				failure(ret);
+
+			if (rethrowExceptions)
+				throw;
+
+			return (ret);
+		}
 		this->getTimer()->stop();
 	END_WATCHDOG_BLOCK(this->getWatchdog(), WD_BLOCK);
 	END_SIGNAL_BLOCK(this->getSignalManager(), SM_BLOCK);
