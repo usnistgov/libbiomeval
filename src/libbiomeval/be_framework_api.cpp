@@ -21,6 +21,8 @@ BiometricEvaluation::Framework::EnumerationFunctions<
         "Watchdog Expired"},
     {BiometricEvaluation::Framework::APICurrentState::SignalCaught,
         "Signal Caught"},
+    {BiometricEvaluation::Framework::APICurrentState::ExceptionCaught,
+        "Exception Caught"},
     {BiometricEvaluation::Framework::APICurrentState::Running,
         "Running"},
     {BiometricEvaluation::Framework::APICurrentState::Completed,
