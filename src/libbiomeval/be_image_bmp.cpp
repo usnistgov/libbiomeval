@@ -69,7 +69,13 @@ BiometricEvaluation::Image::BMP::getRawData()
 	} catch (Error::NotImplemented &e) {
 		throw Error::DataError(e.what());
 	}
-	Memory::uint8Array rawData(dibHeader.width * dibHeader.height *
+	/*
+	 * The height in the image header can be negative, so
+	 * use the absolute value when using height to calculate
+	 * file offsets, etc.
+	 */
+	int32_t absHeight = abs(dibHeader.height);
+	Memory::uint8Array rawData(dibHeader.width * absHeight *
 	    (dibHeader.bitsPerPixel / 8));
 
 	/* Image size is not required */
@@ -79,22 +85,28 @@ BiometricEvaluation::Image::BMP::getRawData()
 	if ((bmpDataSize + 12 + 40) < imageSize)
 		throw Error::DataError("Buffer length too small");
 
+	/*
+	 * Stride is size of the BMP data storage area for each row,
+	 * not including padding of 4 bytes max, so account for the
+	 * padding later.
+	 */
 	uint64_t stride = (dibHeader.bitsPerPixel / 8) * dibHeader.width;
+	int padSz = dibHeader.width % 4;
 	switch (dibHeader.compressionMethod) {
 	case BI_RGB: {
 		const uint8_t *bmpRow = nullptr;
 		uint8_t *rawRow = nullptr;
 
-		for (int32_t row = 0; row < dibHeader.height; row++) {
+		for (int32_t row = 0; row < absHeight; row++) {
 			rawRow = rawData + (row * stride);
 			/* Pixels are stored top to bottom if height is < 0 */
-			if (dibHeader.height < 0)
+			if (dibHeader.height < 0) {
 				bmpRow = bmpData + bmpHeader.startingAddress +
-				    (row * stride);
-			else
+				    (row * (stride + padSz));
+			} else {
 				bmpRow = bmpData + bmpHeader.startingAddress +
-				    ((dibHeader.height - row - 1) * stride);
-
+				    ((absHeight - row - 1) * (stride + padSz));
+			}
 			switch (dibHeader.bitsPerPixel) {
 			case 32:
 				/* BGRA -> RGBA */
@@ -131,7 +143,7 @@ BiometricEvaluation::Image::BMP::getRawData()
 			/* Reverse rows */
 			/* TODO: This should really be done in rle8Decoder() */
 			Memory::uint8Array tempRow(dibHeader.width);
-			for (int32_t rowFwd = 0, rowBack = dibHeader.height - 1;
+			for (int32_t rowFwd = 0, rowBack = absHeight - 1;
 			    rowFwd < rowBack;
 			    rowFwd++, rowBack--) {
 				std::memcpy(tempRow,
@@ -266,7 +278,7 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 	    (dibHeader->bitsPerPixel != 8))
 		throw Error::NotImplemented("Not RLE8 compressed");
 		
-	output.resize(dibHeader->width * dibHeader->height);
+	output.resize(dibHeader->width * abs(dibHeader->height));
 
 	uint8_t byte1, byte2;
 	uint64_t outputOffset = 0;
@@ -276,11 +288,8 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 		byte2 = input[inputOffset + 1];
 
 		if (byte1 == 0) {
-			/* 
-			 * Encoded mode.
-			 */
 			switch (byte2) {
-			case 0: /* End of line */
+			case 0: /* Encoded mode: End of line */
 				/* 
 				 * Colors after EOL are undefined, as there
 				 * shouldn't be any.
@@ -290,9 +299,9 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 					
 				inputOffset += 2;
 				continue;
-			case 1: /* End of bitmap */
+			case 1: /* Encoded mode: End of bitmap */
 				return;
-			case 2: /* Delta */
+			case 2: /* Encoded mode: Delta */
 				/* Colors for delta-skipped pixels undefined */
 				/* byte3 = num pixels, byte4 = num rows */
 				outputOffset += input[inputOffset + 2];
@@ -301,7 +310,7 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 
 				inputOffset += 4;
 				break;
-			default: /* Run of data */
+			default: /* Absolute mode */
 				/* byte2 = count, byte3..n = data */
 				memcpy(output + outputOffset,
 				    input + inputOffset + 3, byte2);
@@ -314,7 +323,7 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 			}
 		} else {
 			/*
-			 * Absolute mode.
+			 * Encoded mode, count/value pairs.
 			 */
 			 
 			/* byte1 = count, byte2 = color */
