@@ -12,6 +12,7 @@
 #include <be_framework_enumeration.h>
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 bool
 BiometricEvaluation::Feature::Sort::XY::operator()(
@@ -157,10 +158,8 @@ BiometricEvaluation::Feature::Sort::updateIndicies(
 		mps[i].index = i;
 }
 
-template<>
 const std::map<BiometricEvaluation::Feature::Sort::Kind, std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Feature::Sort::Kind>::enumToStringMap = {
+BE_Feature_Sort_Kind_EnumToStringMap = {
 	{BiometricEvaluation::Feature::Sort::Kind::XYAscending, "XY Ascending"},
 	{BiometricEvaluation::Feature::Sort::Kind::XYDescending,
 	    "XY Descending"},
@@ -185,6 +184,9 @@ BiometricEvaluation::Framework::EnumerationFunctions<
 	    "Polar Center of Image Descending"},
 	{BiometricEvaluation::Feature::Sort::Kind::Unknown, "Unknown"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::Sort::Kind,
+    BE_Feature_Sort_Kind_EnumToStringMap);
 
 std::vector<BiometricEvaluation::Feature::MinutiaPoint>
 BiometricEvaluation::Feature::Sort::sort(

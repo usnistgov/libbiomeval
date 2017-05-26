@@ -17,10 +17,8 @@
 #include <be_image_netpbm.h>
 #include <be_memory_mutableindexedbuffer.h>
 
-template<>
 const std::map<BiometricEvaluation::Image::NetPBM::Kind, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Image::NetPBM::Kind>::enumToStringMap = {
+BE_Image_NetPBM_Kind_EnumToStringMap = {
 	{BiometricEvaluation::Image::NetPBM::Kind::ASCIIPortableBitmap, "P1"},
 	{BiometricEvaluation::Image::NetPBM::Kind::ASCIIPortableGraymap, "P2"},
 	{BiometricEvaluation::Image::NetPBM::Kind::ASCIIPortablePixmap, "P3"},
@@ -28,6 +26,9 @@ const std::map<BiometricEvaluation::Image::NetPBM::Kind, std::string>
 	{BiometricEvaluation::Image::NetPBM::Kind::BinaryPortableGraymap, "P5"},
 	{BiometricEvaluation::Image::NetPBM::Kind::BinaryPortablePixmap, "P6"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Image::NetPBM::Kind,
+    BE_Image_NetPBM_Kind_EnumToStringMap);
 
 BiometricEvaluation::Image::NetPBM::NetPBM(
     const uint8_t *data,

@@ -15,6 +15,7 @@
 #include <memory>
 
 #include <be_error_signal_manager.h>
+#include <be_framework_enumeration.h>
 #include <be_framework_status.h>
 #include <be_time_timer.h>
 #include <be_time_watchdog.h>
@@ -284,5 +285,9 @@ BiometricEvaluation::Framework::API<T>::call(
 
 	return (ret);
 }
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Framework::APICurrentState,
+    BE_Framework_APICurrentState_EnumToStringMap);
 
 #endif /* BE_FRAMEWORK_API_H_ */

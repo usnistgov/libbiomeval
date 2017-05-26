@@ -21,6 +21,9 @@
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
 
+#include <be_framework_enumeration.h>
+using namespace BiometricEvaluation::Framework::Enumeration;
+
 #if defined RAWTEST
 #include <be_image_raw.h>
 static const std::string imageType = "Raw";

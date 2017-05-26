@@ -19,6 +19,7 @@
 #include <be_process_statistics.h>
 
 using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
 using namespace std;
 
 static void

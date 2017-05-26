@@ -15,6 +15,24 @@
 
 namespace BE = BiometricEvaluation;
 
+const std::map<BiometricEvaluation::Image::CompressionAlgorithm, std::string>
+BE_Image_CompressionAlgorithm_EnumToStringMap = {
+    {BiometricEvaluation::Image::CompressionAlgorithm::None, "None"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::Facsimile,
+        "Facsimile"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::WSQ20, "WSQ 2.0"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::JPEGB, "JPEGB"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::JPEGL, "JPEGL"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::JP2, "JP2"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::JP2L, "JP2L"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::NetPBM, "NetPBM"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::PNG, "PNG"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::BMP, "BMP"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Image::CompressionAlgorithm,
+    BE_Image_CompressionAlgorithm_EnumToStringMap);
+
 BiometricEvaluation::Image::Coordinate::Coordinate(
     const uint32_t x,
     const uint32_t y,
@@ -48,31 +66,16 @@ BiometricEvaluation::Image::Size::Size(
 
 }
 
-template<>
-const std::map<BiometricEvaluation::Image::CompressionAlgorithm, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Image::CompressionAlgorithm>::enumToStringMap = {
-	{Image::CompressionAlgorithm::None, "None"},
-	{Image::CompressionAlgorithm::Facsimile, "Facsimile"},
-	{Image::CompressionAlgorithm::WSQ20, "WSQ 2.0"},
-	{Image::CompressionAlgorithm::JPEGB, "JPEGB"},
-	{Image::CompressionAlgorithm::JPEGL, "JPEGL"},
-	{Image::CompressionAlgorithm::JP2, "JP2"},
-	{Image::CompressionAlgorithm::JP2L, "JP2L"},
-	{Image::CompressionAlgorithm::NetPBM, "NetPBM"},
-	{Image::CompressionAlgorithm::PNG, "PNG"},
-	{Image::CompressionAlgorithm::BMP, "BMP"}
-};
-
-template<>
 const std::map<BiometricEvaluation::Image::PixelFormat, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Image::PixelFormat>::enumToStringMap = {
-	{Image::PixelFormat::MonoWhite, "Monochrome white"},
-	{Image::PixelFormat::MonoBlack, "Monochrome black"},
-	{Image::PixelFormat::Gray8, "8-Bit grayscale"},
-	{Image::PixelFormat::RGB24, "24-bit red/green/blue"}
+BE_Image_PixelFormat_EnumToStringMap = {
+    {BiometricEvaluation::Image::PixelFormat::MonoWhite, "Monochrome white"},
+    {BiometricEvaluation::Image::PixelFormat::MonoBlack, "Monochrome black"},
+    {BiometricEvaluation::Image::PixelFormat::Gray8, "8-Bit grayscale"},
+    {BiometricEvaluation::Image::PixelFormat::RGB24, "24-bit red/green/blue"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Image::PixelFormat,
+    BE_Image_PixelFormat_EnumToStringMap);
 
 std::string
 BiometricEvaluation::Image::to_string(
@@ -156,22 +159,23 @@ BiometricEvaluation::Image::operator!=(
 	return (!(lhs == rhs));
 }
 
-template<>
 const std::map<BiometricEvaluation::Image::Resolution::Units, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Image::Resolution::Units>::enumToStringMap = {
-	{Image::Resolution::Units::NA, "NA"},
-	{Image::Resolution::Units::PPI, "PPI"},
-	{Image::Resolution::Units::PPMM, "PPMM"},
-	{Image::Resolution::Units::PPCM, "PPCM"}
+BE_Image_Resolution_Units_EnumToStringMap = {
+	{BiometricEvaluation::Image::Resolution::Units::NA, "NA"},
+	{BiometricEvaluation::Image::Resolution::Units::PPI, "PPI"},
+	{BiometricEvaluation::Image::Resolution::Units::PPMM, "PPMM"},
+	{BiometricEvaluation::Image::Resolution::Units::PPCM, "PPCM"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Image::Resolution::Units,
+    BE_Image_Resolution_Units_EnumToStringMap);
 
 std::string
 BiometricEvaluation::Image::to_string(
     const Image::Resolution &r)
 {
 	return (std::to_string(r.xRes) + "x" + std::to_string(r.yRes) + ' ' +
-	    ::to_string(r.units));
+	    BE::Framework::Enumeration::to_string(r.units));
 }
 
 std::ostream&

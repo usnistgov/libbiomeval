@@ -737,4 +737,8 @@ namespace BiometricEvaluation {
 	}
 }
 
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::IO::RecordStore::Kind,
+    BE_IO_RecordStore_Kind_EnumToStringMap);
+
 #endif	/* __BE_IO_RECORDSTORE_H__ */

@@ -15,6 +15,8 @@
 #include <be_memory_mutableindexedbuffer.h>
 #include <be_data_interchange_ansi2004.h>
 
+using namespace BiometricEvaluation::Framework::Enumeration;
+
 BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
     const BE::Memory::uint8Array &fmr,
     const BE::Memory::uint8Array &fir)

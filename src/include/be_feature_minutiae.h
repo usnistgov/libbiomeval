@@ -231,3 +231,14 @@ namespace BiometricEvaluation
 }
 #endif /* __BE_FEATURE_MINUTIAE_H__ */
 
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::MinutiaeFormat,
+    BE_Feature_MinutiaeFormat_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::MinutiaeType,
+    BE_Feature_MinutiaeType_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::RidgeCountExtractionMethod,
+    BE_Feature_RidgeCountExtractionMethod_EnumToStringMap);

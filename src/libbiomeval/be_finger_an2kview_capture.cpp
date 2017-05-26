@@ -14,6 +14,7 @@ extern "C" {
 }
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 BiometricEvaluation::Finger::AN2KViewCapture::AN2KViewCapture(
     const std::string &filename,
@@ -179,19 +180,19 @@ BiometricEvaluation::Finger::AN2KViewCapture::getPrintPositionDescriptors()
 /* Local functions.                                                           */
 /******************************************************************************/
 
-template<>
 const std::map<BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged,
     std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged>::
-    enumToStringMap = {
-	{Finger::AN2KViewCapture::AmputatedBandaged::Amputated, "Amputated"},
-	{Finger::AN2KViewCapture::AmputatedBandaged::Bandaged,
+    BE_Finger_AN2KViewCapture_AmputatedBandaged_EnumToStringMap = {
+	{BE::Finger::AN2KViewCapture::AmputatedBandaged::Amputated,
+	    "Amputated"},
+	{BE::Finger::AN2KViewCapture::AmputatedBandaged::Bandaged,
 		"Unable to print (e.g., bandaged)"},
-	{Finger::AN2KViewCapture::AmputatedBandaged::NA,
+	{BE::Finger::AN2KViewCapture::AmputatedBandaged::NA,
 	    "(Optional field -- not specified)"}
 };
-
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged,
+    BE_Finger_AN2KViewCapture_AmputatedBandaged_EnumToStringMap);
 
 std::ostream&
 BiometricEvaluation::Finger::operator<<(

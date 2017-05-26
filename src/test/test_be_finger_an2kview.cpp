@@ -22,6 +22,7 @@
 
 using namespace std;
 using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
 
 static int
 handleAN2KView(Finger::AN2KView &an2kv)

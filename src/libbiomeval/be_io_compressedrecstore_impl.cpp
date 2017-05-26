@@ -18,6 +18,8 @@
 
 namespace BE = BiometricEvaluation;
 
+using namespace BE::Framework::Enumeration;
+
 const std::string BACKING_STORE{"theBackingStore"};
 const std::string COMPRESSOR_TYPE_KEY{"Compressor_Type"};
 const std::string METADATA_SUFFIX{"_md"};

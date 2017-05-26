@@ -11,6 +11,8 @@
 #ifndef __BE_IRIS_H__
 #define __BE_IRIS_H__
 
+#include <be_framework_enumeration.h>
+
 namespace BiometricEvaluation 
 {
 	/**
@@ -87,5 +89,30 @@ namespace BiometricEvaluation
 		};
 	}
 }
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Iris::CaptureDeviceTechnology,
+    BE_Iris_CaptureDeviceTechnology_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Iris::EyeLabel,
+    BE_Iris_EyeLabel_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Iris::ImageType,
+    BE_Iris_ImageType_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Iris::Orientation,
+    BE_Iris_Orientation_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Iris::ImageCompression,
+    BE_Iris_ImageCompression_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Iris::CameraRange,
+    BE_Iris_CameraRange_EnumToStringMap);
+
 #endif /* __BE_IRIS_H__ */
 

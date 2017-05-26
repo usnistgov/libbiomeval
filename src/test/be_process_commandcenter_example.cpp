@@ -13,9 +13,9 @@
 #include <string>
 
 #include <be_framework_enumeration.h>
-#include <be_process_commandcenter.h>
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 /** Supported commands. */
 enum class EvalCommand
@@ -26,16 +26,24 @@ enum class EvalCommand
 
 	Help
 };
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(EvalCommand, EvalCommandEnumToStringMap);
 
-template<>
-const std::map<EvalCommand, std::string>
-BE::Framework::EnumerationFunctions<EvalCommand>::enumToStringMap {
+/*
+ * Yes, this is weird, but (to the best of my current knowledge) necessary.
+ * CommandCenter is a templated class whose type must be an enum class with
+ * associated Framework::Enumeration functions.  Therefore, the functions must
+ * exist before the template is instantated.
+ */
+#include <be_process_commandcenter.h>
+
+const std::map<EvalCommand, std::string> EvalCommandEnumToStringMap = {
     {EvalCommand::Stop, "stop"},
     {EvalCommand::Status, "status"},
     {EvalCommand::Disconnect, "disconnect"},
 
     {EvalCommand::Help, "help"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(EvalCommand, EvalCommandEnumToStringMap);
 
 /**
  * @brief

@@ -153,5 +153,17 @@ namespace BiometricEvaluation {
 	}
 }
 
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::MPI::TaskCommand,
+    BE_MPI_TaskCommand_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::MPI::TaskStatus,
+    BE_MPI_TaskStatus_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::MPI::MessageTag,
+    BE_MPI_MessageTag_EnumToStringMap);
+
 #endif /* _BE_MPI_H */
 

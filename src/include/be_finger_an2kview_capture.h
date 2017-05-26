@@ -280,5 +280,10 @@ namespace BiometricEvaluation
 		    const AN2KViewCapture::FingerSegmentPosition &fsp);
 	}
 }
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Finger::AN2KViewCapture::AmputatedBandaged,
+    BE_Finger_AN2KViewCapture_AmputatedBandaged_EnumToStringMap);
+
 #endif /* __BE_FINGER_AN2KVIEW_CAPTURE_H__ */
 

@@ -17,6 +17,7 @@
 #include <be_image_jpeg.h>
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 BiometricEvaluation::Face::INCITSView::INCITSView()
 {

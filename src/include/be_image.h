@@ -340,4 +340,17 @@ namespace BiometricEvaluation
 		    const std::vector<bool> &components);
 	}
 }
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Image::CompressionAlgorithm,
+    BE_Image_CompressionAlgorithm_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Image::PixelFormat,
+    BE_Image_PixelFormat_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Image::Resolution::Units,
+    BE_Image_Resolution_Units_EnumToStringMap);
+
 #endif /* __BE_IMAGE_H__ */

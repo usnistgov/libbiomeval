@@ -7,63 +7,69 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
+
 #include <map>
+
 #include <be_iris.h>
-#include <be_framework_enumeration.h>
 
 namespace BE = BiometricEvaluation;
 
-template<>
 const std::map<BiometricEvaluation::Iris::CaptureDeviceTechnology, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::CaptureDeviceTechnology>::enumToStringMap = {
-    	{Iris::CaptureDeviceTechnology::Unknown, "Unknown"},
-    	{Iris::CaptureDeviceTechnology::CMOSCCD, "CMOS/CCD"}
+BE_Iris_CaptureDeviceTechnology_EnumToStringMap = {
+    	{BE::Iris::CaptureDeviceTechnology::Unknown, "Unknown"},
+    	{BE::Iris::CaptureDeviceTechnology::CMOSCCD, "CMOS/CCD"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Iris::CaptureDeviceTechnology,
+    BE_Iris_CaptureDeviceTechnology_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Iris::EyeLabel, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::EyeLabel>::enumToStringMap = {
-    	{Iris::EyeLabel::Undefined, "Undefined"},
-    	{Iris::EyeLabel::Right, "Right"},
-    	{Iris::EyeLabel::Left, "Left"}
+BE_Iris_EyeLabel_EnumToStringMap = {
+    	{BE::Iris::EyeLabel::Undefined, "Undefined"},
+    	{BE::Iris::EyeLabel::Right, "Right"},
+    	{BE::Iris::EyeLabel::Left, "Left"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Iris::EyeLabel,
+    BE_Iris_EyeLabel_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Iris::ImageType, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::ImageType>::enumToStringMap = {
-    	{Iris::ImageType::Uncropped, "Uncropped"},
-    	{Iris::ImageType::VGA, "VGA"},
-    	{Iris::ImageType::Cropped, "Cropped"},
-    	{Iris::ImageType::CroppedMasked, "Cropped and Masked"}
+BE_Iris_ImageType_EnumToStringMap = {
+    	{BE::Iris::ImageType::Uncropped, "Uncropped"},
+    	{BE::Iris::ImageType::VGA, "VGA"},
+    	{BE::Iris::ImageType::Cropped, "Cropped"},
+    	{BE::Iris::ImageType::CroppedMasked, "Cropped and Masked"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Iris::ImageType,
+    BE_Iris_ImageType_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Iris::Orientation, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::Orientation>::enumToStringMap = {
-    	{Iris::Orientation::Undefined, "Undefined"},
-    	{Iris::Orientation::Base, "Base"},
-    	{Iris::Orientation::Flipped, "Flipped"}
+BE_Iris_Orientation_EnumToStringMap = {
+    	{BE::Iris::Orientation::Undefined, "Undefined"},
+    	{BE::Iris::Orientation::Base, "Base"},
+    	{BE::Iris::Orientation::Flipped, "Flipped"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Iris::Orientation,
+    BE_Iris_Orientation_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Iris::ImageCompression, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::ImageCompression>::enumToStringMap = {
-    	{Iris::ImageCompression::Undefined, "Undefined"},
-    	{Iris::ImageCompression::LosslessNone, "Lossless or None"},
-    	{Iris::ImageCompression::Lossy, "Lossy"}
+BE_Iris_ImageCompression_EnumToStringMap = {
+    	{BE::Iris::ImageCompression::Undefined, "Undefined"},
+    	{BE::Iris::ImageCompression::LosslessNone, "Lossless or None"},
+    	{BE::Iris::ImageCompression::Lossy, "Lossy"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Iris::ImageCompression,
+    BE_Iris_ImageCompression_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Iris::CameraRange, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Iris::CameraRange>::enumToStringMap = {
-    	{Iris::CameraRange::Unassigned, "Unassigned"},
-    	{Iris::CameraRange::Failed, "Failed"},
-    	{Iris::CameraRange::Overflow, "Overflow"}
+BE_Iris_CameraRange_EnumToStringMap = {
+    	{BE::Iris::CameraRange::Unassigned, "Unassigned"},
+    	{BE::Iris::CameraRange::Failed, "Failed"},
+    	{BE::Iris::CameraRange::Overflow, "Overflow"}
 };
-
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Iris::CameraRange,
+    BE_Iris_CameraRange_EnumToStringMap);

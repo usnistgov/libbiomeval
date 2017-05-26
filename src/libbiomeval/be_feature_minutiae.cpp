@@ -10,6 +10,8 @@
 #include <be_feature_minutiae.h>
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
+
 
 BiometricEvaluation::Feature::Minutiae::~Minutiae()
 {
@@ -51,41 +53,44 @@ BiometricEvaluation::Feature::DeltaPoint::DeltaPoint(
 {
 }
 
-template<>
 const std::map<BiometricEvaluation::Feature::MinutiaeFormat, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Feature::MinutiaeFormat>::enumToStringMap = {
-	{Feature::MinutiaeFormat::AN2K7, "ANSI/NIST-ITL 2007"},
-	{Feature::MinutiaeFormat::IAFIS, "IAFIS"},
-	{Feature::MinutiaeFormat::Cogent, "Cogent"},
-	{Feature::MinutiaeFormat::Motorola, "Motorola"},
-	{Feature::MinutiaeFormat::Sagem, "Sagem"},
-	{Feature::MinutiaeFormat::NEC, "NEC"},
-	{Feature::MinutiaeFormat::M1, "M1"},
-	{Feature::MinutiaeFormat::Identix, "Identix"}
+BE_Feature_MinutiaeFormat_EnumToStringMap = {
+	{BE::Feature::MinutiaeFormat::AN2K7, "ANSI/NIST-ITL 2007"},
+	{BE::Feature::MinutiaeFormat::IAFIS, "IAFIS"},
+	{BE::Feature::MinutiaeFormat::Cogent, "Cogent"},
+	{BE::Feature::MinutiaeFormat::Motorola, "Motorola"},
+	{BE::Feature::MinutiaeFormat::Sagem, "Sagem"},
+	{BE::Feature::MinutiaeFormat::NEC, "NEC"},
+	{BE::Feature::MinutiaeFormat::M1, "M1"},
+	{BE::Feature::MinutiaeFormat::Identix, "Identix"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::MinutiaeFormat,
+    BE_Feature_MinutiaeFormat_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Feature::MinutiaeType, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Feature::MinutiaeType>::enumToStringMap = {
-	{Feature::MinutiaeType::RidgeEnding, "Ridge Ending"},
-	{Feature::MinutiaeType::Bifurcation, "Bifurcation"},
-	{Feature::MinutiaeType::Compound, "Compound"},
-	{Feature::MinutiaeType::Other, "Other"}
+BE_Feature_MinutiaeType_EnumToStringMap = {
+	{BE::Feature::MinutiaeType::RidgeEnding, "Ridge Ending"},
+	{BE::Feature::MinutiaeType::Bifurcation, "Bifurcation"},
+	{BE::Feature::MinutiaeType::Compound, "Compound"},
+	{BE::Feature::MinutiaeType::Other, "Other"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::MinutiaeType,
+    BE_Feature_MinutiaeType_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Feature::RidgeCountExtractionMethod,
     std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Feature::RidgeCountExtractionMethod>::
-    enumToStringMap = {
-	{Feature::RidgeCountExtractionMethod::NonSpecific, "Non-specific"},
-	{Feature::RidgeCountExtractionMethod::FourNeighbor, "Four-neighbor"},
-	{Feature::RidgeCountExtractionMethod::EightNeighbor, "Eight-neighbor"},
-	{Feature::RidgeCountExtractionMethod::Other, "Other"}
+    BE_Feature_RidgeCountExtractionMethod_EnumToStringMap = {
+	{BE::Feature::RidgeCountExtractionMethod::NonSpecific, "Non-specific"},
+	{BE::Feature::RidgeCountExtractionMethod::FourNeighbor, "Four-neighbor"},
+	{BE::Feature::RidgeCountExtractionMethod::EightNeighbor,
+	"Eight-neighbor"},
+	{BE::Feature::RidgeCountExtractionMethod::Other, "Other"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::RidgeCountExtractionMethod,
+    BE_Feature_RidgeCountExtractionMethod_EnumToStringMap);
 
 /******************************************************************************/
 /* Public functions.                                                          */

@@ -12,6 +12,9 @@
 
 #include <be_framework_enumeration.h>
 
+using namespace BiometricEvaluation::Framework::Enumeration;
+
+
 enum class CardSuit
 {
 	Clubs,
@@ -19,20 +22,24 @@ enum class CardSuit
 	Hearts,
 	Spades
 };
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(CardSuit, CardSuitMapping);
+
 
 /* 
  * Invoke the creation of the enumeration methods by specifying their 
  * string representation.
  */
-template<>
 const std::map<CardSuit, std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<CardSuit>::enumToStringMap
+CardSuitMapping
 {
     {CardSuit::Clubs, "Clubs"},
     {CardSuit::Diamonds, "Diamonds"},
     {CardSuit::Hearts, "Hearts"},
     {CardSuit::Spades, "Spades"},
 };
+
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(CardSuit, CardSuitMapping);
+
 
 int
 main(

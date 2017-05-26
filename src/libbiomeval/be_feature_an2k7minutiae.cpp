@@ -9,7 +9,6 @@
  */
 #include <cstdio>
 
-#include <be_framework_enumeration.h>
 #include <be_finger_an2kview.h>
 #include <be_feature_an2k7minutiae.h>
 #include <be_memory_autobuffer.h>
@@ -19,12 +18,11 @@ extern "C" {
 }
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
-template<>
 const std::map<BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod,
-    std::string> BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod>::
-    enumToStringMap = {
+    std::string>
+    BE_Feature_EncodingMethod_EnumToStringMap = {
 	{BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod::Automatic,
 	    "Automatic (no possible human interaction)"},
 	{BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod::
@@ -32,6 +30,9 @@ const std::map<BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod,
 	    "but not performed)"},
 	{BE::Feature::AN2K7Minutiae::EncodingMethod::Manual, "Manual"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod,
+    BE_Feature_EncodingMethod_EnumToStringMap);
 
 BiometricEvaluation::Feature::AN2K7Minutiae::AN2K7Minutiae(
     const std::string &filename,

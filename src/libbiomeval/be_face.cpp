@@ -8,121 +8,132 @@
  * about its quality, reliability, or any other characteristic.
  */
 #include <map>
+
 #include <be_face.h>
-#include <be_framework_enumeration.h>
 
 namespace BE = BiometricEvaluation;
 
-template<>
 const std::map<BiometricEvaluation::Face::Gender, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::Gender>::enumToStringMap = {
-    	{Face::Gender::Unspecified, "Unspecified"},
-    	{Face::Gender::Male, "Male"},
-    	{Face::Gender::Female, "Female"},
-    	{Face::Gender::Unknown, "Unknown"}
+BE_Face_Gender_EnumToStringMap = {
+    	{BE::Face::Gender::Unspecified, "Unspecified"},
+    	{BE::Face::Gender::Male, "Male"},
+    	{BE::Face::Gender::Female, "Female"},
+    	{BE::Face::Gender::Unknown, "Unknown"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Face::Gender,
+    BE_Face_Gender_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Face::EyeColor, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::EyeColor>::enumToStringMap = {
-    	{Face::EyeColor::Unspecified, "Unspecified"},
-    	{Face::EyeColor::Black, "Black"},
-    	{Face::EyeColor::Blue, "Blue"},
-    	{Face::EyeColor::Brown, "Brown"},
-    	{Face::EyeColor::Gray, "Gray"},
-    	{Face::EyeColor::Green, "Green"},
-    	{Face::EyeColor::MultiColored, "MultiColored"},
-    	{Face::EyeColor::Pink, "Pink"},
-    	{Face::EyeColor::Unknown, "Unknown"}
+BE_Face_EyeColor_EnumToStringMap = {
+    	{BE::Face::EyeColor::Unspecified, "Unspecified"},
+    	{BE::Face::EyeColor::Black, "Black"},
+    	{BE::Face::EyeColor::Blue, "Blue"},
+    	{BE::Face::EyeColor::Brown, "Brown"},
+    	{BE::Face::EyeColor::Gray, "Gray"},
+    	{BE::Face::EyeColor::Green, "Green"},
+    	{BE::Face::EyeColor::MultiColored, "MultiColored"},
+    	{BE::Face::EyeColor::Pink, "Pink"},
+    	{BE::Face::EyeColor::Unknown, "Unknown"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Face::EyeColor,
+    BE_Face_EyeColor_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Face::HairColor, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::HairColor>::enumToStringMap = {
-    	{Face::HairColor::Unspecified, "Unspecified"},
-    	{Face::HairColor::Bald, "Bald"},
-    	{Face::HairColor::Black, "Black"},
-    	{Face::HairColor::Blonde, "Blonde"},
-    	{Face::HairColor::Brown, "Brown"},
-    	{Face::HairColor::Gray, "Gray"},
-    	{Face::HairColor::White, "White"},
-    	{Face::HairColor::Red, "Red"},
-    	{Face::HairColor::Unknown, "Unknown"}
+BE_Face_HairColor_EnumToStringMap = {
+    	{BE::Face::HairColor::Unspecified, "Unspecified"},
+    	{BE::Face::HairColor::Bald, "Bald"},
+    	{BE::Face::HairColor::Black, "Black"},
+    	{BE::Face::HairColor::Blonde, "Blonde"},
+    	{BE::Face::HairColor::Brown, "Brown"},
+    	{BE::Face::HairColor::Gray, "Gray"},
+    	{BE::Face::HairColor::White, "White"},
+    	{BE::Face::HairColor::Red, "Red"},
+    	{BE::Face::HairColor::Unknown, "Unknown"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Face::HairColor,
+    BE_Face_HairColor_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Face::Property, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::Property>::enumToStringMap = {
-    	{Face::Property::Glasses, "Glasses"},
-    	{Face::Property::Moustache, "Moustache"},
-    	{Face::Property::Beard, "Beard"},
-    	{Face::Property::Teeth, "Teeth Visible"},
-    	{Face::Property::Blink, "Blink"},
-    	{Face::Property::MouthOpen, "Mouth Open"},
-    	{Face::Property::LeftEyePatch, "Left Eye Patch"},
-    	{Face::Property::RightEyePatch, "Right Eye Patch"},
-    	{Face::Property::DarkGlasses, "Dark Glasses"},
-    	{Face::Property::MedicalCondition, "Medical Condition"}
+BE_Face_Property_EnumToStringMap = {
+    	{BE::Face::Property::Glasses, "Glasses"},
+    	{BE::Face::Property::Moustache, "Moustache"},
+    	{BE::Face::Property::Beard, "Beard"},
+    	{BE::Face::Property::Teeth, "Teeth Visible"},
+    	{BE::Face::Property::Blink, "Blink"},
+    	{BE::Face::Property::MouthOpen, "Mouth Open"},
+    	{BE::Face::Property::LeftEyePatch, "Left Eye Patch"},
+    	{BE::Face::Property::RightEyePatch, "Right Eye Patch"},
+    	{BE::Face::Property::DarkGlasses, "Dark Glasses"},
+    	{BE::Face::Property::MedicalCondition, "Medical Condition"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Face::Property,
+    BE_Face_Property_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Face::Expression, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::Expression>::enumToStringMap = {
-    	{Face::Expression::Unspecified, "Unspecified"},
-    	{Face::Expression::Neutral, "Neutral"},
-    	{Face::Expression::SmileClosedJaw, "Smile Closed Jaw"},
-    	{Face::Expression::SmileOpenJaw, "Smile Open Jaw"},
-    	{Face::Expression::RaisedEyebrows, "Raised Eyebrows"},
-    	{Face::Expression::EyesLookingAway, "Eyes Looking Away"},
-    	{Face::Expression::Squinting, "Squinting"},
-    	{Face::Expression::Frowning, "Frowning"}
+BE_Face_Expression_EnumToStringMap = {
+    	{BE::Face::Expression::Unspecified, "Unspecified"},
+    	{BE::Face::Expression::Neutral, "Neutral"},
+    	{BE::Face::Expression::SmileClosedJaw, "Smile Closed Jaw"},
+    	{BE::Face::Expression::SmileOpenJaw, "Smile Open Jaw"},
+    	{BE::Face::Expression::RaisedEyebrows, "Raised Eyebrows"},
+    	{BE::Face::Expression::EyesLookingAway, "Eyes Looking Away"},
+    	{BE::Face::Expression::Squinting, "Squinting"},
+    	{BE::Face::Expression::Frowning, "Frowning"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Face::Expression,
+    BE_Face_Expression_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Face::ImageType, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::ImageType>::enumToStringMap = {
-    	{Face::ImageType::Basic, "Basic"},
-    	{Face::ImageType::FullFrontal, "Full Frontal"},
-    	{Face::ImageType::TokenFrontal, "Token Frontal"}
+BE_Face_ImageType_EnumToStringMap = {
+    	{BE::Face::ImageType::Basic, "Basic"},
+    	{BE::Face::ImageType::FullFrontal, "Full Frontal"},
+    	{BE::Face::ImageType::TokenFrontal, "Token Frontal"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Face::ImageType,
+    BE_Face_ImageType_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Face::ImageDataType, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::ImageDataType>::enumToStringMap = {
-    	{Face::ImageDataType::JPEG, "JPEG"},
-    	{Face::ImageDataType::JPEG2000, "JPEG2000"}
+BE_Face_ImageDataType_EnumToStringMap = {
+    	{BE::Face::ImageDataType::JPEG, "JPEG"},
+    	{BE::Face::ImageDataType::JPEG2000, "JPEG2000"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Face::ImageDataType,
+    BE_Face_ImageDataType_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Face::ColorSpace, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::ColorSpace>::enumToStringMap = {
-    	{Face::ColorSpace::Unspecified, "Unspecified"},
-    	{Face::ColorSpace::RGB24, "24 Bit RGB"},
-    	{Face::ColorSpace::YUV422, "YUV422"},
-    	{Face::ColorSpace::Grayscale8, "8 Bit Grayscale"},
-    	{Face::ColorSpace::Other, "Other"}
+BE_Face_ColorSpace_EnumToStringMap = {
+    	{BE::Face::ColorSpace::Unspecified, "Unspecified"},
+    	{BE::Face::ColorSpace::RGB24, "24 Bit RGB"},
+    	{BE::Face::ColorSpace::YUV422, "YUV422"},
+    	{BE::Face::ColorSpace::Grayscale8, "8 Bit Grayscale"},
+    	{BE::Face::ColorSpace::Other, "Other"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Face::ColorSpace,
+    BE_Face_ColorSpace_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Face::SourceType, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Face::SourceType>::enumToStringMap = {
-    	{Face::SourceType::Unspecified, "Unspecified"},
-    	{Face::SourceType::StaticPhotoUnknown, "Static Photo, Unknown Source"},
-    	{Face::SourceType::StaticPhotoDigitalStill,
+BE_Face_SourceType_EnumToStringMap = {
+    	{BE::Face::SourceType::Unspecified, "Unspecified"},
+    	{BE::Face::SourceType::StaticPhotoUnknown, "Static Photo, Unknown "
+	    "Source"},
+    	{BE::Face::SourceType::StaticPhotoDigitalStill,
 	    "Static Photo, Digital Still"},
-    	{Face::SourceType::StaticPhotoScan, "Static Photo, Scanner"},
-    	{Face::SourceType::VideoFrameUnknown, "Video Frame, Unknown Source"},
-    	{Face::SourceType::VideoFrameAnalog, "Video Frame, Analog"},
-    	{Face::SourceType::VideoFrameDigital, "Video Frame, Digital"},
-    	{Face::SourceType::Unknown, "Unknown"}
+    	{BE::Face::SourceType::StaticPhotoScan, "Static Photo, Scanner"},
+    	{BE::Face::SourceType::VideoFrameUnknown, "Video Frame, Unknown "
+	    "Source"},
+    	{BE::Face::SourceType::VideoFrameAnalog, "Video Frame, Analog"},
+    	{BE::Face::SourceType::VideoFrameDigital, "Video Frame, Digital"},
+    	{BE::Face::SourceType::Unknown, "Unknown"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Face::SourceType,
+    BE_Face_SourceType_EnumToStringMap);
 

@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
 
 static Memory::uint8Array
 openAN2KFile(const string filename)

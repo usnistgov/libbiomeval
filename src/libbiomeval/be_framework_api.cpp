@@ -9,12 +9,10 @@
  */
 
 #include <be_framework_api.h>
-#include <be_framework_enumeration.h>
 
-template<>
 const std::map<BiometricEvaluation::Framework::APICurrentState, std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Framework::APICurrentState>::enumToStringMap = {
+    BE_Framework_APICurrentState_EnumToStringMap =
+{
     {BiometricEvaluation::Framework::APICurrentState::NeverCalled,
         "Never Called"},
     {BiometricEvaluation::Framework::APICurrentState::WatchdogExpired,
@@ -28,3 +26,7 @@ BiometricEvaluation::Framework::EnumerationFunctions<
     {BiometricEvaluation::Framework::APICurrentState::Completed,
         "Completed"}
 };
+
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Framework::APICurrentState,
+    BE_Framework_APICurrentState_EnumToStringMap);

@@ -36,6 +36,8 @@
 
 namespace BE = BiometricEvaluation;
 
+using namespace BE::Framework::Enumeration;
+
 /*
  * The common properties for all RecordStore types.
  */

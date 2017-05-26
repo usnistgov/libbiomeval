@@ -20,6 +20,7 @@
 #include <be_mpi_runtime.h>
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 /*
  * Local helper functions.

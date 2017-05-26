@@ -22,36 +22,39 @@
 
 namespace BE = BiometricEvaluation;
 
-template<>
 const std::map<BiometricEvaluation::MPI::TaskCommand, std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<
-BiometricEvaluation::MPI::TaskCommand>::enumToStringMap{
+BE_MPI_TaskCommand_EnumToStringMap = {
 	{BiometricEvaluation::MPI::TaskCommand::Continue, "Continue"},
 	{BiometricEvaluation::MPI::TaskCommand::Ignore, "Ignore"},
 	{BiometricEvaluation::MPI::TaskCommand::Exit, "Exit"},
 	{BiometricEvaluation::MPI::TaskCommand::QuickExit, "Quick Exit"},
 	{BiometricEvaluation::MPI::TaskCommand::TermExit, "Term Exit"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::MPI::TaskCommand,
+    BE_MPI_TaskCommand_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::MPI::TaskStatus, std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<
-BiometricEvaluation::MPI::TaskStatus>::enumToStringMap{
+BE_MPI_TaskStatus_EnumToStringMap = {
 	{BiometricEvaluation::MPI::TaskStatus::OK, "OK"},
 	{BiometricEvaluation::MPI::TaskStatus::Failed, "Failed"},
 	{BiometricEvaluation::MPI::TaskStatus::Exit, "Exit"},
 	{BiometricEvaluation::MPI::TaskStatus::RequestJobTermination,
 	    "Request Job Termination"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::MPI::TaskStatus,
+    BE_MPI_TaskStatus_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::MPI::MessageTag, std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<
-BiometricEvaluation::MPI::MessageTag>::enumToStringMap{
+BE_MPI_MessageTag_EnumToStringMap  = {
 	{BiometricEvaluation::MPI::MessageTag::Control, "Control"},
 	{BiometricEvaluation::MPI::MessageTag::Data, "Data"},
 	{BiometricEvaluation::MPI::MessageTag::OOB, "Out-of-band"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::MPI::MessageTag,
+    BE_MPI_MessageTag_EnumToStringMap);
 
 std::string
 BiometricEvaluation::MPI::generateUniqueID()

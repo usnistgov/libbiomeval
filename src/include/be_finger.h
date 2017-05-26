@@ -126,5 +126,22 @@ namespace BiometricEvaluation
 		using PositionDescriptors = std::map<Position, FingerImageCode>;
 	}
 }
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Finger::PatternClassification,
+    BE_Finger_PatternClassification_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Finger::Position,
+    BE_Finger_Position_EnumToStringMap);
+
+ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Finger::Impression,
+    BE_Finger_Impression_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Finger::FingerImageCode,
+    BE_Finger_FingerImageCode_EnumToStringMap);
+
 #endif /* __BE_FINGER_H__ */
 

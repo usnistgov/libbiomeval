@@ -17,6 +17,7 @@
 
 using namespace std;
 using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
 
 int
 main(int argc, char* argv[]) {

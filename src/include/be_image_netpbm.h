@@ -290,5 +290,9 @@ namespace BiometricEvaluation
 	}
 }
 
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Image::NetPBM::Kind,
+    BE_Image_NetPBM_Kind_EnumToStringMap);
+
 #endif /* __BE_IMAGE_NETPBM__ */
 

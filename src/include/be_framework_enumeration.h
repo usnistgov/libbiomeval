@@ -8,12 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-/*
- * Templatized generation of enumeration <-> string functions.
- */
-
-#ifndef __BE_FRAMEWORK_ENUMERATION_H__
-#define __BE_FRAMEWORK_ENUMERATION_H__
+#ifndef BE_FRAMEWORK_ENUMERATION_H_
+#define BE_FRAMEWORK_ENUMERATION_H_
 
 #include <map>
 #include <string>
@@ -22,706 +18,409 @@
 
 #include <be_error_exception.h>
 
+/*
+ * These empty namespaces are here so that you can issue
+ *	using namespace BiometricEvaluation::Framework::Enumeration;
+ * after including this file.
+ */
 namespace BiometricEvaluation
 {
 	namespace Framework
 	{
-		/** Class to store enumeration/string mappings. */
-		template <typename T>
-		class EnumerationFunctions
+		namespace Enumeration
 		{
-		public:
-			/** Enumeration -> String Representation */
-			static const std::map<T, std::string> enumToStringMap;
-		};
-		
-		/** 
-		 * @brief
-		 * Wrapper class around an individual enumeration entity
-		 * (non-const).
-		 * @details
-		 * Because the operators are in the main namespace for maximum
-		 * usefulness, we must create this additional type to avoid
-		 * type ambiguity when using more than one template
-		 * (e.g., string) in a source file.
-		 */
-		template <typename T>
-		class EnumMapWrapper
-		{
-		public:
-			/** Constructor */
-			EnumMapWrapper(
-			    T &enumeration);
 
-			/** Implicit conversion to std::string */
-			operator std::string();
-			/** Implicit conversion to enumeration */
-			operator T() noexcept;
-
-		private:
-			/* The enumeration being stored */
-			T _enumeration;
-		};
-		
-		/**
-		 * @brief
-		 * Determine if a string and the string representation of an
-		 * enumeration are equal.
-		 *
-		 * @param lhs
-		 *	The string to compare to the enumeration.
-		 * @param rhs
-		 *	The enumeration to compare to the string.
-		 *
-		 * @return
-		 *	true if lhs is equal to the string representation of
-		 *	rhs, false otherwise.
-		 *
-		 * @note
-		 * String comparison is case-sensitive.
-		 */
-		template <typename T>
-		bool
-		operator==(
-		    const std::string &lhs,
-		    const EnumMapWrapper<T> &rhs);
-
-		/**
-		 * @brief
-		 * Determine if a string representation of an enumeration and a
-		 * string are equal.
-		 *
-		 * @param lhs
-		 *	The enumeration to compare to the string.
-		 * @param rhs
-		 *	The string to compare to the enumeration.
-		 *
-		 * @return
-		 *	true if rhs is equal to the string representation of
-		 *	rhs, false otherwise.
-		 *
-		 * @note
-		 * String comparison is case-sensitive.
-		 */
-		template <typename T>
-		bool
-		operator==(
-		    const EnumMapWrapper<T> &lhs,
-		    const std::string &rhs);
-		
-		/**
-		 * @brief
-		 * Determine if a string and the string representation of an
-		 * enumeration are not equal.
-		 *
-		 * @param lhs
-		 *	The string to compare to the enumeration.
-		 * @param rhs
-		 *	The enumeration to compare to the string.
-		 *
-		 * @return
-		 *	true if lhs is not equal to the string representation
-		 *	of rhs, false otherwise.
-		 *
-		 * @note
-		 * String comparison is case-sensitive.
-		 */
-		template <typename T>
-		bool
-		operator!=(
-		    const std::string &lhs,
-		    const EnumMapWrapper<T> &rhs);
-		
-		/**
-		 * @brief
-		 * Determine if a string representation of an enumeration and
-		 * a string are not equal.
-		 *
-		 * @param lhs
-		 *	The enumeration to compare to the string.
-		 * @param rhs
-		 *	The string to compare to the enumeration.
-		 *
-		 * @return
-		 *	true if rhs is not equal to the string representation
-		 *	of rhs, false otherwise.
-		 *
-		 * @note
-		 * String comparison is case-sensitive.
-		 */
-		template <typename T>
-		bool
-		operator!=(
-		    const EnumMapWrapper<T> &lhs,
-		    const std::string &rhs);
-
-		/**
-		 * @brief
-		 * Append the string representation of an enumeration into a
-		 * stream.
-		 *
-		 * @param stream
-		 *	The stream in which the string representation of kind
-		 *	should be appended.
-		 * @param kind
-		 *	The enumeration whose string representation should be
-		 *	appended to stream.
-		 *
-		 * @return
-		 *	Reference to stream.
-		 */
-	    	template <typename T>
-		std::ostream&
-		operator<<(
-		    std::ostream &stream,
-		    const EnumMapWrapper<T> &kind);
-
-		/**
-		 * @brief
-		 * Concatenate the string representation of an enumeration
-		 * to an existing string.
-		 * 
-		 * @param lhs
-		 * Existing string.
-		 * @param rhs
-		 * Enumeration whose string representation should be
-		 * concatenated.
-		 *
-		 * @return
-		 * String made by appending string representation of rhs to lhs.
-		 */
-		template <typename T>
-		std::string
-		operator+(
-		    const std::string &lhs,
-		    const Framework::EnumMapWrapper<T> &rhs);
-
-		/**
-		 * @brief
-		 * Concatenate an existing string to the string representation
-		 * of an enumeration.
-		 * 
-		 * @param lhs
-		 * Enumeration whose string representation should be
-		 * concatenated.
-		 * @param rhs
-		 * Existing string.
-		 *
-		 * @return
-		 * String made by appending lhs to the string representation
-		 * of rhs.
-		 */
-		template <typename T>
-		std::string
-		operator+(
-		    const Framework::EnumMapWrapper<T> &lhs,
-		    const std::string &rhs);
-
-		/** 
-		 * @brief
-		 * Wrapper class around an individual enumeration entity
-		 * (const).
-		 * @details
-		 * Because the operators are in the main namespace for maximum
-		 * usefulness, we must create this additional type to avoid
-		 * type ambiguity when using more than one template
-		 * (e.g., string) in a source file.
-		 */
-		template <typename T>
-		class ConstEnumMapWrapper
-		{
-		public:
-			/** Constructor */
-			ConstEnumMapWrapper(
-			    const T &enumeration);
-
-			/** Implicit conversion to std::string */
-			operator std::string() const;
-			/** Implicit conversion to enumeration */
-			constexpr operator T() const noexcept;
-
-		private:
-			/* The enumeration being stored */
-			const T _enumeration;
-		};
-
-		/**
-		 * @brief
-		 * Determine if a string and the string representation of an
-		 * enumeration are equal.
-		 *
-		 * @param lhs
-		 *	The string to compare to the enumeration.
-		 * @param rhs
-		 *	The enumeration to compare to the string.
-		 *
-		 * @return
-		 *	true if lhs is equal to the string representation of
-		 *	rhs, false otherwise.
-		 *
-		 * @note
-		 * String comparison is case-sensitive.
-		 */
-		template <typename T>
-		bool
-		operator==(
-		    const std::string &lhs,
-		    const ConstEnumMapWrapper<T> &rhs);
-
-		/**
-		 * @brief
-		 * Determine if a string representation of an enumeration and
-		 * a string are equal.
-		 *
-		 * @param lhs
-		 *	The enumeration to compare to the string.
-		 * @param rhs
-		 *	The string to compare to the enumeration.
-		 *
-		 * @return
-		 *	true if rhs is equal to the string representation of
-		 *	rhs, false otherwise.
-		 *
-		 * @note
-		 * String comparison is case-sensitive.
-		 */
-		template <typename T>
-		bool
-		operator==(
-		    const ConstEnumMapWrapper<T> &lhs,
-		    const std::string &rhs);
-
-		/**
-		 * @brief
-		 * Determine if a string and the string representation of an
-		 * enumeration are not equal.
-		 *
-		 * @param lhs
-		 *	The string to compare to the enumeration.
-		 * @param rhs
-		 *	The enumeration to compare to the string.
-		 *
-		 * @return
-		 *	true if lhs is not equal to the string representation
-		 *	of rhs, false otherwise.
-		 *
-		 * @note
-		 * String comparison is case-sensitive.
-		 */
-		template <typename T>
-		bool
-		operator!=(
-		    const std::string &lhs,
-		    const ConstEnumMapWrapper<T> &rhs);
-		
-		/**
-		 * @brief
-		 * Determine if a string representation of an enumeration and
-		 * a string are not equal.
-		 *
-		 * @param lhs
-		 *	The enumeration to compare to the string.
-		 * @param rhs
-		 *	The string to compare to the enumeration.
-		 *
-		 * @return
-		 *	true if rhs is not equal to the string representation
-		 *	of rhs, false otherwise.
-		 *
-		 * @note
-		 * String comparison is case-sensitive.
-		 */
-		template <typename T>
-		bool
-		operator!=(
-		    const ConstEnumMapWrapper<T> &lhs,
-		    const std::string &rhs);
-
-		/**
-		 * @brief
-		 * Append the string representation of an enumeration into a
-		 * stream.
-		 *
-		 * @param stream
-		 *	The stream in which the string representation of kind
-		 *	should be appended.
-		 * @param kind
-		 *	The enumeration whose string representation should be
-		 *	appended to stream.
-		 *
-		 * @return
-		 *	Reference to stream.
-		 */
-		template <typename T>
-		std::ostream&
-		operator<<(
-		    std::ostream &stream,
-		    const Framework::ConstEnumMapWrapper<T> &kind);
-
-		/**
-		 * @brief
-		 * Concatenate the string representation of an enumeration
-		 * to an existing string.
-		 * 
-		 * @param lhs
-		 * Existing string.
-		 * @param rhs
-		 * Enumeration whose string representation should be
-		 * concatenated.
-		 *
-		 * @return
-		 * String made by appending string representation of rhs to lhs.
-		 */
-		template <typename T>
-		std::string
-		operator+(
-		    const std::string &lhs,
-		    const Framework::ConstEnumMapWrapper<T> &rhs);
-
-		/**
-		 * @brief
-		 * Concatenate an existing string to the string representation
-		 * of an enumeration.
-		 * 
-		 * @param lhs
-		 * Enumeration whose string representation should be
-		 * concatenated.
-		 * @param rhs
-		 * Existing string.
-		 *
-		 * @return
-		 * String made by appending lhs to the string representation
-		 * of rhs.
-		 */
-		template <typename T>
-		std::string
-		operator+(
-		    const Framework::ConstEnumMapWrapper<T> &lhs,
-		    const std::string &rhs);
+		}
 	}
 }
 
-/*
- * Declaration of global namespace functions.
+/**
+ * @brief
+ * Collection of function declarations for enum classes.
+ * @details
+ * Put this in your header file, outside of any namespace.
+ *
+ * @param BE_ENUMERATED_TYPE_
+ * Fully-qualified enum class,
+ * @param BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_
+ * Name of std::map<enum class, std::string> that you will define in the
+ * global namespace.
  */
+#define BE_FRAMEWORK_ENUMERATION_DECLARATIONS(BE_ENUMERATED_TYPE_, \
+    BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_) \
+extern const \
+std::map<BE_ENUMERATED_TYPE_, std::string> \
+BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_;\
+\
+namespace BiometricEvaluation \
+{ \
+	namespace Framework \
+	{ \
+		namespace Enumeration \
+		{ \
+			/** \
+			 * @brief \
+			 * Compare an enumeration's string-equivalent to a \
+			 * string. \
+			 * \
+			 * @param strVal \
+			 * String to compare. \
+			 * @param enumVal \
+			 * Enumeration to compare. \
+			 * \
+			 * @return \
+			 * Whether or not `strVal` is equal to the \
+			 * string-equivalent of `enumVal`. \
+			 * @note \
+			 * Case sensitive. \
+			 */ \
+			bool \
+			operator==( \
+			    const std::string &strVal, \
+			    const BE_ENUMERATED_TYPE_ &enumVal); \
+\
+			/** \
+			 * @brief \
+			 * Compare an enumeration's string-equivalent to a \
+			 * string. \
+			 * \
+			 * @param enumVal \
+			 * Enumeration to compare. \
+			 * @param strVal \
+			 * String to compare. \
+			 * \
+			 * @return \
+			 * Whether or not `strVal` is equal to the \
+			 * string-equivalent of `enumVal`. \
+			 * @note \
+			 * Case sensitive. \
+			 */ \
+			bool \
+			operator==( \
+			    const BE_ENUMERATED_TYPE_ &enumVal, \
+			    const std::string &strVal); \
+\
+			/** \
+			 * @brief \
+			 * Compare an enumeration's string-equivalent to a \
+			 * string. \
+			 * \
+			 * @param strVal \
+			 * String to compare. \
+			 * @param enumVal \
+			 * Enumeration to compare. \
+			 * \
+			 * @return \
+			 * Whether or not `strVal` is different than the \
+			 * string-equivalent of `enumVal`. \
+			 * @note \
+			 * Case sensitive. \
+			 */ \
+			bool \
+			operator!=( \
+			    const std::string &strVal, \
+			    const BE_ENUMERATED_TYPE_ &enumVal); \
+\
+			/** \
+			 * @brief \
+			 * Compare an enumeration's string-equivalent to a \
+			 * string. \
+			 * \
+			 * @param enumVal \
+			 * Enumeration to compare. \
+			 * @param strVal \
+			 * String to compare. \
+			 * \
+			 * @return \
+			 * Whether or not `strVal` is different than the \
+			 * string-equivalent of `enumVal`. \
+			 * @note \
+			 * Case sensitive. \
+			 */ \
+			bool \
+			operator!=( \
+			    const BE_ENUMERATED_TYPE_ &enumVal, \
+			    const std::string &strVal); \
+\
+			/** \
+			 * @brief \
+			 * Append the string-equivalent of an enumeration to \
+			 * a stream. \
+			 * \
+			 * @param stream \
+			 * Stream to append. \
+			 * @param enumVal \
+			 * Enumeration whose string-equivalent will be \
+			 * appended. \
+			 * \
+			 * @return \
+			 * `stream` \
+			 */ \
+			std::ostream& \
+			operator<<( \
+			    std::ostream &stream, \
+			    const BE_ENUMERATED_TYPE_ &enumVal); \
+\
+			/** \
+			 * @brief \
+			 * Concatenate an enumeration's string-equivalent to \
+			 * a string. \
+			 * \
+			 * @param strVal \
+			 * String to append. \
+			 * @param enumVal \
+			 * Enumeration whose string-equivalent will be \
+			 * appended. \
+			 * \
+			 * @return \
+			 * A new string that is the concatenation of `strVal` \
+			 * and the string-equivalent of `enumVal`. \
+			 */ \
+			std::string \
+			operator+( \
+			    const std::string &strVal, \
+			    const BE_ENUMERATED_TYPE_ &enumVal); \
+\
+			/** \
+			 * @brief \
+			 * Concatenate a string to an enumeration's \
+			 * string-equivalent. \
+			 * \
+			 * @param enumVal \
+			 * Enumeration whose string-equivalent will be \
+			 * appended. \
+			 * @param strVal \
+			 * String to append. \
+			 * \
+			 * @return \
+			 * A new string that is the concatenation of the \
+			 * string-equivalent of `enumVal` and `strVal`. \
+			 */ \
+			std::string \
+			operator+( \
+			    const BE_ENUMERATED_TYPE_ &enumVal, \
+			    const std::string &strVal); \
+\
+			/** \
+			 * @brief \
+			 * Obtain the underlying integral value of an \
+			 * enumeration \
+			 * \
+			 * @param enumVal \
+			 * Enumeration whose underlying integral value is \
+			 * desired. \
+			 * \
+			 * @return \
+			 * Integral value of `enumVal`. \
+			 */ \
+			std::underlying_type<BE_ENUMERATED_TYPE_>::type \
+			to_int_type( \
+				const BE_ENUMERATED_TYPE_ &enumVal) \
+				noexcept; \
+\
+			/** \
+			 * @brief \
+			 * Obtain the developer-provided string representation \
+			 * of an enumeration. \
+			 * \
+			 * @param enumVal \
+			 * Enumeration whose underlying developer-provided \
+			 * string value is desired. \
+			 * \
+			 * @return \
+			 * String value of `enumVal`. \
+			 * \
+			 * @note \
+			 * The mapping of enumeration to string must be \
+			 * provided at compile-time via \
+			 * BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_. \
+			 */ \
+			std::string \
+			to_string( \
+			    const BE_ENUMERATED_TYPE_ &enumVal); \
+\
+			/** \
+			 * @brief \
+			 * Obtain an enumeration given its underlying \
+			 * integral value. \
+			 * \
+			 * @param iVal \
+			 * Underlying integral value for desired enumeration. \
+			 * \
+			 * @return \
+			 * Enumeration whose underlying integral value is \
+			 * `iVal`. \
+			 * \
+			 * @throw Error::ObjectDoesNotExist \
+			 * No enumeration whose underlying integral value \
+			 * is `iVal`. \
+			 */ \
+			template<typename T> \
+			T \
+			to_enum( \
+			    const typename \
+			    std::underlying_type<T>::type &iVal); \
+\
+			/** \
+			 * @brief \
+			 * Obtain an enumeration given its developer-provided \
+			 * string representation. \
+			 * \
+			 * @param strVal \
+			 * Developer-provided string representation of desired \
+			 * enumeration. \
+			 * \
+			 * @return \
+			 * Enumeration whose developer-provided string \
+			 * representation is `strVal`. \
+			 * \
+			 * @throw Error::ObjectDoesNotExist \
+			 * No enumeration whose developer-provided string \
+			 * representation is `strVal`. \
+			 * \
+			 * @note \
+			 * Case sensitive. \
+			 * \
+			 * @note \
+			 * The mapping of enumeration to string must be \
+			 * provided at compile-time via \
+			 * BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_. \
+			 */ \
+			template<typename T> \
+			T \
+			to_enum( \
+			    const std::string &strVal); \
+		} \
+	} \
+}\
+/* This is here to require a semicolon after macro instantation */\
+asm("")
+
 
 /**
  * @brief
- * Convert an enumeration into its const-wrapper, which implicitly
- * converts to string.
+ * Collection of function definitions for enum classes.
+ * @details
+ * Put this in your implementation file after defining
+ * BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_
  *
- * @param kind
- * Enumeration to convert.
- *
- * @return
- * Wrapped version of kind.
+ * @param BE_ENUMERATED_TYPE_
+ * Fully-qualified enum class,
+ * @param BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_
+ * Name of std::map<enum class, std::string> defined in the global namespace.
  */
-template <typename T>
-constexpr
-BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
-to_string(
-    const T &kind)
-    noexcept;
-
-/**
- * @brief
- * Convert an enumeration into its underlying integer type.
+#define BE_FRAMEWORK_ENUMERATION_DEFINITIONS(BE_ENUMERATED_TYPE_, \
+    BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_) \
+/* \
+ * Template specializations for to_enum() must come before they are used, \
+ * or functions that rely on them, like operator==, will implicitly \
+ * instantiate them, disallowing the later specialization. \
  *
- * @param kind
- * Enumeration to convert.
- *
- * @return
- * Underlying integer version of kind.
- */
-template <typename T>
-constexpr
-typename std::underlying_type<T>::type
-to_int_type(
-    const T &kind)
-    noexcept;
+ * Additional, a long-standing g++ bug originating from a defect in the \
+ * standard requires that the template specializations be enclosed in the same \
+ * namespace: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56480 \
+ */ \
+namespace BiometricEvaluation{ \
+	namespace Framework { \
+		namespace Enumeration{ \
+			template<> \
+			BE_ENUMERATED_TYPE_ \
+			to_enum( \
+			    const typename std::underlying_type<\
+			        BE_ENUMERATED_TYPE_>::type &iVal) \
+			{ \
+				return (static_cast<BE_ENUMERATED_TYPE_>(iVal)); \
+			} \
+\
+			template<> \
+			BE_ENUMERATED_TYPE_ \
+			to_enum ( \
+			    const std::string &strVal) \
+			{ \
+				for (const auto &i : \
+				    BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_) \
+					if (i.second == strVal) \
+						return (i.first); \
+			\
+				throw BiometricEvaluation::Error::\
+				    ObjectDoesNotExist(strVal); \
+			} \
+		} \
+	} \
+} \
+\
+bool \
+BiometricEvaluation::Framework::Enumeration::operator==( \
+    const std::string &strVal, \
+    const BE_ENUMERATED_TYPE_ &enumVal) \
+{ \
+	return (to_enum<BE_ENUMERATED_TYPE_>(strVal) == enumVal); \
+} \
+\
+bool \
+BiometricEvaluation::Framework::Enumeration::operator==( \
+    const BE_ENUMERATED_TYPE_ &enumVal, \
+    const std::string &strVal) \
+{ \
+	return (strVal == enumVal); \
+} \
+\
+bool \
+BiometricEvaluation::Framework::Enumeration::operator!=( \
+    const std::string &strVal, \
+    const BE_ENUMERATED_TYPE_ &enumVal) \
+{ \
+	return (!(strVal == enumVal)); \
+} \
+\
+bool \
+BiometricEvaluation::Framework::Enumeration::operator!=( \
+    const BE_ENUMERATED_TYPE_ &enumVal, \
+    const std::string &strVal) \
+{ \
+	return (!(strVal == enumVal)); \
+} \
+\
+std::ostream& \
+BiometricEvaluation::Framework::Enumeration::operator<<( \
+    std::ostream &stream, \
+    const BE_ENUMERATED_TYPE_ &enumVal) \
+{ \
+	return (stream << to_string(enumVal)); \
+} \
+\
+std::string \
+BiometricEvaluation::Framework::Enumeration::operator+( \
+    const std::string &strVal, \
+    const BE_ENUMERATED_TYPE_ &enumVal) \
+{ \
+	return (strVal + to_string(enumVal)); \
+} \
+\
+std::string \
+BiometricEvaluation::Framework::Enumeration::operator+( \
+    const BE_ENUMERATED_TYPE_ &enumVal, \
+    const std::string &strVal) \
+{ \
+	return (to_string(enumVal) + strVal); \
+} \
+\
+std::string \
+BiometricEvaluation::Framework::Enumeration::to_string( \
+    const BE_ENUMERATED_TYPE_ &enumVal) \
+{ \
+	return (BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_.at(enumVal)); \
+} \
+\
+std::underlying_type<BE_ENUMERATED_TYPE_>::type \
+BiometricEvaluation::Framework::Enumeration::to_int_type( \
+    const BE_ENUMERATED_TYPE_ &enumVal) \
+    noexcept \
+{ \
+	return (static_cast<typename std::underlying_type< \
+	    BE_ENUMERATED_TYPE_>::type>(enumVal)); \
+}\
+/* This is here to require a semicolon after macro instantation */\
+asm("")
 
-/**
- * @brief
- * Convert a string into a const-wrapper version of an enumeration, which
- * implicitly converts to the enumeration.
- *
- * @param name
- * Mapped string value of an enumeration.
- *
- * @return
- * Wrapped version of the numeration representedd by name.
- *
- * @throw ObjectDoesNotExist
- * name does not map to an enumeration.
- */
-template <typename T>
-BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
-to_enum(
-    const std::string &name);
-
-/**
- * @brief
- * Convert an underlying integer type into a const-wrapper version of an
- * enumeration, which implicitly converts to the enumeration.
- *
- * @param value
- * Mapped underlying value of an enumeration.
- *
- * @return
- * Wrapped version of the enumeration represented by value.
- *
- * @throw ObjectDoesNotExist
- * name does not map to an enumeration.
- */
-template <typename T>
-BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
-to_enum(
-    const typename std::underlying_type<T>::type value);
-
-/*
- * Class Method Definitions
- */
-
-template <typename T>
-BiometricEvaluation::Framework::EnumMapWrapper<T>::EnumMapWrapper(
-    T &enumeration) :
-    _enumeration(enumeration)
-{
-
-}
-
-template <typename T>
-BiometricEvaluation::Framework::EnumMapWrapper<T>::operator std::string()
-{
-	return (EnumerationFunctions<T>::enumToStringMap.at(_enumeration));
-}
-
-template <typename T>
-BiometricEvaluation::Framework::EnumMapWrapper<T>::operator T()
-    noexcept
-{
-	return (_enumeration);
-}
-
-template <typename T>
-BiometricEvaluation::Framework::ConstEnumMapWrapper<T>::ConstEnumMapWrapper(
-    const T &enumeration) :
-    _enumeration(enumeration)
-{
-
-}
-
-template <typename T>
-BiometricEvaluation::Framework::ConstEnumMapWrapper<T>::operator std::string()
-    const
-{
-	return (EnumerationFunctions<T>::enumToStringMap.at(_enumeration));
-}
-
-template <typename T>
-constexpr
-BiometricEvaluation::Framework::ConstEnumMapWrapper<T>::operator T()
-    const
-    noexcept
-{
-	return (_enumeration);
-}
-
-/*
- * Global Functions
- */
-
-template <typename T>
-BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
-to_enum(
-    const std::string &name)
-{
-	auto begin = BiometricEvaluation::Framework::EnumerationFunctions<T>::
-	    enumToStringMap.begin();
-    	auto end = BiometricEvaluation::Framework::EnumerationFunctions<T>::
-	    enumToStringMap.end();
-
-	for (auto i = begin; i != end; i++)
-		if (i->second == name)
-			return (BiometricEvaluation::Framework::
-			    ConstEnumMapWrapper<T>(i->first));
-
-	throw BiometricEvaluation::Error::ObjectDoesNotExist(name);
-}
-
-template <typename T>
-BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
-to_enum(
-    const typename std::underlying_type<T>::type value)
-{
-	for (auto i : BiometricEvaluation::Framework::EnumerationFunctions<T>::
-	    enumToStringMap)
-		if (to_int_type(i.first) == value)
-			return (BiometricEvaluation::Framework::
-			    ConstEnumMapWrapper<T>(i.first));
-
-	throw BiometricEvaluation::Error::ObjectDoesNotExist(
-	    std::to_string(value));
-}
-
-template <typename T>
-constexpr
-typename std::underlying_type<T>::type
-to_int_type(
-    const T &kind)
-    noexcept
-{
-	return (static_cast<typename std::underlying_type<T>::type>(kind));
-}
-
-/*
- * Global to_string Specializations
- */
-
-template <typename T>
-constexpr
-BiometricEvaluation::Framework::ConstEnumMapWrapper<T>
-to_string(
-    const T &kind)
-    noexcept
-{
-	return (BiometricEvaluation::Framework::ConstEnumMapWrapper<T>(kind));
-}
-
-/*
- * Operators
- */
-
-template <typename T>
-bool
-BiometricEvaluation::Framework::operator==(
-    const std::string &lhs,
-    const BiometricEvaluation::Framework::EnumMapWrapper<T> &rhs)
-{
-	return (lhs == static_cast<std::string>(rhs));
-}
-
-template <typename T>
-bool
-BiometricEvaluation::Framework::operator==(
-    const std::string &lhs,
-    const BiometricEvaluation::Framework::ConstEnumMapWrapper<T> &rhs)
-{
-	return (lhs == static_cast<std::string>(rhs));
-}
-
-template <typename T>
-bool
-BiometricEvaluation::Framework::operator==(
-    const BiometricEvaluation::Framework::EnumMapWrapper<T> &lhs,
-    const std::string &rhs)
-{
-	return (static_cast<std::string>(lhs) == rhs);
-}
-
-template <typename T>
-bool
-BiometricEvaluation::Framework::operator==(
-    const BiometricEvaluation::Framework::ConstEnumMapWrapper<T> &lhs,
-    const std::string &rhs)
-{
-	return (static_cast<std::string>(lhs) == rhs);
-}
-
-template <typename T>
-bool
-BiometricEvaluation::Framework::operator!=(
-    const std::string &lhs,
-    const BiometricEvaluation::Framework::EnumMapWrapper<T> &rhs)
-{
-	return (lhs != static_cast<std::string>(rhs));
-}
-
-template <typename T>
-bool
-BiometricEvaluation::Framework::operator!=(
-    const std::string &lhs,
-    const BiometricEvaluation::Framework::ConstEnumMapWrapper<T> &rhs)
-{
-	return (lhs != static_cast<std::string>(rhs));
-}
-
-template <typename T>
-bool
-BiometricEvaluation::Framework::operator!=(
-    const BiometricEvaluation::Framework::EnumMapWrapper<T> &lhs,
-    const std::string &rhs)
-{
-	return (static_cast<std::string>(lhs) != rhs);
-}
-
-template <typename T>
-bool
-BiometricEvaluation::Framework::operator!=(
-    const BiometricEvaluation::Framework::ConstEnumMapWrapper<T> &lhs,
-    const std::string &rhs)
-{
-	return (static_cast<std::string>(lhs) != rhs);
-}
-
-template <typename T>
-std::ostream&
-BiometricEvaluation::Framework::operator<<(
-    std::ostream &stream,
-    const BiometricEvaluation::Framework::EnumMapWrapper<T> &kind)
-{
-	return (stream << BiometricEvaluation::Framework::
-	    EnumerationFunctions<T>::enumToStringMap.at(kind));
-}
-
-template <typename T>
-std::ostream&
-BiometricEvaluation::Framework::operator<<(
-    std::ostream &stream,
-    const BiometricEvaluation::Framework::ConstEnumMapWrapper<T> &kind)
-{
-	return (stream << BiometricEvaluation::Framework::
-	    EnumerationFunctions<T>::enumToStringMap.at(kind));
-}
-
-template <typename T>
-std::string
-BiometricEvaluation::Framework::operator+(
-    const std::string &lhs,
-    const BiometricEvaluation::Framework::EnumMapWrapper<T> &rhs)
-{
-	return (lhs + BiometricEvaluation::Framework::EnumerationFunctions<T>::
-	    enumToStringMap.at(rhs));
-}
-
-template <typename T>
-std::string
-BiometricEvaluation::Framework::operator+(
-    const BiometricEvaluation::Framework::EnumMapWrapper<T> &lhs,
-    const std::string &rhs)
-{
-	return (BiometricEvaluation::Framework::EnumerationFunctions<T>::
-	    enumToStringMap.at(lhs) + rhs);
-}
-
-template <typename T>
-std::string
-BiometricEvaluation::Framework::operator+(
-    const std::string &lhs,
-    const BiometricEvaluation::Framework::ConstEnumMapWrapper<T> &rhs)
-{
-	return (lhs + BiometricEvaluation::Framework::EnumerationFunctions<T>::
-	    enumToStringMap.at(rhs));
-}
-
-template <typename T>
-std::string
-BiometricEvaluation::Framework::operator+(
-    const BiometricEvaluation::Framework::ConstEnumMapWrapper<T> &lhs,
-    const std::string &rhs)
-{
-	return (BiometricEvaluation::Framework::EnumerationFunctions<T>::
-	    enumToStringMap.at(lhs) + rhs);
-}
-
-#endif /* __BE_FRAMEWORK_ENUMERATION_H__ */
+#endif /* BE_FRAMEWORK_ENUMERATION_H_ */

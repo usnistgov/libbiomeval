@@ -21,14 +21,13 @@ extern "C" {
 }
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 const double BiometricEvaluation::View::AN2KView::MinimumScanResolutionPPMM = 19.69;
 const double BiometricEvaluation::View::AN2KView::HalfMinimumScanResolutionPPMM = 9.84;
 
-template<>
 const std::map<BiometricEvaluation::View::AN2KView::RecordType, std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::View::AN2KView::RecordType>::enumToStringMap = {
+BE_View_AN2KView_RecordType_EnumToStringMap = {
 	{BiometricEvaluation::View::AN2KView::RecordType::Type_1, "Type 1"},
 	{BiometricEvaluation::View::AN2KView::RecordType::Type_2, "Type 2"},
 	{BiometricEvaluation::View::AN2KView::RecordType::Type_3, "Type 3"},
@@ -48,13 +47,13 @@ BiometricEvaluation::Framework::EnumerationFunctions<
 	{BiometricEvaluation::View::AN2KView::RecordType::Type_17, "Type 17"},
 	{BiometricEvaluation::View::AN2KView::RecordType::Type_99, "Type 99"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::View::AN2KView::RecordType,
+    BE_View_AN2KView_RecordType_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::View::AN2KView::DeviceMonitoringMode,
 std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::View::AN2KView::DeviceMonitoringMode>::
-    enumToStringMap = {
+BE_View_AN2KView_DeviceMonitoringMode_EnumToStringMap = {
 	{BE::View::AN2KView::DeviceMonitoringMode::Controlled, "Controlled"},
 	{BE::View::AN2KView::DeviceMonitoringMode::Assisted, "Assisted"},
 	{BE::View::AN2KView::DeviceMonitoringMode::Observed, "Observed"},
@@ -63,6 +62,9 @@ BiometricEvaluation::Framework::EnumerationFunctions<
 	{BE::View::AN2KView::DeviceMonitoringMode::NA,
 	   "(Optional field -- not specified)"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::View::AN2KView::DeviceMonitoringMode,
+    BE_View_AN2KView_DeviceMonitoringMode_EnumToStringMap);
 
 BiometricEvaluation::View::AN2KView::AN2KView(
     const std::string filename,

@@ -11,105 +11,116 @@
 
 namespace BE = BiometricEvaluation;
 
-template<>
 const std::map<BiometricEvaluation::Finger::PatternClassification, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Finger::PatternClassification>::enumToStringMap = {
-    	{Finger::PatternClassification::PlainArch, "Plain Arch"},
-    	{Finger::PatternClassification::TentedArch, "Tented Arch"},
-    	{Finger::PatternClassification::RadialLoop, "Radial Loop"},
-    	{Finger::PatternClassification::UlnarLoop, "Ulnar Loop"},
-    	{Finger::PatternClassification::PlainWhorl, "Plain Whorl"},
-    	{Finger::PatternClassification::CentralPocketLoop,
+BE_Finger_PatternClassification_EnumToStringMap = {
+    	{BE::Finger::PatternClassification::PlainArch, "Plain Arch"},
+    	{BE::Finger::PatternClassification::TentedArch, "Tented Arch"},
+    	{BE::Finger::PatternClassification::RadialLoop, "Radial Loop"},
+    	{BE::Finger::PatternClassification::UlnarLoop, "Ulnar Loop"},
+    	{BE::Finger::PatternClassification::PlainWhorl, "Plain Whorl"},
+    	{BE::Finger::PatternClassification::CentralPocketLoop,
 	    "Central Pocket Loop"},
-    	{Finger::PatternClassification::DoubleLoop, "Double Loop"},
-    	{Finger::PatternClassification::AccidentalWhorl, "Accidental Whorl"},
-    	{Finger::PatternClassification::Whorl, "Whorl (type not designated)"},
-    	{Finger::PatternClassification::RightSlantLoop, "Right slang loop"},
-    	{Finger::PatternClassification::LeftSlantLoop, "Left slant loop"},
-    	{Finger::PatternClassification::Scar, "Scar"},
-    	{Finger::PatternClassification::Amputation, "Amputation"},
-    	{Finger::PatternClassification::Unknown, "Unknown or unclassifiable"}
+    	{BE::Finger::PatternClassification::DoubleLoop, "Double Loop"},
+    	{BE::Finger::PatternClassification::AccidentalWhorl, "Accidental "
+	    "Whorl"},
+    	{BE::Finger::PatternClassification::Whorl, "Whorl (type not "
+	    "designated)"},
+    	{BE::Finger::PatternClassification::RightSlantLoop, "Right slang loop"},
+    	{BE::Finger::PatternClassification::LeftSlantLoop, "Left slant loop"},
+    	{BE::Finger::PatternClassification::Scar, "Scar"},
+    	{BE::Finger::PatternClassification::Amputation, "Amputation"},
+    	{BE::Finger::PatternClassification::Unknown, "Unknown or "
+	    "unclassifiable"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Finger::PatternClassification,
+    BE_Finger_PatternClassification_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Finger::Position, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Finger::Position>::enumToStringMap = {
-	{Finger::Position::Unknown, "Unknown"},
-	{Finger::Position::RightThumb, "Right Thumb"},
-	{Finger::Position::RightIndex, "Right Index"},
-	{Finger::Position::RightMiddle, "Right Middle"},
-	{Finger::Position::RightRing, "Right Ring"},
-	{Finger::Position::RightLittle, "Right Little"},
-	{Finger::Position::LeftThumb, "Left Thumb"},
-	{Finger::Position::LeftIndex, "Left Index"},
-	{Finger::Position::LeftMiddle, "Left Middle"},
-	{Finger::Position::LeftRing, "Left Ring"},
-	{Finger::Position::LeftLittle, "Left Little"},
-	{Finger::Position::PlainRightThumb, "Plain Right Thumb"},
-	{Finger::Position::PlainLeftThumb, "Plain Left Thumb"},
-	{Finger::Position::PlainRightFourFingers, "Plain Right Four Fingers"},
-	{Finger::Position::PlainLeftFourFingers, "Plain Left Four Fingers"},
-	{Finger::Position::LeftRightThumbs, "Left & Right Thumbs"},
-	{Finger::Position::EJI, "EJI or tip"}
+BE_Finger_Position_EnumToStringMap = {
+	{BE::Finger::Position::Unknown, "Unknown"},
+	{BE::Finger::Position::RightThumb, "Right Thumb"},
+	{BE::Finger::Position::RightIndex, "Right Index"},
+	{BE::Finger::Position::RightMiddle, "Right Middle"},
+	{BE::Finger::Position::RightRing, "Right Ring"},
+	{BE::Finger::Position::RightLittle, "Right Little"},
+	{BE::Finger::Position::LeftThumb, "Left Thumb"},
+	{BE::Finger::Position::LeftIndex, "Left Index"},
+	{BE::Finger::Position::LeftMiddle, "Left Middle"},
+	{BE::Finger::Position::LeftRing, "Left Ring"},
+	{BE::Finger::Position::LeftLittle, "Left Little"},
+	{BE::Finger::Position::PlainRightThumb, "Plain Right Thumb"},
+	{BE::Finger::Position::PlainLeftThumb, "Plain Left Thumb"},
+	{BE::Finger::Position::PlainRightFourFingers, "Plain Right Four "
+	    "Fingers"},
+	{BE::Finger::Position::PlainLeftFourFingers, "Plain Left Four Fingers"},
+	{BE::Finger::Position::LeftRightThumbs, "Left & Right Thumbs"},
+	{BE::Finger::Position::EJI, "EJI or tip"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Finger::Position,
+    BE_Finger_Position_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Finger::Impression, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Finger::Impression>::enumToStringMap = {
-	{Finger::Impression::LiveScanPlain, "Live Scan Plain"},
-	{Finger::Impression::LiveScanRolled, "Live Scan Rolled"},
-	{Finger::Impression::NonLiveScanPlain, "Non-Live Scan Plain"},
-	{Finger::Impression::NonLiveScanRolled, "Non-Live Scan Rolled"},
-	{Finger::Impression::LatentImpression, "Latent Impression"},
-	{Finger::Impression::LatentTracing, "Latent Tracing"},
-	{Finger::Impression::LatentPhoto, "Latent Photo"},
-	{Finger::Impression::LatentLift, "Latent Lift"},
-	{Finger::Impression::LiveScanVerticalSwipe, "Live Scan Vertical Swipe"},
-	{Finger::Impression::LiveScanPalm, "Live Scan Palm"},
-	{Finger::Impression::NonLiveScanPalm, "Non Live Scan Palm"},
-	{Finger::Impression::LatentPalmImpression, "Latent Palm Impression"},
-	{Finger::Impression::LatentPalmTracing, "Latent Palm Tracing"},
-	{Finger::Impression::LatentPalmPhoto, "Latent Palm Photo"},
-	{Finger::Impression::LatentPalmLift, "Latent Palm Lift"},
-	{Finger::Impression::LiveScanOpticalContactPlain,
+BE_Finger_Impression_EnumToStringMap = {
+	{BE::Finger::Impression::LiveScanPlain, "Live Scan Plain"},
+	{BE::Finger::Impression::LiveScanRolled, "Live Scan Rolled"},
+	{BE::Finger::Impression::NonLiveScanPlain, "Non-Live Scan Plain"},
+	{BE::Finger::Impression::NonLiveScanRolled, "Non-Live Scan Rolled"},
+	{BE::Finger::Impression::LatentImpression, "Latent Impression"},
+	{BE::Finger::Impression::LatentTracing, "Latent Tracing"},
+	{BE::Finger::Impression::LatentPhoto, "Latent Photo"},
+	{BE::Finger::Impression::LatentLift, "Latent Lift"},
+	{BE::Finger::Impression::LiveScanVerticalSwipe, "Live Scan Vertical "
+	    "Swipe"},
+	{BE::Finger::Impression::LiveScanPalm, "Live Scan Palm"},
+	{BE::Finger::Impression::NonLiveScanPalm, "Non Live Scan Palm"},
+	{BE::Finger::Impression::LatentPalmImpression, "Latent Palm "
+	    "Impression"},
+	{BE::Finger::Impression::LatentPalmTracing, "Latent Palm Tracing"},
+	{BE::Finger::Impression::LatentPalmPhoto, "Latent Palm Photo"},
+	{BE::Finger::Impression::LatentPalmLift, "Latent Palm Lift"},
+	{BE::Finger::Impression::LiveScanOpticalContactPlain,
 	    "Live Scan Optical Contact Plain"},
-	{Finger::Impression::LiveScanOpticalContactRolled,
+	{BE::Finger::Impression::LiveScanOpticalContactRolled,
 	    "Live Scan Optical Contact Rolled"},
-	{Finger::Impression::LiveScanNonOpticalContactPlain,
+	{BE::Finger::Impression::LiveScanNonOpticalContactPlain,
 	    "Live Scan Non-Optical Contact Plain"},
-	{Finger::Impression::LiveScanNonOpticalContactRolled,
+	{BE::Finger::Impression::LiveScanNonOpticalContactRolled,
 	    "Live Scan Non-Optical Contact Rolled"},
-	{Finger::Impression::LiveScanOpticalContactlessPlain,
+	{BE::Finger::Impression::LiveScanOpticalContactlessPlain,
 	    "Live Scan Optical Contactless Plain"},
-	{Finger::Impression::LiveScanOpticalContactlessRolled,
+	{BE::Finger::Impression::LiveScanOpticalContactlessRolled,
 	    "Live Scan Optical Contactless Rolled"},
-	{Finger::Impression::LiveScanNonOpticalContactlessPlain,
+	{BE::Finger::Impression::LiveScanNonOpticalContactlessPlain,
 	    "Live Scan Non-Optical Contactless Plain"},
-	{Finger::Impression::LiveScanNonOpticalContactlessRolled,
+	{BE::Finger::Impression::LiveScanNonOpticalContactlessRolled,
 	    "Live Scan Non-Optical Contactless Rolled"},
-	{Finger::Impression::Other, "Other"},
-	{Finger::Impression::Unknown, "Unknown"}
+	{BE::Finger::Impression::Other, "Other"},
+	{BE::Finger::Impression::Unknown, "Unknown"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Finger::Impression,
+    BE_Finger_Impression_EnumToStringMap);
 
-template<>
 const std::map<BiometricEvaluation::Finger::FingerImageCode, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::Finger::FingerImageCode>::enumToStringMap = {
-	{Finger::FingerImageCode::EJI, "Entire Joint Image"},
-	{Finger::FingerImageCode::RolledTip, "Rolled Tip"},
-	{Finger::FingerImageCode::FullFingerRolled, "Full Finger Rolled Image"},
-	{Finger::FingerImageCode::FullFingerPlainLeft,
+BE_Finger_FingerImageCode_EnumToStringMap = {
+	{BE::Finger::FingerImageCode::EJI, "Entire Joint Image"},
+	{BE::Finger::FingerImageCode::RolledTip, "Rolled Tip"},
+	{BE::Finger::FingerImageCode::FullFingerRolled, "Full Finger Rolled "
+	    "Image"},
+	{BE::Finger::FingerImageCode::FullFingerPlainLeft,
 	    "Full Finger Plain Image -- Left Side"},
-	{Finger::FingerImageCode::FullFingerPlainCenter,
+	{BE::Finger::FingerImageCode::FullFingerPlainCenter,
 	    "Full Finger Plain Image -- Center"},
-	{Finger::FingerImageCode::FullFingerPlainRight,
+	{BE::Finger::FingerImageCode::FullFingerPlainRight,
 	    "Full Finger Plain Image -- Right Side"},
-	{Finger::FingerImageCode::ProximalSegment, "Proximal Segment"},
-	{Finger::FingerImageCode::DistalSegment, "Distal Segment"},
-	{Finger::FingerImageCode::MedialSegment, "Medial Segment"},
-	{Finger::FingerImageCode::NA, "Not Applicable"}
+	{BE::Finger::FingerImageCode::ProximalSegment, "Proximal Segment"},
+	{BE::Finger::FingerImageCode::DistalSegment, "Distal Segment"},
+	{BE::Finger::FingerImageCode::MedialSegment, "Medial Segment"},
+	{BE::Finger::FingerImageCode::NA, "Not Applicable"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Finger::FingerImageCode,
+    BE_Finger_FingerImageCode_EnumToStringMap);
 

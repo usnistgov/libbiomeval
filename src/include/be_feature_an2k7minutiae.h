@@ -286,5 +286,9 @@ namespace BiometricEvaluation
 	}
 }
 
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K7Minutiae::EncodingMethod,
+    BE_Feature_EncodingMethod_EnumToStringMap);
+
 #endif /* __BE_FEATURE_AN2K7MINUTIAE_H__ */
 

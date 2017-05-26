@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
 
 void
 printViewInfo(Iris::INCITSView &irisv)

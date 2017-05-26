@@ -25,6 +25,7 @@
  */
 using namespace std;
 using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
 
 static void
 printRecordInfo(const DataInterchange::AN2KRecord &an2k)

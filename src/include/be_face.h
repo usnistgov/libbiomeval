@@ -12,6 +12,9 @@
 #define __BE_FACE_H__
 
 #include <cstdint>
+
+#include <be_framework_enumeration.h>
+
 namespace BiometricEvaluation 
 {
 	/**
@@ -162,5 +165,42 @@ namespace BiometricEvaluation
 		};
 	}
 }
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Face::Gender,
+    BE_Face_Gender_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Face::EyeColor,
+    BE_Face_EyeColor_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Face::HairColor,
+    BE_Face_HairColor_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Face::Property,
+    BE_Face_Property_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Face::Expression,
+    BE_Face_Expression_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Face::ImageType,
+    BE_Face_ImageType_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Face::ImageDataType,
+    BE_Face_ImageDataType_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Face::ColorSpace,
+    BE_Face_ColorSpace_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Face::SourceType,
+    BE_Face_SourceType_EnumToStringMap);
+
 #endif /* __BE_FACE_H__ */
 

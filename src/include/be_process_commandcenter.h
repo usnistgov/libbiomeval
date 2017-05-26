@@ -126,7 +126,8 @@ namespace BiometricEvaluation
 
 				/* Split actual command off of arguments */
 				try {
-					command.command = to_enum<T>(
+					command.command = BiometricEvaluation::
+					    Framework::Enumeration::to_enum<T>(
 					    command.arguments[0]);
 				} catch (Error::ObjectDoesNotExist) {
 					/* 

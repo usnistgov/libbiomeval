@@ -422,4 +422,8 @@ namespace BiometricEvaluation
 	}
 }
 
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::IO::Compressor::Kind,
+    BE_IO_Compressor_Kind_EnumToStringMap);
+
 #endif /* __BE_IO_COMPRESSOR__ */

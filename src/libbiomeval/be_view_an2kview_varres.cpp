@@ -18,6 +18,7 @@ extern "C" {
 }
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 BiometricEvaluation::View::AN2KViewVariableResolution::AN2KViewVariableResolution(
     const std::string &filename,

@@ -23,6 +23,7 @@
 #include <be_memory_autoarray.h>
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 /******************************************************************************/
 /* Class method definitions.                                                  */

@@ -10,7 +10,6 @@
 
 #include "be_io_recordstore_impl.h"
 #include <be_io_recordstore.h>
-#include <be_framework_enumeration.h>
 
 namespace BE = BiometricEvaluation;
 
@@ -33,10 +32,8 @@ const std::string BiometricEvaluation::IO::RecordStore::INVALIDKEYCHARS(
  * RecordStore::Kind
  */
 
-template<>
 const std::map<BiometricEvaluation::IO::RecordStore::Kind, std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::IO::RecordStore::Kind>::enumToStringMap = {
+BE_IO_RecordStore_Kind_EnumToStringMap = {
 	{BiometricEvaluation::IO::RecordStore::Kind::BerkeleyDB, "BerkeleyDB"},
 	{BiometricEvaluation::IO::RecordStore::Kind::Archive, "Archive"},
 	{BiometricEvaluation::IO::RecordStore::Kind::File, "File"},
@@ -44,6 +41,9 @@ BiometricEvaluation::Framework::EnumerationFunctions<
 	{BiometricEvaluation::IO::RecordStore::Kind::Compressed, "Compressed"},
 	{BiometricEvaluation::IO::RecordStore::Kind::List, "List"}
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::IO::RecordStore::Kind,
+    BE_IO_RecordStore_Kind_EnumToStringMap);
 
 BiometricEvaluation::IO::RecordStore::~RecordStore() { }
 

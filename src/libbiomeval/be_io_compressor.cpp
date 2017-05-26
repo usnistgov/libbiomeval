@@ -14,12 +14,14 @@
 /* Include children for factory */
 #include <be_io_gzip.h>
 
-template<>
 const std::map<BiometricEvaluation::IO::Compressor::Kind, std::string>
-    BiometricEvaluation::Framework::EnumerationFunctions<
-    BiometricEvaluation::IO::Compressor::Kind>::enumToStringMap = {
+BE_IO_Compressor_Kind_EnumToStringMap = {
 	{BiometricEvaluation::IO::Compressor::Kind::GZIP, "GZIP"}
 };
+
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::IO::Compressor::Kind,
+    BE_IO_Compressor_Kind_EnumToStringMap);
 
 BiometricEvaluation::IO::Compressor::Compressor() :
     _compressorOptions()

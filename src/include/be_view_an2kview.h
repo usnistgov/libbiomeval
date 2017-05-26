@@ -322,5 +322,14 @@ namespace BiometricEvaluation
 		    const AN2KView::DeviceMonitoringMode &kind);
 	}
 }
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::View::AN2KView::RecordType,
+    BE_View_AN2KView_RecordType_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::View::AN2KView::DeviceMonitoringMode,
+    BE_View_AN2KView_DeviceMonitoringMode_EnumToStringMap);
+
 #endif /* __BE_VIEW_AN2KVIEW_H__ */
 

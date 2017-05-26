@@ -292,4 +292,8 @@ namespace BiometricEvaluation
 	}
 }
 
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::Sort::Kind,
+    BE_Feature_Sort_Kind_EnumToStringMap);
+
 #endif /* BE_FEATURE_SORT_H_ */

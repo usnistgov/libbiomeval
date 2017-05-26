@@ -15,6 +15,7 @@
 #include <iostream>
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 namespace Eval
 {
@@ -44,16 +45,12 @@ namespace Eval
 		Status(
 		    const Status::Code &code = Code::Success,
 		    const std::string &message = "")
-		    noexcept :
-		    BE::Framework::Status::Status(to_int_type(code), message) {}
+		    noexcept;
 
 		/** Convert code stored in parent to the eval-specific enum.*/
-		inline Code
+		Code
 		getEvalStatusCode()
-		    const
-		{
-			return (to_enum<Code>(this->getCode()));
-		}
+		    const;
 	};
 
 /******************************************************************************
@@ -67,17 +64,7 @@ namespace Eval
 	/** Convenience to_string function */
 	std::string
 	to_string(
-	    const Eval::Status &status)
-	{
-		/* Avoid unwanted recursion by scoping outside */
-		std::string s{::to_string(status.getEvalStatusCode())};
-
-		const auto message = status.getMessage();
-		if (!message.empty())
-			s += " (" + message + ")";
-
-		return (s);
-	}
+	    const Eval::Status &status);
 
 	/** Convenience output stream operator */
 	std::ostream&
@@ -130,16 +117,48 @@ namespace Eval
 	}
 }
 
-template<>
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+   Eval::Status::Code,
+   Eval_Status_Code_EnumToStringMap);
+
 const std::map<Eval::Status::Code, std::string>
-    BE::Framework::EnumerationFunctions<Eval::Status::Code>::
-    enumToStringMap = {
+Eval_Status_Code_EnumToStringMap = {
 	{Eval::Status::Code::Success, "Success"},
 	{Eval::Status::Code::BadImage, "Bad Image"},
 	{Eval::Status::Code::BadTemplate, "Bad Template"},
 	{Eval::Status::Code::VendorDefined, "Vendor Defined"},
 };
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+   Eval::Status::Code,
+   Eval_Status_Code_EnumToStringMap);
 
+Eval::Status::Status(
+    const Status::Code &code,
+    const std::string &message)
+    noexcept :
+    BE::Framework::Status::Status(to_int_type(code), message) {}
+
+Eval::Status::Code
+Eval::Status::getEvalStatusCode()
+    const
+{
+	const auto code = this->getCode();
+	return (to_enum<Code>(code));
+}
+
+std::string
+Eval::to_string(
+    const Eval::Status &status)
+{
+	std::string s{BE::Framework::Enumeration::
+	    to_string(status.getEvalStatusCode())};
+
+	const auto message = status.getMessage();
+	if (!message.empty())
+		s += " (" + message + ")";
+
+	return (s);
+}
 
 /******************************************************************************
  ******************************************************************************

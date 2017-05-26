@@ -19,6 +19,7 @@ extern "C" {
 }
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 BiometricEvaluation::Finger::AN2KViewVariableResolution::
 AN2KViewVariableResolution(
