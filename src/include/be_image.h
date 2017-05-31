@@ -42,7 +42,8 @@ namespace BiometricEvaluation
 			JP2L		= 6,
 			PNG		= 7,
 			NetPBM		= 8,
-			BMP		= 9
+			BMP		= 9,
+			TIFF		= 10
 		};
 
 		/** Image pixel formats. */

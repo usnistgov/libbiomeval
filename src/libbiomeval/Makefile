@@ -45,10 +45,11 @@ JPEGLIB = -ljpeg
 OPENJPEGLIB = -L$(shell PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig pkg-config --variable=libdir libopenjp2) $(shell PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig pkg-config --libs-only-l --libs-only-other libopenjp2)
 PNGLIB = -L$(shell pkg-config --variable=libdir libpng) $(shell pkg-config --libs-only-l --libs-only-other libpng)
 SQLITE3LIB = -L$(shell pkg-config --variable=libdir sqlite3) $(shell pkg-config --libs-only-l --libs-only-other sqlite3)
+TIFFLIB = $(shell pkg-config --libs libtiff-4)
 ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-only-l --libs-only-other zlib)
 FFMPEGLIB = -lavformat -lavutil -lswscale -lavcodec
 
-COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(ZLIB) $(FFMPEGLIB) $(PCSCLIB)
+COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(TIFFLIB) $(ZLIB) $(FFMPEGLIB) $(PCSCLIB)
 
 ifneq ($(OS), Darwin)
 PCSCLIB = -lpcsclite
@@ -62,7 +63,7 @@ IO = be_io_properties.cpp be_io_propertiesfile.cpp be_io_utility.cpp be_io_logsh
 
 RECORDSTORE = be_io_recordstore_impl.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_dbrecstore_impl.cpp be_io_sqliterecstore.cpp be_io_sqliterecstore_impl.cpp be_io_filerecstore.cpp be_io_filerecstore_impl.cpp be_io_listrecstore.cpp be_io_listrecstore_impl.cpp be_io_archiverecstore.cpp be_io_archiverecstore_impl.cpp be_io_compressedrecstore_impl.cpp be_io_compressedrecstore.cpp be_io_recordstoreunion.cpp be_io_recordstoreunion_impl.cpp be_io_persistentrecordstoreunion.cpp be_io_persistentrecordstoreunion_impl.cpp
 
-IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_netpbm.cpp be_image_raw.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp be_image_bmp.cpp
+IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_netpbm.cpp be_image_raw.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp be_image_bmp.cpp be_image_tiff.cpp
 
 FEATURE = be_feature_minutiae.cpp be_feature_an2k7minutiae.cpp be_feature_incitsminutiae.cpp be_feature_sort.cpp
 
@@ -163,6 +164,7 @@ $(NBIS_OBJECTS): CXXFLAGS := $(NBISINC) $(CXXFLAGS)
 $(NBIS_OBJECTS): $(NBIS_SOURCES)
 
 # Get include paths for libraries required third-party code
+be_image_tiff.o: CXXFLAGS += $(shell pkg-config --cflags libtiff-4)
 be_image_png.o: CXXFLAGS += $(shell pkg-config --cflags libpng)
 be_image_jpeg2000.o: CXXFLAGS += $(shell PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig pkg-config --cflags libopenjp2)
 be_io_gzip.o: CXXFLAGS += $(shell pkg-config --cflags zlib)

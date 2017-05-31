@@ -16,7 +16,7 @@ RECORDSTORE = test_construct_be_io_filerecstore test_be_io_filerecordstore test_
 
 IO = test_be_io_filelogcabinet test_be_io_properties test_be_io_propertiesfile test_be_io_utility test_be_io_syslogsheet
 
-IMAGE = test_be_image_raw test_be_image_jpeg test_be_image_jpegl test_be_image_jpeg2000 test_be_image_jpeg2000l test_be_image_png test_be_image_wsq test_be_image_netpbm test_be_image_bmp test_be_image_factory 
+IMAGE = test_be_image_raw test_be_image_jpeg test_be_image_jpegl test_be_image_jpeg2000 test_be_image_jpeg2000l test_be_image_png test_be_image_wsq test_be_image_netpbm test_be_image_bmp test_be_image_tiff test_be_image_factory 
 
 FINGER = test_be_finger_an2kview test_be_finger_an2kview_varres test_be_finger_incitsviews
 
@@ -101,6 +101,8 @@ test_be_image_wsq: test_be_image_image.cpp
 	$(CXX) $(CXXFLAGS) -DWSQTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_bmp: test_be_image_image.cpp
 	$(CXX) $(CXXFLAGS) -DBMPTEST $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_image_tiff: test_be_image_image.cpp
+	$(CXX) $(CXXFLAGS) -DTIFFTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_image_factory: test_be_image_image.cpp
 	$(CXX) $(CXXFLAGS) -DFACTORYTEST $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_process_statistics: test_be_process_statistics.cpp

@@ -20,6 +20,7 @@
 #include <be_image_netpbm.h>
 #include <be_image_raw.h>
 #include <be_image_png.h>
+#include <be_image_tiff.h>
 #include <be_image_wsq.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarrayiterator.h>
@@ -345,6 +346,8 @@ BiometricEvaluation::Image::Image::openImage(
 		return (std::shared_ptr<Image>(new WSQ(data, size)));
 	case CompressionAlgorithm::BMP:
 		return (std::shared_ptr<Image>(new BMP(data, size)));
+	case CompressionAlgorithm::TIFF:
+		return (std::shared_ptr<Image>(new TIFF(data, size)));
 	default:
 		throw Error::StrategyError("Could not determine compression "
 		    "algorithm");
@@ -385,7 +388,8 @@ BiometricEvaluation::Image::Image::getCompressionAlgorithm(
 		return (CompressionAlgorithm::BMP);
 	else if (WSQ::isWSQ(data, size))
 		return (CompressionAlgorithm::WSQ20);
-
+	else if (TIFF::isTIFF(data, size))
+		return (CompressionAlgorithm::TIFF);
 		
 	return (CompressionAlgorithm::None);
 }

@@ -51,6 +51,9 @@ static const std::string imageType = "PNG";
 #elif defined WSQTEST
 #include <be_image_wsq.h>
 static const std::string imageType = "WSQ";
+#elif defined TIFFTEST
+#include <be_image_tiff.h>
+static const std::string imageType = "TIFF";
 #elif defined FACTORYTEST
 static const std::string imageType = "Raw";
 #endif
@@ -300,6 +303,7 @@ main(
 	extensions["jp2"] = "JPEG2000";
 	extensions["p2l"] = "JPEG2000L";
 	extensions["wsq"] = "WSQ";
+	extensions["tif"] = "TIFF";
 
 	/* Load images */
 	shared_ptr<IO::RecordStore> imageRS;
@@ -432,6 +436,12 @@ main(
 			continue;
 		}
 		image.reset(new Image::BMP(record.data, record.data.size()));
+#elif defined TIFFTEST
+		if (!Image::TIFF::isTIFF(record.data)) {
+			cerr << record.key << " is not a TIFF image." << endl;
+			continue;
+		}
+		image.reset(new Image::TIFF(record.data));
 #elif defined RAWTEST
 		/* We can't construct a raw image without properties */
 		if (doPropertyCompare == false) {
