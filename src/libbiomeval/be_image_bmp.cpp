@@ -313,12 +313,16 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 			default: /* Absolute mode */
 				/* byte2 = count, byte3..n = data */
 				memcpy(output + outputOffset,
-				    input + inputOffset + 3, byte2);
+				    input + inputOffset + 2, byte2);
 				inputOffset += (2 + byte2);
 				outputOffset += byte2;
 
-				/* Data must end on a word boundary */
-				while ((inputOffset % 8) != 0)
+				/*
+				 * Data must end on a word boundary, which
+				 * is 16 bits according to Microsoft. Therefore
+				 * the input is padded to even octet counts.
+				 */
+				if (inputOffset % 2 != 0)
 					inputOffset++;
 			}
 		} else {
