@@ -87,13 +87,16 @@ BiometricEvaluation::Image::BMP::getRawData()
 
 	/*
 	 * Stride is size of the BMP data storage area for each row,
-	 * not including padding of 4 bytes max, so account for the
-	 * padding later.
+	 * not including padding.
 	 */
 	uint64_t stride = (dibHeader.bitsPerPixel / 8) * dibHeader.width;
-	int padSz = dibHeader.width % 4;
 	switch (dibHeader.compressionMethod) {
 	case BI_RGB: {
+ 		/*
+		 * Simple encoding has a padding of 4 bytes max, so account
+		 * for that in the row calculations below.
+		 */
+		int padSz = dibHeader.width % 4;
 		const uint8_t *bmpRow = nullptr;
 		uint8_t *rawRow = nullptr;
 
@@ -282,6 +285,11 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 
 	uint8_t byte1, byte2;
 	uint64_t outputOffset = 0;
+	/*
+	 * Initialize the entire output image to 0x00 values so when
+	 * pixels are skipped via Delta-encoding, they are set to something.
+	 */
+	memset(output, 0x00, output.size());
 	for (uint64_t inputOffset = bmpHeader->startingAddress;
 	    inputOffset < inputSize; ) {
 		byte1 = input[inputOffset];
@@ -302,8 +310,11 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 			case 1: /* Encoded mode: End of bitmap */
 				return;
 			case 2: /* Encoded mode: Delta */
-				/* Colors for delta-skipped pixels undefined */
-				/* byte3 = num pixels, byte4 = num rows */
+				/* Colors for delta-skipped pixels are left
+				 * to the initialized value.
+				 *
+				 * byte3 = num pixels, byte4 = num rows
+				 */
 				outputOffset += input[inputOffset + 2];
 				outputOffset +=
 				    (input[inputOffset + 3] * dibHeader->width);
