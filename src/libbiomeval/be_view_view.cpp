@@ -28,7 +28,7 @@ BiometricEvaluation::View::View::getImage() const
 {
 	switch (_compressionAlgorithm) {
 	case BE::Image::CompressionAlgorithm::None: {
-		uint16_t bitDepth{0};
+		uint8_t bitDepth{0};
 		if (this->_imageData.size() ==
 		    (this->_imageSize.xSize * this->_imageSize.ySize *
 		    (this->_imageColorDepth / 8)))
@@ -40,44 +40,13 @@ BiometricEvaluation::View::View::getImage() const
 		else
 			throw BE::Error::NotImplemented("> 16-bit depth");
 
-		return (std::shared_ptr<BE::Image::Image>(
-		    new BE::Image::Raw(
-			this->_imageData, this->_imageData.size(),
-			this->_imageSize, this->_imageColorDepth,
-			bitDepth, this->_imageResolution, false)));
+		return (std::make_shared<BE::Image::Raw>(this->_imageData,
+		    this->_imageData.size(), this->_imageSize,
+		    this->_imageColorDepth, bitDepth, this->_imageResolution,
+		    false));
 	}
-	case BE::Image::CompressionAlgorithm::WSQ20:
-		return (std::shared_ptr<Image::Image>(
-		    new BE::Image::WSQ(
-			this->_imageData, this->_imageData.size())));
-
-	case BE::Image::CompressionAlgorithm::JPEGB:
-		return (std::shared_ptr<BE::Image::Image>(
-		    new BE::Image::JPEG(
-			this->_imageData, this->_imageData.size())));
-
-	case BE::Image::CompressionAlgorithm::JPEGL:
-		return (std::shared_ptr<BE::Image::Image>(
-		    new BE::Image::JPEGL(
-			this->_imageData, this->_imageData.size())));
-
-	case BE::Image::CompressionAlgorithm::JP2:
-		return (std::shared_ptr<BE::Image::Image>(
-		    new BE::Image::JPEG2000(
-			this->_imageData, this->_imageData.size())));
-
-	case BE::Image::CompressionAlgorithm::PNG:
-		return (std::shared_ptr<BE::Image::Image>(
-		    new BE::Image::PNG(
-			this->_imageData, this->_imageData.size())));
-
-	case BE::Image::CompressionAlgorithm::NetPBM:
-		return (std::shared_ptr<BE::Image::Image>(
-		    new BE::Image::NetPBM(
-			this->_imageData, this->_imageData.size())));
-
 	default:
-		return (std::shared_ptr<BE::Image::Image>());
+		return (BE::Image::Image::openImage(this->_imageData));
 	}
 }
 
