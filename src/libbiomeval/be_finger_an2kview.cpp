@@ -60,29 +60,11 @@ BiometricEvaluation::Finger::AN2KView::getMinutiaeDataRecordSet()
 BiometricEvaluation::Finger::Position
 BiometricEvaluation::Finger::AN2KView::convertPosition(int an2kFGP)
 {
-	Finger::Position fgp;
-	switch (an2kFGP) {
-	case 0: fgp = Finger::Position::Unknown; break;
-	case 1: fgp = Finger::Position::RightThumb; break;
-	case 2: fgp = Finger::Position::RightIndex; break;
-	case 3: fgp = Finger::Position::RightMiddle; break;
-	case 4: fgp = Finger::Position::RightRing; break;
-	case 5: fgp = Finger::Position::RightLittle; break;
-	case 6: fgp = Finger::Position::LeftThumb; break;
-	case 7: fgp = Finger::Position::LeftIndex; break;
-	case 8: fgp = Finger::Position::LeftMiddle; break;
-	case 9: fgp = Finger::Position::LeftRing; break;
-	case 10: fgp = Finger::Position::LeftLittle; break;
-	case 11: fgp = Finger::Position::PlainRightThumb; break;
-	case 12: fgp = Finger::Position::PlainLeftThumb; break;
-	case 13: fgp = Finger::Position::PlainRightFourFingers; break;
-	case 14: fgp = Finger::Position::PlainLeftFourFingers; break;
-	case 15: fgp = Finger::Position::LeftRightThumbs; break;
-	case 19: fgp = Finger::Position::EJI; break;
-	default:
+	if ((an2kFGP >= 0 & an2kFGP <= 19) | (an2kFGP >= 40 & an2kFGP <= 54)) {
+		return (static_cast<Finger::Position>(an2kFGP));
+	} else {
     		throw Error::DataError("Invalid Position Code");
 	}
-	return (fgp);
 }
 
 BiometricEvaluation::Finger::PositionSet

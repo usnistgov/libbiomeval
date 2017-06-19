@@ -56,6 +56,13 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getAN2K7Minutiae()
 	return (_AN2K7Features);
 }
 
+std::shared_ptr<BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet>
+BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getAN2K11EFS()
+    const
+{
+	return (_AN2K11EFS);
+}
+
 BiometricEvaluation::Finger::Impression
 BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getImpressionType()
     const
@@ -260,4 +267,15 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
 	readRegisteredVendorBlock(type9, Feature::MinutiaeFormat::NEC);
 	readRegisteredVendorBlock(type9, Feature::MinutiaeFormat::M1);
 	readRegisteredVendorBlock(type9, Feature::MinutiaeFormat::Identix);
+
+	/*
+	 * Try to read AN2K11 extended feature set data, although it may not
+	 * be present.
+	 */
+	try {
+		_AN2K11EFS.reset(
+		    new Feature::AN2K11EFS::ExtendedFeatureSet(buf,
+			recordNumber));
+	} catch (Error::Exception) {}
+	    
 }

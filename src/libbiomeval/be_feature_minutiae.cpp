@@ -73,6 +73,7 @@ BE_Feature_MinutiaeType_EnumToStringMap = {
 	{BE::Feature::MinutiaeType::RidgeEnding, "Ridge Ending"},
 	{BE::Feature::MinutiaeType::Bifurcation, "Bifurcation"},
 	{BE::Feature::MinutiaeType::Compound, "Compound"},
+	{BE::Feature::MinutiaeType::NoDistinction, "No Distinction"},
 	{BE::Feature::MinutiaeType::Other, "Other"}
 };
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(

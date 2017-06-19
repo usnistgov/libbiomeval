@@ -51,11 +51,28 @@ BE_Finger_Position_EnumToStringMap = {
 	{BE::Finger::Position::LeftLittle, "Left Little"},
 	{BE::Finger::Position::PlainRightThumb, "Plain Right Thumb"},
 	{BE::Finger::Position::PlainLeftThumb, "Plain Left Thumb"},
-	{BE::Finger::Position::PlainRightFourFingers, "Plain Right Four "
-	    "Fingers"},
+	{BE::Finger::Position::PlainRightFourFingers, "Plain Right Four Fingers"},
 	{BE::Finger::Position::PlainLeftFourFingers, "Plain Left Four Fingers"},
 	{BE::Finger::Position::LeftRightThumbs, "Left & Right Thumbs"},
-	{BE::Finger::Position::EJI, "EJI or tip"}
+	{BE::Finger::Position::RightExtraDigit, "Right Extra Digit"},
+	{BE::Finger::Position::LeftExtraDigit, "Left Extra Digit"},
+	{BE::Finger::Position::UnknownFrictionRidge, "Unknown Friction Ridge"},
+	{BE::Finger::Position::EJI, "EJI or tip"},
+	{BE::Finger::Position::RightIndexMiddle, "Right Index/Middle"},
+	{BE::Finger::Position::RightMiddleRing, "Right Middle/Ring"},
+	{BE::Finger::Position::RightRingLittle, "Right Ring/Little"},
+	{BE::Finger::Position::LeftIndexMiddle, "Left Index/Middle"},
+	{BE::Finger::Position::LeftMiddleRing, "Left Middle/Ring"},
+	{BE::Finger::Position::LeftRingLittle, "Left Ring/Little"},
+	{BE::Finger::Position::RightIndexLeftIndex, "Right Index/Left Index"},
+	{BE::Finger::Position::RightIndexMiddleRing, "Right Index/Middle/Ring"},
+	{BE::Finger::Position::RightMiddleRingLittle, "Right Middle/Ring/Little"},
+	{BE::Finger::Position::LeftIndexMiddleRing, "Left Index/Middle/Ring"},
+	{BE::Finger::Position::LeftMiddleRingLittle, "Left Middle/Ring/Little"},
+	{BE::Finger::Position::PlainRightFourTips, "Plain Right Four Fingertips"},
+	{BE::Finger::Position::PlainLeftFourTips, "Plain Left Four Fingertips"},
+	{BE::Finger::Position::PlainRightFiveTips, "Plain Right Five Fingertips"},
+	{BE::Finger::Position::PlainLeftFiveTips, "Plain Left Five Fingertips"} 
 };
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Finger::Position,

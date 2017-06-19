@@ -38,10 +38,10 @@ BiometricEvaluation::Image::Coordinate::Coordinate(
     const uint32_t y,
     const float xDistance,
     const float yDistance) :
-    x(x),
-    y(y),
-    xDistance(xDistance),
-    yDistance(yDistance)
+    x{x},
+    y{y},
+    xDistance{xDistance},
+    yDistance{yDistance}
 {
 
 }
@@ -50,21 +50,34 @@ BiometricEvaluation::Image::Resolution::Resolution(
     const double xRes,
     const double yRes,
     const Units units) :
-    xRes(xRes),
-    yRes(yRes),
-    units(units)
-{
-
-}
+    xRes{xRes},
+    yRes{yRes},
+    units{units}
+{ }
 
 BiometricEvaluation::Image::Size::Size(
     const uint32_t xSize,
     const uint32_t ySize) :
-    xSize(xSize),
-    ySize(ySize)
-{
+    xSize{xSize},
+    ySize{ySize}
+{ }
 
-}
+BiometricEvaluation::Image::ROI::ROI() :
+    size{0, 0},
+    horzOffset{0},
+    vertOffset{0}
+{ }
+
+BiometricEvaluation::Image::ROI::ROI(
+    const Size size,
+    const uint32_t horzOffset,
+    const uint32_t vertOffset,
+    const CoordinateSet &path) :
+    size{size},
+    horzOffset{horzOffset},
+    vertOffset{vertOffset},
+    path{path}
+{ }
 
 const std::map<BiometricEvaluation::Image::PixelFormat, std::string>
 BE_Image_PixelFormat_EnumToStringMap = {
@@ -324,3 +337,41 @@ BiometricEvaluation::Image::removeComponents(
 
 	return (out);
 }
+
+std::string
+BiometricEvaluation::Image::to_string(
+    const Image::ROI &r)
+{
+	return (
+	    "Size: " + to_string(r.size)
+            + "; Offset: (" + std::to_string(r.horzOffset) + ","
+	    + std::to_string(r.vertOffset) + "); "
+            + "Path: " + to_string(r.path)
+	);
+}
+
+std::ostream&
+BiometricEvaluation::Image::operator<< (std::ostream &s,
+    const Image::ROI& r)
+{
+	return (s << to_string(r));
+}
+
+bool
+BiometricEvaluation::Image::operator==(
+    const BiometricEvaluation::Image::ROI &lhs,
+    const BiometricEvaluation::Image::ROI &rhs)
+{
+	return ((lhs.size == rhs.size) &&
+	     (lhs.horzOffset == rhs.horzOffset) &&
+	     (lhs.vertOffset == rhs.vertOffset));
+}
+
+bool
+BiometricEvaluation::Image::operator!=(
+    const BiometricEvaluation::Image::ROI &lhs,
+    const BiometricEvaluation::Image::ROI &rhs)
+{
+	return (!(lhs == rhs));
+}
+

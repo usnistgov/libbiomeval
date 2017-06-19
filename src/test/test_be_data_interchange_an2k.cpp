@@ -121,6 +121,33 @@ printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
 	cout << "[End of View]" << endl;
 }
 
+static int
+testAN2K11EFS(const std::string &fname)
+{
+	cout << "Test of Extended Feature Set data in " << fname << ": ";
+	try {
+		DataInterchange::AN2KRecord an2k(fname);
+	std::vector<Finger::AN2KMinutiaeDataRecord> minutiae =
+	    an2k.getMinutiaeDataRecordSet();
+
+		Image::ROI roi = minutiae[0].getAN2K11EFS()->getImageInfo().roi;
+		cout << "ROI:\n"
+		    << "\tSize: ("
+		    << roi.size.xSize << "," << roi.size.ySize << ")\n"
+		    << "\tOffset: ("
+		    << roi.horzOffset << "," << roi.vertOffset << ")\n"
+		    << "\tPath: ";
+		for (auto const& point: roi.path) {
+			cout << point << " ";
+		}
+		cout << "\n";
+	} catch (Error::Exception &e) {
+		cout << "Failed; caught " << e.whatString() << "\n";
+		return (1);
+	}
+	return(0);
+}
+
 int
 main(int argc, char* argv[]) {
 
@@ -184,6 +211,6 @@ main(int argc, char* argv[]) {
 			return (EXIT_FAILURE);
 		}
 	}
-		
-	return(EXIT_SUCCESS);
+
+	return(testAN2K11EFS("test_data/type9-efs.an2k"));
 }

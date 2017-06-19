@@ -65,7 +65,7 @@ RECORDSTORE = be_io_recordstore_impl.cpp be_io_recordstore.cpp be_io_dbrecstore.
 
 IMAGE = be_image.cpp be_image_image.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_netpbm.cpp be_image_raw.cpp be_image_wsq.cpp be_image_png.cpp be_image_jpeg2000.cpp be_image_bmp.cpp be_image_tiff.cpp
 
-FEATURE = be_feature_minutiae.cpp be_feature_an2k7minutiae.cpp be_feature_incitsminutiae.cpp be_feature_sort.cpp
+FEATURE = be_feature_minutiae.cpp be_feature_an2k7minutiae.cpp be_feature_incitsminutiae.cpp be_feature_sort.cpp be_feature_an2k11efs.cpp be_feature_an2k11efs_impl.cpp
 
 PROCESS = be_process_worker.cpp be_process_workercontroller.cpp be_process_manager.cpp be_process_forkmanager.cpp be_process_posixthreadmanager.cpp be_process_semaphore.cpp
 
@@ -75,6 +75,8 @@ VIEW = be_view_view.cpp be_view_an2kview.cpp be_view_an2kview_varres.cpp
 
 FINGER = be_finger.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_finger_incitsview.cpp be_finger_ansi2004view.cpp be_finger_ansi2007view.cpp be_finger_iso2005view.cpp be_data_interchange_finger.cpp
 
+PALM = be_palm.cpp
+PLANTAR = be_plantar.cpp
 IRIS = be_iris.cpp be_iris_incitsview.cpp be_iris_iso2011view.cpp
 FACE = be_face.cpp be_face_incitsview.cpp be_face_iso2005view.cpp
 
@@ -88,10 +90,10 @@ VIDEO = be_video_impl.cpp be_video_container_impl.cpp be_video_stream_impl.cpp b
 
 DEVICE = be_device_tlv_impl.cpp be_device_tlv.cpp be_device_smartcard_impl.cpp be_device_smartcard.cpp
 
-SOURCES = $(CORE) $(IO) $(RECORDSTORE) $(PROCESS) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER) $(VIDEO) $(DEVICE)
+SOURCES = $(CORE) $(IO) $(RECORDSTORE) $(PROCESS) $(IMAGE) $(FEATURE) $(VIEW) $(FINGER) $(PALM) $(PLANTAR) $(IRIS) $(FACE) $(DATA) $(MESSAGE_CENTER) $(VIDEO) $(DEVICE)
 
 # Source files that rely on NBIS development files being installed
-NBIS_SOURCES = be_feature_an2k7minutiae.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_wsq.cpp be_view_an2kview.cpp be_view_an2kview_varres.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_data_interchange_an2k.cpp
+NBIS_SOURCES = be_feature_an2k7minutiae.cpp be_feature_an2k11efs_impl.cpp be_image_jpeg.cpp be_image_jpegl.cpp be_image_wsq.cpp be_view_an2kview.cpp be_view_an2kview_varres.cpp be_finger_an2kminutiae_data_record.cpp be_finger_an2kview.cpp be_finger_an2kview_fixedres.cpp be_finger_an2kview_varres.cpp be_finger_an2kview_latent.cpp be_finger_an2kview_capture.cpp be_data_interchange_an2k.cpp
 
 #
 # Keep MPI related files separate so we can use a different compiler command,

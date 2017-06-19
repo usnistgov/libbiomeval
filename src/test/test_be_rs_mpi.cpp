@@ -261,7 +261,7 @@ createPropertiesFile()
 	}
 	MPI::printStatus("Creating properties file " +
 	    DefaultPropertiesFileName);
-	ofs << "Input Record Store = ./AN2KRecordStore" << endl;
+	ofs << "Input Record Store = ./test_data/AN2KRecordStore" << endl;
 	ofs << "Chunk Size = 16" << endl;
 	ofs << "Max Key Size = 1024" << endl;
 	ofs << "Workers Per Node = 2" << endl;

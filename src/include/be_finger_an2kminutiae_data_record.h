@@ -15,6 +15,7 @@
 #include <memory>
 
 #include <be_feature_an2k7minutiae.h>
+#include <be_feature_an2k11efs.h>
 #include <be_memory_autoarray.h>
 
 /* an2k.h forward declares */
@@ -29,8 +30,10 @@ namespace BiometricEvaluation {
 		 * @details
 		 * Type-9 Records may contain only "standard" minutiae data
 		 * (fields 9.005 - 9.012) or any combination of "standard" 
-		 * minutiae data and registered vendor minutiae data (several
-		 * vendors from fields 9.013 - 9.175).
+		 * minutiae data, registered vendor minutiae data (several
+		 * vendors from fields 9.013 - 9.175), and extended feature
+		 * set data (fields 9.300 - 9.399), although not all fields
+		 * are supported.
 		 */
 		class AN2KMinutiaeDataRecord {
 		public:
@@ -99,7 +102,22 @@ namespace BiometricEvaluation {
 			std::shared_ptr<Feature::AN2K7Minutiae>
 			getAN2K7Minutiae()
 			    const;
-			
+
+			/**
+			 * @brief
+			 * Obtain the extended feature set data from this
+			 * Type-9 Record (fields 9.300 - 9.399).
+			 *
+			 * @return
+			 *	Shared pointer to an AN2K11ExtendedFeatureSet
+			 *	object if present in the record. The managed
+			 *	pointer will nulptr if there is no extended
+			 *	feature data.
+			 */
+			std::shared_ptr<Feature::AN2K11EFS::ExtendedFeatureSet>
+			getAN2K11EFS()
+			    const;
+
 			/**
 			 * @brief
 			 * Return impression type field from Type-9 Record.
@@ -191,6 +209,9 @@ namespace BiometricEvaluation {
 			std::map<uint16_t, Memory::uint8Array> _cogentFeatures;
 			/** Motorola minutiae data (Field 9.056 - 9.070) */
 			std::map<uint16_t, Memory::uint8Array> _motorolaFeatures;
+			/** Extended feature set (Field 9.300 - 9.399) */
+			std::shared_ptr<Feature::AN2K11EFS::ExtendedFeatureSet>
+			    _AN2K11EFS;
 			/** Sagem Morpho features (Field 9.071 - 9.099) */
 			std::map<uint16_t, Memory::uint8Array> _sagemFeatures;
 			/** NEC features (Field 9.100 - 9.125) */

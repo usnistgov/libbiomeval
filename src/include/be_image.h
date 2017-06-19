@@ -339,6 +339,64 @@ namespace BiometricEvaluation
 		    const BiometricEvaluation::Memory::uint8Array &rawData,
 		    const uint8_t bitDepth,
 		    const std::vector<bool> &components);
+
+		/**
+		 * @brief
+		 * A structure to represent a region of interest (ROI), which
+		 * is a bounding box and a set of coordinates.
+		 */
+		struct ROI {
+			/**
+			 * Create an empty ROI object.
+			 */
+			ROI();
+
+			/**
+			 * Create a ROI object with the given parameters.
+			 * @param[in] size
+			 *	The size of the region of interest.
+			 * @param[in] horzOffset
+			 *	The horizontal offset of the region of interest.
+			 * @param[in] vertOffset
+			 *	The vertical offset of the region of interest.
+			 * @param[in] path
+			 *	The path offset of the region of interest.
+			 */
+			ROI(
+			    const Size size,
+			    const uint32_t horzOffset,
+			    const uint32_t vertOffset,
+			    const CoordinateSet &path);
+
+			Size size;
+			uint32_t horzOffset;
+			uint32_t vertOffset;
+			CoordinateSet path;
+		};
+		using ROI = struct ROI;
+
+		/**
+		 * @brief
+		 * Convert ROI to std::string.
+		 *
+		 * @param r
+		 * ROI to convert to std::string.
+		 *
+		 * @return
+		 * std::string representation of r.
+		 */
+		std::string
+		to_string(
+		    const ROI &r);
+		std::ostream& operator<< (std::ostream&, const ROI&);
+		bool
+		operator==(
+		    const ROI &lhs,
+		    const ROI &rhs);
+		bool
+		operator!=(
+		    const ROI &lhs,
+		    const ROI &rhs);
 	}
 }
 

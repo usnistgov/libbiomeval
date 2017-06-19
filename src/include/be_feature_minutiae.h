@@ -52,6 +52,7 @@ namespace BiometricEvaluation
 			RidgeEnding = 0,
 			Bifurcation,
 			Compound,
+			NoDistinction,
 			Other
 		};
 
