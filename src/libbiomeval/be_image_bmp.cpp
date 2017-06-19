@@ -10,6 +10,11 @@
 
 #include <be_image_bmp.h>
 
+namespace BE = BiometricEvaluation;
+
+static const int BMPHDRSZ = 14;
+static const int DIBHDRSZ = 40;
+
 BiometricEvaluation::Image::BMP::BMP(
     const uint8_t *data,
     const uint64_t size) :
@@ -43,7 +48,34 @@ BiometricEvaluation::Image::BMP::BMP(
 	this->setDimensions(Size(dibHeader.width, abs(dibHeader.height)));
 	this->setResolution(Resolution((dibHeader.xResolution / 1000.0),
 	    (dibHeader.yResolution / 1000.0), Resolution::Units::PPMM));
+
 	this->setColorDepth(dibHeader.bitsPerPixel);
+
+	/*
+	 * Read the color table, only present when bits-per-pixel <= 8.
+	 * The color depth depends on whether the color table represents
+	 * grayscale values (R=G=B) or actual colors. In the first case,
+	 * color depth is bits-per-pixel; in the second, depth is 24.
+	 * The size of the table can be less than max possible.
+	 */
+	
+	if (dibHeader.bitsPerPixel <= 8) {
+		int numColors;
+		if (dibHeader.numberOfColors == 0) {
+			numColors = 1 << dibHeader.bitsPerPixel;
+		} else {
+			numColors = dibHeader.numberOfColors;
+		}
+		BMP::getColorTable(data, size, numColors, this->_colorTable);
+		for (auto cte : this->_colorTable) {
+			if ((cte.red == cte.green) && (cte.green == cte.blue)) {
+				continue;
+			} else {
+				this->setColorDepth(24);
+				break;
+			}
+		}
+	}
 	this->setBitDepth(8);
 }
 
@@ -52,6 +84,23 @@ BiometricEvaluation::Image::BMP::BMP(
     BiometricEvaluation::Image::BMP::BMP(data, data.size())
 {
 
+}
+
+static inline void
+rawPixelFromColorTable(
+    uint8_t *&pixel,
+    int pixelSz,	// number of octets to represent a pixel
+    const BE::Image::BMP::ColorTable &table,
+    uint8_t index)	// color table index
+{
+	if (pixelSz == 1) {
+		pixel[0] = table[index].red;
+	} else {
+		pixel[0] = table[index].red;
+		pixel[1] = table[index].green;
+		pixel[2] = table[index].blue;
+	}
+	pixel += pixelSz;
 }
 
 BiometricEvaluation::Memory::AutoArray<uint8_t>
@@ -69,51 +118,60 @@ BiometricEvaluation::Image::BMP::getRawData()
 	} catch (Error::NotImplemented &e) {
 		throw Error::DataError(e.what());
 	}
+	/* Image size is not required */
+	uint64_t imageSize = dibHeader.bitmapSize;
+	if (imageSize == 0)
+		imageSize = (bmpHeader.size - bmpHeader.startingAddress);
+	if ((bmpDataSize + BMPHDRSZ + DIBHDRSZ) < imageSize)
+		throw Error::DataError("Buffer length too small");
+
+	/*
+	 * The stride of the BMP data could be different than that for
+	 * the output RAW data in the case we have a pseudo 24-bit
+	 * RAW due to color table mappings.
+	 */
+	int rawPixelSz = this->getColorDepth() / 8;
+	uint64_t rawStride = rawPixelSz * dibHeader.width;
+
 	/*
 	 * The height in the image header can be negative, so
 	 * use the absolute value when using height to calculate
 	 * file offsets, etc.
 	 */
 	int32_t absHeight = abs(dibHeader.height);
-	Memory::uint8Array rawData(dibHeader.width * absHeight *
-	    (dibHeader.bitsPerPixel / 8));
+	Memory::uint8Array rawData(rawStride * absHeight);
 
-	/* Image size is not required */
-	uint64_t imageSize = dibHeader.bitmapSize;
-	if (imageSize == 0)
-		imageSize = (bmpHeader.size - bmpHeader.startingAddress);
-	if ((bmpDataSize + 12 + 40) < imageSize)
-		throw Error::DataError("Buffer length too small");
-
-	/*
-	 * Stride is size of the BMP data storage area for each row,
-	 * not including padding.
-	 */
-	uint64_t stride = (dibHeader.bitsPerPixel / 8) * dibHeader.width;
+	uint32_t bmpStride = (dibHeader.bitsPerPixel / 8) * dibHeader.width;
 	switch (dibHeader.compressionMethod) {
 	case BI_RGB: {
  		/*
 		 * Simple encoding has a padding of 4 bytes max, so account
-		 * for that in the row calculations below.
+		 * for that in the BMP row calculations below.
 		 */
 		int padSz = dibHeader.width % 4;
 		const uint8_t *bmpRow = nullptr;
 		uint8_t *rawRow = nullptr;
 
 		for (int32_t row = 0; row < absHeight; row++) {
-			rawRow = rawData + (row * stride);
+			rawRow = rawData + (row * rawStride);
+
 			/* Pixels are stored top to bottom if height is < 0 */
 			if (dibHeader.height < 0) {
 				bmpRow = bmpData + bmpHeader.startingAddress +
-				    (row * (stride + padSz));
+				    (row * (bmpStride + padSz));
 			} else {
 				bmpRow = bmpData + bmpHeader.startingAddress +
-				    ((absHeight - row - 1) * (stride + padSz));
+				    ((absHeight - row - 1) * (bmpStride + padSz));
 			}
+			/*
+			 * Use the header bits/pixel because color depth
+			 * can be different for encodings that use a color
+			 * table.
+			 */
 			switch (dibHeader.bitsPerPixel) {
 			case 32:
 				/* BGRA -> RGBA */
-				for (uint64_t i = 0; i <= (stride - 4);
+				for (uint64_t i = 0; i <= (bmpStride - 4);
 				    i += 4) {
 					rawRow[i] = bmpRow[i + 2];
 					rawRow[i + 1] = bmpRow[i + 1];
@@ -123,7 +181,7 @@ BiometricEvaluation::Image::BMP::getRawData()
 				break;
 			case 24:
 				/* BGR -> RGB */
-				for (uint64_t i = 0; i <= (stride - 3);
+				for (uint64_t i = 0; i <= (bmpStride - 3);
 				    i += 3) {
 					rawRow[i] = bmpRow[i + 2];
 					rawRow[i + 1] = bmpRow[i + 1];
@@ -131,7 +189,16 @@ BiometricEvaluation::Image::BMP::getRawData()
 				}
 				break;
 			case 8:
-				memcpy(rawRow, bmpRow, stride);
+				/*
+				 * Indexed bitmap array:
+				 * Use the color map to fill out the entire
+				 * row of raw data.
+				 */
+				for (uint32_t i = 0; i < bmpStride; i++) {
+					rawPixelFromColorTable(
+					    rawRow, rawPixelSz,
+					    this->_colorTable, bmpRow[i]);
+				}
 				break;
 			}
 		}
@@ -145,19 +212,19 @@ BiometricEvaluation::Image::BMP::getRawData()
 		if (dibHeader.height > 0) {
 			/* Reverse rows */
 			/* TODO: This should really be done in rle8Decoder() */
-			Memory::uint8Array tempRow(dibHeader.width);
+			Memory::uint8Array tempRow(rawStride);
 			for (int32_t rowFwd = 0, rowBack = absHeight - 1;
 			    rowFwd < rowBack;
 			    rowFwd++, rowBack--) {
 				std::memcpy(tempRow,
-				    rawData + (rowFwd * stride),
-				    dibHeader.width);
-				std::memcpy(rawData + (rowFwd * stride),
-				    rawData + (rowBack * stride),
-				    dibHeader.width);
-				std::memcpy(rawData + (rowBack * stride),
+				    rawData + (rowFwd * rawStride),
+				    rawStride);
+				std::memcpy(rawData + (rowFwd * rawStride),
+				    rawData + (rowBack * rawStride),
+				    rawStride);
+				std::memcpy(rawData + (rowBack * rawStride),
 				    tempRow,
-				    dibHeader.width);
+				    rawStride);
 			}
 		}
 		break;
@@ -200,7 +267,7 @@ BiometricEvaluation::Image::BMP::isBMP(
 
 void
 BiometricEvaluation::Image::BMP::getBMPHeader(
-    const uint8_t * const buf,
+    const uint8_t *buf,
     uint64_t bufsz,
     BMPHeader *header)
 {
@@ -208,7 +275,7 @@ BiometricEvaluation::Image::BMP::getBMPHeader(
 	 * BMP header specification from
 	 * http://en.wikipedia.org/wiki/BMP_file_format
 	 */
-	if (bufsz < 12)
+	if (bufsz < BMPHDRSZ)
 		throw Error::StrategyError("Invalid buffer size for BMP"
 		    "header");
 	
@@ -234,7 +301,7 @@ BiometricEvaluation::Image::BMP::getDIBHeader(
 	 * BITMAPINFOHEADER header specification from
 	 * http://en.wikipedia.org/wiki/BMP_file_format
 	 */
-	if (bufsz < (12 + 40))
+	if (bufsz < (BMPHDRSZ + DIBHDRSZ))
 		throw Error::StrategyError("Invalid buffer size for "
 		    "BMPINFOHEADER header");
 
@@ -253,6 +320,11 @@ BiometricEvaluation::Image::BMP::getDIBHeader(
 	memcpy(&((*header).numberOfColors), dibBuf + 32, 4);
 	memcpy(&((*header).numberOfImportantColors), dibBuf + 36, 4);
 	
+	/*
+	 * NOTE: Some assumptions about header sizes. color depths, etc.
+	 * are made in other parts of this class based on the fact that
+	 * a few compression methods are supported.
+	 */
 	switch (header->compressionMethod) {
 	case BI_RGB:	/* None */
 		break;
@@ -264,12 +336,37 @@ BiometricEvaluation::Image::BMP::getDIBHeader(
 }
 
 void
+BiometricEvaluation::Image::BMP::getColorTable(
+    const uint8_t * const buf,
+    uint64_t bufsz,
+    int count,
+    BE::Image::BMP::ColorTable &colorTable)
+{
+	//XXX check bufsz against header sizes + color table size
+	/*
+	 * Skip over the headers.
+	 * Color table follows the DIB header.
+	 */
+	const uint8_t *map = buf + BMPHDRSZ + DIBHDRSZ;
+
+	for (int c = 0; c < count * 4; c += 4) {
+		/* BGR -> RGB mapping, and the reserved value */
+		BMP::ColorTableEntry cte;
+		cte.red = map[c + 2];
+		cte.green = map[c + 1];
+		cte.blue = map[c];
+		cte.reserved = map[c + 3];
+		colorTable.push_back(cte);
+	}
+}
+
+void
 BiometricEvaluation::Image::BMP::rle8Decoder(
     const uint8_t *input,
     uint64_t inputSize,
     Memory::uint8Array &output,
     BMPHeader *bmpHeader,
-    BITMAPINFOHEADER *dibHeader)
+    BITMAPINFOHEADER *dibHeader) const
 {
 	/*
 	 * RLE8 format from
@@ -281,32 +378,45 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 	    (dibHeader->bitsPerPixel != 8))
 		throw Error::NotImplemented("Not RLE8 compressed");
 		
-	output.resize(dibHeader->width * abs(dibHeader->height));
+	/*
+	 * When converting from 8-bit BMP to 24-bit color, the
+	 * output array will be larger than the input.
+	 */
+	int rawPixelSz = this->getColorDepth() / 8;
+	output.resize(dibHeader->width * rawPixelSz * abs(dibHeader->height));
+
+	/*
+	 * Initialize the entire output image to first color table values
+	 * so when pixels are skipped via Delta-encoding, they are set to
+	 * something.
+	 */
+	uint8_t *rawRow = output;
+	for (int i = 0; i < dibHeader->width * abs(dibHeader->height); i++) {
+		rawPixelFromColorTable(
+		    rawRow, rawPixelSz,
+		    this->_colorTable, 0);
+	}
+	rawRow = output;
 
 	uint8_t byte1, byte2;
-	uint64_t outputOffset = 0;
-	/*
-	 * Initialize the entire output image to 0x00 values so when
-	 * pixels are skipped via Delta-encoding, they are set to something.
-	 */
-	memset(output, 0x00, output.size());
+
 	for (uint64_t inputOffset = bmpHeader->startingAddress;
 	    inputOffset < inputSize; ) {
 		byte1 = input[inputOffset];
 		byte2 = input[inputOffset + 1];
 
 		if (byte1 == 0) {
+			int skipCount;
 			switch (byte2) {
 			case 0: /* Encoded mode: End of line */
 				/* 
-				 * Colors after EOL are undefined, as there
-				 * shouldn't be any.
+				 * Colors after EOL are assumed to be
+				 * color zero in the table. 
 				 */
-				while ((outputOffset % dibHeader->width) != 0)
-					outputOffset++;
-					
+				skipCount = (rawRow-output) % dibHeader->width;
+				rawRow += skipCount * rawPixelSz;
 				inputOffset += 2;
-				continue;
+				break;
 			case 1: /* Encoded mode: End of bitmap */
 				return;
 			case 2: /* Encoded mode: Delta */
@@ -315,37 +425,42 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 				 *
 				 * byte3 = num pixels, byte4 = num rows
 				 */
-				outputOffset += input[inputOffset + 2];
-				outputOffset +=
+				skipCount = input[inputOffset + 2] +
 				    (input[inputOffset + 3] * dibHeader->width);
-
+				rawRow += skipCount * rawPixelSz;
 				inputOffset += 4;
 				break;
 			default: /* Absolute mode */
 				/* byte2 = count, byte3..n = data */
-				memcpy(output + outputOffset,
-				    input + inputOffset + 2, byte2);
-				inputOffset += (2 + byte2);
-				outputOffset += byte2;
+				inputOffset += 2;
+				for (uint8_t i = 0; i < byte2; i++) {
+					uint8_t byteN = input[inputOffset + i];
+					rawPixelFromColorTable(
+					    rawRow, rawPixelSz,
+					    this->_colorTable, byteN);
+				}
+				inputOffset += byte2;
 
 				/*
-				 * Data must end on a word boundary, which
+				 * BMP data must end on a word boundary, which
 				 * is 16 bits according to Microsoft. Therefore
 				 * the input is padded to even octet counts.
 				 */
 				if (inputOffset % 2 != 0)
 					inputOffset++;
+				break;
 			}
 		} else {
 			/*
 			 * Encoded mode, count/value pairs.
+			 * byte1 = count, byte2 = color index
 			 */
-			 
-			/* byte1 = count, byte2 = color */
-			memset(output + outputOffset, byte2, byte1);
-			
+			for (uint8_t i = 0; i < byte1; i++) {
+				rawPixelFromColorTable(
+				    rawRow, rawPixelSz,
+				    this->_colorTable, byte2);
+			}
 			inputOffset += 2;
-			outputOffset += byte1;
 		}
 	}
 }

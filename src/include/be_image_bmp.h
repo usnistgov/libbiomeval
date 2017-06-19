@@ -29,6 +29,21 @@ namespace BiometricEvaluation
 		class BMP : public Image
 		{
 		public:
+			/** One element of the colormap table. */
+			struct ColorTableEntry
+			{
+				/** Red value */
+				uint8_t		red;
+				/** Green value */
+				uint8_t		green;
+				/** Blue value */
+				uint8_t		blue;
+				/** Reserved value */
+				uint8_t		reserved;
+			};
+			using ColorTableEntry = struct ColorTableEntry;
+			using ColorTable = std::vector<ColorTableEntry>;
+
 			BMP(
 			    const uint8_t *data,
 			    const uint64_t size);
@@ -156,6 +171,28 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Populate the color table.
+			 *
+			 * @param buf
+			 *	BMP buffer.
+			 * @param bufsz
+			 *	Size of buf.
+			 * @param count
+			 *	The number of elements in the table.
+			 * @param[in/out] colorTable
+			 *	ColorTable read from the data and mapped into
+			 *	RGBA values.
+			 *
+			 */
+			void
+			getColorTable(
+			    const uint8_t *buf,
+			    uint64_t bufsz,
+			    int count,
+			    ColorTable &colorTable);
+
+			/**
+			 * @brief
 			 * Decode 8-bit Run-Length Encoded bitmap image data.
 			 *
 			 * @param input
@@ -173,21 +210,23 @@ namespace BiometricEvaluation
 			 * @throw Error::NotImplemented
 			 *	Not data that can be decoded with RLE8.
 			 */
-			static void
+			void
 			rle8Decoder(
 			    const uint8_t *input,
 			    uint64_t inputSize,
 			    Memory::uint8Array &output,
 			    BMPHeader *bmpHeader,
-			    BITMAPINFOHEADER *dibHeader);
+			    BITMAPINFOHEADER *dibHeader) const;
+
+			ColorTable _colorTable{};
 		};
 		
 		/** Compression method specifier for raw RGB triples. */
 		static const uint8_t BI_RGB = 0;
 		/** Compression method specifier for 8-bit RLE data. */
 		static const uint8_t BI_RLE8 = 1;
+
 	}
 }
-
 #endif
 
