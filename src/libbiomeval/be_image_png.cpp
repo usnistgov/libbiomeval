@@ -10,9 +10,12 @@
 
 #include <png.h>
 
-#include <be_memory.h>
 #include <be_image_png.h>
+#include <be_memory.h>
 #include <be_memory_autoarray.h>
+#include <be_memory_mutableindexedbuffer.h>
+
+namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::Image::PNG::PNG(
     const uint8_t *data,
@@ -131,6 +134,52 @@ BiometricEvaluation::Image::PNG::getRawData()
 		row_pointers[row] = rawData + (row * rowbytes);
 	png_read_image(png_ptr, row_pointers);
 
+	/* Check for palette color (1, 2, 4, 8-bit depth only) */
+	if (this->getBitDepth() > 8) {
+		png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
+		return (rawData);
+	}
+	png_byte color_type{png_get_color_type(png_ptr, png_info_ptr)};
+	if ((color_type & PNG_COLOR_MASK_PALETTE) != PNG_COLOR_MASK_PALETTE) {
+		png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
+		return (rawData);
+	}
+
+	/* Read and parse the palette data */
+	png_colorp palette{};
+	int paletteSize{};
+	if (png_get_PLTE(png_ptr, png_info_ptr, &palette, &paletteSize) !=
+	    PNG_INFO_PLTE) {
+	    	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
+		throw BE::Error::StrategyError("Expected palette data, but no "
+		    "PLTE chunk found");
+	}
+
+	const bool paletteIsGrayscale = std::all_of(&palette[0],
+	    &palette[paletteSize], [](const png_color &c) -> bool {
+		return ((c.red == c.green) && (c.green == c.blue));
+	});
+
+	if (paletteIsGrayscale) {
+		std::for_each(rawData.begin(), rawData.end(), [&](uint8_t &c) {
+			c = palette[c].red;
+		});
+	} else {
+		BE::Memory::uint8Array expandedRawData(rawData.size() * 3);
+		BE::Memory::MutableIndexedBuffer buf{expandedRawData};
+
+		std::for_each(rawData.begin(), rawData.end(),
+		    [&](const uint8_t &c) {
+			const auto paletteColor = palette[c];
+			buf.pushU8Val(paletteColor.red);
+			buf.pushU8Val(paletteColor.green);
+			buf.pushU8Val(paletteColor.blue);
+		});
+
+		rawData = expandedRawData;
+	}
+
+	png_free_data(png_ptr, png_info_ptr, PNG_FREE_PLTE, 0);
 	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
 	return (rawData);
 }
