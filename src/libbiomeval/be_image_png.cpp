@@ -65,7 +65,7 @@ png_read_mem_src(
  * Always thrown with msg.
  */
 static void
-png_error(
+png_error_callback(
     png_structp png_ptr,
     png_const_charp msg);
 
@@ -78,7 +78,7 @@ BiometricEvaluation::Image::PNG::PNG(
     CompressionAlgorithm::PNG)
 {
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-	    nullptr, png_error, png_error);
+	    nullptr, png_error_callback, png_error_callback);
 	if (png_ptr == nullptr)
 		throw Error::StrategyError("libpng could not create "
 		    "png_struct");
@@ -152,7 +152,7 @@ BiometricEvaluation::Image::PNG::getRawData()
     const
 {
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-	    nullptr, png_error, png_error);
+	    nullptr, png_error_callback, png_error_callback);
 	if (png_ptr == nullptr)
 		throw Error::StrategyError("libpng could not create "
 		    "png_struct");
@@ -282,7 +282,7 @@ png_read_mem_src(
 }
 
 void
-png_error(
+png_error_callback(
     png_structp png_ptr,
     png_const_charp msg)
 {
