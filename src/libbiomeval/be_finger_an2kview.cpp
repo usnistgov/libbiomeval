@@ -60,7 +60,8 @@ BiometricEvaluation::Finger::AN2KView::getMinutiaeDataRecordSet()
 BiometricEvaluation::Finger::Position
 BiometricEvaluation::Finger::AN2KView::convertPosition(int an2kFGP)
 {
-	if ((an2kFGP >= 0 & an2kFGP <= 19) | (an2kFGP >= 40 & an2kFGP <= 54)) {
+	if ((an2kFGP >= 0 && an2kFGP <= 19) ||
+	    (an2kFGP >= 40 && an2kFGP <= 54)) {
 		return (static_cast<Finger::Position>(an2kFGP));
 	} else {
     		throw Error::DataError("Invalid Position Code");

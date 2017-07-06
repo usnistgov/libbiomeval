@@ -231,11 +231,11 @@ readFPP(
 	 * AN2k11 EFS standard allows only for a subset of finger positions,
 	 * and all palm positions.
 	 */
-	if ((fgp >= 0 & fgp <= 10) | (fgp >= 16 & fgp <= 18)) {
+	if ((fgp >= 0 && fgp <= 10) || (fgp >= 16 && fgp <= 18)) {
 		fpp.fgp =
 		    BE::Feature::AN2K11EFS::FrictionGeneralizedPosition::Finger;
 		fpp.fingerPos = static_cast<BE::Finger::Position>(fgp);
-	} else if ((fgp >= 20 & fgp <= 38) | (fgp >= 81 & fgp <= 86)) {
+	} else if ((fgp >= 20 && fgp <= 38) || (fgp >= 81 && fgp <= 86)) {
 		fpp.fgp =
 		    BE::Feature::AN2K11EFS::FrictionGeneralizedPosition::Palm;
 		fpp.palmPos = static_cast<BE::Palm::Position>(fgp);
