@@ -99,6 +99,15 @@ main(
 	else
 		std::cout << "FAIL" << std::endl;
 
+	/* Converting an out-of-range int should fail */
+	std::cout << "to_enum(out of range): ";
+	try {
+		if (to_enum<CardSuit>(42) == CardSuit::Spades)
+			std::cout << "FAIL" << std::endl;
+	} catch (BiometricEvaluation::Error::ObjectDoesNotExist) {
+		std::cout << "Pass" << std::endl;
+	}
+
 	std::string output = to_string(CardSuit::Hearts) + " and " +
 	    to_string(CardSuit::Diamonds);
 	std::cout << "Concatenate to string: " <<

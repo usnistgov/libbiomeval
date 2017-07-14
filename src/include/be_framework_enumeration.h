@@ -329,7 +329,15 @@ namespace BiometricEvaluation{ \
 			    const typename std::underlying_type<\
 			        BE_ENUMERATED_TYPE_>::type &iVal) \
 			{ \
-				return (static_cast<BE_ENUMERATED_TYPE_>(iVal)); \
+				for (const auto &i : \
+				    BE_ENUMERATED_TYPE_ENUM_TO_STRING_MAP_) \
+					if (static_cast<std::underlying_type<\
+					    BE_ENUMERATED_TYPE_>::type>(\
+					    i.first) == iVal) \
+						return (i.first); \
+			\
+				throw BiometricEvaluation::Error::\
+				    ObjectDoesNotExist(std::to_string(iVal)); \
 			} \
 \
 			template<> \
