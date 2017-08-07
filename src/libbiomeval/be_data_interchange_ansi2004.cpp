@@ -273,6 +273,7 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::getFMR()
 				    0xC0;
 				/* Lower 6 bits have number of deltas */
 				u8Val |= deltas.size();
+				buf.pushU8Val(u8Val);
 				for (const auto &delta : deltas) {
 					/* X coordinate */
 					buf.pushBeU16Val(delta.coordinate.x);
