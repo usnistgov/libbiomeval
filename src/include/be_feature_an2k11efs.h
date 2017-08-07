@@ -84,9 +84,6 @@ namespace BiometricEvaluation
 		struct FPPPosition {
 			/** The friction ridge generalized position */
 			Feature::FGP			fgp;
-			Finger::Position		fingerPos;
-			Palm::Position			palmPos;
-			Plantar::Position		plantarPos;
 
 			bool				has_fsm;
 			/** The finger segment position */

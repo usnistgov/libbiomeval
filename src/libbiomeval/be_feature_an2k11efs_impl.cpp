@@ -233,10 +233,10 @@ readFPP(
 	 */
 	if ((fgp >= 0 && fgp <= 10) || (fgp >= 16 && fgp <= 18)) {
 		fpp.fgp.posType = BE::Feature::PositionType::Finger;
-		fpp.fingerPos = static_cast<BE::Finger::Position>(fgp);
+		fpp.fgp.position.fingerPos = static_cast<BE::Finger::Position>(fgp);
 	} else if ((fgp >= 20 && fgp <= 38) || (fgp >= 81 && fgp <= 86)) {
 		fpp.fgp.posType = BE::Feature::PositionType::Palm;
-		fpp.palmPos = static_cast<BE::Palm::Position>(fgp);
+		fpp.fgp.position.palmPos = static_cast<BE::Palm::Position>(fgp);
 	} else {
 		throw (BE::Error::DataError("Invalid FGP"));
 	}
