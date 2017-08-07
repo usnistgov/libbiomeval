@@ -7,7 +7,7 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
-#include <be_finger_an2kview_latent.h>
+#include <be_latent_an2kview.h>
 #include <be_io_utility.h>
 extern "C" {
 #include <an2k.h>
@@ -15,7 +15,7 @@ extern "C" {
 
 namespace BE = BiometricEvaluation;
 
-BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
+BiometricEvaluation::Latent::AN2KView::AN2KView(
     const std::string &filename,
     const uint32_t recordNumber) :
     AN2KViewVariableResolution(filename, RecordType::Type_13, recordNumber)
@@ -23,7 +23,7 @@ BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
 	/* Parent classes handle all fields */
 }
 
-BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
+BiometricEvaluation::Latent::AN2KView::AN2KView(
     Memory::uint8Array &buf,
     const uint32_t recordNumber) :
     AN2KViewVariableResolution(buf, RecordType::Type_13, recordNumber)
@@ -35,17 +35,31 @@ BiometricEvaluation::Finger::AN2KViewLatent::AN2KViewLatent(
 /* Public functions.                                                          */
 /******************************************************************************/
 
-BiometricEvaluation::Finger::PositionDescriptors
-BiometricEvaluation::Finger::AN2KViewLatent::getSearchPositionDescriptors()
+BiometricEvaluation::Feature::FGPSet
+BiometricEvaluation::Latent::AN2KView::getPositions()
     const
 {
-	return (getPositionDescriptors());
+	return (BE::View::AN2KViewVariableResolution::getPositions());
+}
+
+BiometricEvaluation::Finger::PositionDescriptors
+BiometricEvaluation::Latent::AN2KView::getSearchPositionDescriptors()
+    const
+{
+	return (BE::View::AN2KViewVariableResolution::getPositionDescriptors());
+}
+
+BiometricEvaluation::View::AN2KViewVariableResolution::PrintPositionCoordinateSet
+BiometricEvaluation::Latent::AN2KView::getPrintPositionCoordinates()
+    const
+{
+	return (BE::View::AN2KViewVariableResolution::getPrintPositionCoordinates());
 }
 
 BiometricEvaluation::View::AN2KViewVariableResolution::QualityMetricSet
-BiometricEvaluation::Finger::AN2KViewLatent::getLatentQualityMetric()
+BiometricEvaluation::Latent::AN2KView::getLatentQualityMetric()
     const
 {
-	return (getQualityMetric());
+	return (BE::View::AN2KViewVariableResolution::getQualityMetric());
 }
 

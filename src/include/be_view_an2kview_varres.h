@@ -14,11 +14,10 @@
 #include <iostream>
 #include <map>
 #include <string>
-#include <vector>
 
-#include <be_view_an2kview.h>
 #include <be_error_exception.h>
-#include <be_finger_an2kminutiae_data_record.h>
+#include <be_feature.h>
+#include <be_view_an2kview.h>
 
 /* an2k.h forward declares */
 struct field;
@@ -38,7 +37,6 @@ namespace BiometricEvaluation
 		 */
 		class AN2KViewVariableResolution : public AN2KView {
 		public:
-		
 			/**
 			* @brief
 			* A structure to represent an AN2K quality metric.
@@ -50,14 +48,32 @@ namespace BiometricEvaluation
 			*/
 			struct AN2KQualityMetric
 			{
-				Finger::Position	position;
+				Feature::FGP		fgp;
 				uint8_t			score;
 				uint16_t		vendorID;
 				uint16_t		productCode;
 			};
 			using AN2KQualityMetric = struct AN2KQualityMetric;
 			using QualityMetricSet = std::vector<AN2KQualityMetric>;
-			
+
+			/**
+			 * @brief
+			 * Offsets to the bounding boxes for the EJI, full 
+			 * finger views, or EJI segments.
+			 */
+			struct PrintPositionCoordinate {
+				/** Full finger view being bounded */
+				Finger::FingerImageCode fingerView;
+				/** Segment within full finger view bound */
+				Finger::FingerImageCode segment;
+				/** Two coordinates forming bounding box */
+				Image::CoordinateSet coordinates;
+			};
+			using PrintPositionCoordinate =
+			    struct PrintPositionCoordinate;
+			using PrintPositionCoordinateSet =
+			    std::vector<PrintPositionCoordinate>;
+
 			/**
 			 * @brief
 			 * Read a Quality Metric Set from a variable resolution
@@ -65,12 +81,20 @@ namespace BiometricEvaluation
 			 *
 			 * @param[in] field
 			 *	A pointer to the field within the AN2K record.
+			 * @param[in] type
+			 *	The position type.
 			 *
 			 * @throws Error::DataError
 			 *	The data contains an invalid value.
 			 */
 			static QualityMetricSet
-			extractQuality(FIELD *field);
+			extractQuality(FIELD *field, Feature::PositionType type);
+
+			/**
+			 * @return
+			 *	The finge/palmr impression code.
+			 */
+			Finger::Impression getImpressionType() const;
 
 			/**
 			 * @return
@@ -168,6 +192,47 @@ namespace BiometricEvaluation
 			    const RecordType typeID,
 			    const uint32_t recordNumber);
 
+			 /**
+                         * @brief
+                         * Obtain the set of finger positions.
+                         * @details
+                         * An AN2K variable resolution image record may contain
+			 * a set of possible friction ridge positions. This
+			 * method returns that set as read from the image
+			 * record.
+			 * Subclasses must retrieve the position information
+			 * relevant to that class.
+			 * @return
+			 * The set of friction ridge generalized positions.
+                         */
+                        Feature::FGPSet
+                        getPositions() const;
+
+			/**
+			 * @brief
+			 * Obtain the position descriptors.
+			 * @details
+			 * Subclasses specialize the position descriptors
+			 * based on the semantic meaning pertinent for that
+			 * class.
+			 * @return
+			 *	The set of position descriptors.
+			 */
+			Finger::PositionDescriptors
+			getPositionDescriptors()
+			    const;
+
+			/**
+			 * @brief
+			 * Obtain print position coordinates
+			 *
+			 * @return
+			 *	Set of all PrintPositionCoordinates
+			 */
+			PrintPositionCoordinateSet
+			getPrintPositionCoordinates()
+			    const;
+
 			/** 
 			 * @brief
 			 * Obtain quality metrics for associated image record
@@ -183,9 +248,13 @@ namespace BiometricEvaluation
 			void readImageRecord(
 			    const RecordType typeID);
 
+			Feature::FGPSet _positions;
+			Finger::Impression _imp;
 			std::string _sourceAgency;
 			std::string _captureDate;
 			std::string _comment;
+			Finger::PositionDescriptors _pd;
+			PrintPositionCoordinateSet _ppcs;
 			/** Metrics of image quality score data */
 			QualityMetricSet _qms;
 			/** User-defined Fields (populated on access) */
@@ -196,7 +265,7 @@ namespace BiometricEvaluation
 		 * @brief
 		 * Output stream overload for AN2KQualityMetric.
 		 *
-		 * @param[in] stream
+		 * @param[in] s
 		 *	Stream on which to append formatted AN2KQualityMetric
 		 *	information.
 		 * @param[in] qm
@@ -207,9 +276,27 @@ namespace BiometricEvaluation
 		 */
 		std::ostream&
 		operator<<(
-		    std::ostream &stream,
+		    std::ostream &s,
 		    const AN2KViewVariableResolution::AN2KQualityMetric &qm);
 
+		/**
+		 * @brief
+		 * Output stream overload for PrintPositionCoordinate.
+		 *
+		 * @param[in] stream
+		 *	Stream on which to append formatted
+		 *	PrintPositionCoordinate information.
+		 * @param[in] ppc
+		 *	PrintPositionCoordinate information to append to stream.
+		 *
+		 * @return
+		 *	Stream with a ppc textual representation appended.
+		 */
+		std::ostream&
+		operator<<(
+		    std::ostream &stream,
+		    const AN2KViewVariableResolution::PrintPositionCoordinate
+		    &ppc);
 	}
 }
 #endif /* __BE_VIEW_AN2KVIEW_VARRES_H__ */

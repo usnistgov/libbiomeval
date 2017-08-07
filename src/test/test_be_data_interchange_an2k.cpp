@@ -80,10 +80,9 @@ printImageInfo(const Image::Image &img, const string &name,
 }
 
 static void
-printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
+printViewInfo(const View::AN2KViewVariableResolution &an2kv,
     const string &name, const int idx)
 {
-	cout << "[Start of View " << idx <<"]" << endl;
 	cout << "\tRecord Type: " <<
 	    static_cast<std::underlying_type<
 	    View::AN2KView::RecordType>::type>(an2kv.getRecordType()) << endl;
@@ -95,11 +94,6 @@ printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
 	cout << "\tScan resolution: " << an2kv.getScanResolution() << endl;
 	cout << "\tImpression Type: " << to_string(an2kv.getImpressionType()) <<
 	    endl;
-	Finger::PositionSet positions = an2kv.getPositions();;
-	cout << "\tPositions: ";
-	for (size_t i = 0; i < positions.size(); i++)
-		cout << to_string(positions[i]) << " ";
-	cout << endl;
 	cout << "\tSource Agency: " << an2kv.getSourceAgency() << endl;
 	cout << "\tCapture Date: " << an2kv.getCaptureDate() << endl;
 	cout << "\tComment: [" << an2kv.getComment() << "]" << endl;
@@ -118,7 +112,6 @@ printViewInfo(const Finger::AN2KViewVariableResolution &an2kv,
 	    an2kv.getMinutiaeDataRecordSet();
 	cout << "There are " << minutiae.size() << 
 	    " minutiae data records." << endl;
-	cout << "[End of View]" << endl;
 }
 
 static int
@@ -180,15 +173,27 @@ main(int argc, char* argv[]) {
 			DataInterchange::AN2KRecord an2k(record.data);
 			printRecordInfo(an2k);
 
+			int i = 0;
 			std::vector<Finger::AN2KViewCapture> captures =
 			    an2k.getFingerCaptures();
-			for (size_t i = 0; i < captures.size(); i++) {
-				printViewInfo(captures[i], record.key + ".cap", i);
+			for (auto c: captures) {
+				cout << "[Capture View " << i <<"]" << endl;
+				printViewInfo(c, record.key + ".cap", i++);
+				cout << "\tPosition: " << c.getPosition()
+				    << endl;
+				cout << "[End of Capture View]" << endl;
 			}
-			std::vector<Finger::AN2KViewLatent> latents =
+			i = 0;
+			std::vector<Latent::AN2KView> latents =
 			    an2k.getFingerLatents();
-			for (size_t i = 0; i < latents.size(); i++) {
-				printViewInfo(latents[i], record.key + ".lat", i);
+			for (auto l: latents) {
+				cout << "[Latent View " << i <<"]" << endl;
+				printViewInfo(l, record.key + ".lat", i++);
+				cout << "\tPositions: ";
+				for (auto p: l.getPositions()) {
+					cout << p << " ";
+				}
+				cout << endl << "[End of Latent View]" << endl;
 			}
 			std::vector<Finger::AN2KMinutiaeDataRecord> minutiae = 
 			    an2k.getMinutiaeDataRecordSet();

@@ -40,6 +40,8 @@ handleAN2KView(Finger::AN2KView &an2kv)
 	cout << "Compression is " <<
 	    to_string(an2kv.getCompressionAlgorithm()) << endl;
 	cout << "Scan resolution is " << an2kv.getScanResolution() << endl;
+	cout << "Impression Type: " <<
+	    to_string(an2kv.getImpressionType()) << endl;
 
 	/*
 	 * Get the image data and save to a file

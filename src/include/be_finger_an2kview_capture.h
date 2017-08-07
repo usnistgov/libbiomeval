@@ -11,7 +11,7 @@
 #ifndef __BE_FINGER_AN2KVIEW_CAPTURE_H__
 #define __BE_FINGER_AN2KVIEW_CAPTURE_H__
 
-#include <be_finger_an2kview_varres.h>
+#include <be_view_an2kview_varres.h>
 #include <be_framework_enumeration.h>
 
 namespace BiometricEvaluation 
@@ -26,7 +26,7 @@ namespace BiometricEvaluation
 		 * Type-9 (finger minutiae) record, an object of this class
 		 * can be used to retrieve the minutiae set(s).
 		 */
-		class AN2KViewCapture : public AN2KViewVariableResolution {
+		class AN2KViewCapture : public View::AN2KViewVariableResolution {
 		public:
 			/**
 			 * @brief
@@ -72,54 +72,6 @@ namespace BiometricEvaluation
 			using FingerSegmentPositionSet =
 			    std::vector<FingerSegmentPosition>;
 			
-			/**
-			 * @brief
-			 * Convert string read from AN2K record into a
-			 * AmputatedBandaged code.
-			 *
-			 * @param[in] ampcd
-			 *	Value for amputated bandaged code read from 
-			 *	an AN2K record.
-			 *
-			 * @throw Error::DataError
-			 *	Invalid value for ampcd.
-			 */
-			static AmputatedBandaged
-			convertAmputatedBandaged(
-			    const char *ampcd);
-
-			/**
-			 * @brief
-			 * Convert SUBFIELD read from AN2K record into a
-			 * FingerSegmentPosition struct.
-			 *
-			 * @param[in] sf
-			 *	Subfield value for a single finger segment
-			 *	position read from an AN2K record.
-			 *
-			 * @throw Error::DataError
-			 *	Invalid value within sf.
-			 */
-			static FingerSegmentPosition
-			convertFingerSegmentPosition(
-			    const SUBFIELD *sf);
-
-			/**
-			 * @brief
-			 * Convert SUBFIELD read from AN2K record into an
-			 * AlternateFingerSegmentPosition struct.
-			 *
-			 * @param[in] sf
-			 *	Subfield value for a single alternate finger
-			 *	segment position read from an AN2K record.
-			 *
-			 * @throw Error::DataError
-			 *	Invalid value with sf.
-			 */
-			static FingerSegmentPosition
-			convertAlternateFingerSegmentPosition(
-			    const SUBFIELD *sf);
-
 			/**
 			 * @brief
 			 * Construct an AN2K finger view from a file.
@@ -178,10 +130,32 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Obtain the finger position.
+			 * @details
+			 * An AN2K finger image record contains a single
+			 * finger positions. Any minutiae record (Type-9)
+			 * associated with this image will have its own set of
+			 * positions.
+		 	 */
+			Finger::Position getPosition() const;
+
+			/**
+			 * @brief
 			 * Return search position descriptors.
 			 */
 			PositionDescriptors
 			getPrintPositionDescriptors()
+			    const;
+
+			/**
+			 * @brief
+			 * Obtain print position coordinates
+			 *
+			 * @return
+			 *	Set of all PrintPositionCoordinates
+			 */
+			PrintPositionCoordinateSet
+			getPrintPositionCoordinates()
 			    const;
 
 			/**

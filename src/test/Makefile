@@ -18,7 +18,9 @@ IO = test_be_io_filelogcabinet test_be_io_properties test_be_io_propertiesfile t
 
 IMAGE = test_be_image_raw test_be_image_jpeg test_be_image_jpegl test_be_image_jpeg2000 test_be_image_jpeg2000l test_be_image_png test_be_image_wsq test_be_image_netpbm test_be_image_bmp test_be_image_tiff test_be_image_factory 
 
-FINGER = test_be_finger_an2kview test_be_finger_an2kview_varres test_be_finger_incitsviews
+FINGER = test_be_finger_an2kview test_be_finger_incitsviews
+LATENT = test_be_latent_an2kview
+PALM = test_be_palm_an2kview
 
 IRIS = test_be_iris_incitsviews
 
@@ -38,7 +40,7 @@ VIDEO = test_be_video
 
 DEVICE = test_be_device_tlv test_be_device_smartcard
 
-PROGS = $(CORE) $(IO) $(RECORDSTORE) $(IMAGE) $(VIDEO) $(PROCESS) $(FINGER) $(FEATURE) $(IRIS) $(FACE) $(OTHER) $(COMMAND_CENTER) $(MPI) $(DEVICE)
+PROGS = $(CORE) $(IO) $(RECORDSTORE) $(IMAGE) $(VIDEO) $(PROCESS) $(FINGER) $(LATENT) $(PALM) $(FEATURE) $(IRIS) $(FACE) $(OTHER) $(COMMAND_CENTER) $(MPI) $(DEVICE)
 
 all: CXXFLAGS += -g
 all: $(PROGS)
@@ -123,7 +125,7 @@ test_be_face_incitsviews: test_be_face_incitsviews.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_feature_an2kminutiae: test_be_feature_an2kminutiae.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
-test_be_finger_an2kview_varres: test_be_finger_an2kview_varres.cpp
+test_be_latent_an2kview: test_be_latent_an2kview.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_finger_incitsviews: test_be_finger_incitsviews.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
@@ -132,6 +134,8 @@ test_be_data_interchange_an2k: test_be_data_interchange_an2k.cpp
 test_be_memory_indexedbuffer: test_be_memory_indexedbuffer.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_memory_orderedmap: test_be_memory_orderedmap.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
+test_be_palm_an2kview: test_be_palm_an2kview.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_process_forkmanager: test_be_process_manager.cpp
 	$(CXX) $(CXXFLAGS) -DFORKTEST $^ -o $@ $(LDFLAGS) -lbiomeval

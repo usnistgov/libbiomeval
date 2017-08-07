@@ -98,34 +98,34 @@ namespace BiometricEvaluation
 		};
 		using PositionSet = std::vector<Position>;
 
-		/** Finger and palm impression types. */
+		/** Finger, palm, and latent impression types. */
 		enum class Impression
 		{
-			LiveScanPlain = 0,
-			LiveScanRolled,
-			NonLiveScanPlain,
-			NonLiveScanRolled,
-			LatentImpression,
-			LatentTracing,
-			LatentPhoto,
-			LatentLift,
-			LiveScanVerticalSwipe,
-			LiveScanPalm,
-			NonLiveScanPalm,
-			LatentPalmImpression,
-			LatentPalmTracing,
-			LatentPalmPhoto,
-			LatentPalmLift,
-			LiveScanOpticalContactPlain,
-			LiveScanOpticalContactRolled,
-			LiveScanNonOpticalContactPlain,
-			LiveScanNonOpticalContactRolled,
-			LiveScanOpticalContactlessPlain,
-			LiveScanOpticalContactlessRolled,
-			LiveScanNonOpticalContactlessPlain,
-			LiveScanNonOpticalContactlessRolled,
-			Other,
-			Unknown
+			LiveScanPlain				= 0,
+			LiveScanRolled				= 1,
+			NonLiveScanPlain			= 2,
+			NonLiveScanRolled			= 3,
+			LatentImpression			= 4,
+			LatentTracing				= 5,
+			LatentPhoto				= 6,
+			LatentLift				= 7,
+			LiveScanVerticalSwipe			= 8,
+			LiveScanPalm				= 10,
+			NonLiveScanPalm				= 11,
+			LatentPalmImpression			= 12,
+			LatentPalmTracing			= 13,
+			LatentPalmPhoto				= 14,
+			LatentPalmLift				= 15,
+			LiveScanOpticalContactPlain		= 20,
+			LiveScanOpticalContactRolled		= 21,
+			LiveScanNonOpticalContactPlain		= 22,
+			LiveScanNonOpticalContactRolled		= 23,
+			LiveScanOpticalContactlessPlain		= 24,
+			LiveScanOpticalContactlessRolled	= 25,
+			LiveScanNonOpticalContactlessPlain	= 26,
+			LiveScanNonOpticalContactlessRolled	= 27,
+			Other					= 28,
+			Unknown					= 29
 		};
 		    
 		/** Joint and tip codes. */

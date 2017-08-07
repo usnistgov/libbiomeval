@@ -8,16 +8,16 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#ifndef __BE_FINGER_AN2KVIEW_LATENT_H__
-#define __BE_FINGER_AN2KVIEW_LATENT_H__
+#ifndef __BE_LATENT_AN2KVIEW_H__
+#define __BE_LATENT_AN2KVIEW_H__
 
-#include <be_finger_an2kview_varres.h>
+#include <be_view_an2kview_varres.h>
 
 namespace BiometricEvaluation 
 {
-	namespace Finger
+	namespace Latent
 	{
-		class AN2KViewLatent : public AN2KViewVariableResolution {
+		class AN2KView : public View::AN2KViewVariableResolution {
 		public:
 			
 			/**
@@ -27,7 +27,7 @@ namespace BiometricEvaluation
 			 * The file must contain the entire AN2K record, not
 			 * just the finger image and/or minutiae records.
 			 */
-			AN2KViewLatent(
+			AN2KView(
 			    const std::string &filename,
 			    const uint32_t recordNumber);
 
@@ -39,9 +39,22 @@ namespace BiometricEvaluation
 			 * The buffer must contain the entire AN2K record, not
 			 * just the finger image and/or minutiae records.
 			 */
-			AN2KViewLatent(
+			AN2KView(
 			    Memory::uint8Array &buf,
 			    const uint32_t recordNumber);
+
+			/**
+			 * @brief
+			 * Obtain the set of finger positions.
+			 * @details
+			 * An AN2K latent image record contains a set of
+			 * possible finger positions. This method returns
+			 * that set as read from the image record. Any
+			 * minutiae record (Type-9) associated with this
+			 * image will have its own set of positions.
+		 	 */
+			Feature::FGPSet
+			getPositions() const;
 
 			/**
 			 * @brief
@@ -59,8 +72,19 @@ namespace BiometricEvaluation
 			 * @brief
 			 * Return search position descriptors.
 			 */
-			PositionDescriptors
+			Finger::PositionDescriptors
 			getSearchPositionDescriptors()
+			    const;
+
+			/**
+			 * @brief
+			 * Obtain print position coordinates
+			 *
+			 * @return
+			 *	Set of all PrintPositionCoordinates
+			 */
+			PrintPositionCoordinateSet
+			getPrintPositionCoordinates()
 			    const;
 
 		protected:
@@ -68,5 +92,5 @@ namespace BiometricEvaluation
 		};
 	}
 }
-#endif /* __BE_FINGER_AN2KVIEW_LATENT_H__ */
+#endif /* __BE_LATENT_AN2KVIEW_H__ */
 

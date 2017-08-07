@@ -22,24 +22,6 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
 	return (s);
 }
 
-const std::map<BiometricEvaluation::Feature::AN2K11EFS::FGP, std::string>
-BE_Feature_AN2K11EFS_FGP_EnumToStringMap = {
-	{BE::Feature::AN2K11EFS::FGP::Finger, "Finger"},
-	{BE::Feature::AN2K11EFS::FGP::Palm, "Palm"},
-	{BE::Feature::AN2K11EFS::FGP::Plantar, "Plantar"},
-};
-BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
-    BiometricEvaluation::Feature::AN2K11EFS::FGP,
-    BE_Feature_AN2K11EFS_FGP_EnumToStringMap);
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const FrictionGeneralizedPosition& fgp)
-{
-	return (s << BE::Framework::Enumeration::to_string(fgp));
-}
-
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::FingerprintSegment,
     std::string>
 BE_Feature_AN2K11EFS_FingerprintSegment_EnumToStringMap = {
@@ -87,20 +69,6 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     const Feature::AN2K11EFS::FPPPosition& fpp)
 {
 	s << "FGP: " << fpp.fgp << ", ";
-	switch (fpp.fgp) {
-		case FrictionGeneralizedPosition::Finger:
-			s << BE::Framework::Enumeration::to_string(
-			    fpp.fingerPos);
-			break;
-		case FrictionGeneralizedPosition::Palm:
-			s << BE::Framework::Enumeration::to_string(
-			    fpp.palmPos);
-			break;
-		case FrictionGeneralizedPosition::Plantar:
-			s << BE::Framework::Enumeration::to_string(
-			    fpp.plantarPos);
-			break;
-	}
 	s << "; ";
 	s << "FSM: "; if (fpp.has_fsm) s << fpp.fsm << "; "; else s << "N/A; ";
 	s << "OCF: "; if (fpp.has_ocf) s << fpp.ocf << "; "; else s << "N/A; ";

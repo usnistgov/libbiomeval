@@ -186,7 +186,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readFingerLatents(
 	int i = 1;
 	while(true) {
 		try {
-			BE::Finger::AN2KViewLatent an2kv(buf, i);
+			BE::Latent::AN2KView an2kv(buf, i);
 			_fingerLatents.push_back(an2kv);
 		} catch (Error::DataError &e) {
 			break;
@@ -307,7 +307,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::getMinutiaeDataRecordSet()
 	return (_minutiaeDataRecordSet);
 }
 
-std::vector<BE::Finger::AN2KViewLatent>
+std::vector<BE::Latent::AN2KView>
 BiometricEvaluation::DataInterchange::AN2KRecord::getFingerLatents() const
 {
 	return (_fingerLatents);

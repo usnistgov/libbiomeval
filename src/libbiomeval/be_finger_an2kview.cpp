@@ -15,6 +15,7 @@ extern "C" {
 }
 
 namespace BE = BiometricEvaluation;
+using namespace BE::Framework::Enumeration;
 
 BiometricEvaluation::Finger::AN2KView::AN2KView(
     const std::string filename,
@@ -60,12 +61,7 @@ BiometricEvaluation::Finger::AN2KView::getMinutiaeDataRecordSet()
 BiometricEvaluation::Finger::Position
 BiometricEvaluation::Finger::AN2KView::convertPosition(int an2kFGP)
 {
-	if ((an2kFGP >= 0 && an2kFGP <= 19) ||
-	    (an2kFGP >= 40 && an2kFGP <= 54)) {
-		return (static_cast<Finger::Position>(an2kFGP));
-	} else {
-    		throw Error::DataError("Invalid Position Code");
-	}
+	return (to_enum<Finger::Position>(an2kFGP));
 }
 
 BiometricEvaluation::Finger::PositionSet
@@ -87,27 +83,9 @@ BiometricEvaluation::Finger::AN2KView::convertImpression(
 {
 	long an2k_imp;
 	an2k_imp = strtol((const char *)str, nullptr, 10);
-	switch (an2k_imp) {
-	case 0: return (Finger::Impression::LiveScanPlain);
-	case 1: return (Finger::Impression::LiveScanRolled);
-	case 2: return (Finger::Impression::NonLiveScanPlain);
-	case 3: return (Finger::Impression::NonLiveScanRolled);
-	case 4: return (Finger::Impression::LatentImpression);
-	case 5: return (Finger::Impression::LatentTracing);
-	case 6: return (Finger::Impression::LatentPhoto);
-	case 7: return (Finger::Impression::LatentLift);
-	case 8: return (Finger::Impression::LiveScanVerticalSwipe);
-	case 20: return (Finger::Impression::LiveScanOpticalContactPlain);
-	case 21: return (Finger::Impression::LiveScanOpticalContactRolled);
-	case 22: return (Finger::Impression::LiveScanNonOpticalContactPlain);
-	case 23: return (Finger::Impression::LiveScanNonOpticalContactRolled);
-	case 24: return (Finger::Impression::LiveScanOpticalContactlessPlain);
-	case 25: return (Finger::Impression::LiveScanOpticalContactlessRolled);
-	case 26: return (Finger::Impression::LiveScanNonOpticalContactlessPlain);
-	case 27: return (Finger::Impression::LiveScanNonOpticalContactlessRolled);
-	case 28: return (Finger::Impression::Other);
-	case 29: return (Finger::Impression::Unknown);
-	default:
+	try {
+		return (to_enum<BE::Finger::Impression>(an2k_imp));
+	} catch (BE::Error::ObjectDoesNotExist) {
 		throw Error::DataError("Invalid IMP value");
 	}
 }

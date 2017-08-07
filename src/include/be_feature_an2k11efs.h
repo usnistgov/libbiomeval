@@ -15,6 +15,7 @@
 #include <be_finger.h>
 #include <be_palm.h>
 #include <be_plantar.h>
+#include <be_feature.h>
 #include <be_feature_minutiae.h>
 #include <be_framework_enumeration.h>
 #include <be_memory_autoarray.h>
@@ -47,20 +48,6 @@ namespace BiometricEvaluation
 
 		/**
 		 * @brief
-		 * Representation of the possible friction ridge generalized
-		 * positions.
-		 */
-		enum class FrictionGeneralizedPosition {
-			Finger	= 0,
-			Palm,
-			Plantar
-		};
-		using FGP = enum FrictionGeneralizedPosition;
-		std::ostream& operator<< (std::ostream&,
-		    const FrictionGeneralizedPosition&);
-
-		/**
-		 * @brief
 		 * The finger segment positions.
 		 */
 		enum class FingerprintSegment {
@@ -89,13 +76,14 @@ namespace BiometricEvaluation
 		 * @brief
 		 * Representation of finger-palm-plantar position.
 		 * @details
-		 * Clients of this structure must check the gPos
-		 * value to determine which of the position codes
-		 * (Finger/Palm/Plantar) applies.
+		 * Contains one or more possible physical positions that
+		 * correspond to the region of interest. Clients of this
+		 * structure must check the fgp value to determine which
+		 * of the position codes (Finger/Palm/Plantar) applies.
 		 */
 		struct FPPPosition {
 			/** The friction ridge generalized position */
-			FrictionGeneralizedPosition	fgp;
+			Feature::FGP			fgp;
 			Finger::Position		fingerPos;
 			Palm::Position			palmPos;
 			Plantar::Position		plantarPos;
@@ -530,10 +518,6 @@ namespace BiometricEvaluation
 	} /* Namespace AN2K11EFS */
 	} /* Namespace Feature */
 }
-
-BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
-    BiometricEvaluation::Feature::AN2K11EFS::FGP,
-    BE_Feature_AN2K11EFS_FGP_EnumToStringMap);
 
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Feature::AN2K11EFS::FingerprintSegment,

@@ -17,7 +17,7 @@
 
 #include <be_finger_an2kminutiae_data_record.h>
 #include <be_finger_an2kview_fixedres.h>
-#include <be_finger_an2kview_latent.h>
+#include <be_latent_an2kview.h>
 #include <be_finger_an2kview_capture.h>
 #include <be_io_utility.h>
 #include <be_memory_autobuffer.h>
@@ -235,7 +235,7 @@ namespace BiometricEvaluation
 			 * A vector of AN2KViewLatent objects, each
 			 * representing a single latent finger view.
 			 */
-			std::vector<Finger::AN2KViewLatent>
+			std::vector<Latent::AN2KView>
 			    getFingerLatents() const;
 
 			/**
@@ -341,7 +341,7 @@ namespace BiometricEvaluation
 			/** Directory of character sets */
 			std::vector<CharacterSet> _dcs;
 			
-			std::vector<Finger::AN2KViewLatent> _fingerLatents;
+			std::vector<Latent::AN2KView> _fingerLatents;
 			std::vector<Finger::AN2KViewCapture> _fingerCaptures;
 			/** Type-9 Records. */
 			std::vector<Finger::AN2KMinutiaeDataRecord> 

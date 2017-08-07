@@ -122,6 +122,7 @@ BiometricEvaluation::View::AN2KView::convertCompressionAlgorithm(
     const unsigned char *an2kValue)
 {
 	switch (recordType) {
+	case static_cast<std::underlying_type<RecordType>::type>(RecordType::Type_15):
 	case static_cast<std::underlying_type<RecordType>::type>(RecordType::Type_14):
 	case static_cast<std::underlying_type<RecordType>::type>(RecordType::Type_13):
 		if (!strcmp((const char*)an2kValue, "NONE"))
@@ -170,7 +171,7 @@ BiometricEvaluation::View::AN2KView::convertCompressionAlgorithm(
 		break;
 
 	default:
-		throw Error::ParameterError("Invalid Record Type");
+		throw Error::ParameterError("Invalid record type to decode compression algorithm");
 		break;
 	}
 	
