@@ -206,7 +206,7 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::getFMR()
 		}
 
 		/* Extended data size */
-		buf.pushBeU16Val(view.getEDBLength());
+		buf.pushBeU16Val(this->getEDBLength() - sizeof(uint16_t));
 
 		/* EDB: Ridge counts */
 		auto ridgeCountData = minutiaeData.getRidgeCountItems();
