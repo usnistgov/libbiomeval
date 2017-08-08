@@ -102,18 +102,18 @@ testAN2K11EFS(const std::string &fname)
 	}
 	std::unique_ptr<Feature::AN2K11EFS::ExtendedFeatureSet> an2kefs(_an2kefs);
 
-	cout << "Image Info:\n" << an2kefs->getImageInfo() << "\n";
+	cout << "Image Info:\n" << an2kefs->getImageInfo() << "\n\n";
 
 	Feature::AN2K11EFS::CorePointSet cps = an2kefs->getCPS();
 	cout << "CPS: Have " << cps.size() << " EFS core point(s):\n";
 	for (auto const& cp: cps) {
-		cout << cp << "\n";
+		cout << "\t" << cp << "\n";
 	}
 
 	Feature::AN2K11EFS::DeltaPointSet dps = an2kefs->getDPS();
 	cout << "DPS: Have " << dps.size() << " EFS delta point(s):\n";
 	for (auto const& dp: dps) {
-		cout << dp << "\n";
+		cout << "\t" << dp << "\n";
 	}
 
 	Feature::AN2K11EFS::MinutiaPointSet mps = an2kefs->getMPS();

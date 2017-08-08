@@ -68,11 +68,13 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const Feature::AN2K11EFS::FPPPosition& fpp)
 {
-	s << "FGP: " << fpp.fgp << ", ";
+	s << "FGP: " << fpp.fgp;
 	s << "; ";
-	s << "FSM: "; if (fpp.has_fsm) s << fpp.fsm << "; "; else s << "N/A; ";
-	s << "OCF: "; if (fpp.has_ocf) s << fpp.ocf << "; "; else s << "N/A; ";
-	s << "SGP: "; if (fpp.has_sgp) s << fpp.sgp << "; "; else s << "N/A";
+	s << "FSM: "; if (fpp.has_fsm) s << fpp.fsm; else s << "N/A";
+	s << "; ";
+	s << "OCF: "; if (fpp.has_ocf) s << fpp.ocf; else s << "N/A";
+	s << "; ";
+	s << "SGP: "; if (fpp.has_sgp) s << fpp.sgp; else s << "N/A";
 	return (s);
 }
 
@@ -119,10 +121,26 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::ImageInfo& ii)
 {
+#if 0
+	/* Alternative output: All fields on one line demarcated by [] */
+	s << "ROI = [" << ii.roi;
+	s << "]; ";
+	s << "ORT = [" << ii.ort;
+	s << "]; ";
+	s << "TRV = ["; if (ii.has_trv) s << ii.trv; else s << "N/A";
+	s << "]; ";
+	s << "PLR = ["; if (ii.has_plr) s << ii.plr; else s << "N/A";
+	s << "]; ";
+	s << "FPP = [" << ii.fpp << "]";
+#endif
 	s << "ROI: " << ii.roi;
-	s << "\nORT: " << ii.ort << "; ";
-	s << "TRV: "; if (ii.has_trv) s << ii.trv << "; "; else s << "N/A; ";
-	s << "PLR: "; if (ii.has_plr) s << ii.plr << "; "; else s << "N/A; ";
+	s << "\n";
+	s << "ORT: " << ii.ort;
+	s << "\n";
+	s << "TRV: "; if (ii.has_trv) s << ii.trv; else s << "N/A";
+	s << "\n";
+	s << "PLR: "; if (ii.has_plr) s << ii.plr; else s << "N/A";
+	s << "\n";
 	s << "FPP: " << ii.fpp;
 	return (s);
 }
@@ -134,9 +152,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
 {
 	s << static_cast<const Feature::MinutiaPoint&>(mp);
 	s << "MRU: "; if (mp.has_mru) s << mp.mru; else s << "N/A";
-	s << "\n";
+	s << "; ";
 	s << "MDU: "; if (mp.has_mdu) s << mp.mdu; else s << "N/A";
-	s << "\n";
 	return (s);
 }
 
@@ -145,12 +162,11 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::MinutiaeRidgeCount& mrc)
 {
-	s << "IdxA/IdxB/Count: " << mrc.mia << "/" << mrc.mib << "/" <<
-	    mrc.mir << "; ";
+	s << "IdxA/IdxB/Count: " << mrc.mia << "/" << mrc.mib << "/" << mrc.mir;
+	s << "; ";
 	s << "MRN: "; if (mrc.has_mrn) s << mrc.mrn; else s << "N/A";
 	s << "; ";
 	s << "MRS: "; if (mrc.has_mrs) s << mrc.mrs; else s << "N/A";
-	s << "\n";
 	return (s);
 }
 
@@ -215,7 +231,7 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
 	if (mrci.has_mrcs) {
 		s << mrci.mrcs.size() << "\n";
 		for (auto const &mrc: mrci.mrcs) {
-			s << mrc;
+			s << mrc << "\n";
 		}
 	} else {
 		 s << "N/A\n";
@@ -237,13 +253,13 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::CorePoint& ecp)
 {
-	s << ecp.location << "\n";
+	s << ecp.location;
+	s << "; ";
 	s << "CDI: "; if (ecp.has_cdi) s << ecp.cdi; else s << "N/A";
-	s << "\n";
+	s << "; ";
 	s << "RPU: "; if (ecp.has_rpu) s << ecp.rpu; else s << "N/A";
-	s << "\n";
+	s << "; ";
 	s << "DUY: "; if (ecp.has_duy) s << ecp.duy; else s << "N/A";
-	s << "\n";
 	return (s);
 }
 
@@ -284,22 +300,20 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
 {
 	s << edp.location << "\n";
 	s << "DUP: "; if (edp.has_dup) s << edp.dup; else s << "N/A";
-	s << "\n";
+	s << "; ";
 	s << "DLF: "; if (edp.has_dlf) s << edp.dlf; else s << "N/A";
-	s << "\n";
+	s << "; ";
 	s << "DRT: "; if (edp.has_drt) s << edp.drt; else s << "N/A";
-	s << "\n";
-	s << "DTP: "; if (edp.has_dtp) s << edp.dtp;
-	    else s << "N/A";
-	s << "\n";
+	s << "; ";
+	s << "DTP: "; if (edp.has_dtp) s << edp.dtp; else s << "N/A";
+	s << "; ";
 	s << "RPU: "; if (edp.has_rpu) s << edp.rpu; else s << "N/A";
-	s << "\n";
+	s << "; ";
 	s << "DUU: "; if (edp.has_duu) s << edp.duu; else s << "N/A";
-	s << "\n";
+	s << "; ";
 	s << "DUL: "; if (edp.has_dul) s << edp.dul; else s << "N/A";
-	s << "\n";
+	s << "; ";
 	s << "DUR: "; if (edp.has_dur) s << edp.dur; else s << "N/A";
-	s << "\n";
 	return (s);
 }
 
