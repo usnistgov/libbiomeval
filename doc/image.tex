@@ -144,6 +144,14 @@ standard~\cite{png}.  Decompression is provided by
 to be encoded in the PNG image standard format.  Errors within \lib{libpng}
 are caught and rethrown as \class{Exception}~s.
 
+\section{TIFF}
+\label{sec-image-tiff}
+The \class{TIFF} provides the ability to decompress many TIFF-encoded images.
+Decompression routines are provided by \lib{libtiff}~\cite{libtiff}. Like most
+other Image classes, only basic grayscale and RGB-based images are parsable. The
+\class{TIFF} class will throw a \class{NotImplemented} exception in the event
+that unsupported TIFF data is provided.
+
 \section{WSQ}
 \label{sec-image-wsq}
 Images encoded in the WSQ-image standard~\cite{std:wsq} are represented by the 
