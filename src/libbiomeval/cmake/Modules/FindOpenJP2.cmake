@@ -26,6 +26,8 @@
 find_path(OPENJP2_INCLUDE_DIR opj_config.h
   /usr/local/include/openjpeg-2.1/
   /opt/local/include/openjpeg-2.1/
+  /usr/local/include/openjpeg-2.2/
+  /opt/local/include/openjpeg-2.2/
 )
 
 set(OPENJP2_NAMES ${OPENJP2_NAMES} openjp2 libopenjp2)

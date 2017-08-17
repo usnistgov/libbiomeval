@@ -7,9 +7,31 @@
 # its use by other parties, and makes no guarantees, expressed or implied,
 # about its quality, reliability, or any other characteristic.
 #
+# To use CMake to create the Biometric Evaluation Framework library:
+#
+# Create a build directory; in this example, it will be under libbiomeval:
+#     mkdir build; cd build
+#     cmake ..
+#     make
+# To build static and shared library versions of libbiomeval, including the
+# subset of NBIS included with the Framework.
+#
+# Other build scenarios:
+# To build the debug version of the library:
+#     cmake -DCMAKE_BUILD_TYPE=Debug ..
+#
+# To use a different compiler for the MPI component (Intel, OpenMPI are among
+# the supported compilers):
+#     cmake -DMPI_CXX_COMPILER=mpiicpc ..
+#
+# Get the major and minor library versions from the VERSION file, with format
+# expected to be MAJOR_VERSION=mm and MINOR_VERSION=nn on separate lines.
+#
+execute_process(COMMAND grep MAJOR_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MAJOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND grep MINOR_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MINOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(MAJOR_VERSION 10)
-set(MINOR_VERSION 0)
+#
+#
 set(CORELIB biomeval)
 set(SHAREDLIB ${CORELIB}.${MAJOR_VERSION}.${MINOR_VERSION})
 project(BIOMEVAL)
