@@ -89,16 +89,32 @@ else(NOT MPI_CXX_FOUND)
 endif(NOT MPI_CXX_FOUND)
 
 #
+# Build the Framework-local version of NBIS
+#
+file(GLOB_RECURSE NBISSOURCE "${CMAKE_SOURCE_DIR}/../../nbis/lib/*.c")
+add_library(nbisobjs OBJECT ${NBISSOURCE})
+target_include_directories(nbisobjs PUBLIC ${CMAKE_SOURCE_DIR}/../../nbis/include)
+#
+# Big-Endian check needed for NBIS
+#
+include(TestBigEndian)
+TEST_BIG_ENDIAN(BIGEND)
+if(NOT ${BIGEND})
+  target_compile_options(nbisobjs PUBLIC -D__NBISLE__)
+endif(NOT ${BIGEND})
+
+#
 # Build the core library, shared and static versions, by building the .cpp
-# files into object-only libraries, then combing the object files together.
+# files into object-only libraries, then combining the object files together
+# with the MPI and NBIS objects.
 #
 add_library(coreobjs OBJECT ${PACKAGES})
 if(MPI_CXX_FOUND)
-  add_library(${SHAREDLIB} SHARED $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:mpiobjs>)
-  add_library(${CORELIB} STATIC $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:mpiobjs>)
+  add_library(${SHAREDLIB} SHARED $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:mpiobjs> $<TARGET_OBJECTS:nbisobjs>)
+  add_library(${CORELIB} STATIC $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:mpiobjs> $<TARGET_OBJECTS:nbisobjs>)
 else(MPI_CXX_FOUND)
-  add_library(${SHAREDLIB} SHARED $<TARGET_OBJECTS:coreobjs>)
-  add_library(${CORELIB} STATIC $<TARGET_OBJECTS:coreobjs>)
+  add_library(${SHAREDLIB} SHARED $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
+  add_library(${CORELIB} STATIC $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
 endif(MPI_CXX_FOUND)
 
 #
@@ -158,11 +174,6 @@ if(FFMPEG_FOUND)
   include_directories(PUBLIC ${FFMPEG_INCLUDE_DIR})
   target_link_libraries(${SHAREDLIB} ${FFMPEG_LIBRARIES})
 endif (FFMPEG_FOUND)
-
-#
-# The NBIS library built for BIOMEVAL
-#
-target_link_libraries(${SHAREDLIB} -L${CMAKE_SOURCE_DIR}/../../nbis/lib biomeval_nbis)
 
 #
 # OpenMPI

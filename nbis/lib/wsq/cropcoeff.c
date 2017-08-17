@@ -19,7 +19,8 @@ internet.
 The algorithm and its benefits are briefly described in the
 MITRE Technical Report "Fingerprint Recompression after Segmentation"
 (MTR080005), available at 
-http://www.mitre.org/work/tech_papers/tech_papers_08/08_0060/index.html
+https://www.mitre.org/publications/technical-papers/
+fingerprint-recompression-after-segmentation
  
 ************************************************************************/
 

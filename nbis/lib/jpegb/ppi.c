@@ -41,34 +41,61 @@ of the software.
 
 *******************************************************************************/
 
-
 /***********************************************************************
-      PACKAGE: ANSI/NIST 2007 Standard Reference Implementation
+      LIBRARY: JPEGB - Baseline (Lossy) JPEG Utilities
 
-      FILE:    PNG_DEC.H
+      FILE:    PPI.C
+      AUTHORS: Michael Garris
+               Craig Watson
+      DATE:    01/09/2001
 
-      AUTHORS: Kenneth Ko
-      DATE:    01/14/2008
-      UPDATE:  10/07/2008 by Joseph C. Konczal - added struct and prototype
+      Contains routines responsible for determining a compressed image's
+      scan resolution in units of pixels per inch.
+
+      ROUTINES:
+#cat: get_ppi_jpegb - If possible, computes and returns the scan resolution
+#cat:                 in pixels per inch of a JPEGB datastream given a
+#cat:                 JPEGB decompess structure.
 
 ***********************************************************************/
-#ifndef _PNG_DEC_H
-#define _PNG_DEC_H
 
-#include <jpegl.h>
-#include <png.h>
+#include <stdio.h>
+#include <jpegb.h>
 
-/*********************************************************************/
+#define CM_PER_INCH   2.54
 
-struct png_mem_io_struct {
-   unsigned char *cur;		/* current location in the input buffer */
-   unsigned char *end;		/* points to the byte after the last one,
-				   i.e., start location + length */
-};
+/************************************************************************/
+int get_ppi_jpegb(int *oppi, j_decompress_ptr cinfo)
+{
+   int ppi;
 
-void png_mem_read_data(png_structp, png_bytep, png_size_t);
-int png_decode_mem(IMG_DAT **, int *, unsigned char *, const int);
-int read_png_file(char *, IMG_DAT **);
-int get_raw_image(png_bytep *, png_structp, png_info *,  IMG_DAT **);
+   /* Get and set scan density in pixels per inch. */
+   switch(cinfo->density_unit){
+      /* pixels per inch */
+      case 1:
+         /* take the horizontal pixel density, even if the vertical is */
+         /* not the same */
+         ppi = cinfo->X_density;
+         break;
+      /* pixels per cm */
+      case 2:
+         /* compute ppi from horizontal density even if not */
+         /* equal to vertical */
+         ppi = (int)((cinfo->X_density * CM_PER_INCH) + 0.5);
+         break;
+      /* unknown density */
+      case 0:
+         /* set ppi to -1 == UNKNOWN */
+         ppi = -1;
+         break;
+      /* ERROR */
+      default:
+         fprintf(stderr, "ERROR : get_ppi_jpegb : ");
+         fprintf(stderr, "illegal density unit = %d\n", cinfo->density_unit);
+         return(-2);
+   }
 
-#endif /* !_PNG_DEC_H */ 
+   *oppi = ppi;
+
+   return(0);
+}

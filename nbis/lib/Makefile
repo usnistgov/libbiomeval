@@ -56,26 +56,29 @@ include ../../common.mk
 LIBRARY	:= $(NBISEVALFILE)
 
 #
-SUBDIRS = wsq jpegl an2k
+SUBDIRS = wsq jpegb jpegl an2k
 
 WSQSOURCES := $(wildcard wsq/*.c)
+JPEGBSOURCES := $(wildcard jpegb/*.c)
 JPEGLSOURCES := $(wildcard jpegl/*.c)
 AN2KSOURCES := $(wildcard an2k/*.c)
 #
 BASESOURCES := $(wildcard *.c)
-SUBDIRSOURCES := $(WSQSOURCES) $(JPEGLSOURCES) $(AN2KSOURCES)
+SUBDIRSOURCES := $(WSQSOURCES) $(JPEGBSOURCES) $(JPEGLSOURCES) $(AN2KSOURCES)
 
 WSQOBJFILES := $(WSQSOURCES:%.c=%.o)
+JPEGBOBJFILES := $(JPEGBSOURCES:%.c=%.o)
 JPEGLOBJFILES := $(JPEGLSOURCES:%.c=%.o)
 AN2KOBJFILES := $(AN2KSOURCES:%.c=%.o)
 #
 WSQRENAMEDOBJS := $(WSQOBJFILES:%.o=%_wsq.o)
+JPEGBRENAMEDOBJS := $(JPEGBOBJFILES:%.o=%_jpegb.o)
 JPEGLRENAMEDOBJS := $(JPEGLOBJFILES:%.o=%_jpegl.o)
 AN2KRENAMEDOBJS := $(AN2KOBJFILES:%.o=%_an2k.o)
-SUBDIRRENAMEDOBJS := $(WSQRENAMEDOBJS) $(JPEGLRENAMEDOBJS) $(AN2KRENAMEDOBJS)
+SUBDIRRENAMEDOBJS := $(WSQRENAMEDOBJS) $(JPEGBRENAMEDOBJS) $(JPEGLRENAMEDOBJS) $(AN2KRENAMEDOBJS)
 #
 BASEOBJFILES := $(BASESOURCES:%.c=%.o)
-SUBDIROBJFILES := $(WSQOBJFILES) $(JPEGLOBJFILES) $(AN2KOBJFILES)
+SUBDIROBJFILES := $(WSQOBJFILES) $(JPEGBOBJFILES) $(JPEGLOBJFILES) $(AN2KOBJFILES)
 OBJFILES := $(BASEOBJFILES) $(SUBDIROBJFILES)
 
 all: $(LIBRARY)
@@ -95,6 +98,11 @@ $(SUBDIRRENAMEDOBJS): $(SUBDIROBJFILES)
 ifeq ($(OS), Darwin)
 # Requires jpeglib.h from MacPorts on OS X
 an2k/decode.o: CFLAGS += -I/opt/local/include
+jpegb/decoder.o: CFLAGS += -I/opt/local/include
+jpegb/encoder.o: CFLAGS += -I/opt/local/include
+jpegb/marker.o: CFLAGS += -I/opt/local/include
+jpegb/membuf.o: CFLAGS += -I/opt/local/include
+jpegb/ppi.o: CFLAGS += -I/opt/local/include
 endif
 
 .PHONY: becheck
