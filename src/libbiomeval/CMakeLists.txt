@@ -29,12 +29,22 @@
 #
 execute_process(COMMAND grep MAJOR_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MAJOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND grep MINOR_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MINOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+add_definitions("-DMAJOR_VERSION -DMINOR_VERSION -DDB1X")
 
 #
 #
-set(CORELIB biomeval)
-set(SHAREDLIB ${CORELIB}.${MAJOR_VERSION}.${MINOR_VERSION})
 project(BIOMEVAL)
+set(CORELIB biomeval)
+set(SHAREDLIB ${CORELIB})
+#
+# The library names. Because a target name cannot be duplicated, build the
+# shared and static libraries under two different names, but the output
+# filename for the static will be the different than the target name.
+set(STATICLIB ${CORELIB})
+set(STATICLIBTGT ${CORELIB}-static)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
 
 #
 # Location of CMake modules local to BIOMEVAL
@@ -52,7 +62,7 @@ This process created the file `CMakeCache.txt' and the directory `CMakeFiles'.
 Please delete them.")
 endif()
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 2.8.11)
 
 set(CORE be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_framework_status.cpp be_framework_api.cpp be_process_statistics.cpp)
 
@@ -106,8 +116,7 @@ else(NOT MPI_CXX_FOUND)
   add_library(mpiobjs OBJECT ${MPISOURCES})
   set_target_properties(mpiobjs PROPERTIES CXX_COMPILER_LAUNCHER "${MPI_CXX_COMPILER}")
   set_target_properties(mpiobjs PROPERTIES COMPILE_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
-  target_include_directories(mpiobjs PUBLIC ${CMAKE_SOURCE_DIR}/../include)
-  target_compile_options(mpiobjs PUBLIC --std=c++11 -fPIC)
+  target_include_directories(mpiobjs PUBLIC ${MPI_CXX_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/../include)
 endif(NOT MPI_CXX_FOUND)
 
 #
@@ -122,7 +131,7 @@ target_include_directories(nbisobjs PUBLIC ${CMAKE_SOURCE_DIR}/../../nbis/includ
 include(TestBigEndian)
 TEST_BIG_ENDIAN(BIGEND)
 if(NOT ${BIGEND})
-  target_compile_options(nbisobjs PUBLIC -D__NBISLE__)
+  add_definitions("-D__NBISLE__")
 endif(NOT ${BIGEND})
 
 #
@@ -133,16 +142,17 @@ endif(NOT ${BIGEND})
 add_library(coreobjs OBJECT ${PACKAGES})
 if(MPI_CXX_FOUND)
   add_library(${SHAREDLIB} SHARED $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:mpiobjs> $<TARGET_OBJECTS:nbisobjs>)
-  add_library(${CORELIB} STATIC $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:mpiobjs> $<TARGET_OBJECTS:nbisobjs>)
+  add_library(${STATICLIBTGT} STATIC $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:mpiobjs> $<TARGET_OBJECTS:nbisobjs>)
 else(MPI_CXX_FOUND)
   add_library(${SHAREDLIB} SHARED $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
-  add_library(${CORELIB} STATIC $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
+  add_library(${STATICLIBTGT} STATIC $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
 endif(MPI_CXX_FOUND)
+set_target_properties(${SHAREDLIB} PROPERTIES VERSION ${MAJOR_VERSION}.${MiNOR_VERSION} SOVERSION ${MAJOR_VERSION})
+set_target_properties(${STATICLIBTGT} PROPERTIES ARCHIVE_OUTPUT_NAME ${STATICLIB})
 
 #
 # Define common options, including that for Berkeley DB version < 2
 #
-target_compile_options(coreobjs PUBLIC --std=c++11 -DMAJOR_VERSION -DMINOR_VERSION -DDB1X -fPIC)
 target_include_directories(coreobjs PUBLIC ${CMAKE_SOURCE_DIR}/../include)
 target_include_directories(coreobjs PUBLIC ${CMAKE_SOURCE_DIR}/../../nbis/include)
 
@@ -161,7 +171,7 @@ if(CMAKE_HOST_APPLE)
 # Apple-provided frameworks
 #
   target_link_libraries(${SHAREDLIB} "-framework Foundation" "-framework Security" "-framework PCSC")
-  target_compile_definitions(coreobjs PUBLIC Darwin)
+  add_definitions("-DDarwin")
 else(CMAKE_HOST_APPLE)
   find_package(PCSC)
   if(PCSC_FOUND)
@@ -211,3 +221,4 @@ endif(MPI_CXX_FOUND)
 target_link_libraries(${SHAREDLIB} sqlite3 crypto z db png tiff)
 
 install(TARGETS ${SHAREDLIB} DESTINATION lib)
+install(TARGETS ${STATICLIBTGT} DESTINATION lib)
