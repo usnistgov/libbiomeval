@@ -29,9 +29,13 @@
 #
 execute_process(COMMAND grep MAJOR_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MAJOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 execute_process(COMMAND grep MINOR_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MINOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-add_definitions("-DMAJOR_VERSION -DMINOR_VERSION -DDB1X")
+execute_process(COMMAND grep COMPATIBILITY_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE COMPATIBILITY_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 #
+# Define common options, including that for Berkeley DB version < 2
+#
+add_definitions(-DMAJOR_VERSION -DMINOR_VERSION -DDB1X)
+
 #
 project(BIOMEVAL)
 set(CORELIB biomeval)
@@ -53,7 +57,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 # Sanity check our source directory to make sure that we are not trying to
 # generate an in-tree build
-if( CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR AND NOT MSVC_IDE )
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR "In-source builds are not allowed.
 CMake would overwrite the makefiles distributed with the Framework.
 Please create a directory and run cmake from there, passing the path
@@ -99,25 +103,33 @@ set(MPIDISTRIBUTOR be_mpi_distributor.cpp be_mpi_recordstoredistributor.cpp be_m
 set(MPIRECEIVER be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocessor.cpp)
 
 #
-# All the packages for the core library, except MPI which is linked in later
+# All the packages for the core library, except:
+#	MPI which is built separately and linked in later, optional.
+#	VIDEO if the required libraries are present.
 #
-set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${VIDEO} ${DEVICE} ${MESSAGE_CENTER})
+set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${DEVICE} ${MESSAGE_CENTER})
+
+find_package(FFMPEG)
+if(FFMPEG_FOUND)
+  set(PACKAGES ${PACKAGES} ${VIDEO})
+  message(STATUS "Adding VIDEO support.")
+else(FFMPEG_FOUND)
+  message(STATUS "Building without VIDEO support.")
+endif(FFMPEG_FOUND)
 
 #
 # Keep MPI related files separate so we can use a different compiler command.
 # MPI files are built as an object-only lib (not linked) so its symbols can
-# be added to the BIOMEVAL library later.
+# be added to the BIOMEVAL library later. MPI is optional.
 #
 set(MPISOURCES ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER})
 find_package(MPI)
-if(NOT MPI_CXX_FOUND)
-  message(FATAL_ERROR "MPI compiler for C++ not found!")
-else(NOT MPI_CXX_FOUND)
+if(MPI_CXX_FOUND)
   add_library(mpiobjs OBJECT ${MPISOURCES})
   set_target_properties(mpiobjs PROPERTIES CXX_COMPILER_LAUNCHER "${MPI_CXX_COMPILER}")
   set_target_properties(mpiobjs PROPERTIES COMPILE_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
   target_include_directories(mpiobjs PUBLIC ${MPI_CXX_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/../include)
-endif(NOT MPI_CXX_FOUND)
+endif(MPI_CXX_FOUND)
 
 #
 # Build the Framework-local version of NBIS
@@ -125,6 +137,7 @@ endif(NOT MPI_CXX_FOUND)
 file(GLOB_RECURSE NBISSOURCE "${CMAKE_SOURCE_DIR}/../../nbis/lib/*.c")
 add_library(nbisobjs OBJECT ${NBISSOURCE})
 target_include_directories(nbisobjs PUBLIC ${CMAKE_SOURCE_DIR}/../../nbis/include)
+
 #
 # Big-Endian check needed for NBIS
 #
@@ -150,9 +163,10 @@ endif(MPI_CXX_FOUND)
 set_target_properties(${SHAREDLIB} PROPERTIES VERSION ${MAJOR_VERSION}.${MINOR_VERSION} SOVERSION ${MAJOR_VERSION})
 set_target_properties(${STATICLIBTGT} PROPERTIES ARCHIVE_OUTPUT_NAME ${STATICLIB})
 
-#
-# Define common options, including that for Berkeley DB version < 2
-#
+if(CMAKE_HOST_APPLE)
+  set_target_properties(${SHAREDLIB} PROPERTIES MACOSX_RPATH ON)
+endif(CMAKE_HOST_APPLE)
+
 target_include_directories(coreobjs PUBLIC ${CMAKE_SOURCE_DIR}/../include)
 target_include_directories(coreobjs PUBLIC ${CMAKE_SOURCE_DIR}/../../nbis/include)
 
@@ -174,10 +188,11 @@ if(CMAKE_HOST_APPLE)
   add_definitions("-DDarwin")
 else(CMAKE_HOST_APPLE)
   find_package(PCSC)
-  if(PCSC_FOUND)
-    include_directories(PUBLIC ${PCSC_INCLUDE_DIR})
-    target_link_libraries(${SHAREDLIB} ${PCSC_LIBRARIES})
-  endif(PCSC_FOUND)
+  if(NOT PCSC_FOUND)
+    message(FATAL_ERROR "PCSC not found.")
+  endif(NOT PCSC_FOUND)
+  include_directories(PUBLIC ${PCSC_INCLUDE_DIR})
+  target_link_libraries(${SHAREDLIB} ${PCSC_LIBRARIES})
 endif(CMAKE_HOST_APPLE)
 
 #
@@ -185,34 +200,36 @@ endif(CMAKE_HOST_APPLE)
 #
 set(OPENJP2_FIND_REQUIRED TRUE)
 find_package(OpenJP2)
-if(OPENJP2_FOUND)
-  include_directories(PUBLIC ${OPENJP2_INCLUDE_DIR})
-  target_link_libraries(${SHAREDLIB} ${OPENJP2_LIBRARIES})
-endif (OPENJP2_FOUND)
+if(NOT OPENJP2_FOUND)
+  message(FATAL_ERROR "Could not find OpenJP2.")
+endif(NOT OPENJP2_FOUND)
+include_directories(PUBLIC ${OPENJP2_INCLUDE_DIR})
+target_link_libraries(${SHAREDLIB} ${OPENJP2_LIBRARIES})
 
 set(JPEG_FIND_REQUIRED TRUE)
 find_package(JPEG)
-if(JPEG_FOUND)
-  include_directories(PUBLIC ${JPEG_INCLUDE_DIR})
-  target_link_libraries(${SHAREDLIB} ${JPEG_LIBRARIES})
-endif (JPEG_FOUND)
+if(NOT JPEG_FOUND)
+  message(FATAL_ERROR "Could not find JPEG.")
+endif(NOT JPEG_FOUND)
+include_directories(PUBLIC ${JPEG_INCLUDE_DIR})
+target_link_libraries(${SHAREDLIB} ${JPEG_LIBRARIES})
 
 #
 # FFMPEG
 #
-set(FFMPEG_FIND_REQUIRED TRUE)
-find_package(FFMPEG)
 if(FFMPEG_FOUND)
   include_directories(PUBLIC ${FFMPEG_INCLUDE_DIR})
   target_link_libraries(${SHAREDLIB} ${FFMPEG_LIBRARIES})
-endif (FFMPEG_FOUND)
+endif(FFMPEG_FOUND)
 
 #
 # OpenMPI
 #
 if(MPI_CXX_FOUND)
-  message(STATUS "Adding MPI symbols to ${SHAREDLIB}")
+  message(STATUS "Adding MPI support to ${SHAREDLIB}.")
   target_link_libraries(${SHAREDLIB} ${MPI_CXX_LINK_FLAGS} ${MPI_CXX_LIBRARIES})
+else(MPI_CXX_FOUND)
+  message(STATUS "Will build ${SHAREDLIB} without MPI support.")
 endif(MPI_CXX_FOUND)
 
 #
