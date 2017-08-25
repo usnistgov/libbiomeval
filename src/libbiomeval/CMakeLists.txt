@@ -24,6 +24,15 @@
 # the supported compilers):
 #     cmake -DMPI_CXX_COMPILER=mpiicpc ..
 #
+# To build the Framework:
+#     make
+# To install static and shared libraries plus headers:
+#     make install
+# To create an RPM:
+#     make package
+
+cmake_minimum_required(VERSION 2.8.11)
+
 # Get the major and minor library versions from the VERSION file, with format
 # expected to be MAJOR_VERSION=mm and MINOR_VERSION=nn on separate lines.
 #
@@ -35,9 +44,18 @@ execute_process(COMMAND grep COMPATIBILITY_VERSION= ${CMAKE_SOURCE_DIR}/../../VE
 # Define common options, including that for Berkeley DB version < 2
 #
 add_definitions(-DMAJOR_VERSION -DMINOR_VERSION -DDB1X)
-
+set(BIOMEVAL_INCLUDE ${CMAKE_SOURCE_DIR}/../include)
+file(GLOB BIOMEVAL_HEADERS ${BIOMEVAL_INCLUDE}/*.h)
+set(NBIS_INCLUDE ${CMAKE_SOURCE_DIR}/../../nbis/include)
 #
-project(BIOMEVAL)
+if(${CMAKE_MAJOR_VERSION} GREATER 2)
+  cmake_policy(SET CMP0048 NEW)
+  project(BIOMEVAL VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+else()
+  project(BIOMEVAL)
+  set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+endif()
+
 set(CORELIB biomeval)
 set(SHAREDLIB ${CORELIB})
 #
@@ -65,8 +83,6 @@ to this source directory as the last argument.
 This process created the file `CMakeCache.txt' and the directory `CMakeFiles'.
 Please delete them.")
 endif()
-
-cmake_minimum_required(VERSION 2.8.11)
 
 set(CORE be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_framework_status.cpp be_framework_api.cpp be_process_statistics.cpp)
 
@@ -126,9 +142,15 @@ set(MPISOURCES ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER})
 find_package(MPI)
 if(MPI_CXX_FOUND)
   add_library(mpiobjs OBJECT ${MPISOURCES})
-  set_target_properties(mpiobjs PROPERTIES CXX_COMPILER_LAUNCHER "${MPI_CXX_COMPILER}")
-  set_target_properties(mpiobjs PROPERTIES COMPILE_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
-  target_include_directories(mpiobjs PUBLIC ${MPI_CXX_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/../include)
+  set_target_properties(
+    mpiobjs
+    PROPERTIES CXX_COMPILER_LAUNCHER "${MPI_CXX_COMPILER}")
+  set_target_properties(
+    mpiobjs
+    PROPERTIES COMPILE_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
+  target_include_directories(
+    mpiobjs
+    PUBLIC ${MPI_CXX_INCLUDE_PATH} ${BIOMEVAL_INCLUDE})
 endif(MPI_CXX_FOUND)
 
 #
@@ -136,7 +158,7 @@ endif(MPI_CXX_FOUND)
 #
 file(GLOB_RECURSE NBISSOURCE "${CMAKE_SOURCE_DIR}/../../nbis/lib/*.c")
 add_library(nbisobjs OBJECT ${NBISSOURCE})
-target_include_directories(nbisobjs PUBLIC ${CMAKE_SOURCE_DIR}/../../nbis/include)
+target_include_directories(nbisobjs PUBLIC ${NBIS_INCLUDE})
 
 #
 # Big-Endian check needed for NBIS
@@ -154,21 +176,41 @@ endif(NOT ${BIGEND})
 #
 add_library(coreobjs OBJECT ${PACKAGES})
 if(MPI_CXX_FOUND)
-  add_library(${SHAREDLIB} SHARED $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:mpiobjs> $<TARGET_OBJECTS:nbisobjs>)
-  add_library(${STATICLIBTGT} STATIC $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:mpiobjs> $<TARGET_OBJECTS:nbisobjs>)
+  add_library(
+    ${SHAREDLIB} SHARED
+    $<TARGET_OBJECTS:coreobjs>
+    $<TARGET_OBJECTS:mpiobjs>
+    $<TARGET_OBJECTS:nbisobjs>)
+
+  add_library(
+    ${STATICLIBTGT} STATIC
+    $<TARGET_OBJECTS:coreobjs>
+    $<TARGET_OBJECTS:mpiobjs>
+    $<TARGET_OBJECTS:nbisobjs>)
 else(MPI_CXX_FOUND)
-  add_library(${SHAREDLIB} SHARED $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
-  add_library(${STATICLIBTGT} STATIC $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
+  add_library(
+    ${SHAREDLIB} SHARED
+    $<TARGET_OBJECTS:coreobjs>
+    $<TARGET_OBJECTS:nbisobjs>)
+  add_library(${STATICLIBTGT} STATIC
+    $<TARGET_OBJECTS:coreobjs>
+    $<TARGET_OBJECTS:nbisobjs>)
 endif(MPI_CXX_FOUND)
-set_target_properties(${SHAREDLIB} PROPERTIES VERSION ${MAJOR_VERSION}.${MINOR_VERSION} SOVERSION ${MAJOR_VERSION})
-set_target_properties(${STATICLIBTGT} PROPERTIES ARCHIVE_OUTPUT_NAME ${STATICLIB})
+set_target_properties(
+  ${SHAREDLIB}
+  PROPERTIES VERSION ${PROJECT_VERSION}
+  SOVERSION ${MAJOR_VERSION}
+  PUBLIC_HEADER "${BIOMEVAL_HEADERS}")
+set_target_properties(
+  ${STATICLIBTGT}
+  PROPERTIES ARCHIVE_OUTPUT_NAME ${STATICLIB}
+  PUBLIC_HEADER "${BIOMEVAL_HEADERS}")
 
 if(CMAKE_HOST_APPLE)
   set_target_properties(${SHAREDLIB} PROPERTIES MACOSX_RPATH ON)
 endif(CMAKE_HOST_APPLE)
 
-target_include_directories(coreobjs PUBLIC ${CMAKE_SOURCE_DIR}/../include)
-target_include_directories(coreobjs PUBLIC ${CMAKE_SOURCE_DIR}/../../nbis/include)
+target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
 
 #
 # For OS-X, add paths where the ports packages are placed.
@@ -237,5 +279,42 @@ endif(MPI_CXX_FOUND)
 #
 target_link_libraries(${SHAREDLIB} sqlite3 crypto z db png tiff)
 
-install(TARGETS ${SHAREDLIB} DESTINATION lib)
-install(TARGETS ${STATICLIBTGT} DESTINATION lib)
+#
+# Installation.
+# Note that because both the static and shared libraries use the same public
+# header files, 'make install' will cause the headers to be copied twice.
+# If that is not desired, remove the PUBLIC_HEADER clause from both the
+# add_library() and install() commands for one of the libraries.
+#
+install(
+  TARGETS ${STATICLIBTGT}
+  DESTINATION lib
+  PUBLIC_HEADER DESTINATION include)
+install(
+  TARGETS ${SHAREDLIB}
+  LIBRARY DESTINATION lib
+  PUBLIC_HEADER DESTINATION include)
+
+#
+# RPM Creation
+#
+# Ignore the system directories as they are not owned by this project.
+# This technique is borrowed from https://gitorious.org/brewtarget/brewtarget/
+#
+SET(CPACK_RPM_SPEC_MORE_DEFINE "%define ignore \#")
+SET(CPACK_RPM_USER_FILELIST
+  "%ignore /usr"
+  "%ignore /usr/local"
+  "%ignore /usr/local/lib"
+  "%ignore /usr/local/include")
+
+set(CPACK_RPM_PACKAGE_AUTOREQ no)
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_GENERATOR "RPM")
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_RELEASE 1)
+set(CPACK_PACKAGE_CONTACT "NIST Image Group (www.nist.gov/itl/iad/image-group)")
+set(CPACK_PACKAGE_VENDOR "NIST (www.nist.gov)")
+set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
+include(CPack)
