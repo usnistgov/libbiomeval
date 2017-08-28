@@ -30,34 +30,37 @@
 #     make install
 # To create an RPM:
 #     make package
+#
 
 cmake_minimum_required(VERSION 2.8.11)
 
+#
 # Get the major and minor library versions from the VERSION file, with format
 # expected to be MAJOR_VERSION=mm and MINOR_VERSION=nn on separate lines.
 #
-execute_process(COMMAND grep MAJOR_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MAJOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND grep MINOR_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MINOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND grep COMPATIBILITY_VERSION= ${CMAKE_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE COMPATIBILITY_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+project(libbiomeval)
+execute_process(COMMAND grep MAJOR_VERSION= ${PROJECT_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MAJOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND grep MINOR_VERSION= ${PROJECT_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MINOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND grep COMPATIBILITY_VERSION= ${PROJECT_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE COMPATIBILITY_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 #
 # Define common options, including that for Berkeley DB version < 2
 #
 add_definitions(-DMAJOR_VERSION -DMINOR_VERSION -DDB1X)
-set(BIOMEVAL_INCLUDE ${CMAKE_SOURCE_DIR}/../include)
+set(BIOMEVAL_INCLUDE ${PROJECT_SOURCE_DIR}/../include)
 file(GLOB BIOMEVAL_HEADERS ${BIOMEVAL_INCLUDE}/*.h)
-set(NBIS_INCLUDE ${CMAKE_SOURCE_DIR}/../../nbis/include)
+set(NBIS_INCLUDE ${PROJECT_SOURCE_DIR}/../../nbis/include)
 #
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
   cmake_policy(SET CMP0048 NEW)
-  project(BIOMEVAL VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+  project(libbiomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 else()
-  project(BIOMEVAL)
+  project(libbiomeval)
   set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 endif()
-
 set(CORELIB biomeval)
 set(SHAREDLIB ${CORELIB})
+
 #
 # The library names. Because a target name cannot be duplicated, build the
 # shared and static libraries under two different names, but the output
@@ -71,7 +74,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
 #
 # Location of CMake modules local to BIOMEVAL
 #
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
 # Sanity check our source directory to make sure that we are not trying to
 # generate an in-tree build
@@ -156,7 +159,7 @@ endif(MPI_CXX_FOUND)
 #
 # Build the Framework-local version of NBIS
 #
-file(GLOB_RECURSE NBISSOURCE "${CMAKE_SOURCE_DIR}/../../nbis/lib/*.c")
+file(GLOB_RECURSE NBISSOURCE "${PROJECT_SOURCE_DIR}/../../nbis/lib/*.c")
 add_library(nbisobjs OBJECT ${NBISSOURCE})
 target_include_directories(nbisobjs PUBLIC ${NBIS_INCLUDE})
 
