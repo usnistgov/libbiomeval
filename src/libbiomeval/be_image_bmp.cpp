@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <math.h>
 #include <be_image_bmp.h>
 
 namespace BE = BiometricEvaluation;
@@ -128,9 +129,9 @@ BiometricEvaluation::Image::BMP::getRawData()
 	/*
 	 * The stride of the BMP data could be different than that for
 	 * the output RAW data in the case we have a pseudo 24-bit
-	 * RAW due to color table mappings.
+	 * RAW due to color table mappings, or the case of 1-bit images.
 	 */
-	int rawPixelSz = this->getColorDepth() / 8;
+	int rawPixelSz = (this->getColorDepth() + 7) / 8;
 	uint64_t rawStride = rawPixelSz * dibHeader.width;
 
 	/*
@@ -141,14 +142,23 @@ BiometricEvaluation::Image::BMP::getRawData()
 	int32_t absHeight = abs(dibHeader.height);
 	Memory::uint8Array rawData(rawStride * absHeight);
 
-	uint32_t bmpStride = (dibHeader.bitsPerPixel / 8) * dibHeader.width;
 	switch (dibHeader.compressionMethod) {
 	case BI_RGB: {
- 		/*
-		 * Simple encoding has a padding of 4 bytes max, so account
-		 * for that in the BMP row calculations below.
+		/*
+		 * bmpStride is the width of usable BMP data, ignoring padding.
 		 */
-		int padSz = dibHeader.width % 4;
+		uint32_t bmpStride =
+		    ((dibHeader.bitsPerPixel * dibHeader.width) + 7) / 8;
+ 		/*
+		 * Simple encoding requires that BMP rows be aligned on
+		 * DWORD (4-octet) boundaries, with padding as necessary.
+		 * The actual row size calculation is take from
+		 * https://en.wikipedia.org/wiki/BMP_file_format
+		 */
+		int bmpRowSz = (int)floor(
+		    ((dibHeader.bitsPerPixel * dibHeader.width) + 31) / 32) * 4;
+		int padSz = bmpRowSz - bmpStride;
+
 		const uint8_t *bmpRow = nullptr;
 		uint8_t *rawRow = nullptr;
 
@@ -327,6 +337,14 @@ BiometricEvaluation::Image::BMP::getDIBHeader(
 	 */
 	switch (header->compressionMethod) {
 	case BI_RGB:	/* None */
+		switch (header->bitsPerPixel) {
+			case 8:
+			case 24:
+			case 32:
+				break;
+			default:
+				throw Error::NotImplemented("BMP RGB depth");
+		}
 		break;
 	case BI_RLE8:	/* Run-length 8-bit depth */
 		break;
@@ -382,7 +400,7 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 	 * When converting from 8-bit BMP to 24-bit color, the
 	 * output array will be larger than the input.
 	 */
-	int rawPixelSz = this->getColorDepth() / 8;
+	int rawPixelSz = (this->getColorDepth() + 7) / 8;
 	output.resize(dibHeader->width * rawPixelSz * abs(dibHeader->height));
 
 	/*
