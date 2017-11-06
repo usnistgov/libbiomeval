@@ -32,7 +32,106 @@ common for an application to retrieve these objects from the \class{AN2KView}
 object defined in the \namespace{Finger} package~(\chpref{chp-finger}).
 
 See \lstref{lst:an2kfingerviewuse} for a complete example of how to obtain
-the fingerprint minutiae data from an ANSI/NIST record.
+the fingerprint minutiae data from an ANSI/NIST record. If only extended
+feature set data is required from the file, a
+\class{Feature::AN2K11EFS::ExtendedFeatureSet} object can be created directly
+from the file or memory buffer.
+
+\subsection{ANSI/NIST 2011 Extended Feature Sets}
+The 2011 edition of the ANSI/NIST standard, \cite{std:an2k11}, adds a new form
+of feature data representation to the Type-9 fingerprint minutiae record. The
+extended feature set information is represented by an object that can be
+retrieved from the \class{AN2KMinutiaeDataRecord} object created from the data
+file.
+
+\lstref{lst:an2kefsuse} shows how to read the extended feature set
+data from an ANSI/NIST file, both as a data interchange object or an extended
+feature set object.
+
+\begin{lstlisting}[caption={Using AN2K Extended Feature Sets}, label=lst:an2kefsuse]
+#include <iostream>
+#include <be_data_interchange_an2k.h>
+#include <be_feature_an2k11efs.h>
+
+/*
+ * This test program exercises the Evaluation framework to process AN2K
+ * records stored in a RecordStore. The intent is to model what a real
+ * program would do by retrieving AN2K records, doing some processing
+ * on the image, and displaying the results.
+ */
+using namespace BiometricEvaluation;
+
+static void
+printAN2K11EFS(Feature::AN2K11EFS::ExtendedFeatureSet &efs)
+{
+	Image::ROI roi = efs.getImageInfo().roi;
+	std::cout << "ROI:\n"
+	    << "\tSize: ("
+	    << roi.size.xSize << "," << roi.size.ySize << ")\n"
+	    << "\tOffset: ("
+	    << roi.horzOffset << "," << roi.vertOffset << ")\n"
+	    << "\tPath: ";
+	for (auto const& point: roi.path) {
+		std::cout << point << " ";
+	}
+	std::cout << "\n";
+
+	std::cout << "Image Info:\n" << efs.getImageInfo() << "\n\n";
+
+	Feature::AN2K11EFS::CorePointSet cps = efs.getCPS();
+	std::cout << "CPS: Have " << cps.size() << " EFS core point(s):\n";
+	for (auto const& cp: cps) {
+		std::cout << "\t" << cp << "\n";
+	}
+
+	Feature::AN2K11EFS::DeltaPointSet dps = efs.getDPS();
+	std::cout << "DPS: Have " << dps.size() << " EFS delta point(s):\n";
+	for (auto const& dp: dps) {
+		std::cout << "\t" << dp << "\n";
+	}
+
+	Feature::AN2K11EFS::MinutiaPointSet mps = efs.getMPS();
+	std::cout << "MPS: Have " << mps.size() << " EFS minutia point(s):\n";
+	for (auto const& mp: mps) {
+		std::cout << mp << "\n";
+	}
+
+	std::cout << "No Features Present:\n";
+	std::cout << efs.getNFP();
+
+	std::cout << "\nMinutiae Ridge Count Information:\n";
+	auto mrci = efs.getMRCI(); 
+	std::cout << mrci << "\n";
+}
+
+int
+main(int argc, char* argv[]) {
+
+	std::string fname = "test_data/type9-efs.an2k";
+	/*
+	 * Read the EFS data from the DataInterchange::AN2KRecord object
+	 */
+	std::cout << "Extended Feature Set data in " << fname << ": ";
+	try {
+		DataInterchange::AN2KRecord an2k(fname);
+		std::vector<Finger::AN2KMinutiaeDataRecord> minutiae =
+		    an2k.getMinutiaeDataRecordSet();
+		printAN2K11EFS(*minutiae[0].getAN2K11EFS());
+	} catch (Error::Exception &e) {
+		std::cout << "Failed; caught " << e.whatString() << "\n";
+	}
+
+	/*
+	 * Read the EFS data by constructing directly from the filename
+	 */
+	try {
+		Feature::AN2K11EFS::ExtendedFeatureSet efs(fname, 1);
+		printAN2K11EFS(efs);
+	} catch (Error::Exception &e) {
+		std::cout << "Failed; caught " << e.whatString() << "\n";
+	}
+}
+\end{lstlisting}
 
 \section{ISO/INCITS Features}
 

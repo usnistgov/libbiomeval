@@ -69,58 +69,88 @@ derived minutiae information from a file containing an ANSI/NIST record with
 Type-3 (fixed resolution image) and Type-9 (fingerprint minutiae) records.
 
 \begin{lstlisting}[caption={Using an AN2K Finger View}, label=lst:an2kfingerviewuse]
-#include <fstream>
 #include <iostream>
-#include <memory>
+
 #include <be_finger_an2kview_fixedres.h>
-using namespace std;
+#include <be_error_exception.h>
+#include <be_io_utility.h>
+
 using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
 
 int
 main(int argc, char* argv[]) {
 
-    Finger::AN2KViewFixedResolution *_an2kv
-    try {
-        _an2kv = new Finger::AN2KViewFixedResolution("type9-3.an2k",
-	    TYPE_3_ID, 1);
-    } catch (Error::DataError &e) {
-        cerr << "Caught " << e.getInfo()  << endl;
-        return (EXIT_FAILURE);
-    } catch (Error::FileError& e) {
-        cerr << "A file error occurred: " << e.getInfo() << endl;
-        return (EXIT_FAILURE);
-    }
-    std::unique_ptr<Finger::AN2KView> an2kv(_an2kv);
+	/*
+	 * Call the constructor that will open an existing AN2K file.
+	 */
+	std::unique_ptr<Finger::AN2KViewFixedResolution> an2kv;
+	try {
+		an2kv.reset(new Finger::AN2KViewFixedResolution(
+		    "test_data/type3.an2k",
+		    View::AN2KView::RecordType::Type_3, 1));
+	} catch (Error::DataError &e) {
+		std::cout << "Caught " << e.what()  << std::endl;
+		return (EXIT_FAILURE);
+	} catch (Error::FileError& e) {
+		std::cout << "A file error occurred: " << e.what() << std::endl;
+		return (EXIT_FAILURE);
+	}
+	std::cout << "Image resolution is "
+	     << an2kv->getImageResolution() << std::endl;
+	std::cout << "Image size is " << an2kv->getImageSize() << std::endl;
+	std::cout << "Image color depth is "
+	    << an2kv->getImageColorDepth() << std::endl;
+	std::cout << "Compression is " <<
+	    to_string(an2kv->getCompressionAlgorithm()) << std::endl;
+	std::cout << "Scan resolution is "
+	    << an2kv->getScanResolution() << std::endl;
+	std::cout << "Impression Type: " <<
+	    to_string(an2kv->getImpressionType()) << std::endl;
 
-    cout << "Image resolution is " << an2kv->getImageResolution() << endl;
-    cout << "Image size is " << an2kv->getImageSize() << endl;
-    cout << "Image color depth is " << an2kv->getImageColorDepth() << endl;
-    cout << "Compression is " << an2kv->getCompressionAlgorithm() << endl;
-    cout << "Scan resolution is " << an2kv->getScanResolution() << endl;
+	/*
+	 * Get the compressed image data and process
+	 */
+	std::shared_ptr<Image::Image> img = an2kv->getImage();
+	if (img.get() == nullptr) {
+		std::cout << "Image was nullptr" << std::endl;
+	} else {
+		// Process the image data
+	}
+	/*
+	 * Get the raw image data and save to a file
+	 */
+	std::ofstream img_out("imgdata.raw", std::ofstream::binary);
+	Memory::uint8Array imgData{img->getRawData()};
+	img_out.write((char *)&(imgData[0]), imgData.size());
+	if (img_out.good()) {
+		img_out.close();
+	} else {
+		std::cout << "Error occurred when writing." << std::endl;
+	}
+	/*
+	 * Get all the positions from the data record.
+	 */
+	Finger::PositionSet positions = an2kv->getPositions();
+	std::cout << "There are " << positions.size() << " positions:"
+	    << std::endl;
+	for (auto p: positions) {
+		std::cout << "\t" << to_string(p) << std::endl;
+	}
+	/*
+	 * Get the minutiae data records and print the minutiae points in
+	 * each data record
+	 */
+	auto mdrs = an2kv->getMinutiaeDataRecordSet();	// The set of records
+	std::cout << "There are " << mdrs.size() << " minutiae data records."
+	    << std::endl;
+	for (auto mdr: mdrs) {
+		for (auto mp: mdr.getAN2K7Minutiae()->getMinutiaPoints()) {
+			std::cout << mp << std::endl;
+		}
+	}
 
-    // Save the finger image to a file.
-    tr1::shared_ptr<Image::Image> img = an2kv->getImage();
-    if (img.get() == NULL) {
-       cerr << "Image was not present." << endl;
-       return (EXIT_FAILURE);
-    }
-    string filename = "rawimg";
-    ofstream img_out(filename.c_str(), ofstream::binary);
-    img_out.write((char *)&(img->getRawData()[0]),
-        img->getRawData().size());
-    if (img_out.good())
-            cout << "\tFile: " << filename << endl;
-    else {
-        img_out.close();
-        cerr << "Error occurred when writing " << filename << endl;
-        return (EXIT_FAILURE);
-    }
-    img_out.close();
-
-    // Get the finger minutiae sets. AN2K records can have more than one
-    // set of minutiae for a finger.
-
-    vector<Finger::AN2KMinutiaeDataRecord> mindata = an2kv->getMinutiaeDataRecordSet();
+	return(EXIT_SUCCESS);
 }
 \end{lstlisting}
 
