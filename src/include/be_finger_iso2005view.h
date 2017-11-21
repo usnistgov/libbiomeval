@@ -106,6 +106,10 @@ namespace BiometricEvaluation
 			    Feature::DeltaPointSet &deltas);
 
 		private:
+			void init(
+			    const Memory::uint8Array &fmrBuffer,
+			    const Memory::uint8Array &firBuffer,
+			    const uint32_t viewNumber);
 		};
 	}
 }

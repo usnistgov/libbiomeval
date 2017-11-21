@@ -32,7 +32,7 @@ COMMAND_CENTER = be_process_commandcenter_example
 
 FEATURE = test_be_feature_an2kminutiae
 
-OTHER = test_be_data_interchange_an2k test_be_framework_enumeration
+OTHER = test_be_data_interchange_an2k test_be_data_interchange_ansi2004 test_be_framework_enumeration
 
 MPI = test_be_rs_mpi test_be_csv_mpi
 
@@ -130,6 +130,8 @@ test_be_latent_an2kview: test_be_latent_an2kview.cpp
 test_be_finger_incitsviews: test_be_finger_incitsviews.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval
 test_be_data_interchange_an2k: test_be_data_interchange_an2k.cpp
+	$(CXX) $(CXXFLAGS) $^ -pg -o $@ $(LDFLAGS) -lbiomeval
+test_be_data_interchange_ansi2004: test_be_data_interchange_ansi2004.cpp
 	$(CXX) $(CXXFLAGS) $^ -pg -o $@ $(LDFLAGS) -lbiomeval
 test_be_memory_indexedbuffer: test_be_memory_indexedbuffer.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -lbiomeval

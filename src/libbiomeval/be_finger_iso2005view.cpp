@@ -23,13 +23,10 @@ BiometricEvaluation::Finger::ISO2005View::ISO2005View(
     const uint32_t viewNumber) :
     INCITSView(fmrFilename, firFilename, viewNumber)
 {
-	Memory::uint8Array recordData = BE::Finger::INCITSView::getFMRData();
-	Memory::IndexedBuffer iBuf(recordData, recordData.size());
-	this->readFMRHeader(iBuf);
-	for (uint32_t i = 0; i < viewNumber; i++)
-		this->readFVMR(iBuf);
-
-	//XXX Need to read the image record
+	init(
+	    BE::Finger::INCITSView::getFMRData(),
+	    BE::Finger::INCITSView::getFIRData(),
+	    viewNumber);
 }
 
 BiometricEvaluation::Finger::ISO2005View::ISO2005View(
@@ -38,11 +35,22 @@ BiometricEvaluation::Finger::ISO2005View::ISO2005View(
     const uint32_t viewNumber) :
     INCITSView(fmrBuffer, firBuffer, viewNumber)
 {
-	Memory::IndexedBuffer iBuf(fmrBuffer, fmrBuffer.size());
-	this->readFMRHeader(iBuf);
-	for (uint32_t i = 0; i < viewNumber; i++)
-		this->readFVMR(iBuf);
+	init(fmrBuffer, firBuffer, viewNumber);
+}
 
+void
+BiometricEvaluation::Finger::ISO2005View::init(
+    const Memory::uint8Array &fmrBuffer,
+    const Memory::uint8Array &firBuffer,
+    const uint32_t viewNumber)
+{
+	if (fmrBuffer.size() != 0) {
+		Memory::IndexedBuffer iBuf(fmrBuffer, fmrBuffer.size());
+		this->readFMRHeader(iBuf);
+		for (uint32_t i = 0; i < viewNumber; i++) {
+			this->readFVMR(iBuf);
+		}
+	}
 	//XXX Need to read the image record
 }
 

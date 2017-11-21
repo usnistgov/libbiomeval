@@ -181,12 +181,13 @@ namespace BiometricEvaluation
 			/*
 			 * Items for the Image: Data, resolution, etc.
 			 */
-			Image::Size _imageSize;
-			Image::Resolution _imageResolution;
-			Image::Resolution _scanResolution;
+			Image::Size _imageSize{};
+			Image::Resolution _imageResolution{};
+			Image::Resolution _scanResolution{};
 			Memory::AutoArray<uint8_t> _imageData;
-			Image::CompressionAlgorithm _compressionAlgorithm;
-			uint32_t _imageColorDepth;
+			Image::CompressionAlgorithm
+			    _compressionAlgorithm{};
+			uint32_t _imageColorDepth{};
 
 		};
 	}

@@ -21,26 +21,32 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
     const BE::Memory::uint8Array &fmr,
     const BE::Memory::uint8Array &fir)
 {
-	try {
-		/* Determine the number of finger views */
-		for (uint64_t viewNumber = 1; /* */; viewNumber++) {
-			this->_views.push_back(BE::Finger::ANSI2004View(
-			    fmr, fir, viewNumber));
-		}
-	} catch (BE::Error::ObjectDoesNotExist) { /* The end is nigh. */ }
-
-	if (this->_views.size() == 0)
-		throw BE::Error::StrategyError("No ANSI2004Views created.");
+	init(fmr, fir);
 }
 
 BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
     const std::string &fmrPath,
-    const std::string &firPath) :
-    ANSI2004Record(
-    BE::IO::Utility::readFile(fmrPath),
-    BE::IO::Utility::readFile(firPath))
+    const std::string &firPath)
 {
-
+	BE::Memory::uint8Array fmr;
+	if (fmrPath != "") {
+		try {
+			fmr = BE::IO::Utility::readFile(fmrPath);
+		} catch (BE::Error::Exception) {
+			throw (BE::Error::FileError(
+			     "FMR file could not be opened."));
+		}
+	}
+	BE::Memory::uint8Array fir;
+	if (firPath != "") {
+		try {
+			fir = BE::IO::Utility::readFile(firPath);
+		} catch (BE::Error::Exception) {
+			throw (BE::Error::FileError(
+			     "FIR file could not be opened."));
+		}
+	}
+	init(fmr, fir);
 }
 
 BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
@@ -58,6 +64,23 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
 		/* Add to collection */
 		this->_views.push_back(view);
 	}
+}
+
+void
+BiometricEvaluation::DataInterchange::ANSI2004Record::init(
+    const BE::Memory::uint8Array &fmr,
+    const BE::Memory::uint8Array &fir)
+{
+	try {
+		/* Determine the number of finger views */
+		for (uint64_t viewNumber = 1; /* */; viewNumber++) {
+			this->_views.push_back(BE::Finger::ANSI2004View(
+			    fmr, fir, viewNumber));
+		}
+	} catch (BE::Error::ObjectDoesNotExist) { /* The end is nigh. */ }
+
+	if (this->_views.size() == 0)
+		throw BE::Error::StrategyError("No ANSI2004Views created.");
 }
 
 uint64_t

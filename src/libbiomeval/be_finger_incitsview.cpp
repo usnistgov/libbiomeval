@@ -35,12 +35,24 @@ BiometricEvaluation::Finger::INCITSView::INCITSView()
 BiometricEvaluation::Finger::INCITSView::INCITSView(
     const std::string &fmrFilename,
     const std::string &firFilename,
-    const uint32_t viewNumber) :
-    INCITSView(
-    BE::IO::Utility::readFile(fmrFilename),
-    BE::IO::Utility::readFile(firFilename),
-    viewNumber)
+    const uint32_t viewNumber)
 {
+	if (fmrFilename != "") {
+		try {
+			this->_fmr = BE::IO::Utility::readFile(fmrFilename);
+		} catch (BE::Error::Exception) {
+			throw (BE::Error::FileError(
+			     "FMR file could not be opened."));
+		}
+	}
+	if (firFilename != "") {
+		try {
+			this->_fir = BE::IO::Utility::readFile(firFilename);
+		} catch (BE::Error::Exception) {
+			throw (BE::Error::FileError(
+			     "FIR file could not be opened."));
+		}
+	}
 }
 
 BiometricEvaluation::Finger::INCITSView::INCITSView(

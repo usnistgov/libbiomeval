@@ -118,6 +118,10 @@ namespace BiometricEvaluation
 
 		private:
 			uint32_t _algorithmID;
+			void init(
+			    const Memory::uint8Array &fmrBuffer,
+			    const Memory::uint8Array &firBuffer,
+			    const uint32_t viewNumber);
 			
 		};
 	}

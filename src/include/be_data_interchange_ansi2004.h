@@ -28,7 +28,12 @@ namespace BiometricEvaluation
 		public:
 			/**
 			 * @brief
-			 * ANSI2004Record constructor.
+			 * ANSI2004Record constructor using a pair of finger
+			 * minutia and image records.
+			 * @details
+			 * One or both records can be the empty array. The
+			 * data obtained from an empty record will be set to
+			 * the zero-value.
 			 *
 			 * @param fmr
 			 * Finger minutia record.
@@ -41,7 +46,12 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * ANSI2004Record constructor.
+			 * ANSI2004Record constructor using a pair of finger
+			 * minutia and image records.
+			 * @details
+			 * One or both records can be the empty string. The
+			 * data obtained from an empty record will be set to
+			 * the zero-value.
 			 *
 			 * @param fmr
 			 * Path to a finger minutia record.
@@ -54,7 +64,8 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * ANSI2004Record constructor
+			 * ANSI2004Record constructor using a set of finger
+			 * view records.
 			 *
 			 * @param views
 			 * ANSI2004View objects.
@@ -85,7 +96,7 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Insert a finger view to the record at a specific
-			 * position
+			 * position.
 			 *
 			 * @param view
 			 * Finger view to add.
@@ -100,7 +111,7 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * Insert a finger view to the record at a specific
-			 * position
+			 * position.
 			 *
 			 * @param view
 			 * Finger view to add.
@@ -108,7 +119,7 @@ namespace BiometricEvaluation
 			 * View number to assign to this view.
 			 *
 			 * @return
-			 * viewNumber
+			 * The view number.
 
 			 * @throw BE::Error::StrategyError
 			 * viewNumber is not valid.
@@ -128,7 +139,7 @@ namespace BiometricEvaluation
 			 * View number replaced by view.
 			 *
 			 * @return
-			 * viewNumber
+			 * The view number.
 
 			 * @throw BE::Error::StrategyError
 			 * viewNumber is not valid.
@@ -160,10 +171,10 @@ namespace BiometricEvaluation
 			 * Isolate a finger view from the record.
 			 *
 			 * @param viewNumber
-			 * The view number to isolate
+			 * The view number to isolate.
 			 *
 			 * @throw BE::Error::ObjectDoesNotExist
-			 * viewNumber foes not exist.
+			 * viewNumber does not exist.
 			 *
 			 * @note
 			 * The remaining view becomes view 1.
@@ -302,6 +313,14 @@ namespace BiometricEvaluation
 		private:
 			/** All finger views from a record */
 			std::vector<BE::Finger::ANSI2004View> _views;
+
+			/**
+			 * Function to initialize the object, called from
+			 * each constructor.
+			 */
+			void init(
+			    const Memory::uint8Array &fmr,
+			    const Memory::uint8Array &fir);
 		};
 	}
 }

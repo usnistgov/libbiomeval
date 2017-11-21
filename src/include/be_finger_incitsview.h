@@ -492,22 +492,22 @@ namespace BiometricEvaluation
 				Feature::DeltaPointSet &deltas) = 0;
 				
 		private:
-			Memory::uint8Array _fmr;
-			Memory::uint8Array _fir;
-			Finger::Position _position;
-			Feature::INCITSMinutiae _minutiae;
-			std::vector<uint8_t> _fmdReserved;
-			Finger::Impression _impression;
-			uint32_t _viewNumber;
-			uint32_t _quality;
-			bool _appendixFCompliance;
-			uint16_t _productIDOwner;
-			uint16_t _productIDType;
-			uint16_t _captureEquipmentID;
-			uint32_t _recordLength;
-			uint8_t _numFingerViews;
-			uint8_t _fmrReservedByte;
-			uint16_t _edbLength;
+			Memory::uint8Array _fmr{};
+			Memory::uint8Array _fir{};
+			Finger::Position _position{};
+			Feature::INCITSMinutiae _minutiae{};
+			std::vector<uint8_t> _fmdReserved{};
+			Finger::Impression _impression{};
+			uint32_t _viewNumber{};
+			uint32_t _quality{};
+			bool _appendixFCompliance{};
+			uint16_t _productIDOwner{};
+			uint16_t _productIDType{};
+			uint16_t _captureEquipmentID{};
+			uint32_t _recordLength{};
+			uint8_t _numFingerViews{};
+			uint8_t _fmrReservedByte{};
+			uint16_t _edbLength{};
 		};
 	}
 }

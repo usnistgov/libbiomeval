@@ -30,8 +30,7 @@ printViewInfo(Finger::INCITSView &fngv)
 	cout << "Image resolution is " << fngv.getImageResolution() << endl;
 	cout << "Image size is " << fngv.getImageSize() << endl;
 	cout << "Image depth is " << fngv.getImageColorDepth() << endl;
-	cout << "Compression is " <<
-	    to_string(fngv.getCompressionAlgorithm()) << endl;
+	cout << "Compression is " << fngv.getCompressionAlgorithm() << endl;
 	cout << "Scan resolution is " << fngv.getScanResolution() << endl;
 
 	/*
@@ -81,7 +80,7 @@ testANSI2004()
 	bool success = false;
 	try {
 		fngv = Finger::ANSI2004View("nbv5425GHdfsdfad", "", 1);
-	} catch (Error::FileError& e) {
+	} catch (Error::Exception& e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -92,12 +91,11 @@ testANSI2004()
 	cout << "Attempt to construct with good file: ";
 
 	try {
-		fngv = Finger::ANSI2004View(
-		    "test_data/fmr.ansi2004", "", 3);
+		fngv = Finger::ANSI2004View("test_data/fmr.ansi2004", "", 3);
 	} catch (Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (false);
-	} catch (Error::FileError& e) {
+	} catch (Error::Exception& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}
@@ -117,7 +115,7 @@ testANSI2007()
 	bool success = false;
 	try {
 		fngv = Finger::ANSI2007View("nbv5425GHdfsdfad", "", 1);
-	} catch (Error::FileError& e) {
+	} catch (Error::Exception& e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -132,7 +130,7 @@ testANSI2007()
 	} catch (Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (false);
-	} catch (Error::FileError& e) {
+	} catch (Error::Exception& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}
@@ -154,7 +152,7 @@ testISO2005()
 	} catch (Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (false);
-	} catch (Error::FileError& e) {
+	} catch (Error::Exception& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}
@@ -167,13 +165,10 @@ testISO2005()
 int
 main(int argc, char* argv[])
 {
-
 	if (!testANSI2004())
 		return(EXIT_FAILURE);
-
 	if (!testANSI2007())
 		return(EXIT_FAILURE);
-
 	if (!testISO2005())
 		return(EXIT_FAILURE);
 
