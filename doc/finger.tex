@@ -155,6 +155,7 @@ main(int argc, char* argv[]) {
 \end{lstlisting}
 
 \subsection{ISO/INCITS Finger Views}
+\label{sec-incitsfingerviews}
 
 The ISO~\cite{org:iso:sc37} and INCITS~\cite{org:incits} standards typically use
 separate files for the source biometric data and the derived data. For example,
@@ -164,30 +165,28 @@ both files, although a view can be constructed with only one file. In the
 latter case, the view object will represent only that information contained in
 the single file.
 
-\lstref{lst:an2kfingerviewuse} shows how an application can create a view from
-a ANSI/INCTIS 378 finger minutiae format record~\cite{std:ansi378-2004}.
+\warn{Reading data from finger image records is not currently supported}
+
+\lstref{lst:incitsfingerviewuse} shows how an application can create a view from
+an ANSI/INCTIS 378 finger minutiae format record~\cite{std:ansi378-2004}.
 
 \begin{lstlisting}[caption={Using an INCITS Finger View}, label=lst:incitsfingerviewuse]
-#include <stdlib.h>
-#include <fstream>
 #include <iostream>
 #include <be_finger_ansi2004view.h>
 #include <be_feature_incitsminutiae.h>
 using namespace std;
 using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
 
 int
-main(int argc, char* argv[]) {
-
+main(int argc, char* argv[])
+{
     Finger::ANSI2004View fngv;
     try {
         fngv = Finger::ANSI2004View("test_data/fmr.ansi2004", "", 3);
-    } catch (Error::DataError &e) {
-        cerr << "Caught " << e.getInfo()  << endl;
+    } catch (Error::Exception &e) {
+        cerr << "Caught " << e.whatString()  << endl;
         return (EXIT_FAILURE);
-    } catch (Error::FileError& e) {
-         cerr << "A file error occurred: " << e.getInfo() << endl;
-         return (EXIT_FAILURE);
     }
     cout << "Image resolution is " << fngv.getImageResolution() << endl;
     cout << "Image size is " << fngv.getImageSize() << endl;
@@ -199,23 +198,23 @@ main(int argc, char* argv[]) {
     cout << "Minutiae format is " << fmd.getFormat() << endl;
     Feature::MinutiaPointSet mps = fmd.getMinutiaPoints();
     cout << "There are " << mps.size() << " minutiae points:" << endl;
-    for (size_t i = 0; i < mps.size(); i++)
-        cout << mps[i];
+    for (auto mp: mps)
+        cout << mp;
 
-        Feature::RidgeCountItemSet rcs = fmd.getRidgeCountItems();
-    cout << "There are " << rcs.size() << " ridge count items:" << endl;
-    for (int i = 0; i < rcs.size(); i++)
-        cout << "\t" << rcs[i];
+    Feature::RidgeCountItemSet rcis = fmd.getRidgeCountItems();
+    cout << "There are " << rcis.size() << " ridge count items:" << endl;
+    for (auto rci: rcis)
+        cout << "\t" << rci;
 
     Feature::CorePointSet cores = fmd.getCores();
     cout << "There are " << cores.size() << " cores:" << endl;
-    for (int i = 0; i < cores.size(); i++)
-        cout << "\t" << cores[i];
+    for (auto core: cores)
+        cout << "\t" << core;
 
     Feature::DeltaPointSet deltas = fmd.getDeltas();
     cout << "There are " << deltas.size() << " deltas:" << endl;
-    for (int i = 0; i < deltas.size(); i++)
-        cout << "\t" << deltas[i];
+    for (auto delta: deltas)
+        cout << "\t" << delta;
 
     exit (EXIT_SUCCESS);
 }

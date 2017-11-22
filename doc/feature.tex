@@ -38,15 +38,16 @@ feature set data is required from the file, a
 from the file or memory buffer.
 
 \subsection{ANSI/NIST 2011 Extended Feature Sets}
-The 2011 edition of the ANSI/NIST standard, \cite{std:an2k11}, adds a new form
+The 2011 edition of the ANSI/NIST standard~\cite{std:an2k11} adds a new form
 of feature data representation to the Type-9 fingerprint minutiae record. The
 extended feature set information is represented by an object that can be
 retrieved from the \class{AN2KMinutiaeDataRecord} object created from the data
 file.
 
 \lstref{lst:an2kefsuse} shows how to read the extended feature set
-data from an ANSI/NIST file, both as a data interchange object or an extended
-feature set object.
+data from an ANSI/NIST file, both as a data interchange object
+(see \secref{chp-datainterchange}) or an extended feature set object constructed
+directly from a file.
 
 \begin{lstlisting}[caption={Using AN2K Extended Feature Sets}, label=lst:an2kefsuse]
 #include <iostream>
