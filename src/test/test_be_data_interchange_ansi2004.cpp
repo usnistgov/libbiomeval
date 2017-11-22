@@ -160,6 +160,17 @@ testANSI2004()
 	record->isolateView(2);
 	showAllViews(*record);
 
+	/* Obtain the ANSI-378 record and instantiate an object from it */
+	cout << "Test getFMR(): Impression types should match: ";
+	auto fmr = record->getFMR();
+	BE::Finger::ANSI2004View fmrView(fmr, Memory::uint8Array{}, 1);
+	if (fmrView.getImpressionType() ==
+	     record->getView(1).getImpressionType()) {
+		cout << "Success.\n";
+	} else {
+		cout << "Failure.\n";
+	}
+
 	/* Remove a view */
 	cout << "Test removeView(99): ";
 	success = false;
