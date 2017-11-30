@@ -1,0 +1,128 @@
+%
+% Face API
+%
+\chapter{Face}
+\label{chp-face}
+The \namespace{Face} package provides access to facial information stored in
+standard record formats. Within this package are defined the common elements
+relevant to facial images, such as hair color, expression, pose angle, and
+others.
+
+\subsection{ISO/INCITS Face Views}
+The \class{Face::INCITSView} class, extends \class{View::View}
+(See~\ref{chp-view}) by adding methods to retrieve facial information. A
+\class{Face::INCITSView} object cannot be constructed by applications but
+rather this class is subclassed to represent each standard format.
+For example, the \class{ISO2005View} class represents the 
+ISO/IEC 19794-5~\cite{std:ansi385-2004} standard.
+
+\lstref{lst:isofaceuse} shows how an application can query the information from
+a standard ISO/INCITS-385 facial information record.
+
+\begin{lstlisting}[caption={Using the Face::ISO2005View Class}, label=lst:isofaceuse]
+#include <iostream>
+#include <iomanip>
+#include <be_face_iso2005view.h>
+
+using namespace std;
+using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
+
+void
+printViewInfo(View::View &view)
+{
+	/*
+	 * Provided by the View::View interface.
+	 */
+	cout << "Image resolution is " << view.getImageResolution() << endl;
+	cout << "Scan resolution is " << view.getScanResolution() << endl;
+	cout << "Image size is " << view.getImageSize() << endl;
+	cout << "Image depth is " << view.getImageColorDepth() << endl;
+	cout << "Compression is " <<
+	    view.getCompressionAlgorithm() << endl;
+
+	try {
+		std::shared_ptr<Image::Image> theImage = view.getImage();
+		cout << "Information from the Image data item:" << endl;
+		cout << "\tResolution: " << theImage->getResolution() << endl;
+		cout << "\tDimensions: " << theImage->getDimensions() << endl;
+		cout << "\tDepth: " << theImage->getColorDepth() << endl;
+	} catch (Error::Exception &e) {
+		cout << "Caught " << e.what() << endl;
+	}
+	cout << "------------------------------------------" << endl;
+}
+
+void
+printFaceInfo(Face::ISO2005View &facev)
+{
+	/*
+	 * Provided by the Face::INCITSView interface.
+	 */
+	cout << "Gender: " << facev.getGender() << endl;
+	cout << "Eye Color: " << facev.getEyeColor() << endl;
+	cout << "Hair Color: " << facev.getHairColor() << endl;
+	cout << "Expression: " << facev.getExpression() << endl;
+
+	Face::PoseAngle pa =  facev.getPoseAngle();
+	cout << "Pose angle info: ";
+	cout << "Yaw/Uncer: " << (int)pa.yaw << "/" << (int)pa.yawUncertainty;
+	cout << "; Pitch/Uncer: "
+	    << (int)pa.pitch << "/" << (int)pa.pitchUncertainty;
+	cout << "; Roll/Uncer: "
+	    << (int)pa.roll << "/" << (int)pa.rollUncertainty << endl;
+
+	cout << "Image type is " << facev.getImageType() << endl;
+	cout << "Image data type is " << facev.getImageDataType()
+	    << endl;
+	cout << "Color space is " << facev.getColorSpace() << endl;
+	cout << "Source type is " << facev.getSourceType() << endl;
+	cout << "Device type is " << "0x" << hex << setw(4) << setfill('0')
+	    << facev.getDeviceType() << dec << endl;
+
+	Face::PropertySet properties;
+	bool haveProps = facev.propertiesConsidered();
+	if (haveProps) {
+		facev.getPropertySet(properties);
+		cout << "There are " << properties.size() << " properties: ";
+		for (size_t i = 0; i < properties.size(); i++) {
+			if (i != properties.size() - 1)
+				cout << properties[i] << ", ";
+			else
+				cout << properties[i];
+		}
+		cout << endl;
+	} else {
+		cout << "There are no properties." << endl;
+	}
+
+	Feature::MPEGFacePointSet fps;
+	facev.getFeaturePointSet(fps);
+	cout << "There are " << fps.size() << " feature points." << endl;
+	if (fps.size() != 0) {
+		cout << "\tType\tCode\tPosition" << endl;
+	}
+	for (size_t i = 0; i < fps.size(); i++) {
+		cout << "\t" << (int)fps[i].type
+		    << "\t" << (int)fps[i].major << "." << (int)fps[i].minor
+		    << "\t" << fps[i].coordinate
+		    << endl;
+	}
+	cout << "------------------------------------------" << endl;
+}
+
+int
+main(int argc, char* argv[])
+{
+	Face::ISO2005View facev;
+	try {
+		facev = Face::ISO2005View("test_data/face01.iso2005", 1);
+	} catch (Error::Exception &e) {
+		cout << "Caught " << e.what()  << endl;
+		return (EXIT_FAILURE);
+	}
+	printViewInfo(facev);
+	printFaceInfo(facev);
+	return(EXIT_SUCCESS);
+}
+\end{lstlisting}

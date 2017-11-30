@@ -1,0 +1,99 @@
+%
+% Palm API
+%
+\chapter{Palm}
+\label{chp-palm}
+The \namespace{Palm} package provides access to palm print information stored in
+standard record formats. Within this package are defined the common elements
+relevant to palm images, such as position and minutiae data.
+
+\subsection{ANSI/NIST Palm Views}
+The \class{Palm::AN2KView} class, extends
+\class{View::AN2KViewVariableResolution}
+(See~\ref{chp-view}) by adding methods to retrieve palm information from an
+ANSI/NIST (\cite{std:an2k11}) Type-15 record.
+
+\lstref{lst:isopalmuse} shows how an application can query the information from
+an ANSI/NIST data file.
+
+\begin{lstlisting}[caption={Using the Palm::AN2KView Class}, label=lst:isopalmuse]
+#include <iostream>
+#include <be_io_utility.h>
+#include <be_palm_an2kview.h>
+
+using namespace std;
+using namespace BiometricEvaluation;
+using namespace BiometricEvaluation::Framework::Enumeration;
+
+static void
+printViewInfo(const Palm::AN2KView &an2kv) {
+	cout << "Source Agency: " << an2kv.getSourceAgency() << endl;
+	cout << "Capture Date: " << an2kv.getCaptureDate() << endl;
+	cout << "Comment: [" << an2kv.getComment() << "]" << endl;
+
+	cout << "Image resolution: " << an2kv.getImageResolution() << endl;
+	cout << "Image size: " << an2kv.getImageSize() << endl;
+	cout << "Image color depth: " << an2kv.getImageColorDepth() << endl;
+	cout << "Compression: " << an2kv.getCompressionAlgorithm() << endl;
+	cout << "Scan resolution: " << an2kv.getScanResolution() << endl;
+	cout << "Impression Type: " << an2kv.getImpressionType() << endl;
+	cout << "Position: " << an2kv.getPosition() << endl;
+	auto qms = an2kv.getPalmQualityMetric();
+	cout << "Palm Quality has " << qms.size() << " entries:" << endl;
+	for (auto &qm: qms) {
+		cout << "\t" << qm << endl;
+	}
+	shared_ptr<Image::Image> img = an2kv.getImage();
+	if (img != nullptr) {
+		cout << "Image info:" << endl;
+		cout << "\tCompression: " << img->getCompressionAlgorithm()
+		    << endl;
+		cout << "\tDimensions: " << img->getDimensions() << endl;
+		cout << "\tResolution: " << img->getResolution() << endl;
+		cout << "\tDepth: " << img->getColorDepth() << endl;
+	} else {
+		cout << "No Image available." << endl;
+	}
+
+}
+
+int
+main(int argc, char* argv[]) {
+
+	/*
+	 * Call the constructor that will open an existing AN2K file.
+	 */
+	std::shared_ptr<Palm::AN2KView> an2kv;
+	try {
+		an2kv.reset(new Palm::AN2KView(
+		    "test_data/type9-15.an2k", 1));
+	} catch (Error::Exception &e) {
+		cout << "Caught " << e.what()  << endl;
+		return (EXIT_FAILURE);
+	} 
+	printViewInfo(*an2kv);
+
+	cout << "Get the set of minutiae data records: ";
+	auto minutiae = an2kv->getMinutiaeDataRecordSet();
+	cout << "There are " << minutiae.size()
+	    << " minutiae data record sets." << endl;
+	if (minutiae.size() != 0) {
+		cout << "Minutiae Points:\n";
+		for (auto m:
+		     minutiae[0].getAN2K7Minutiae()->getMinutiaPoints()) {
+			cout << m << endl;
+		}
+		cout << "Cores:\n";
+		for (auto c:
+		     minutiae[0].getAN2K7Minutiae()->getCores()) {
+			cout << c << endl;
+		}
+		cout << "Deltas:\n";
+		for (auto d:
+		     minutiae[0].getAN2K7Minutiae()->getDeltas()) {
+			cout << d << endl;
+		}
+	}
+	return(EXIT_SUCCESS);
+}
+\end{lstlisting}

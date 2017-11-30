@@ -34,3 +34,26 @@ contained in the image itself, and applications can compare the corresponding
 values taken from the \class{Image} object (when available) to those taken from 
 the \class{View} object.
 
+\lstref{lst:viewuse} shows a function that will print the information obtained
+from any \class{View} object.
+
+\begin{lstlisting}[caption={View::View Class}, label=lst:viewuse]
+void
+printViewInfo(BiometricEvaluation::View::View &view)
+{
+        cout << "Image size is " << view.getImageSize() << endl;
+        cout << "Image resolution is " << view.getImageResolution() << endl;
+        cout << "Scan resolution is " << view.getScanResolution() << endl;
+        cout << "Image color depth is " << view.getImageColorDepth() << endl;
+        cout << "Compression is " << view.getCompressionAlgorithm() << endl;
+        try {
+                auto theImage = view.getImage();
+                cout << "Information from the Image data item:" << endl;
+                cout << "\tResolution: " << theImage->getResolution() << endl;
+                cout << "\tDimensions: " << theImage->getDimensions() << endl;
+                cout << "\tDepth: " << theImage->getColorDepth() << endl;
+        } catch (Error::Exception &e) {
+                cout << "Caught " << e.what() << endl;
+        }
+}
+\end{lstlisting}

@@ -11,7 +11,7 @@ functions to other parts of the framework.
 \section{Versioning}
 Version numbers, the compiler used, and other framework metadata
 can be queried by applications.  Versioning information is recorded in the
-\sname \code{Makefile} and populated in the function implentation at
+\sname \code{Makefile} and populated in the function implementation at
 compile-time.
 
 \begin{lstlisting}[caption={Using the \namespace{Framework} API}, label=frameworkuse]
@@ -32,55 +32,78 @@ std::cout << "Date/Time Compiled: " << BE::Framework::getCompileDate() << " " <<
 \label{sec_framework-enumerations}
 
 As of \CppXI, \code{enum}s can be strongly-typed. The \lname makes use of
-these strongly-typed \code{enum class}es throughout. As an added convenience,
+these strongly-typed \code{enum} classes throughout. As an added convenience,
 functions converting to and from \code{enum}s, \code{string}s, and \code{int}s
-are implicitly implemented easily via a \code{template}, eliminating many lines
+are defined by using a \code{template}, eliminating many lines
 of boiler-plate code and creating equivalence in functionality among
-\code{enum class}es throughout \sname.
+\code{enum class}es throughout \sname. The output stream operator \code{<<} is
+also defined by the template.
 
 At the core of \namespace{Framework::Enumeration} is a \code{const} mapping of
-\code{enum} to \code{string}, defined by you in code and instantated at
-compile-time. As demonstrated in \lstref{framework-enumeration}, simply define
-your \code{enum class} and populate the \code{map}.
+\code{enum} to \code{string}, defined in code and instantiated at
+compile-time. The procedure to create a enum-to-string map is as follows:
+\begin{itemize}
+\item Include the \code{be\_framework\_enumeration.h} file to access the
+template definitions;
+\item Define the \code{enum} class;
+\item Use the \code{BE\_FRAMEWORK\_ENUMERATION\_DECLARATIONS} macro to declare
+the enum-to-string map;
+\item Define the map from the \code{enum} elements to \code{std::string} objects;
+\item Use the \code{BE\_FRAMEWORK\_ENUMERATION\_DEFINITIONS} macro to define the
+functions based on the map (\code{to\_string}, etc.).
+\end{itemize}
+
+This procedure is demonstrated in \lstref{framework-enumeration}.
+The functions defined by the template exist within the 
+\namespace{BiometricEvaluation::Framework::Enumeration} namespace. In the
+example application, the stream operator is used both with a call to the
+\code{to\_string} function as well as directly. Typically the former where a
+stream operation is unavailable, calling a C program for example.
 
 \begin{lstlisting}[caption={\namespace{Framework::Enumeration}}, label=framework-enumeration]
 /*
- * color.h
+ * color.hpp
  */
-
+#include <be_framework_enumeration.h>
 enum class Color
 {
-	Black,
-	Blue,
-	Green
+        Black,
+        Blue,
+        Green
 };
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    Color, Color_EnumToStringMap);
 
 /*
  * color.cpp
  */
+#include "tfr.h"
 
-#include <be_framework_enumeration.h>
-
-template<>
+using namespace BiometricEvaluation::Framework::Enumeration;
+        
 const std::map<Color, std::string>
-BiometricEvaluation::Framework::EnumerationFunctions<Color>::enumToStringMap {
-	{Color::Black, "Black"},
-	{Color::Black, "Blue"},
-	{Color::Green, "Green"}
+Color_EnumToStringMap = {
+        {Color::Black, "Black"},
+        {Color::Blue, "Blue"},
+        {Color::Green, "Green"}
 };
 
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+        Color,
+        Color_EnumToStringMap);
+
 /*
- * application.cpp
+ * Application
  */
-
-#include <color.h>
-
-/* "Black" */
-std::cout << to_string(Color::Black) << std::endl;
-/* "2" */
-std::cout << to_int_type(Color::Green) << std::endl;
-/* Color::Blue */
-Color color = to_enum<Color>("Blue");
+#include <iostream>
+int main()
+{
+        std::cout << to_string(Color::Black) << std::endl;
+        std::cout << Color::Black << std::endl;
+        std::cout << to_int_type(Color::Green) << std::endl;
+        Color color = to_enum<Color>("Blue");
+        std::cout << color << std::endl;
+}
 \end{lstlisting}
 
 While \namespace{Framework::Enumeration} was created for \sname, the
