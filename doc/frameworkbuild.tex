@@ -32,6 +32,48 @@ The make file also sets variables that create subsets of the \sname.
 \sname. The \texttt{SOURCES} variable contains a list of variables pertaining
 to the desired build of \sname.
 
+\section{The CMake Build System}
+
+Building the \sname using CMake~\cite{org:cmake} is possible, and provides
+a simpler cross-platform build system. In the {\tt common/src/libbiomeval}
+directory is a {\tt CMakeLists.txt} file that controls the build. 
+
+To build static and shared library versions of libbiomeval, including the
+subset of NBIS included with the Framework, the steps are:
+\begin{enumerate}
+\item Create a build directory; in this example, it will be under libbiomeval:
+\begin{verbatim}
+    mkdir build; cd build
+\end{verbatim}
+\item Run CMake using the {\tt CMakeLists.txt}:
+\begin{verbatim}
+    cmake ..
+\end{verbatim}
+\item Build the Framework:
+\begin{verbatim}
+     make
+\end{verbatim}
+\item Install static and shared libraries plus headers:
+\begin{verbatim}
+     make install
+\end{verbatim}
+\item Create an RPM on CentOS or RedHat Linux systems:
+\begin{verbatim}
+     make package
+\end{verbatim}
+\end{enumerate}
+
+To build the debug version of the library, substitute for step 2:
+\begin{verbatim}
+     cmake -DCMAKE_BUILD_TYPE=Debug ..
+\end{verbatim}
+
+To use a different compiler for the MPI component (Intel, OpenMPI are among
+ the supported compilers), substitute for step 2:
+\begin{verbatim}
+     cmake -DMPI_CXX_COMPILER=mpiicpc ..
+\end{verbatim}
+
 \section{External Software Dependencies}
 
 The \lname is built upon several other software packages. The packages are

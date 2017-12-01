@@ -3,12 +3,12 @@
 %
 \chapter{View}
 \label{chp-view}
-Within the \lname a \class{View} represents all the information that was derived
+Within the \lname a view represents all the information that was derived
 from an image of a biometric sample. For example, with a fingerprint image, any
 minutiae that were extracted from that image, as well as the image itself,
 are contained within a single \class{View} object. In many cases the image may
 not be present, however the image size and other information is contained within
-a biometric record, along with the derived information. A \class{View} is used
+a biometric record, along with the derived information. A view is used
 to represent these records as well.
 
 In the case where a raw image is part of the biometric record, the \class{View} 
@@ -19,17 +19,16 @@ attributes directly.
 For other image types (e.g. \class{JPEG}) the \class{Image} object will return
 attribute values taken from the image data.
 
-\class{View}s are high-level abstractions of the biometric sample, and concrete
+Views are high-level abstractions of the biometric sample, and concrete
 implementations of a \class{View} include finger, face, iris, etc. views based
 on a specific type of biometric. Therefore, \class{View} objects are not
-created directly, Subclasses, such as finger views (see~\chpref{chp-finger}),
+created directly. Subclasses, such as finger views (see~\chpref{chp-finger}),
 represent the specific type of biometric sample.
 
-Objects are created with information taken from a biometric data
+\class{View} objects are created with information taken from a biometric data
 record, an ANSI/NIST 2007 file, for example. Most record formats contain 
-information about the image itself, such as the resolution and size. The 
-\class{View} object can
-be used to retrieve this information. However, the data may differ from that
+information about the image itself, such as the resolution and size. The object
+can be used to retrieve this information. However, the data may differ from that
 contained in the image itself, and applications can compare the corresponding
 values taken from the \class{Image} object (when available) to those taken from 
 the \class{View} object.
@@ -57,3 +56,14 @@ printViewInfo(BiometricEvaluation::View::View &view)
         }
 }
 \end{lstlisting}
+
+\section{ANSI/NIST Views}
+The ANSI/NIST standard~\cite{std:an2k} describes fixed and variable resolution
+finger, latent, and palm image records. These are represented within \sname
+by \class{View::AN2KView} (subclass of \class{View::View} and\\
+\class{View::AN2KViewVariableResolution}, subclass of \class{AN2KView}.
+As these classes only define the common interface for the ANSI/NIST records,
+objects of these class types cannot be created. These classes are further
+extended by classes in the \namespace{Finger}, \namespace{Latent}, and
+\namespace{Palm} name spaces. See~\ref{sec-an2kminutiaedatarecord} and
+\ref{sec-an2kpalmview}.

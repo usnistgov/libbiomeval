@@ -24,7 +24,7 @@ any translation of scale units or sizing, as each set of attributes is copied
 directly from the image data itself when possible.
 
 The same applies to images encapsulated in biometric records.  Although some 
-biometic records have fields for image attributes like dimensions and 
+biometric records have fields for image attributes like dimensions and 
 resolution, the corresponding fields of an \class{Image} class are {\bf not} populated 
 with their contents.  The \namespace{Image} namespace data types {\em are} used outside of 
 the  namespace, such as in finger views, to retrieve image attributes stored as 
@@ -159,4 +159,11 @@ Images encoded in the WSQ-image standard~\cite{std:wsq} are represented by the
 \lib{libwsq}, is used by this class.  The class provides a static function to determine whether or not an image appears to be encoded in the WSQ format.
 
 Errors from the \lib{libwsq} will be displayed through \code{stderr}
-and will {\bf not} be rethrown as \class{Exception}~s.
+and will {\bf not} be thrown as exceptions.
+
+\section{BMP}
+\label{sec-image-bmp}
+The bitmap image file format~\cite{bmp} is decoded by the \class{BMP} class.
+Only images
+with the 40-byte \code{BITMAPINFOHEADER}, uncompressed or RLE8 compression
+are supported. The bits-per-pixel value can be 8, 24, or 32.
