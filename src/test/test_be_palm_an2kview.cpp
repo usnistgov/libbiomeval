@@ -43,14 +43,16 @@ openAN2KFile(const string filename)
 static void
 printViewInfo(std::shared_ptr<Palm::AN2KView> an2kv) {
 	cout << "----------------------------------------------" << endl;
+	cout << "Source Agency: " << an2kv->getSourceAgency() << endl;
+	cout << "Capture Date: " << an2kv->getCaptureDate() << endl;
+	cout << "Comment: [" << an2kv->getComment() << "]" << endl;
+
 	cout << "Image resolution: " << an2kv->getImageResolution() << endl;
 	cout << "Image size: " << an2kv->getImageSize() << endl;
 	cout << "Image color depth: " << an2kv->getImageColorDepth() << endl;
-	cout << "Compression: " <<
-	    to_string(an2kv->getCompressionAlgorithm()) << endl;
+	cout << "Compression: " << an2kv->getCompressionAlgorithm() << endl;
 	cout << "Scan resolution: " << an2kv->getScanResolution() << endl;
-	cout << "Impression Type: " <<
-	    to_string(an2kv->getImpressionType()) << endl;
+	cout << "Impression Type: " << an2kv->getImpressionType() << endl;
 	cout << "Position: " << an2kv->getPosition() << endl;
 	auto qms = an2kv->getPalmQualityMetric();
 	cout << "Palm Quality has " << qms.size() << " entries:" << endl;
@@ -183,10 +185,6 @@ main(int argc, char* argv[]) {
 			cout << d << endl;
 		}
 	}
-
-	cout << "Source Agency: " << an2kv->getSourceAgency() << endl;
-	cout << "Capture Date: " << an2kv->getCaptureDate() << endl;
-	cout << "Comment: [" << an2kv->getComment() << "]" << endl;
 
 	return(EXIT_SUCCESS);
 }

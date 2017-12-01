@@ -20,20 +20,18 @@ using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::Framework::Enumeration;
 
 void
-printViewInfo(Face::INCITSView &facev)
+printViewInfo(View::View &view)
 {
 	/*
 	 * Test the implementation of the View::View interface.
 	 */
-	cout << "Image resolution is " << facev.getImageResolution() << endl;
-	cout << "Scan resolution is " << facev.getScanResolution() << endl;
-	cout << "Image size is " << facev.getImageSize() << endl;
-	cout << "Image depth is " << facev.getImageColorDepth() << endl;
-	cout << "Compression is " <<
-	    to_string(facev.getCompressionAlgorithm()) << endl;
-
+	cout << "Image size is " << view.getImageSize() << endl;
+	cout << "Image resolution is " << view.getImageResolution() << endl;
+	cout << "Scan resolution is " << view.getScanResolution() << endl;
+	cout << "Image color depth is " << view.getImageColorDepth() << endl;
+	cout << "Compression is " << view.getCompressionAlgorithm() << endl;
 	try {
-		std::shared_ptr<Image::Image> theImage = facev.getImage();
+		auto theImage = view.getImage();
 		cout << "Information from the Image data item:" << endl;
 		cout << "\tResolution: " << theImage->getResolution() << endl;
 		cout << "\tDimensions: " << theImage->getDimensions() << endl;
@@ -42,15 +40,19 @@ printViewInfo(Face::INCITSView &facev)
 		cout << "Caught " << e.what() << endl;
 	}
 	cout << "------------------------------------------" << endl;
+}
 
+void
+printFaceInfo(Face::ISO2005View &facev)
+{
 	/*
 	 * Test the implementation of the Face::INCITSView
 	 * interface.
 	 */
-	cout << "Gender: " << to_string(facev.getGender()) << endl;
-	cout << "Eye Color: " << to_string(facev.getEyeColor()) << endl;
-	cout << "Hair Color: " << to_string(facev.getHairColor()) << endl;
-	cout << "Expression: " << to_string(facev.getExpression()) << endl;
+	cout << "Gender: " << facev.getGender() << endl;
+	cout << "Eye Color: " << facev.getEyeColor() << endl;
+	cout << "Hair Color: " << facev.getHairColor() << endl;
+	cout << "Expression: " << facev.getExpression() << endl;
 
 	Face::PoseAngle pa =  facev.getPoseAngle();
 	cout << "Pose angle info: ";
@@ -60,11 +62,11 @@ printViewInfo(Face::INCITSView &facev)
 	cout << "; Roll/Uncer: "
 	    << (int)pa.roll << "/" << (int)pa.rollUncertainty << endl;
 
-	cout << "Image type is " << to_string(facev.getImageType()) << endl;
-	cout << "Image data type is " << to_string(facev.getImageDataType())
+	cout << "Image type is " << facev.getImageType() << endl;
+	cout << "Image data type is " << facev.getImageDataType()
 	    << endl;
-	cout << "Color space is " << to_string(facev.getColorSpace()) << endl;
-	cout << "Source type is " << to_string(facev.getSourceType()) << endl;
+	cout << "Color space is " << facev.getColorSpace() << endl;
+	cout << "Source type is " << facev.getSourceType() << endl;
 	cout << "Device type is " << "0x" << hex << setw(4) << setfill('0')
 	    << facev.getDeviceType() << dec << endl;
 
@@ -75,9 +77,9 @@ printViewInfo(Face::INCITSView &facev)
 		cout << "There are " << properties.size() << " properties: ";
 		for (size_t i = 0; i < properties.size(); i++) {
 			if (i != properties.size() - 1)
-				cout << to_string(properties[i]) << ", ";
+				cout << properties[i] << ", ";
 			else
-				cout << to_string(properties[i]);
+				cout << properties[i];
 		}
 		cout << endl;
 	} else {
@@ -118,6 +120,7 @@ testISO2005()
 	cout << "Success." << endl;
 
 	printViewInfo(facev);
+	printFaceInfo(facev);
 	return (true);
 }
 
