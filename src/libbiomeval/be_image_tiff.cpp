@@ -151,10 +151,6 @@ BiometricEvaluation::Image::TIFF::TIFF(
 		throw BE::Error::StrategyError("libtiff: samples per pixel");
 	this->setColorDepth(samplesPerPixel * bitsPerSample);
 
-	if(this->getColorDepth() > 32)
-		throw BE::Error::NotImplemented("Cannot parse TIFF images "
-		    "where one pixel requires more than 32 bits in memory");
-
 	if ((samplesPerPixel == 1) || (samplesPerPixel == 3))
 		this->setHasAlphaChannel(false);
 	else {
@@ -175,6 +171,14 @@ BiometricEvaluation::Image::TIFF::TIFF(
 		xRes = 72;
 	if (TIFFGetField(tiff.get(), TIFFTAG_YRESOLUTION, &yRes) != 1)
 		yRes = 72;
+
+	/* RGBRGBRGB vs RRRGGGBBB when retrieving scanlines */
+	uint8_t planarConfig{};
+	if (TIFFGetField(tiff.get(), TIFFTAG_PLANARCONFIG, &planarConfig) != 1)
+		throw BE::Error::StrategyError("libtiff: planar configuration");
+	if (planarConfig != PLANARCONFIG_CONTIG)
+		throw BE::Error::NotImplemented("TIFF images separated by "
+		    "component are not yet supported");
 
 	uint16_t rawResUnits{};
 	if (TIFFGetFieldDefaulted(tiff.get(), TIFFTAG_RESOLUTIONUNIT,
@@ -206,46 +210,22 @@ BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::TIFF::getRawData()
     const
 {
-	const auto dim = this->getDimensions();
-
 	std::unique_ptr<::TIFF, void(*)(::TIFF*)> tiff(
 	    static_cast<::TIFF*>(this->getDecompressionStream()), TIFFClose);
 
-	BE::Memory::AutoArray<uint32_t> raw32(dim.xSize * dim.ySize);
-	if (TIFFReadRGBAImageOriented(tiff.get(), dim.xSize, dim.ySize, raw32,
-	    ORIENTATION_TOPLEFT) != 1)
-		throw BE::Error::StrategyError("Error decompressing TIFF");
-
-	const auto numChannels = (this->getColorDepth() / this->getBitDepth());
-	BE::Memory::uint8Array raw8(raw32.size() * numChannels *
-	    (this->getBitDepth() / 8));
-	BE::Memory::MutableIndexedBuffer ib{raw8};
-
-	for (const auto &pixel : raw32) {
-		switch (numChannels) {
-		case 1:
-			ib.pushU8Val(TIFFGetR(pixel));
-			if (this->getBitDepth() == 16)
-				ib.pushU8Val(TIFFGetG(pixel));
-			break;
-		case 3:
-			ib.pushU8Val(TIFFGetR(pixel));
-			ib.pushU8Val(TIFFGetG(pixel));
-			ib.pushU8Val(TIFFGetB(pixel));
-			break;
-		case 4:
-			ib.pushU8Val(TIFFGetR(pixel));
-			ib.pushU8Val(TIFFGetG(pixel));
-			ib.pushU8Val(TIFFGetB(pixel));
-			ib.pushU8Val(TIFFGetA(pixel));
-			break;
-		default:
-			throw BE::Error::NotImplemented("TIFF number of "
-			    "channels == " + std::to_string(numChannels));
-		}
+	const auto rowBytes{TIFFScanlineSize(tiff.get())};
+	const auto dim = this->getDimensions();
+	BE::Memory::uint8Array rawData(dim.ySize * rowBytes);
+	
+	for (uint32_t i{0}; i < dim.ySize; ++i) {
+		/* TODO: Per-component decompression (4th parameter) */
+		if (TIFFReadScanline(tiff.get(), rawData + (rowBytes * i),
+		    i, 0) != 1)
+			throw BE::Error::StrategyError("libtiff: "
+			    "TIFFReadScanline");
 	}
 
-	return (raw8);
+	return (rawData);
 }
 
 BiometricEvaluation::Memory::uint8Array
