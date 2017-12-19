@@ -213,10 +213,10 @@ BiometricEvaluation::Image::TIFF::getRawData()
 	std::unique_ptr<::TIFF, void(*)(::TIFF*)> tiff(
 	    static_cast<::TIFF*>(this->getDecompressionStream()), TIFFClose);
 
-	const auto rowBytes{TIFFScanlineSize(tiff.get())};
+	const auto rowBytes = TIFFScanlineSize(tiff.get());
 	const auto dim = this->getDimensions();
 	BE::Memory::uint8Array rawData(dim.ySize * rowBytes);
-	
+
 	for (uint32_t i{0}; i < dim.ySize; ++i) {
 		/* TODO: Per-component decompression (4th parameter) */
 		if (TIFFReadScanline(tiff.get(), rawData + (rowBytes * i),
