@@ -132,6 +132,12 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::getEDBLength()
 		if ((cores.size() != 0) || (deltas.size() != 0))
 			size += 4;
 
+		/* If core w/o delta (or v.v.), must indicate 0 of the other */
+		if ((cores.size() == 0) && (deltas.size() != 0))
+			++size;
+		if ((deltas.size() == 0) && (cores.size() != 0))
+			++size;
+
 		/* Ridge counts (+ 1 for extraction method) */
 		const auto ridgeCounts = minutiaData.getRidgeCountItems();
 		size += (ridgeCounts.size() * 3);
@@ -261,14 +267,22 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::getFMR()
 
 			/* Calculate size of core and delta section */
 			uint16_t cdSize = 4;
-			for (const auto &core : cores)
-				cdSize += core.has_angle ? 6 : 5;
-			for (const auto &delta : deltas)
-				cdSize += delta.has_angle ? 8 : 5;
+			if (cores.size() == 0)
+				++cdSize;
+			else
+				cdSize += (cores.size() *
+				    (cores[0].has_angle ? 6 : 5));
+			if (deltas.size() == 0)
+				++cdSize;
+			else
+				cdSize += (deltas.size() *
+				    (deltas[0].has_angle ? 8 : 5));
 			buf.pushBeU16Val(cdSize);
 
 			/* Cores */
-			if (cores.size() != 0) {
+			if (cores.size() == 0) {
+				buf.pushU8Val(0);
+			} else {
 				/* Use first core as truth */
 				bool coresHaveAngle = cores[0].has_angle;
 				/* 2 bits angle boolean, 2 bits set to 0 */
@@ -288,7 +302,9 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::getFMR()
 			}
 
 			/* Deltas */
-			if (deltas.size() != 0) {
+			if (deltas.size() == 0) {
+				buf.pushU8Val(0);
+			} else {
 				/* Use first delta as truth */
 				bool deltasHaveAngles = deltas[0].has_angle;
 				/* Highest 2 bits have angle boolean */
