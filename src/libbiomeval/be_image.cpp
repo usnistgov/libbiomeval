@@ -220,7 +220,10 @@ BiometricEvaluation::Image::distance(
     const Image::Coordinate &p1,
     const Image::Coordinate &p2)
 {
-	return (sqrtf(powf(p2.x - p1.x, 2.0) + powf(p2.y - p1.y, 2.0)));
+	const uint32_t xDif = p2.x >= p1.x ? p2.x - p1.x : p1.x - p2.x;
+	const uint32_t yDif = p2.y >= p1.y ? p2.y - p1.y : p1.y - p2.y;
+
+	return (sqrtf(powf(xDif, 2.0) + powf(yDif, 2.0)));
 }
 
 
