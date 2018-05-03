@@ -578,12 +578,7 @@ typename std::vector<T>
 BiometricEvaluation::Memory::AutoArray<T>::to_vector()
     const
 {
-	std::vector<T> vec;
-	vec.reserve(this->size());
-	std::for_each(this->cbegin(), this->cend(), [&](const T &t) {
-		vec.push_back(t);
-	});
-	return (vec);
+	return {this->cbegin(), this->cend()};
 }
 
 /******************************************************************************/
