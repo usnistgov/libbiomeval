@@ -93,8 +93,7 @@ namespace BiometricEvaluation {
 
 		private:
 			uint32_t _chunkSize;
-			bool _haveRecordStore;
-			std::shared_ptr<IO::RecordStore> _recordStore;
+			std::shared_ptr<IO::RecordStore> _recordStore{};
 		};
 	}
 }

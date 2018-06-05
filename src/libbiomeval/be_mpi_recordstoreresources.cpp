@@ -52,9 +52,7 @@ BiometricEvaluation::MPI::RecordStoreResources::RecordStoreResources(
 	try {
 		this->_recordStore = IO::RecordStore::openRecordStore(
 		    RSName, IO::Mode::ReadOnly);
-		this->_haveRecordStore = true;
 	} catch (Error::Exception &e) {
-		this->_haveRecordStore = false;
 	}
 }
 
@@ -74,7 +72,7 @@ BiometricEvaluation::MPI::RecordStoreResources::getChunkSize() const
 bool
 BiometricEvaluation::MPI::RecordStoreResources::haveRecordStore() const
 {
-	return (this->_haveRecordStore);
+	return (this->_recordStore != nullptr);
 }
 
 std::shared_ptr<BiometricEvaluation::IO::RecordStore>
