@@ -15,6 +15,7 @@
 #include <be_memory_mutableindexedbuffer.h>
 #include <be_data_interchange_ansi2004.h>
 
+namespace BE = BiometricEvaluation;
 using namespace BiometricEvaluation::Framework::Enumeration;
 
 BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(

@@ -16,8 +16,6 @@
 #include <be_feature_incitsminutiae.h>
 #include <be_finger_ansi2004view.h>
 
-namespace BE = BiometricEvaluation;
-
 namespace BiometricEvaluation
 {
 	namespace DataInterchange
@@ -41,8 +39,8 @@ namespace BiometricEvaluation
 			 * Finger image record.
 			 */
 			ANSI2004Record(
-			    const BE::Memory::uint8Array &fmr,
-			    const BE::Memory::uint8Array &fir);
+			    const BiometricEvaluation::Memory::uint8Array &fmr,
+			    const BiometricEvaluation::Memory::uint8Array &fir);
 
 			/**
 			 * @brief
@@ -72,8 +70,8 @@ namespace BiometricEvaluation
 			 */
 			ANSI2004Record(
 			    const
-			    std::initializer_list<BE::Finger::ANSI2004View>
-			    &views);
+			    std::initializer_list<
+			    BiometricEvaluation::Finger::ANSI2004View> &views);
 
 			/**
 			 * @brief
@@ -121,7 +119,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The view number.
 
-			 * @throw BE::Error::StrategyError
+			 * @throw BiometricEvaluation::Error::StrategyError
 			 * viewNumber is not valid.
 			 */
 			uint64_t
@@ -141,7 +139,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * The view number.
 
-			 * @throw BE::Error::StrategyError
+			 * @throw BiometricEvaluation::Error::StrategyError
 			 * viewNumber is not valid.
 			 */
 			uint64_t
@@ -156,7 +154,7 @@ namespace BiometricEvaluation
 			 * @param viewNumber
 			 * The view number to remove.
 			 *
-			 * @throw BE::Error::ObjectDoesNotExist
+			 * @throw BiometricEvaluation::Error::ObjectDoesNotExist
 			 * viewNumber does not exist.
 			 *
 			 * @note
@@ -173,7 +171,7 @@ namespace BiometricEvaluation
 			 * @param viewNumber
 			 * The view number to isolate.
 			 *
-			 * @throw BE::Error::ObjectDoesNotExist
+			 * @throw BiometricEvaluation::Error::ObjectDoesNotExist
 			 * viewNumber does not exist.
 			 *
 			 * @note
@@ -191,7 +189,8 @@ namespace BiometricEvaluation
 			 * Vector of INCITSMinutiae for all finger views in 
 			 * this record.
 			 */
-			std::vector<BE::Feature::INCITSMinutiae>
+			std::vector<
+			    BiometricEvaluation::Feature::INCITSMinutiae>
 			getMinutia()
 			    const;
 
@@ -205,7 +204,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * INCITSMinutiae for finger view viewNumber.
 			 */
-			BE::Feature::INCITSMinutiae
+			BiometricEvaluation::Feature::INCITSMinutiae
 			getMinutia(
 			    uint32_t viewNumber)
 			    const;
@@ -223,7 +222,8 @@ namespace BiometricEvaluation
 			 */
 			void
 			setMinutia(
-			    const std::vector<BE::Feature::INCITSMinutiae>
+			    const std::vector<
+			    BiometricEvaluation::Feature::INCITSMinutiae>
 			    &minutia);
 
 			/**
@@ -241,7 +241,8 @@ namespace BiometricEvaluation
 			void
 			setMinutia(
 			    uint32_t viewNumber,
-			    const BE::Feature::INCITSMinutiae &minutia);
+			    const BiometricEvaluation::Feature::INCITSMinutiae
+			    &minutia);
 
 			/**
 			 * @brief
@@ -253,7 +254,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * A well-formed ANSI/INCITS 378-2004 record.
 			 */
-			BE::Memory::uint8Array
+			BiometricEvaluation::Memory::uint8Array
 			getFMR()
 			    const;
 
@@ -312,7 +313,8 @@ namespace BiometricEvaluation
 
 		private:
 			/** All finger views from a record */
-			std::vector<BE::Finger::ANSI2004View> _views;
+			std::vector<BiometricEvaluation::Finger::ANSI2004View>
+			    _views;
 
 			/**
 			 * Function to initialize the object, called from

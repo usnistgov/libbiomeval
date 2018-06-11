@@ -20,8 +20,6 @@
 #include <be_time_timer.h>
 #include <be_time_watchdog.h>
 
-namespace BE = BiometricEvaluation;
-
 namespace BiometricEvaluation
 {
 	namespace Framework
@@ -167,7 +165,7 @@ namespace BiometricEvaluation
 			 * @return
 			 * Timer object.
 			 */
-			inline std::shared_ptr<BE::Time::Timer>
+			inline std::shared_ptr<BiometricEvaluation::Time::Timer>
 			getTimer()
 			    noexcept
 			{
@@ -181,7 +179,8 @@ namespace BiometricEvaluation
 			 * @return
 			 * Watchdog timer object.
 			 */
-			inline std::shared_ptr<BE::Time::Watchdog>
+			inline std::shared_ptr<
+			    BiometricEvaluation::Time::Watchdog>
 			getWatchdog()
 			    noexcept
 			{
@@ -195,7 +194,8 @@ namespace BiometricEvaluation
 			 * @return
 			 * Signal manager object.
 			 */
-			inline std::shared_ptr<BE::Error::SignalManager>
+			inline std::shared_ptr<
+			    BiometricEvaluation::Error::SignalManager>
 			getSignalManager()
 			    noexcept
 			{
@@ -204,27 +204,31 @@ namespace BiometricEvaluation
 
 		private:
 			/** Timer */
-			std::shared_ptr<BE::Time::Timer> _timer;
+			std::shared_ptr<BiometricEvaluation::Time::Timer>
+			    _timer;
 			/** Watchdog timer */
-			std::shared_ptr<BE::Time::Watchdog> _watchdog;
+			std::shared_ptr<BiometricEvaluation::Time::Watchdog>
+			    _watchdog;
 			/** Signal manager */
-			std::shared_ptr<BE::Error::SignalManager> _sigmgr;
+			std::shared_ptr<
+			    BiometricEvaluation::Error::SignalManager> _sigmgr;
 		};
 	}
 }
 
 template<typename T>
 BiometricEvaluation::Framework::API<T>::Result::Result() :
-    currentState(BE::Framework::APICurrentState::NeverCalled)
+    currentState(BiometricEvaluation::Framework::APICurrentState::NeverCalled)
 {
 
 }
 
 template<typename T>
 BiometricEvaluation::Framework::API<T>::API() :
-     _timer(new BE::Time::Timer()),
-     _watchdog(new BE::Time::Watchdog(BE::Time::Watchdog::REALTIME)),
-     _sigmgr(new BE::Error::SignalManager())
+    _timer(new BiometricEvaluation::Time::Timer()),
+    _watchdog(new BiometricEvaluation::Time::Watchdog(
+        BiometricEvaluation::Time::Watchdog::REALTIME)),
+    _sigmgr(new BiometricEvaluation::Error::SignalManager())
 {
 
 }
