@@ -83,9 +83,13 @@ BiometricEvaluation::IO::Properties::initWithBuffer(
 				
 		/* Each line must contain a '=' separator*/
 		idx = oneline.find("=");
-		if ((idx == std::string::npos) || (idx == 0))
+		if ((idx == std::string::npos) || (idx == 0)) {
+			/* Allow blank lines */
+			if (Text::trimWhitespace(oneline).empty())
+				continue;
 			throw Error::StrategyError("Properties file has "
 			    "invalid line");
+		}
 
 		_properties[Text::trimWhitespace(oneline.substr(0, idx))] =
 		    Text::trimWhitespace(oneline.substr(idx + 1,
