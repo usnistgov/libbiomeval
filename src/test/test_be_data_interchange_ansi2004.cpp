@@ -15,6 +15,7 @@
 using namespace std;
 using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::Framework::Enumeration;
+namespace BE = BiometricEvaluation;
 
 void
 printViewInfo(Finger::INCITSView &fngv)
