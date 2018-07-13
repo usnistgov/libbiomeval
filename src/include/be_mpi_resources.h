@@ -27,8 +27,20 @@ namespace BiometricEvaluation {
 			/**
 			 * @brief
 			 * The property string ``Workers Per Node''; required.
+			 * @details
+			 * This value shall be either an integer or the string
+			 * defined below.
 			 */
 			static const std::string WORKERSPERNODEPROPERTY;
+
+			/**
+			 * @brief
+			 * The ``Workers Per Node'' setting ``NUMCPUS''.
+			 * @details
+			 * This setting indicates the MPI Framework is to
+			 * create one worker for each logical CPU.
+			 */
+			static const std::string NUMCPUS;
 
 			/**
 			 * @brief

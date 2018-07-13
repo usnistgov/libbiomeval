@@ -13,13 +13,14 @@
 
 #include <mpi.h>
 #include <sstream>
-#include <iostream>
 
 #include <be_mpi.h>
 #include <be_io_propertiesfile.h>
 #include <be_io_filelogsheet.h>
 #include <be_io_syslogsheet.h>
 #include <be_mpi_resources.h>
+#include <be_system.h>
+#include <be_text.h>
 
 namespace BE = BiometricEvaluation;
 
@@ -28,6 +29,8 @@ namespace BE = BiometricEvaluation;
  */
 const std::string
 BiometricEvaluation::MPI::Resources::WORKERSPERNODEPROPERTY("Workers Per Node");
+const std::string
+BiometricEvaluation::MPI::Resources::NUMCPUS("NUMCPUS");
 const std::string
 BiometricEvaluation::MPI::Resources::LOGSHEETURLPROPERTY("Logsheet URL");
 
@@ -54,8 +57,14 @@ BiometricEvaluation::MPI::Resources::Resources(
 	 * Required properties.
 	 */
 	try {
-		this->_workersPerNode = props->getPropertyAsInteger(
+		auto wpn = props->getProperty(
 		    MPI::Resources::WORKERSPERNODEPROPERTY);
+		if (BE::Text::caseInsensitiveCompare(wpn, NUMCPUS)) {
+			this->_workersPerNode = BE::System::getCPUCount();
+		} else {	
+			this->_workersPerNode = props->getPropertyAsInteger(
+			    MPI::Resources::WORKERSPERNODEPROPERTY);
+		}
 	} catch (Error::Exception &e) {
 		throw Error::ObjectDoesNotExist("Could not read properties: " +
 		    e.whatString());
