@@ -36,7 +36,19 @@ main(int argc, char *argv[])
 	cout << "Gathering system info: " << endl;
 
 	try {
-		cout << "\tnumcpus = " << System::getCPUCount();
+		cout << "\tnum CPUs = " << System::getCPUCount();
+		cout << flush << endl;
+	} catch (Error::NotImplemented) {
+		cout << "Not Implemented; OK." << endl;
+	}
+	try {
+		cout << "\tnum CPU cores = " << System::getCPUCoreCount();
+		cout << flush << endl;
+	} catch (Error::NotImplemented) {
+		cout << "Not Implemented; OK." << endl;
+	}
+	try {
+		cout << "\tnum CPU sockets  = " << System::getCPUSocketCount();
 		cout << flush << endl;
 	} catch (Error::NotImplemented) {
 		cout << "Not Implemented; OK." << endl;

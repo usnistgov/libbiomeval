@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
+#include <hwloc.h>
 #include <unistd.h>
 
 uint32_t
@@ -28,6 +29,39 @@ BiometricEvaluation::System::getCPUCount()
 		throw (Error::NotImplemented());
 	}
 	return (static_cast<uint32_t>(num));
+}
+
+uint32_t
+BiometricEvaluation::System::getCPUCoreCount()
+{
+	hwloc_topology_t topology;
+	hwloc_topology_init(&topology);
+	hwloc_topology_load(topology);
+	int depth = hwloc_get_type_depth(topology, HWLOC_OBJ_CORE);
+	if(depth == HWLOC_TYPE_DEPTH_UNKNOWN) {
+		hwloc_topology_destroy(topology);
+		throw (Error::NotImplemented("The number of cores is unknown"));
+	}
+	uint32_t count = hwloc_get_nbobjs_by_depth(topology, depth);
+	hwloc_topology_destroy(topology);
+	return (count);
+}
+
+uint32_t
+BiometricEvaluation::System::getCPUSocketCount()
+{
+	hwloc_topology_t topology;
+	hwloc_topology_init(&topology);
+	hwloc_topology_load(topology);
+	int depth = hwloc_get_type_depth(topology, HWLOC_OBJ_SOCKET);
+	if(depth == HWLOC_TYPE_DEPTH_UNKNOWN) {
+		hwloc_topology_destroy(topology);
+		throw (Error::NotImplemented(
+		    "The number of sockets is unknown"));
+	}
+	uint32_t count = hwloc_get_nbobjs_by_depth(topology, depth);
+	hwloc_topology_destroy(topology);
+	return (count);
 }
 
 uint64_t

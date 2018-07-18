@@ -32,6 +32,10 @@ BiometricEvaluation::MPI::Resources::WORKERSPERNODEPROPERTY("Workers Per Node");
 const std::string
 BiometricEvaluation::MPI::Resources::NUMCPUS("NUMCPUS");
 const std::string
+BiometricEvaluation::MPI::Resources::NUMCORES("NUMCORES");
+const std::string
+BiometricEvaluation::MPI::Resources::NUMSOCKETS("NUMSOCKETS");
+const std::string
 BiometricEvaluation::MPI::Resources::LOGSHEETURLPROPERTY("Logsheet URL");
 
 /******************************************************************************/
@@ -61,9 +65,13 @@ BiometricEvaluation::MPI::Resources::Resources(
 		    MPI::Resources::WORKERSPERNODEPROPERTY);
 		if (BE::Text::caseInsensitiveCompare(wpn, NUMCPUS)) {
 			this->_workersPerNode = BE::System::getCPUCount();
+		} else if (BE::Text::caseInsensitiveCompare(wpn, NUMCORES)) {
+			this->_workersPerNode = BE::System::getCPUCoreCount();
+		} else if (BE::Text::caseInsensitiveCompare(wpn, NUMSOCKETS)) {
+			this->_workersPerNode = BE::System::getCPUSocketCount();
 		} else {	
 			this->_workersPerNode = props->getPropertyAsInteger(
-			    MPI::Resources::WORKERSPERNODEPROPERTY);
+				MPI::Resources::WORKERSPERNODEPROPERTY);
 		}
 	} catch (Error::Exception &e) {
 		throw Error::ObjectDoesNotExist("Could not read properties: " +

@@ -26,18 +26,52 @@ namespace BiometricEvaluation
 	 */
 	namespace System
 	{
+		/**
+		 * @brief
+		 * Obtain the number of central processing units that are
+		 * online. Typically, this is the total logical CPU count
+		 * for the system, often called hyperthreads.
+		 * @return The number of processing units.
+		 * @throw Error::NotImplemented
+		 * Not implemented for this operating system, or the
+		 * underlying OS feature is not installed.
+		 */
+		uint32_t getCPUCount();
+
+		/**
+		 * @brief
+		 * Obtain the number of CPU cores that are online.
+		 * @return The number of CPU cores.
+		 * @throw Error::NotImplemented
+		 * Not implemented for this operating system, or the
+		 * underlying OS feature is not installed.
+		 */
+		uint32_t getCPUCoreCount();
+
+		/**
+		 * @brief
+		 * Obtain the number of CPU sockets that are online.
+		 * @details
+		 * The hierarchy is CPU (thread) -> Core -> Socket, where
+		 * there are 1..n hyperthreads per core and 1..n cores per
+		 * socket.
+		 * @return The number of CPU sockets.
+		 * @throw Error::NotImplemented
+		 * Not implemented for this operating system, or the
+		 * underlying OS feature is not installed.
+		 */
+		uint32_t getCPUSocketCount();
 
 		/**
 		 * @brief
 		 * Obtain the number of central processing units that are
-		 *	online. Typically, this is the total CPU core count
-		 *	for the system.
-		 * @return The number of processing units.
+		 * online. This is the total CPU core count for the system.
+		 * @return The number of CPU cores.
 		 * @throw Error::NotImplemented
-		 *	Not implemented for this operating system, or the
-		 *	underlying OS feature is not installed.
+		 * Not implemented for this operating system, or the
+		 * underlying OS feature is not installed.
 		 */
-		uint32_t getCPUCount();
+		uint32_t getCPUCoreCount();
 
 		/**
 		 * @brief
