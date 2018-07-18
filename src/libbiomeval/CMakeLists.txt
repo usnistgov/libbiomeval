@@ -278,6 +278,17 @@ else(MPI_CXX_FOUND)
 endif(MPI_CXX_FOUND)
 
 #
+# The Portable Hardware Locality hwloc
+#
+set(HWLOC_FIND_REQUIRED TRUE)
+find_package(HWLOC)
+if(NOT HWLOC_FOUND)
+  message(FATAL_ERROR "Could not find hwloc.")
+endif(NOT HWLOC_FOUND)
+include_directories(PUBLIC ${HWLOC_INCLUDE_DIR})
+target_link_libraries(${SHAREDLIB} ${HWLOC_LIBRARIES})
+
+#
 # Other libs not specifically searched for above.
 #
 target_link_libraries(${SHAREDLIB} sqlite3 crypto z db png tiff)
