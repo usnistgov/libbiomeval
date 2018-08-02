@@ -26,16 +26,16 @@ namespace BiometricEvaluation {
 		public:
 			/**
 			 * @brief
-			 * The property string ``Workers Per Node''; required.
+			 * The property string "Workers Per Node"; required.
 			 * @details
 			 * This value shall be either an integer or one of
-			 * the strings defined below.
+			 * the strings "NUMCPUS", "NUMCORES", "NUMSOCKETS".
 			 */
 			static const std::string WORKERSPERNODEPROPERTY;
 
 			/**
 			 * @brief
-			 * The ``Workers Per Node'' setting ``NUMCPUS''.
+			 * The "Workers Per Node" setting "NUMCPUS".
 			 * @details
 			 * This setting indicates the MPI Framework is to
 			 * create one worker for each logical CPU.
@@ -44,7 +44,7 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
-			 * The ``Workers Per Node'' setting ``NUMCORES''.
+			 * The "Workers Per Node" setting "NUMCORES".
 			 * @details
 			 * This setting indicates the MPI Framework is to
 			 * create one worker for each physical CPU core.
@@ -53,7 +53,7 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
-			 * The ``Workers Per Node'' setting ``NUMSOCKETS''.
+			 * The "Workers Per Node" setting "NUMSOCKETS".
 			 * @details
 			 * This setting indicates the MPI Framework is to
 			 * create one worker for each physical CPU socket.
@@ -62,7 +62,7 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
-			 * The property string ``Logsheet URL''; optional.
+			 * The property string "Logsheet URL"; optional.
 			 */
 			static const std::string LOGSHEETURLPROPERTY;
 

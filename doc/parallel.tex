@@ -192,7 +192,17 @@ The core MPI classes (\class{Distributor} and \class{Receiver}) use these
 properties:
 \begin{description}
 \item[Workers Per Node] Used by the receiver process to start the
-required number of workers;
+required number of workers. This value is either an integer string, or
+one of the special values:
+\begin{description}
+\item[NUMCPUS] The number of logical CPUs, also known as hyperthreads;
+\item[NUMCORES] The number of processing cores;
+\item[NUMSOCKETS] The number of physical processor sockets.
+\end{description}
+Choosing the number of workers based on one of the special values depends on
+whether the processing is to take advantage of instruction pipelines, cache
+hierarchies, or other features of the processor hardware implementation.
+
 \item[Logsheet URL] Use by distributor and receiver processes
 (and children) to open the log.
 \end{description}
