@@ -174,7 +174,7 @@ be_io_gzip.o: CXXFLAGS += $(shell pkg-config --cflags zlib)
 be_io_sqliterecstore.o: CXXFLAGS += $(shell pkg-config --cflags sqlite3)
 
 ifeq ($(OS), Darwin)
-COMMONLIB += -framework Foundation -framework Security
+COMMONLIB += -framework Foundation -framework Security -lhwloc
 else
 be_text.o: CXXFLAGS += $(shell pkg-config --cflags libcrypto)
 COMMONLIB += -L$(shell pkg-config --variable=libdir libcrypto) $(shell pkg-config --libs-only-l --libs-only-other libcrypto)
