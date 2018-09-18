@@ -58,8 +58,8 @@ ifeq ($(CXX_BASENAME),g++)
 	SUPPORTS_CXX11 := $(shell [ $(CXX_MAJOR) -ge 5 -o \( $(CXX_MAJOR) -eq 4 -a $(CXX_MINOR) -ge 7 \) ] && echo true)
 else
 	ifeq ($(CXX_BASENAME),clang++)
-		CXX_MAJOR := $(shell $(CXX) --version | tr '\n' ' ' | sed 's/.*version\ \([[:digit:]]\)\.[[:digit:]].*/\1/')
-		CXX_MINOR := $(shell $(CXX) --version | tr '\n' ' ' | sed 's/.*version\ [[:digit:]]\.\([[:digit:]]\).*/\1/')
+		CXX_MAJOR := $(shell $(CXX) --version | tr '\n' ' ' | sed 's/.*version\ \([[:digit:]]*\)\.[[:digit:]]*.*/\1/')
+		CXX_MINOR := $(shell $(CXX) --version | tr '\n' ' ' | sed 's/.*version\ [[:digit:]]*\.\([[:digit:]]*\).*/\1/')
 
 		ifeq ($(OS),Darwin)
 #			Apple changes clang++ version to match Xcode,
