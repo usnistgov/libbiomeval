@@ -9,6 +9,7 @@
 # Record store for the input.
 #
 INPUTRS=test_data/AN2KRecordStore
+CHKPATH=/tmp
 
 #
 # Create the properties file for this run
@@ -33,10 +34,11 @@ INPUTRS=test_data/AN2KRecordStore
 PROPS=test_be_rs_mpi.props
 cat > $PROPS << EOF
 Input Record Store = $INPUTRS
-Chunk Size = 4
-Workers Per Node = 2
+Chunk Size = 2
+Workers Per Node = 1
 Logsheet URL = file://mpi.log
 Record Logsheet URL = file://record.log
+Checkpoint Path = $CHKPATH
 #Logsheet URL = syslog://linc01b:2514
 #Record Logsheet URL = syslog://linc01b:2514
 EOF
@@ -79,14 +81,26 @@ export LD_LIBRARY_PATH=../../lib
 #
 # Test with keys only.
 #
-EXECSTR="$PROGRAM"
+echo "----------------------------------------------------------------------"
+echo "Running with checkpoint save"
+echo "To send the clean shutdown, run:"
+echo
+echo "kill -QUIT \`cat $CHKPATH/Distributor.chk | grep PID | cut -d= -f2\`"
+echo
+EXECSTR="$PROGRAM -s"
+time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
+
+echo "----------------------------------------------------------------------"
+echo "Running with checkpoint restore and save"
+EXECSTR="$PROGRAM -r -s"
 time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
 
 #
-# Test with keys and values; there just has to be one argument to the exec,
-# it doesn't matter what it is.
+# Test with keys and values.
 #
-EXECSTR="$PROGRAM values"
-time mpirun -x LD_LIBRARY_PATH $MPIOPTS --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
+echo "----------------------------------------------------------------------"
+echo "Running with keys and values"
+EXECSTR="$PROGRAM -v"
+#time mpirun -x LD_LIBRARY_PATH $MPIOPTS --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
 
 rm -f $MPIHOSTFN

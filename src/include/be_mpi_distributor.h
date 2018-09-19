@@ -16,6 +16,7 @@
 
 #include <be_error_exception.h>
 #include <be_io_logsheet.h>
+#include <be_io_propertiesfile.h>
 #include <be_mpi.h>
 #include <be_mpi_resources.h>
 #include <be_mpi_workpackage.h>
@@ -50,6 +51,24 @@ namespace BiometricEvaluation {
 		class Distributor {
 		public:
 			/**
+			 * The name of the checkpoint properties file,
+			 * "Distributor.chk".
+			 */
+			static const std::string CHECKPOINTFILENAME;
+
+			/**
+			 * The reason string given for the checkpoint to be
+			 * taken, "Reason".
+			 */
+			static const std::string CHECKPOINTREASON;
+
+			/**
+			 * The process ID of the checkpointing Distributor 
+			 * process, "PID".
+			 */
+			static const std::string CHECKPOINTPID;
+
+			/**
 			 * @brief
 			 * Constructor with properties file name.
 			 * @param[in] propertiesFileName
@@ -69,7 +88,7 @@ namespace BiometricEvaluation {
 			 * @details
 			 * Once started, the distributor will send a message
 			 * to each receiver task telling it to start and
-			 * waiting for status back from each receiver.
+			 * wait for status back from each receiver.
 			 */
 			void start();
 
@@ -86,12 +105,50 @@ namespace BiometricEvaluation {
 			    MPI::WorkPackage &workPackage) = 0;
 
 			/**
+			 * @brief
+			 * Create a checkpoint state.
+			 * @details
+			 * Implementations of this class create a checkpoint
+			 * state that captures enough information to allow
+			 * the implementation to move the data sequence cursor
+			 * to a point past data that has been previously
+			 * distributed. The MPI Framework calls this method
+			 * when a premature shutdown is requested.
+			 * @param reason
+			 * A string giving the reason for the checkpoint to be
+			 * saved.
+			 */
+			virtual void checkpointSave(
+			    const std::string &reason) = 0;
+
+			/**
+			 * @brief
+			 * Restore from a checkpoint state.
+			 * @details
+			 * Implementations of this class use a checkpoint
+			 * state to move the data sequence cursor to a point
+			 * past data that has been previously distributed.
+			 * The MPI Framework calls this method prior to the
+			 * start of distributing work packages.
+			 */
+			virtual void checkpointRestore() = 0;
+
+			/**
 		 	 * @brief
 			 * Get access to the Logsheet object.
 			 * @return
 			 * A shared pointer for the Logsheet object.
 			 */
 			std::shared_ptr<IO::Logsheet> getLogsheet() const;
+
+			/**
+		 	 * @brief
+			 * Get access to the checkpoint data object.
+			 * @return
+			 * A shared pointer for the checkpoint data object.
+			 */
+			std::shared_ptr<IO::PropertiesFile>
+			getCheckpointData() const;
 
 		private:
 			/**
@@ -126,6 +183,7 @@ namespace BiometricEvaluation {
 			std::set<int> _activeMpiTasks;
 
 			std::shared_ptr<IO::Logsheet> _logsheet;
+			std::shared_ptr<IO::PropertiesFile> _checkpointData;
 		};
 	}
 }

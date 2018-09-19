@@ -133,23 +133,11 @@ dumpRecord(
     const std::string key,
     const Memory::uint8Array &val)
 {
-//#define COUNT 190000000
-//#define COUNT 19000000
-//#define COUNT 1900000
-//#define COUNT 1900
-//#define COUNT 1
-#define COUNT 0
-
 	/*
-	 * Simple delay loop in case the tester wants to watch the
-	 * output, or artificially slow down processing.
+	 * Simple delay case the tester wants to watch the
+	 * output, or send a checkpoint signal. 
 	 */
-	for (uint64_t i = 0; i < COUNT; i++) {
-		uint64_t k = rand() + 1;
-		uint64_t l = rand() + 1;
-		uint64_t m = i * k * l;
-		m++;
-	}
+	sleep(2);
 	std::shared_ptr<DataInterchange::AN2KRecord> an2kRecord;
 	try {  
 		an2kRecord = std::shared_ptr<DataInterchange::AN2KRecord>
@@ -285,7 +273,19 @@ main(int argc, char* argv[])
 	 * don't create a Receiver or Distributor until any local items
 	 * are take care of.
 	 */
-	MPI::Runtime runtime(argc, argv);
+	/*
+	 * Process optional checkpoint and include-values flags.
+	 */
+	bool cpSave{false}, cpRestart{false}, includeValues{false};
+	char ch;
+	while ((ch = getopt(argc, argv, "rsv")) != -1) {
+		switch (ch) {
+			case 'r': cpRestart = true; break;
+			case 's': cpSave = true; break;
+			case 'v': includeValues = true; break;
+		}
+	}
+	MPI::Runtime runtime(argc, argv, cpSave, cpRestart);
 
 	std::string propFile;
 	/* Create the properties file if needed */
@@ -307,13 +307,10 @@ main(int argc, char* argv[])
 	    processor;
 	unique_ptr<MPI::Receiver> receiver;
 
-	bool includeValues;
-	if (argc == 1) {
+	if (includeValues) {
 		MPI::printStatus("Test Distributor and Receiver, keys only");
-		includeValues = false;
 	} else {
 		MPI::printStatus("Test Distributor and Receiver, keys and values");
-		includeValues = true;
 	}
 	try {
 		distributor.reset(

@@ -12,9 +12,13 @@
 #include <sstream>
 
 #include <mpi.h>
+#include <unistd.h>
 
+#include <be_error_exception.h>
 #include <be_io_filelogsheet.h>
+#include <be_io_propertiesfile.h>
 #include <be_io_syslogsheet.h>
+#include <be_io_utility.h>
 #include <be_memory.h>
 #include <be_mpi.h>
 #include <be_mpi_distributor.h>
@@ -25,6 +29,13 @@
 namespace BE = BiometricEvaluation;
 using namespace BE::Framework::Enumeration;
 
+const std::string
+BiometricEvaluation::MPI::Distributor::CHECKPOINTFILENAME = "Distributor.chk";
+const std::string
+BiometricEvaluation::MPI::Distributor::CHECKPOINTREASON = "Reason";
+const std::string
+BiometricEvaluation::MPI::Distributor::CHECKPOINTPID = "PID";
+
 /******************************************************************************/
 /* Class method definitions.                                                  */
 /******************************************************************************/
@@ -33,16 +44,41 @@ BiometricEvaluation::MPI::Distributor::Distributor(
 {
 	this->_resources = BE::Memory::make_unique<Resources>(
 	    propertiesFileName);
+
 	/*
-	 * Only create the real Logsheet on the actual Distributor
-	 * node. MPI runtime will create a process for each rank,
-	 * and those processes contain the Distributor that does no work.
+	 * Only create the real Logsheet and Checkpoint on the actual
+	 * Distributor. MPI runtime will create a process for each rank,
+	 * and those processes rank >= 1 contain the Distributor that does
+	 * no work.
 	 */
 	if (::MPI::COMM_WORLD.Get_rank() == 0) {
 		this->_logsheet =
 		    BE::MPI::openLogsheet(
 			this->_resources->getLogsheetURL(),
 			"MPI::Distributor");
+
+		std::string chkFileName =
+		    this->_resources->getCheckpointPath() + '/' +
+		    BE::MPI::Distributor::CHECKPOINTFILENAME;
+		/*
+		 * On checkpoint restore, the checkpoint file must exist.
+		 * On restore or save, update the checkpoint any items that
+		 * are the responsibility of this class.
+		 */
+		if (BE::MPI::DoCheckpointRestore) {
+			if (!BE::IO::Utility::fileExists(chkFileName)) {
+				throw (BE::Error::ObjectDoesNotExist(
+				    "Could not find checkpoint file"));
+			}
+		}
+		if (BE::MPI::DoCheckpointRestore || BE::MPI::DoCheckpointSave) {
+			this->_checkpointData =
+			    std::make_shared<BE::IO::PropertiesFile>(
+				chkFileName, IO::Mode::ReadWrite);
+			this->_checkpointData->setPropertyFromInteger(
+			    BE::MPI::Distributor::CHECKPOINTPID, getpid());
+			this->_checkpointData->sync();
+		}
 	}
 }
 
@@ -50,6 +86,12 @@ std::shared_ptr<BiometricEvaluation::IO::Logsheet>
 BiometricEvaluation::MPI::Distributor::getLogsheet() const
 {
 	return (this->_logsheet);
+}
+
+std::shared_ptr<BiometricEvaluation::IO::PropertiesFile>
+BiometricEvaluation::MPI::Distributor::getCheckpointData() const
+{
+	return (this->_checkpointData);
 }
 
 /******************************************************************************/
@@ -62,6 +104,10 @@ BiometricEvaluation::MPI::Distributor::~Distributor()
 void
 BiometricEvaluation::MPI::Distributor::start()
 {
+	if (BE::MPI::DoCheckpointRestore) {
+		this->checkpointRestore();
+	}
+
 	/* Release other tasks to start up */
 	::MPI::COMM_WORLD.Barrier();
 
@@ -246,6 +292,16 @@ BiometricEvaluation::MPI::Distributor::distributeWork()
 		if (this->_activeMpiTasks.empty())
 			break;
 	}
+
+	/*
+	 * Save the checkpoint when desired, on the forced, clean shutdown.
+	 */
+	if (BE::MPI::DoCheckpointSave) {
+		if (BE::MPI::Exit) {
+			this->checkpointSave("Exit signal");
+		}
+	}
+
 	/*
  	 * Send the Exit condition as an out-of-band message to
  	 * all Task-N that are still asking for work.
@@ -373,6 +429,17 @@ BiometricEvaluation::MPI::Distributor::shutdown()
 		*log << "Received " << to_enum<TaskStatus>(taskStatus) << " " <<
 		    "from Task-" << mpiStatus.Get_source();
 		MPI::logEntry(*log);
+	}
+	/*
+	 * If all the work has been distributed, remove the checkpoint file.
+	 */
+	if ((BE::MPI::DoCheckpointRestore || BE::MPI::DoCheckpointSave) &&
+	    !BE::MPI::Exit) {
+		std::string chkFileName =
+		    this->_resources->getCheckpointPath() + '/' +
+		    BE::MPI::Distributor::CHECKPOINTFILENAME;
+		this->_checkpointData.reset();
+		unlink(chkFileName.c_str());
 	}
 }
 

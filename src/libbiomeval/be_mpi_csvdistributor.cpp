@@ -12,6 +12,12 @@
 
 namespace BE = BiometricEvaluation;
 
+const std::string
+BE::MPI::CSVDistributor::CHECKPOINTLINECOUNT = "Line Count";
+
+const std::string
+BE::MPI::CSVDistributor::CHECKPOINTRANDOMSEED = "Random Seed";
+
 BiometricEvaluation::MPI::CSVDistributor::CSVDistributor(
     const std::string &propertiesFileName,
     const std::string &delimiter) :
@@ -105,27 +111,26 @@ BiometricEvaluation::MPI::CSVDistributor::createWorkPackage(
 	 * continue onto the next key. It is possible to send an empty
 	 * work package due to sequential failures.
 	 */
-	uint64_t keyCount;
+	uint64_t lineCount;
 	if (this->_resources->getNumRemainingLines() >
 	    this->_resources->getChunkSize())
-		keyCount = this->_resources->getChunkSize();
+		lineCount = this->_resources->getChunkSize();
 	else
-		keyCount = this->_resources->getNumRemainingLines();
+		lineCount = this->_resources->getNumRemainingLines();
 
-	std::string key;
 	/*
 	 * The value array must be 0-sized to start, and will stay that way
 	 * if values are not to be sent.
 	 */
 	BE::Memory::uint8Array::size_type index = 0;
-	uint64_t realKeyCount = 0;
+	uint64_t realLineCount = 0;
 
 	/*
-	 * Pull keys, and possibly values, from the RecordStore and
-	 * combine a chunk of them into a single work package.
+	 * Pull lines from the file and combine a chunk of them into a
+	 * single work package.
 	 */
 	std::pair<uint64_t, std::string> lineData;
-	for (uint64_t n = 0; n < keyCount; n++) {
+	for (uint64_t n = 0; n < lineCount; n++) {
 		try {
 			lineData = this->_resources->readLine();
 			fillBufferWithTokens(packageData, lineData.first,
@@ -134,13 +139,93 @@ BiometricEvaluation::MPI::CSVDistributor::createWorkPackage(
 			log->writeDebug("Caught " + e.whatString());
 			continue;
 		}
-		realKeyCount++;
+		realLineCount++;
 	}
 
 	/*
 	 * NOTE: At this point it is possible to have no keys in the package.
 	 */
-	workPackage.setNumElements(realKeyCount);
+	this->_distributedLineCount += realLineCount;
+	workPackage.setNumElements(realLineCount);
 	workPackage.setData(packageData);
+}
+
+void
+BiometricEvaluation::MPI::CSVDistributor::checkpointSave(
+    const std::string &reason)
+{
+	try {
+		auto chkData = this->getCheckpointData();
+		chkData->setProperty(
+		    BE::MPI::Distributor::CHECKPOINTREASON, reason);
+		chkData->setPropertyFromInteger(
+		    BE::MPI::CSVDistributor::CHECKPOINTLINECOUNT,
+		    this->_distributedLineCount);
+		/* Save the randomizer seed when present */
+		try {
+			auto seed = this->_resources->getRandomSeed();
+			chkData->setPropertyFromInteger(
+			    BE::MPI::CSVDistributor::CHECKPOINTRANDOMSEED,
+			    seed);
+		} catch (...) {
+		}
+		chkData->sync();
+		this->getLogsheet()->writeDebug("Checkpoint saved: " + reason);
+	} catch (Error::Exception &e) {
+		this->getLogsheet()->writeDebug(
+		    "Checkpoint save: Caught " + e.whatString());
+	}
+}
+
+void
+BiometricEvaluation::MPI::CSVDistributor::checkpointRestore()
+{
+	try {
+		auto chkData = this->getCheckpointData();
+		this->_distributedLineCount =
+		    chkData->getPropertyAsInteger(
+			BE::MPI::CSVDistributor::CHECKPOINTLINECOUNT);
+
+		/*
+		 * Check the randomizer seed against what has been
+		 * checkpointed. Presence of the seed in the resources
+		 * and checkpoint and the value (if present) must match.
+		 */
+		uint64_t seed, chkSeed;
+		bool haveSeed{false}, haveChkSeed{false};
+		try {
+			seed = this->_resources->getRandomSeed();
+			haveSeed = true;
+		} catch (...) {
+		}
+		try {
+			chkSeed = chkData->getPropertyAsInteger(
+			    BE::MPI::CSVDistributor::CHECKPOINTRANDOMSEED);
+			haveChkSeed = true;
+		} catch (...) {
+		}
+		if ((haveSeed && !haveChkSeed) || (haveChkSeed && !haveSeed)) {
+			throw Error::ObjectDoesNotExist(
+			    "Missing required RNG seed in resources "
+			    "or checkpoint file");
+		}
+		if ((haveSeed && haveChkSeed) && (seed != chkSeed)) {
+			throw Error::DataError(
+			    "RNG seed in resources does not match checkpoint");
+		}
+		/*
+		 * Skip over the lines used during the checkpointed run.
+		 */
+		for (uint64_t n = 0; n < this->_distributedLineCount; n++) {
+			(void)this->_resources->readLine();
+		}
+		this->getLogsheet()->writeDebug(
+		    "Checkpoint restore: " + chkData->getProperty(
+			BE::MPI::Distributor::CHECKPOINTREASON));
+	} catch (Error::Exception &e) {
+		this->getLogsheet()->writeDebug(
+		    "Checkpoint restore: Caught " + e.whatString());
+		throw;
+	}
 }
 

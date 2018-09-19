@@ -68,6 +68,13 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
+			 * The property string "Checkpoint Path"; required
+			 * when checkpointing is enabled, optional otherwise.
+			 */
+			static const std::string CHECKPOINTPATHPROPERTY;
+
+			/**
+			 * @brief
 			 * Obtain the list of required properties.
 			 * @return
 			 * A set of required property strings.
@@ -120,6 +127,17 @@ namespace BiometricEvaluation {
 			 */
 			std::string getLogsheetURL() const;
 
+			/**
+			 * @brief
+			 * Obtain the Checkpoint Path name.
+			 * @details
+			 * This string my be empty, indicating that there
+			 * is no checkpoint path  in the Properties file.
+			 * @return
+			 * The Checkpoint Path.
+			 */
+			std::string getCheckpointPath() const;
+
 			~Resources();
 
 			int getRank() const;
@@ -132,6 +150,7 @@ namespace BiometricEvaluation {
 			int _numTasks;
 			int _workersPerNode;
 			std::string _logsheetURL;
+			std::string _checkpointPath;
 		};
 	}
 }

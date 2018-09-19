@@ -21,10 +21,39 @@ namespace BiometricEvaluation
 {
 	namespace MPI
 	{
-		/** Distribute lines of a text file via Work Packages */
+		/**
+		 * @brief
+		 * An implementation of the MPI::Distrbutor abstraction
+		 * that distribute lines of a text file via work packages.
+		 * @details
+		 * This class supports checkpointing when an early
+		 * exit is requested, allowing all workers to complete
+		 * their current work package. If the input data lines
+		 * were randomized, the random number generator seed is
+		 * saved as part of the checkpoint.
+		 *
+		 * On checkpoint restart, if the input data lines are
+		 * randomized, the seed in the checkpoint must match
+		 * the current seed; else an exception is thrown. If the
+		 * checkpoint contains a seed, and the input is not
+		 * currently randomized, and exception is thrown.
+		 * See MPI::CSVResources.
+		 */
 		class CSVDistributor : public Distributor
 		{
 		public:
+			/**
+			 * The number of lines that were distributed,
+			 * "Line Count".
+			 */
+			static const std::string CHECKPOINTLINECOUNT;
+
+			/**
+			 * The seed used to randomize the input CSV file lines,
+			 * "Random Seed".
+			 */
+			static const std::string CHECKPOINTRANDOMSEED;
+
 			/**
 			 * @brief
 			 * Construct a CSVDistributor using named properties.
@@ -41,11 +70,15 @@ namespace BiometricEvaluation
 
 		protected:
 			void
-			createWorkPackage(
-			    MPI::WorkPackage &workPackage);
+			createWorkPackage(MPI::WorkPackage &workPackage);
+			void
+			checkpointSave(const std::string &reason);
+			void
+			checkpointRestore();
 
 		private:
 			std::unique_ptr<MPI::CSVResources> _resources;
+			uint64_t _distributedLineCount{};
 		};
 	}
 }

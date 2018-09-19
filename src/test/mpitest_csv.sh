@@ -6,9 +6,10 @@
 ##############################################################################
 #
 #
-# Record store for the input.
+# CSV file for the input.
 #
-INPUTCSV=test_data/test.prop
+INPUTCSV=test_data/mpitest_csv.lst
+CHKPATH=/tmp
 
 #
 # Create the properties file for this run
@@ -22,7 +23,7 @@ INPUTCSV=test_data/test.prop
 #       $ModLoad imtcp
 #       # Provides TCP syslog reception
 #       $InputTCPServerRun 2514
-#       local0.info /home/wsalamon/sandbox/rsyslog/record.log
+#       local0.info /home/wsalamon/sandbox/rsyslog/csv.log
 #       local1.debug /home/wsalamon/sandbox/rsyslog/debug.log
 #
 # Example of starting rsyslogd:
@@ -34,11 +35,13 @@ PROPS=test_be_csv_mpi.props
 cat > $PROPS << EOF
 Input CSV = $INPUTCSV
 Chunk Size = 1
-Read Entire File = NO
+Read Entire File = YES
 Randomize Lines = NO
-Workers Per Node = 2
+Random Seed = 12345678
+Workers Per Node = 1
 Logsheet URL = file://mpi.log
-Record Logsheet URL = file://record.log
+Record Logsheet URL = file://csv.log
+Checkpoint Path = $CHKPATH
 #Logsheet URL = syslog://linc01b:2514
 #Record Logsheet URL = syslog://linc01b:2514
 EOF
@@ -81,7 +84,18 @@ export LD_LIBRARY_PATH=../../lib
 #
 # Test reading from a file
 #
-EXECSTR="$PROGRAM"
+echo "----------------------------------------------------------------------"
+echo "Running with checkpoint save"
+echo "To send the clean shutdown, run:"
+echo
+echo "kill -QUIT \`cat $CHKPATH/Distributor.chk | grep PID | cut -d= -f2\`"
+echo
+EXECSTR="$PROGRAM -s"
+time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
+
+echo "----------------------------------------------------------------------"
+echo "Running with checkpoint restore and save"
+EXECSTR="$PROGRAM -r -s"
 time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
 
 #
@@ -94,10 +108,13 @@ Read Entire File = YES
 Randomize Lines = YES
 Workers Per Node = 2
 Logsheet URL = file://mpi.log
-Record Logsheet URL = file://record.log
+Record Logsheet URL = file://csv.log
 #Logsheet URL = syslog://linc01b:2514
 #Record Logsheet URL = syslog://linc01b:2514
 EOF
+echo "----------------------------------------------------------------------"
+echo "Running with reading from a buffer"
+EXECSTR="$PROGRAM"
 time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
 
 #

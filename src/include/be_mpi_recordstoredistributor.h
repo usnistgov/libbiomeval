@@ -18,11 +18,27 @@ namespace BiometricEvaluation {
 		
 		/**
 		 * @brief
-		 * An implementation of the Distrbutor abstraction that
+		 * An implementation of the MPI::Distrbutor abstraction that
 		 * uses a record store for input to create the work packages.
+		 * @details
+		 * This class supports checkpointing when an early exit
+		 * is requested, allowing all workers to complete their
+		 * current work package. 
+		 *
+		 * See MPI::Distributor
 		 */
 		class RecordStoreDistributor : public Distributor {
 		public:
+			/**
+			 * The last key that was distributed, "Last Key".
+			 */
+			static const std::string CHECKPOINTLASTKEY;
+
+			/**
+			 * The number of keys that were distributed, "Num Keys".
+			 */
+			static const std::string CHECKPOINTNUMKEYS;
+
 			/**
 			 * @brief
 			 * Construct a distributor using the named properties.
@@ -63,12 +79,15 @@ namespace BiometricEvaluation {
 		protected:
 			void
 			createWorkPackage(MPI::WorkPackage &workPackage);
+			void checkpointSave(const std::string &reason);
+			void checkpointRestore();
 
 		private:
 			std::unique_ptr<MPI::RecordStoreResources>
 			    _resources;
 			uint64_t _recordsRemaining;
 			bool _includeValues;
+			std::string _lastDistributedKey{};
 		};
 	}
 }

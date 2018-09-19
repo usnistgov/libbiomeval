@@ -23,6 +23,9 @@ namespace BiometricEvaluation {
 		extern bool QuickExit;	/* Quick exit signal received */
 		extern bool TermExit;	/* Immediate exit signal received */
 
+		extern bool DoCheckpointSave;
+		extern bool DoCheckpointRestore;
+
 		/**
 		 * @brief
 		 * Runtime support for the startup/shutdown of MPI jobs.
@@ -35,25 +38,43 @@ namespace BiometricEvaluation {
 		 */
 		class Runtime {
 		public:
-
 			/**
 			 * @brief
 			 * Construct the runtime environment for the processes
 			 * making up the MPI job.
+			 * @details
+			 * Whether to save a checkpoint on clean shutdown, or
+			 * recover a checkpoint on startup, is optionally
+			 * specified.
 			 * @param[in] argc
 			 * The argument count, taken from the command line
 			 * passed to main().
 			 * @param[in] argv
 			 * The argument vector, taken from the command line
 			 * passed to main().
+			 * @param[in] doCheckpointSave
+			 * True indicates that a checkpoint should be saved
+			 * on early shutdown. Checkpoints are implementation
+			 * defined by the Distributor classes.
+			 * @param[in] doCheckpointRestore
+			 * True indicates that a checkpoint should be recovered
+			 * on startup. Checkpoints are implementation defined
+			 * by Distributor classes.
 			 */
-			Runtime(int &argc, char** &argv);
+			Runtime(
+			    int &argc,
+			    char** &argv,
+			    bool doCheckpointSave = false,
+			    bool doCheckpointRestore = false);
 
 			~Runtime();
 
 			/**
 		 	 * @brief
 			 * Startup the runtime environment for the MPI job.
+			 * @details
+			 * Exceptions thrown by the Distributor or Recevier
+			 * are caught and logged.
 			 * @param[in] distributor
 			 * The Distributor object that will form the basis
 			 * of the first MPI task.

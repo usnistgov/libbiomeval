@@ -15,17 +15,6 @@
 
 using namespace BiometricEvaluation;
 
-BiometricEvaluation::MPI::Runtime::Runtime(int &argc, char **&argv)
-{
-	this->_argc = argc;
-	this->_argv = argv;
-	::MPI::Init(argc, argv);
-}
-
-BiometricEvaluation::MPI::Runtime::~Runtime()
-{
-}
-
 /*
  * The signal events and handler.
  * SIGQUIT = Exit
@@ -35,6 +24,29 @@ BiometricEvaluation::MPI::Runtime::~Runtime()
 bool BiometricEvaluation::MPI::Exit;
 bool BiometricEvaluation::MPI::QuickExit;
 bool BiometricEvaluation::MPI::TermExit;
+
+/*
+ * Whether capture checkpoint information, and/or restore a checkpoint 
+ * when appropriate.
+ */
+bool BiometricEvaluation::MPI::DoCheckpointSave;
+bool BiometricEvaluation::MPI::DoCheckpointRestore;
+
+BiometricEvaluation::MPI::Runtime::Runtime(
+    int &argc,
+    char **&argv,
+    bool doCheckpointSave,
+    bool doCheckpointRestore) :
+    _argc{argc}, _argv{argv}
+{
+	BiometricEvaluation::MPI::DoCheckpointSave = doCheckpointSave;
+	BiometricEvaluation::MPI::DoCheckpointRestore = doCheckpointRestore;
+	::MPI::Init(this->_argc, this->_argv);
+}
+
+BiometricEvaluation::MPI::Runtime::~Runtime()
+{
+}
 
 static void
 signalHandler(int signo)

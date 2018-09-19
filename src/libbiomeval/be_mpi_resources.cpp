@@ -19,6 +19,7 @@
 #include <be_io_filelogsheet.h>
 #include <be_io_syslogsheet.h>
 #include <be_mpi_resources.h>
+#include <be_mpi_runtime.h>
 #include <be_system.h>
 #include <be_text.h>
 
@@ -37,6 +38,8 @@ const std::string
 BiometricEvaluation::MPI::Resources::NUMSOCKETS("NUMSOCKETS");
 const std::string
 BiometricEvaluation::MPI::Resources::LOGSHEETURLPROPERTY("Logsheet URL");
+const std::string
+BiometricEvaluation::MPI::Resources::CHECKPOINTPATHPROPERTY("Checkpoint Path");
 
 /******************************************************************************/
 /* Class method definitions.                                                  */
@@ -87,6 +90,23 @@ BiometricEvaluation::MPI::Resources::Resources(
 	} catch (Error::Exception &e) {
 		this->_logsheetURL = "";
 	}
+	/*
+	 * Checkpoint path is only required when checkpointing
+	 * is done.
+	 */
+	try {
+		this->_checkpointPath =
+		    props->getProperty(MPI::Resources::CHECKPOINTPATHPROPERTY);
+	} catch (Error::Exception &e) {
+		if (MPI::DoCheckpointRestore ||
+		    MPI::DoCheckpointSave) {
+			throw Error::ObjectDoesNotExist(
+			    "Could not read " +
+			     MPI::Resources::CHECKPOINTPATHPROPERTY);
+		} else {
+			this->_checkpointPath = "";
+		}
+	}
 }
 
 std::vector<std::string>
@@ -102,6 +122,7 @@ BiometricEvaluation::MPI::Resources::getOptionalProperties()
 {
 	std::vector<std::string> props;
 	props.push_back(MPI::Resources::LOGSHEETURLPROPERTY);
+	props.push_back(MPI::Resources::CHECKPOINTPATHPROPERTY);
 	return (props);
 }
 
@@ -116,6 +137,12 @@ std::string
 BiometricEvaluation::MPI::Resources::getLogsheetURL() const
 {
 	return (this->_logsheetURL);
+}
+
+std::string
+BiometricEvaluation::MPI::Resources::getCheckpointPath() const
+{
+	return (this->_checkpointPath);
 }
 
 std::string

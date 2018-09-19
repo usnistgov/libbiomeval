@@ -113,6 +113,11 @@ TestCSVProcessor::processLine(
     const uint64_t lineNum,
     const std::string &line)
 {
+	/*
+	 * Simple delay in case the tester wants to watch the
+	 * output, or artificially slow down processing.
+	 */
+	sleep(2);
 	BE::IO::Logsheet *log = this->getLogsheet().get();
 	
 	*log << "processLine(" << lineNum << ", " << line << ") called: ";
@@ -172,8 +177,18 @@ main(int argc, char* argv[])
 	 * don't create a Receiver or Distributor until any local items
 	 * are take care of.
 	 */
-	MPI::Runtime runtime(argc, argv);
-
+	/*
+	 * Process optional checkpoint and include-values flags.
+	 */
+	bool cpSave{false}, cpRestart{false};
+	char ch;
+	while ((ch = getopt(argc, argv, "rsv")) != -1) {
+		switch (ch) {
+			case 'r': cpRestart = true; break;
+			case 's': cpSave = true; break;
+		}
+	}
+	MPI::Runtime runtime(argc, argv, cpSave, cpRestart);
 	std::string propFile;
 	/* Create the properties file if needed */
 	if (!IO::Utility::fileExists(DefaultPropertiesFileName)) {

@@ -12,6 +12,13 @@
 
 namespace BE = BiometricEvaluation;
 
+const std::string
+BE::MPI::RecordStoreDistributor::CHECKPOINTLASTKEY =
+    "Last Key";
+const std::string
+BE::MPI::RecordStoreDistributor::CHECKPOINTNUMKEYS =
+    "Num Keys";
+
 /******************************************************************************/
 /* Class method definitions.                                                  */
 /******************************************************************************/
@@ -140,6 +147,11 @@ BiometricEvaluation::MPI::RecordStoreDistributor::createWorkPackage(
 				record = recordStore->sequence();
 			else
 				record.key = recordStore->sequenceKey();
+			/*
+			 * Save the last key sent for checkpointing purposes.
+			 */
+			this->_lastDistributedKey = record.key;
+
 			fillBufferWithKeyAndValue(packageData, record.key,
 			    record.data, index);
 		} catch (Error::Exception &e) {
@@ -148,11 +160,62 @@ BiometricEvaluation::MPI::RecordStoreDistributor::createWorkPackage(
 		}
 		realKeyCount++;
 	}
-
 	/*
 	 * NOTE: At this point it is possible to have no keys in the package.
 	 */
 	workPackage.setNumElements(realKeyCount);
 	workPackage.setData(packageData);
+}
+
+void
+BiometricEvaluation::MPI::RecordStoreDistributor::checkpointSave(
+    const std::string &reason)
+{
+	try {
+		auto chkData = this->getCheckpointData();
+		chkData->setProperty(
+		    BE::MPI::Distributor::CHECKPOINTREASON, reason);
+		chkData->setProperty(
+		    BE::MPI::RecordStoreDistributor::CHECKPOINTLASTKEY,
+		     this->_lastDistributedKey);
+		auto keyCount = 
+		    this->_resources->getRecordStore()->getCount() -
+		    this->_recordsRemaining;
+		chkData->setPropertyFromInteger(
+		    BE::MPI::RecordStoreDistributor::CHECKPOINTNUMKEYS,
+		    keyCount);
+		chkData->sync();
+		this->getLogsheet()->writeDebug("Checkpoint saved: " + reason);
+	} catch (Error::Exception &e) {
+		this->getLogsheet()->writeDebug(
+		    "Checkpoint save: Caught " + e.whatString());
+	}
+}
+
+void
+BiometricEvaluation::MPI::RecordStoreDistributor::checkpointRestore()
+{
+	try {
+		auto chkData = this->getCheckpointData();
+		auto lastKey = chkData->getProperty(
+		    BE::MPI::RecordStoreDistributor::CHECKPOINTLASTKEY);
+		/*
+		 * Sequence into the input record store to the key past
+		 * the checkpoint key.
+		 */
+		auto recordStore = this->_resources->getRecordStore();
+		recordStore->setCursorAtKey(lastKey);
+		(void)recordStore->sequence();
+
+		this->_recordsRemaining -= chkData->getPropertyAsInteger(
+		    BE::MPI::RecordStoreDistributor::CHECKPOINTNUMKEYS);
+		this->getLogsheet()->writeDebug(
+		    "Checkpoint restore: " + chkData->getProperty(
+			BE::MPI::Distributor::CHECKPOINTREASON));
+	} catch (Error::Exception &e) {
+		this->getLogsheet()->writeDebug(
+		    "Checkpoint restore: Caught " + e.whatString());
+		throw;
+	}
 }
 
