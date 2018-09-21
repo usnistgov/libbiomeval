@@ -19,8 +19,10 @@ these classes.
 
 \figref{fig:paralleljob} shows the processes and data flow for a typical 
 parallel job using components of the Framework. The distributor process
-executes code from the \class{Distributor} class, and the receiver process
-likewise executes \class{Receiver} class code. Within each process is shown
+(Task-0)
+executes code from the \class{Distributor} class, and the receiver processes
+(Task-N)
+execute \class{Receiver} class code. Within each process is shown
 the Framework packages that could be used for the job. The {\em Lib} element
 refers to the ``black-box'' component of software being tested, a fingerprint
 matching library, for example. In this example, a record store is used as the
@@ -34,7 +36,7 @@ side, the keys are used to read record data (values) from the same store.
 	\label{fig:paralleljob}
 \end{figure}
 
-On the receiving side of the job, the processing is separated into two areas
+Receiver processing is separated into two areas
 of responsibility. Each Task-N is responsible for managing the workers
 (Task-N:1 \ldots Task-N:c) by starting them, accepting work requests, and
 sending a command to have them shut down when the job finishes. Each worker
@@ -95,6 +97,7 @@ implementation of \class{Distributor}.
 packs record keys, and optionally, values into a \class{WorkPackage}. This
 class inherits all of the MPI communication, intra-job coordination, logging,
 and other aspects of the \class{Distributor} parent class.
+\class{RecordStoreDistributor} supports checkpoint save and restore.
 
 An application can create an instance of a \class{RecordStoreDistributor}
 with the name of a record store in order to distribute records for
@@ -102,6 +105,16 @@ processing across the MPI job. \lstref{lst:mpiappmain} shows an
 example section of code to create a record store distributor. In this
 type of application there is no need for the application code to refine
 any of the Framework classes.
+
+
+\subsection{CSV Distributor}
+\label{sec-recordstoredistributor}
+
+\class{CSVDistributor} reads text lines from an input file with no other
+semantic reasoning. The lines of the file are distributed in the work package
+containing an application-defined line count. Additional features of the
+\class{CSVDistributor} class include randomizing the input, reading the entire
+file into a buffer before distribution begins, and checkpoint support.
 
 \section{Receiver}
 \label{sec-workpackagereceiver}
@@ -182,6 +195,30 @@ which is defined by the application.
 See~\lstref{lst:mpiappclasses} and \lstref{lst:mpiappimpl} for a example of
 such an implementation.
 
+\section{Checkpoint Save and Restore}
+\label{sec-checkpointing}
+The MPI package supports checkpointing, where the state of an MPI job can be
+saved and restored. In the current implementation, checkpoints simply save
+information about the last work package that was distributed. Hence, the
+\class{Distributor} classes are responsible for saving this state. As a
+consequence, a distributor cannot record whether the work package was
+actually processed.
+
+A checkpoint is saved when the application enables the save capability via
+the \class{Runtime} (\ref{sec-mpiruntime}) object, and a clean shutdown is
+performed by sending a signal to the Distributor process, Task-0.
+
+A checkpoint is restored when the application enables restore, and the
+checkpoint file is opened. If restore is requested, but no checkpoint file is
+present, an exception is thrown and the MPI job shuts down by default.
+
+While the MPI job is running, the checkpoint file will minimally contain the
+process ID of the Task-0 distributor. A job script or other program can use
+this ID to shutdown the job with a complete checkpoint. An example command is:
+\begin{verbatim}
+kill -QUIT `cat /tmp/Distributor.chk | grep PID | cut -d= -f2`
+\end{verbatim}
+
 \section{MPI Resources}
 \label{sec-mpiresources}
 Every MPI job depends on a set of properties contained within a text file.
@@ -203,15 +240,20 @@ Choosing the number of workers based on one of the special values depends on
 whether the processing is to take advantage of instruction pipelines, cache
 hierarchies, or other features of the processor hardware implementation.
 
-\item[Logsheet URL] Use by distributor and receiver processes
+\item[Logsheet URL] Used by distributor and receiver processes
 (and children) to open the log.
 \end{description}
-
 The \verb=Logsheet URL= property is optional, and if present all MPI Framework
 trace messages will be written to the specified logging target. Two types of
 \URL schemes are allowed: \verb=file://= and \verb=syslog://=, corresponding
 to the types of \class{Logsheet} classes (\secref{sec-logging}) in the
 Framework.
+
+\begin{description}
+\item[Checkpoint Path] Used by the distributor process to place checkpoint
+files.
+This property is required when checkpointing is enabled, otherwise ignored.
+\end{description}
 
 Subclasses and other components of the MPI Framework may add properties as
 needed, usually to the same file as the above properties. Record-based jobs
@@ -230,6 +272,7 @@ Input Record Store = test.rs
 Chunk Size = 7
 Workers Per Node = 3
 Logsheet URL = file://mpi.log
+Checkpoint Path = /tmp
 \end{verbatim}
 
 Applications can add one or more properties to the file as needed. One example
@@ -246,12 +289,21 @@ also sets up a signal handler for the job, and starts the \class{Distributor}
 and \class{Receiver} processes.  A method is also provided for the application
 to abort the MPI job, providing for a somewhat clean shutdown.
 
+Two optional parameters to the \class{Runtime} constructor control the
+checkpoint capability (see~\ref{sec-checkpointing} and \lstref{lst:mpiappimpl}):
+\begin{description}
+\item[doCheckpointSave] Write a checkpoint file when a clean shutdown is
+requested.
+\item[doCheckpointRestore] Restore from a checkpoint file on job startup.
+\end{description}
+Both of the checkpoint options are off by default.
+
 On of the key features of an MPI job under the Framework is premature shutdown
 with minimal loss of work. Three types of exit condition can be set by sending
 a signal to the distributor, receiver or worker processes. 
 
 \begin{description}
-\item[SIGQUIT] Exit when the current work package is exhausted;
+\item[SIGQUIT] Exit when the current work package is exhausted (``clean exit'');
 \item[SIGINT] Exit when the current work item is finished (``quick exit'');
 \item[SIGTERM] Exit immediately (``termination exit'').
 \end{description}
@@ -582,39 +634,33 @@ TestRecordProcessor::performShutdown()
 int
 main(int argc, char* argv[])
 {
-        /*
-         * It is important that the MPI runtime environment be started
-         * prior to any other activity that may result in premature
-         * termination. Therefore, participate in the MPI environment, but
-         * don't create a Receiver or Distributor until any local items
-         * are take care of.
-         */
-        MPI::Runtime runtime(argc, argv);
-
+	/*
+	 * Process optional checkpoint and include-values flags.
+	 */
+	bool cpSave{false}, cpRestart{false}, includeValues{false};
+	char ch;
+	while ((ch = getopt(argc, argv, "rsv")) != -1) {
+		switch (ch) {
+			case 'r': cpRestart = true; break;
+			case 's': cpSave = true; break;
+			case 'v': includeValues = true; break;
+		}
+	}
+	MPI::Runtime runtime(argc, argv, cpSave, cpRestart);
         std::unique_ptr<MPI::RecordStoreDistributor> distributor;
         std::unique_ptr<MPI::Receiver> receiver;
         std::shared_ptr<TestRecordProcessor> processor;
 
-        /*
-         * If there is any argument to the program, use keys only as the
-         * record distribution method. Otherwise, use keys and values.
-         */
-        bool includeValues;
-        if (argc == 1) {
-                MPI::printStatus("Test Distributor and Receiver, keys only");
-                includeValues = false;
-        } else {
+        if (includeValues) {
                 MPI::printStatus("Test Distributor and Receiver, keys and values");
-                includeValues = true;
+        } else {
+                MPI::printStatus("Test Distributor and Receiver, keys only");
         }
         try {
                 distributor.reset(
                     new MPI::RecordStoreDistributor(propFile, includeValues));
-
                 processor.reset(new TestRecordProcessor(propFile));
-
                 receiver.reset(new MPI::Receiver(propFile, processor));
-
                 runtime.start(*distributor, *receiver);
                 runtime.shutdown();
         } catch (Error::Exception &e) {
