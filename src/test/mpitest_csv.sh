@@ -90,12 +90,12 @@ echo "To send the clean shutdown, run:"
 echo
 echo "kill -QUIT \`cat $CHKPATH/Distributor.chk | grep PID | cut -d= -f2\`"
 echo
-EXECSTR="$PROGRAM -s"
+EXECSTR="$PROGRAM -c"
 time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
 
 echo "----------------------------------------------------------------------"
 echo "Running with checkpoint restore and save"
-EXECSTR="$PROGRAM -r -s"
+EXECSTR="$PROGRAM -c"
 time mpirun -x LD_LIBRARY_PATH -x DYLD_LIBRARY_PATH -mca btl tcp,self --hostfile $MPIHOSTFN -np $MPIPROCS $EXECSTR
 
 #

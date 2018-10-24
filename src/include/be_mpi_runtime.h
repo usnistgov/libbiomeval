@@ -23,8 +23,8 @@ namespace BiometricEvaluation {
 		extern bool QuickExit;	/* Quick exit signal received */
 		extern bool TermExit;	/* Immediate exit signal received */
 
-		extern bool DoCheckpointSave;
-		extern bool DoCheckpointRestore;
+		extern bool checkpointEnable;
+		extern bool doCheckpointRestore;
 
 		/**
 		 * @brief
@@ -43,7 +43,7 @@ namespace BiometricEvaluation {
 			 * Construct the runtime environment for the processes
 			 * making up the MPI job.
 			 * @details
-			 * Whether to save a checkpoint on clean shutdown, or
+			 * Whether to save a checkpoint on clean shutdown, and
 			 * recover a checkpoint on startup, is optionally
 			 * specified.
 			 * @param[in] argc
@@ -52,20 +52,16 @@ namespace BiometricEvaluation {
 			 * @param[in] argv
 			 * The argument vector, taken from the command line
 			 * passed to main().
-			 * @param[in] doCheckpointSave
+			 * @param[in] checkpointEnable
 			 * True indicates that a checkpoint should be saved
-			 * on early shutdown. Checkpoints are implementation
-			 * defined by the Distributor classes.
-			 * @param[in] doCheckpointRestore
-			 * True indicates that a checkpoint should be recovered
-			 * on startup. Checkpoints are implementation defined
-			 * by Distributor classes.
+			 * on early shutdown and restored on startup, if the
+			 * checkpoint data is present.. Checkpoints are
+			 * implementation-defined by the Distributor classes.
 			 */
 			Runtime(
 			    int &argc,
 			    char** &argv,
-			    bool doCheckpointSave = false,
-			    bool doCheckpointRestore = false);
+			    bool checkpointEnable = false);
 
 			~Runtime();
 

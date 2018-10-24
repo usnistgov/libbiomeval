@@ -180,15 +180,14 @@ main(int argc, char* argv[])
 	/*
 	 * Process optional checkpoint and include-values flags.
 	 */
-	bool cpSave{false}, cpRestart{false};
+	bool checkpoint{false};
 	char ch;
-	while ((ch = getopt(argc, argv, "rsv")) != -1) {
+	while ((ch = getopt(argc, argv, "c")) != -1) {
 		switch (ch) {
-			case 'r': cpRestart = true; break;
-			case 's': cpSave = true; break;
+			case 'c': checkpoint = true; break;
 		}
 	}
-	MPI::Runtime runtime(argc, argv, cpSave, cpRestart);
+	MPI::Runtime runtime(argc, argv, checkpoint);
 	std::string propFile;
 	/* Create the properties file if needed */
 	if (!IO::Utility::fileExists(DefaultPropertiesFileName)) {

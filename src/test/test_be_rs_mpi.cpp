@@ -276,16 +276,15 @@ main(int argc, char* argv[])
 	/*
 	 * Process optional checkpoint and include-values flags.
 	 */
-	bool cpSave{false}, cpRestart{false}, includeValues{false};
+	bool checkpoint{false}, includeValues{false};
 	char ch;
-	while ((ch = getopt(argc, argv, "rsv")) != -1) {
+	while ((ch = getopt(argc, argv, "cv")) != -1) {
 		switch (ch) {
-			case 'r': cpRestart = true; break;
-			case 's': cpSave = true; break;
+			case 'c': checkpoint = true; break;
 			case 'v': includeValues = true; break;
 		}
 	}
-	MPI::Runtime runtime(argc, argv, cpSave, cpRestart);
+	MPI::Runtime runtime(argc, argv, checkpoint);
 
 	std::string propFile;
 	/* Create the properties file if needed */
@@ -308,9 +307,9 @@ main(int argc, char* argv[])
 	unique_ptr<MPI::Receiver> receiver;
 
 	if (includeValues) {
-		MPI::printStatus("Test Distributor and Receiver, keys only");
-	} else {
 		MPI::printStatus("Test Distributor and Receiver, keys and values");
+	} else {
+		MPI::printStatus("Test Distributor and Receiver, keys only");
 	}
 	try {
 		distributor.reset(

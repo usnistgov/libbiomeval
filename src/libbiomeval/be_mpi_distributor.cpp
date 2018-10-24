@@ -61,17 +61,21 @@ BiometricEvaluation::MPI::Distributor::Distributor(
 		    this->_resources->getCheckpointPath() + '/' +
 		    BE::MPI::Distributor::CHECKPOINTFILENAME;
 		/*
-		 * On checkpoint restore, the checkpoint file must exist.
-		 * On restore or save, update the checkpoint any items that
+		 * When checkpointing, the checkpoint file is optional for
+		 * restore.
+		 * On restore or save, update the checkpoint with items that
 		 * are the responsibility of this class.
 		 */
-		if (BE::MPI::DoCheckpointRestore) {
-			if (!BE::IO::Utility::fileExists(chkFileName)) {
-				throw (BE::Error::ObjectDoesNotExist(
-				    "Could not find checkpoint file"));
+		if (BE::MPI::checkpointEnable) {
+			if (BE::IO::Utility::fileExists(chkFileName)) {
+				BE::MPI::doCheckpointRestore = true;
+			} else {
+				BE::MPI::doCheckpointRestore = false;
 			}
-		}
-		if (BE::MPI::DoCheckpointRestore || BE::MPI::DoCheckpointSave) {
+			/*
+			 * Open the existing, or create a new checkpoint file
+			 * with common data set by this class.
+			 */
 			this->_checkpointData =
 			    std::make_shared<BE::IO::PropertiesFile>(
 				chkFileName, IO::Mode::ReadWrite);
@@ -104,7 +108,7 @@ BiometricEvaluation::MPI::Distributor::~Distributor()
 void
 BiometricEvaluation::MPI::Distributor::start()
 {
-	if (BE::MPI::DoCheckpointRestore) {
+	if (BE::MPI::doCheckpointRestore) {
 		this->checkpointRestore();
 	}
 
@@ -296,7 +300,7 @@ BiometricEvaluation::MPI::Distributor::distributeWork()
 	/*
 	 * Save the checkpoint when desired, on the forced, clean shutdown.
 	 */
-	if (BE::MPI::DoCheckpointSave) {
+	if (BE::MPI::checkpointEnable) {
 		if (BE::MPI::Exit) {
 			this->checkpointSave("Exit signal");
 		}
@@ -433,7 +437,7 @@ BiometricEvaluation::MPI::Distributor::shutdown()
 	/*
 	 * If all the work has been distributed, remove the checkpoint file.
 	 */
-	if ((BE::MPI::DoCheckpointRestore || BE::MPI::DoCheckpointSave) &&
+	if ((BE::MPI::checkpointEnable) &&
 	    !BE::MPI::Exit) {
 		std::string chkFileName =
 		    this->_resources->getCheckpointPath() + '/' +

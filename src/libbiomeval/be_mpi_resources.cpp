@@ -98,8 +98,7 @@ BiometricEvaluation::MPI::Resources::Resources(
 		this->_checkpointPath =
 		    props->getProperty(MPI::Resources::CHECKPOINTPATHPROPERTY);
 	} catch (Error::Exception &e) {
-		if (MPI::DoCheckpointRestore ||
-		    MPI::DoCheckpointSave) {
+		if (MPI::checkpointEnable) {
 			throw Error::ObjectDoesNotExist(
 			    "Could not read " +
 			     MPI::Resources::CHECKPOINTPATHPROPERTY);

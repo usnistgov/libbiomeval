@@ -29,18 +29,16 @@ bool BiometricEvaluation::MPI::TermExit;
  * Whether capture checkpoint information, and/or restore a checkpoint 
  * when appropriate.
  */
-bool BiometricEvaluation::MPI::DoCheckpointSave;
-bool BiometricEvaluation::MPI::DoCheckpointRestore;
+bool BiometricEvaluation::MPI::checkpointEnable;
+bool BiometricEvaluation::MPI::doCheckpointRestore; // Set by the Distributor
 
 BiometricEvaluation::MPI::Runtime::Runtime(
     int &argc,
     char **&argv,
-    bool doCheckpointSave,
-    bool doCheckpointRestore) :
+    bool checkpointEnable) :
     _argc{argc}, _argv{argv}
 {
-	BiometricEvaluation::MPI::DoCheckpointSave = doCheckpointSave;
-	BiometricEvaluation::MPI::DoCheckpointRestore = doCheckpointRestore;
+	BiometricEvaluation::MPI::checkpointEnable = checkpointEnable;
 	::MPI::Init(this->_argc, this->_argv);
 }
 
