@@ -73,6 +73,75 @@ and \class{RecordProcessor} (\secref{sec-recordprocessor})
 are examples of \class{WorkPackage} clients that insert and remove data from
 a work package.
 
+\section{MPI Resources}
+\label{sec-mpiresources}
+Every MPI job depends on a set of properties contained within a text file.
+These properties are read into a \class{Properties} object contained within
+the \class{Resources} object.
+
+The core MPI classes (\class{Distributor} and \class{Receiver}) use these
+properties:
+\begin{description}
+\item[Workers Per Node] Used by the receiver process to start the
+required number of workers. This value is either an integer string, or
+one of the special values:
+\begin{description}
+\item[NUMCPUS] The number of logical CPUs, also known as hyperthreads;
+\item[NUMCORES] The number of processing cores;
+\item[NUMSOCKETS] The number of physical processor sockets.
+\end{description}
+Choosing the number of workers based on one of the special values depends on
+whether the processing is to take advantage of instruction pipelines, cache
+hierarchies, or other features of the processor hardware implementation.
+
+\item[Logsheet URL] Used by distributor and receiver processes
+(and children) to open the log.
+\end{description}
+The \verb=Logsheet URL= property is optional, and if present all MPI Framework
+trace messages will be written to the specified logging target. Two types of
+\URL schemes are allowed: \verb=file://= and \verb=syslog://=, corresponding
+to the types of \class{Logsheet} classes (\secref{sec-logging}) in the
+Framework.
+
+\begin{description}
+\item[Checkpoint Path] Used by the distributor process to place checkpoint
+files.
+This property is required when checkpointing is enabled, otherwise ignored.
+\end{description}
+
+Subclasses and other components of the MPI Framework may add properties as
+needed, usually to the same file as the above properties.
+
+Applications can add one or more properties to the file as needed. One example
+would be a URL for a Logsheet used only by the application.
+
+\section{Checkpoint Save and Restore}
+\label{sec-checkpointing}
+The MPI package supports checkpointing, where the state of an MPI job can be
+saved and restored. In the current implementation, checkpoints simply save
+information about the last work package that was distributed. Hence, the
+\class{Distributor} classes (See~\secref{sec-workpackagedistributor}) are
+responsible for saving this
+state. As a consequence, a distributor cannot record whether the work package
+was actually processed. When checkpointing is enabled, the
+resources (see~\secref{sec-mpiresources}) file for the job must contain the
+{\tt Checkpoint Path} property.
+
+A checkpoint is saved when the application enables the checkpoint capability via
+the \class{Runtime} (\ref{sec-mpiruntime}) object, and a clean shutdown is
+performed by sending a signal to the distributor process, Task-0.
+
+A checkpoint is restored when the application enables checkpointing, and the
+checkpoint file is opened. If restore is requested, but no checkpoint file is
+present, the job starts in the same manner as if checkpointing was not enabled.
+
+While the MPI job is running, the checkpoint file will minimally contain the
+process ID of the Task-0 distributor. A job script or other program can use
+this ID to shutdown the job with a complete checkpoint. An example command is:
+\begin{verbatim}
+kill -QUIT `cat /tmp/Distributor.chk | grep PID | cut -d= -f2`
+\end{verbatim}
+
 \section{Distributor}
 \label{sec-workpackagedistributor}
 
@@ -90,6 +159,14 @@ with the knowledge of how the elements of the package are to be stored
 in the package's data buffer. \class{RecordStoreDistributor} is an
 implementation of \class{Distributor}.
 
+For distributors, a basic checkpoint file is created. This text file is a
+set of key-value pairs.
+The \class{Distributor} class writes this information to the checkpoint file:
+\begin{description}
+\item[PID] The process ID of the Task-0 distributor. This value is written on
+job startup and can be used to send the clean shutdown signal to the process.
+\end{description}
+
 \subsection{Record Store Distributor}
 \label{sec-recordstoredistributor}
 
@@ -106,15 +183,60 @@ example section of code to create a record store distributor. In this
 type of application there is no need for the application code to refine
 any of the Framework classes.
 
+Class \class{RecordStoreDistributor} has these additional MPI resources:
+\begin{description}
+\item[Input Record Store] The input record store,
+\item[Chunk Size] How many record keys or key-value pairs to place into a
+work package.
+\end{description}
+
+For a record store job, an example properties file might be:
+\begin{verbatim}
+Input Record Store = test.rs
+Chunk Size = 7
+Workers Per Node = 3
+Logsheet URL = file://mpi.log
+Checkpoint Path = /tmp
+\end{verbatim}
+
+The \class{RecordStoreDistributor} class writes this information to the
+checkpoint file:
+\begin{description}
+\item[Reason] A string describing the reason the checkpoint was taken.
+\item[Last Key] The last record store key that was distributed.
+\item[Num Keys] The number of keys that were distributed.
+\end{description}
 
 \subsection{CSV Distributor}
-\label{sec-recordstoredistributor}
+\label{sec-csvdistributor}
 
 \class{CSVDistributor} reads text lines from an input file with no other
 semantic reasoning. The lines of the file are distributed in the work package
 containing an application-defined line count. Additional features of the
 \class{CSVDistributor} class include randomizing the input, reading the entire
 file into a buffer before distribution begins, and checkpoint support.
+
+Class \class{CSVDistributor} has these additional MPI resources:
+\begin{description}
+\item[Input CSV] The input CSV file.
+\item[Chunk Size] How many lines of the file to distribute in a work package.
+\item[Read Entire File] Read the entire file into buffer; ``YES'' or ``NO''.
+\item[CSV Delimiter] Character delimiter used to tokenize lines of the file.
+\item[Randomize Lines] Whether to randomize distribution of the data;``YES''
+or ``NO''
+\item[Random Seed] Integer value used to seed the random function.
+\item[Trim CSV Whitespace] Whether to trim white space from the input lines;
+``YES'' or ``NO''.
+\end{description}
+
+The \class{CSVDistributor} class writes this information to the
+checkpoint file:
+\begin{description}
+\item[Reason] A string describing the reason the checkpoint was taken.
+\item[Line Count] The number of lines from the CSV file that were distributed.
+\item[Random Seed] The seed that was used to randomize the CSV file. Required
+when the ``Random Seed'' property is used in the distributor resources file.
+\end{description}
 
 \section{Receiver}
 \label{sec-workpackagereceiver}
@@ -195,89 +317,6 @@ which is defined by the application.
 See~\lstref{lst:mpiappclasses} and \lstref{lst:mpiappimpl} for a example of
 such an implementation.
 
-\section{Checkpoint Save and Restore}
-\label{sec-checkpointing}
-The MPI package supports checkpointing, where the state of an MPI job can be
-saved and restored. In the current implementation, checkpoints simply save
-information about the last work package that was distributed. Hence, the
-\class{Distributor} classes are responsible for saving this state. As a
-consequence, a distributor cannot record whether the work package was
-actually processed.
-
-A checkpoint is saved when the application enables the save capability via
-the \class{Runtime} (\ref{sec-mpiruntime}) object, and a clean shutdown is
-performed by sending a signal to the Distributor process, Task-0.
-
-A checkpoint is restored when the application enables restore, and the
-checkpoint file is opened. If restore is requested, but no checkpoint file is
-present, an exception is thrown and the MPI job shuts down by default.
-
-While the MPI job is running, the checkpoint file will minimally contain the
-process ID of the Task-0 distributor. A job script or other program can use
-this ID to shutdown the job with a complete checkpoint. An example command is:
-\begin{verbatim}
-kill -QUIT `cat /tmp/Distributor.chk | grep PID | cut -d= -f2`
-\end{verbatim}
-
-\section{MPI Resources}
-\label{sec-mpiresources}
-Every MPI job depends on a set of properties contained within a text file.
-These properties are read into a \class{Properties} object contained within
-the \class{Resources} object.
-
-The core MPI classes (\class{Distributor} and \class{Receiver}) use these
-properties:
-\begin{description}
-\item[Workers Per Node] Used by the receiver process to start the
-required number of workers. This value is either an integer string, or
-one of the special values:
-\begin{description}
-\item[NUMCPUS] The number of logical CPUs, also known as hyperthreads;
-\item[NUMCORES] The number of processing cores;
-\item[NUMSOCKETS] The number of physical processor sockets.
-\end{description}
-Choosing the number of workers based on one of the special values depends on
-whether the processing is to take advantage of instruction pipelines, cache
-hierarchies, or other features of the processor hardware implementation.
-
-\item[Logsheet URL] Used by distributor and receiver processes
-(and children) to open the log.
-\end{description}
-The \verb=Logsheet URL= property is optional, and if present all MPI Framework
-trace messages will be written to the specified logging target. Two types of
-\URL schemes are allowed: \verb=file://= and \verb=syslog://=, corresponding
-to the types of \class{Logsheet} classes (\secref{sec-logging}) in the
-Framework.
-
-\begin{description}
-\item[Checkpoint Path] Used by the distributor process to place checkpoint
-files.
-This property is required when checkpointing is enabled, otherwise ignored.
-\end{description}
-
-Subclasses and other components of the MPI Framework may add properties as
-needed, usually to the same file as the above properties. Record-based jobs
-(using \class{RecordStoreDistributor} and \class{RecordProcessor}), for example,
-have these additional properties:
-
-\begin{description}
-\item[Input Record Store] The input record store;
-\item[Chunk Size] How many record keys or key-value pairs to place into a
-work package.
-\end{description}
-
-For a record store job, an example properties file might be:
-\begin{verbatim}
-Input Record Store = test.rs
-Chunk Size = 7
-Workers Per Node = 3
-Logsheet URL = file://mpi.log
-Checkpoint Path = /tmp
-\end{verbatim}
-
-Applications can add one or more properties to the file as needed. One example
-would be a URL for a Logsheet used only by the application.
-
 \section{MPI Runtime}
 \label{sec-mpiruntime}
 
@@ -289,14 +328,13 @@ also sets up a signal handler for the job, and starts the \class{Distributor}
 and \class{Receiver} processes.  A method is also provided for the application
 to abort the MPI job, providing for a somewhat clean shutdown.
 
-Two optional parameters to the \class{Runtime} constructor control the
+One optional parameter to the \class{Runtime} constructor control the
 checkpoint capability (see~\ref{sec-checkpointing} and \lstref{lst:mpiappimpl}):
 \begin{description}
-\item[doCheckpointSave] Write a checkpoint file when a clean shutdown is
-requested.
-\item[doCheckpointRestore] Restore from a checkpoint file on job startup.
+\item[checkpointEnable] Write a checkpoint file when a clean shutdown is
+requested and restore from a checkpoint if the file is present. This parameter
+defaults to {\tt false}.
 \end{description}
-Both of the checkpoint options are off by default.
 
 On of the key features of an MPI job under the Framework is premature shutdown
 with minimal loss of work. Three types of exit condition can be set by sending
@@ -637,16 +675,15 @@ main(int argc, char* argv[])
 	/*
 	 * Process optional checkpoint and include-values flags.
 	 */
-	bool cpSave{false}, cpRestart{false}, includeValues{false};
+	bool cpEnable{false}, includeValues{false};
 	char ch;
-	while ((ch = getopt(argc, argv, "rsv")) != -1) {
+	while ((ch = getopt(argc, argv, "cv")) != -1) {
 		switch (ch) {
-			case 'r': cpRestart = true; break;
-			case 's': cpSave = true; break;
+			case 'r': cpEnable = true; break;
 			case 'v': includeValues = true; break;
 		}
 	}
-	MPI::Runtime runtime(argc, argv, cpSave, cpRestart);
+	MPI::Runtime runtime(argc, argv, cpEnable);
         std::unique_ptr<MPI::RecordStoreDistributor> distributor;
         std::unique_ptr<MPI::Receiver> receiver;
         std::shared_ptr<TestRecordProcessor> processor;
