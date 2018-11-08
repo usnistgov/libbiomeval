@@ -1,0 +1,6 @@
+# Compilation
+*.a
+*.o
+*.so
+*.dylib
+nbis/big_endian_check
