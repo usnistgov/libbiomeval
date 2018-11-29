@@ -1,0 +1,3 @@
+[submodule "doccommon"]
+	path = doccommon
+	url = git@gypsy.nist.gov:becommon/doccommon.git
