@@ -19,7 +19,7 @@ How to Build
 ------------
 If all requirements have been met, building is as simple as:
 ```bash
-make -C common/
+make
 ```
 
 ### Build Configuration
@@ -80,9 +80,9 @@ make install
 System Packages
 ---------------
 Some modules require system packages that may not be installed by default on
-all operating systems. Package names are listed below for RHEL/CentOS and macOS
-(via [MacPorts](https://www.macports.org)). Other operating systems may use
-similarly-named packages.
+all operating systems. Package names are listed below for RHEL/CentOS, macOS
+(via [MacPorts](https://www.macports.org)), and Ubuntu. Other operating systems
+may use similarly-named packages.
 
 ### CORE
 | Name         | RHEL/CentOS     | MacPorts                     | Ubuntu       |
@@ -115,10 +115,22 @@ similarly-named packages.
 |:------------:|:---------------:|:---------:|:----------------:|
 | Open MPI     | `openmpi-devel` | `openmpi` | `libopenmpi-dev` |
 
-With MacPorts, you may need to select a different MPI group if you have more than one
-installed:
+**Note:**
 
-`sudo port select mpi openmpi-mp-fortran`
+ * You need to modify the definition of `MPICXX` in [`common.mk`][1] if `mpicxx`
+   is not in your `PATH`:
+
+    | OS          | Default `mpicxx` location       |
+    |:-----------:| :------------------------------:|
+    | MacPorts    | `/opt/local/bin/mpicxx`         |
+    | RHEL/CentOS | `/usr/lib64/openmpi/bin/mpicxx` |
+    | Ubuntu      | `/usr/bin/mpicxx`               |
+
+ * With MacPorts, you may need to select a different MPI group if you have more
+   than one installed:
+   ```bash
+   sudo port select mpi openmpi-mp-fortran
+   ```
 
 ### RECORDSTORE
 | Name         | RHEL/CentOS    | MacPorts  | Ubuntu           |
@@ -231,3 +243,4 @@ Biometric Evaluation Framework is released in the public domain. See the
 [LICENSE](https://github.com/usnistgov/libbiomeval/blob/master/LICENSE.md)
 for details.
 
+[1]: https://github.com/usnistgov/libbiomeval/blob/master/common.mk#L47
