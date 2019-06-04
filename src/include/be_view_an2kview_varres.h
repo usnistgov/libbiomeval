@@ -92,7 +92,7 @@ namespace BiometricEvaluation
 
 			/**
 			 * @return
-			 *	The finge/palmr impression code.
+			 *	The finger/palm impression code.
 			 */
 			Finger::Impression getImpressionType() const;
 
