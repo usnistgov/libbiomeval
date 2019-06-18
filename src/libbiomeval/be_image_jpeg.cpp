@@ -14,6 +14,7 @@
 extern "C" {
 	#include <computil.h>
 	#include <dataio.h>
+	#include <jerror.h>
 	#include <jpeglib.h>
 }
 
@@ -353,11 +354,20 @@ boolean
 BiometricEvaluation::Image::JPEG::fill_input_buffer_mem(
     j_decompress_ptr cinfo)
 {
-	/* 
-	 * The entire buffer should be loaded already, so getting here
-	 * really is an error.
+	static const JOCTET EOIBuffer[4] = {
+	    (JOCTET) 0xFF, (JOCTET) JPEG_EOI, 0, 0};
+
+	/*
+	 * The whole JPEG data is expected to reside in the supplied memory
+	 * buffer, so any request for more data beyond the given buffer size
+	 * is treated as an error.
 	 */
-	
+	WARNMS(cinfo, JWRN_JPEG_EOF);
+
+	/* Insert a fake EOI marker */
+	cinfo->src->next_input_byte = EOIBuffer;
+	cinfo->src->bytes_in_buffer = 2;
+
 	return (TRUE);
 }
 
@@ -369,6 +379,11 @@ BiometricEvaluation::Image::JPEG::skip_input_data_mem(
 	struct jpeg_source_mgr * src = cinfo->src;
 
 	if (num_bytes > 0) {
+		while (num_bytes > (long) src->bytes_in_buffer) {
+			num_bytes -= (long) src->bytes_in_buffer;
+			(void) (*src->fill_input_buffer) (cinfo);
+		}
+
 		src->next_input_byte += (size_t) num_bytes;
 		src->bytes_in_buffer -= (size_t) num_bytes;
 	}
