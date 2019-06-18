@@ -32,10 +32,13 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
+	jpeg_error_mgr.emit_message = JPEG::emit_message;
 	jpeg_error_mgr.output_message = JPEG::output_message;
 
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
+	dinfo.client_data = (void *)this;
+	this->warnings.clear();
 	jpeg_create_decompress(&dinfo);
 
 #if JPEG_LIB_VERSION >= 80
@@ -75,10 +78,13 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
+	jpeg_error_mgr.emit_message = JPEG::emit_message;
 	jpeg_error_mgr.output_message = JPEG::output_message;
 
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
+	dinfo.client_data = (void *)this;
+	this->warnings.clear();
 	jpeg_create_decompress(&dinfo);
 
 #if JPEG_LIB_VERSION >= 80
@@ -124,10 +130,13 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
+	jpeg_error_mgr.emit_message = JPEG::emit_message;
 	jpeg_error_mgr.output_message = JPEG::output_message;
 
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
+	dinfo.client_data = (void *)this;
+	this->warnings.clear();
 	jpeg_create_decompress(&dinfo);
 
 #if JPEG_LIB_VERSION >= 80
@@ -302,6 +311,21 @@ BiometricEvaluation::Image::JPEG::output_message(
 	/* nop */
 }
 
+void
+BiometricEvaluation::Image::JPEG::emit_message(
+    j_common_ptr cinfo,
+    int msg_level)
+{
+	if (cinfo->client_data == nullptr)
+		return;
+
+	char buf[JMSG_LENGTH_MAX];
+	cinfo->err->format_message(cinfo, buf);
+
+	JPEG *jpeg = static_cast<JPEG*>(cinfo->client_data);
+	jpeg->warnings.emplace_back(buf);
+}
+
 int
 BiometricEvaluation::Image::JPEG::getc_skip_marker_segment(
     const unsigned short marker,
@@ -327,6 +351,19 @@ BiometricEvaluation::Image::JPEG::getc_skip_marker_segment(
 	return (0);
 }
 
+std::vector<std::string>
+BiometricEvaluation::Image::JPEG::getWarnings()
+    const
+{
+	return (this->warnings);
+}
+
+bool
+BiometricEvaluation::Image::JPEG::hasWarnings()
+    const
+{
+	return (!this->warnings.empty());
+}
 
 #if JPEG_LIB_VERSION < 80
 void

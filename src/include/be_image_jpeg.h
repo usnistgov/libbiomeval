@@ -89,9 +89,36 @@ namespace BiometricEvaluation
 			    unsigned char **cbufptr,
 			    unsigned char *ebufptr);
 
+			/**
+			 * @brief
+			 * Obtain warnings emitted by libjpeg during the
+			 * previous JPEG operation.
+			 *
+			 * @return
+			 * Vector of warning strings emitted by libjpeg.
+			 */
+			std::vector<std::string>
+			getWarnings()
+			    const;
+
+			/**
+			 * @brief
+			 * Whether or not the previous libjpeg operation
+			 * emitted any warnings.
+			 *
+			 * @return
+			 * true if there were warnings, false otherwise.
+			 */
+			bool
+			hasWarnings()
+			    const;
+
 		protected:
 
 		private:
+			/** Warnings logged by libjpeg in previous operation. */
+			mutable std::vector<std::string> warnings{};
+
 			/**
 			 * @brief
 			 * Convert libjpeg errors to C++ exceptions.
@@ -117,6 +144,20 @@ namespace BiometricEvaluation
 			static void
 			output_message(
 			    j_common_ptr cinfo);
+
+			 /**
+			 * @brief
+			 * Override for libjpeg's emit_message.
+			 *
+			 * @param cinfo
+			 * libjpeg common struct.
+			 * @param msg_level
+			 * The type of message (warning, error, trace, etc.).
+			 */
+			static void
+			emit_message(
+			    j_common_ptr cinfo,
+			    int msg_level);
 
 			/*
 			 * libjpeg 8.0 has code for handling a JPEG image
