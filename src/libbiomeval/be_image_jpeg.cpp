@@ -32,6 +32,7 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
+	jpeg_error_mgr.output_message = JPEG::output_message;
 
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
@@ -74,6 +75,7 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
+	jpeg_error_mgr.output_message = JPEG::output_message;
 
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
@@ -122,6 +124,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
+	jpeg_error_mgr.output_message = JPEG::output_message;
 
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
@@ -290,6 +293,13 @@ BiometricEvaluation::Image::JPEG::error_exit(
 	error << cinfo->err->jpeg_message_table[cinfo->err->last_jpeg_message];
 
 	throw Error::StrategyError(error.str());
+}
+
+void
+BiometricEvaluation::Image::JPEG::output_message(
+    j_common_ptr cinfo)
+{
+	/* nop */
 }
 
 int

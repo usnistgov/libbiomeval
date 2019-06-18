@@ -106,7 +106,19 @@ namespace BiometricEvaluation
 			error_exit(
 			    j_common_ptr cinfo);
 
-			/* 
+			/**
+			 * @brief
+			 * Override for libjpeg's output_message to avoid
+			 * printing to the console.
+			 *
+			 * @param cinfo
+			 * libjpeg common struct.
+			 */
+			static void
+			output_message(
+			    j_common_ptr cinfo);
+
+			/*
 			 * libjpeg 8.0 has code for handling a JPEG image
 			 * in a buffer location, so don't compile ours.
 			 */
