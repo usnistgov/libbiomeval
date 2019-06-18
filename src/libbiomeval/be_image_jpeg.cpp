@@ -316,6 +316,10 @@ BiometricEvaluation::Image::JPEG::emit_message(
     j_common_ptr cinfo,
     int msg_level)
 {
+	/* We only care about warnings */
+	if (msg_level >= 0)
+		return;
+
 	if (cinfo->client_data == nullptr)
 		return;
 
