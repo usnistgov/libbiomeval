@@ -2,5 +2,6 @@
 *.a
 *.o
 *.so
+*.so.*
 *.dylib
 nbis/big_endian_check
