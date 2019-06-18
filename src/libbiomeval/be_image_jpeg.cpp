@@ -74,7 +74,7 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
-	
+
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
@@ -86,7 +86,7 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	JPEG::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
 	    this->getDataSize());
 #endif
-	
+
 	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)
 		throw Error::StrategyError("jpeg_read_header()");
 	if (jpeg_start_decompress(&dinfo) != TRUE)
@@ -117,12 +117,12 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 {
 	if (depth != 8 && depth != 1)
 		throw Error::ParameterError("Invalid value for bit depth");
-	
+
 	/* Initialize custom JPEG error manager to throw exceptions */
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
-	
+
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
 	jpeg_create_decompress(&dinfo);
@@ -134,7 +134,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	JPEG::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
 	    this->getDataSize());
 #endif
-	
+
 	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)
 		throw Error::StrategyError("jpeg_read_header()");
 
@@ -166,7 +166,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 		switch (depth) {
 		case 1:
 			/*
-			 * Quantize 1 bit per pixel value into an 8 bit 
+			 * Quantize 1 bit per pixel value into an 8 bit
 			 * container by mapping 1 to 255.
 			 *
 			 * TODO: Use a colormap to support 2-7 bit depth.
@@ -193,13 +193,13 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 {
 	uint8_t *markerBuf = (uint8_t *)data;
 	uint8_t *endPtr = (uint8_t *)data + size;
-	
+
 	/*
 	 * JPEG markers (ISO/IEC 10918-1:1993)
 	 */
 	static const uint16_t startOfScan = 0xFFDA;
 	static const uint16_t startOfImage = 0xFFD8;
-	
+
 	/* Start of frame, non-differential, Huffman coding */
 	static const uint16_t SOFBaselineDCT = 0xFFC0;
 	static const uint16_t SOFExtendedSequentialDCT = 0xFFC1;
@@ -217,26 +217,26 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 	static const uint16_t SOFDifferentialSequentialDCTArith = 0xFFCD;
 	static const uint16_t SOFDifferentialProgressiveDCTArith = 0xFFCE;
 	static const uint16_t SOFDifferentialLosslessArith = 0xFFCF;
-	
+
 	/* First marker should be start of image */
 	uint16_t marker;
 	if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
 		return (false);
 	if (marker != startOfImage)
 		return (false);
-	
+
 	/* Read markers until end of buffer or an identifying marker is found */
 	for (;;) {
 		/* Get next 16 bits */
 		if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
 			return (false);
-			
-		/* 16-bit markers start with 0xFF but aren't 0xFF00 or 0xFFFF */ 
+
+		/* 16-bit markers start with 0xFF but aren't 0xFF00 or 0xFFFF */
 		while (((marker >> 8) != 0xFF) &&
 		    ((marker == 0xFF00) || (marker == 0xFFFF)))
 			if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
 				return (false);
-		
+
 		switch (marker) {
 		/* Lossy start of frame markers */
 		case SOFBaselineDCT:
@@ -267,17 +267,17 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 			/* FALLTHROUGH */
 		case SOFDifferentialLosslessArith:
 			/* FALLTHROUGH */
-					
+
 		/* Start of scan found before a start of frame */
 		case startOfScan:
 			return (false);
 		}
-		
+
 		/* Reposition marker pointer after current marker segment */
 		if (JPEG::getc_skip_marker_segment(marker, &markerBuf, endPtr))
 			return (false);
 	}
-	
+
 	return (false);
 }
 
@@ -349,7 +349,7 @@ BiometricEvaluation::Image::JPEG::init_source_mem(
 {
 	/* No work necessary */
 }
-			
+
 boolean
 BiometricEvaluation::Image::JPEG::fill_input_buffer_mem(
     j_decompress_ptr cinfo)

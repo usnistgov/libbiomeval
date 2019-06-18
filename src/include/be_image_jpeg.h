@@ -65,7 +65,7 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			getRawData()
 			    const;
-	
+
 			/**
 			 * Whether or not data is a Lossy JPEG image.
 			 *
@@ -82,7 +82,7 @@ namespace BiometricEvaluation
 			isJPEG(
 			    const uint8_t *data,
 			    uint64_t size);
-			
+
 			static int
 			getc_skip_marker_segment(
 			    const unsigned short marker,
@@ -125,7 +125,7 @@ namespace BiometricEvaluation
 			static void
 			init_source_mem(
 			    j_decompress_ptr cinfo);
-			
+
 			static boolean
 			fill_input_buffer_mem(
 			    j_decompress_ptr cinfo);
