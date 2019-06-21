@@ -150,3 +150,43 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Finger::FingerImageCode,
     BE_Finger_FingerImageCode_EnumToStringMap);
 
+const std::map<BiometricEvaluation::Finger::CaptureTechnology, std::string>
+BE_Finger_CaptureTechnology_EnumToStringMap = {
+	{BE::Finger::CaptureTechnology::Unknown, "Unknown"},
+	{BE::Finger::CaptureTechnology::Other, "Other"},
+	{BE::Finger::CaptureTechnology::ScannedInkOnPaper, "Scanned Ink on "
+	    "Paper"},
+	{BE::Finger::CaptureTechnology::OpticalTIRBright, "Optical Total "
+	    "Internal Reflection - Bright Field"},
+	{BE::Finger::CaptureTechnology::OpticalTIRDark, "Optical Total "
+	    "Internal Reflection - Dark Field"},
+	{BE::Finger::CaptureTechnology::OpticalDINative, "Optical Direct "
+	    "Imaging - Native"},
+	{BE::Finger::CaptureTechnology::OpticalDILowFrequenceyUnwrapped,
+	    "Optical Direct Imaging - Low Frequency Unwrapped"},
+	{BE::Finger::CaptureTechnology::ThreeDimensionalHighFrequencyUnwrapped,
+	    "Three Dimensional Imaging - High Frequency Unwrapped"},
+	{BE::Finger::CaptureTechnology::Capacitive, "Capacitive"},
+	{BE::Finger::CaptureTechnology::CapacitiveRF, "Capacitive - Radio "
+	    "Frequency"},
+	{BE::Finger::CaptureTechnology::Electroluminescent,
+	    "Electro-luminescent Optical Direct Imaging"},
+	{BE::Finger::CaptureTechnology::ReflectedUltrasonic, "Reflected "
+	    "Ultrasonic Image"},
+	{BE::Finger::CaptureTechnology::UltrasonicImpediography, "Ultrasonic "
+	    "Impediography"},
+	{BE::Finger::CaptureTechnology::Thermal, "Thermal Imaging"},
+	{BE::Finger::CaptureTechnology::DirectPressureSensitive, "Direct "
+	    "Pressure Sensitive"},
+	{BE::Finger::CaptureTechnology::IndirectPressure, "Indirect Pressure"},
+	{BE::Finger::CaptureTechnology::LiveTape, "Live Tape (One Time Use)"},
+	{BE::Finger::CaptureTechnology::LatentImpression, "Latent Impression"},
+	{BE::Finger::CaptureTechnology::LatentPhoto, "Latent Photo"},
+	{BE::Finger::CaptureTechnology::LatentMold, "Latent Molded/Cast "
+	    "Impression"},
+	{BE::Finger::CaptureTechnology::LatentTracing, "Latent Tracing"},
+	{BE::Finger::CaptureTechnology::LatentLift, "Latent Lift"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Finger::CaptureTechnology,
+    BE_Finger_CaptureTechnology_EnumToStringMap);

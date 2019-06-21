@@ -150,6 +150,33 @@ namespace BiometricEvaluation
 			NA
 		};
 		using PositionDescriptors = std::map<Position, FingerImageCode>;
+
+		/** Friction Ridge Capture Technology codes. */
+		enum class CaptureTechnology
+		{
+			Unknown					= 0,
+			Other					= 1,
+			ScannedInkOnPaper			= 2,
+			OpticalTIRBright			= 3,
+			OpticalTIRDark				= 4,
+			OpticalDINative				= 5,
+			OpticalDILowFrequenceyUnwrapped		= 6,
+			ThreeDimensionalHighFrequencyUnwrapped	= 7,
+			Capacitive				= 9,
+			CapacitiveRF				= 10,
+			Electroluminescent			= 11,
+			ReflectedUltrasonic			= 12,
+			UltrasonicImpediography			= 13,
+			Thermal					= 14,
+			DirectPressureSensitive			= 15,
+			IndirectPressure			= 16,
+			LiveTape				= 17,
+			LatentImpression			= 18,
+			LatentPhoto				= 19,
+			LatentMold				= 20,
+			LatentTracing				= 21,
+			LatentLift				= 22
+		};
 	}
 }
 
@@ -168,6 +195,10 @@ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Finger::FingerImageCode,
     BE_Finger_FingerImageCode_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Finger::CaptureTechnology,
+    BE_Finger_CaptureTechnology_EnumToStringMap);
 
 #endif /* __BE_FINGER_H__ */
 

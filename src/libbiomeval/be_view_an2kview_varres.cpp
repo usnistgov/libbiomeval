@@ -116,6 +116,14 @@ BiometricEvaluation::View::AN2KViewVariableResolution::getUserDefinedField(
 	throw Error::StrategyError("Field " + std::to_string(field) +
 	    " could not be cached");
 }
+
+BiometricEvaluation::Finger::CaptureTechnology
+BiometricEvaluation::View::AN2KViewVariableResolution::getCaptureTechnology()
+    const
+{
+	return (this->_frct);
+}
+
 /******************************************************************************/
 /* Local functions.                                                           */
 /******************************************************************************/
@@ -178,6 +186,19 @@ parsePositionDescriptors(
 	}
 	
 	return (pd);
+}
+
+BiometricEvaluation::Finger::CaptureTechnology
+BiometricEvaluation::View::AN2KViewVariableResolution::
+    convertCaptureTechnology(
+    const char *str)
+{
+	const long frct = strtol((const char *)str, nullptr, 10);
+	try {
+		return (to_enum<BE::Finger::CaptureTechnology>(frct));
+	} catch (const BE::Error::ObjectDoesNotExist&) {
+		throw Error::DataError("Invalid FRCT value");
+	}
 }
 
 std::ostream&
@@ -423,6 +444,11 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 	}
 	if (lookup_ANSI_NIST_field(&field, &idx, quality_id, record) == TRUE)
 		_qms = extractQuality(field, type);
+
+	/* FrictionRidgeCaptureTechnology (FRCT) */
+	if (lookup_ANSI_NIST_field(&field, &idx, 901, record) == TRUE)
+		this->_frct = convertCaptureTechnology(
+		    (char *)field->subfields[0]->items[0]->value);
 }
 
 BiometricEvaluation::Memory::uint8Array

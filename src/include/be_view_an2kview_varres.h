@@ -117,7 +117,18 @@ namespace BiometricEvaluation
 			 *	The comment field, empty string if not present.
 			 */
 			std::string getComment() const;
-			
+
+			/**
+			 * @brief
+			 * Obtain capture technology used to create this image.
+			 *
+			 * @return
+			 * Capture technology used to create this image.
+			 */
+			Finger::CaptureTechnology
+			getCaptureTechnology()
+			    const;
+
 			/**
 			 * @brief
 			 * Obtain a user-defined field.
@@ -165,6 +176,25 @@ namespace BiometricEvaluation
 			parseUserDefinedField(
 			    const RECORD* const record,
 			    int fieldID);
+
+			/**
+			 * @brief
+			 * Convert a friction ridge capture technology code from
+			 * a string.
+			 *
+			 * @param str
+			 * String read from ANSI/NIST file representing a FRCT
+			 * code.
+			 *
+			 * @return
+			 * Decoded CaptureTechnology.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * Invalid FRCT code encoded within str.
+			 */
+			static Finger::CaptureTechnology
+			convertCaptureTechnology(
+			    const char *str);
 
 		protected:
 			/**
@@ -250,6 +280,8 @@ namespace BiometricEvaluation
 
 			Feature::FGPSet _positions;
 			Finger::Impression _imp;
+			Finger::CaptureTechnology _frct{
+			    Finger::CaptureTechnology::Unknown};
 			std::string _sourceAgency;
 			std::string _captureDate;
 			std::string _comment;
