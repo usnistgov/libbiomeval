@@ -72,7 +72,7 @@ BE_Finger_Position_EnumToStringMap = {
 	{BE::Finger::Position::PlainRightFourTips, "Plain Right Four Fingertips"},
 	{BE::Finger::Position::PlainLeftFourTips, "Plain Left Four Fingertips"},
 	{BE::Finger::Position::PlainRightFiveTips, "Plain Right Five Fingertips"},
-	{BE::Finger::Position::PlainLeftFiveTips, "Plain Left Five Fingertips"} 
+	{BE::Finger::Position::PlainLeftFiveTips, "Plain Left Five Fingertips"}
 };
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Finger::Position,
@@ -80,41 +80,50 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
 
 const std::map<BiometricEvaluation::Finger::Impression, std::string>
 BE_Finger_Impression_EnumToStringMap = {
-	{BE::Finger::Impression::LiveScanPlain, "Live Scan Plain"},
-	{BE::Finger::Impression::LiveScanRolled, "Live Scan Rolled"},
-	{BE::Finger::Impression::NonLiveScanPlain, "Non-Live Scan Plain"},
-	{BE::Finger::Impression::NonLiveScanRolled, "Non-Live Scan Rolled"},
-	{BE::Finger::Impression::LatentImpression, "Latent Impression"},
-	{BE::Finger::Impression::LatentTracing, "Latent Tracing"},
-	{BE::Finger::Impression::LatentPhoto, "Latent Photo"},
-	{BE::Finger::Impression::LatentLift, "Latent Lift"},
-	{BE::Finger::Impression::LiveScanVerticalSwipe, "Live Scan Vertical "
-	    "Swipe"},
-	{BE::Finger::Impression::LiveScanPalm, "Live Scan Palm"},
-	{BE::Finger::Impression::NonLiveScanPalm, "Non Live Scan Palm"},
+	{BE::Finger::Impression::PlainContact, "Plain Contact"},
+	{BE::Finger::Impression::RolledContact, "Rolled Contact"},
+	{BE::Finger::Impression::NonLiveScanPlain, "Non-Live Scan Plain "
+	    "(Deprecated)"},
+	{BE::Finger::Impression::NonLiveScanRolled, "Non-Live Scan Rolled "
+	    "(Deprecated)"},
+	{BE::Finger::Impression::LatentImage, "Latent Image"},
+	{BE::Finger::Impression::LatentTracing, "Latent Tracing (Deprecated)"},
+	{BE::Finger::Impression::LatentPhoto, "Latent Photo (Deprecated)"},
+	{BE::Finger::Impression::LatentLift, "Latent Lift (Deprecated)"},
+	{BE::Finger::Impression::LiveScanSwipe, "Live Scan Swipe"},
+	{BE::Finger::Impression::LiveScanPalm, "Live Scan Palm (Deprecated)"},
+	{BE::Finger::Impression::NonLiveScanPalm, "Non Live Scan Palm "
+	    "(Deprecated)"},
 	{BE::Finger::Impression::LatentPalmImpression, "Latent Palm "
-	    "Impression"},
-	{BE::Finger::Impression::LatentPalmTracing, "Latent Palm Tracing"},
-	{BE::Finger::Impression::LatentPalmPhoto, "Latent Palm Photo"},
-	{BE::Finger::Impression::LatentPalmLift, "Latent Palm Lift"},
+	    "Impression (Deprecated)"},
+	{BE::Finger::Impression::LatentPalmTracing, "Latent Palm Tracing "
+	    "(Deprecated)"},
+	{BE::Finger::Impression::LatentPalmPhoto, "Latent Palm Photo "
+	    "(Deprecated)"},
+	{BE::Finger::Impression::LatentPalmLift, "Latent Palm Lift "
+	     "(Deprecated)"},
 	{BE::Finger::Impression::LiveScanOpticalContactPlain,
-	    "Live Scan Optical Contact Plain"},
+	    "Live Scan Optical Contact Plain (Deprecated)"},
 	{BE::Finger::Impression::LiveScanOpticalContactRolled,
-	    "Live Scan Optical Contact Rolled"},
+	    "Live Scan Optical Contact Rolled (Deprecated)"},
 	{BE::Finger::Impression::LiveScanNonOpticalContactPlain,
-	    "Live Scan Non-Optical Contact Plain"},
+	    "Live Scan Non-Optical Contact Plain (Deprecated)"},
 	{BE::Finger::Impression::LiveScanNonOpticalContactRolled,
-	    "Live Scan Non-Optical Contact Rolled"},
-	{BE::Finger::Impression::LiveScanOpticalContactlessPlain,
-	    "Live Scan Optical Contactless Plain"},
-	{BE::Finger::Impression::LiveScanOpticalContactlessRolled,
-	    "Live Scan Optical Contactless Rolled"},
+	    "Live Scan Non-Optical Contact Rolled (Deprecated)"},
+	{BE::Finger::Impression::ContactlessPlainStationarySubject,
+	    "Contactless Plain Stationary Subject"},
+	{BE::Finger::Impression::ContactlessRolledStationarySubject,
+	    "Contactless Rolled Stationary Subject"},
 	{BE::Finger::Impression::LiveScanNonOpticalContactlessPlain,
-	    "Live Scan Non-Optical Contactless Plain"},
+	    "Live Scan Non-Optical Contactless Plain (Deprecated)"},
 	{BE::Finger::Impression::LiveScanNonOpticalContactlessRolled,
-	    "Live Scan Non-Optical Contactless Rolled"},
+	    "Live Scan Non-Optical Contactless Rolled (Deprecated)"},
 	{BE::Finger::Impression::Other, "Other"},
-	{BE::Finger::Impression::Unknown, "Unknown"}
+	{BE::Finger::Impression::Unknown, "Unknown"},
+	{BE::Finger::Impression::ContactlessRolledMovingSubject,
+	    "Contactless Rolled Moving Subject"},
+	{BE::Finger::Impression::ContactlessPlainMovingSubject,
+	    "Contactless Plain Rolled Subject"}
 };
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Finger::Impression,

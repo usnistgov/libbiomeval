@@ -17,7 +17,7 @@
 
 #include <be_framework_enumeration.h>
 
-namespace BiometricEvaluation 
+namespace BiometricEvaluation
 {
 	/**
 	 * @brief
@@ -50,7 +50,7 @@ namespace BiometricEvaluation
 			Amputation,
 			Unknown
 		};
-		    
+
 		/**
 		 * @brief
 		 * Finger position codes.
@@ -101,14 +101,18 @@ namespace BiometricEvaluation
 		/** Finger, palm, and latent impression types. */
 		enum class Impression
 		{
+			PlainContact				= 0,
 			LiveScanPlain				= 0,
+			RolledContact				= 1,
 			LiveScanRolled				= 1,
 			NonLiveScanPlain			= 2,
 			NonLiveScanRolled			= 3,
+			LatentImage				= 4,
 			LatentImpression			= 4,
 			LatentTracing				= 5,
 			LatentPhoto				= 6,
 			LatentLift				= 7,
+			LiveScanSwipe				= 8,
 			LiveScanVerticalSwipe			= 8,
 			LiveScanPalm				= 10,
 			NonLiveScanPalm				= 11,
@@ -120,14 +124,18 @@ namespace BiometricEvaluation
 			LiveScanOpticalContactRolled		= 21,
 			LiveScanNonOpticalContactPlain		= 22,
 			LiveScanNonOpticalContactRolled		= 23,
+			ContactlessPlainStationarySubject	= 24,
 			LiveScanOpticalContactlessPlain		= 24,
+			ContactlessRolledStationarySubject	= 25,
 			LiveScanOpticalContactlessRolled	= 25,
 			LiveScanNonOpticalContactlessPlain	= 26,
 			LiveScanNonOpticalContactlessRolled	= 27,
 			Other					= 28,
-			Unknown					= 29
+			Unknown					= 29,
+			ContactlessRolledMovingSubject		= 41,
+			ContactlessPlainMovingSubject		= 42
 		};
-		    
+
 		/** Joint and tip codes. */
 		enum class FingerImageCode {
 			EJI = 0,
