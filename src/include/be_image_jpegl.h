@@ -40,7 +40,7 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			getRawData()
 			    const;
-	
+
 			/**
 			 * Whether or not data is a Lossless JPEG image.
 			 *

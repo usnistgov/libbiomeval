@@ -86,7 +86,7 @@ BiometricEvaluation::Image::Image::getDimensions()
 	return (_dimensions);
 }
 
-uint32_t 
+uint32_t
 BiometricEvaluation::Image::Image::getColorDepth()
     const
 {
@@ -124,7 +124,7 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 {
 	if (depth != 16 && depth != 8 && depth != 1)
 		throw Error::ParameterError("Invalid value for bit depth");
-		
+
 	/* Return no-effort conversion */
 	if (this->getColorDepth() == depth)
 		return (this->getRawData());
@@ -146,7 +146,7 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 
 	uint16_t rValue, bValue, gValue;
 
-	/* 
+	/*
 	 * Convert to 16-bit or 8-bit. 1-bit conversions will be quantized
 	 * after converting to 8-bit.
 	 */
@@ -273,7 +273,7 @@ BiometricEvaluation::Image::Image::setDimensions(
 {
 	_dimensions = dimensions;
 }
-	
+
 void
 BiometricEvaluation::Image::Image::setColorDepth(
     const uint32_t colorDepth)
@@ -390,7 +390,7 @@ BiometricEvaluation::Image::Image::getCompressionAlgorithm(
 		return (CompressionAlgorithm::WSQ20);
 	else if (TIFF::isTIFF(data, size))
 		return (CompressionAlgorithm::TIFF);
-		
+
 	return (CompressionAlgorithm::None);
 }
 

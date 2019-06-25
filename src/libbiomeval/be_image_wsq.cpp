@@ -7,7 +7,7 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
- 
+
 #include <cstdio>
 
 extern "C" {
@@ -35,7 +35,7 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	if ((rv = getc_marker_wsq(&marker, SOI_WSQ, &marker_buf,
 	    wsq_buf + size)))
 		throw Error::StrategyError("libwsq could not read to SOI_WSQ");
-	
+
 	/* Step through any tables up to the "start of frame" marker */
 	for (;;) {
 		if ((rv = getc_marker_wsq(&marker, TBLS_N_SOF, &marker_buf,
@@ -45,14 +45,14 @@ BiometricEvaluation::Image::WSQ::WSQ(
 
 		if (marker == SOF_WSQ)
 			break;
-			
+
 		if ((rv = getc_ushort(&tbl_size, &marker_buf, wsq_buf + size)))
 			throw Error::StrategyError("libwsq could not read size "
 			    "of table");
 		/* Table size includes size of field but not the marker */
 		marker_buf += tbl_size - sizeof(tbl_size);
 	}
-	
+
 	/* Read the frame header */
 	FRM_HEADER_WSQ wsq_header;
 	if ((rv = getc_frame_header_wsq(&wsq_header, &marker_buf,
@@ -75,9 +75,9 @@ BiometricEvaluation::Image::WSQ::WSQ(
 		/* WSQ is a 500 ppi specification */
 		setResolution(Resolution(500, 500, Resolution::Units::PPI));
 	}
-	
-	/* 
-	 * "Source fingerprint images shall be captured with 8 bits of 
+
+	/*
+	 * "Source fingerprint images shall be captured with 8 bits of
 	 * precision per pixel."
 	 */
 	setColorDepth(8);

@@ -50,7 +50,7 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 		throw Error::NotImplemented("Colorspace " +
 		    std::to_string(image->color_space));
 
-	/* 
+	/*
 	 * Assign Image class instance variables.
 	 */
 
@@ -77,7 +77,7 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 		setResolution(Resolution(72, 72, Resolution::Units::PPI));
 	}
 
-	/* 
+	/*
 	 * Component definition optional, but appears to only be present when
 	 * not Grayscale or RGB (such as RGBA).
 	 */
@@ -192,7 +192,7 @@ BiometricEvaluation::Image::JPEG2000::isJPEG2000(
 	};
 	if (size < SOC_size)
 		return (false);
-	
+
 	return (memcmp(data, SOC, SOC_size) == 0);
 }
 

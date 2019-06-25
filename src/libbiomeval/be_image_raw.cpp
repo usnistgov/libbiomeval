@@ -12,8 +12,8 @@
 #include <be_memory_autoarray.h>
 
 BiometricEvaluation::Image::Raw::Raw(
-    const uint8_t *data, 
-    const uint64_t size, 
+    const uint8_t *data,
+    const uint64_t size,
     const Size dimensions,
     const uint32_t colorDepth,
     const uint16_t bitDepth,

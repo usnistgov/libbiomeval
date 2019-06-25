@@ -36,7 +36,7 @@ namespace BiometricEvaluation
 		 * @details
 		 * Images are represented by their size, depth, and resolution
 		 * on the X and Y axes. The image data can be of any format,
-		 * raw, JPEG, etc.  Implementations of this abstraction provide 
+		 * raw, JPEG, etc.  Implementations of this abstraction provide
 		 * the getRawData method to convert image data to 'raw'
 		 * format.
 		 *
@@ -118,7 +118,7 @@ namespace BiometricEvaluation
 
 			/**
 		 	 * @brief
-			 * Accessor for the resolution of the image 
+			 * Accessor for the resolution of the image
 			 *
 			 * @return
 			 *	Resolution struct
@@ -131,7 +131,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the image data. The data returned
 			 * is likely encoded in a specialized format.
-			 * 
+			 *
 			 * @return
 			 *	AutoArray holding image data.
 			 */
@@ -143,7 +143,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
-			 * 
+			 *
 			 * @return
 			 *	AutoArray holding raw image data.
 			 *
@@ -158,7 +158,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
-			 * 
+			 *
 			 * @param[in] removeAlphaChannelIfPresent
 			 * Whether or not to remove an alpha channel if one
 			 * exists.
@@ -178,7 +178,7 @@ namespace BiometricEvaluation
 			getRawData(
 			    const bool removeAlphaChannelIfPresent)
 			    const;
-			    
+
 			/**
 			 * @brief
 			 * Accessor for decompressed data in grayscale.
@@ -221,7 +221,7 @@ namespace BiometricEvaluation
 			/**
 		 	 * @brief
 			 * Accessor for the dimensions of the image in pixels.
-			 * 
+			 *
 			 * @return
 			 * 	Coordinate object containing dimensions in
 			 *	pixels.
@@ -267,11 +267,11 @@ namespace BiometricEvaluation
 			}
 
 			virtual ~Image();
-			
+
 			/*
 			 * Buffer type conversions.
 			 */
-			
+
 			/**
 			 * @brief
 			 * Calculate an equivalent color value for a color in
@@ -292,11 +292,11 @@ namespace BiometricEvaluation
 			    uint64_t color,
 			    uint64_t maxColorValue,
 			    uint8_t depth);
-			    
+
 			/*
 			 * Static functions.
 			 */
-			    
+
 			/**
 			 * @brief
 			 * Determine the image type of a buffer of image data
@@ -319,7 +319,7 @@ namespace BiometricEvaluation
 			openImage(
 			    const uint8_t *data,
 			    const uint64_t size);
-			    
+
 			/**
 			 * @brief
 			 * Determine the image type of a buffer of image data
@@ -339,7 +339,7 @@ namespace BiometricEvaluation
 			static std::shared_ptr<Image>
 			openImage(
 			    const Memory::uint8Array &data);
-			    
+
 			/**
 			 * @brief
 			 * Determine the image type of an image file and create
@@ -361,7 +361,7 @@ namespace BiometricEvaluation
 			static std::shared_ptr<Image>
 			openImage(
 			    const std::string &path);
-			    
+
 			/**
 			 * @brief
 			 * Determine the compression algorithm of a buffer
@@ -384,7 +384,7 @@ namespace BiometricEvaluation
 			getCompressionAlgorithm(
 			    const uint8_t *data,
 			    const uint64_t size);
-			  
+
 			/**
 			 * @brief
 			 * Determine the compression algorithm of a buffer
@@ -404,7 +404,7 @@ namespace BiometricEvaluation
 			static CompressionAlgorithm
 			getCompressionAlgorithm(
 			    const Memory::uint8Array &data);
-			
+
 			/**
 			 * @brief
 			 * Determine the compression algorithm of a file.
@@ -418,7 +418,7 @@ namespace BiometricEvaluation
 			 * @throw Error::ObjectDoesNotExist
 			 *	path does not exist.
 			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying 
+			 *	An error occurred when using the underlying
 			 *	storage system.
 			 *
 			 * @attention
@@ -464,14 +464,14 @@ namespace BiometricEvaluation
 			/**
 		 	 * @brief
 			 * Mutator for the dimensions of the image in pixels.
-			 * 
+			 *
 			 * @param[in] dimensions
 			 * 	Dimensions of image (pixel).
 			 */
 			void
 			setDimensions(
 			    const Size dimensions);
-	
+
 			/**
 		 	 * @brief
 			 * Mutator for the color depth of the image in bits.
@@ -485,7 +485,7 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Mutator for the number of bits per component for 
+			 * Mutator for the number of bits per component for
 			 * color components in the image, in bits.
 			 *
 			 * @param[in] bitDepth
@@ -494,7 +494,7 @@ namespace BiometricEvaluation
 			void
 			setBitDepth(
 			    const uint16_t bitDepth);
-			    
+
 			/** @return Const pointer to buffer underlying _data. */
 			const uint8_t *
 			getDataPointer()

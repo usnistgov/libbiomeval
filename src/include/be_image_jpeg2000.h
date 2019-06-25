@@ -53,11 +53,11 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			getRawData()
 			    const;
-			    
+
 			Memory::uint8Array
 			getRawGrayscaleData(
 			    uint8_t depth) const;
-	
+
 			/**
 			 * Whether or not data is a JPEG-2000 image.
 			 *
@@ -132,7 +132,7 @@ namespace BiometricEvaluation
 			 *
 			 * @return
 			 * 0-based offset of the start of the marker.
-			 * 
+			 *
 			 * @throw Error::ObjectDoesNotExist
 			 * marker not found within buffer.
 			 */
@@ -160,7 +160,7 @@ namespace BiometricEvaluation
 			 *	by marker, in bytes.
 			 *
 			 * @return
-			 *	An AutoArray of size value_size with the 
+			 *	An AutoArray of size value_size with the
 			 *	contents of the box indicated by marker.
 			 *
 			 * @throw Error::ObjectDoesNotExist
@@ -176,7 +176,7 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Parse display resolution information from the 
+			 * Parse display resolution information from the
 			 * resc or resd markers.
 			 *
 			 * @param res
@@ -227,7 +227,7 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * libopenjp2 callback to free data wrapped in stream.
-			 * 
+			 *
 			 * @param p_user_data
 			 * Pointer to a Memory::IndexedBuffer.
 			 */

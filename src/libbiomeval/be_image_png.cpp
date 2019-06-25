@@ -86,7 +86,7 @@ BiometricEvaluation::Image::PNG::PNG(
 	/* Read encoded PNG data from an AutoArray using our extension */
 	png_buffer png_buf = { this->getDataPointer(), this->getDataSize(), 0 };
 	png_set_read_fn(png_ptr, &png_buf, png_read_mem_src);
-	
+
 	/* Read the header information */
 	png_infop png_info_ptr = png_create_info_struct(png_ptr);
 	if (png_info_ptr == nullptr) {
@@ -101,14 +101,14 @@ BiometricEvaluation::Image::PNG::PNG(
 	this->setBitDepth(png_get_bit_depth(png_ptr, png_info_ptr));
 	setDimensions(Size(png_get_image_width(png_ptr, png_info_ptr),
 	    png_get_image_height(png_ptr, png_info_ptr)));
-	    
+
 	png_uint_32 xres, yres;
 	int32_t type;
 	if (png_get_pHYs(png_ptr, png_info_ptr, &xres, &yres, &type) ==
 	    PNG_INFO_pHYs) {
 	    	switch (type) {
 		case PNG_RESOLUTION_METER:
-			setResolution(Resolution(xres / 100.0, yres / 100.0, 
+			setResolution(Resolution(xres / 100.0, yres / 100.0,
 			    Resolution::Units::PPCM));
 			break;
 		case PNG_RESOLUTION_UNKNOWN:
@@ -117,8 +117,8 @@ BiometricEvaluation::Image::PNG::PNG(
 			/* FALLTHROUGH */
 		default:
 			/* FALLTHROUGH */
-			/* 
-			 * For our purposes, there really is no good way to 
+			/*
+			 * For our purposes, there really is no good way to
 			 * unambiguously set a resolution.
 			 */
 			setResolution(Resolution(0, 0,
@@ -126,9 +126,9 @@ BiometricEvaluation::Image::PNG::PNG(
 			break;
 		}
 	} else {
-		/* 
+		/*
 		 * Assume resolution is 72 dpi on both axis if resolution
-		 * is not set, which is often the case in order to reduce 
+		 * is not set, which is often the case in order to reduce
 		 * file size.
 		 */
 		setResolution(Resolution(72, 72, Resolution::Units::PPI));
@@ -136,7 +136,7 @@ BiometricEvaluation::Image::PNG::PNG(
 	png_byte color_type{png_get_color_type(png_ptr, png_info_ptr)};
 	this->setHasAlphaChannel((color_type & PNG_COLOR_MASK_ALPHA) ==
 	    PNG_COLOR_MASK_ALPHA);
-	    
+
 	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
 }
 
@@ -160,7 +160,7 @@ BiometricEvaluation::Image::PNG::getRawData()
 	/* Read encoded PNG data from a buffer using our extension */
 	png_buffer png_buf = { this->getDataPointer(), this->getDataSize(), 0 };
 	png_set_read_fn(png_ptr, &png_buf, png_read_mem_src);
-	
+
 	/* Read the header information */
 	png_infop png_info_ptr = png_create_info_struct(png_ptr);
 	if (png_info_ptr == nullptr) {
@@ -174,7 +174,7 @@ BiometricEvaluation::Image::PNG::getRawData()
 	if ((png_get_bit_depth(png_ptr, png_info_ptr) > 8) &&
 	    BiometricEvaluation::Memory::isLittleEndian())
 		png_set_swap(png_ptr);
-	
+
 	/* Determine size of decompressed data */
 	const png_uint_32 rowbytes = png_get_rowbytes(png_ptr, png_info_ptr);
 	const uint32_t height = this->getDimensions().ySize;
