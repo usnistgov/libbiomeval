@@ -201,11 +201,44 @@ BiometricEvaluation::Image::JPEG2000::isJPEG2000(
 }
 
 void
-BiometricEvaluation::Image::JPEG2000::openjpeg_message(
+BiometricEvaluation::Image::JPEG2000::openjpeg_error(
     const char *msg,
     void *client_data)
 {
+	if (client_data != nullptr) {
+		const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
+		jp2->getMessageHandler()("libopenjp2: " + std::string(msg),
+		    IO::MessageLevel::Error, client_data);
+	}
+
+	/* We can't continue on errors, so if handler won't throw, we will. */
 	throw Error::StrategyError("libopenjp2: " + std::string(msg));
+}
+
+void
+BiometricEvaluation::Image::JPEG2000::openjpeg_warning(
+    const char *msg,
+    void *client_data)
+{
+	if (client_data == nullptr)
+		return;
+
+	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
+	jp2->getMessageHandler()("libopenjp2: " + std::string(msg),
+	    IO::MessageLevel::Warning, client_data);
+}
+
+void
+BiometricEvaluation::Image::JPEG2000::openjpeg_info(
+    const char *msg,
+    void *client_data)
+{
+	if (client_data == nullptr)
+		return;
+
+	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
+	jp2->getMessageHandler()("libopenjp2: " + std::string(msg),
+	    IO::MessageLevel::Debug, client_data);
 }
 
 bool
@@ -323,9 +356,9 @@ BiometricEvaluation::Image::JPEG2000::getDecompressionCodec()
 	}
 
 	/* libopenjpg2 error callbacks */
-	opj_set_error_handler(codec, openjpeg_message, nullptr);
-	opj_set_warning_handler(codec, openjpeg_message, nullptr);
-	opj_set_info_handler(codec, nullptr, nullptr);
+	opj_set_error_handler(codec, openjpeg_error, (void *)this);
+	opj_set_warning_handler(codec, openjpeg_warning, (void *)this);
+	opj_set_info_handler(codec, openjpeg_info, (void *)this);
 
 	/* Use default decoding parameters, except codec, which is "unknown" */
 	opj_dparameters parameters;

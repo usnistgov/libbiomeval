@@ -102,25 +102,46 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Callback for output from libopenjpeg.
+			 * Callback for error output from libopenjpeg.
 			 *
 			 * @param msg
-			 *	Message from libopenjpeg
+			 * Error from libopenjpeg
 			 * @param client_data
-			 *	Ignored by JPEG2000
-			 *
-			 * @throw Error::StrategyError
-			 *	Always thrown with msg.
-			 *
-			 * @note
-			 *	client_data is typically a context of sorts --
-			 *	a section of the image buffer, or
-			 *	stdout/stderr, depending on the severity of
-			 *	the alert.  Image::JPEG2000 lumps
-			 *	warnings and errors together.
+			 * Ignored by JPEG2000. We use this as a pointer to
+			 * the JPEG2000 object emitting the error.
 			 */
 			static void
-			openjpeg_message(
+			openjpeg_error(
+			    const char *msg,
+			    void *client_data);
+
+			/**
+			 * @brief
+			 * Callback for warning output from libopenjpeg.
+			 *
+			 * @param msg
+			 * Error from libopenjpeg
+			 * @param client_data
+			 * Ignored by JPEG2000. We use this as a pointer to
+			 * the JPEG2000 object emitting the warning.
+			 */
+			static void
+			openjpeg_warning(
+			    const char *msg,
+			    void *client_data);
+
+			/**
+			 * @brief
+			 * Callback for info output from libopenjpeg.
+			 *
+			 * @param msg
+			 * Error from libopenjpeg
+			 * @param client_data
+			 * Ignored by JPEG2000. We use this as a pointer to
+			 * the JPEG2000 object emitting the info.
+			 */
+			static void
+			openjpeg_info(
 			    const char *msg,
 			    void *client_data);
 
