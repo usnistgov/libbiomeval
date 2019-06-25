@@ -93,35 +93,22 @@ namespace BiometricEvaluation
 			    unsigned char **cbufptr,
 			    unsigned char *ebufptr);
 
-			/**
-			 * @brief
-			 * Obtain warnings emitted by libjpeg during the
-			 * previous JPEG operation.
-			 *
-			 * @return
-			 * Vector of warning strings emitted by libjpeg.
-			 */
-			std::vector<std::string>
-			getWarnings()
-			    const;
-
-			/**
-			 * @brief
-			 * Whether or not the previous libjpeg operation
-			 * emitted any warnings.
-			 *
-			 * @return
-			 * true if there were warnings, false otherwise.
-			 */
-			bool
-			hasWarnings()
-			    const;
-
 		protected:
 
 		private:
-			/** Warnings logged by libjpeg in previous operation. */
-			mutable std::vector<std::string> warnings{};
+			/**
+			 * @brief
+			 * Common code to call the message handler.
+			 *
+			 * @param cinfo
+			 * libjpeg struct containing message.
+			 * @param messageLevel
+			 * The type of message in cinfo.
+			 */
+			static void
+			callMessageHandler(
+			    const j_common_ptr cinfo,
+			    const IO::MessageLevel messageLevel);
 
 			/**
 			 * @brief

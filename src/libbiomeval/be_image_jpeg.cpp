@@ -9,7 +9,6 @@
  */
 
 #include <cstdio>		/* Needed for NBIS headers */
-#include <sstream>
 
 extern "C" {
 	#include <computil.h>
@@ -19,6 +18,8 @@ extern "C" {
 }
 
 #include <be_image_jpeg.h>
+
+namespace BE = BiometricEvaluation;
 
 BiometricEvaluation::Image::JPEG::JPEG(
     const uint8_t *data,
@@ -40,7 +41,6 @@ BiometricEvaluation::Image::JPEG::JPEG(
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
 	dinfo.client_data = (void *)this;
-	this->warnings.clear();
 	jpeg_create_decompress(&dinfo);
 
 #if JPEG_LIB_VERSION >= 80
@@ -87,7 +87,6 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
 	dinfo.client_data = (void *)this;
-	this->warnings.clear();
 	jpeg_create_decompress(&dinfo);
 
 #if JPEG_LIB_VERSION >= 80
@@ -139,7 +138,6 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
 	dinfo.client_data = (void *)this;
-	this->warnings.clear();
 	jpeg_create_decompress(&dinfo);
 
 #if JPEG_LIB_VERSION >= 80
@@ -297,21 +295,44 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 }
 
 void
+BiometricEvaluation::Image::JPEG::callMessageHandler(
+    const j_common_ptr cinfo,
+    const BiometricEvaluation::IO::MessageLevel messageLevel)
+{
+	if (cinfo->client_data == nullptr)
+		return;
+
+	char buffer[JMSG_LENGTH_MAX];
+	cinfo->err->format_message(cinfo, buffer);
+
+	const JPEG *jpeg = static_cast<JPEG*>(cinfo->client_data);
+	jpeg->getMessageHandler()("libjpeg: " + std::string(buffer),
+	    messageLevel, cinfo->client_data);
+}
+
+void
 BiometricEvaluation::Image::JPEG::error_exit(
     j_common_ptr cinfo)
 {
-	std::stringstream error;
-	error << "libjpeg: ";
-	error << cinfo->err->jpeg_message_table[cinfo->err->last_jpeg_message];
+	JPEG::callMessageHandler(cinfo, IO::MessageLevel::Error);
 
-	throw Error::StrategyError(error.str());
+	/*
+	 * libjpeg must stop at this point, so if the message handler didn't
+	 * throw (which is against the recommendation of the documentation),
+	 * throw here.
+	 */
+	char buffer[JMSG_LENGTH_MAX];
+	cinfo->err->format_message(cinfo, buffer);
+	throw BiometricEvaluation::Error::StrategyError(buffer);
 }
-
 void
 BiometricEvaluation::Image::JPEG::output_message(
     j_common_ptr cinfo)
 {
-	/* nop */
+	/*
+	 * This method must be defined, but we're routing all messages through
+	 * callMessageHandler().
+	 */
 }
 
 void
@@ -319,18 +340,23 @@ BiometricEvaluation::Image::JPEG::emit_message(
     j_common_ptr cinfo,
     int msg_level)
 {
-	/* We only care about warnings */
-	if (msg_level >= 0)
-		return;
+	IO::MessageLevel level{};
+	if (msg_level < 0)
+		level = IO::MessageLevel::Warning;
+	else
+		level = IO::MessageLevel::Debug;
 
-	if (cinfo->client_data == nullptr)
-		return;
-
-	char buf[JMSG_LENGTH_MAX];
-	cinfo->err->format_message(cinfo, buf);
-
-	JPEG *jpeg = static_cast<JPEG*>(cinfo->client_data);
-	jpeg->warnings.emplace_back(buf);
+	if (level == IO::MessageLevel::Warning) {
+		/* Only print first warning unless high trace level set */
+		if ((cinfo->err->num_warnings == 0) ||
+		    (cinfo->err->trace_level >= 3))
+			BE::Image::JPEG::callMessageHandler(cinfo, level);
+		cinfo->err->num_warnings++;
+	} else {
+		/* Only print debugging info if high trace level set */
+		if (cinfo->err->trace_level >= msg_level)
+			BE::Image::JPEG::callMessageHandler(cinfo, level);
+	}
 }
 
 int
@@ -356,20 +382,6 @@ BiometricEvaluation::Image::JPEG::getc_skip_marker_segment(
 	(*cbufptr) += length;
 
 	return (0);
-}
-
-std::vector<std::string>
-BiometricEvaluation::Image::JPEG::getWarnings()
-    const
-{
-	return (this->warnings);
-}
-
-bool
-BiometricEvaluation::Image::JPEG::hasWarnings()
-    const
-{
-	return (!this->warnings.empty());
 }
 
 #if JPEG_LIB_VERSION < 80
