@@ -5,3 +5,11 @@
 *.so.*
 *.dylib
 nbis/big_endian_check
+
+# Image test write raw files
+src/test/*raw
+# Test programs
+src/test/test_be_*
+# Older RS do not have subordinate files
+src/test/test_data/ImagePropertiesRS/rsdb.subordinate
+src/test/test_data/ImageRS/ImageRS.subordinate
