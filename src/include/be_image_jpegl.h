@@ -26,10 +26,14 @@ namespace BiometricEvaluation
 		public:
 			JPEGL(
 			    const uint8_t *data,
-			    const uint64_t size);
+			    const uint64_t size,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			JPEGL(
-			    const Memory::uint8Array &data);
+			    const Memory::uint8Array &data,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			~JPEGL() = default;
 

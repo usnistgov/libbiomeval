@@ -19,11 +19,13 @@ namespace BE = BiometricEvaluation;
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const uint8_t *data,
     const uint64_t size,
+    const messageHandler_t &messageHandler,
     const int8_t codecFormat) :
     Image::Image(
     data,
     size,
-    CompressionAlgorithm::JP2),
+    CompressionAlgorithm::JP2,
+    messageHandler),
     _codecFormat(codecFormat)
 {
 	std::unique_ptr<opj_codec_t, void(*)(opj_codec_t*)> codec(
@@ -98,8 +100,10 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 }
 
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
-    const BiometricEvaluation::Memory::uint8Array &data) :
-    BiometricEvaluation::Image::JPEG2000::JPEG2000(data, data.size())
+    const BiometricEvaluation::Memory::uint8Array &data,
+    const messageHandler_t &messageHandler) :
+    BiometricEvaluation::Image::JPEG2000::JPEG2000(data, data.size(),
+    messageHandler)
 {
 
 }

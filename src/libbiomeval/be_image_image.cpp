@@ -36,14 +36,16 @@ BiometricEvaluation::Image::Image::Image(
     const uint16_t bitDepth,
     const Resolution resolution,
     const CompressionAlgorithm compressionAlgorithm,
-    const bool hasAlphaChannel) :
+    const bool hasAlphaChannel,
+    const messageHandler_t &messageHandler) :
     _dimensions(dimensions),
     _colorDepth(colorDepth),
     _hasAlphaChannel(hasAlphaChannel),
     _bitDepth(bitDepth),
     _resolution(resolution),
     _data(size),
-    _compressionAlgorithm(compressionAlgorithm)
+    _compressionAlgorithm(compressionAlgorithm),
+    _messageHandler(messageHandler)
 {
 	std::memcpy(_data, data, size);
 }
@@ -51,7 +53,8 @@ BiometricEvaluation::Image::Image::Image(
 BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
     const uint64_t size,
-    const CompressionAlgorithm compressionAlgorithm) :
+    const CompressionAlgorithm compressionAlgorithm,
+    const messageHandler_t &messageHandler) :
     BiometricEvaluation::Image::Image::Image(
     data,
     size,
@@ -60,7 +63,8 @@ BiometricEvaluation::Image::Image::Image(
     0,
     Resolution(),
     compressionAlgorithm,
-    false)
+    false,
+    messageHandler)
 {
 
 }
@@ -327,46 +331,76 @@ BiometricEvaluation::Image::Image::valueInColorspace(
 std::shared_ptr<BiometricEvaluation::Image::Image>
 BiometricEvaluation::Image::Image::openImage(
     const uint8_t *data,
-    const uint64_t size)
+    const uint64_t size,
+    const messageHandler_t &messageHandler)
 {
 	switch (Image::getCompressionAlgorithm(data, size)) {
 	case CompressionAlgorithm::JPEGB:
-		return (std::shared_ptr<Image>(new JPEG(data, size)));
+		return (std::shared_ptr<Image>(new JPEG(data, size,
+		    messageHandler)));
 	case CompressionAlgorithm::JPEGL:
-		return (std::shared_ptr<Image>(new JPEGL(data, size)));
+		return (std::shared_ptr<Image>(new JPEGL(data, size,
+		    messageHandler)));
 	case CompressionAlgorithm::JP2:
 		/* FALLTHROUGH */
 	case CompressionAlgorithm::JP2L:
-		return (std::shared_ptr<Image>(new JPEG2000(data, size)));
+		return (std::shared_ptr<Image>(new JPEG2000(data, size,
+		    messageHandler)));
 	case CompressionAlgorithm::PNG:
-		return (std::shared_ptr<Image>(new PNG(data, size)));
+		return (std::shared_ptr<Image>(new PNG(data, size,
+		    messageHandler)));
 	case CompressionAlgorithm::NetPBM:
-		return (std::shared_ptr<Image>(new NetPBM(data, size)));
+		return (std::shared_ptr<Image>(new NetPBM(data, size,
+		    messageHandler)));
 	case CompressionAlgorithm::WSQ20:
-		return (std::shared_ptr<Image>(new WSQ(data, size)));
+		return (std::shared_ptr<Image>(new WSQ(data, size,
+		    messageHandler)));
 	case CompressionAlgorithm::BMP:
-		return (std::shared_ptr<Image>(new BMP(data, size)));
+		return (std::shared_ptr<Image>(new BMP(data, size,
+		    messageHandler)));
 	case CompressionAlgorithm::TIFF:
-		return (std::shared_ptr<Image>(new TIFF(data, size)));
+		return (std::shared_ptr<Image>(new TIFF(data, size,
+		    messageHandler)));
 	default:
 		throw Error::StrategyError("Could not determine compression "
 		    "algorithm");
 	}
 }
 
-std::shared_ptr<BiometricEvaluation::Image::Image>
-BiometricEvaluation::Image::Image::openImage(
-    const Memory::uint8Array &data)
+void
+BiometricEvaluation::Image::Image::defaultMessageHandler(
+    const std::string &message,
+    const IO::MessageLevel messageLevel,
+    const void *userData)
 {
-	return (Image::openImage(data, data.size()));
+	if (messageLevel != IO::MessageLevel::Error)
+		return;
+
+	throw BE::Error::StrategyError(message);
+}
+
+BiometricEvaluation::Image::Image::messageHandler_t
+BiometricEvaluation::Image::Image::getMessageHandler()
+    const
+{
+	return (this->_messageHandler);
 }
 
 std::shared_ptr<BiometricEvaluation::Image::Image>
 BiometricEvaluation::Image::Image::openImage(
-    const std::string &path)
+    const Memory::uint8Array &data,
+    const messageHandler_t &messageHandler)
+{
+	return (Image::openImage(data, data.size(), messageHandler));
+}
+
+std::shared_ptr<BiometricEvaluation::Image::Image>
+BiometricEvaluation::Image::Image::openImage(
+    const std::string &path,
+    const messageHandler_t &messageHandler)
 {
 	Memory::uint8Array data = IO::Utility::readFile(path);
-	return (Image::openImage(data));
+	return (Image::openImage(data, messageHandler));
 }
 
 BiometricEvaluation::Image::CompressionAlgorithm
@@ -416,6 +450,7 @@ BiometricEvaluation::Image::Image::getRawImage(
 	return (BE::Image::Raw{
 	    image->getRawData(), image->getDimensions(),
 	    image->getColorDepth(), image->getBitDepth(),
-	    image->getResolution(), image->hasAlphaChannel()});
+	    image->getResolution(), image->hasAlphaChannel(),
+	    image->getMessageHandler()});
 }
 

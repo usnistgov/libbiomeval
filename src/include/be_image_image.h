@@ -12,9 +12,11 @@
 #define __BE_IMAGE_IMAGE_H__
 
 #include <cstdint>
+#include <functional>
 #include <stdexcept>
 #include <memory>
 
+#include <be_io.h>
 #include <be_image.h>
 #include <be_memory_autoarray.h>
 
@@ -46,6 +48,10 @@ namespace BiometricEvaluation
 		 */
 		class Image {
 		public:
+			using messageHandler_t = std::function<void(
+			    const std::string &,
+			    const IO::MessageLevel,
+			    const void *)>;
 
 			/**
 		 	 * @brief
@@ -67,6 +73,9 @@ namespace BiometricEvaluation
 			 *	The CompressionAlgorithm of data.
 			 * @param[in] hasAlphaChannel
 			 *	Presence of an alpha channel.
+			 * @param messageHandler
+			 * Function to handle messages sent when processing
+			 * images.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error manipulating data.
@@ -81,7 +90,9 @@ namespace BiometricEvaluation
 			    const uint16_t bitDepth,
 			    const Resolution resolution,
 			    const CompressionAlgorithm compression,
-			    const bool hasAlphaChannel);
+			    const bool hasAlphaChannel,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			/**
 		 	 * @brief
@@ -93,6 +104,9 @@ namespace BiometricEvaluation
 			 *	The size of the image data, in bytes.
 			 * @param[in] compression
 			 *	The CompressionAlgorithm of data.
+			 * @param messageHandler
+			 * Function to handle messages sent when processing
+			 * images.
 			 *
 			 * @throw Error::DataError
 			 *	Error manipulating data.
@@ -102,7 +116,9 @@ namespace BiometricEvaluation
 			Image(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const CompressionAlgorithm compression);
+			    const CompressionAlgorithm compression,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			/**
 			 * @brief
@@ -266,6 +282,17 @@ namespace BiometricEvaluation
 				return (this->_hasAlphaChannel);
 			}
 
+			/**
+			 * @brief
+			 * Get handle to message handler function.
+			 *
+			 * @return
+			 * Message handler function.
+			 */
+			messageHandler_t
+			getMessageHandler()
+			    const;
+
 			virtual ~Image();
 
 			/*
@@ -306,6 +333,9 @@ namespace BiometricEvaluation
 			 *	The image data.
 			 * @param[in] size
 			 *	The size of the image data, in bytes.
+			 * @param messageHandler
+			 * Function to handle messages sent when processing
+			 * images.
 			 *
 			 * @return
 			 *	Image representation of the input data buffer.
@@ -318,7 +348,9 @@ namespace BiometricEvaluation
 			static std::shared_ptr<Image>
 			openImage(
 			    const uint8_t *data,
-			    const uint64_t size);
+			    const uint64_t size,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			/**
 			 * @brief
@@ -327,6 +359,9 @@ namespace BiometricEvaluation
 			 *
  			 * @param[in] data
 			 *	The image data.
+			 * @param messageHandler
+			 * Function to handle messages sent when processing
+			 * images.
 			 *
 			 * @return
 			 *	Image representation of the input data buffer.
@@ -338,7 +373,9 @@ namespace BiometricEvaluation
 			 */
 			static std::shared_ptr<Image>
 			openImage(
-			    const Memory::uint8Array &data);
+			    const Memory::uint8Array &data,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			/**
 			 * @brief
@@ -347,6 +384,9 @@ namespace BiometricEvaluation
 			 *
  			 * @param[in] path
 			 *	Path to image data.
+			 * @param messageHandler
+			 * Function to handle messages sent when processing
+			 * images.
 			 *
 			 * @return
 			 *	Image representation of the input data buffer.
@@ -360,7 +400,9 @@ namespace BiometricEvaluation
 			 */
 			static std::shared_ptr<Image>
 			openImage(
-			    const std::string &path);
+			    const std::string &path,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			/**
 			 * @brief
@@ -448,6 +490,32 @@ namespace BiometricEvaluation
 			getRawImage(
 			    const std::shared_ptr<BiometricEvaluation::Image::
 			    Image> &image);
+
+			/**
+			 * @brief
+			 * Default handling of messages sent from image
+			 * processing libraries.
+			 *
+			 * @param message
+			 * Message received.
+			 * @param messageLevel
+			 * The type of message received.
+			 * @param userData
+			 * Optional user-specific data needed during handling.
+			 *
+			 * @throw Error::StrategyError
+			 * messageLevel == MessageLevel::Error
+			 *
+			 * @note
+			 * Custom implementations of signature messageHandler_t
+			 * should throw an exception when messageLevel ==
+			 * MessageLevel::Error.
+			 */
+			static void
+			defaultMessageHandler(
+			    const std::string &message,
+			    const IO::MessageLevel messageLevel,
+			    const void *userData);
 
 		protected:
 			/**
@@ -540,6 +608,10 @@ namespace BiometricEvaluation
 
 			/** Compression algorithm of _data */
 			CompressionAlgorithm _compressionAlgorithm;
+
+			/** Message handler */
+			messageHandler_t _messageHandler{
+			    Image::defaultMessageHandler};
 		};
 	}
 }

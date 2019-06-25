@@ -71,11 +71,13 @@ png_error_callback(
 
 BiometricEvaluation::Image::PNG::PNG(
     const uint8_t *data,
-    const uint64_t size) :
+    const uint64_t size,
+    const messageHandler_t &messageHandler) :
     Image::Image(
     data,
     size,
-    CompressionAlgorithm::PNG)
+    CompressionAlgorithm::PNG,
+    messageHandler)
 {
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
 	    nullptr, png_error_callback, png_error_callback);
@@ -141,8 +143,9 @@ BiometricEvaluation::Image::PNG::PNG(
 }
 
 BiometricEvaluation::Image::PNG::PNG(
-    const BiometricEvaluation::Memory::uint8Array &data) :
-    BiometricEvaluation::Image::PNG::PNG(data, data.size())
+    const BiometricEvaluation::Memory::uint8Array &data,
+    const messageHandler_t &messageHandler) :
+    BiometricEvaluation::Image::PNG::PNG(data, data.size(), messageHandler)
 {
 
 }

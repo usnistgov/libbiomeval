@@ -45,6 +45,23 @@ namespace BiometricEvaluation {
 			 */
 			ReadOnly = 1
 		};
+
+		/** Type of message received. */
+		enum class MessageLevel
+		{
+			/**
+			 * Informational/debugging. Processing should
+			 * continue.
+			 */
+			Debug,
+			/**
+			 * Something seems off about the operation, but the
+			 * output might be fine.
+			 */
+			Warning,
+			/** Processing absolutely should stop. */
+			Error
+		};
 	}
 }
 #endif	/* __BE_IO_H__ */

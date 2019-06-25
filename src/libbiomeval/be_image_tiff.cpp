@@ -113,8 +113,9 @@ libtiff_unmap(
 
 BiometricEvaluation::Image::TIFF::TIFF(
     const uint8_t *data,
-    const uint64_t size) :
-    Image(data, size, CompressionAlgorithm::TIFF)
+    const uint64_t size,
+    const messageHandler_t &messageHandler) :
+    Image(data, size, CompressionAlgorithm::TIFF, messageHandler)
 {
 	if (!isTIFF(data, size))
 		throw BE::Error::StrategyError("Not a TIFF image");
@@ -200,8 +201,9 @@ BiometricEvaluation::Image::TIFF::TIFF(
 }
 
 BiometricEvaluation::Image::TIFF::TIFF(
-    const BiometricEvaluation::Memory::uint8Array &data) :
-    TIFF(data, data.size())
+    const BiometricEvaluation::Memory::uint8Array &data,
+    const messageHandler_t &messageHandler) :
+    TIFF(data, data.size(), messageHandler)
 {
 	/* NOP */
 }

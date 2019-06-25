@@ -51,10 +51,14 @@ namespace BiometricEvaluation
 		public:
 			JPEG(
 			    const uint8_t *data,
-			    const uint64_t size);
+			    const uint64_t size,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			JPEG(
-			    const Memory::uint8Array &data);
+			    const Memory::uint8Array &data,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			~JPEG() = default;
 

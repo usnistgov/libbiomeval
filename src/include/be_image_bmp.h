@@ -46,10 +46,14 @@ namespace BiometricEvaluation
 
 			BMP(
 			    const uint8_t *data,
-			    const uint64_t size);
+			    const uint64_t size,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			BMP(
-			    const Memory::uint8Array &data);
+			    const Memory::uint8Array &data,
+			    const messageHandler_t &messageHandler =
+			        Image::defaultMessageHandler);
 
 			~BMP() = default;
 

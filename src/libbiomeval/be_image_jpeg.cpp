@@ -22,11 +22,13 @@ extern "C" {
 
 BiometricEvaluation::Image::JPEG::JPEG(
     const uint8_t *data,
-    const uint64_t size) :
+    const uint64_t size,
+    const messageHandler_t &messageHandler) :
     Image::Image(
     data,
     size,
-    CompressionAlgorithm::JPEGB)
+    CompressionAlgorithm::JPEGB,
+    messageHandler)
 {
 	/* Initialize custom JPEG error manager to throw exceptions */
 	struct jpeg_error_mgr jpeg_error_mgr;
@@ -64,8 +66,9 @@ BiometricEvaluation::Image::JPEG::JPEG(
 }
 
 BiometricEvaluation::Image::JPEG::JPEG(
-    const BiometricEvaluation::Memory::uint8Array &data) :
-    BiometricEvaluation::Image::JPEG::JPEG(data, data.size())
+    const BiometricEvaluation::Memory::uint8Array &data,
+    const messageHandler_t &messageHandler) :
+    BiometricEvaluation::Image::JPEG::JPEG(data, data.size(), messageHandler)
 {
 
 }
