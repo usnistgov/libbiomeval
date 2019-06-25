@@ -75,6 +75,13 @@ static int
 libtiff_close(
     thandle_t handle)
 {
+	auto clientIO = static_cast<BE::Image::TIFF::ClientIO *>(handle);
+	if (clientIO != nullptr) {
+		if (clientIO->ib != nullptr)
+			delete clientIO->ib;
+		delete clientIO;
+	}
+
 	return (0);
 }
 
