@@ -11,7 +11,6 @@
 #include <tiffio.h>
 
 #include <be_image_tiff.h>
-#include <be_memory_mutableindexedbuffer.h>
 
 namespace BE = BiometricEvaluation;
 
@@ -26,7 +25,7 @@ libtiff_read(
     void *buf,
     tmsize_t size)
 {
-	const auto ib = static_cast<BE::Memory::IndexedBuffer *>(handle);
+	const auto ib = static_cast<BE::Image::TIFF::ClientIO *>(handle)->ib;
 	try {
 		return (ib->scan(buf, size));
 	} catch (BE::Error::Exception) {
@@ -50,7 +49,7 @@ libtiff_seek(
     toff_t offset,
     int whence)
 {
-	const auto ib = static_cast<BE::Memory::IndexedBuffer *>(handle);
+	const auto ib = static_cast<BE::Image::TIFF::ClientIO *>(handle)->ib;
 	try {
 		switch (whence) {
 		case SEEK_SET:
@@ -83,7 +82,7 @@ static toff_t
 libtiff_size(
     thandle_t handle)
 {
-	const auto ib = static_cast<BE::Memory::IndexedBuffer *>(handle);
+	const auto ib = static_cast<BE::Image::TIFF::ClientIO *>(handle)->ib;
 	return (ib->getSize());
 }
 
@@ -93,7 +92,7 @@ libtiff_map(
     void **base,
     toff_t *size)
 {
-	const auto ib = static_cast<BE::Memory::IndexedBuffer *>(handle);
+	const auto ib = static_cast<BE::Image::TIFF::ClientIO *>(handle)->ib;
 	*base = const_cast<uint8_t *>(ib->get());
 	*size = ib->getSize();
 
@@ -109,6 +108,51 @@ libtiff_unmap(
 	/* NOP */
 }
 
+/**
+ * @brief
+ * Error handler for libtiff.
+ *
+ * @param handle
+ * TIFF handle.
+ * @param[in] module
+ * libtiff module with an error.
+ * @param[in] format
+ * printf(3)-style format string.
+ * @param[in] args
+ * printf(3)-style arguments.
+ *
+ * @throw Error::StrategyError
+ * Always throws with message containing parameters.
+ */
+static void
+BE_TIFFErrorHandler(
+    thandle_t handle,
+    const char *module,
+    const char *format,
+    va_list args)
+    noexcept(false);
+
+/**
+ * @brief
+ * Warning handler for libtiff.
+ *
+ * @param handle
+ * TIFF handle.
+ * @param[in] module
+ * libtiff module with an error.
+ * @param[in] format
+ * printf(3)-style format string.
+ * @param[in] args
+ * printf(3)-style arguments.
+ */
+static void
+BE_TIFFWarningHandler(
+    thandle_t handle,
+    const char *module,
+    const char *format,
+    va_list args)
+    noexcept;
+
 /******************************************************************************/
 
 BiometricEvaluation::Image::TIFF::TIFF(
@@ -120,8 +164,8 @@ BiometricEvaluation::Image::TIFF::TIFF(
 	if (!isTIFF(data, size))
 		throw BE::Error::StrategyError("Not a TIFF image");
 
-	TIFFSetWarningHandler(TIFF::warningHandler);
-	TIFFSetErrorHandler(TIFF::errorHandler);
+	TIFFSetWarningHandlerExt(BE_TIFFWarningHandler);
+	TIFFSetErrorHandlerExt(BE_TIFFErrorHandler);
 
 	std::unique_ptr<::TIFF, void(*)(::TIFF*)> tiff(
 	    static_cast<::TIFF*>(this->getDecompressionStream()), TIFFClose);
@@ -276,38 +320,60 @@ BiometricEvaluation::Image::TIFF::libtiffMessageToString(
 }
 
 void
-BiometricEvaluation::Image::TIFF::errorHandler(
+BE_TIFFErrorHandler(
+    thandle_t handle,
     const char *module,
     const char *format,
     va_list args)
     noexcept(false)
 {
-	throw BE::Error::StrategyError(TIFF::libtiffMessageToString(module,
-	    format, args));
+	const auto msg = BE::Image::TIFF::libtiffMessageToString(module, format,
+	    args);
+
+	if (handle != nullptr) {
+		const auto tiff = static_cast<BE::Image::TIFF::ClientIO *>(
+		    handle)->tiffObject;
+		if (tiff != nullptr) {
+			tiff->getMessageHandler()(
+			    msg, BE::IO::MessageLevel::Error, tiff);
+		}
+	}
+
+	/* libtiff can't continue, so if messageHandler doesn't throw, we do. */
+	throw BE::Error::StrategyError(msg);
 }
 
 void
-BiometricEvaluation::Image::TIFF::warningHandler(
+BE_TIFFWarningHandler(
+    thandle_t handle,
     const char *module,
     const char *format,
     va_list args)
     noexcept
 {
-#if 0
-	std::cout << TIFF::libtiffMessageToString(module, format, args) <<
-	    std::endl;
-#endif
+	if (handle == nullptr)
+		return;
+	const auto tiff = static_cast<BE::Image::TIFF::ClientIO *>(handle)->
+	    tiffObject;
+	if (tiff == nullptr)
+		return;
+
+	const auto msg = BE::Image::TIFF::libtiffMessageToString(module, format,
+	    args);
+	tiff->getMessageHandler()(msg, BE::IO::MessageLevel::Warning, tiff);
 }
 
 void*
 BiometricEvaluation::Image::TIFF::getDecompressionStream()
     const
 {
-	BE::Memory::IndexedBuffer *ib = new BE::Memory::IndexedBuffer(
-	    this->getDataPointer(), this->getDataSize());
+	ClientIO *clientIO = new ClientIO();
+	clientIO->ib = new BE::Memory::IndexedBuffer(this->getDataPointer(),
+	    this->getDataSize());
+	clientIO->tiffObject = this;
 
 	::TIFF *tiff = TIFFClientOpen("BiometricEvaluation::Image::TIFF", "rb",
-	    ib, libtiff_read, libtiff_write, libtiff_seek, libtiff_close,
+	    clientIO, libtiff_read, libtiff_write, libtiff_seek, libtiff_close,
 	    libtiff_size, libtiff_map, libtiff_unmap);
 	if (tiff == nullptr)
 		throw BE::Error::StrategyError("Could not instantiate TIFF "

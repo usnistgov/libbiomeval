@@ -12,6 +12,7 @@
 #define BE_IMAGE_TIFF_H_
 
 #include <be_image_image.h>
+#include <be_memory_indexedbuffer.h>
 
 namespace BiometricEvaluation
 {
@@ -76,7 +77,6 @@ namespace BiometricEvaluation
 			isTIFF(
 			    const Memory::uint8Array &data);
 
-		private:
 			/**
 			 * @brief
 			 * Convert libtiff message to string.
@@ -97,44 +97,16 @@ namespace BiometricEvaluation
 			    const char *format,
 			    va_list args);
 
-			/**
-			 * @brief
-			 * Error handler for libtiff.
-			 *
-			 * @param[in] module
-			 * libtiff module with an error.
-			 * @param[in] format
-			 * printf(3)-style format string.
-			 * @param[in] args
-			 * printf(3)-style arguments.
-			 *
-			 * @throw Error::StrategyError
-			 * Always throws with message containing parameters.
-			 */
-			static void
-			errorHandler(
-			    const char *module,
-			    const char *format,
-			    va_list args)
-			    noexcept(false);
+			/** Struct passed to libtiff client functions */
+			struct ClientIO
+			{
+				/** Indexed buffer to TIFF object in memory. */
+				Memory::IndexedBuffer *ib{nullptr};
+				/** Pointer to "this" TIFF object */
+				const TIFF *tiffObject{nullptr};
+			};
 
-			/**
-			 * @brief
-			 * Warning handler for libtiff.
-			 *
-			 * @param[in] module
-			 * libtiff module with an error.
-			 * @param[in] format
-			 * printf(3)-style format string.
-			 * @param[in] args
-			 * printf(3)-style arguments.
-			 */
-			static void
-			warningHandler(
-			    const char *module,
-			    const char *format,
-			    va_list args)
-			    noexcept;
+		private:
 
 			/**
 			 * @brief
