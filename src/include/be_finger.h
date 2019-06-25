@@ -17,7 +17,7 @@
 
 #include <be_framework_enumeration.h>
 
-namespace BiometricEvaluation 
+namespace BiometricEvaluation
 {
 	/**
 	 * @brief
@@ -50,7 +50,7 @@ namespace BiometricEvaluation
 			Amputation,
 			Unknown
 		};
-		    
+
 		/**
 		 * @brief
 		 * Finger position codes.
@@ -101,14 +101,18 @@ namespace BiometricEvaluation
 		/** Finger, palm, and latent impression types. */
 		enum class Impression
 		{
+			PlainContact				= 0,
 			LiveScanPlain				= 0,
+			RolledContact				= 1,
 			LiveScanRolled				= 1,
 			NonLiveScanPlain			= 2,
 			NonLiveScanRolled			= 3,
+			LatentImage				= 4,
 			LatentImpression			= 4,
 			LatentTracing				= 5,
 			LatentPhoto				= 6,
 			LatentLift				= 7,
+			LiveScanSwipe				= 8,
 			LiveScanVerticalSwipe			= 8,
 			LiveScanPalm				= 10,
 			NonLiveScanPalm				= 11,
@@ -120,14 +124,18 @@ namespace BiometricEvaluation
 			LiveScanOpticalContactRolled		= 21,
 			LiveScanNonOpticalContactPlain		= 22,
 			LiveScanNonOpticalContactRolled		= 23,
+			ContactlessPlainStationarySubject	= 24,
 			LiveScanOpticalContactlessPlain		= 24,
+			ContactlessRolledStationarySubject	= 25,
 			LiveScanOpticalContactlessRolled	= 25,
 			LiveScanNonOpticalContactlessPlain	= 26,
 			LiveScanNonOpticalContactlessRolled	= 27,
 			Other					= 28,
-			Unknown					= 29
+			Unknown					= 29,
+			ContactlessRolledMovingSubject		= 41,
+			ContactlessPlainMovingSubject		= 42
 		};
-		    
+
 		/** Joint and tip codes. */
 		enum class FingerImageCode {
 			EJI = 0,
@@ -142,6 +150,33 @@ namespace BiometricEvaluation
 			NA
 		};
 		using PositionDescriptors = std::map<Position, FingerImageCode>;
+
+		/** Friction Ridge Capture Technology codes. */
+		enum class CaptureTechnology
+		{
+			Unknown					= 0,
+			Other					= 1,
+			ScannedInkOnPaper			= 2,
+			OpticalTIRBright			= 3,
+			OpticalTIRDark				= 4,
+			OpticalDINative				= 5,
+			OpticalDILowFrequenceyUnwrapped		= 6,
+			ThreeDimensionalHighFrequencyUnwrapped	= 7,
+			Capacitive				= 9,
+			CapacitiveRF				= 10,
+			Electroluminescent			= 11,
+			ReflectedUltrasonic			= 12,
+			UltrasonicImpediography			= 13,
+			Thermal					= 14,
+			DirectPressureSensitive			= 15,
+			IndirectPressure			= 16,
+			LiveTape				= 17,
+			LatentImpression			= 18,
+			LatentPhoto				= 19,
+			LatentMold				= 20,
+			LatentTracing				= 21,
+			LatentLift				= 22
+		};
 	}
 }
 
@@ -160,6 +195,10 @@ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Finger::FingerImageCode,
     BE_Finger_FingerImageCode_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Finger::CaptureTechnology,
+    BE_Finger_CaptureTechnology_EnumToStringMap);
 
 #endif /* __BE_FINGER_H__ */
 
