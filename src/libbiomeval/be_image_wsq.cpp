@@ -36,20 +36,20 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	uint32_t rv = 0;
 	if ((rv = getc_marker_wsq(&marker, SOI_WSQ, &marker_buf,
 	    wsq_buf + size)))
-		throw Error::StrategyError("libwsq could not read to SOI_WSQ");
+		throw Error::StrategyError("Could not read to SOI_WSQ");
 
 	/* Step through any tables up to the "start of frame" marker */
 	for (;;) {
 		if ((rv = getc_marker_wsq(&marker, TBLS_N_SOF, &marker_buf,
 		    wsq_buf + size)))
-			throw Error::StrategyError("libwsq could not read to "
+			throw Error::StrategyError("Could not read to "
 			    "TBLS_N_SOF");
 
 		if (marker == SOF_WSQ)
 			break;
 
 		if ((rv = getc_ushort(&tbl_size, &marker_buf, wsq_buf + size)))
-			throw Error::StrategyError("libwsq could not read size "
+			throw Error::StrategyError("Could not read size "
 			    "of table");
 		/* Table size includes size of field but not the marker */
 		marker_buf += tbl_size - sizeof(tbl_size);
@@ -59,7 +59,7 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	FRM_HEADER_WSQ wsq_header;
 	if ((rv = getc_frame_header_wsq(&wsq_header, &marker_buf,
 	    wsq_buf + size)))
-		throw Error::DataError("libwsq could not read frame header");
+		throw Error::DataError("Could not read frame header");
 	setDimensions(Size(wsq_header.width, wsq_header.height));
 
 	/* Read PPI from NISTCOM, if present */

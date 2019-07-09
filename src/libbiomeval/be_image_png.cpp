@@ -96,8 +96,7 @@ BiometricEvaluation::Image::PNG::PNG(
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
 	    (void *)this, png_error_callback, png_warning_callback);
 	if (png_ptr == nullptr)
-		throw Error::StrategyError("libpng could not create "
-		    "png_struct");
+		throw Error::StrategyError("Could not initialize reading");
 
 	/* Read encoded PNG data from an AutoArray using our extension */
 	png_buffer png_buf = { this->getDataPointer(), this->getDataSize(), 0 };
@@ -107,8 +106,8 @@ BiometricEvaluation::Image::PNG::PNG(
 	png_infop png_info_ptr = png_create_info_struct(png_ptr);
 	if (png_info_ptr == nullptr) {
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-		throw Error::StrategyError("libpng could not create "
-		    "png_info");
+		throw Error::StrategyError("Could not initialize container for "
+		    "information");
 	}
 	png_read_info(png_ptr, png_info_ptr);
 
@@ -171,8 +170,7 @@ BiometricEvaluation::Image::PNG::getRawData()
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
 	    (void *)this, png_error_callback, png_warning_callback);
 	if (png_ptr == nullptr)
-		throw Error::StrategyError("libpng could not create "
-		    "png_struct");
+		throw Error::StrategyError("Could not initialize reading");
 
 	/* Read encoded PNG data from a buffer using our extension */
 	png_buffer png_buf = { this->getDataPointer(), this->getDataSize(), 0 };
@@ -182,8 +180,8 @@ BiometricEvaluation::Image::PNG::getRawData()
 	png_infop png_info_ptr = png_create_info_struct(png_ptr);
 	if (png_info_ptr == nullptr) {
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-		throw Error::StrategyError("libpng could not create "
-		    "png_info");
+		throw Error::StrategyError("Could not initialize container for "
+		    "information");
 	}
 	png_read_info(png_ptr, png_info_ptr);
 
@@ -287,12 +285,13 @@ png_read_mem_src(
 	// size to the size of the buffer since it is known ahead of time.
 
 	if (png_get_io_ptr(png_ptr) == nullptr)
-		throw BE::Error::StrategyError("libpng has no io_ptr set");
+		throw BE::Error::StrategyError("Lost current offset while "
+		    "reading from memory");
 
 	png_buffer *input = (png_buffer *)png_get_io_ptr(png_ptr);
 	if (length > (input->size - input->offset))
-		throw BE::Error::StrategyError("libpng attempted to read more "
-		    "data than what is available");
+		throw BE::Error::StrategyError("Attempted to read more data "
+		    "than available");
 
 	memcpy(buffer, input->data + input->offset, length);
 	input->offset += length;
@@ -307,15 +306,14 @@ png_error_callback(
 	if (userData != nullptr) {
 		const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 		    userData);
-		png->getStatusCallback()("libpng: " + std::string(msg),
-		    BE::IO::StatusType::Error);
+		png->getStatusCallback()(msg, BE::IO::StatusType::Error);
 	}
 
 	/*
 	 * libpng cannot continue after errors, so if statusCallback won't
 	 * throw, we will.
 	 */
-	throw BE::Error::StrategyError("libpng: " + std::string(msg));
+	throw BE::Error::StrategyError(msg);
 }
 
 void
@@ -329,6 +327,5 @@ png_warning_callback(
 
 	const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 	    userData);
-	png->getStatusCallback()("libpng: " + std::string(msg),
-	    BE::IO::StatusType::Error);
+	png->getStatusCallback()(msg, BE::IO::StatusType::Error);
 }

@@ -186,21 +186,23 @@ BiometricEvaluation::Image::TIFF::TIFF(
 
 	uint32_t width{}, height{};
 	if (TIFFGetField(tiff.get(), TIFFTAG_IMAGEWIDTH, &width) != 1)
-		throw BE::Error::StrategyError("libtiff: width");
+		throw BE::Error::StrategyError("Could not read width");
 	if (TIFFGetField(tiff.get(), TIFFTAG_IMAGELENGTH, &height) != 1)
-		throw BE::Error::StrategyError("libtiff: height");
+		throw BE::Error::StrategyError("Could not read height");
 	this->setDimensions({width, height});
 
 	uint16_t bitsPerSample{};
 	if (TIFFGetFieldDefaulted(tiff.get(), TIFFTAG_BITSPERSAMPLE,
 	    &bitsPerSample) != 1)
-		throw BE::Error::StrategyError("libtiff: bits per sample");
+		throw BE::Error::StrategyError("Could not read bits per "
+		    "sample");
 	this->setBitDepth(bitsPerSample);
 
 	uint16_t samplesPerPixel;
 	if (TIFFGetFieldDefaulted(tiff.get(), TIFFTAG_SAMPLESPERPIXEL,
 	    &samplesPerPixel) != 1)
-		throw BE::Error::StrategyError("libtiff: samples per pixel");
+		throw BE::Error::StrategyError("Could not read samples per "
+		    "pixel");
 	this->setColorDepth(samplesPerPixel * bitsPerSample);
 
 	if ((samplesPerPixel == 1) || (samplesPerPixel == 3))
@@ -209,7 +211,7 @@ BiometricEvaluation::Image::TIFF::TIFF(
 		uint16_t extraSamples{};
 		if (TIFFGetFieldDefaulted(tiff.get(), TIFFTAG_EXTRASAMPLES,
 		    &extraSamples) != 1)
-			throw BE::Error::StrategyError("libtiff: extra "
+			throw BE::Error::StrategyError("Could not read extra "
 			    "samples");
 		if (extraSamples == EXTRASAMPLE_ASSOCALPHA)
 			this->setHasAlphaChannel(true);
@@ -227,7 +229,8 @@ BiometricEvaluation::Image::TIFF::TIFF(
 	/* RGBRGBRGB vs RRRGGGBBB when retrieving scanlines */
 	uint8_t planarConfig{};
 	if (TIFFGetField(tiff.get(), TIFFTAG_PLANARCONFIG, &planarConfig) != 1)
-		throw BE::Error::StrategyError("libtiff: planar configuration");
+		throw BE::Error::StrategyError("Could not read planar "
+		    "configuration");
 	if (planarConfig != PLANARCONFIG_CONTIG)
 		throw BE::Error::NotImplemented("TIFF images separated by "
 		    "component are not yet supported");
@@ -235,7 +238,8 @@ BiometricEvaluation::Image::TIFF::TIFF(
 	uint16_t rawResUnits{};
 	if (TIFFGetFieldDefaulted(tiff.get(), TIFFTAG_RESOLUTIONUNIT,
 	    &rawResUnits) != 1)
-		throw BE::Error::StrategyError("libtiff: resolution units");
+		throw BE::Error::StrategyError("Could not read resolution "
+		    "units");
 	BE::Image::Resolution::Units resUnits{BE::Image::Resolution::Units::NA};
 	switch (rawResUnits) {
 	case RESUNIT_INCH:
@@ -274,8 +278,8 @@ BiometricEvaluation::Image::TIFF::getRawData()
 		/* TODO: Per-component decompression (4th parameter) */
 		if (TIFFReadScanline(tiff.get(), rawData + (rowBytes * i),
 		    i, 0) != 1)
-			throw BE::Error::StrategyError("libtiff: "
-			    "TIFFReadScanline");
+			throw BE::Error::StrategyError("Error reading "
+			    "scanline at " + std::to_string(rowBytes * i));
 	}
 
 	return (rawData);
@@ -323,7 +327,7 @@ BiometricEvaluation::Image::TIFF::libtiffMessageToString(
 	std::snprintf(buf.get(), bufSize, format, args);
 	const std::string formattedMessage{buf.get(), buf.get() + bufSize};
 
-	return ("libtiff (" + std::string(module) + "): " + formattedMessage);
+	return (formattedMessage);
 }
 
 void

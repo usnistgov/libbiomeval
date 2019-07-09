@@ -37,14 +37,14 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 
 	opj_image_t *imagePtr = nullptr;
 	if (opj_read_header(stream.get(), codec.get(), &imagePtr) == OPJ_FALSE)
-		throw Error::Exception("libopenjp2: opj_read_header");
+		throw Error::Exception("Could not read header");
 	if (imagePtr == nullptr)
-		throw Error::Exception("libopenjp2: image is nullptr");
+		throw Error::Exception("Parsed header is empty");
 	std::unique_ptr<opj_image_t, void(*)(opj_image_t*)> image(
 	    imagePtr, opj_image_destroy);
 
 	if (image->numcomps <= 0)
-		throw Error::StrategyError("libopenjpeg: No components");
+		throw Error::NotImplemented("No components");
 
 	if ((image->color_space != OPJ_CLRSPC_SRGB) &&
 	    (image->color_space != OPJ_CLRSPC_GRAY) &&
@@ -121,19 +121,19 @@ BiometricEvaluation::Image::JPEG2000::getRawData()
 
 	opj_image_t *imagePtr = nullptr;
 	if (opj_read_header(stream.get(), codec.get(), &imagePtr) == OPJ_FALSE)
-		throw Error::Exception("libopenjp2: opj_read_header");
+		throw Error::Exception("Could not read header");
 	if (imagePtr == nullptr)
-		throw Error::Exception("libopenjp2: image is nullptr");
+		throw Error::Exception("Parsed header is empty");
 	std::unique_ptr<opj_image_t, void(*)(opj_image_t*)> image(
 	    imagePtr, opj_image_destroy);
 
 	if (image->numcomps <= 0)
-		throw Error::NotImplemented("libopenjp2: No components");
+		throw Error::NotImplemented("No components");
 	if (image->comps[0].sgnd == 1)
-		throw Error::NotImplemented("libopenjp2: Signed buffers");
+		throw Error::NotImplemented("Signed buffers");
 
 	if (opj_decode(codec.get(), stream.get(), image.get()) == OPJ_FALSE)
-		throw Error::StrategyError("libopenjp2: opj_decode");
+		throw Error::StrategyError("Could not initialize decoding");
 
 	const uint32_t w = this->getDimensions().xSize;
 	const uint32_t h = this->getDimensions().ySize;
@@ -144,8 +144,7 @@ BiometricEvaluation::Image::JPEG2000::getRawData()
 		ptr.push_back(image->comps[i].data);
 		if ((image->comps[i].w != w) || (image->comps[i].h != h) ||
 		    (image->comps[i].prec != bpc))
-			throw Error::NotImplemented("libopenjp2: Non-equal "
-			    "components");
+			throw Error::NotImplemented("Non-equal components");
 	}
 
 	Memory::uint8Array rawData(image->numcomps * (bpc / 8) * image->x1 *
@@ -167,7 +166,7 @@ BiometricEvaluation::Image::JPEG2000::getRawData()
 				}
 			} else {
 				throw Error::NotImplemented(
-				    "libopenjp2: " + std::to_string(bpc) +
+				    std::to_string(bpc) +
 				    "-bit-per-component images");
 			}
 		}
@@ -207,12 +206,11 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_error(
 {
 	if (client_data != nullptr) {
 		const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
-		jp2->getStatusCallback()("libopenjp2: " + std::string(msg),
-		    IO::StatusType::Error);
+		jp2->getStatusCallback()(msg, IO::StatusType::Error);
 	}
 
 	/* We can't continue on errors, so if handler won't throw, we will. */
-	throw Error::StrategyError("libopenjp2: " + std::string(msg));
+	throw Error::StrategyError(msg);
 }
 
 void
@@ -224,8 +222,7 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_warning(
 		return;
 
 	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
-	jp2->getStatusCallback()("libopenjp2: " + std::string(msg),
-	    IO::StatusType::Warning);
+	jp2->getStatusCallback()(msg, IO::StatusType::Warning);
 }
 
 void
@@ -237,8 +234,7 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_info(
 		return;
 
 	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
-	jp2->getStatusCallback()("libopenjp2: " + std::string(msg),
-	    IO::StatusType::Debug);
+	jp2->getStatusCallback()(msg, IO::StatusType::Debug);
 }
 
 bool
@@ -350,8 +346,8 @@ BiometricEvaluation::Image::JPEG2000::getDecompressionCodec()
 	case OPJ_CODEC_UNKNOWN:
 		/* FALLTHROUGH */
 	default:
-		throw Error::StrategyError("libopenjp2: unsupported decoding "
-		    "format: " + std::to_string(this->_codecFormat));
+		throw Error::StrategyError("Unsupported decoding format: " +
+		    std::to_string(this->_codecFormat));
 		break;
 	}
 
@@ -366,7 +362,7 @@ BiometricEvaluation::Image::JPEG2000::getDecompressionCodec()
 	parameters.decod_format = this->_codecFormat;
 	if (opj_setup_decoder(codec, &parameters) == OPJ_FALSE) {
 		opj_destroy_codec(codec);
-		throw Error::StrategyError("libopenjp2: opj_setup_decoder");
+		throw Error::StrategyError("Could not initialize decoding");
 	}
 
 	return (codec);

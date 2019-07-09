@@ -306,8 +306,7 @@ BiometricEvaluation::Image::JPEG::callStatusCallback(
 	cinfo->err->format_message(cinfo, buffer);
 
 	const JPEG *jpeg = static_cast<JPEG*>(cinfo->client_data);
-	jpeg->getStatusCallback()("libjpeg: " + std::string(buffer),
-	    statusType);
+	jpeg->getStatusCallback()(buffer, statusType);
 }
 
 void

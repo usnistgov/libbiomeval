@@ -34,9 +34,9 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 
 	uint16_t marker;
 	if (getc_marker_jpegl(&marker, SOI, &markerBuf, endPtr))
-		throw Error::DataError("libjpegl: No SOI marker");
+		throw Error::DataError("No SOI marker");
 	if (getc_marker_jpegl(&marker, APP0, &markerBuf, endPtr))
-		throw Error::DataError("libjpegl: No APP0 marker");
+		throw Error::DataError("No APP0 marker");
 
 	/* Parse JFIF header for resolution information */
 	JFIF_HEADER *JFIFHeader;
@@ -64,15 +64,13 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 	uint16_t tableSize;
 	for (;;) {
 		if (getc_marker_jpegl(&marker, TBLS_N_SOF, &markerBuf, endPtr))
-			throw Error::DataError("libjpegl: Could not read to "
-			    "TBLS_N_SOF");
+			throw Error::DataError("Could not read to TBLS_N_SOF");
 
 		if (marker == SOF3)
 			break;
 
 		if (getc_ushort(&tableSize, &markerBuf, endPtr))
-			throw Error::DataError("libjpegl: Could not read size "
-			    " of table");
+			throw Error::DataError("Could not read size of table");
 		/* Table size includes size of field but not the marker */
 		markerBuf += tableSize - sizeof(tableSize);
 	}
@@ -80,7 +78,7 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 	/* Parse frame header for depth and dimension information */
 	FRM_HEADER_JPEGL *frameHeader;
 	if (getc_frame_header_jpegl(&frameHeader, &markerBuf, endPtr))
-		throw Error::DataError("libjpegl: Could not read frame header");
+		throw Error::DataError("Could not read frame header");
 	setColorDepth((uint16_t)frameHeader->Nf * 8);
 	this->setBitDepth(8);
 	this->setHasAlphaChannel(false);
@@ -105,15 +103,14 @@ BiometricEvaluation::Image::JPEGL::getRawData()
 	int32_t lossy;
 	if (jpegl_decode_mem(&imgDat, &lossy,
 	    (unsigned char *)this->getDataPointer(), this->getDataSize()))
-		throw Error::DataError("libjpegl: Could not decode Lossless "
-		    "JPEG data");
+		throw Error::DataError("Could not decode Lossless JPEG data");
 
 	uint8_t *rawDataPtr = nullptr;
 	int32_t width, height, depth, ppi, rawSize;
 	if (get_IMG_DAT_image(&rawDataPtr, &rawSize, &width, &height, &depth,
 	    &ppi, imgDat)) {
 		free_IMG_DAT(imgDat, NO_FREE_IMAGE);
-		throw Error::DataError("libjpegl: Could not extract raw data");
+		throw Error::DataError("Could not extract raw data");
 	}
 	Memory::uint8Array rawData(rawSize);
 	rawData.copy(rawDataPtr);
