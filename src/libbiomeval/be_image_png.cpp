@@ -308,7 +308,7 @@ png_error_callback(
 		const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 		    userData);
 		png->getStatusCallback()("libpng: " + std::string(msg),
-		    BE::IO::StatusType::Error, userData);
+		    BE::IO::StatusType::Error);
 	}
 
 	/*
@@ -330,5 +330,5 @@ png_warning_callback(
 	const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 	    userData);
 	png->getStatusCallback()("libpng: " + std::string(msg),
-	    BE::IO::StatusType::Error, userData);
+	    BE::IO::StatusType::Error);
 }

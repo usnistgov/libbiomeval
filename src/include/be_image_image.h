@@ -50,8 +50,7 @@ namespace BiometricEvaluation
 		public:
 			using statusCallback_t = std::function<void(
 			    const std::string &,
-			    const IO::StatusType,
-			    const void *)>;
+			    const IO::StatusType)>;
 
 			/**
 		 	 * @brief
@@ -500,8 +499,6 @@ namespace BiometricEvaluation
 			 * Status received.
 			 * @param statusType
 			 * The type of status received.
-			 * @param userData
-			 * Optional user-specific data needed during handling.
 			 *
 			 * @throw Error::StrategyError
 			 * statusType == StatusType::Error
@@ -514,8 +511,7 @@ namespace BiometricEvaluation
 			static void
 			defaultStatusCallback(
 			    const std::string &status,
-			    const IO::StatusType statusType,
-			    const void *userData);
+			    const IO::StatusType statusType);
 
 		protected:
 			/**

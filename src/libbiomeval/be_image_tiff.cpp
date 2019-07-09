@@ -342,7 +342,7 @@ BE_TIFFErrorHandler(
 		    handle)->tiffObject;
 		if (tiff != nullptr) {
 			tiff->getStatusCallback()(
-			    msg, BE::IO::StatusType::Error, tiff);
+			    msg, BE::IO::StatusType::Error);
 		}
 	}
 
@@ -367,7 +367,7 @@ BE_TIFFWarningHandler(
 
 	const auto msg = BE::Image::TIFF::libtiffMessageToString(module, format,
 	    args);
-	tiff->getStatusCallback()(msg, BE::IO::StatusType::Warning, tiff);
+	tiff->getStatusCallback()(msg, BE::IO::StatusType::Warning);
 }
 
 void*

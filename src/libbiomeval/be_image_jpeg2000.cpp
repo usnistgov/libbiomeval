@@ -208,7 +208,7 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_error(
 	if (client_data != nullptr) {
 		const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
 		jp2->getStatusCallback()("libopenjp2: " + std::string(msg),
-		    IO::StatusType::Error, client_data);
+		    IO::StatusType::Error);
 	}
 
 	/* We can't continue on errors, so if handler won't throw, we will. */
@@ -225,7 +225,7 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_warning(
 
 	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
 	jp2->getStatusCallback()("libopenjp2: " + std::string(msg),
-	    IO::StatusType::Warning, client_data);
+	    IO::StatusType::Warning);
 }
 
 void
@@ -238,7 +238,7 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_info(
 
 	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
 	jp2->getStatusCallback()("libopenjp2: " + std::string(msg),
-	    IO::StatusType::Debug, client_data);
+	    IO::StatusType::Debug);
 }
 
 bool

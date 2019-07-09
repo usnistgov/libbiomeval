@@ -370,8 +370,7 @@ BiometricEvaluation::Image::Image::openImage(
 void
 BiometricEvaluation::Image::Image::defaultStatusCallback(
     const std::string &status,
-    const IO::StatusType statusType,
-    const void *userData)
+    const IO::StatusType statusType)
 {
 	if (statusType != IO::StatusType::Error)
 		return;
