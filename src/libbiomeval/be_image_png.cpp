@@ -307,7 +307,7 @@ png_error_callback(
 	if (userData != nullptr) {
 		const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 		    userData);
-		png->getMessageHandler()("libopenjp2: " + std::string(msg),
+		png->getMessageHandler()("libpng: " + std::string(msg),
 		    BE::IO::MessageLevel::Error, userData);
 	}
 
@@ -329,6 +329,6 @@ png_warning_callback(
 
 	const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 	    userData);
-	png->getMessageHandler()("libopenjp2: " + std::string(msg),
+	png->getMessageHandler()("libpng: " + std::string(msg),
 	    BE::IO::MessageLevel::Error, userData);
 }
