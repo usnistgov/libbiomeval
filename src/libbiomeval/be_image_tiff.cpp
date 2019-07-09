@@ -165,8 +165,8 @@ BE_TIFFWarningHandler(
 BiometricEvaluation::Image::TIFF::TIFF(
     const uint8_t *data,
     const uint64_t size,
-    const messageHandler_t &messageHandler) :
-    Image(data, size, CompressionAlgorithm::TIFF, messageHandler)
+    const statusCallback_t &statusCallback) :
+    Image(data, size, CompressionAlgorithm::TIFF, statusCallback)
 {
 	if (!isTIFF(data, size))
 		throw BE::Error::StrategyError("Not a TIFF image");
@@ -253,8 +253,8 @@ BiometricEvaluation::Image::TIFF::TIFF(
 
 BiometricEvaluation::Image::TIFF::TIFF(
     const BiometricEvaluation::Memory::uint8Array &data,
-    const messageHandler_t &messageHandler) :
-    TIFF(data, data.size(), messageHandler)
+    const statusCallback_t &statusCallback) :
+    TIFF(data, data.size(), statusCallback)
 {
 	/* NOP */
 }
@@ -341,12 +341,12 @@ BE_TIFFErrorHandler(
 		const auto tiff = static_cast<BE::Image::TIFF::ClientIO *>(
 		    handle)->tiffObject;
 		if (tiff != nullptr) {
-			tiff->getMessageHandler()(
-			    msg, BE::IO::MessageLevel::Error, tiff);
+			tiff->getStatusCallback()(
+			    msg, BE::IO::StatusType::Error, tiff);
 		}
 	}
 
-	/* libtiff can't continue, so if messageHandler doesn't throw, we do. */
+	/* libtiff can't continue, so if statusCallback doesn't throw, we do. */
 	throw BE::Error::StrategyError(msg);
 }
 
@@ -367,7 +367,7 @@ BE_TIFFWarningHandler(
 
 	const auto msg = BE::Image::TIFF::libtiffMessageToString(module, format,
 	    args);
-	tiff->getMessageHandler()(msg, BE::IO::MessageLevel::Warning, tiff);
+	tiff->getStatusCallback()(msg, BE::IO::StatusType::Warning, tiff);
 }
 
 void*

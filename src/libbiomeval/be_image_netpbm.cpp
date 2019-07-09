@@ -33,12 +33,12 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
 BiometricEvaluation::Image::NetPBM::NetPBM(
     const uint8_t *data,
     const uint64_t size,
-    const messageHandler_t &messageHandler) :
+    const statusCallback_t &statusCallback) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::NetPBM,
-    messageHandler)
+    statusCallback)
 {
 	if (isNetPBM(data, size) != true)
 		throw Error::DataError("Not a NetPBM formatted image");
@@ -155,9 +155,9 @@ BiometricEvaluation::Image::NetPBM::parseHeader()
 
 BiometricEvaluation::Image::NetPBM::NetPBM(
     const BiometricEvaluation::Memory::uint8Array &data,
-    const messageHandler_t &messageHandler) :
+    const statusCallback_t &statusCallback) :
     BiometricEvaluation::Image::NetPBM::NetPBM(data, data.size(),
-    messageHandler)
+    statusCallback)
 {
 
 }

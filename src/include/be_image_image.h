@@ -48,9 +48,9 @@ namespace BiometricEvaluation
 		 */
 		class Image {
 		public:
-			using messageHandler_t = std::function<void(
+			using statusCallback_t = std::function<void(
 			    const std::string &,
-			    const IO::MessageLevel,
+			    const IO::StatusType,
 			    const void *)>;
 
 			/**
@@ -73,8 +73,8 @@ namespace BiometricEvaluation
 			 *	The CompressionAlgorithm of data.
 			 * @param[in] hasAlphaChannel
 			 *	Presence of an alpha channel.
-			 * @param messageHandler
-			 * Function to handle messages sent when processing
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
 			 * images.
 			 *
 			 * @throw Error::StrategyError
@@ -91,8 +91,8 @@ namespace BiometricEvaluation
 			    const Resolution resolution,
 			    const CompressionAlgorithm compression,
 			    const bool hasAlphaChannel,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			/**
 		 	 * @brief
@@ -104,8 +104,8 @@ namespace BiometricEvaluation
 			 *	The size of the image data, in bytes.
 			 * @param[in] compression
 			 *	The CompressionAlgorithm of data.
-			 * @param messageHandler
-			 * Function to handle messages sent when processing
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
 			 * images.
 			 *
 			 * @throw Error::DataError
@@ -117,8 +117,8 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    const uint64_t size,
 			    const CompressionAlgorithm compression,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			/**
 			 * @brief
@@ -284,13 +284,13 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Get handle to message handler function.
+			 * Get handle to status callback function.
 			 *
 			 * @return
-			 * Message handler function.
+			 * Status callback function.
 			 */
-			messageHandler_t
-			getMessageHandler()
+			statusCallback_t
+			getStatusCallback()
 			    const;
 
 			virtual ~Image();
@@ -333,8 +333,8 @@ namespace BiometricEvaluation
 			 *	The image data.
 			 * @param[in] size
 			 *	The size of the image data, in bytes.
-			 * @param messageHandler
-			 * Function to handle messages sent when processing
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
 			 * images.
 			 *
 			 * @return
@@ -349,8 +349,8 @@ namespace BiometricEvaluation
 			openImage(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			/**
 			 * @brief
@@ -359,8 +359,8 @@ namespace BiometricEvaluation
 			 *
  			 * @param[in] data
 			 *	The image data.
-			 * @param messageHandler
-			 * Function to handle messages sent when processing
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
 			 * images.
 			 *
 			 * @return
@@ -374,8 +374,8 @@ namespace BiometricEvaluation
 			static std::shared_ptr<Image>
 			openImage(
 			    const Memory::uint8Array &data,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			/**
 			 * @brief
@@ -384,8 +384,8 @@ namespace BiometricEvaluation
 			 *
  			 * @param[in] path
 			 *	Path to image data.
-			 * @param messageHandler
-			 * Function to handle messages sent when processing
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
 			 * images.
 			 *
 			 * @return
@@ -401,8 +401,8 @@ namespace BiometricEvaluation
 			static std::shared_ptr<Image>
 			openImage(
 			    const std::string &path,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			/**
 			 * @brief
@@ -493,28 +493,28 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Default handling of messages sent from image
+			 * Default handling of statuses sent from image
 			 * processing libraries.
 			 *
-			 * @param message
-			 * Message received.
-			 * @param messageLevel
-			 * The type of message received.
+			 * @param status
+			 * Status received.
+			 * @param statusType
+			 * The type of status received.
 			 * @param userData
 			 * Optional user-specific data needed during handling.
 			 *
 			 * @throw Error::StrategyError
-			 * messageLevel == MessageLevel::Error
+			 * statusType == StatusType::Error
 			 *
 			 * @note
-			 * Custom implementations of signature messageHandler_t
-			 * should throw an exception when messageLevel ==
-			 * MessageLevel::Error.
+			 * Custom implementations of signature statusCallback_t
+			 * should throw an exception when statusType ==
+			 * StatusType::Error.
 			 */
 			static void
-			defaultMessageHandler(
-			    const std::string &message,
-			    const IO::MessageLevel messageLevel,
+			defaultStatusCallback(
+			    const std::string &status,
+			    const IO::StatusType statusType,
 			    const void *userData);
 
 		protected:
@@ -609,9 +609,9 @@ namespace BiometricEvaluation
 			/** Compression algorithm of _data */
 			CompressionAlgorithm _compressionAlgorithm;
 
-			/** Message handler */
-			messageHandler_t _messageHandler{
-			    Image::defaultMessageHandler};
+			/** Status callback */
+			statusCallback_t _statusCallback{
+			    Image::defaultStatusCallback};
 		};
 	}
 }

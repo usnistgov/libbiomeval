@@ -48,8 +48,8 @@ namespace BiometricEvaluation {
 			ReadOnly = 1
 		};
 
-		/** Type of message received. */
-		enum class MessageLevel
+		/** Type of status received. */
+		enum class StatusType
 		{
 			/**
 			 * Informational/debugging. Processing should
@@ -71,7 +71,7 @@ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::IO::Mode,
     BE_IO_Mode_EnumToStringMap);
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
-    BiometricEvaluation::IO::MessageLevel,
-    BE_IO_MessageLevel_EnumToStringMap);
+    BiometricEvaluation::IO::StatusType,
+    BE_IO_StatusType_EnumToStringMap);
 
 #endif	/* __BE_IO_H__ */

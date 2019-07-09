@@ -52,13 +52,13 @@ namespace BiometricEvaluation
 			JPEG(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			JPEG(
 			    const Memory::uint8Array &data,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~JPEG() = default;
 
@@ -98,17 +98,17 @@ namespace BiometricEvaluation
 		private:
 			/**
 			 * @brief
-			 * Common code to call the message handler.
+			 * Common code to call the statusCallback.
 			 *
 			 * @param cinfo
-			 * libjpeg struct containing message.
-			 * @param messageLevel
-			 * The type of message in cinfo.
+			 * libjpeg struct containing a status.
+			 * @param statusType
+			 * The type of status in cinfo.
 			 */
 			static void
-			callMessageHandler(
+			callStatusCallback(
 			    const j_common_ptr cinfo,
-			    const IO::MessageLevel messageLevel);
+			    const IO::StatusType statusType);
 
 			/**
 			 * @brief

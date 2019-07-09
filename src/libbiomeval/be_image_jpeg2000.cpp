@@ -19,13 +19,13 @@ namespace BE = BiometricEvaluation;
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const uint8_t *data,
     const uint64_t size,
-    const messageHandler_t &messageHandler,
+    const statusCallback_t &statusCallback,
     const int8_t codecFormat) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::JP2,
-    messageHandler),
+    statusCallback),
     _codecFormat(codecFormat)
 {
 	std::unique_ptr<opj_codec_t, void(*)(opj_codec_t*)> codec(
@@ -101,9 +101,9 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const BiometricEvaluation::Memory::uint8Array &data,
-    const messageHandler_t &messageHandler) :
+    const statusCallback_t &statusCallback) :
     BiometricEvaluation::Image::JPEG2000::JPEG2000(data, data.size(),
-    messageHandler)
+    statusCallback)
 {
 
 }
@@ -207,8 +207,8 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_error(
 {
 	if (client_data != nullptr) {
 		const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
-		jp2->getMessageHandler()("libopenjp2: " + std::string(msg),
-		    IO::MessageLevel::Error, client_data);
+		jp2->getStatusCallback()("libopenjp2: " + std::string(msg),
+		    IO::StatusType::Error, client_data);
 	}
 
 	/* We can't continue on errors, so if handler won't throw, we will. */
@@ -224,8 +224,8 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_warning(
 		return;
 
 	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
-	jp2->getMessageHandler()("libopenjp2: " + std::string(msg),
-	    IO::MessageLevel::Warning, client_data);
+	jp2->getStatusCallback()("libopenjp2: " + std::string(msg),
+	    IO::StatusType::Warning, client_data);
 }
 
 void
@@ -237,8 +237,8 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_info(
 		return;
 
 	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
-	jp2->getMessageHandler()("libopenjp2: " + std::string(msg),
-	    IO::MessageLevel::Debug, client_data);
+	jp2->getStatusCallback()("libopenjp2: " + std::string(msg),
+	    IO::StatusType::Debug, client_data);
 }
 
 bool

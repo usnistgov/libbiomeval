@@ -32,8 +32,8 @@ namespace BiometricEvaluation
 			 *	The image data.
 			 * @param[in] size
 			 *	The size of the image data, in bytes.
-			 * @param messageHandler
-			 * Function to handle messages sent when processing
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
 			 * images.
 			 * @param[in] codec
 			 *	The OPJ_CODEC_FORMAT used to encode data.
@@ -46,14 +46,14 @@ namespace BiometricEvaluation
 			JPEG2000(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler,
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback,
 			    const int8_t codecFormat = 2);
 
 			JPEG2000(
 			    const Memory::uint8Array &data,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~JPEG2000() = default;
 

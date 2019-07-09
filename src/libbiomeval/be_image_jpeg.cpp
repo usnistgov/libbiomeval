@@ -24,12 +24,12 @@ namespace BE = BiometricEvaluation;
 BiometricEvaluation::Image::JPEG::JPEG(
     const uint8_t *data,
     const uint64_t size,
-    const messageHandler_t &messageHandler) :
+    const statusCallback_t &statusCallback) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::JPEGB,
-    messageHandler)
+    statusCallback)
 {
 	/* Initialize custom JPEG error manager to throw exceptions */
 	struct jpeg_error_mgr jpeg_error_mgr;
@@ -67,8 +67,8 @@ BiometricEvaluation::Image::JPEG::JPEG(
 
 BiometricEvaluation::Image::JPEG::JPEG(
     const BiometricEvaluation::Memory::uint8Array &data,
-    const messageHandler_t &messageHandler) :
-    BiometricEvaluation::Image::JPEG::JPEG(data, data.size(), messageHandler)
+    const statusCallback_t &statusCallback) :
+    BiometricEvaluation::Image::JPEG::JPEG(data, data.size(), statusCallback)
 {
 
 }
@@ -295,9 +295,9 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 }
 
 void
-BiometricEvaluation::Image::JPEG::callMessageHandler(
+BiometricEvaluation::Image::JPEG::callStatusCallback(
     const j_common_ptr cinfo,
-    const BiometricEvaluation::IO::MessageLevel messageLevel)
+    const BiometricEvaluation::IO::StatusType statusType)
 {
 	if (cinfo->client_data == nullptr)
 		return;
@@ -306,15 +306,15 @@ BiometricEvaluation::Image::JPEG::callMessageHandler(
 	cinfo->err->format_message(cinfo, buffer);
 
 	const JPEG *jpeg = static_cast<JPEG*>(cinfo->client_data);
-	jpeg->getMessageHandler()("libjpeg: " + std::string(buffer),
-	    messageLevel, cinfo->client_data);
+	jpeg->getStatusCallback()("libjpeg: " + std::string(buffer),
+	    statusType, cinfo->client_data);
 }
 
 void
 BiometricEvaluation::Image::JPEG::error_exit(
     j_common_ptr cinfo)
 {
-	JPEG::callMessageHandler(cinfo, IO::MessageLevel::Error);
+	JPEG::callStatusCallback(cinfo, IO::StatusType::Error);
 
 	/*
 	 * libjpeg must stop at this point, so if the message handler didn't
@@ -331,7 +331,7 @@ BiometricEvaluation::Image::JPEG::output_message(
 {
 	/*
 	 * This method must be defined, but we're routing all messages through
-	 * callMessageHandler().
+	 * callStatusCallback().
 	 */
 }
 
@@ -340,22 +340,22 @@ BiometricEvaluation::Image::JPEG::emit_message(
     j_common_ptr cinfo,
     int msg_level)
 {
-	IO::MessageLevel level{};
+	IO::StatusType level{};
 	if (msg_level < 0)
-		level = IO::MessageLevel::Warning;
+		level = IO::StatusType::Warning;
 	else
-		level = IO::MessageLevel::Debug;
+		level = IO::StatusType::Debug;
 
-	if (level == IO::MessageLevel::Warning) {
+	if (level == IO::StatusType::Warning) {
 		/* Only print first warning unless high trace level set */
 		if ((cinfo->err->num_warnings == 0) ||
 		    (cinfo->err->trace_level >= 3))
-			BE::Image::JPEG::callMessageHandler(cinfo, level);
+			BE::Image::JPEG::callStatusCallback(cinfo, level);
 		cinfo->err->num_warnings++;
 	} else {
 		/* Only print debugging info if high trace level set */
 		if (cinfo->err->trace_level >= msg_level)
-			BE::Image::JPEG::callMessageHandler(cinfo, level);
+			BE::Image::JPEG::callStatusCallback(cinfo, level);
 	}
 }
 

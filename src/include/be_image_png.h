@@ -27,13 +27,13 @@ namespace BiometricEvaluation
 			PNG(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			PNG(
 			    const Memory::uint8Array &data,
-			    const messageHandler_t &messageHandler =
-			        Image::defaultMessageHandler);
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~PNG() = default;
 

@@ -19,11 +19,11 @@ static const int DIBHDRSZ = 40;
 BiometricEvaluation::Image::BMP::BMP(
     const uint8_t *data,
     const uint64_t size,
-    const messageHandler_t &messageHandler) :
+    const statusCallback_t &statusCallback) :
     Image::Image(data,
     size,
     CompressionAlgorithm::BMP,
-    messageHandler)
+    statusCallback)
 {
 	if (BMP::isBMP(data, size) == false)
 		throw Error::StrategyError("Not a BMP");
@@ -84,8 +84,8 @@ BiometricEvaluation::Image::BMP::BMP(
 
 BiometricEvaluation::Image::BMP::BMP(
     const BiometricEvaluation::Memory::uint8Array &data,
-    const messageHandler_t &messageHandler) :
-    BiometricEvaluation::Image::BMP::BMP(data, data.size(), messageHandler)
+    const statusCallback_t &statusCallback) :
+    BiometricEvaluation::Image::BMP::BMP(data, data.size(), statusCallback)
 {
 
 }

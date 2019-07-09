@@ -21,12 +21,12 @@ extern "C" {
 BiometricEvaluation::Image::JPEGL::JPEGL(
     const uint8_t *data,
     const uint64_t size,
-    const messageHandler_t &messageHandler) :
+    const statusCallback_t &statusCallback) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::JPEGL,
-    messageHandler)
+    statusCallback)
 {
 	uint8_t *markerBuf = (uint8_t *)this->getDataPointer();
 	uint8_t *endPtr = (uint8_t *)this->getDataPointer() +
@@ -90,8 +90,8 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 
 BiometricEvaluation::Image::JPEGL::JPEGL(
     const BiometricEvaluation::Memory::uint8Array &data,
-    const messageHandler_t &messageHandler) :
-    BiometricEvaluation::Image::JPEGL::JPEGL(data, data.size(), messageHandler)
+    const statusCallback_t &statusCallback) :
+    BiometricEvaluation::Image::JPEGL::JPEGL(data, data.size(), statusCallback)
 {
 
 }
