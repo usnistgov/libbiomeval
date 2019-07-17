@@ -264,6 +264,12 @@ typedef struct segments_s {
 #define VERSION_0300      300
 /* ANSI/NIST-ITL 1-2007 */
 #define VERSION_0400      400
+/* ANSI/NIST-ITL 1-2011 */
+#define VERSION_0500      500
+/* ANSI/NIST-ITL 1-2011 Update 2013 */
+#define VERSION_0501      501
+/* ANSI/NIST-ITL 1-2011 Update 2015 */
+#define VERSION_0502      502
 
 #define FS_CHAR           0x1C
 #define GS_CHAR           0x1D

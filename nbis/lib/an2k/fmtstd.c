@@ -1482,6 +1482,9 @@ static int i_read_Type1_record(FILE *fpin, AN2KBDB *buf, RECORD **orecord,
       case VERSION_0201:
       case VERSION_0300:
       case VERSION_0400:
+      case VERSION_0500:
+      case VERSION_0501:
+      case VERSION_0502:
          break;
 
       default: 
