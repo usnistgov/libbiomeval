@@ -29,7 +29,7 @@ COMMONINCOPT = -I/opt/local/include
 # On Linux, winscard.h may #include<pcsclite.h>, so we need the complete
 # path to that file.
 #
-COMMONINCOPT += -I/usr/include/PCSC
+COMMONINCOPT += -I/usr/include/PCSC -I/opt/local/include/db62
 COMMONLIBOPT = -I/opt/local/lib
 
 # Includes must be after setting COMMON* above
@@ -49,7 +49,7 @@ TIFFLIB = $(shell pkg-config --libs libtiff-4)
 ZLIB = -L$(shell pkg-config --variable=libdir zlib) $(shell pkg-config --libs-only-l --libs-only-other zlib)
 FFMPEGLIB = -lavformat -lavutil -lswscale -lavcodec
 
-COMMONLIB = $(COMMONLIBOPT) -ldb $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(TIFFLIB) $(ZLIB) $(FFMPEGLIB) $(PCSCLIB)
+COMMONLIB = $(COMMONLIBOPT) -ldb_cxx $(SQLITE3LIB) $(PNGLIB) $(JPEGLIB) $(OPENJPEGLIB) $(TIFFLIB) $(ZLIB) $(FFMPEGLIB) $(PCSCLIB)
 
 ifneq ($(OS), Darwin)
 PCSCLIB = -lpcsclite
@@ -149,17 +149,10 @@ endif
 #
 # The default make rule is OK for most files.
 #
-DBINCLUDE = /opt/local/include/db44
-DBLIBS = /opt/local/lib/db44
+DBINCLUDE = /opt/local/include/d62
+DBLIBS = /opt/local/lib/db62
 be_io_dbrecstore_impl.o: be_io_dbrecstore_impl.cpp
-ifeq ($(OS), Darwin)
-	$(if $(wildcard $(DBINCLUDE)),\
-	,\
-	$(error Berkeley DB include directory not found!))
-	$(CXX) $(CXXFLAGS)   -c -o $@ -DDB1X -I$(DBINCLUDE) $<
-else
-	$(CXX) $(CXXFLAGS)   -c -o $@ -DDB1X $<
-endif
+	$(CXX) $(CXXFLAGS) -I$(DBINCLUDE)  -c -o $@  $<
 
 be_framework.o: CXXFLAGS += -DMAJOR_VERSION=$(MAJOR_VERSION) -DMINOR_VERSION=$(MINOR_VERSION)
 

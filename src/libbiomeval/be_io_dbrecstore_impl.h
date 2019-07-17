@@ -16,11 +16,7 @@
 #include "be_io_recordstore_impl.h"
 #include <be_io_dbrecstore.h>
 
-#ifdef DB1X
-#include <db_185.h>
-#else
-#include <db.h>
-#endif
+#include <db_cxx.h>
 
 /*
  * This file contains the class declaration for an implementation of a
@@ -129,13 +125,16 @@ namespace BiometricEvaluation {
 			 * The handle to the underlying database for the
 			 * primary segments of a record.
 			 */
-			DB *_dbP;
+			std::shared_ptr<Db> _dbP;
 
 			/*
 			 * The handle for the underlying database for the
 			 * non-primary (subordinate) segments.
 			 */
-			DB *_dbS;
+			std::shared_ptr<Db> _dbS;
+
+			/** Handle to cursor */
+			std::shared_ptr<Dbc> _dbC{nullptr};
 
 			/*
 			 * Return the path to the underlying DB file.
@@ -144,7 +143,7 @@ namespace BiometricEvaluation {
 
 			/*
 			 * Functions to insert/read/sequence/remove all
-			 * segments of a record. 
+			 * segments of a record.
 			 */
 			void insertRecordSegments(const std::string &key,
 			    const void *data, const uint64_t size);
@@ -175,7 +174,7 @@ namespace BiometricEvaluation {
 			RecordStore::Record
 			i_sequence(
 			    bool returnData,
-			    int cursor); 
+			    int cursor);
 		};
 	}
 }
