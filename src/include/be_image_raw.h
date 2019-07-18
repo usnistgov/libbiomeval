@@ -32,6 +32,7 @@ namespace BiometricEvaluation
 			    const uint16_t bitDepth,
 			    const Resolution resolution,
 			    const bool hasAlphaChannel,
+			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback);
 
@@ -42,6 +43,7 @@ namespace BiometricEvaluation
 			    const uint16_t bitDepth,
 			    const Resolution resolution,
 			    const bool hasAlphaChannel,
+			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback);
 

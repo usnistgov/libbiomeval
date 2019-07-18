@@ -19,12 +19,14 @@ namespace BE = BiometricEvaluation;
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const uint8_t *data,
     const uint64_t size,
+    const std::string &identifier,
     const statusCallback_t &statusCallback,
     const int8_t codecFormat) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::JP2,
+    identifier,
     statusCallback),
     _codecFormat(codecFormat)
 {
@@ -101,8 +103,12 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const BiometricEvaluation::Memory::uint8Array &data,
+    const std::string &identifier,
     const statusCallback_t &statusCallback) :
-    BiometricEvaluation::Image::JPEG2000::JPEG2000(data, data.size(),
+    BiometricEvaluation::Image::JPEG2000::JPEG2000(
+    data,
+    data.size(),
+    identifier,
     statusCallback)
 {
 
@@ -206,7 +212,8 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_error(
 {
 	if (client_data != nullptr) {
 		const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
-		jp2->getStatusCallback()(msg, IO::StatusType::Error);
+		jp2->getStatusCallback()(jp2->getIdentifier(), msg,
+		    IO::StatusType::Error);
 	}
 
 	/* We can't continue on errors, so if handler won't throw, we will. */
@@ -222,7 +229,8 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_warning(
 		return;
 
 	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
-	jp2->getStatusCallback()(msg, IO::StatusType::Warning);
+	jp2->getStatusCallback()(jp2->getIdentifier(), msg,
+	    IO::StatusType::Warning);
 }
 
 void
@@ -234,7 +242,8 @@ BiometricEvaluation::Image::JPEG2000::openjpeg_info(
 		return;
 
 	const JPEG2000 *jp2 = static_cast<const JPEG2000*>(client_data);
-	jp2->getStatusCallback()(msg, IO::StatusType::Debug);
+	jp2->getStatusCallback()(jp2->getIdentifier(), msg,
+	    IO::StatusType::Debug);
 }
 
 bool

@@ -21,11 +21,13 @@ extern "C" {
 BiometricEvaluation::Image::WSQ::WSQ(
     const uint8_t *data,
     const uint64_t size,
+    const std::string &identifier,
     const statusCallback_t &statusCallback) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::WSQ20,
+    identifier,
     statusCallback)
 {
 	uint8_t *marker_buf = (uint8_t *)this->getDataPointer();
@@ -90,8 +92,13 @@ BiometricEvaluation::Image::WSQ::WSQ(
 
 BiometricEvaluation::Image::WSQ::WSQ(
     const BiometricEvaluation::Memory::uint8Array &data,
+    const std::string &identifier,
     const statusCallback_t &statusCallback) :
-    BiometricEvaluation::Image::WSQ::WSQ(data, data.size(), statusCallback)
+    BiometricEvaluation::Image::WSQ::WSQ(
+    data,
+    data.size(),
+    identifier,
+    statusCallback)
 {
 
 }

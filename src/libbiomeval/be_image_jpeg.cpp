@@ -24,11 +24,13 @@ namespace BE = BiometricEvaluation;
 BiometricEvaluation::Image::JPEG::JPEG(
     const uint8_t *data,
     const uint64_t size,
+    const std::string &identifier,
     const statusCallback_t &statusCallback) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::JPEGB,
+    identifier,
     statusCallback)
 {
 	/* Initialize custom JPEG error manager to throw exceptions */
@@ -67,8 +69,13 @@ BiometricEvaluation::Image::JPEG::JPEG(
 
 BiometricEvaluation::Image::JPEG::JPEG(
     const BiometricEvaluation::Memory::uint8Array &data,
+    const std::string &identifier,
     const statusCallback_t &statusCallback) :
-    BiometricEvaluation::Image::JPEG::JPEG(data, data.size(), statusCallback)
+    BiometricEvaluation::Image::JPEG::JPEG(
+    data,
+    data.size(),
+    identifier,
+    statusCallback)
 {
 
 }
@@ -306,7 +313,7 @@ BiometricEvaluation::Image::JPEG::callStatusCallback(
 	cinfo->err->format_message(cinfo, buffer);
 
 	const JPEG *jpeg = static_cast<JPEG*>(cinfo->client_data);
-	jpeg->getStatusCallback()(buffer, statusType);
+	jpeg->getStatusCallback()(jpeg->getIdentifier(), buffer, statusType);
 }
 
 void

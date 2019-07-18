@@ -86,11 +86,13 @@ png_warning_callback(
 BiometricEvaluation::Image::PNG::PNG(
     const uint8_t *data,
     const uint64_t size,
+    const std::string &identifier,
     const statusCallback_t &statusCallback) :
     Image::Image(
     data,
     size,
     CompressionAlgorithm::PNG,
+    identifier,
     statusCallback)
 {
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
@@ -157,8 +159,13 @@ BiometricEvaluation::Image::PNG::PNG(
 
 BiometricEvaluation::Image::PNG::PNG(
     const BiometricEvaluation::Memory::uint8Array &data,
+    const std::string &identifier,
     const statusCallback_t &statusCallback) :
-    BiometricEvaluation::Image::PNG::PNG(data, data.size(), statusCallback)
+    BiometricEvaluation::Image::PNG::PNG(
+    data,
+    data.size(),
+    identifier,
+    statusCallback)
 {
 
 }
@@ -306,7 +313,8 @@ png_error_callback(
 	if (userData != nullptr) {
 		const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 		    userData);
-		png->getStatusCallback()(msg, BE::IO::StatusType::Error);
+		png->getStatusCallback()(png->getIdentifier(), msg,
+		    BE::IO::StatusType::Error);
 	}
 
 	/*
@@ -327,5 +335,6 @@ png_warning_callback(
 
 	const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 	    userData);
-	png->getStatusCallback()(msg, BE::IO::StatusType::Error);
+	png->getStatusCallback()(png->getIdentifier(), msg,
+	    BE::IO::StatusType::Error);
 }

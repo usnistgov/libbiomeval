@@ -50,6 +50,7 @@ namespace BiometricEvaluation
 		public:
 			using statusCallback_t = std::function<void(
 			    const std::string &,
+			    const std::string &,
 			    const IO::StatusType)>;
 
 			/**
@@ -72,6 +73,8 @@ namespace BiometricEvaluation
 			 *	The CompressionAlgorithm of data.
 			 * @param[in] hasAlphaChannel
 			 *	Presence of an alpha channel.
+			 * @param identifier
+			 * Identifier for the encapsulated data.
 			 * @param statusCallback
 			 * Function to handle statuses sent when processing
 			 * images.
@@ -90,6 +93,7 @@ namespace BiometricEvaluation
 			    const Resolution resolution,
 			    const CompressionAlgorithm compression,
 			    const bool hasAlphaChannel,
+			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback);
 
@@ -103,6 +107,8 @@ namespace BiometricEvaluation
 			 *	The size of the image data, in bytes.
 			 * @param[in] compression
 			 *	The CompressionAlgorithm of data.
+			 * @param identifier
+			 * Identifier for the encapsulated data.
 			 * @param statusCallback
 			 * Function to handle statuses sent when processing
 			 * images.
@@ -116,6 +122,7 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    const uint64_t size,
 			    const CompressionAlgorithm compression,
+    			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback);
 
@@ -292,6 +299,17 @@ namespace BiometricEvaluation
 			getStatusCallback()
 			    const;
 
+			/**
+			 * @brief
+			 * Obtain the assigned image identifier.
+			 *
+			 * @return
+			 * Image identifier.
+			 */
+			std::string
+			getIdentifier()
+			    const;
+
 			virtual ~Image();
 
 			/*
@@ -332,6 +350,8 @@ namespace BiometricEvaluation
 			 *	The image data.
 			 * @param[in] size
 			 *	The size of the image data, in bytes.
+			 * @param identifier
+			 * Identifier for the encapsulated data.
 			 * @param statusCallback
 			 * Function to handle statuses sent when processing
 			 * images.
@@ -348,6 +368,7 @@ namespace BiometricEvaluation
 			openImage(
 			    const uint8_t *data,
 			    const uint64_t size,
+			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback);
 
@@ -358,6 +379,8 @@ namespace BiometricEvaluation
 			 *
  			 * @param[in] data
 			 *	The image data.
+			 * @param identifier
+			 * Identifier for the encapsulated data.
 			 * @param statusCallback
 			 * Function to handle statuses sent when processing
 			 * images.
@@ -373,6 +396,7 @@ namespace BiometricEvaluation
 			static std::shared_ptr<Image>
 			openImage(
 			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback);
 
@@ -495,6 +519,9 @@ namespace BiometricEvaluation
 			 * Default handling of statuses sent from image
 			 * processing libraries.
 			 *
+			 * @param identifier
+			 * Identifier of the image being processed when the
+			 * status was sent.
 			 * @param status
 			 * Status received.
 			 * @param statusType
@@ -510,6 +537,7 @@ namespace BiometricEvaluation
 			 */
 			static void
 			defaultStatusCallback(
+			    const std::string &identifier,
 			    const std::string &status,
 			    const IO::StatusType statusType);
 
@@ -604,6 +632,9 @@ namespace BiometricEvaluation
 
 			/** Compression algorithm of _data */
 			CompressionAlgorithm _compressionAlgorithm;
+
+			/** Identifier for the encapsulated data */
+			const std::string _identifier{};
 
 			/** Status callback */
 			statusCallback_t _statusCallback{

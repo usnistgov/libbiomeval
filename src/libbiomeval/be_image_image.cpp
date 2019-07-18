@@ -37,6 +37,7 @@ BiometricEvaluation::Image::Image::Image(
     const Resolution resolution,
     const CompressionAlgorithm compressionAlgorithm,
     const bool hasAlphaChannel,
+    const std::string &identifier,
     const statusCallback_t &statusCallback) :
     _dimensions(dimensions),
     _colorDepth(colorDepth),
@@ -45,6 +46,7 @@ BiometricEvaluation::Image::Image::Image(
     _resolution(resolution),
     _data(size),
     _compressionAlgorithm(compressionAlgorithm),
+    _identifier(identifier),
     _statusCallback(statusCallback)
 {
 	std::memcpy(_data, data, size);
@@ -54,6 +56,7 @@ BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
     const uint64_t size,
     const CompressionAlgorithm compressionAlgorithm,
+    const std::string &identifier,
     const statusCallback_t &statusCallback) :
     BiometricEvaluation::Image::Image::Image(
     data,
@@ -64,6 +67,7 @@ BiometricEvaluation::Image::Image::Image(
     Resolution(),
     compressionAlgorithm,
     false,
+    identifier,
     statusCallback)
 {
 
@@ -332,35 +336,36 @@ std::shared_ptr<BiometricEvaluation::Image::Image>
 BiometricEvaluation::Image::Image::openImage(
     const uint8_t *data,
     const uint64_t size,
+    const std::string &identifier,
     const statusCallback_t &statusCallback)
 {
 	switch (Image::getCompressionAlgorithm(data, size)) {
 	case CompressionAlgorithm::JPEGB:
 		return (std::shared_ptr<Image>(new JPEG(data, size,
-		    statusCallback)));
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::JPEGL:
 		return (std::shared_ptr<Image>(new JPEGL(data, size,
-		    statusCallback)));
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::JP2:
 		/* FALLTHROUGH */
 	case CompressionAlgorithm::JP2L:
 		return (std::shared_ptr<Image>(new JPEG2000(data, size,
-		    statusCallback)));
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::PNG:
 		return (std::shared_ptr<Image>(new PNG(data, size,
-		    statusCallback)));
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::NetPBM:
 		return (std::shared_ptr<Image>(new NetPBM(data, size,
-		    statusCallback)));
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::WSQ20:
 		return (std::shared_ptr<Image>(new WSQ(data, size,
-		    statusCallback)));
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::BMP:
 		return (std::shared_ptr<Image>(new BMP(data, size,
-		    statusCallback)));
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::TIFF:
 		return (std::shared_ptr<Image>(new TIFF(data, size,
-		    statusCallback)));
+		    identifier, statusCallback)));
 	default:
 		throw Error::StrategyError("Could not determine compression "
 		    "algorithm");
@@ -369,13 +374,18 @@ BiometricEvaluation::Image::Image::openImage(
 
 void
 BiometricEvaluation::Image::Image::defaultStatusCallback(
+    const std::string &identifier,
     const std::string &status,
     const IO::StatusType statusType)
 {
 	if (statusType != IO::StatusType::Error)
 		return;
 
-	throw BE::Error::StrategyError(status);
+	if (identifier.empty())
+		throw BE::Error::StrategyError(status);
+	else
+		throw BE::Error::StrategyError(status + " (Identifier = " +
+		    identifier + ')');
 }
 
 BiometricEvaluation::Image::Image::statusCallback_t
@@ -385,12 +395,21 @@ BiometricEvaluation::Image::Image::getStatusCallback()
 	return (this->_statusCallback);
 }
 
+std::string
+BiometricEvaluation::Image::Image::getIdentifier()
+    const
+{
+	return (this->_identifier);
+}
+
 std::shared_ptr<BiometricEvaluation::Image::Image>
 BiometricEvaluation::Image::Image::openImage(
     const Memory::uint8Array &data,
+    const std::string &identifier,
     const statusCallback_t &statusCallback)
 {
-	return (Image::openImage(data, data.size(), statusCallback));
+	return (Image::openImage(data, data.size(), identifier,
+	    statusCallback));
 }
 
 std::shared_ptr<BiometricEvaluation::Image::Image>
@@ -399,7 +418,7 @@ BiometricEvaluation::Image::Image::openImage(
     const statusCallback_t &statusCallback)
 {
 	Memory::uint8Array data = IO::Utility::readFile(path);
-	return (Image::openImage(data, statusCallback));
+	return (Image::openImage(data, path, statusCallback));
 }
 
 BiometricEvaluation::Image::CompressionAlgorithm
@@ -450,6 +469,6 @@ BiometricEvaluation::Image::Image::getRawImage(
 	    image->getRawData(), image->getDimensions(),
 	    image->getColorDepth(), image->getBitDepth(),
 	    image->getResolution(), image->hasAlphaChannel(),
-	    image->getStatusCallback()});
+	    image->getIdentifier(), image->getStatusCallback()});
 }
 

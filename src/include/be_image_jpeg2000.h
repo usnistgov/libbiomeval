@@ -46,12 +46,14 @@ namespace BiometricEvaluation
 			JPEG2000(
 			    const uint8_t *data,
 			    const uint64_t size,
+			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback,
 			    const int8_t codecFormat = 2);
 
 			JPEG2000(
 			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback);
 

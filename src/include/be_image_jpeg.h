@@ -52,11 +52,13 @@ namespace BiometricEvaluation
 			JPEG(
 			    const uint8_t *data,
 			    const uint64_t size,
+			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback);
 
 			JPEG(
 			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
 			    const statusCallback_t &statusCallback =
 			        Image::defaultStatusCallback);
 
