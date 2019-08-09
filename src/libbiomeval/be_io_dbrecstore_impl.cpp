@@ -104,7 +104,23 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
 		throw Error::StrategyError("Could not create primary DB (" +
 		    Error::errorStr() + ")");
 	}
-
+	/* Create the cursor */
+	try {
+		Dbc *dbC{nullptr};
+		this->_dbP->cursor(nullptr, &dbC, 0);
+		/*
+		 * DB Cursors cannot be destructed, so set the deleter to
+		 * do nothing.
+		 */
+		this->_dbC = std::shared_ptr<Dbc>(dbC, [](Dbc *c) {});
+	} catch (const DbException &e) {
+		throw BE::Error::StrategyError("Could not create Dbc "
+		    "(DB error = " + std::to_string(
+		    e.get_errno()) + " -- " + e.what() + ")");
+	} catch (const std::exception &e) {
+		throw Error::StrategyError("Could not create Dbc (" +
+		    Error::errorStr() + ")");
+	}
 	/* Create the subordinate DB file */
 	this->_dbnameS = this->_dbnameP + SUBORDINATE_DBEXT;
 	this->_dbS = std::make_shared<Db>(nullptr, 0);
@@ -153,6 +169,23 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
 		throw Error::StrategyError("Could not create primary DB (" +
 		    Error::errorStr() + ")");
 	}
+	/* Create the cursor */
+	try {
+		Dbc *dbC{nullptr};
+		this->_dbP->cursor(nullptr, &dbC, 0);
+		/*
+		 * DB Cursors cannot be destructed, so set the deleter to
+		 * do nothing.
+		 */
+		this->_dbC = std::shared_ptr<Dbc>(dbC, [](Dbc *c) {});
+	} catch (const DbException &e) {
+		throw BE::Error::StrategyError("Could not create Dbc "
+		    "(DB error = " + std::to_string(
+		    e.get_errno()) + " -- " + e.what() + ")");
+	} catch (const std::exception &e) {
+		throw Error::StrategyError("Could not create Dbc (" +
+		    Error::errorStr() + ")");
+	}
 
 	/*
 	 * Open the subordinate DB file, creating if necessary in order
@@ -161,10 +194,10 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
 	 * just not use it later with the assumption there are no large
 	 * records in the existing record store.
 	 */
+	this->_dbS = std::make_shared<Db>(nullptr, 0);
+	setBtreeInfo(this->_dbS);
 	this->_dbnameS = this->_dbnameP + SUBORDINATE_DBEXT;
 	if (!IO::Utility::fileExists(this->_dbnameS)) {
-		this->_dbS = std::make_shared<Db>(nullptr, 0);
-		setBtreeInfo(this->_dbS);
 		try {
 			this->_dbS->open(nullptr, this->_dbnameS.c_str(),
 			    nullptr, DB_BTREE, DB_CREATE | DB_EXCL,
@@ -210,6 +243,8 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
 
 BiometricEvaluation::IO::DBRecordStore::Impl::~Impl()
 {
+	if (this->_dbC != nullptr)
+		this->_dbC->close();
 	if (this->_dbP != nullptr)
 		this->_dbP->close(0);
 	if (this->_dbS != nullptr)
@@ -290,7 +325,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::move(const std::string &pathname)
 
 	this->_dbS = std::make_shared<Db>(nullptr, 0);
 	try {
-		this->_dbP->open(nullptr, this->_dbnameS.c_str(), nullptr,
+		this->_dbS->open(nullptr, this->_dbnameS.c_str(), nullptr,
 		    DB_BTREE, 0, DBRS_MODE_RW);
 	} catch (const DbException &e) {
 		throw Error::StrategyError("Could not create subordinate DB "
@@ -443,13 +478,13 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_sequence(
 	/* If the current cursor position is START, then it doesn't matter
 	 * what the client requests; we start at the first record.
 	*/
-	u_int pos;
+	u_int32_t pos;
 	if ((getCursor() == IO::RecordStore::BE_RECSTORE_SEQ_START) ||
 	    (cursor == IO::RecordStore::BE_RECSTORE_SEQ_START))
 		pos = DB_FIRST;
 	else
 		pos = DB_NEXT;
-		
+#if 0
 	if ((this->getCursor() == IO::RecordStore::BE_RECSTORE_SEQ_START) ||
 	    (cursor == IO::RecordStore::BE_RECSTORE_SEQ_START) || 
 	    (this->_dbC == nullptr)) {
@@ -468,12 +503,12 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_sequence(
 			    Error::errorStr() + ")");
 		}
 	}
-
+#endif
 	/* Read */
 	Dbt dbtkey;
 	Dbt dbtdata;
 	/* Sequence and increment */
-	const auto rv = this->_dbC->get(&dbtkey, &dbtdata, DB_NEXT);
+	const auto rv = this->_dbC->get(&dbtkey, &dbtdata, pos);
 	if (rv == DB_NOTFOUND)
 		throw BE::Error::ObjectDoesNotExist();
 
@@ -509,12 +544,10 @@ BiometricEvaluation::IO::DBRecordStore::Impl::setCursorAtKey(
 {
 	if (!validateKeyString(key))
 		throw Error::StrategyError("Invalid key format");
-
 	Dbt dbtkey, dbtdata;
 
 	dbtkey.set_data((void *)key.data());
 	dbtkey.set_size(key.length());
-
 	/*
 	 * There is no need to be concerned about subordinate record
 	 * segments here because the sequence is maintained entirely
@@ -525,24 +558,6 @@ BiometricEvaluation::IO::DBRecordStore::Impl::setCursorAtKey(
 	 * position, which, in both cases, places the cursor back before
 	 * the key'd data.
 	 */
-	
-	if (this->_dbC == nullptr) {
-		try {
-			Dbc *dbC{nullptr};
-			this->_dbP->cursor(nullptr, &dbC, 0);
-			this->_dbC = std::shared_ptr<Dbc>(dbC, [](Dbc *c) {
-			    if (c != nullptr) c->close();
-			});
-		} catch (const DbException &e) {
-			throw BE::Error::StrategyError("Could not create Dbc "
-			    "(DB error = " + std::to_string(
-			    e.get_errno()) + " -- " + e.what() + ")");
-		} catch (const std::exception &e) {
-			throw Error::StrategyError("Could not create Dbc (" +
-			    Error::errorStr() + ")");
-		}
-	}
-	
 	try {
 		if (this->_dbC->get(&dbtkey, &dbtdata, DB_SET) == DB_NOTFOUND)
 			throw BE::Error::ObjectDoesNotExist(key);
@@ -761,13 +776,12 @@ BiometricEvaluation::IO::DBRecordStore::Impl::removeRecordSegments(
 		dbtkey.set_data((void *)keyseg.data());
 		dbtkey.set_size(keyseg.length());
 		try {
-		std::cout << "before" << std::endl;
-		rc = DBin->del(nullptr, &dbtkey, 0);
-				std::cout << "after" << std::endl;
-		} catch (...) {
-			std::cout << "caught exception" << std::endl;
+			rc = DBin->del(nullptr, &dbtkey, 0);
+		} catch (DbException &e) {
+			throw Error::StrategyError("Could not delete (DB "
+			    "error = "+ std::to_string(e.get_errno()) + " -- "+
+			    e.what() + ")");
 		}
-		std::cout << rc << std::endl;
 		switch (rc) {
 			case 0:
 				keyseg = genKeySegName(key, segnum);
