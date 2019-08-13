@@ -142,6 +142,14 @@ namespace BiometricEvaluation {
 			std::string getDBFilePathname() const;
 
 			/*
+			 * Open the underlying database handle objects.
+			 */
+			void openDBHandles(
+			    const std::string &pathname,
+			    int dbFlags,
+			    IO::Mode mode);
+
+			/*
 			 * Functions to insert/read/sequence/remove all
 			 * segments of a record.
 			 */

@@ -74,6 +74,75 @@ BiometricEvaluation::IO::DBRecordStore::Impl::getDBFilePathname() const
 	return (this->getPathname() + '/' + filename);
 }
 
+void
+BiometricEvaluation::IO::DBRecordStore::Impl::openDBHandles(
+    const std::string &pathname,
+    int dbFlags,
+    IO::Mode mode)
+{
+	/*
+	 * This function assumes that files and paths either exist when
+	 * needed or don't exist when not needed.
+	 */
+	this->_dbnameP = this->getDBFilePathname();
+
+	int dbMode;
+	switch (mode) {
+	case IO::Mode::ReadOnly:
+		dbMode = DBRS_MODE_R;
+		break;
+	case IO::Mode::ReadWrite:
+		dbMode = DBRS_MODE_RW;
+		break;
+	}
+	/* Open the primary DB file */
+	this->_dbP = std::make_shared<Db>(nullptr, 0);
+	setBtreeInfo(this->_dbP);
+	try {
+		this->_dbP->open(nullptr, this->_dbnameP.c_str(), nullptr,
+		    DB_BTREE, dbFlags, dbMode);
+	} catch (const DbException &e) {
+		throw Error::StrategyError("Could not open primary DB (DB "
+		    "error = " + std::to_string(e.get_errno()) + " -- " +
+		    e.what() + ")");
+	} catch (const std::exception &e) {
+		throw Error::StrategyError("Could not open primary DB (" +
+		    Error::errorStr() + ")");
+	}
+	/* Create the cursor */
+	try {
+		Dbc *dbC{nullptr};
+		this->_dbP->cursor(nullptr, &dbC, 0);
+		/*
+		 * DB Cursors cannot be destructed, so set the deleter to
+		 * do nothing.
+		 */
+		this->_dbC = std::shared_ptr<Dbc>(dbC, [](Dbc *c) {});
+	} catch (const DbException &e) {
+		throw BE::Error::StrategyError("Could not create DB cursor "
+		    "(DB error = " + std::to_string(
+		    e.get_errno()) + " -- " + e.what() + ")");
+	} catch (const std::exception &e) {
+		throw Error::StrategyError("Could not create DB cursor (" +
+		    Error::errorStr() + ")");
+	}
+	/* Open the subordinate DB file */
+	this->_dbnameS = this->_dbnameP + SUBORDINATE_DBEXT;
+	this->_dbS = std::make_shared<Db>(nullptr, 0);
+	setBtreeInfo(this->_dbS);
+	try {
+		this->_dbS->open(nullptr, this->_dbnameS.c_str(), nullptr,
+		    DB_BTREE, dbFlags, dbMode);
+	} catch (const DbException &e) {
+		throw Error::StrategyError("Could not open subordinate DB "
+		    "(DB error = " + std::to_string(e.get_errno()) + " -- " +
+		    e.what() + ")");
+	} catch (const std::exception &e) {
+		throw Error::StrategyError("Could not open subordinate DB "
+		    "(" + Error::errorStr() + ")");
+	}
+}
+
 BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
     const std::string &pathname,
     const std::string &description) :
@@ -87,55 +156,10 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
 	 * is the DB file names.
 	 */
 	this->_dbnameP = this->getDBFilePathname();
-	if (IO::Utility::fileExists(this->_dbnameP))
+	if (IO::Utility::fileExists(this->_dbnameP)) {
 		throw Error::ObjectExists("Database already exists");
-
-	/* Create the primary DB file */
-	this->_dbP = std::make_shared<Db>(nullptr, 0);
-	setBtreeInfo(this->_dbP);
-	try {
-		this->_dbP->open(nullptr, this->_dbnameP.c_str(), nullptr,
-		    DB_BTREE, DB_CREATE | DB_EXCL, DBRS_MODE_RW);
-	} catch (const DbException &e) {
-		throw Error::StrategyError("Could not create primary DB (DB "
-		    "error = " + std::to_string(e.get_errno()) + " -- " +
-		    e.what() + ")");
-	} catch (const std::exception &e) {
-		throw Error::StrategyError("Could not create primary DB (" +
-		    Error::errorStr() + ")");
 	}
-	/* Create the cursor */
-	try {
-		Dbc *dbC{nullptr};
-		this->_dbP->cursor(nullptr, &dbC, 0);
-		/*
-		 * DB Cursors cannot be destructed, so set the deleter to
-		 * do nothing.
-		 */
-		this->_dbC = std::shared_ptr<Dbc>(dbC, [](Dbc *c) {});
-	} catch (const DbException &e) {
-		throw BE::Error::StrategyError("Could not create Dbc "
-		    "(DB error = " + std::to_string(
-		    e.get_errno()) + " -- " + e.what() + ")");
-	} catch (const std::exception &e) {
-		throw Error::StrategyError("Could not create Dbc (" +
-		    Error::errorStr() + ")");
-	}
-	/* Create the subordinate DB file */
-	this->_dbnameS = this->_dbnameP + SUBORDINATE_DBEXT;
-	this->_dbS = std::make_shared<Db>(nullptr, 0);
-	setBtreeInfo(this->_dbS);
-	try {
-		this->_dbS->open(nullptr, this->_dbnameS.c_str(), nullptr,
-		    DB_BTREE, DB_CREATE | DB_EXCL, DBRS_MODE_RW);
-	} catch (const DbException &e) {
-		throw Error::StrategyError("Could not create subordinate DB "
-		    "(DB error = " + std::to_string(e.get_errno()) + " -- " +
-		    e.what() + ")");
-	} catch (const std::exception &e) {
-		throw Error::StrategyError("Could not create subordinate DB "
-		    "(" + Error::errorStr() + ")");
-	}
+	openDBHandles(pathname, DB_CREATE | DB_EXCL, IO::Mode::ReadWrite);
 }
 
 BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
@@ -144,62 +168,22 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
     RecordStore::Impl(pathname, mode)
 {
 	this->_dbnameP = this->getDBFilePathname();
-	if (!IO::Utility::fileExists(this->_dbnameP))
+	if (!IO::Utility::fileExists(this->_dbnameP)) {
 		throw Error::ObjectDoesNotExist("Database does not exist");
-
-	this->_dbP = std::make_shared<Db>(nullptr, 0);
-	setBtreeInfo(this->_dbP);
-	/* Open the primary DB file */
-	try {
-		switch (mode) {
-		case IO::Mode::ReadOnly:
-			this->_dbP->open(nullptr, this->_dbnameP.c_str(),
-			    nullptr, DB_BTREE, DB_RDONLY, DBRS_MODE_R);
-			break;
-		case IO::Mode::ReadWrite:
-			this->_dbP->open(nullptr, this->_dbnameP.c_str(),
-			    nullptr, DB_BTREE, 0, DBRS_MODE_RW);
-			break;
-		}
-	} catch (const DbException &e) {
-		throw Error::StrategyError("Could not create primary DB (DB "
-		    "error = " + std::to_string(e.get_errno()) + " -- " +
-		    e.what() + ")");
-	} catch (const std::exception &e) {
-		throw Error::StrategyError("Could not create primary DB (" +
-		    Error::errorStr() + ")");
 	}
-	/* Create the cursor */
-	try {
-		Dbc *dbC{nullptr};
-		this->_dbP->cursor(nullptr, &dbC, 0);
-		/*
-		 * DB Cursors cannot be destructed, so set the deleter to
-		 * do nothing.
-		 */
-		this->_dbC = std::shared_ptr<Dbc>(dbC, [](Dbc *c) {});
-	} catch (const DbException &e) {
-		throw BE::Error::StrategyError("Could not create Dbc "
-		    "(DB error = " + std::to_string(
-		    e.get_errno()) + " -- " + e.what() + ")");
-	} catch (const std::exception &e) {
-		throw Error::StrategyError("Could not create Dbc (" +
-		    Error::errorStr() + ")");
-	}
-
 	/*
-	 * Open the subordinate DB file, creating if necessary in order
+	 * Create the subordinate DB file if necessary in order
 	 * to migrate older DBRecordStores. If we can't open the file,
 	 * but the mode is ReadWrite, throw an exception; otherwise we'll
 	 * just not use it later with the assumption there are no large
 	 * records in the existing record store.
 	 */
-	this->_dbS = std::make_shared<Db>(nullptr, 0);
-	setBtreeInfo(this->_dbS);
-	this->_dbnameS = this->_dbnameP + SUBORDINATE_DBEXT;
-	if (!IO::Utility::fileExists(this->_dbnameS)) {
+	std::string tmpDBName = this->_dbnameP + SUBORDINATE_DBEXT;
+	if (!IO::Utility::fileExists(tmpDBName)) {
+		std::shared_ptr<Db> tmpDB = std::make_shared<Db>(nullptr, 0);
+		setBtreeInfo(tmpDB);
 		try {
-			this->_dbS->open(nullptr, this->_dbnameS.c_str(),
+			tmpDB->open(nullptr, tmpDBName.c_str(),
 			    nullptr, DB_BTREE, DB_CREATE | DB_EXCL,
 			    DBRS_MODE_RW);
 		} catch (const DbException &e) {
@@ -217,28 +201,19 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
 				return;
 			}
 		}
-		this->_dbS->close(0);
+		tmpDB->close(0);
+		tmpDB = nullptr;
 	}
 
-	try {
-		switch (mode) {
-		case IO::Mode::ReadOnly:
-			this->_dbS->open(nullptr, this->_dbnameS.c_str(),
-			    nullptr, DB_BTREE, DB_RDONLY, DBRS_MODE_R);
-			break;
-		case IO::Mode::ReadWrite:
-			this->_dbS->open(nullptr, this->_dbnameS.c_str(),
-			    nullptr, DB_BTREE, 0, DBRS_MODE_RW);
-			break;
-		}
-	} catch (const DbException &e) {
-		throw Error::StrategyError("Could not open subordinate DB "
-		    "(DB error = " + std::to_string(e.get_errno()) + " -- " +
-		    e.what() + ")");
-	} catch (const std::exception &e) {
-		throw Error::StrategyError("Could not open subordinate DB "
-		    "(" + Error::errorStr() + ")");
+	switch (mode) {
+	case IO::Mode::ReadOnly:
+		openDBHandles(pathname, DB_RDONLY, mode);
+		break;
+	case IO::Mode::ReadWrite:
+		openDBHandles(pathname, 0, mode);
+		break;
 	}
+
 }
 
 BiometricEvaluation::IO::DBRecordStore::Impl::~Impl()
@@ -257,10 +232,13 @@ BiometricEvaluation::IO::DBRecordStore::Impl::move(const std::string &pathname)
 	if (getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
 
+	if (this->_dbC != nullptr)
+		this->_dbC->close();
 	if (this->_dbP != nullptr)
 		this->_dbP->close(0);
 	if (this->_dbS != nullptr)
 		this->_dbS->close(0);
+	this->_dbC = nullptr;
 	this->_dbP = nullptr;
 	this->_dbS = nullptr;
 
@@ -310,31 +288,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::move(const std::string &pathname)
 		throw Error::StrategyError("Database " + this->_dbnameS +
 		    "does not exist");
 
-	this->_dbP = std::make_shared<Db>(nullptr, 0);
-	try {
-		this->_dbP->open(nullptr, this->_dbnameP.c_str(), nullptr,
-		    DB_BTREE, 0, DBRS_MODE_RW);
-	} catch (const DbException &e) {
-		throw Error::StrategyError("Could not open primary DB (DB "
-		    "error = " + std::to_string(e.get_errno()) + " -- " +
-		    e.what() + ")");
-	} catch (const std::exception &e) {
-		throw Error::StrategyError("Could not open primary DB (" +
-		    Error::errorStr() + ")");
-	}
-
-	this->_dbS = std::make_shared<Db>(nullptr, 0);
-	try {
-		this->_dbS->open(nullptr, this->_dbnameS.c_str(), nullptr,
-		    DB_BTREE, 0, DBRS_MODE_RW);
-	} catch (const DbException &e) {
-		throw Error::StrategyError("Could not create subordinate DB "
-		    "(DB error = " + std::to_string(e.get_errno()) + " -- " +
-		    e.what() + ")");
-	} catch (const std::exception &e) {
-		throw Error::StrategyError("Could not create subordinate DB "
-		    "(" + Error::errorStr() + ")");
-	}
+	openDBHandles(pathname, 0, IO::Mode::ReadWrite);
 }
 
 uint64_t
@@ -471,46 +425,28 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_sequence(
     int cursor)
 {
 	if ((cursor != IO::RecordStore::BE_RECSTORE_SEQ_START) &&
-	    (cursor != IO::RecordStore::BE_RECSTORE_SEQ_NEXT))
+	    (cursor != IO::RecordStore::BE_RECSTORE_SEQ_NEXT)) {
 		throw Error::StrategyError("Invalid cursor position as "
 		    "argument");
-
+	}
 	/* If the current cursor position is START, then it doesn't matter
 	 * what the client requests; we start at the first record.
 	*/
 	u_int32_t pos;
 	if ((getCursor() == IO::RecordStore::BE_RECSTORE_SEQ_START) ||
-	    (cursor == IO::RecordStore::BE_RECSTORE_SEQ_START))
+	    (cursor == IO::RecordStore::BE_RECSTORE_SEQ_START)) {
 		pos = DB_FIRST;
-	else
+	} else {
 		pos = DB_NEXT;
-#if 0
-	if ((this->getCursor() == IO::RecordStore::BE_RECSTORE_SEQ_START) ||
-	    (cursor == IO::RecordStore::BE_RECSTORE_SEQ_START) || 
-	    (this->_dbC == nullptr)) {
-		try {
-			Dbc *dbC{nullptr};
-			this->_dbP->cursor(nullptr, &dbC, 0);
-			this->_dbC = std::shared_ptr<Dbc>(dbC, [](Dbc *c) {
-			    if (c != nullptr) c->close();
-			});
-		} catch (const DbException &e) {
-			throw BE::Error::StrategyError("Could not create Dbc "
-			    "(DB error = " + std::to_string(
-			    e.get_errno()) + " -- " + e.what() + ")");
-		} catch (const std::exception &e) {
-			throw Error::StrategyError("Could not create Dbc (" +
-			    Error::errorStr() + ")");
-		}
 	}
-#endif
 	/* Read */
 	Dbt dbtkey;
 	Dbt dbtdata;
 	/* Sequence and increment */
 	const auto rv = this->_dbC->get(&dbtkey, &dbtdata, pos);
-	if (rv == DB_NOTFOUND)
+	if (rv == DB_NOTFOUND) {
 		throw BE::Error::ObjectDoesNotExist();
+	}
 
 	BE::IO::RecordStore::Record record;
 	record.key.assign((const char *)dbtkey.get_data(), dbtkey.get_size());
