@@ -18,13 +18,3 @@ BE_IO_Mode_EnumToStringMap = {
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::IO::Mode,
     BE_IO_Mode_EnumToStringMap);
-
-const std::map<BiometricEvaluation::IO::StatusType, std::string>
-BE_IO_StatusType_EnumToStringMap = {
-	{BiometricEvaluation::IO::StatusType::Debug, "Debug"},
-	{BiometricEvaluation::IO::StatusType::Warning, "Warning"},
-	{BiometricEvaluation::IO::StatusType::Error, "Error"}
-};
-BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
-    BiometricEvaluation::IO::StatusType,
-    BE_IO_StatusType_EnumToStringMap);

@@ -313,8 +313,8 @@ png_error_callback(
 	if (userData != nullptr) {
 		const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 		    userData);
-		png->getStatusCallback()(png->getIdentifier(), msg,
-		    BE::IO::StatusType::Error);
+		png->getStatusCallback()({BE::Framework::Status::Type::Error,
+		    msg, png->getIdentifier()});
 	}
 
 	/*
@@ -335,6 +335,6 @@ png_warning_callback(
 
 	const BE::Image::PNG *png = static_cast<const BE::Image::PNG*>(
 	    userData);
-	png->getStatusCallback()(png->getIdentifier(), msg,
-	    BE::IO::StatusType::Error);
+	png->getStatusCallback()({BE::Framework::Status::Type::Error, msg,
+	    png->getIdentifier()});
 }

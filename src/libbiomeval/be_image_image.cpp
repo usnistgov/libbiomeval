@@ -374,18 +374,12 @@ BiometricEvaluation::Image::Image::openImage(
 
 void
 BiometricEvaluation::Image::Image::defaultStatusCallback(
-    const std::string &identifier,
-    const std::string &status,
-    const IO::StatusType statusType)
+    const BiometricEvaluation::Framework::Status &status)
 {
-	if (statusType != IO::StatusType::Error)
+	if (status.getType() != Framework::Status::Type::Error)
 		return;
 
-	if (identifier.empty())
-		throw BE::Error::StrategyError(status);
-	else
-		throw BE::Error::StrategyError(status + " (Identifier = " +
-		    identifier + ')');
+	throw BE::Error::StrategyError(to_string(status));
 }
 
 BiometricEvaluation::Image::Image::statusCallback_t

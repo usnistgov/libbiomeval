@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <memory>
 
+#include <be_framework_status.h>
 #include <be_io.h>
 #include <be_image.h>
 #include <be_memory_autoarray.h>
@@ -49,9 +50,7 @@ namespace BiometricEvaluation
 		class Image {
 		public:
 			using statusCallback_t = std::function<void(
-			    const std::string &,
-			    const std::string &,
-			    const IO::StatusType)>;
+			    const Framework::Status)>;
 
 			/**
 		 	 * @brief
@@ -519,27 +518,20 @@ namespace BiometricEvaluation
 			 * Default handling of statuses sent from image
 			 * processing libraries.
 			 *
-			 * @param identifier
-			 * Identifier of the image being processed when the
-			 * status was sent.
 			 * @param status
 			 * Status received.
-			 * @param statusType
-			 * The type of status received.
 			 *
 			 * @throw Error::StrategyError
-			 * statusType == StatusType::Error
+			 * status.type == Framework::Status::Type::Error
 			 *
 			 * @note
 			 * Custom implementations of signature statusCallback_t
-			 * should throw an exception when statusType ==
-			 * StatusType::Error.
+			 * should throw an exception when status.type ==
+			 * Framework::Status::Type::Error.
 			 */
 			static void
 			defaultStatusCallback(
-			    const std::string &identifier,
-			    const std::string &status,
-			    const IO::StatusType statusType);
+			    const Framework::Status &status);
 
 		protected:
 			/**

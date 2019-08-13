@@ -304,7 +304,7 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 void
 BiometricEvaluation::Image::JPEG::callStatusCallback(
     const j_common_ptr cinfo,
-    const BiometricEvaluation::IO::StatusType statusType)
+    const BiometricEvaluation::Framework::Status::Type statusType)
 {
 	if (cinfo->client_data == nullptr)
 		return;
@@ -313,14 +313,14 @@ BiometricEvaluation::Image::JPEG::callStatusCallback(
 	cinfo->err->format_message(cinfo, buffer);
 
 	const JPEG *jpeg = static_cast<JPEG*>(cinfo->client_data);
-	jpeg->getStatusCallback()(jpeg->getIdentifier(), buffer, statusType);
+	jpeg->getStatusCallback()({statusType, buffer, jpeg->getIdentifier()});
 }
 
 void
 BiometricEvaluation::Image::JPEG::error_exit(
     j_common_ptr cinfo)
 {
-	JPEG::callStatusCallback(cinfo, IO::StatusType::Error);
+	JPEG::callStatusCallback(cinfo, Framework::Status::Type::Error);
 
 	/*
 	 * libjpeg must stop at this point, so if the message handler didn't
@@ -346,13 +346,13 @@ BiometricEvaluation::Image::JPEG::emit_message(
     j_common_ptr cinfo,
     int msg_level)
 {
-	IO::StatusType level{};
+	Framework::Status::Type level{};
 	if (msg_level < 0)
-		level = IO::StatusType::Warning;
+		level = Framework::Status::Type::Warning;
 	else
-		level = IO::StatusType::Debug;
+		level = Framework::Status::Type::Debug;
 
-	if (level == IO::StatusType::Warning) {
+	if (level == Framework::Status::Type::Warning) {
 		/* Only print first warning unless high trace level set */
 		if ((cinfo->err->num_warnings == 0) ||
 		    (cinfo->err->trace_level >= 3))

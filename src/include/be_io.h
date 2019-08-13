@@ -47,31 +47,11 @@ namespace BiometricEvaluation {
 			 */
 			ReadOnly = 1
 		};
-
-		/** Type of status received. */
-		enum class StatusType
-		{
-			/**
-			 * Informational/debugging. Processing should
-			 * continue.
-			 */
-			Debug,
-			/**
-			 * Something seems off about the operation, but the
-			 * output might be fine.
-			 */
-			Warning,
-			/** Processing absolutely should stop. */
-			Error
-		};
 	}
 }
 
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::IO::Mode,
     BE_IO_Mode_EnumToStringMap);
-BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
-    BiometricEvaluation::IO::StatusType,
-    BE_IO_StatusType_EnumToStringMap);
 
 #endif	/* __BE_IO_H__ */

@@ -8,14 +8,20 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <algorithm>
+#include <cctype>
+
 #include <be_framework_status.h>
 
+using namespace BiometricEvaluation::Framework::Enumeration;
+
 BiometricEvaluation::Framework::Status::Status(
-    int32_t code,
-    const std::string &message)
-    noexcept :
-    _code(code),
-    _message(message)
+    Type type,
+    const std::string &message,
+    const std::string &identifier) :
+    _type(type),
+    _message(message),
+    _identifier(identifier)
 {
 
 }
@@ -24,11 +30,19 @@ std::string
 BiometricEvaluation::Framework::to_string(
     const Status &status)
 {
-	std::string s{std::to_string(status.getCode())};
+	std::string prefix{::to_string(status.getType())};
+	std::for_each(prefix.begin(), prefix.end(), [](char &c) {
+	    c = std::toupper(c);
+	});
+	std::string s{'[' + prefix + ']'};
 
 	const auto message = status.getMessage();
 	if (!message.empty())
-		s += " (" + message + ")";
+		s += ' ' + message;
+
+	const auto identifier = status.getIdentifier();
+	if (!identifier.empty())
+		s += " (" + identifier + ')';
 
 	return (s);
 }
@@ -40,3 +54,13 @@ BiometricEvaluation::Framework::operator<<(
 {
 	return (s << to_string(status));
 }
+
+const std::map<BiometricEvaluation::Framework::Status::Type, std::string>
+BE_Framework_Status_Type_EnumToStringMap = {
+    {BiometricEvaluation::Framework::Status::Type::Debug, "Debug"},
+    {BiometricEvaluation::Framework::Status::Type::Warning, "Warning"},
+    {BiometricEvaluation::Framework::Status::Type::Error, "Error"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Framework::Status::Type,
+    BE_Framework_Status_Type_EnumToStringMap);

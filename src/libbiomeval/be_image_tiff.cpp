@@ -356,8 +356,9 @@ BE_TIFFErrorHandler(
 		const auto tiff = static_cast<BE::Image::TIFF::ClientIO *>(
 		    handle)->tiffObject;
 		if (tiff != nullptr) {
-			tiff->getStatusCallback()(tiff->getIdentifier(),
-			    msg, BE::IO::StatusType::Error);
+			tiff->getStatusCallback()({
+			    BE::Framework::Status::Type::Error, msg,
+			    tiff->getIdentifier()});
 		}
 	}
 
@@ -382,8 +383,8 @@ BE_TIFFWarningHandler(
 
 	const auto msg = BE::Image::TIFF::libtiffMessageToString(module, format,
 	    args);
-	tiff->getStatusCallback()(tiff->getIdentifier(), msg,
-	    BE::IO::StatusType::Warning);
+	tiff->getStatusCallback()({BE::Framework::Status::Type::Warning,
+	    msg, tiff->getIdentifier()});
 }
 
 void*

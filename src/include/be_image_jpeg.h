@@ -110,7 +110,7 @@ namespace BiometricEvaluation
 			static void
 			callStatusCallback(
 			    const j_common_ptr cinfo,
-			    const IO::StatusType statusType);
+			    const Framework::Status::Type statusType);
 
 			/**
 			 * @brief
