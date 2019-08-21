@@ -26,21 +26,27 @@ namespace BiometricEvaluation
 		public:
 			WSQ(
 			    const uint8_t *data,
-			    const uint64_t size);
+			    const uint64_t size,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			WSQ(
-			    const Memory::uint8Array &data);
+			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~WSQ() = default;
 
 			Memory::uint8Array
 			getRawData()
 			    const;
-			    
+
 			Memory::uint8Array
 			getRawGrayscaleData(
 			    uint8_t depth) const;
-	
+
 			/**
 			 * Whether or not data is a WSQ image.
 			 *

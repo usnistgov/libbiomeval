@@ -18,24 +18,28 @@ static const int DIBHDRSZ = 40;
 
 BiometricEvaluation::Image::BMP::BMP(
     const uint8_t *data,
-    const uint64_t size) :
+    const uint64_t size,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback) :
     Image::Image(data,
     size,
-    CompressionAlgorithm::BMP)
+    CompressionAlgorithm::BMP,
+    identifier,
+    statusCallback)
 {
 	if (BMP::isBMP(data, size) == false)
 		throw Error::StrategyError("Not a BMP");
 
 	BITMAPINFOHEADER dibHeader;
 	try {
-		/* 
+		/*
 		 * Only need the BMP header here to determine
 		 * if this type of BMP is supported.
 		 */
 		BMPHeader bmpHeader;
 		BMP::getBMPHeader(data, size, &bmpHeader);
 
-		/* 
+		/*
 		 * The types of BMP supported in this class do not support
 		 * alpha channels. Other types of BMP do.
 		 */
@@ -59,7 +63,7 @@ BiometricEvaluation::Image::BMP::BMP(
 	 * color depth is bits-per-pixel; in the second, depth is 24.
 	 * The size of the table can be less than max possible.
 	 */
-	
+
 	if (dibHeader.bitsPerPixel <= 8) {
 		int numColors;
 		if (dibHeader.numberOfColors == 0) {
@@ -81,8 +85,14 @@ BiometricEvaluation::Image::BMP::BMP(
 }
 
 BiometricEvaluation::Image::BMP::BMP(
-    const BiometricEvaluation::Memory::uint8Array &data) :
-    BiometricEvaluation::Image::BMP::BMP(data, data.size())
+    const BiometricEvaluation::Memory::uint8Array &data,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback) :
+    BiometricEvaluation::Image::BMP::BMP(
+    data,
+    data.size(),
+    identifier,
+    statusCallback)
 {
 
 }
@@ -288,13 +298,13 @@ BiometricEvaluation::Image::BMP::getBMPHeader(
 	if (bufsz < BMPHDRSZ)
 		throw Error::StrategyError("Invalid buffer size for BMP"
 		    "header");
-	
+
 	memcpy(&((*header).magic), buf, 2);
-	
+
 	/* Only support BITMAPINFOHEADER BMPs */
 	if (header->magic != 0x4D42)
 		throw Error::NotImplemented("Magic bytes");
-	
+
 	memcpy(&((*header).size), buf + 2, 4);
 	memcpy(&((*header).reserved1), buf + 6, 2);
 	memcpy(&((*header).reserved2), buf + 8, 2);
@@ -317,7 +327,7 @@ BiometricEvaluation::Image::BMP::getDIBHeader(
 
 	/* Skip BMP header */
 	const uint8_t * const dibBuf = buf + 14;
-	
+
 	memcpy(&((*header).headerSize), dibBuf, 4);
 	memcpy(&((*header).width), dibBuf + 4, 4);
 	memcpy(&((*header).height), dibBuf + 8, 4);
@@ -329,7 +339,7 @@ BiometricEvaluation::Image::BMP::getDIBHeader(
 	memcpy(&((*header).yResolution), dibBuf + 28, 4);
 	memcpy(&((*header).numberOfColors), dibBuf + 32, 4);
 	memcpy(&((*header).numberOfImportantColors), dibBuf + 36, 4);
-	
+
 	/*
 	 * NOTE: Some assumptions about header sizes. color depths, etc.
 	 * are made in other parts of this class based on the fact that
@@ -395,7 +405,7 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 	if ((dibHeader->compressionMethod != BI_RLE8) ||
 	    (dibHeader->bitsPerPixel != 8))
 		throw Error::NotImplemented("Not RLE8 compressed");
-		
+
 	/*
 	 * When converting from 8-bit BMP to 24-bit color, the
 	 * output array will be larger than the input.
@@ -427,9 +437,9 @@ BiometricEvaluation::Image::BMP::rle8Decoder(
 			int skipCount;
 			switch (byte2) {
 			case 0: /* Encoded mode: End of line */
-				/* 
+				/*
 				 * Colors after EOL are assumed to be
-				 * color zero in the table. 
+				 * color zero in the table.
 				 */
 				skipCount = (rawRow-output) % dibHeader->width;
 				rawRow += skipCount * rawPixelSz;

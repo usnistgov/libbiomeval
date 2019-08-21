@@ -26,7 +26,7 @@ namespace BiometricEvaluation
 		 *
 		 * @note
 		 * While a NetPBM file can contain more than one image, this
-		 * class will only support the first image found in any file, 
+		 * class will only support the first image found in any file,
 		 * also known as the "plain" NetPBM format.
 		 */
 		class NetPBM : public Image
@@ -40,13 +40,19 @@ namespace BiometricEvaluation
 				BinaryPortableGraymap = 5,	/* P5 */
 				BinaryPortablePixmap = 6	/* P6 */
 			};
-		
-			NetPBM(
-			    const uint8_t *data,
-			    const uint64_t size);
 
 			NetPBM(
-			    const Memory::uint8Array &data);
+			    const uint8_t *data,
+			    const uint64_t size,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
+
+			NetPBM(
+			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~NetPBM() = default;
 
@@ -54,7 +60,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
-			 * 
+			 *
 			 * @return
 			 *	AutoArray holding raw image data.
 			 *
@@ -72,11 +78,11 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			getRawData()
 			    const;
-			    
+
 			Memory::uint8Array
 			getRawGrayscaleData(
 			    uint8_t depth) const;
-	
+
 			/**
 			 * Whether or not data is a netpbm image.
 			 *
@@ -93,7 +99,7 @@ namespace BiometricEvaluation
 			isNetPBM(
 			    const uint8_t *data,
 			    uint64_t size);
-			
+
 			/*
 			 * Utility methods for parsing buffers.
 			 */
@@ -120,7 +126,7 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    size_t dataSize,
 			    size_t &offset);
-			
+
 			/**
 			 * @brief
 			 * Skip a block of comments in input.
@@ -142,7 +148,7 @@ namespace BiometricEvaluation
 			    const uint8_t *data,
 			    size_t dataSize,
 			    size_t &offset);
-			
+
 			/**
 			 * @brief
 			 * Obtain the next space-separated value from data,
@@ -169,16 +175,16 @@ namespace BiometricEvaluation
 			    size_t dataSize,
 			    size_t &offset,
 			    size_t sizeOfValue = 0);
-			    
+
 			/*
 			 * Buffer type conversions.
 			 */
-			    
+
 			/**
 			 * @brief
-			 * Convert an ASCII bitmap (1-bit depth) buffer into 
+			 * Convert an ASCII bitmap (1-bit depth) buffer into
 			 * an 8-bit depth buffer
-			 * 
+			 *
 			 * @param bitmap
 			 *	Bitmap data buffer.
 			 * @param bitmapSize
@@ -187,7 +193,7 @@ namespace BiometricEvaluation
 			 *	Width of image in bitmap.
 			 * @param height
 			 *	Height of image in bitmap.
-			 * 
+			 *
 			 * @return
 			 *	8-bit depth representation of bitmap
 			 *
@@ -200,12 +206,12 @@ namespace BiometricEvaluation
 			    uint64_t bitmapSize,
 			    uint32_t width,
 			    uint32_t height);
-			    
+
 			/**
 			 * @brief
 			 * Convert an ASCII pixel map buffer into a binary
 			 * pixel map buffer.
-			 * 
+			 *
 			 * @param ASCIIBuf
 			 *	ASCII pixel map data buffer.
 			 * @param ASCIIBufSize
@@ -219,7 +225,7 @@ namespace BiometricEvaluation
 			 * @param maxColor
 			 *	Maximum color value per pixel.  Intensities
 			 *	will be scaled based on this value.
-			 * 
+			 *
 			 * @return
 			 *	Binary pixel map representation of the ASCII
 			 *	pixel map in the same depth as the original.
@@ -241,9 +247,9 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Convert an binary bitmap (1-bit depth) buffer into 
+			 * Convert an binary bitmap (1-bit depth) buffer into
 			 * an 8-bit depth buffer
-			 * 
+			 *
 			 * @param bitmap
 			 *	Bitmap data buffer.
 			 * @param bitmapSize
@@ -252,7 +258,7 @@ namespace BiometricEvaluation
 			 *	Width of image in bitmap.
 			 * @param height
 			 *	Height of image in bitmap.
-			 * 
+			 *
 			 * @return
 			 *	8-bit depth representation of bitmap
 			 *

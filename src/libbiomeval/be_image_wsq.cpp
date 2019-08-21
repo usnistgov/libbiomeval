@@ -7,7 +7,7 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
- 
+
 #include <cstdio>
 
 extern "C" {
@@ -20,11 +20,15 @@ extern "C" {
 
 BiometricEvaluation::Image::WSQ::WSQ(
     const uint8_t *data,
-    const uint64_t size) :
+    const uint64_t size,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback) :
     Image::Image(
     data,
     size,
-    CompressionAlgorithm::WSQ20)
+    CompressionAlgorithm::WSQ20,
+    identifier,
+    statusCallback)
 {
 	uint8_t *marker_buf = (uint8_t *)this->getDataPointer();
 	uint8_t *wsq_buf = marker_buf;
@@ -34,30 +38,30 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	uint32_t rv = 0;
 	if ((rv = getc_marker_wsq(&marker, SOI_WSQ, &marker_buf,
 	    wsq_buf + size)))
-		throw Error::StrategyError("libwsq could not read to SOI_WSQ");
-	
+		throw Error::StrategyError("Could not read to SOI_WSQ");
+
 	/* Step through any tables up to the "start of frame" marker */
 	for (;;) {
 		if ((rv = getc_marker_wsq(&marker, TBLS_N_SOF, &marker_buf,
 		    wsq_buf + size)))
-			throw Error::StrategyError("libwsq could not read to "
+			throw Error::StrategyError("Could not read to "
 			    "TBLS_N_SOF");
 
 		if (marker == SOF_WSQ)
 			break;
-			
+
 		if ((rv = getc_ushort(&tbl_size, &marker_buf, wsq_buf + size)))
-			throw Error::StrategyError("libwsq could not read size "
+			throw Error::StrategyError("Could not read size "
 			    "of table");
 		/* Table size includes size of field but not the marker */
 		marker_buf += tbl_size - sizeof(tbl_size);
 	}
-	
+
 	/* Read the frame header */
 	FRM_HEADER_WSQ wsq_header;
 	if ((rv = getc_frame_header_wsq(&wsq_header, &marker_buf,
 	    wsq_buf + size)))
-		throw Error::DataError("libwsq could not read frame header");
+		throw Error::DataError("Could not read frame header");
 	setDimensions(Size(wsq_header.width, wsq_header.height));
 
 	/* Read PPI from NISTCOM, if present */
@@ -75,9 +79,9 @@ BiometricEvaluation::Image::WSQ::WSQ(
 		/* WSQ is a 500 ppi specification */
 		setResolution(Resolution(500, 500, Resolution::Units::PPI));
 	}
-	
-	/* 
-	 * "Source fingerprint images shall be captured with 8 bits of 
+
+	/*
+	 * "Source fingerprint images shall be captured with 8 bits of
 	 * precision per pixel."
 	 */
 	setColorDepth(8);
@@ -87,8 +91,14 @@ BiometricEvaluation::Image::WSQ::WSQ(
 }
 
 BiometricEvaluation::Image::WSQ::WSQ(
-    const BiometricEvaluation::Memory::uint8Array &data) :
-    BiometricEvaluation::Image::WSQ::WSQ(data, data.size())
+    const BiometricEvaluation::Memory::uint8Array &data,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback) :
+    BiometricEvaluation::Image::WSQ::WSQ(
+    data,
+    data.size(),
+    identifier,
+    statusCallback)
 {
 
 }

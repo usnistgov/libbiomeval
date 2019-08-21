@@ -9,31 +9,40 @@
  */
 
 #include <cstdio>		/* Needed for NBIS headers */
-#include <sstream>
 
 extern "C" {
 	#include <computil.h>
 	#include <dataio.h>
+	#include <jerror.h>
 	#include <jpeglib.h>
 }
 
 #include <be_image_jpeg.h>
 
+namespace BE = BiometricEvaluation;
+
 BiometricEvaluation::Image::JPEG::JPEG(
     const uint8_t *data,
-    const uint64_t size) :
+    const uint64_t size,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback) :
     Image::Image(
     data,
     size,
-    CompressionAlgorithm::JPEGB)
+    CompressionAlgorithm::JPEGB,
+    identifier,
+    statusCallback)
 {
 	/* Initialize custom JPEG error manager to throw exceptions */
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
+	jpeg_error_mgr.emit_message = JPEG::emit_message;
+	jpeg_error_mgr.output_message = JPEG::output_message;
 
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
+	dinfo.client_data = (void *)this;
 	jpeg_create_decompress(&dinfo);
 
 #if JPEG_LIB_VERSION >= 80
@@ -59,8 +68,14 @@ BiometricEvaluation::Image::JPEG::JPEG(
 }
 
 BiometricEvaluation::Image::JPEG::JPEG(
-    const BiometricEvaluation::Memory::uint8Array &data) :
-    BiometricEvaluation::Image::JPEG::JPEG(data, data.size())
+    const BiometricEvaluation::Memory::uint8Array &data,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback) :
+    BiometricEvaluation::Image::JPEG::JPEG(
+    data,
+    data.size(),
+    identifier,
+    statusCallback)
 {
 
 }
@@ -73,9 +88,12 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
-	
+	jpeg_error_mgr.emit_message = JPEG::emit_message;
+	jpeg_error_mgr.output_message = JPEG::output_message;
+
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
+	dinfo.client_data = (void *)this;
 	jpeg_create_decompress(&dinfo);
 
 #if JPEG_LIB_VERSION >= 80
@@ -85,7 +103,7 @@ BiometricEvaluation::Image::JPEG::getRawData()
 	JPEG::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
 	    this->getDataSize());
 #endif
-	
+
 	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)
 		throw Error::StrategyError("jpeg_read_header()");
 	if (jpeg_start_decompress(&dinfo) != TRUE)
@@ -116,14 +134,17 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 {
 	if (depth != 8 && depth != 1)
 		throw Error::ParameterError("Invalid value for bit depth");
-	
+
 	/* Initialize custom JPEG error manager to throw exceptions */
 	struct jpeg_error_mgr jpeg_error_mgr;
 	jpeg_std_error(&jpeg_error_mgr);
 	jpeg_error_mgr.error_exit = JPEG::error_exit;
-	
+	jpeg_error_mgr.emit_message = JPEG::emit_message;
+	jpeg_error_mgr.output_message = JPEG::output_message;
+
 	struct jpeg_decompress_struct dinfo;
 	dinfo.err = &jpeg_error_mgr;
+	dinfo.client_data = (void *)this;
 	jpeg_create_decompress(&dinfo);
 
 #if JPEG_LIB_VERSION >= 80
@@ -133,7 +154,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 	JPEG::jpeg_mem_src(&dinfo, (unsigned char *)this->getDataPointer(),
 	    this->getDataSize());
 #endif
-	
+
 	if (jpeg_read_header(&dinfo, TRUE) != JPEG_HEADER_OK)
 		throw Error::StrategyError("jpeg_read_header()");
 
@@ -165,7 +186,7 @@ BiometricEvaluation::Image::JPEG::getRawGrayscaleData(
 		switch (depth) {
 		case 1:
 			/*
-			 * Quantize 1 bit per pixel value into an 8 bit 
+			 * Quantize 1 bit per pixel value into an 8 bit
 			 * container by mapping 1 to 255.
 			 *
 			 * TODO: Use a colormap to support 2-7 bit depth.
@@ -192,13 +213,13 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 {
 	uint8_t *markerBuf = (uint8_t *)data;
 	uint8_t *endPtr = (uint8_t *)data + size;
-	
+
 	/*
 	 * JPEG markers (ISO/IEC 10918-1:1993)
 	 */
 	static const uint16_t startOfScan = 0xFFDA;
 	static const uint16_t startOfImage = 0xFFD8;
-	
+
 	/* Start of frame, non-differential, Huffman coding */
 	static const uint16_t SOFBaselineDCT = 0xFFC0;
 	static const uint16_t SOFExtendedSequentialDCT = 0xFFC1;
@@ -216,26 +237,26 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 	static const uint16_t SOFDifferentialSequentialDCTArith = 0xFFCD;
 	static const uint16_t SOFDifferentialProgressiveDCTArith = 0xFFCE;
 	static const uint16_t SOFDifferentialLosslessArith = 0xFFCF;
-	
+
 	/* First marker should be start of image */
 	uint16_t marker;
 	if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
 		return (false);
 	if (marker != startOfImage)
 		return (false);
-	
+
 	/* Read markers until end of buffer or an identifying marker is found */
 	for (;;) {
 		/* Get next 16 bits */
 		if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
 			return (false);
-			
-		/* 16-bit markers start with 0xFF but aren't 0xFF00 or 0xFFFF */ 
+
+		/* 16-bit markers start with 0xFF but aren't 0xFF00 or 0xFFFF */
 		while (((marker >> 8) != 0xFF) &&
 		    ((marker == 0xFF00) || (marker == 0xFFFF)))
 			if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
 				return (false);
-		
+
 		switch (marker) {
 		/* Lossy start of frame markers */
 		case SOFBaselineDCT:
@@ -266,29 +287,82 @@ BiometricEvaluation::Image::JPEG::isJPEG(
 			/* FALLTHROUGH */
 		case SOFDifferentialLosslessArith:
 			/* FALLTHROUGH */
-					
+
 		/* Start of scan found before a start of frame */
 		case startOfScan:
 			return (false);
 		}
-		
+
 		/* Reposition marker pointer after current marker segment */
 		if (JPEG::getc_skip_marker_segment(marker, &markerBuf, endPtr))
 			return (false);
 	}
-	
+
 	return (false);
+}
+
+void
+BiometricEvaluation::Image::JPEG::callStatusCallback(
+    const j_common_ptr cinfo,
+    const BiometricEvaluation::Framework::Status::Type statusType)
+{
+	if (cinfo->client_data == nullptr)
+		return;
+
+	char buffer[JMSG_LENGTH_MAX];
+	cinfo->err->format_message(cinfo, buffer);
+
+	const JPEG *jpeg = static_cast<JPEG*>(cinfo->client_data);
+	jpeg->getStatusCallback()({statusType, buffer, jpeg->getIdentifier()});
 }
 
 void
 BiometricEvaluation::Image::JPEG::error_exit(
     j_common_ptr cinfo)
 {
-	std::stringstream error;
-	error << "libjpeg: ";
-	error << cinfo->err->jpeg_message_table[cinfo->err->last_jpeg_message];
+	JPEG::callStatusCallback(cinfo, Framework::Status::Type::Error);
 
-	throw Error::StrategyError(error.str());
+	/*
+	 * libjpeg must stop at this point, so if the message handler didn't
+	 * throw (which is against the recommendation of the documentation),
+	 * throw here.
+	 */
+	char buffer[JMSG_LENGTH_MAX];
+	cinfo->err->format_message(cinfo, buffer);
+	throw BiometricEvaluation::Error::StrategyError(buffer);
+}
+void
+BiometricEvaluation::Image::JPEG::output_message(
+    j_common_ptr cinfo)
+{
+	/*
+	 * This method must be defined, but we're routing all messages through
+	 * callStatusCallback().
+	 */
+}
+
+void
+BiometricEvaluation::Image::JPEG::emit_message(
+    j_common_ptr cinfo,
+    int msg_level)
+{
+	Framework::Status::Type level{};
+	if (msg_level < 0)
+		level = Framework::Status::Type::Warning;
+	else
+		level = Framework::Status::Type::Debug;
+
+	if (level == Framework::Status::Type::Warning) {
+		/* Only print first warning unless high trace level set */
+		if ((cinfo->err->num_warnings == 0) ||
+		    (cinfo->err->trace_level >= 3))
+			BE::Image::JPEG::callStatusCallback(cinfo, level);
+		cinfo->err->num_warnings++;
+	} else {
+		/* Only print debugging info if high trace level set */
+		if (cinfo->err->trace_level >= msg_level)
+			BE::Image::JPEG::callStatusCallback(cinfo, level);
+	}
 }
 
 int
@@ -315,7 +389,6 @@ BiometricEvaluation::Image::JPEG::getc_skip_marker_segment(
 
 	return (0);
 }
-
 
 #if JPEG_LIB_VERSION < 80
 void
@@ -348,16 +421,25 @@ BiometricEvaluation::Image::JPEG::init_source_mem(
 {
 	/* No work necessary */
 }
-			
+
 boolean
 BiometricEvaluation::Image::JPEG::fill_input_buffer_mem(
     j_decompress_ptr cinfo)
 {
-	/* 
-	 * The entire buffer should be loaded already, so getting here
-	 * really is an error.
+	static const JOCTET EOIBuffer[4] = {
+	    (JOCTET) 0xFF, (JOCTET) JPEG_EOI, 0, 0};
+
+	/*
+	 * The whole JPEG data is expected to reside in the supplied memory
+	 * buffer, so any request for more data beyond the given buffer size
+	 * is treated as an error.
 	 */
-	
+	WARNMS(cinfo, JWRN_JPEG_EOF);
+
+	/* Insert a fake EOI marker */
+	cinfo->src->next_input_byte = EOIBuffer;
+	cinfo->src->bytes_in_buffer = 2;
+
 	return (TRUE);
 }
 
@@ -369,6 +451,11 @@ BiometricEvaluation::Image::JPEG::skip_input_data_mem(
 	struct jpeg_source_mgr * src = cinfo->src;
 
 	if (num_bytes > 0) {
+		while (num_bytes > (long) src->bytes_in_buffer) {
+			num_bytes -= (long) src->bytes_in_buffer;
+			(void) (*src->fill_input_buffer) (cinfo);
+		}
+
 		src->next_input_byte += (size_t) num_bytes;
 		src->bytes_in_buffer -= (size_t) num_bytes;
 	}

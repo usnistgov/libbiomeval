@@ -31,7 +31,10 @@ namespace BiometricEvaluation
 			    const uint32_t colorDepth,
 			    const uint16_t bitDepth,
 			    const Resolution resolution,
-			    const bool hasAlphaChannel);
+			    const bool hasAlphaChannel,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			Raw(
 			    const BiometricEvaluation::Memory::uint8Array &data,
@@ -39,7 +42,10 @@ namespace BiometricEvaluation
 			    const uint32_t colorDepth,
 			    const uint16_t bitDepth,
 			    const Resolution resolution,
-			    const bool hasAlphaChannel);
+			    const bool hasAlphaChannel,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~Raw() = default;
 
@@ -50,7 +56,7 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			getRawData()
 			    const;
-			    
+
 			Memory::uint8Array
 			getRawGrayscaleData(
 			    uint8_t depth) const;

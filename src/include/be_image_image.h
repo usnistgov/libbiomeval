@@ -12,9 +12,12 @@
 #define __BE_IMAGE_IMAGE_H__
 
 #include <cstdint>
+#include <functional>
 #include <stdexcept>
 #include <memory>
 
+#include <be_framework_status.h>
+#include <be_io.h>
 #include <be_image.h>
 #include <be_memory_autoarray.h>
 
@@ -36,7 +39,7 @@ namespace BiometricEvaluation
 		 * @details
 		 * Images are represented by their size, depth, and resolution
 		 * on the X and Y axes. The image data can be of any format,
-		 * raw, JPEG, etc.  Implementations of this abstraction provide 
+		 * raw, JPEG, etc.  Implementations of this abstraction provide
 		 * the getRawData method to convert image data to 'raw'
 		 * format.
 		 *
@@ -46,6 +49,8 @@ namespace BiometricEvaluation
 		 */
 		class Image {
 		public:
+			using statusCallback_t = std::function<void(
+			    const Framework::Status)>;
 
 			/**
 		 	 * @brief
@@ -67,6 +72,11 @@ namespace BiometricEvaluation
 			 *	The CompressionAlgorithm of data.
 			 * @param[in] hasAlphaChannel
 			 *	Presence of an alpha channel.
+			 * @param identifier
+			 * Identifier for the encapsulated data.
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
+			 * images.
 			 *
 			 * @throw Error::StrategyError
 			 *	Error manipulating data.
@@ -81,7 +91,10 @@ namespace BiometricEvaluation
 			    const uint16_t bitDepth,
 			    const Resolution resolution,
 			    const CompressionAlgorithm compression,
-			    const bool hasAlphaChannel);
+			    const bool hasAlphaChannel,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			/**
 		 	 * @brief
@@ -93,6 +106,11 @@ namespace BiometricEvaluation
 			 *	The size of the image data, in bytes.
 			 * @param[in] compression
 			 *	The CompressionAlgorithm of data.
+			 * @param identifier
+			 * Identifier for the encapsulated data.
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
+			 * images.
 			 *
 			 * @throw Error::DataError
 			 *	Error manipulating data.
@@ -102,7 +120,10 @@ namespace BiometricEvaluation
 			Image(
 			    const uint8_t *data,
 			    const uint64_t size,
-			    const CompressionAlgorithm compression);
+			    const CompressionAlgorithm compression,
+    			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			/**
 			 * @brief
@@ -118,7 +139,7 @@ namespace BiometricEvaluation
 
 			/**
 		 	 * @brief
-			 * Accessor for the resolution of the image 
+			 * Accessor for the resolution of the image
 			 *
 			 * @return
 			 *	Resolution struct
@@ -131,7 +152,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the image data. The data returned
 			 * is likely encoded in a specialized format.
-			 * 
+			 *
 			 * @return
 			 *	AutoArray holding image data.
 			 */
@@ -143,7 +164,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
-			 * 
+			 *
 			 * @return
 			 *	AutoArray holding raw image data.
 			 *
@@ -158,7 +179,7 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
-			 * 
+			 *
 			 * @param[in] removeAlphaChannelIfPresent
 			 * Whether or not to remove an alpha channel if one
 			 * exists.
@@ -178,7 +199,7 @@ namespace BiometricEvaluation
 			getRawData(
 			    const bool removeAlphaChannelIfPresent)
 			    const;
-			    
+
 			/**
 			 * @brief
 			 * Accessor for decompressed data in grayscale.
@@ -221,7 +242,7 @@ namespace BiometricEvaluation
 			/**
 		 	 * @brief
 			 * Accessor for the dimensions of the image in pixels.
-			 * 
+			 *
 			 * @return
 			 * 	Coordinate object containing dimensions in
 			 *	pixels.
@@ -266,12 +287,34 @@ namespace BiometricEvaluation
 				return (this->_hasAlphaChannel);
 			}
 
+			/**
+			 * @brief
+			 * Get handle to status callback function.
+			 *
+			 * @return
+			 * Status callback function.
+			 */
+			statusCallback_t
+			getStatusCallback()
+			    const;
+
+			/**
+			 * @brief
+			 * Obtain the assigned image identifier.
+			 *
+			 * @return
+			 * Image identifier.
+			 */
+			std::string
+			getIdentifier()
+			    const;
+
 			virtual ~Image();
-			
+
 			/*
 			 * Buffer type conversions.
 			 */
-			
+
 			/**
 			 * @brief
 			 * Calculate an equivalent color value for a color in
@@ -292,11 +335,11 @@ namespace BiometricEvaluation
 			    uint64_t color,
 			    uint64_t maxColorValue,
 			    uint8_t depth);
-			    
+
 			/*
 			 * Static functions.
 			 */
-			    
+
 			/**
 			 * @brief
 			 * Determine the image type of a buffer of image data
@@ -306,6 +349,11 @@ namespace BiometricEvaluation
 			 *	The image data.
 			 * @param[in] size
 			 *	The size of the image data, in bytes.
+			 * @param identifier
+			 * Identifier for the encapsulated data.
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
+			 * images.
 			 *
 			 * @return
 			 *	Image representation of the input data buffer.
@@ -318,8 +366,11 @@ namespace BiometricEvaluation
 			static std::shared_ptr<Image>
 			openImage(
 			    const uint8_t *data,
-			    const uint64_t size);
-			    
+			    const uint64_t size,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
+
 			/**
 			 * @brief
 			 * Determine the image type of a buffer of image data
@@ -327,6 +378,11 @@ namespace BiometricEvaluation
 			 *
  			 * @param[in] data
 			 *	The image data.
+			 * @param identifier
+			 * Identifier for the encapsulated data.
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
+			 * images.
 			 *
 			 * @return
 			 *	Image representation of the input data buffer.
@@ -338,8 +394,11 @@ namespace BiometricEvaluation
 			 */
 			static std::shared_ptr<Image>
 			openImage(
-			    const Memory::uint8Array &data);
-			    
+			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
+
 			/**
 			 * @brief
 			 * Determine the image type of an image file and create
@@ -347,6 +406,9 @@ namespace BiometricEvaluation
 			 *
  			 * @param[in] path
 			 *	Path to image data.
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
+			 * images.
 			 *
 			 * @return
 			 *	Image representation of the input data buffer.
@@ -360,8 +422,10 @@ namespace BiometricEvaluation
 			 */
 			static std::shared_ptr<Image>
 			openImage(
-			    const std::string &path);
-			    
+			    const std::string &path,
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
+
 			/**
 			 * @brief
 			 * Determine the compression algorithm of a buffer
@@ -384,7 +448,7 @@ namespace BiometricEvaluation
 			getCompressionAlgorithm(
 			    const uint8_t *data,
 			    const uint64_t size);
-			  
+
 			/**
 			 * @brief
 			 * Determine the compression algorithm of a buffer
@@ -404,7 +468,7 @@ namespace BiometricEvaluation
 			static CompressionAlgorithm
 			getCompressionAlgorithm(
 			    const Memory::uint8Array &data);
-			
+
 			/**
 			 * @brief
 			 * Determine the compression algorithm of a file.
@@ -418,7 +482,7 @@ namespace BiometricEvaluation
 			 * @throw Error::ObjectDoesNotExist
 			 *	path does not exist.
 			 * @throw Error::StrategyError
-			 *	An error occurred when using the underlying 
+			 *	An error occurred when using the underlying
 			 *	storage system.
 			 *
 			 * @attention
@@ -449,6 +513,26 @@ namespace BiometricEvaluation
 			    const std::shared_ptr<BiometricEvaluation::Image::
 			    Image> &image);
 
+			/**
+			 * @brief
+			 * Default handling of statuses sent from image
+			 * processing libraries.
+			 *
+			 * @param status
+			 * Status received.
+			 *
+			 * @throw Error::StrategyError
+			 * status.type == Framework::Status::Type::Error
+			 *
+			 * @note
+			 * Custom implementations of signature statusCallback_t
+			 * should throw an exception when status.type ==
+			 * Framework::Status::Type::Error.
+			 */
+			static void
+			defaultStatusCallback(
+			    const Framework::Status &status);
+
 		protected:
 			/**
 		 	 * @brief
@@ -464,14 +548,14 @@ namespace BiometricEvaluation
 			/**
 		 	 * @brief
 			 * Mutator for the dimensions of the image in pixels.
-			 * 
+			 *
 			 * @param[in] dimensions
 			 * 	Dimensions of image (pixel).
 			 */
 			void
 			setDimensions(
 			    const Size dimensions);
-	
+
 			/**
 		 	 * @brief
 			 * Mutator for the color depth of the image in bits.
@@ -485,7 +569,7 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Mutator for the number of bits per component for 
+			 * Mutator for the number of bits per component for
 			 * color components in the image, in bits.
 			 *
 			 * @param[in] bitDepth
@@ -494,7 +578,7 @@ namespace BiometricEvaluation
 			void
 			setBitDepth(
 			    const uint16_t bitDepth);
-			    
+
 			/** @return Const pointer to buffer underlying _data. */
 			const uint8_t *
 			getDataPointer()
@@ -540,6 +624,13 @@ namespace BiometricEvaluation
 
 			/** Compression algorithm of _data */
 			CompressionAlgorithm _compressionAlgorithm;
+
+			/** Identifier for the encapsulated data */
+			const std::string _identifier{};
+
+			/** Status callback */
+			statusCallback_t _statusCallback{
+			    Image::defaultStatusCallback};
 		};
 	}
 }

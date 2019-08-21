@@ -51,10 +51,16 @@ namespace BiometricEvaluation
 		public:
 			JPEG(
 			    const uint8_t *data,
-			    const uint64_t size);
+			    const uint64_t size,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			JPEG(
-			    const Memory::uint8Array &data);
+			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~JPEG() = default;
 
@@ -65,7 +71,7 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			getRawData()
 			    const;
-	
+
 			/**
 			 * Whether or not data is a Lossy JPEG image.
 			 *
@@ -82,7 +88,7 @@ namespace BiometricEvaluation
 			isJPEG(
 			    const uint8_t *data,
 			    uint64_t size);
-			
+
 			static int
 			getc_skip_marker_segment(
 			    const unsigned short marker,
@@ -92,6 +98,20 @@ namespace BiometricEvaluation
 		protected:
 
 		private:
+			/**
+			 * @brief
+			 * Common code to call the statusCallback.
+			 *
+			 * @param cinfo
+			 * libjpeg struct containing a status.
+			 * @param statusType
+			 * The type of status in cinfo.
+			 */
+			static void
+			callStatusCallback(
+			    const j_common_ptr cinfo,
+			    const Framework::Status::Type statusType);
+
 			/**
 			 * @brief
 			 * Convert libjpeg errors to C++ exceptions.
@@ -106,7 +126,33 @@ namespace BiometricEvaluation
 			error_exit(
 			    j_common_ptr cinfo);
 
-			/* 
+			/**
+			 * @brief
+			 * Override for libjpeg's output_message to avoid
+			 * printing to the console.
+			 *
+			 * @param cinfo
+			 * libjpeg common struct.
+			 */
+			static void
+			output_message(
+			    j_common_ptr cinfo);
+
+			 /**
+			 * @brief
+			 * Override for libjpeg's emit_message.
+			 *
+			 * @param cinfo
+			 * libjpeg common struct.
+			 * @param msg_level
+			 * The type of message (warning, error, trace, etc.).
+			 */
+			static void
+			emit_message(
+			    j_common_ptr cinfo,
+			    int msg_level);
+
+			/*
 			 * libjpeg 8.0 has code for handling a JPEG image
 			 * in a buffer location, so don't compile ours.
 			 */
@@ -125,7 +171,7 @@ namespace BiometricEvaluation
 			static void
 			init_source_mem(
 			    j_decompress_ptr cinfo);
-			
+
 			static boolean
 			fill_input_buffer_mem(
 			    j_decompress_ptr cinfo);
