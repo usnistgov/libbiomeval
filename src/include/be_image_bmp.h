@@ -7,7 +7,7 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
- 
+
 #ifndef __BE_IMAGE_BMP__
 #define __BE_IMAGE_BMP__
 
@@ -46,22 +46,28 @@ namespace BiometricEvaluation
 
 			BMP(
 			    const uint8_t *data,
-			    const uint64_t size);
+			    const uint64_t size,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			BMP(
-			    const Memory::uint8Array &data);
+			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~BMP() = default;
 
 			Memory::AutoArray<uint8_t>
 			getRawData()
 			    const;
-			    
+
 			Memory::AutoArray<uint8_t>
 			getRawGrayscaleData(
 			    uint8_t depth)
 			    const;
-	
+
 			/**
 			 * Whether or not data is a BMP image.
 			 *
@@ -220,7 +226,7 @@ namespace BiometricEvaluation
 
 			ColorTable _colorTable{};
 		};
-		
+
 		/** Compression method specifier for raw RGB triples. */
 		static const uint8_t BI_RGB = 0;
 		/** Compression method specifier for 8-bit RLE data. */

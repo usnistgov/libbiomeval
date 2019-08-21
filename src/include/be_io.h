@@ -12,6 +12,8 @@
 
 #include <cstdint>
 
+#include <be_framework_enumeration.h>
+
 /*
  * This file contains items that are used within the Biometric Evaluation
  * IO framework.
@@ -47,4 +49,9 @@ namespace BiometricEvaluation {
 		};
 	}
 }
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::IO::Mode,
+    BE_IO_Mode_EnumToStringMap);
+
 #endif	/* __BE_IO_H__ */

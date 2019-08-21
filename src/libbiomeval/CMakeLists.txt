@@ -216,8 +216,19 @@ endif(CMAKE_HOST_APPLE)
 target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
 
 #
+# Add the definition for Linux that is used as a conditional within a
+# few source code files.
+#
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  message(STATUS ">>> Linux")
+  add_definitions("-DLinux")
+endif()
+
+#
 # For OS-X, add paths where the ports packages are placed.
 #
+# XXX Change and test the other 'if' statement below...
+# if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 if(CMAKE_HOST_APPLE)
   target_include_directories(coreobjs PUBLIC /opt/local/include)
   target_link_libraries(${SHAREDLIB} -L/opt/local/lib)

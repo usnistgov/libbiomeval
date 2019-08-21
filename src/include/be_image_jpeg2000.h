@@ -32,6 +32,9 @@ namespace BiometricEvaluation
 			 *	The image data.
 			 * @param[in] size
 			 *	The size of the image data, in bytes.
+			 * @param statusCallback
+			 * Function to handle statuses sent when processing
+			 * images.
 			 * @param[in] codec
 			 *	The OPJ_CODEC_FORMAT used to encode data.
 			 *
@@ -43,21 +46,27 @@ namespace BiometricEvaluation
 			JPEG2000(
 			    const uint8_t *data,
 			    const uint64_t size,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback,
 			    const int8_t codecFormat = 2);
 
 			JPEG2000(
-			    const Memory::uint8Array &data);
+			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~JPEG2000() = default;
 
 			Memory::uint8Array
 			getRawData()
 			    const;
-			    
+
 			Memory::uint8Array
 			getRawGrayscaleData(
 			    uint8_t depth) const;
-	
+
 			/**
 			 * Whether or not data is a JPEG-2000 image.
 			 *
@@ -95,25 +104,46 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Callback for output from libopenjpeg.
+			 * Callback for error output from libopenjpeg.
 			 *
 			 * @param msg
-			 *	Message from libopenjpeg
+			 * Error from libopenjpeg
 			 * @param client_data
-			 *	Ignored by JPEG2000
-			 *
-			 * @throw Error::StrategyError
-			 *	Always thrown with msg.
-			 *
-			 * @note
-			 *	client_data is typically a context of sorts --
-			 *	a section of the image buffer, or
-			 *	stdout/stderr, depending on the severity of
-			 *	the alert.  Image::JPEG2000 lumps
-			 *	warnings and errors together.
+			 * Ignored by JPEG2000. We use this as a pointer to
+			 * the JPEG2000 object emitting the error.
 			 */
 			static void
-			openjpeg_message(
+			openjpeg_error(
+			    const char *msg,
+			    void *client_data);
+
+			/**
+			 * @brief
+			 * Callback for warning output from libopenjpeg.
+			 *
+			 * @param msg
+			 * Error from libopenjpeg
+			 * @param client_data
+			 * Ignored by JPEG2000. We use this as a pointer to
+			 * the JPEG2000 object emitting the warning.
+			 */
+			static void
+			openjpeg_warning(
+			    const char *msg,
+			    void *client_data);
+
+			/**
+			 * @brief
+			 * Callback for info output from libopenjpeg.
+			 *
+			 * @param msg
+			 * Error from libopenjpeg
+			 * @param client_data
+			 * Ignored by JPEG2000. We use this as a pointer to
+			 * the JPEG2000 object emitting the info.
+			 */
+			static void
+			openjpeg_info(
 			    const char *msg,
 			    void *client_data);
 
@@ -132,7 +162,7 @@ namespace BiometricEvaluation
 			 *
 			 * @return
 			 * 0-based offset of the start of the marker.
-			 * 
+			 *
 			 * @throw Error::ObjectDoesNotExist
 			 * marker not found within buffer.
 			 */
@@ -160,7 +190,7 @@ namespace BiometricEvaluation
 			 *	by marker, in bytes.
 			 *
 			 * @return
-			 *	An AutoArray of size value_size with the 
+			 *	An AutoArray of size value_size with the
 			 *	contents of the box indicated by marker.
 			 *
 			 * @throw Error::ObjectDoesNotExist
@@ -176,7 +206,7 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Parse display resolution information from the 
+			 * Parse display resolution information from the
 			 * resc or resd markers.
 			 *
 			 * @param res
@@ -227,7 +257,7 @@ namespace BiometricEvaluation
 			/**
 			 * @brief
 			 * libopenjp2 callback to free data wrapped in stream.
-			 * 
+			 *
 			 * @param p_user_data
 			 * Pointer to a Memory::IndexedBuffer.
 			 */

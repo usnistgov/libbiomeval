@@ -36,14 +36,18 @@ BiometricEvaluation::Image::Image::Image(
     const uint16_t bitDepth,
     const Resolution resolution,
     const CompressionAlgorithm compressionAlgorithm,
-    const bool hasAlphaChannel) :
+    const bool hasAlphaChannel,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback) :
     _dimensions(dimensions),
     _colorDepth(colorDepth),
     _hasAlphaChannel(hasAlphaChannel),
     _bitDepth(bitDepth),
     _resolution(resolution),
     _data(size),
-    _compressionAlgorithm(compressionAlgorithm)
+    _compressionAlgorithm(compressionAlgorithm),
+    _identifier(identifier),
+    _statusCallback(statusCallback)
 {
 	std::memcpy(_data, data, size);
 }
@@ -51,7 +55,9 @@ BiometricEvaluation::Image::Image::Image(
 BiometricEvaluation::Image::Image::Image(
     const uint8_t *data,
     const uint64_t size,
-    const CompressionAlgorithm compressionAlgorithm) :
+    const CompressionAlgorithm compressionAlgorithm,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback) :
     BiometricEvaluation::Image::Image::Image(
     data,
     size,
@@ -60,7 +66,9 @@ BiometricEvaluation::Image::Image::Image(
     0,
     Resolution(),
     compressionAlgorithm,
-    false)
+    false,
+    identifier,
+    statusCallback)
 {
 
 }
@@ -86,7 +94,7 @@ BiometricEvaluation::Image::Image::getDimensions()
 	return (_dimensions);
 }
 
-uint32_t 
+uint32_t
 BiometricEvaluation::Image::Image::getColorDepth()
     const
 {
@@ -124,7 +132,7 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 {
 	if (depth != 16 && depth != 8 && depth != 1)
 		throw Error::ParameterError("Invalid value for bit depth");
-		
+
 	/* Return no-effort conversion */
 	if (this->getColorDepth() == depth)
 		return (this->getRawData());
@@ -146,7 +154,7 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 
 	uint16_t rValue, bValue, gValue;
 
-	/* 
+	/*
 	 * Convert to 16-bit or 8-bit. 1-bit conversions will be quantized
 	 * after converting to 8-bit.
 	 */
@@ -273,7 +281,7 @@ BiometricEvaluation::Image::Image::setDimensions(
 {
 	_dimensions = dimensions;
 }
-	
+
 void
 BiometricEvaluation::Image::Image::setColorDepth(
     const uint32_t colorDepth)
@@ -327,46 +335,84 @@ BiometricEvaluation::Image::Image::valueInColorspace(
 std::shared_ptr<BiometricEvaluation::Image::Image>
 BiometricEvaluation::Image::Image::openImage(
     const uint8_t *data,
-    const uint64_t size)
+    const uint64_t size,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback)
 {
 	switch (Image::getCompressionAlgorithm(data, size)) {
 	case CompressionAlgorithm::JPEGB:
-		return (std::shared_ptr<Image>(new JPEG(data, size)));
+		return (std::shared_ptr<Image>(new JPEG(data, size,
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::JPEGL:
-		return (std::shared_ptr<Image>(new JPEGL(data, size)));
+		return (std::shared_ptr<Image>(new JPEGL(data, size,
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::JP2:
 		/* FALLTHROUGH */
 	case CompressionAlgorithm::JP2L:
-		return (std::shared_ptr<Image>(new JPEG2000(data, size)));
+		return (std::shared_ptr<Image>(new JPEG2000(data, size,
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::PNG:
-		return (std::shared_ptr<Image>(new PNG(data, size)));
+		return (std::shared_ptr<Image>(new PNG(data, size,
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::NetPBM:
-		return (std::shared_ptr<Image>(new NetPBM(data, size)));
+		return (std::shared_ptr<Image>(new NetPBM(data, size,
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::WSQ20:
-		return (std::shared_ptr<Image>(new WSQ(data, size)));
+		return (std::shared_ptr<Image>(new WSQ(data, size,
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::BMP:
-		return (std::shared_ptr<Image>(new BMP(data, size)));
+		return (std::shared_ptr<Image>(new BMP(data, size,
+		    identifier, statusCallback)));
 	case CompressionAlgorithm::TIFF:
-		return (std::shared_ptr<Image>(new TIFF(data, size)));
+		return (std::shared_ptr<Image>(new TIFF(data, size,
+		    identifier, statusCallback)));
 	default:
 		throw Error::StrategyError("Could not determine compression "
 		    "algorithm");
 	}
 }
 
-std::shared_ptr<BiometricEvaluation::Image::Image>
-BiometricEvaluation::Image::Image::openImage(
-    const Memory::uint8Array &data)
+void
+BiometricEvaluation::Image::Image::defaultStatusCallback(
+    const BiometricEvaluation::Framework::Status &status)
 {
-	return (Image::openImage(data, data.size()));
+	if (status.getType() != Framework::Status::Type::Error)
+		return;
+
+	throw BE::Error::StrategyError(to_string(status));
+}
+
+BiometricEvaluation::Image::Image::statusCallback_t
+BiometricEvaluation::Image::Image::getStatusCallback()
+    const
+{
+	return (this->_statusCallback);
+}
+
+std::string
+BiometricEvaluation::Image::Image::getIdentifier()
+    const
+{
+	return (this->_identifier);
 }
 
 std::shared_ptr<BiometricEvaluation::Image::Image>
 BiometricEvaluation::Image::Image::openImage(
-    const std::string &path)
+    const Memory::uint8Array &data,
+    const std::string &identifier,
+    const statusCallback_t &statusCallback)
+{
+	return (Image::openImage(data, data.size(), identifier,
+	    statusCallback));
+}
+
+std::shared_ptr<BiometricEvaluation::Image::Image>
+BiometricEvaluation::Image::Image::openImage(
+    const std::string &path,
+    const statusCallback_t &statusCallback)
 {
 	Memory::uint8Array data = IO::Utility::readFile(path);
-	return (Image::openImage(data));
+	return (Image::openImage(data, path, statusCallback));
 }
 
 BiometricEvaluation::Image::CompressionAlgorithm
@@ -390,7 +436,7 @@ BiometricEvaluation::Image::Image::getCompressionAlgorithm(
 		return (CompressionAlgorithm::WSQ20);
 	else if (TIFF::isTIFF(data, size))
 		return (CompressionAlgorithm::TIFF);
-		
+
 	return (CompressionAlgorithm::None);
 }
 
@@ -416,6 +462,7 @@ BiometricEvaluation::Image::Image::getRawImage(
 	return (BE::Image::Raw{
 	    image->getRawData(), image->getDimensions(),
 	    image->getColorDepth(), image->getBitDepth(),
-	    image->getResolution(), image->hasAlphaChannel()});
+	    image->getResolution(), image->hasAlphaChannel(),
+	    image->getIdentifier(), image->getStatusCallback()});
 }
 

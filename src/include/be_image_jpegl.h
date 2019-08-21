@@ -26,10 +26,16 @@ namespace BiometricEvaluation
 		public:
 			JPEGL(
 			    const uint8_t *data,
-			    const uint64_t size);
+			    const uint64_t size,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			JPEGL(
-			    const Memory::uint8Array &data);
+			    const Memory::uint8Array &data,
+			    const std::string &identifier = "",
+			    const statusCallback_t &statusCallback =
+			        Image::defaultStatusCallback);
 
 			~JPEGL() = default;
 
@@ -40,7 +46,7 @@ namespace BiometricEvaluation
 			Memory::uint8Array
 			getRawData()
 			    const;
-	
+
 			/**
 			 * Whether or not data is a Lossless JPEG image.
 			 *

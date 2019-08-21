@@ -514,7 +514,16 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::setCursorAtKey(
 	if (entry.offset == OFFSET_RECORD_REMOVED)
 		throw Error::ObjectDoesNotExist(key + " was removed");
 
-	_cursorPos = (lb == _entries.begin()) ? lb : --lb;
+	/*
+	 * If the key we sequence to is the first key in _entries, we need
+	 * to set the special cursor value to start so that we don't advance
+	 * before reading in sequence().
+	 */
+	if (lb == _entries.begin()) {
+		this->_cursorPos = lb;
+		this->setCursor(BE_RECSTORE_SEQ_START);
+	} else
+		this->_cursorPos = --lb;
 }
 
 void
