@@ -52,7 +52,7 @@ showAllViews(const DataInterchange::ANSI2004Record &record)
 		cout << "No finger views present.\n";
 		return (true);
 	}
-	for (int i = 1; i <= record.getNumFingerViews(); i++) {
+	for (uint64_t i = 1; i <= record.getNumFingerViews(); i++) {
 		cout << "++++++++++++++++++++++++++++++\n";
 		cout << "View number " << i << ":\n";
 		auto fngv = record.getView(i);
@@ -73,7 +73,7 @@ compareMinutiaSets(
 	auto fmd2 = fm2.getMinutiaPoints();
 	if (fmd1.size() == fmd2.size()) {
 		success = true;
-		for (int i = 0; i < fmd1.size(); i++) {
+		for (decltype(fmd1)::size_type i = 0; i < fmd1.size(); i++) {
 			if (fmd1[i].coordinate != fmd2[i].coordinate) {
 				success = false;
 			}
