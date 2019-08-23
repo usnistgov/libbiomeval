@@ -10,7 +10,6 @@
 
 #include <be_framework_api.h>
 #include <be_framework_enumeration.h>
-#include <be_framework_status.h>
 
 #include <iostream>
 
@@ -22,13 +21,13 @@ namespace Eval
 	/*
 	 * Custom Status object
 	 */
-	class Status : public BE::Framework::Status
+	class Status
 	{
 	public:
 		/** Use enumerations to hide away integer return codes. */
 		enum class Code
 		{
-			Success = BE::Framework::Status::OK,
+			Success = 0,
 			BadImage,
 			BadTemplate,
 			VendorDefined
@@ -44,13 +43,31 @@ namespace Eval
 		 */
 		Status(
 		    const Status::Code &code = Code::Success,
-		    const std::string &message = "")
-		    noexcept;
+		    const std::string &message = "");
 
-		/** Convert code stored in parent to the eval-specific enum.*/
+		/** @return Status code returned from a method. */
 		Code
-		getEvalStatusCode()
-		    const;
+		getCode()
+		    const
+		    noexcept
+		{
+			return (this->code);
+		}
+
+		/** @return Information regarding the return from a method. */
+		std::string
+		getMessage()
+		    const
+		    noexcept
+		{
+			return (this->message);
+		}
+
+	private:
+		/** Status code returned a method. */
+		Code code{};
+		/** Information regarding the return from the method. */
+		std::string message{};
 	};
 
 /******************************************************************************
@@ -134,24 +151,18 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
 
 Eval::Status::Status(
     const Status::Code &code,
-    const std::string &message)
-    noexcept :
-    BE::Framework::Status::Status(to_int_type(code), message) {}
-
-Eval::Status::Code
-Eval::Status::getEvalStatusCode()
-    const
+    const std::string &message) :
+    code(code),
+    message(message)
 {
-	const auto code = this->getCode();
-	return (to_enum<Code>(code));
+
 }
 
 std::string
 Eval::to_string(
     const Eval::Status &status)
 {
-	std::string s{BE::Framework::Enumeration::
-	    to_string(status.getEvalStatusCode())};
+	std::string s{BE::Framework::Enumeration::to_string(status.getCode())};
 
 	const auto message = status.getMessage();
 	if (!message.empty())
@@ -170,10 +181,11 @@ main()
 	for (uint8_t i = 0; i < 10; ++i) {
 		const auto status = Eval::createTemplate(i);
 		std::cout << "Returned: " << status << std::endl;
-		std::cout << "\tCode: " << status.getCode() << std::endl;
-		std::cout << "\tEval Code: " <<
-		    to_string(status.getEvalStatusCode()) << std::endl;
-		std::cout << "\tMessage: " << status.getMessage() << std::endl;
+		std::cout << "\tCode: " << to_string(status.getCode()) <<
+		    " (" << to_int_type(status.getCode()) << ")\n";
+		const auto message = status.getMessage();
+		std::cout << "\tMessage: " <<
+		    (message.empty() ? "<NO MESSAGE>" : message) << '\n';
 	}
 
 	BE::Framework::API<Eval::Status> API1;
