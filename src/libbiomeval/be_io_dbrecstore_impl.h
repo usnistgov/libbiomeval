@@ -142,9 +142,21 @@ namespace BiometricEvaluation {
 			std::string getDBFilePathname() const;
 
 			/*
+			 * Indicator of whether the DB cursor has been
+			 * initialized.
+			 */
+			bool _cursorIsInit{};
+
+			/*
+			 * Indicator of whether we are at the end of the
+			 * record store.
+			 */
+			bool _atEnd{};
+
+			/*
 			 * Open the underlying database handle objects.
 			 */
-			void openDBHandles(
+			void i_setup(
 			    const std::string &pathname,
 			    int dbFlags,
 			    IO::Mode mode);

@@ -75,7 +75,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::getDBFilePathname() const
 }
 
 void
-BiometricEvaluation::IO::DBRecordStore::Impl::openDBHandles(
+BiometricEvaluation::IO::DBRecordStore::Impl::i_setup(
     const std::string &pathname,
     int dbFlags,
     IO::Mode mode)
@@ -126,6 +126,27 @@ BiometricEvaluation::IO::DBRecordStore::Impl::openDBHandles(
 		throw Error::StrategyError("Could not create DB cursor (" +
 		    Error::errorStr() + ")");
 	}
+
+	/*
+	 * Initialize the cursor to DB_FIRST, check for errors (empty database).
+	 * and set the indicator of cursor state. If the cursor cannot be
+	 * initialize here, the first insert will do it.
+	 */
+	Dbt dbtkey;
+	Dbt dbtdata;
+	auto rv = this->_dbC->get(&dbtkey, &dbtdata, DB_FIRST);
+	switch (rv) {
+		case 0:
+			this->_cursorIsInit = true;
+			break;
+		case DB_NOTFOUND:
+			this->_cursorIsInit = false;
+			break;
+		default:
+			this->_cursorIsInit = false;
+			break;
+	}
+
 	/* Open the subordinate DB file */
 	this->_dbnameS = this->_dbnameP + SUBORDINATE_DBEXT;
 	this->_dbS = std::make_shared<Db>(nullptr, 0);
@@ -159,7 +180,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
 	if (IO::Utility::fileExists(this->_dbnameP)) {
 		throw Error::ObjectExists("Database already exists");
 	}
-	openDBHandles(pathname, DB_CREATE | DB_EXCL, IO::Mode::ReadWrite);
+	i_setup(pathname, DB_CREATE | DB_EXCL, IO::Mode::ReadWrite);
 }
 
 BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
@@ -207,10 +228,10 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
 
 	switch (mode) {
 	case IO::Mode::ReadOnly:
-		openDBHandles(pathname, DB_RDONLY, mode);
+		i_setup(pathname, DB_RDONLY, mode);
 		break;
 	case IO::Mode::ReadWrite:
-		openDBHandles(pathname, 0, mode);
+		i_setup(pathname, 0, mode);
 		break;
 	}
 
@@ -288,7 +309,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::move(const std::string &pathname)
 		throw Error::StrategyError("Database " + this->_dbnameS +
 		    "does not exist");
 
-	openDBHandles(pathname, 0, IO::Mode::ReadWrite);
+	i_setup(pathname, 0, IO::Mode::ReadWrite);
 }
 
 uint64_t
@@ -345,6 +366,29 @@ BiometricEvaluation::IO::DBRecordStore::Impl::insert(
 		throw Error::StrategyError("Invalid key format");
 
 	insertRecordSegments(key, data, size);
+	if (!this->_cursorIsInit) {
+		Dbt dbtkey;
+		Dbt dbtdata;
+		auto rv = this->_dbC->get(&dbtkey, &dbtdata, DB_FIRST);
+		if (rv == 0) {
+			this->_cursorIsInit = true;
+		} else {
+			throw Error::StrategyError(
+			    "Could not move cursor during insert");
+		}
+	}
+	/*
+	 * If we were at the end, the insert may have added beyond the cursor,
+	 * so try to move the cursor.
+	*/
+	if (this->_atEnd) {
+		Dbt dbtkey;
+		Dbt dbtdata;
+		auto rv = this->_dbC->get(&dbtkey, &dbtdata, DB_NEXT);
+		if (rv == 0) {
+			this->_atEnd = false;
+		}
+	}
 	RecordStore::Impl::insert(key, data, size);
 }
 
@@ -359,6 +403,22 @@ BiometricEvaluation::IO::DBRecordStore::Impl::remove(
 
 	/* Allow exceptions to float out of this function. */
 	removeRecordSegments(key);
+
+	/*
+	 * Move the cursor if it was pointing to the deleted key; set _atEnd 
+	 * if deleted the last record.
+	 */
+	Dbt dbtkey;
+	Dbt dbtdata;
+	auto rv = this->_dbC->get(&dbtkey, &dbtdata, DB_CURRENT);
+	if (rv == DB_KEYEMPTY) {
+		rv = this->_dbC->get(&dbtkey, &dbtdata, DB_NEXT);
+		if (rv == DB_NOTFOUND) {
+			this->_atEnd = true;
+			this->_cursorIsInit = false;
+		}
+	}
+
 	RecordStore::Impl::remove(key);
 }
 
@@ -437,15 +497,32 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_sequence(
 	    (cursor == IO::RecordStore::BE_RECSTORE_SEQ_START)) {
 		pos = DB_FIRST;
 	} else {
-		pos = DB_NEXT;
+		if (this->_atEnd) {
+			throw BE::Error::ObjectDoesNotExist();
+		}
+		pos = DB_CURRENT;
 	}
-	/* Read */
+	/*
+	 * Read the record.
+	 */
 	Dbt dbtkey;
 	Dbt dbtdata;
-	/* Sequence and increment */
-	const auto rv = this->_dbC->get(&dbtkey, &dbtdata, pos);
-	if (rv == DB_NOTFOUND) {
-		throw BE::Error::ObjectDoesNotExist();
+	auto rv = this->_dbC->get(&dbtkey, &dbtdata, pos);
+	switch (rv) {
+		case DB_NOTFOUND:
+			throw BE::Error::ObjectDoesNotExist();
+			break;
+		/*
+		 * The record at the current cursor position has been deleted.
+		 */
+		case DB_KEYEMPTY:
+			rv = this->_dbC->get(&dbtkey, &dbtdata, DB_NEXT);
+			if (rv == DB_NOTFOUND) {
+				throw BE::Error::ObjectDoesNotExist();
+			}
+			break;
+		default:
+			break;
 	}
 
 	BE::IO::RecordStore::Record record;
@@ -454,8 +531,19 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_sequence(
 		/* Don't copy dbtdata because this may span into subordinate */
 		record.data = this->read(record.key);
 	}
+	/*
+	 * Move the BDB cursor to the next record because the cursor points
+	 * to either the first record, or last record returned. If there is no
+	 * next record, the next call to this function will handle the error.
+	 */
+	rv = this->_dbC->get(&dbtkey, &dbtdata, DB_NEXT);
+	if (rv == DB_NOTFOUND) {
+		this->_atEnd = true;
+	} else {
+		this->_atEnd = false;
+	}
 	setCursor(IO::RecordStore::BE_RECSTORE_SEQ_NEXT);
-	
+
 	return (record);
 }
 
@@ -488,11 +576,6 @@ BiometricEvaluation::IO::DBRecordStore::Impl::setCursorAtKey(
 	 * There is no need to be concerned about subordinate record
 	 * segments here because the sequence is maintained entirely
 	 * within the primary DB file.
-	 * We sequence to the key, which places the cursor at the record
-	 * after, which may be either the next record, or the second
-	 * segment of the key'd record. Either way, we then back up one
-	 * position, which, in both cases, places the cursor back before
-	 * the key'd data.
 	 */
 	try {
 		if (this->_dbC->get(&dbtkey, &dbtdata, DB_SET) == DB_NOTFOUND)
@@ -505,27 +588,8 @@ BiometricEvaluation::IO::DBRecordStore::Impl::setCursorAtKey(
 		throw Error::StrategyError("Could not set Dbc (" +
 		    Error::errorStr() + ")");
 	}
-
-	/* Access the previous record, so that this record is returned first. */
-	dbtkey.set_data((void *)key.data());
-	dbtkey.set_size(key.length());
-	try {
-		const auto rc = this->_dbC->get(&dbtkey, &dbtdata, DB_PREV);
-		switch (rc) {
-			case 0:
-				setCursor(BE_RECSTORE_SEQ_NEXT);
-				break;
-			case DB_NOTFOUND:
-				throw BE::Error::ObjectDoesNotExist(key);
-		}
-	} catch (const DbException &e) {
-		throw BE::Error::StrategyError("Could not set Dbc to previous "
-		    "(DB error = " + std::to_string(e.get_errno()) + " -- " + 
-		    e.what() + ")");
-	} catch (const std::exception &e) {
-		throw Error::StrategyError("Could not set Dbc to previous (" +
-		    Error::errorStr() + ")");
-	}
+	this->_atEnd = false;
+	setCursor(BE_RECSTORE_SEQ_NEXT);
 }
 
 /*
