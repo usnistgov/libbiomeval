@@ -130,10 +130,13 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_setup(
 	/*
 	 * Initialize the cursor to DB_FIRST, check for errors (empty database).
 	 * and set the indicator of cursor state. If the cursor cannot be
-	 * initialize here, the first insert will do it.
+	 * initialized here, the first insert will do it. Set the Dbt handle to
+	 * indicate that no data need be read.
 	 */
 	Dbt dbtkey;
 	Dbt dbtdata;
+	dbtdata.set_dlen(0);
+	dbtdata.set_flags(DB_DBT_PARTIAL);
 	auto rv = this->_dbC->get(&dbtkey, &dbtdata, DB_FIRST);
 	switch (rv) {
 		case 0:
@@ -369,6 +372,9 @@ BiometricEvaluation::IO::DBRecordStore::Impl::insert(
 	if (!this->_cursorIsInit) {
 		Dbt dbtkey;
 		Dbt dbtdata;
+		/* Do not read any data as we are just moving the cursor */
+		dbtdata.set_dlen(0);
+		dbtdata.set_flags(DB_DBT_PARTIAL);
 		auto rv = this->_dbC->get(&dbtkey, &dbtdata, DB_FIRST);
 		if (rv == 0) {
 			this->_cursorIsInit = true;
@@ -384,6 +390,9 @@ BiometricEvaluation::IO::DBRecordStore::Impl::insert(
 	if (this->_atEnd) {
 		Dbt dbtkey;
 		Dbt dbtdata;
+		/* Do not read any data as we are just moving the cursor */
+		dbtdata.set_dlen(0);
+		dbtdata.set_flags(DB_DBT_PARTIAL);
 		auto rv = this->_dbC->get(&dbtkey, &dbtdata, DB_NEXT);
 		if (rv == 0) {
 			this->_atEnd = false;
@@ -410,6 +419,9 @@ BiometricEvaluation::IO::DBRecordStore::Impl::remove(
 	 */
 	Dbt dbtkey;
 	Dbt dbtdata;
+	/* Do not read any data as we are just moving the cursor */
+	dbtdata.set_dlen(0);
+	dbtdata.set_flags(DB_DBT_PARTIAL);
 	auto rv = this->_dbC->get(&dbtkey, &dbtdata, DB_CURRENT);
 	if (rv == DB_KEYEMPTY) {
 		rv = this->_dbC->get(&dbtkey, &dbtdata, DB_NEXT);
@@ -503,10 +515,14 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_sequence(
 		pos = DB_CURRENT;
 	}
 	/*
-	 * Read the record.
+	 * Check the Berkeley DB cursor; do not read any data as we are just
+	 * moving the cursor in the case where the record under the cursor has
+	 * been removed. Read of data is done in another function.
 	 */
 	Dbt dbtkey;
 	Dbt dbtdata;
+	dbtdata.set_dlen(0);
+	dbtdata.set_flags(DB_DBT_PARTIAL);
 	auto rv = this->_dbC->get(&dbtkey, &dbtdata, pos);
 	switch (rv) {
 		case DB_NOTFOUND:
@@ -514,6 +530,8 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_sequence(
 			break;
 		/*
 		 * The record at the current cursor position has been deleted.
+		 * If the cursor cannot retrieve data, we are at the end of
+		 * the database.
 		 */
 		case DB_KEYEMPTY:
 			rv = this->_dbC->get(&dbtkey, &dbtdata, DB_NEXT);
@@ -528,7 +546,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_sequence(
 	BE::IO::RecordStore::Record record;
 	record.key.assign((const char *)dbtkey.get_data(), dbtkey.get_size());
 	if (returnData == true) {
-		/* Don't copy dbtdata because this may span into subordinate */
+		/* Don'just copy dbtdata, this may span into subordinate */
 		record.data = this->read(record.key);
 	}
 	/*
@@ -577,6 +595,9 @@ BiometricEvaluation::IO::DBRecordStore::Impl::setCursorAtKey(
 	 * segments here because the sequence is maintained entirely
 	 * within the primary DB file.
 	 */
+	/* Do not read any data as we are just moving the cursor */
+	dbtdata.set_dlen(0);
+	dbtdata.set_flags(DB_DBT_PARTIAL);
 	try {
 		if (this->_dbC->get(&dbtkey, &dbtdata, DB_SET) == DB_NOTFOUND)
 			throw BE::Error::ObjectDoesNotExist(key);
@@ -713,11 +734,14 @@ BiometricEvaluation::IO::DBRecordStore::Impl::readRecordSegments(
 	 */
 	Dbt dbtkey;
 	Dbt dbtdata;
+
 	uint64_t totlen = 0;
 	int segnum = KEY_SEGMENT_START;
 	std::string keyseg = key;  /* First segment key is same as input key */
 	uint8_t *ptr = (uint8_t *)data;
-	std::shared_ptr<Db> DBin = this->_dbP;	/* Start with the primary DB file */
+
+	/* Start with the primary DB file */
+	std::shared_ptr<Db> DBin = this->_dbP;
 	do {
 		dbtkey.set_data((void *)keyseg.data());
 		dbtkey.set_size(keyseg.length());
@@ -771,7 +795,9 @@ BiometricEvaluation::IO::DBRecordStore::Impl::removeRecordSegments(
 	Dbt dbtkey;
 	int segnum = KEY_SEGMENT_START;
 	std::string keyseg = key;  /* First segment key is same as input key */
-	std::shared_ptr<Db> DBin = this->_dbP;	/* Start with the primary DB file */
+
+	/* Start with the primary DB file */
+	std::shared_ptr<Db> DBin = this->_dbP;
 	do {
 		dbtkey.set_data((void *)keyseg.data());
 		dbtkey.set_size(keyseg.length());
