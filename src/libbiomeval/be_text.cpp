@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <locale>
 #include <iomanip>
+#include <memory>
 #include <sstream>
 #include <vector>
 
@@ -189,22 +190,23 @@ BiometricEvaluation::Text::digest(
 	if (!md)
 		throw Error::StrategyError("Unknown message digest: " + digest);
 
-	EVP_MD_CTX mdctx;
-	EVP_MD_CTX_init(&mdctx);
+	#if OPENSSL_VERSION_NUMBER < 0x10100000
+	EVP_MD_CTX* (*mdctxNewFn)(void) = &EVP_MD_CTX_create;
+	void (*mdctxFreeFn)(EVP_MD_CTX*) = &EVP_MD_CTX_destroy;
+	#else
+	EVP_MD_CTX* (*mdctxNewFn)(void) = &EVP_MD_CTX_new;
+	void (*mdctxFreeFn)(EVP_MD_CTX*) = &EVP_MD_CTX_free;
+	#endif /* OPENSSL_VERSION_NUMBER */
 
-	EVP_DigestInit_ex(&mdctx, md, nullptr);
-	EVP_DigestUpdate(&mdctx, buffer, buffer_size);
+	std::unique_ptr<EVP_MD_CTX, void(*)(EVP_MD_CTX*)> mdctx(
+	    mdctxNewFn(), mdctxFreeFn);
+
+	EVP_DigestInit_ex(mdctx.get(), md, nullptr);
+	EVP_DigestUpdate(mdctx.get(), buffer, buffer_size);
 
 	unsigned char md_value[EVP_MAX_MD_SIZE];
 	unsigned int md_size;
-	EVP_DigestFinal_ex(&mdctx, md_value, &md_size);
-
-	/*
-	 * While the EVP_MD_CTX may be safely reused, we have no way of knowing
-	 * when an app is finished with it, forcing us to free the structure 
-	 * every time.
-	 */
-	EVP_MD_CTX_cleanup(&mdctx);
+	EVP_DigestFinal_ex(mdctx.get(), md_value, &md_size);
 
 	std::stringstream ret;
 	for (unsigned int i = 0; i < md_size; i++)
