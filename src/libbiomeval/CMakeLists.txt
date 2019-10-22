@@ -44,9 +44,9 @@ execute_process(COMMAND grep MINOR_VERSION= ${PROJECT_SOURCE_DIR}/../../VERSION 
 execute_process(COMMAND grep COMPATIBILITY_VERSION= ${PROJECT_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE COMPATIBILITY_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 #
-# Define common options, including that for Berkeley DB version < 2
+# Define common options
 #
-add_definitions(-DMAJOR_VERSION -DMINOR_VERSION -DDB1X)
+add_definitions(-DMAJOR_VERSION -DMINOR_VERSION)
 set(BIOMEVAL_INCLUDE ${PROJECT_SOURCE_DIR}/../include)
 file(GLOB BIOMEVAL_HEADERS ${BIOMEVAL_INCLUDE}/*.h)
 set(NBIS_INCLUDE ${PROJECT_SOURCE_DIR}/../../nbis/include)
@@ -249,6 +249,14 @@ else(CMAKE_HOST_APPLE)
   endif(NOT PCSC_FOUND)
   include_directories(PUBLIC ${PCSC_INCLUDE_DIR})
   target_link_libraries(${SHAREDLIB} ${PCSC_LIBRARIES})
+
+  FIND_PACKAGE(BerkeleyDB)
+  if(NOT BDB_FOUND)
+    message(FATAL_ERROR "Could not find BerkeleyDB.")
+  endif(NOT BDB_FOUND)
+  include_directories(PUBLIC ${BDB_INCLUDE_DIR})
+  target_link_libraries(${SHAREDLIB} ${BDB_LIBRARIES})
+
 endif(CMAKE_HOST_APPLE)
 
 #
