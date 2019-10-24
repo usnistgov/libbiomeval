@@ -1564,15 +1564,13 @@ int iafis2nist_minutia_type(char **otype, char *type)
 int iafis2nist_pattern_class(char **oclass, char *class, const int finger_pos)
 {
    char *nclass;
-   int ret, hand;
+   int ret;
 
    /* Determine which hand the finger is on. */
    ret = which_hand(finger_pos);
    /* If error ... */
    if(ret < 0)
       return(ret);
-   /* Otherwise, hand is either specified or "unknown". */
-   hand = ret;
 
    /* Arch - type not designated */
    if(strcmp(class, "AU") == 0){
