@@ -64,6 +64,12 @@ of the software.
 #define _USEBSD_H
 
 #if defined(__linux__) && !defined(_BSD_SOURCE)
+#define _DEFAULT_SOURCE
+/*
+ * glibc >= 2.20  uses _DEFAULT_SOURCE as an alias to  _BSD_SOURCE, deprecating
+ * _BSD_SOURCE. For backwards compatibility, keep the existing define.
+ */
+#
 #define _BSD_SOURCE
 #elif defined(__CYGWIN__) && defined(__STRICT_ANSI__)
 #undef __STRICT_ANSI__
