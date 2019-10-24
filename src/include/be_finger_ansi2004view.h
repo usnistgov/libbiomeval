@@ -87,6 +87,8 @@ namespace BiometricEvaluation
 			    const Memory::uint8Array &firBuffer,
 			    const uint32_t viewNumber);
 
+			virtual ~ANSI2004View() = default;
+
 		protected:
 			static const uint32_t BASE_SPEC_VERSION = 0x20323000;
 			/* ' ' '2' '0' 'nul' */
