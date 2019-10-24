@@ -542,8 +542,8 @@ int find_num_huff_sizes(unsigned char **obits, int *adjust, int *codesize,
    for(i = 0; i < max_huffcounts; i++) {
       if(codesize[i] != 0)
 	 bits[(codesize[i] - 1)]++;
-         if(codesize[i] > MAX_HUFFBITS)
-            *adjust = 1;
+      if(codesize[i] > MAX_HUFFBITS)
+         *adjust = 1;
    }
 
    if(debug > 2){

@@ -750,7 +750,7 @@ static int read_huff_table_wsq14(
       fprintf(stderr,
               "Finished reading huffman table.\n\n");
 
-      return(0);
+    return(0);
 }
 
 
