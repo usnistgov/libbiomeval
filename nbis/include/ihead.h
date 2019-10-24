@@ -160,7 +160,7 @@ extern void parseihdrid(char *, char *, char *);
 /* prntihdr.c */
 extern void printihdr(IHEAD *, FILE *);
 /* readihdr.c */
-extern IHEAD *readihdr(register FILE *);
+extern IHEAD *readihdr(FILE *);
 /* valdcomp.c */
 extern int valid_compression(int);
 /* writihdr.c */
