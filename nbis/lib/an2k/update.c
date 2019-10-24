@@ -458,7 +458,7 @@ int update_ANSI_NIST_tagged_record_LEN(RECORD *record)
 {
    int byte_adjust;
    int recordlen, recordchars;
-   int old_recordlen, old_recordchars;
+   int old_recordchars;
    ITEM *item;
    FIELD *field;
    char value[MAX_UINT_CHARS+1];
@@ -478,8 +478,6 @@ int update_ANSI_NIST_tagged_record_LEN(RECORD *record)
    /* record structure ...                                     */
    while(recordlen != record->num_bytes){
 
-      /* Set old record length. */
-      old_recordlen = recordlen;
       /* Set old record length character count. */
       old_recordchars = recordchars;
 
