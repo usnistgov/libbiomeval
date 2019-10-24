@@ -60,15 +60,15 @@ BiometricEvaluation::MPI::CSVResources::CSVResources(
 	try {
 		this->_useBuffer = props->getPropertyAsBoolean(
 		    BE::MPI::CSVResources::USEBUFFERPROPERTY);
-	} catch (BE::Error::Exception) {}
+	} catch (const BE::Error::Exception&) {}
 	try {
 		this->_delimiter = props->getProperty(
 		    BE::MPI::CSVResources::DELIMITERPROPERTY);
-	} catch (BE::Error::Exception) {}
+	} catch (const BE::Error::Exception&) {}
 	try {
 		this->_randomizeLines = props->getPropertyAsBoolean(
 		    BE::MPI::CSVResources::RANDOMIZEPROPERTY);
-	} catch (BE::Error::Exception) {}
+	} catch (const BE::Error::Exception&) {}
 	if (this->_randomizeLines) {
 		if (!this->_useBuffer)
 			throw BE::Error::StrategyError("\"" + 
@@ -79,7 +79,7 @@ BiometricEvaluation::MPI::CSVResources::CSVResources(
 		try {
 			this->_rngSeed = props->getPropertyAsInteger(
 			    BE::MPI::CSVResources::RANDOMSEEDPROPERTY);
-		} catch (BE::Error::ObjectDoesNotExist) {
+		} catch (const BE::Error::ObjectDoesNotExist&) {
 			this->_rngSeed = std::random_device()();
 		}
 		this->_rng = std::mt19937_64(this->_rngSeed);

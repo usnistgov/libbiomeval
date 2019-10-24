@@ -28,7 +28,7 @@ libtiff_read(
 	const auto ib = static_cast<BE::Image::TIFF::ClientIO *>(handle)->ib;
 	try {
 		return (ib->scan(buf, size));
-	} catch (BE::Error::Exception) {
+	} catch (const BE::Error::Exception&) {
 		return (0);
 	}
 }
@@ -66,7 +66,7 @@ libtiff_seek(
 		}
 
 		return (ib->getIndex());
-	} catch (BE::Error::Exception) {
+	} catch (const BE::Error::Exception&) {
 		return (offset);
 	}
 }

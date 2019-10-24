@@ -564,9 +564,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::vacuum(
 	try {
 		RecordStore::Impl::removeRecordStore(pathname);
 		newRS->move(pathname);
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		throw Error::StrategyError("Could not remove " + pathname);
-	} catch (Error::ObjectExists) {
+	} catch (const Error::ObjectExists&) {
 		throw Error::StrategyError("Could not rename temp RS to "
 		    + pathname);
 	}

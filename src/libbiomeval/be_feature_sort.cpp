@@ -231,7 +231,7 @@ BiometricEvaluation::Feature::Sort::sort(
 			std::sort(minutia.begin(), minutia.end(),
 			    BE::Feature::Sort::Polar(BE::Feature::Sort::Polar::
 			    centerOfMinutiaeMass(minutia)));
-		} catch (BE::Error::StrategyError) {
+		} catch (const BE::Error::StrategyError&) {
 			/* No minutia, sorting not important */
 		}
 		break;
@@ -240,7 +240,7 @@ BiometricEvaluation::Feature::Sort::sort(
 			std::sort(minutia.rbegin(), minutia.rend(),
 			    BE::Feature::Sort::Polar(BE::Feature::Sort::Polar::
 			    centerOfMinutiaeMass(minutia)));
-		} catch (BE::Error::StrategyError) {
+		} catch (const BE::Error::StrategyError&) {
 			/* No minutia, sorting not important */
 		}
 		break;
@@ -294,7 +294,7 @@ BiometricEvaluation::Feature::Sort::stableSort(
 			std::stable_sort(minutia.begin(), minutia.end(),
 			    BE::Feature::Sort::Polar(BE::Feature::Sort::Polar::
 			    centerOfMinutiaeMass(minutia)));
-		} catch (BE::Error::StrategyError) {
+		} catch (const BE::Error::StrategyError&) {
 			/* No minutia, sorting not important */
 		}
 		break;
@@ -303,7 +303,7 @@ BiometricEvaluation::Feature::Sort::stableSort(
 			std::stable_sort(minutia.rbegin(), minutia.rend(),
 			    BE::Feature::Sort::Polar(BE::Feature::Sort::Polar::
 			    centerOfMinutiaeMass(minutia)));
-		} catch (BE::Error::StrategyError) {
+		} catch (const BE::Error::StrategyError&) {
 			/* No minutia, sorting not important */
 		}
 		break;

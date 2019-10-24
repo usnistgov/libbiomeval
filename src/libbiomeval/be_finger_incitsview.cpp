@@ -40,7 +40,7 @@ BiometricEvaluation::Finger::INCITSView::INCITSView(
 	if (fmrFilename != "") {
 		try {
 			this->_fmr = BE::IO::Utility::readFile(fmrFilename);
-		} catch (BE::Error::Exception) {
+		} catch (const BE::Error::Exception&) {
 			throw (BE::Error::FileError(
 			     "FMR file could not be opened."));
 		}
@@ -48,7 +48,7 @@ BiometricEvaluation::Finger::INCITSView::INCITSView(
 	if (firFilename != "") {
 		try {
 			this->_fir = BE::IO::Utility::readFile(firFilename);
-		} catch (BE::Error::Exception) {
+		} catch (const BE::Error::Exception&) {
 			throw (BE::Error::FileError(
 			     "FIR file could not be opened."));
 		}

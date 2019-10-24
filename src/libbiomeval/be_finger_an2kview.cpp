@@ -85,7 +85,7 @@ BiometricEvaluation::Finger::AN2KView::convertImpression(
 	an2k_imp = strtol((const char *)str, nullptr, 10);
 	try {
 		return (to_enum<BE::Finger::Impression>(an2k_imp));
-	} catch (BE::Error::ObjectDoesNotExist) {
+	} catch (const BE::Error::ObjectDoesNotExist&) {
 		throw Error::DataError("Invalid IMP value");
 	}
 }

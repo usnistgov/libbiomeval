@@ -204,7 +204,7 @@ BiometricEvaluation::IO::SQLiteRecordStore::Impl::insert(
 	try {
 		this->length(key);
 		throw Error::ObjectExists(key);
-	} catch (Error::ObjectDoesNotExist) {}
+	} catch (const Error::ObjectDoesNotExist&) {}
 	
 	sqlite3_stmt *statement = nullptr;
 	std::string activeTable = PRIMARY_KV_TABLE;

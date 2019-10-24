@@ -51,7 +51,7 @@ BiometricEvaluation::Finger::ANSI2004View::init(
 			for (uint32_t i = 0; i < viewNumber; i++) {
 				this->readFVMR(iBuf);
 			}
-		} catch (BE::Error::DataError) {
+		} catch (const BE::Error::DataError&) {
 			throw BE::Error::ObjectDoesNotExist("Error reading "
 			    "view number = " + std::to_string(viewNumber));
 		}

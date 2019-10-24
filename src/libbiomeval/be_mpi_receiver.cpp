@@ -92,7 +92,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 		    BE::MPI::openLogsheet(
 			this->_resources->getLogsheetURL(),
 			"MPI::Worker");
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		MPI::printStatus("Worker failed to open log sheet");
         	return(-1);
 	}
@@ -527,7 +527,7 @@ BiometricEvaluation::MPI::Receiver::start()
 		    BE::MPI::openLogsheet(
 			this->_resources->getLogsheetURL(),
 			"MPI::Receiver");
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		taskStatus = to_int_type(MPI::TaskStatus::Failed);
 		::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT32_T,
 		    0, to_int_type(MPI::MessageTag::Control));

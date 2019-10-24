@@ -73,7 +73,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::getDBFilePathname() const
 	std::shared_ptr<IO::Properties> props = this->getProperties();
 	try {
 		filename = props->getProperty(NAMEPROPERTY);
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		filename = DBFILENAME;
 	}
 	return (this->getPathname() + '/' + filename);
@@ -205,7 +205,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::move(const std::string &pathname)
 	try {
 		props->removeProperty(NAMEPROPERTY);
 		this->setProperties(props);
-	} catch (BE::Error::ObjectDoesNotExist) {
+	} catch (const BE::Error::ObjectDoesNotExist&) {
 	}
 
 	/*

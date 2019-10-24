@@ -126,7 +126,7 @@ BiometricEvaluation::Process::Manager::waitForMessage(
 				if (curfd > maxfd)
 					maxfd = curfd;
 				fds[_workers[i]] = curfd;
-			} catch (Error::ObjectDoesNotExist) {
+			} catch (const Error::ObjectDoesNotExist&) {
 				/* Don't add pipes for exiting Workers */
 			}
 		}
@@ -201,7 +201,7 @@ BiometricEvaluation::Process::Manager::broadcastMessage(
 	for (it = _workers.begin(); it != _workers.end(); it++) {
 		try {
 			(*it)->sendMessageToWorker(message);
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			/* Don't care if a single worker is gone */
 		}
 	}

@@ -41,7 +41,7 @@ BiometricEvaluation::IO::CompressedRecordStore::Impl::Impl(
 		this->_compressor = 
 		    IO::Compressor::createCompressor(
 		        to_enum<IO::Compressor::Kind>(compressorType));
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		throw Error::StrategyError(compressorType + " is not a valid "
 		    "compressor type");
 	}
@@ -72,7 +72,7 @@ BiometricEvaluation::IO::CompressedRecordStore::Impl::Impl(
 	try {
 		props->setProperty(COMPRESSOR_TYPE_KEY,
 		    to_string(compressorType));
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		throw Error::StrategyError("Invalid compression type");
 	}
 	this->setProperties(props);	

@@ -33,7 +33,7 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
 	if (fmrPath != "") {
 		try {
 			fmr = BE::IO::Utility::readFile(fmrPath);
-		} catch (BE::Error::Exception) {
+		} catch (const BE::Error::Exception&) {
 			throw (BE::Error::FileError(
 			     "FMR file could not be opened."));
 		}
@@ -42,7 +42,7 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::ANSI2004Record(
 	if (firPath != "") {
 		try {
 			fir = BE::IO::Utility::readFile(firPath);
-		} catch (BE::Error::Exception) {
+		} catch (const BE::Error::Exception&) {
 			throw (BE::Error::FileError(
 			     "FIR file could not be opened."));
 		}
@@ -78,7 +78,7 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::init(
 			this->_views.push_back(BE::Finger::ANSI2004View(
 			    fmr, fir, viewNumber));
 		}
-	} catch (BE::Error::ObjectDoesNotExist) { /* The end is nigh. */ }
+	} catch (const BE::Error::ObjectDoesNotExist&) { /* The end is nigh. */ }
 
 	if (this->_views.size() == 0)
 		throw BE::Error::StrategyError("No ANSI2004Views created.");
@@ -401,7 +401,7 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::getView(
 
 	try {
 		return (this->_views.at(viewNumber - 1));
-	} catch (std::out_of_range) {
+	} catch (const std::out_of_range&) {
 		throw BE::Error::ObjectDoesNotExist("No such view number (" +
 		    std::to_string(viewNumber) + ")");
 	}
@@ -439,7 +439,7 @@ BiometricEvaluation::DataInterchange::ANSI2004Record::updateView(
 
 	try {
 		this->_views.at(viewNumber - 1) = view;
-	} catch (std::out_of_range) {
+	} catch (const std::out_of_range&) {
 		throw BE::Error::ObjectDoesNotExist("No such view number (" +
 		    std::to_string(viewNumber) + ")");
 	}

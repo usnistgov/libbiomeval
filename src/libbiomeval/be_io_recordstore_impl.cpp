@@ -370,7 +370,7 @@ BiometricEvaluation::IO::RecordStore::Impl::mergeRecordStores(
 			try {
 				record = rs->sequence();
 				merged_rs->insert(record.key, record.data);
-			} catch (Error::ObjectDoesNotExist) {
+			} catch (const Error::ObjectDoesNotExist&) {
 				exhausted = true;
 			}
 		}
@@ -462,7 +462,7 @@ BiometricEvaluation::IO::RecordStore::Impl::setProperties(
 		if (isKeyCoreProperty(*k) == false) {
 			try {
 				importProps->getProperty(*k);
-			} catch (Error::ObjectDoesNotExist) {
+			} catch (const Error::ObjectDoesNotExist&) {
 				_props->removeProperty(*k);
 			}
 		}

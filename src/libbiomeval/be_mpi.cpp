@@ -141,7 +141,7 @@ BiometricEvaluation::MPI::openLogsheet(
 				logsheet.reset(new BE::IO::FileLogsheet(
 			    	locURL,
 			    	description));
-			} catch (BE::Error::ObjectExists) {
+			} catch (const BE::Error::ObjectExists&) {
 				try {
 					logsheet.reset(
 					    new BE::IO::FileLogsheet(locURL));
