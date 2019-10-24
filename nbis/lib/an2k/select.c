@@ -1150,7 +1150,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
       } else {		                           /* maybe its a named value */
 	 /* just looking, using pointers to constants to make sure */
 	 const REC_SEL_NAMED_SETS *ntp, *found_ntp;
-	 const char *const *namep, *const *found_namep;
+	 const char *const *namep;
 	 const REC_SEL_NAMED_SETS *const name_table
 	    = type_params->named_sets;
 	 int num_dups = 0, num_problem_dups = 0, exact_match = 0;
@@ -1176,7 +1176,6 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
 					       are not a problem */
 			num_problem_dups++;
 		  } else {
-		     found_namep = namep;
 		     found_ntp = ntp;		    
 		  }
 	       }

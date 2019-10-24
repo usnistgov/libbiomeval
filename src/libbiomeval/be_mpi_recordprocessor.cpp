@@ -95,7 +95,7 @@ BiometricEvaluation::MPI::RecordProcessor::processWorkPackage(
 		 * Rethrow the exception so the framekwork will start
 		 * the shutdown.
 		 */
-		} catch (Error::Exception) {
+		} catch (const Error::Exception&) {
 			throw;
 		}
 	}

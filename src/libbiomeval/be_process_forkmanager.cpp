@@ -345,7 +345,7 @@ BiometricEvaluation::Process::ForkManager::_wait()
 			default:
 				try {
 					this->setNotWorking(process);
-				} catch (Error::ObjectDoesNotExist) {
+				} catch (const Error::ObjectDoesNotExist&) {
 					throw Error::StrategyError(
 					    Error::errorStr());
 				}

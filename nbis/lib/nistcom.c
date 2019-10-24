@@ -103,7 +103,7 @@ of the software.
 int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
                      const int d, const int ppi, const int lossyflag)
 {
-   int ret, allocflag, n;
+   int ret, allocflag;
    char *lossyval;
    char cbuff[11];
    NISTCOM *nistcom;
@@ -126,7 +126,6 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
    else{
       nistcom = *onistcom;
       allocflag = 0;
-      n = 6;
    }
 
    /* WIDTH */

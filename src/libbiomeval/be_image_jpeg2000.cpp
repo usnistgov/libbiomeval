@@ -77,7 +77,7 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 		setResolution(parse_res(find_marker(resc, 4,
 		    this->getDataPointer(), this->getDataSize(),
 		    resc_box_size)));
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		setResolution(Resolution(72, 72, Resolution::Units::PPI));
 	}
 
@@ -453,7 +453,7 @@ BiometricEvaluation::Image::JPEG2000::libopenjp2Seek(
 	try {
 		ib->setIndex(p_nb_bytes);
 		return (OPJ_TRUE);
-	} catch (BE::Error::ParameterError) {
+	} catch (const BE::Error::ParameterError&) {
 		return (OPJ_FALSE);
 	}
 }

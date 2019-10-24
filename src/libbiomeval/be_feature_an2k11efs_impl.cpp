@@ -587,7 +587,7 @@ readMRCI(
 				std::string((char *)
 				    field->subfields[0]->items[0]->value));
 			mrci.has_mra = true;
-		} catch (BE::Error::ObjectDoesNotExist) {
+		} catch (const BE::Error::ObjectDoesNotExist&) {
 			throw BE::Error::DataError("Invalid MRA value");
 		}
 	}

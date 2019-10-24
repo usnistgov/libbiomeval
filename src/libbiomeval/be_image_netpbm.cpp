@@ -47,7 +47,7 @@ BiometricEvaluation::Image::NetPBM::NetPBM(
 
 	try {
 		parseHeader();
-	} catch (std::out_of_range) {
+	} catch (const std::out_of_range&) {
 		throw Error::DataError("Invalid header for NetPBM image");
 	}
 }

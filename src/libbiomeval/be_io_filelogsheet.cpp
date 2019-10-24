@@ -37,7 +37,7 @@ parseURL(const std::string &url, std::string &pathname)
 		    BE::IO::Logsheet::getTypeFromURL(url);
 		if (lsType != BE::IO::Logsheet::Kind::File)
 			return (false);
-	} catch (BE::Error::Exception) {
+	} catch (const BE::Error::Exception&) {
 		/* Assume we have no scheme, so return the URL as pathname */
 		pathname = url;
 		return (true);
@@ -258,7 +258,7 @@ BiometricEvaluation::IO::FileLogsheet::mergeLogsheets(
 	std::shared_ptr<FileLogsheet> master;
 	try {
 		master = logSheets.at(0);
-	} catch (std::out_of_range) {
+	} catch (const std::out_of_range&) {
 		throw Error::StrategyError("out_of_range 0");
 	}
 	
@@ -274,7 +274,7 @@ BiometricEvaluation::IO::FileLogsheet::mergeLogsheets(
 				else
 					entry = (*it)->sequence(true, false,
 					    BE_FILELOGSHEET_SEQ_NEXT);
-			} catch (Error::ObjectDoesNotExist) {
+			} catch (const Error::ObjectDoesNotExist&) {
 				break;
 			}
 
