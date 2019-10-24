@@ -22,7 +22,6 @@ using namespace BiometricEvaluation::Framework::Enumeration;
 
 static Memory::uint8Array
 openAN2KFile(const string filename)
-    throw (Error::Exception)
 {
 	/* Any exceptions from calls below just float out. */
 	uint64_t sz = IO::Utility::getFileSize(filename);
