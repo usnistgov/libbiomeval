@@ -77,7 +77,7 @@ testAN2K7Minutiae(const std::string &fname)
 	 */
  	cout << "Fingerprint Reader: " << endl;
 	try { cout << an2km->getOriginatingFingerprintReadingSystem() << endl; }
-	catch (Error::ObjectDoesNotExist) { cout << "<Omitted>" << endl; }
+	catch (const Error::ObjectDoesNotExist&) { cout << "<Omitted>" << endl; }
 	
 	cout << "Pattern (primary): " << to_string(
 	    Feature::AN2K7Minutiae::convertPatternClassification(

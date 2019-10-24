@@ -147,7 +147,7 @@ testANSI2004()
 	success = false;
 	try {
 		record->isolateView(99);
-	} catch (BE::Error::ObjectDoesNotExist) {
+	} catch (const BE::Error::ObjectDoesNotExist&) {
 		success = true;
 	} catch (BE::Error::Exception &e) {
 		cout << "Caught " << e.whatString() << "; ";
@@ -177,7 +177,7 @@ testANSI2004()
 	success = false;
 	try {
 		record->removeView(99);
-	} catch (BE::Error::ObjectDoesNotExist) {
+	} catch (const BE::Error::ObjectDoesNotExist&) {
 		success = true;
 	} catch (BE::Error::Exception &e) {
 		cout << "Caught " << e.whatString() << "; ";

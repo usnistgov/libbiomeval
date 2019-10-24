@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	bool success = false;
 	try {
 		Error::SignalManager bsigmgr(sigset);
-	} catch (Error::ParameterError) {
+	} catch (const Error::ParameterError&) {
 		cout << "success.\n";
 		success = true;
 	} catch (Error::StrategyError &e) {
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 	success = false;
 	try {
 		asigmgr->setSignalSet(sigset);
-	} catch (Error::ParameterError) {
+	} catch (const Error::ParameterError&) {
 		cout << "success.\n";
 		success = true;
 	}

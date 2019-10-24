@@ -66,7 +66,7 @@ testDefaults()
 			throw Error::StrategyError();
 		if (roProps.getPropertyAsDouble("Three") != 3.0)
 			throw Error::StrategyError();
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		std::cout << "Failed to read the default" << std::endl;
 		rv = -1;
 	}
@@ -74,7 +74,7 @@ testDefaults()
 	try {
 		if (roProps.getProperty("Four") == "Four")
 			rv = -1;
-	} catch (Error::ObjectDoesNotExist) {}
+	} catch (const Error::ObjectDoesNotExist&) {}
 
 	IO::Properties rwProps{IO::Mode::ReadWrite, {
 	    {"One", "1"}, {"Two", "Two"}, {"Three", "3.0"}}};
@@ -85,7 +85,7 @@ testDefaults()
 			throw Error::StrategyError();
 		if (rwProps.getPropertyAsDouble("Three") != 3.0)
 			throw Error::StrategyError();
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		std::cout << "Failed to read the default" << std::endl;
 		rv = -1;
 	}
@@ -94,12 +94,12 @@ testDefaults()
 	try {
 		if (rwProps.getProperty("Four") == "Four")
 			rv = -1;
-	} catch (Error::ObjectDoesNotExist) {}
+	} catch (const Error::ObjectDoesNotExist&) {}
 	rwProps.setProperty("Four", "Four");
 	try {
 		if (rwProps.getProperty("Four") != "Four")
 			rv = -1;
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		rv = -1;
 	}
 
@@ -108,7 +108,7 @@ testDefaults()
 		rwProps.setProperty("One", "New Value");
 		if (rwProps.getProperty("One") != "New Value")
 			rv = -1;
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		std::cout << "Failed to overwrite a default value" << std::endl;
 		rv = -1;
 	}

@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 				auto rawAPDU = smc.getLastAPDU();
 				dumpUint8Array(rawAPDU);
 
-			} catch (BE::Error::ParameterError) {
+			} catch (const BE::Error::ParameterError&) {
 				break;
 			}
 		}

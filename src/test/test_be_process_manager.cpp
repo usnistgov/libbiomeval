@@ -192,7 +192,7 @@ workerMain()
 	cout.flush();
 	try {
 		procMgr->stopWorker(worker);
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		cout << ">>>>" << ID << "Worker of Worker was already stopped." 
 		   << endl;
 	}
@@ -274,7 +274,7 @@ main(
 		std::cout << ">> (M) Getting exit status before run...";
 		workers[0]->getExitStatus();
 		std::cout << "successful  (FAILURE)" << std::endl;
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		std::cout << "caught exception (success)" << std::endl;
 	}
 
@@ -285,7 +285,7 @@ main(
 		std::cout << ">> (M) Getting exit status while running...";
 		workers[0]->getExitStatus();
 		std::cout << "successful  (FAILURE)" << std::endl;
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		std::cout << "caught exception (success)" << std::endl;
 	}
 
@@ -335,7 +335,7 @@ main(
 		cout << ">> (M) Stopping Worker #" << i + 1 << "..." << endl;
 		try {
 			procMgr->stopWorker(workers[i]);
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			cout << ">> (M) Worker # " << i + 1 << " was already "
 			    "stopped." << endl;
 		}

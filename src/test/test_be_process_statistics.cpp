@@ -94,7 +94,7 @@ main(int argc, char *argv[])
 			cout << "Failure." << endl;
 			return (EXIT_FAILURE);
 		}
-	} catch (Error::NotImplemented) {
+	} catch (const Error::NotImplemented&) {
 		cout << "Not Implemented; OK." << endl;
 	} catch (Error::StrategyError &e) {
 		cout << "caught " << e.what() << endl;
@@ -133,7 +133,7 @@ main(int argc, char *argv[])
 	} catch (Error::StrategyError &e) {
 		cout << "caught " << e.what() << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::NotImplemented) {
+	} catch (const Error::NotImplemented&) {
 		cout << "Not implemented; OK." << endl;
 	}
 

@@ -253,7 +253,7 @@ compareProperties(
 				if (storedRawData.at(i) != genRawData.at(i))
 					throw Error::DataError("raw files "
 					    "differ");
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			cerr << "\t*** raw version missing" << endl;
 			passed = false;
 		} catch (Error::Exception &e) {
@@ -268,7 +268,7 @@ compareProperties(
 				if (storedRawData.at(i) != genRawGrayData.at(i))
 					throw Error::DataError("raw gray files "
 					    "differ");
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			cerr << "\t*** raw gray version missing" << endl;
 			passed = false;
 		} catch (Error::Exception &e) {
@@ -337,7 +337,7 @@ main(
 		try {
 			record = imageRS->sequence();
 			rawKey = record.key;
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			/* Exhausted sample images */
 			return (EXIT_SUCCESS);
 		} catch (Error::Exception &e) {
@@ -375,7 +375,7 @@ main(
 				    properties->getPropertyAsInteger(
 				    "bitDepth"));
 			}
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			doPropertyCompare = false;
 		} catch (Error::Exception &e) {
 			cerr << e.what() << endl;

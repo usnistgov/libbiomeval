@@ -129,7 +129,7 @@ namespace BiometricEvaluation
 					command.command = BiometricEvaluation::
 					    Framework::Enumeration::to_enum<T>(
 					    command.arguments[0]);
-				} catch (Error::ObjectDoesNotExist) {
+				} catch (const Error::ObjectDoesNotExist&) {
 					/* 
 					 * Send implementation specific usage
 					 * if set.

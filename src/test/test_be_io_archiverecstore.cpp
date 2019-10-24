@@ -35,10 +35,10 @@ int main (int argc, char* argv[]) {
 	IO::ArchiveRecordStore *ars;
 	try {
 		ars = new IO::ArchiveRecordStore(archivefn, "Test ArchiveRS");
-	} catch (Error::ObjectExists) {
+	} catch (const Error::ObjectExists&) {
 		cout << "The archive already exists; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 	}
 	cout << "Passed test of creating non-existing archive." << endl;
@@ -50,10 +50,10 @@ int main (int argc, char* argv[]) {
 	bool cont = false;
 	try {
 		IO::ArchiveRecordStore ars2("bogus");
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		cout << "Passed test of opening non-existing archive." << endl;
 		cont = true;
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -66,11 +66,11 @@ int main (int argc, char* argv[]) {
 	try {
 		ars = new IO::ArchiveRecordStore(archivefn, IO::Mode::ReadWrite);
 		cont = true;
-	} catch (Error::ObjectDoesNotExist e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Failed test of opening existing archive." << endl;
 		cout << e.what() << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Failed test of opening existing archive." << endl;
 		return (EXIT_FAILURE);
 	}
@@ -94,10 +94,10 @@ int main (int argc, char* argv[]) {
 				cout << "Wrote Key " << randkey.str() << 
 				    ": \'" << randbuf << "\'" << endl;
 			}
-		} catch (Error::ObjectExists e) {
+		} catch (const Error::ObjectExists &e) {
 			cout << "Failed test of inserting." << endl;
 			return (EXIT_FAILURE);
-		} catch (Error::StrategyError e) {
+		} catch (const Error::StrategyError &e) {
 			cout << "Failed test of inserting." << endl;
 			return (EXIT_FAILURE);
 		}
@@ -116,10 +116,10 @@ int main (int argc, char* argv[]) {
 		strncpy((char *)&buf[0], "0123456789", 11);
 		ars->replace(chkkey, buf);
 		cout << "Passed test of replacing" << endl;
-	} catch (Error::ObjectDoesNotExist e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Failed test of replacing" << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Failed test of replacing" << endl;
 		return (EXIT_FAILURE);
 	}
@@ -138,10 +138,10 @@ int main (int argc, char* argv[]) {
 	try {
 		ars3 = new IO::ArchiveRecordStore(archivefn, IO::Mode::ReadWrite);
 		cout << "Passed test of reading manifest" << endl;
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		cout << "Failed test of reading manifest" << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Failed test of reading manifest" << endl;
 		return (EXIT_FAILURE);
 	}
@@ -160,11 +160,11 @@ int main (int argc, char* argv[]) {
 			cout << "Sizes were not equal" << endl;
 		cout << "Passed test of reading replacement value" << endl;
 		cout << "Read Key " << chkkey << ": \'" << buf << "\' Size: " << size << endl;
-	} catch (Error::ObjectDoesNotExist e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << e.what() << endl;
 		cout << "Failed test of reading replacement" << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << e.what() << endl;
 		cout << "Failed test of reading replacement" << endl;
 		return (EXIT_FAILURE);
@@ -174,10 +174,10 @@ int main (int argc, char* argv[]) {
 	try {
 		ars3->remove(chkkey);
 		cout << "Passed test of removing" << endl;
-	} catch (Error::ObjectDoesNotExist e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Failed test of removing" << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Failed test of removing" << endl;
 		return (EXIT_FAILURE);
 	}
@@ -187,9 +187,9 @@ int main (int argc, char* argv[]) {
 		(void)ars3->read(chkkey);
 		cout << "Failed test of removing/re-reading" << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Failed test of removing/re-reading" << endl;
-	} catch (Error::ObjectDoesNotExist e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Passed test of removing/re-reading" << endl;
 	}
 	delete ars3;
@@ -198,7 +198,7 @@ int main (int argc, char* argv[]) {
 	try {
 		IO::ArchiveRecordStore::vacuum(archivefn);
 		cout << "Passed test of vacuuming" << endl;
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		cout << "Failed test of vacuuming" << endl;
 		return (EXIT_FAILURE);
 	}
@@ -213,7 +213,7 @@ int main (int argc, char* argv[]) {
 			    endl;
 			return (EXIT_FAILURE);
 		}
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		cout << "Failed fourth test of vacuum necessity" << endl;
 		return (EXIT_FAILURE);
 	}

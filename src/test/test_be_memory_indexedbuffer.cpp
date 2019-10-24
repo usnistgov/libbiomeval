@@ -114,7 +114,7 @@ main (int argc, char* argv[])
 	cout << "Attempt to read off end of buffer: ";
 	try {
 		cout << buf3.scanU8Val();
-	} catch (Error::DataError) {
+	} catch (const Error::DataError&) {
 		success = true;
 	}
 	if (success)

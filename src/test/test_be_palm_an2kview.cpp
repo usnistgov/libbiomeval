@@ -116,7 +116,7 @@ main(int argc, char* argv[]) {
 	Memory::uint8Array buf;
 	try {
 		buf = openAN2KFile("test_data/type9-15.an2k");
-	} catch (Error::Exception) {
+	} catch (const Error::Exception&) {
 		cout << "Could not read file into buffer" << endl;
 		return (EXIT_FAILURE);
 	}

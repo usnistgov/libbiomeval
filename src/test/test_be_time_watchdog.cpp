@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 	try {
 		Indy = new Time::Watchdog(Time::Watchdog::PROCESSTIME);
 #ifdef __CYGWIN__
-	} catch (Error::NotImplemented) {
+	} catch (const Error::NotImplemented&) {
 #endif
 	} catch (Error::Exception &e) {
 		cout << "failed." << endl;

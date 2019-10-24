@@ -59,7 +59,7 @@ main(
 		suit = to_enum<CardSuit>("Squares");
 		std::cout << "FAIL" << std::endl;
 		return (1);
-	} catch (BiometricEvaluation::Error::Exception) {
+	} catch (const BiometricEvaluation::Error::Exception&) {
 		std::cout << "Pass" << std::endl;
 	}
 
@@ -104,7 +104,7 @@ main(
 	try {
 		if (to_enum<CardSuit>(42) == CardSuit::Spades)
 			std::cout << "FAIL" << std::endl;
-	} catch (BiometricEvaluation::Error::ObjectDoesNotExist) {
+	} catch (const BiometricEvaluation::Error::ObjectDoesNotExist&) {
 		std::cout << "Pass" << std::endl;
 	}
 
