@@ -52,7 +52,7 @@ BiometricEvaluation::Process::MessageCenterReceiver::workerMain()
 				message = this->receive();
 				this->sendMessageToManager(message);
 			}
-		} catch (Error::Exception) {
+		} catch (const Error::Exception&) {
 			/* Most likely a connection failure, close connection */
 			stop = true;
 			continue;
@@ -67,7 +67,7 @@ BiometricEvaluation::Process::MessageCenterReceiver::workerMain()
 				this->receiveMessageFromManager(message);
 				this->send(message);
 			}
-		} catch (Error::Exception) {
+		} catch (const Error::Exception&) {
 			/* Most likely a server issue, close connection */
 			stop = true;
 			continue;

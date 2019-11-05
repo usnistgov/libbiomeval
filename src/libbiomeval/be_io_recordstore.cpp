@@ -84,7 +84,7 @@ BiometricEvaluation::IO::RecordStore::containsKey(
 	/* Ask a core method to retrieve some data about a key */
 	try {
 		(void)this->length(key);
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		return (false);
 	}
 	return (true);
@@ -218,7 +218,7 @@ BiometricEvaluation::IO::RecordStoreIterator::setBegin()
 		std::string key = this->_recordStore->sequenceKey(
 		     RecordStore::BE_RECSTORE_SEQ_START);
 		this->_recordStore->setCursorAtKey(key);
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		this->setEnd();
 	}
 
@@ -237,7 +237,7 @@ BiometricEvaluation::IO::RecordStoreIterator::step(
 	if (numSteps == 1) {
 		try {
 			this->_currentRecord = this->_recordStore->sequence();
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			this->setEnd();
 		}
 		return;
@@ -248,7 +248,7 @@ BiometricEvaluation::IO::RecordStoreIterator::step(
 	for (difference_type i = 0; i < numSteps; i++) {
 		try {
 			key = this->_recordStore->sequenceKey();
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			this->setEnd();
 			return;
 		}

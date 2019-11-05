@@ -33,10 +33,10 @@ int main (int argc, char* argv[]) {
 	try {
 		frs = new IO::FileRecordStore(frtestdir, 
 		    "Test FileRecordStore");
-	} catch (Error::ObjectExists) {
+	} catch (const Error::ObjectExists&) {
 		cout << "The directory already exists; exiting." << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 	}
 	cout << "Passed test of creating non-existing bit store." << endl;
@@ -48,10 +48,10 @@ int main (int argc, char* argv[]) {
 	bool cont = false;
 	try {
 		IO::FileRecordStore frs2("bogus");
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		cout << "Passed test of opening non-existing store." << endl;
 		cont = true;
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 	}
 	if (!cont) {
@@ -63,9 +63,9 @@ int main (int argc, char* argv[]) {
 	try {
 		frs = new IO::FileRecordStore(frtestdir, IO::Mode::ReadWrite);
 		cont = true;
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		cout << "Failed test of opening existing bit store." << endl;
-	} catch (Error::StrategyError e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "A strategy error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}

@@ -355,7 +355,7 @@ BiometricEvaluation::Video::StreamImpl::getFrameSequence(
 				auto frame = convertAVFrame(frameNative);
 				frames.push_back(std::move(frame));
 			}
-		} catch (Error::ParameterError) {
+		} catch (const Error::ParameterError&) {
 			break;		/* Ran out of frames */
 		}
 	}

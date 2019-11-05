@@ -101,7 +101,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Impl::getRecordStore(
 {
 	try {
 		return (this->_recordStores.at(name));
-	} catch (std::out_of_range) {
+	} catch (const std::out_of_range&) {
 		throw BE::Error::ObjectDoesNotExist(name);
 	}
 }
@@ -133,7 +133,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Impl::read(
 		try {
 			ret.emplace(std::make_pair(rsPair.first,
 			    rsPair.second->read(key)));
-		} catch (BE::Error::ObjectDoesNotExist) {
+		} catch (const BE::Error::ObjectDoesNotExist&) {
 			/* Swallow */
 		} catch (BE::Error::Exception &e) {
 			if (!exceptions.empty())
@@ -163,7 +163,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Impl::length(
 		try {
 			ret.emplace(std::make_pair(rsPair.first,
 			    rsPair.second->length(key)));
-		} catch (BE::Error::ObjectDoesNotExist) {
+		} catch (const BE::Error::ObjectDoesNotExist&) {
 			/* Swallow */
 		} catch (BE::Error::Exception &e) {
 			if (!exceptions.empty())

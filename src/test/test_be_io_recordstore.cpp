@@ -307,7 +307,7 @@ runTests(IO::RecordStore *rs)
 		rs->insert(theKey, wdata);
 		cout << "FAILED" << endl;
 		return (-1);
-	} catch (Error::ObjectExists) {
+	} catch (const Error::ObjectExists&) {
 		cout << "success" << endl;	
 	} catch (Error::Exception &e) {
 		cout << "FAILED; caught " << e.what() << endl;

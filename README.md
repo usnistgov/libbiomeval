@@ -42,7 +42,7 @@ Requirements
 	* `icpc` >= 15.0
 
  * A supported operating system:
-	* RHEL/CentOS 7.x
+	* RHEL/CentOS >= 7.x
 	* macOS >= 10.9
 	* Cygwin 1.7.x
 
@@ -84,6 +84,14 @@ all operating systems. Package names are listed below for RHEL/CentOS, macOS
 (via [MacPorts](https://www.macports.org)), and Ubuntu. Other operating systems
 may use similarly-named packages.
 
+Under CentOS 8, several packages listed below are now part of the "PowerTools"
+repository, which is disabled by default. This repository can be enabled by
+issuing the command:
+```bash
+# Enable PowerTools repository
+sudo yum config-manager --set-enabled PowerTools
+```
+
 ### CORE
 | Name         | RHEL/CentOS     | MacPorts                     | Ubuntu       |
 |:------------:|:---------------:|:----------------------------:|:------------:|
@@ -99,11 +107,16 @@ may use similarly-named packages.
 ### IMAGE
 | Name         | RHEL/CentOS           | MacPorts   | Ubuntu             |
 |:------------:|:---------------------:|:----------:|:------------------:|
-| OpenJPEG 2.x | [`openjpeg2-devel`](https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/o/) | `openjpeg` | `libopenjp2-7-dev` |
+| OpenJPEG 2.x | `openjpeg2-devel`     | `openjpeg` | `libopenjp2-7-dev` |
 | libjpeg      | `libjpeg-turbo-devel` | `jpeg`     | `libjpeg-dev`      |
 | libpng       | `libpng-devel`        | `libpng`   | `libpng-dev`       |
 | libtiff      | `libtiff-devel`       | `tiff`     | `libtiff-dev`      |
 | Zlib         | `zlib-devel`          | `zlib`     | `zlib1g-dev`       |
+
+**Note:**
+
+ * Under CentOS, `openjpeg2-devel` is part of the EPEL repository. It can be
+   enabled by installing the package `epel-release`.
 
 ### IO
 | Name         | RHEL/CentOS  | MacPorts | Ubuntu       |
@@ -135,7 +148,7 @@ may use similarly-named packages.
 ### RECORDSTORE
 | Name         | RHEL/CentOS    | MacPorts  | Ubuntu           |
 |:------------:|:--------------:|:---------:|:----------------:|
-| Berkeley DB  | `libdb-devel`  | `db44`    | `libdb-dev`      |
+| Berkeley DB  | `libdb-cxx-devel` | `db62`    | `libdb-dev`      |
 | SQLite 3     | `sqlite-devel` | `sqlite3` | `libsqlite3-dev` |
 | Zlib         | `zlib-devel`   | `zlib`    | `zlib1g-dev`     |
 

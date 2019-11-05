@@ -215,7 +215,7 @@ main(int argc, char* argv[])
 			uls->sequence();
 			//std::cout << "SEQ: " << uls->sequence() << std::endl;
 			sequenceCounter++;
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			break;
 		} catch (Error::Exception &e) {
 			cerr << "failed! (" << e.what() << ')' << endl;
@@ -250,7 +250,7 @@ main(int argc, char* argv[])
 		try {
 			uls->sequence();
 			sequenceCounter++;
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			break;
 		} catch (Error::Exception &e) {
 			cerr << "failed! (" << e.what() << ')' << endl;
@@ -296,7 +296,7 @@ main(int argc, char* argv[])
 				std::cout << uls->sequence(true, false,
 				    IO::FileLogsheet::BE_FILELOGSHEET_SEQ_NEXT)
 				    << std::endl;
-			} catch (Error::ObjectDoesNotExist) {
+			} catch (const Error::ObjectDoesNotExist&) {
 				break;
 			} catch (Error::Exception &e) {
 				std::cerr << "failed! (" << e.what() << ')'
@@ -305,7 +305,7 @@ main(int argc, char* argv[])
 				break;
 			}
 		}
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		std::cerr << "failed! Could not read first entry." << std::endl;
 		status = EXIT_FAILURE;
 	} catch (Error::Exception &e) {

@@ -258,7 +258,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
 	try {
 		_AN2K7Features.reset(
 		    new Feature::AN2K7Minutiae(buf, recordNumber));
-	} catch (Error::Exception) {}
+	} catch (const Error::Exception&) {}
 	    
 	readRegisteredVendorBlock(type9, Feature::MinutiaeFormat::IAFIS);
 	readRegisteredVendorBlock(type9, Feature::MinutiaeFormat::Cogent);
@@ -276,6 +276,6 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
 		_AN2K11EFS.reset(
 		    new Feature::AN2K11EFS::ExtendedFeatureSet(buf,
 			recordNumber));
-	} catch (Error::Exception) {}
+	} catch (const Error::Exception&) {}
 	    
 }

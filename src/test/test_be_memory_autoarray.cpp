@@ -292,7 +292,7 @@ int main (int argc, char* argv[]) {
 	try {
 		cout << auto_five_letters.at(auto_five_letters.size()) << endl;
 		cout << "ERROR" << endl;
-	} catch (out_of_range) {
+	} catch (const out_of_range&) {
 		cout << "caught exception -- success" << endl;
 	}
 	

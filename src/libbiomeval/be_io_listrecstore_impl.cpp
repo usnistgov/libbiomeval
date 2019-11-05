@@ -139,7 +139,7 @@ BiometricEvaluation::IO::ListRecordStore::Impl::setCursorAtKey(
 			sequencedKey = this->sequenceKey();
 			if (sequencedKey == searchKey)
 				break;
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			throw Error::ObjectDoesNotExist(key);
 		}
 	}

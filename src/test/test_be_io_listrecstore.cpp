@@ -50,7 +50,7 @@ int main(
 			cout << "[" << counter << "] " << rec.key << "=>" <<
 			    rec.data << endl;
 			counter++;
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			break;
 		} catch (Error::Exception &e) {
 			cout << endl << "FAIL: " << e.what() << endl;
@@ -74,7 +74,7 @@ int main(
 		try {
 			key = rs->sequenceKey();
 			counter++;
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
                         break;
                 } catch (Error::Exception &e) {
                         cout << endl << "FAIL: " << e.what() << endl;
@@ -105,7 +105,7 @@ int main(
 		try {
 			key = rs->sequenceKey();
 			counter++;
-		} catch (Error::ObjectDoesNotExist) {
+		} catch (const Error::ObjectDoesNotExist&) {
 			break;
 		} catch (Error::Exception &e) {
 			cout << endl << "FAIL: " << e.what() << endl;

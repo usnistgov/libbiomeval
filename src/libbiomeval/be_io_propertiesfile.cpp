@@ -41,7 +41,7 @@ BiometricEvaluation::IO::PropertiesFile::initPropertiesFile(
 	try {
 		this->initWithBuffer(IO::Utility::readFile(this->_pathname),
 		    defaults);
-	} catch (Error::ObjectDoesNotExist) {
+	} catch (const Error::ObjectDoesNotExist&) {
 		/* Create a new file if one does not exist */
 		if (this->getMode() == Mode::ReadOnly)
 			throw Error::StrategyError("Properties file does not "
@@ -95,5 +95,5 @@ BiometricEvaluation::IO::PropertiesFile::~PropertiesFile()
 	try {
 		if (this->getMode() != Mode::ReadOnly)
 			this->sync();
-	} catch (Error::Exception) {}
+	} catch (const Error::Exception&) {}
 }

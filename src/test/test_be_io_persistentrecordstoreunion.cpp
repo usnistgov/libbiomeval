@@ -123,7 +123,7 @@ main(
 		for (const auto &r : childNames)
 			BE::IO::Utility::removeDirectory(r);
 		BE::IO::Utility::removeDirectory(prsPath);
-	} catch (BE::Error::Exception) {}
+	} catch (const BE::Error::Exception&) {}
 
 	return (rv);
 }
