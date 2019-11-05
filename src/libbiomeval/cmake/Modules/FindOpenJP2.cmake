@@ -24,13 +24,18 @@
 #   OPENJP2_LIBRARY, where to find the OpenJPEG library.
 
 find_path(OPENJP2_INCLUDE_DIR opj_config.h
-  /usr/local/include/openjpeg-2.1/
-  /opt/local/include/openjpeg-2.1/
+  /usr/include/openjpeg-2.3/
+  /usr/local/include/openjpeg-2.3/
+  /opt/local/include/openjpeg-2.3/
+  /usr/include/openjpeg-2.2/
   /usr/local/include/openjpeg-2.2/
   /opt/local/include/openjpeg-2.2/
+  /usr/include/openjpeg-2.1/
+  /usr/local/include/openjpeg-2.1/
+  /opt/local/include/openjpeg-2.1/
 )
 
-set(OPENJP2_NAMES ${OPENJP2_NAMES} openjp2 libopenjp2)
+set(OPENJP2_NAMES ${OPENJP2_NAMES} openjp2)
 find_library(OPENJP2_LIBRARY NAMES ${OPENJP2_NAMES} )
 
 # handle the QUIETLY and REQUIRED arguments and set OPENJP2_FOUND to TRUE if

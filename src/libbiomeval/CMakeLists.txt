@@ -250,14 +250,29 @@ else(CMAKE_HOST_APPLE)
   include_directories(PUBLIC ${PCSC_INCLUDE_DIR})
   target_link_libraries(${SHAREDLIB} ${PCSC_LIBRARIES})
 
-  FIND_PACKAGE(BerkeleyDB)
-  if(NOT BDB_FOUND)
-    message(FATAL_ERROR "Could not find BerkeleyDB.")
-  endif(NOT BDB_FOUND)
-  include_directories(PUBLIC ${BDB_INCLUDE_DIR})
-  target_link_libraries(${SHAREDLIB} ${BDB_LIBRARIES})
-
 endif(CMAKE_HOST_APPLE)
+
+#
+# OpenSSL
+#
+set(OPENSSL_FIND_REQUIRED TRUE)
+find_package(OpenSSL)
+if(NOT OPENSSL_FOUND)
+  message(FATAL_ERROR "Could not find OpenSSL.")
+endif(NOT OPENSSL_FOUND)
+include_directories(PUBLIC ${OPENSSL_INCLUDE_DIR})
+target_link_libraries(${SHAREDLIB} ${OPENSSL_LIBRARIES})
+
+#
+# Berkeley DB
+#
+set(BERKELEYDB_FIND_REQUIRED TRUE)
+find_package(BerkeleyDB)
+if(NOT BERKELEYDB_FOUND)
+  message(FATAL_ERROR "Could not find Berkeley Database.")
+endif(NOT BERKELEYDB_FOUND)
+include_directories(PUBLIC ${BERKELEYDB_INCLUDE_DIR})
+target_link_libraries(${SHAREDLIB} ${BERKELEYDB_LIBRARIES})
 
 #
 # OpenJPEG and JPEG2000
