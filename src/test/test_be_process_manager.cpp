@@ -20,6 +20,7 @@
 
 #include <be_io_recordstore.h>
 #include <be_io_utility.h>
+#include <be_process_manager.h>
 
 #if defined FORKTEST
 #include <be_process_forkmanager.h>

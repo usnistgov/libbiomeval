@@ -25,11 +25,18 @@
 
 find_path(BERKELEYDB_INCLUDE_DIR db_cxx.h
   /usr/include/
-  /opt/local/include/
+  /opt/local/include/db48/
+  /opt/local/include/db62/
 )
 
-set(BERKELEYDB_NAMES ${BERKELEYDB_NAMES} db_cxx)
-find_library(BERKELEYDB_LIBRARY NAMES ${BERKELEYDB_NAMES})
+#
+# IMPORTANT: Make sure the library search paths are in the same version order
+# as the above include search paths.
+#
+find_library(BERKELEYDB_LIBRARY NAMES db_cxx PATHS
+  /opt/local/lib/db48/
+  /opt/local/lib/db62/
+)
 
 # handle the QUIETLY and REQUIRED arguments and set BERKELEYDB_FOUND to TRUE if
 # all listed variables are TRUE

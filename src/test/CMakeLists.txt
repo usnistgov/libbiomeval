@@ -56,6 +56,7 @@ else()
 endif()
 
 foreach(src IN LISTS sources)
+  set(build_it 1)
   get_filename_component(exec ${src} NAME_WE)
 
   #
@@ -72,7 +73,12 @@ foreach(src IN LISTS sources)
     target_compile_definitions(test_be_io_sqliterecordstore PUBLIC SQLITERECORDSTORETEST)
     add_executable(test_be_io_compressedrecordstore ${src})
     target_compile_definitions(test_be_io_compressedrecordstore PUBLIC COMPRESSEDRECORDSTORETEST)
+    #
+    # Don't build the executable based on the file name
+    #
+    unset(build_it)
   endif()
+
   if(${exec} STREQUAL test_be_io_recordstore-stress)
     add_executable(test_be_io_filerecordstore-stress ${src})
     target_compile_definitions(test_be_io_filerecordstore-stress PUBLIC FILERECORDSTORETEST)
@@ -82,9 +88,58 @@ foreach(src IN LISTS sources)
     target_compile_definitions(test_be_io_archiverecordstore-stress PUBLIC ARCHIVERECORDSTORETEST)
     add_executable(test_be_io_sqliterecordstore-stress ${src})
     target_compile_definitions(test_be_io_sqliterecordstore-stress PUBLIC SQLITERECORDSTORETEST)
+    #
+    # Don't build the executable based on the file name
+    #
+    unset(build_it)
   endif()
+
   if(${exec} STREQUAL test_be_image_image)
+    add_executable(test_be_image_raw ${src})
+    target_compile_definitions(test_be_image_raw PUBLIC RAWTEST)
+    add_executable(test_be_image_jpeg ${src})
+    target_compile_definitions(test_be_image_jpeg PUBLIC JPEGBTEST)
+    add_executable(test_be_image_jpegl ${src})
+    target_compile_definitions(test_be_image_jpegl PUBLIC JPEGLTEST)
+    add_executable(test_be_image_jpeg2000 ${src})
+    target_compile_definitions(test_be_image_jpeg2000 PUBLIC JPEG2000TEST)
+    add_executable(test_be_image_jpeg2000l ${src})
+    target_compile_definitions(test_be_image_jpeg2000l PUBLIC JPEG2000LTEST)
+    add_executable(test_be_image_netpbm ${src})
+    target_compile_definitions(test_be_image_netpbm PUBLIC NETPBMTEST)
+    add_executable(test_be_image_png ${src})
+    target_compile_definitions(test_be_image_png PUBLIC PNGTEST)
+    add_executable(test_be_image_wsq ${src})
+    target_compile_definitions(test_be_image_wsq PUBLIC WSQTEST)
+    add_executable(test_be_image_bmp ${src})
+    target_compile_definitions(test_be_image_bmp PUBLIC BMPTEST)
+    add_executable(test_be_image_tiff ${src})
+    target_compile_definitions(test_be_image_tiff PUBLIC TIFFTEST)
+    add_executable(test_be_image_factory ${src})
+    target_compile_definitions(test_be_image_factory PUBLIC FACTORYTEST)
+    #
+    # Don't build the executable based on the file name
+    #
+    unset(build_it)
   endif()
+
+  if(${exec} STREQUAL test_be_video)
+    if(NOT TARGET vidobjs)
+      unset(build_it)
+    endif()
+  endif()
+
+  if(${exec} STREQUAL test_be_rs_mpi)
+    if(NOT TARGET mpiobjs)
+      unset(build_it)
+    endif()
+  endif()
+  if(${exec} STREQUAL test_be_csv_mpi)
+    if(NOT TARGET mpiobjs)
+      unset(build_it)
+    endif()
+  endif()
+
   if(${exec} STREQUAL test_be_process_manager)
     add_executable(test_be_process_forkmanager ${src})
     target_compile_definitions(test_be_process_forkmanager PUBLIC FORKTEST)
@@ -95,7 +150,9 @@ foreach(src IN LISTS sources)
   #
   # The default build, executable named after source file name.
   #
-  add_executable(${exec} ${src})
+  if(build_it)
+    add_executable(${exec} ${src})
+  endif()
 
   #
   # Options needed for certain test programs

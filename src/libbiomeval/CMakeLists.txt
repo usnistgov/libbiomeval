@@ -130,7 +130,7 @@ set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${
 
 find_package(FFMPEG)
 if(FFMPEG_FOUND)
-  set(PACKAGES ${PACKAGES} ${VIDEO})
+  add_library(vidobjs OBJECT ${VIDEO})
   message(STATUS "Adding VIDEO support.")
 else(FFMPEG_FOUND)
   message(STATUS "Building without VIDEO support.")
@@ -154,6 +154,8 @@ if(MPI_CXX_FOUND)
   target_include_directories(
     mpiobjs
     PUBLIC ${MPI_CXX_INCLUDE_PATH} ${BIOMEVAL_INCLUDE})
+else(MPI_CXX_FOUND)
+  message(STATUS "Building without MPI support.")
 endif(MPI_CXX_FOUND)
 
 #
@@ -178,27 +180,22 @@ endif(NOT ${BIGEND})
 # with the MPI and NBIS objects.
 #
 add_library(coreobjs OBJECT ${PACKAGES})
-if(MPI_CXX_FOUND)
-  add_library(
-    ${SHAREDLIB} SHARED
-    $<TARGET_OBJECTS:coreobjs>
-    $<TARGET_OBJECTS:mpiobjs>
-    $<TARGET_OBJECTS:nbisobjs>)
 
-  add_library(
-    ${STATICLIBTGT} STATIC
-    $<TARGET_OBJECTS:coreobjs>
-    $<TARGET_OBJECTS:mpiobjs>
-    $<TARGET_OBJECTS:nbisobjs>)
-else(MPI_CXX_FOUND)
-  add_library(
-    ${SHAREDLIB} SHARED
-    $<TARGET_OBJECTS:coreobjs>
-    $<TARGET_OBJECTS:nbisobjs>)
-  add_library(${STATICLIBTGT} STATIC
-    $<TARGET_OBJECTS:coreobjs>
-    $<TARGET_OBJECTS:nbisobjs>)
+set(OBJLIBS $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
+if(MPI_CXX_FOUND)
+  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:mpiobjs>)
 endif(MPI_CXX_FOUND)
+if(FFMPEG_FOUND)
+  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:vidobjs>)
+endif(FFMPEG_FOUND)
+
+add_library(
+    ${SHAREDLIB} SHARED ${OBJLIBS}
+)
+add_library(
+    ${STATICLIBTGT} STATIC ${OBJLIBS}
+)
+
 set_target_properties(
   ${SHAREDLIB}
   PROPERTIES VERSION ${PROJECT_VERSION}
@@ -232,11 +229,6 @@ endif()
 if(CMAKE_HOST_APPLE)
   target_include_directories(coreobjs PUBLIC /opt/local/include)
   target_link_libraries(${SHAREDLIB} -L/opt/local/lib)
-#
-# Where to look for Berkeley DB version 4.x
-#
-  target_include_directories(coreobjs PUBLIC /opt/local/include/db44)
-  target_link_libraries(${SHAREDLIB} -L/opt/local/lib/db44)
 #
 # Apple-provided frameworks
 #
@@ -298,6 +290,7 @@ target_link_libraries(${SHAREDLIB} ${JPEG_LIBRARIES})
 #
 if(FFMPEG_FOUND)
   include_directories(PUBLIC ${FFMPEG_INCLUDE_DIR})
+  target_include_directories(vidobjs PUBLIC ${BIOMEVAL_INCLUDE})
   target_link_libraries(${SHAREDLIB} ${FFMPEG_LIBRARIES})
 endif(FFMPEG_FOUND)
 
@@ -325,7 +318,7 @@ target_link_libraries(${SHAREDLIB} ${HWLOC_LIBRARIES})
 #
 # Other libs not specifically searched for above.
 #
-target_link_libraries(${SHAREDLIB} sqlite3 crypto z db png tiff)
+target_link_libraries(${SHAREDLIB} sqlite3 crypto z png tiff)
 
 #
 # Installation.
