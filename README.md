@@ -148,7 +148,7 @@ sudo yum config-manager --set-enabled PowerTools
 ### RECORDSTORE
 | Name         | RHEL/CentOS    | MacPorts  | Ubuntu           |
 |:------------:|:--------------:|:---------:|:----------------:|
-| Berkeley DB  | `libdb-cxx-devel` | `db62`    | `libdb-dev`      |
+| Berkeley DB  | `libdb-cxx-devel` | `db62`    | `libdb++-dev`      |
 | SQLite 3     | `sqlite-devel` | `sqlite3` | `libsqlite3-dev` |
 | Zlib         | `zlib-devel`   | `zlib`    | `zlib1g-dev`     |
 
