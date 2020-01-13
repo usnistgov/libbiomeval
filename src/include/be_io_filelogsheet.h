@@ -191,7 +191,7 @@ namespace BiometricEvaluation
 			std::shared_ptr<std::fstream> _sequenceFile;
 
 			/** Position of the sequencer, relative to SOF */
-			streamoff _cursor;
+			std::streamoff _cursor;
 		};
 	}
 }
