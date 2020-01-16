@@ -126,7 +126,7 @@ set(MPIRECEIVER be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocess
 #	MPI which is built separately and linked in later, optional.
 #	VIDEO if the required libraries are present.
 #
-set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${DEVICE} ${MESSAGE_CENTER})
+set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${MESSAGE_CENTER})
 
 find_package(FFMPEG)
 if(FFMPEG_FOUND)
@@ -135,6 +135,19 @@ if(FFMPEG_FOUND)
 else(FFMPEG_FOUND)
   message(STATUS "Building without VIDEO support.")
 endif(FFMPEG_FOUND)
+
+#
+# PCSC (Smartcard) support is an optional library on Linux
+#
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  find_package(PCSC)
+  if(PCSC_FOUND)
+    message(STATUS "Adding PCSC support.")
+    add_library(pcscobjs OBJECT ${DEVICE})
+  else(PCSC_FOUND)
+    message(STATUS "Building without PCSC support.")
+  endif(PCSC_FOUND)
+endif()
 
 #
 # Keep MPI related files separate so we can use a different compiler command.
@@ -177,7 +190,7 @@ endif(NOT ${BIGEND})
 #
 # Build the core library, shared and static versions, by building the .cpp
 # files into object-only libraries, then combining the object files together
-# with the MPI and NBIS objects.
+# with the BIOMEVAL and NBIS objects.
 #
 add_library(coreobjs OBJECT ${PACKAGES})
 
@@ -188,6 +201,9 @@ endif(MPI_CXX_FOUND)
 if(FFMPEG_FOUND)
   set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:vidobjs>)
 endif(FFMPEG_FOUND)
+if(PCSC_FOUND)
+  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:pcscobjs>)
+endif(PCSC_FOUND)
 
 add_library(
     ${SHAREDLIB} SHARED ${OBJLIBS}
@@ -206,8 +222,18 @@ set_target_properties(
   PROPERTIES ARCHIVE_OUTPUT_NAME ${STATICLIB}
   PUBLIC_HEADER "${BIOMEVAL_HEADERS}")
 
+#
+# For OS-X, add paths where the ports packages are placed.
+#
 if(CMAKE_HOST_APPLE)
   set_target_properties(${SHAREDLIB} PROPERTIES MACOSX_RPATH ON)
+  target_include_directories(coreobjs PUBLIC /opt/local/include)
+  target_link_libraries(${SHAREDLIB} -L/opt/local/lib)
+#
+# Apple-provided frameworks
+#
+  target_link_libraries(${SHAREDLIB} "-framework Foundation" "-framework Security" "-framework PCSC")
+  add_definitions("-DDarwin")
 endif(CMAKE_HOST_APPLE)
 
 target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
@@ -220,29 +246,6 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   message(STATUS ">>> Linux")
   add_definitions("-DLinux")
 endif()
-
-#
-# For OS-X, add paths where the ports packages are placed.
-#
-# XXX Change and test the other 'if' statement below...
-# if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-if(CMAKE_HOST_APPLE)
-  target_include_directories(coreobjs PUBLIC /opt/local/include)
-  target_link_libraries(${SHAREDLIB} -L/opt/local/lib)
-#
-# Apple-provided frameworks
-#
-  target_link_libraries(${SHAREDLIB} "-framework Foundation" "-framework Security" "-framework PCSC")
-  add_definitions("-DDarwin")
-else(CMAKE_HOST_APPLE)
-  find_package(PCSC)
-  if(NOT PCSC_FOUND)
-    message(FATAL_ERROR "PCSC not found.")
-  endif(NOT PCSC_FOUND)
-  include_directories(PUBLIC ${PCSC_INCLUDE_DIR})
-  target_link_libraries(${SHAREDLIB} ${PCSC_LIBRARIES})
-
-endif(CMAKE_HOST_APPLE)
 
 #
 # OpenSSL
@@ -303,6 +306,15 @@ if(MPI_CXX_FOUND)
 else(MPI_CXX_FOUND)
   message(STATUS "Will build ${SHAREDLIB} without MPI support.")
 endif(MPI_CXX_FOUND)
+
+#
+# PCSC
+#
+if(PCSC_FOUND)
+   include_directories(PUBLIC ${PCSC_INCLUDE_DIR})
+   target_include_directories(pcscobjs PUBLIC ${BIOMEVAL_INCLUDE})
+   target_link_libraries(${SHAREDLIB} ${PCSC_LIBRARIES})
+endif(PCSC_FOUND)
 
 #
 # The Portable Hardware Locality hwloc
