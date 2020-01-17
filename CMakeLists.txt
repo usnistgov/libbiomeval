@@ -38,8 +38,8 @@ add_subdirectory(src/libbiomeval/ lib)
 # Link in the locally built version of the library.
 #
 if(CMAKE_HOST_APPLE)
-  set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-rpath lib")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rpath lib")
 else(CMAKE_HOST_APPLE)
-  set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-Wl,-rpath=lib")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=lib")
 endif(CMAKE_HOST_APPLE)
 add_subdirectory(src/test/ bin)

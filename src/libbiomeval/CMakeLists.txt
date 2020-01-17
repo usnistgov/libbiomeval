@@ -205,12 +205,8 @@ if(PCSC_FOUND)
   set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:deviceobjs>)
 endif(PCSC_FOUND)
 
-add_library(
-    ${SHAREDLIB} SHARED ${OBJLIBS}
-)
-add_library(
-    ${STATICLIBTGT} STATIC ${OBJLIBS}
-)
+add_library(${SHAREDLIB} SHARED ${OBJLIBS})
+add_library(${STATICLIBTGT} STATIC ${OBJLIBS})
 
 set_target_properties(
   ${SHAREDLIB}
