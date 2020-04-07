@@ -278,7 +278,8 @@ BE_Feature_AN2K11EFS_DeltaType_EnumToStringMap = {
         {BE::Feature::AN2K11EFS::DeltaType::I10, "Left little"},
         {BE::Feature::AN2K11EFS::DeltaType::I16, "Right extra digit"},
         {BE::Feature::AN2K11EFS::DeltaType::I17, "Left extra digit"},
-        {BE::Feature::AN2K11EFS::DeltaType::C, "Carpal"}
+        {BE::Feature::AN2K11EFS::DeltaType::C, "Carpal"},
+        {BE::Feature::AN2K11EFS::DeltaType::Other, "Other"}
 };
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::DeltaType,

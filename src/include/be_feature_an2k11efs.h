@@ -320,7 +320,9 @@ namespace BiometricEvaluation
 			/** Left extra digit */
 			I17,
 			/** Carpal */
-			C
+			C,
+			/** Other */
+			Other
 		};
 		std::ostream& operator<< (std::ostream&, const DeltaType&);
 
