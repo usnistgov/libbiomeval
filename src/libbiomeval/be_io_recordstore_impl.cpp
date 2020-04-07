@@ -335,7 +335,8 @@ BiometricEvaluation::IO::RecordStore::Impl::mergeRecordStores(
     const std::string &mergePathname,
     const std::string &description,
     const RecordStore::Kind &kind,
-    const std::vector<std::string> &pathnames)
+    const std::vector<std::string> &pathnames,
+    const std::function<bool()> &interrupt)
 {
 	std::shared_ptr<RecordStore> merged_rs;
 	switch (kind) {
@@ -355,7 +356,6 @@ BiometricEvaluation::IO::RecordStore::Impl::mergeRecordStores(
 			throw Error::StrategyError("Invalid RecordStore type");
 	}
 
-	bool exhausted;
 	std::shared_ptr<RecordStore> rs;
 	RecordStore::Record record;
 	for (uint32_t i = 0; i < pathnames.size(); i++) {
@@ -365,13 +365,15 @@ BiometricEvaluation::IO::RecordStore::Impl::mergeRecordStores(
 			throw Error::StrategyError(e.whatString());
 		}
 	
-		exhausted = false;
-		while (!exhausted) {
+		while (true) {
 			try {
+				if (interrupt()) {
+					break;
+				}
 				record = rs->sequence();
 				merged_rs->insert(record.key, record.data);
 			} catch (const Error::ObjectDoesNotExist&) {
-				exhausted = true;
+				break;
 			}
 		}
 	}

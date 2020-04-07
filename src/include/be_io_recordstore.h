@@ -10,6 +10,7 @@
 #ifndef __BE_IO_RECORDSTORE_H__
 #define __BE_IO_RECORDSTORE_H__
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -525,6 +526,9 @@ namespace BiometricEvaluation {
 			 *	Vector of path names to RecordStores to open.
 			 *	These are the RecordStores that will be merged
 			 *	to create the new RecordStore.
+			 * @param[in] interrupt
+			 *	A function to be called during long operations
+			 *	to determine whether to interrupt and return.
 			 *
 			 * @throw Error::ObjectExists
 			 *	A RecordStore at mergePathname already exists.
@@ -536,7 +540,9 @@ namespace BiometricEvaluation {
 			    const std::string &mergePathname,
 			    const std::string &description,
 			    const IO::RecordStore::Kind &kind,
-			    const std::vector<std::string> &pathnames);
+			    const std::vector<std::string> &pathnames,
+			    const std::function<bool()> &interrupt = 
+				[]() {return (false);});
 
 			class Impl;
 		protected:

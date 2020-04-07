@@ -150,6 +150,11 @@ testMerge()
 	IO::RecordStore *merged_rs;
 	IO::RecordStore *merge_rs[num_rs];
 
+	cout << "\nTest merging many RecordStores... you should see calls "
+	    << "to the interrupt check routine: ";
+	std::function<bool()> checkInterrupt = []()
+	    { cout <<  "checkInterrupt() called.\n"; return (false);};
+
 	try {
 #ifdef ARCHIVERECORDSTORETEST
 		merged_type = IO::RecordStore::Kind::Archive;
@@ -217,7 +222,7 @@ testMerge()
 		path.push_back(merge_rs_fn[2]);
 
 		IO::RecordStore::mergeRecordStores(merged_rs_fn,
-		    "A merge of 3 RS", merged_type, path);
+		    "A merge of 3 RS", merged_type, path, checkInterrupt);
 #ifdef ARCHIVERECORDSTORETEST
 		merged_rs = new IO::ArchiveRecordStore(merged_rs_fn,
 		    IO::Mode::ReadWrite);
@@ -840,7 +845,6 @@ main(int argc, char* argv[]) {
 	/*
 	 * Test merging many RecordStores
 	 */
-	cout << "\nTest merging many RecordStores... ";
 	testMerge();
 #endif
 

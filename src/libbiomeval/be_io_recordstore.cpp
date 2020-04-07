@@ -121,10 +121,11 @@ BiometricEvaluation::IO::RecordStore::mergeRecordStores(
     const std::string &mergePathname,
     const std::string &description,
     const RecordStore::Kind &kind,
-    const std::vector<std::string> &pathnames)
+    const std::vector<std::string> &pathnames,
+    const std::function<bool()> &interrupt)
 {
 	return (IO::RecordStore::Impl::mergeRecordStores(
-	    mergePathname, description, kind, pathnames));
+	    mergePathname, description, kind, pathnames, interrupt));
 }
 
 BiometricEvaluation::IO::RecordStore::iterator
