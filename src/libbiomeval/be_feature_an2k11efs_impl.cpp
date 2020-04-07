@@ -480,7 +480,8 @@ static const std::map<std::string, BE::Feature::AN2K11EFS::DeltaType> DeltaTypeM
     {"I10", BE::Feature::AN2K11EFS::DeltaType::I10},
     {"I16", BE::Feature::AN2K11EFS::DeltaType::I16},
     {"I17", BE::Feature::AN2K11EFS::DeltaType::I17},
-    {"C", BE::Feature::AN2K11EFS::DeltaType::C}
+    {"C", BE::Feature::AN2K11EFS::DeltaType::C},
+    {"", BE::Feature::AN2K11EFS::DeltaType::Other}
 };
 
 static void
