@@ -25,8 +25,8 @@ namespace BiometricEvaluation
 		 * A class to represent a logging mechanism.
 		 *
 		 * @details
-		 * A Logsheet is a string stream, so applications can write into
-		 * the stream as a staging area using the << operator, then
+		 * A Logsheet is an output stream, so applications can write
+		 * into the stream as a staging area using the << operator, then
 		 * start a new entry by calling newEntry(). Entries in the log
 		 * are prefixed with an entry number, which is incremented
 		 * when the entry is written (either by directly calling
@@ -54,7 +54,7 @@ namespace BiometricEvaluation
 		 * that is re-opened for append may have an incorrect starting
 		 * entry number.
 		 */
-		class Logsheet : public std::ostringstream
+		class Logsheet : public std::ostream
 		{
 		public:
 			enum class Kind {
@@ -407,20 +407,23 @@ namespace BiometricEvaluation
 			getCurrentEntryNumberAsString() const;
 
 		private:
+			/** The internal buffer for the log entry */
+			std::stringbuf _sbuf{};
+
 			/** Number of the current entry */
-			uint32_t _entryNumber;
+			uint32_t _entryNumber{};
 
 			/** Whether or not to sync() on write() */
-			bool _autoSync;
+			bool _autoSync{};
 
 			/** Whether normal entries are committed */
-			bool _commit;
+			bool _commit{};
 
 			/** Whether debug entries are committed */
-			bool _debugCommit;
+			bool _debugCommit{};
 
 			/** Whether comment entries are committed */
-			bool _commentCommit;
+			bool _commentCommit{};
 		};
 	}
 }

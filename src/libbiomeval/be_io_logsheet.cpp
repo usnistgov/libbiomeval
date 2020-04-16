@@ -94,7 +94,7 @@ BiometricEvaluation::IO::Logsheet::trim(
 }
 
 BiometricEvaluation::IO::Logsheet::Logsheet() :
-    std::ostringstream(),
+    std::ostream(&_sbuf),
     _entryNumber(1),
     _autoSync(false),
     _commit(true),
@@ -112,7 +112,7 @@ BiometricEvaluation::IO::Logsheet::incrementEntryNumber()
 std::string
 BiometricEvaluation::IO::Logsheet::getCurrentEntry() const
 {
-	return (this->str());
+	return (this->_sbuf.str());
 }
 
 uint32_t
@@ -125,14 +125,14 @@ void
 BiometricEvaluation::IO::Logsheet::resetCurrentEntry()
 {
 	this->seekp(beg);
-	this->str("");
+	this->_sbuf.str("");
 }
 
 void
 BiometricEvaluation::IO::Logsheet::newEntry()
 {
 	try {
-		this->write(this->str());
+		this->write(this->_sbuf.str());
 	} catch (BE::Error::StrategyError &e) {
 		throw;
 	}

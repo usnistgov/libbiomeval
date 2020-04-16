@@ -28,7 +28,6 @@ doLogSheetTests(Logsheet &ls)
 {
 	ostringstream test;
 	srand((unsigned)(size_t)&ls);
-	float f;
 	try {
 		for (int i = 2; i <= FirstEntrySetCount; i++) {
 			cout << ls.getCurrentEntryNumber() << " ";
@@ -41,9 +40,10 @@ doLogSheetTests(Logsheet &ls)
 			cout << ls.getCurrentEntryNumber() << " ";
 			i += 1;
 			ls << "Entry number " << i << endl;
-			f = (float)rand() / (int)(size_t)&ls;
+			int rval = rand() / (int)(size_t)&ls;
 			ls << "\t Second line of entry " << i << ".";
-			ls << " 'Random' value is " << f << ".";
+			ls << " 'Random' value is " << rval;
+			ls << " (0x" << hex << rval << dec <<").";
 			ls.newEntry();
 		}
 		ls.sync();
@@ -262,26 +262,36 @@ main(int argc, char* argv[])
 	} else 
 		cout << "success." << endl;
 
-	std::cout << "Turning off normal and debug entry commit." << std::endl;
+	std::cout << "Commit setting: " << uls->getCommit() << ".\n";
+	std::cout << "Debug commit setting: " << uls->getDebugCommit() << ".\n";
+	std::cout << "Comment commit setting: " << uls->getCommentCommit() << ".\n";
+	std::cout << "Turning off normal, debug and comment entry commit.\n";
 	uls->setCommit(false);
+	std::cout << "Commit setting is now " << uls->getCommit() << ".\n";
 	uls->setDebugCommit(false);
+	std::cout << "Debug commit setting is now " << uls->getCommit() << ".\n";
+	uls->setCommentCommit(false);
+	std::cout << "Comment commit setting is now " << uls->getCommentCommit() << ".\n";
 	*uls << "!!!Entry after turning off commit; should not be in log";
 	std::cout << "Check that this entry " << std::endl;
 	std::cout << "\t" << uls->getCurrentEntry() << std::endl;
 	std::cout << "does not appear in the log." << std::endl;
 	uls->newEntry();
 	uls->writeDebug("!!!Debug entry that should NOT be in the log");
+	uls->writeComment("!!!Comment entry that should NOT be in the log");
 	*uls << "Entry after turning commit back on; should be in log";
-	std::cout << "Check there is no debug entry before this entry:"
-	    << std::endl;
+	std::cout << "Check there is no debug or comment entries immediately before this entry:\n";
 	std::cout << "\t" << uls->getCurrentEntry() << std::endl;
 	uls->setCommit(true);
 	uls->newEntry();
 	uls->setDebugCommit(true);
-	uls->writeDebug("Second debug entry that should be in the log");
-	std::cout << "Check that the entry sequence numbers are in order."
-	    << std::endl;
+	uls->setCommentCommit(true);
+	uls->writeDebug("A debug entry that should be in the log");
+	uls->writeComment("A comment entry that should be in the log");
+	std::cout << "Check that the there is a debug entry and a comment entry after the above entry.\n";
+	std::cout << "Check that the entry sequence numbers are in order.\n";
 
+	uls->newEntry();
 	std::cout << endl << "FileLogCabinet tests: " << std::endl;
 	if (doLogCabinetTests() != 0)
 		return(EXIT_FAILURE);
