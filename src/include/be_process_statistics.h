@@ -88,16 +88,19 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Obtain the total user and system times for the
-			 * process, in microseconds. The time values are
-			 * returned in a std::tuple<> in usertime, systemtime
-			 * order.
+			 * process, in microseconds. 
+			 *
 			 * An example call:
-			 * uint64_t utime, stime;
-			 * std::tie(utime, stime) = stats.getCPUTimes();
+			 *
+			 *      uint64_t utime, stime;
+			 *      std::tie(utime, stime) = stats.getCPUTimes();
 			 *
 			 * @note
 			 * This method may not be implemented in all operating
 			 * systems.
+			 *
+			 * @return A std::tuple<> containing user time, system
+			 * time.
 			 *
 			 * @throw Error::StrategyError
 			 *	An error occurred when obtaining the process
@@ -110,15 +113,20 @@ namespace BiometricEvaluation {
 			std::tuple<uint64_t, uint64_t> getCPUTimes();
 
 			/**
-			 * Obtain the current memory set sizes for the
-			 * process, in kilobytes.
+			 * Obtain the current virtual memory (VM) set sizes for
+			 * the process, in kilobytes.
 			 * An example call:
-			 * uint64_t vmrss, vmsize, vmpeak, vmdata, vmstack;
-			 * std::tie(vmrss, vmsize, vmpeak, vmdata, vmstack) =
-			 *     stats.getMemorySizes();
+			 *
+			 *      uint64_t vmrss, vmsize, vmpeak, vmdata, vmstack;
+			 *      std::tie(vmrss, vmsize, vmpeak, vmdata, vmstack)
+			 *        = stats.getMemorySizes();
+			 *
 			 * @note
 			 * This method may not be implemented in all operating
 			 * systems.
+			 *
+			 * @return A std::tuple<> containing VM resident size,
+			 * VM size, VM peak, VM data size, VM stack size.
 			 *
 			 * @throw Error::StrategyError
 			 *	An error occurred when obtaining the process
