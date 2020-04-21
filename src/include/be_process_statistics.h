@@ -14,6 +14,7 @@
 #include <pthread.h>
 
 #include <memory>
+#include <tuple>
 
 #include <be_io_filelogcabinet.h>
 
@@ -87,17 +88,16 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Obtain the total user and system times for the
-			 * process, in microseconds. Any of the out parameters
-			 * can be nullptr, indicating non-interest in that
-			 * statistic.
+			 * process, in microseconds. The time values are
+			 * returned in a std::tuple<> in usertime, systemtime
+			 * order.
+			 * An example call:
+			 * uint64_t utime, stime;
+			 * std::tie(utime, stime) = stats.getCPUTimes();
+			 *
 			 * @note
 			 * This method may not be implemented in all operating
 			 * systems.
-			 *
-			 * @param[out] usertime
-			 *	Pointer where to store the total user time.
-			 * @param[out] systemtime
-			 *	Pointer where to store the total system time.
 			 *
 			 * @throw Error::StrategyError
 			 *	An error occurred when obtaining the process
@@ -107,34 +107,18 @@ namespace BiometricEvaluation {
 			 * @throw Error::NotImplemented
 			 *	This method is not implemented on this OS.
 			 */
-			void getCPUTimes(
-			    uint64_t *usertime,
-			    uint64_t *systemtime);
+			std::tuple<uint64_t, uint64_t> getCPUTimes();
 
 			/**
 			 * Obtain the current memory set sizes for the
-			 * process, in kilobytes. Any of the out parameters
-			 * can be nullptr, indicating non-interest in that
-			 * statistic.
+			 * process, in kilobytes.
+			 * An example call:
+			 * uint64_t vmrss, vmsize, vmpeak, vmdata, vmstack;
+			 * std::tie(vmrss, vmsize, vmpeak, vmdata, vmstack) =
+			 *     stats.getMemorySizes();
 			 * @note
 			 * This method may not be implemented in all operating
 			 * systems.
-			 *
-			 * @param[out] vmrss
-			 *	Pointer where to store the current resident
-			 *	set size.
-			 * @param[out] vmsize
-			 *	Pointer where to store the current total
-			 *	virtual memory size.
-			 * @param[out] vmpeak
-			 *	Pointer where to store the peak total
-			 *	virtual memory size.
-			 * @param[out] vmdata
-			 *	Pointer where to store the current virtual
-			 *	memory data segment size.
-			 * @param[out] vmstack
-			 *	Pointer where to store the current virtual
-			 *	memory stack segment size.
 			 *
 			 * @throw Error::StrategyError
 			 *	An error occurred when obtaining the process
@@ -144,12 +128,12 @@ namespace BiometricEvaluation {
 			 * @throw Error::NotImplemented
 			 *	This method is not implemented on this OS.
 			 */
-			void getMemorySizes(
-			    uint64_t *vmrss,
-			    uint64_t *vmsize,
-			    uint64_t *vmpeak,
-			    uint64_t *vmdata,
-			    uint64_t *vmstack);
+			std::tuple<
+			    uint64_t,
+			    uint64_t,
+			    uint64_t,
+			    uint64_t,
+			    uint64_t> getMemorySizes();
 
 			/**
 			 * Obtain the number of threads composing this process.

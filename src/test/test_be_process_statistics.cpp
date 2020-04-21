@@ -46,8 +46,8 @@ testMemorySizes(Process::Statistics &stats)
 			ptr[i] = (char *)malloc(1024*1024);
 			for (int j = 0; j < 1024*1024; j++)
 				*ptr[i] = j;
-			stats.getMemorySizes(&vmrss, &vmsize, &vmpeak,
-			    &vmdata, &vmstack);
+			std::tie(vmrss, vmsize, vmpeak, vmdata, vmstack) =
+			    stats.getMemorySizes();
 			cout << "\tRSS: " << vmrss;
 			cout << " : Size: " << vmsize;
 			cout << " : Peak: " << vmpeak;
@@ -80,12 +80,12 @@ main(int argc, char *argv[])
 	uint64_t systemstart, systemend;
 	int64_t diff;
 	try {
-		stats.getCPUTimes(&userstart, &systemstart);
+		std::tie(userstart, systemstart) = stats.getCPUTimes();
 		cout << "Total User time at start: " << userstart << " : ";
 
 		LONGDELAY;
 
-		stats.getCPUTimes(&userend, nullptr);
+		std::tie(userend, std::ignore) = stats.getCPUTimes();
 		cout << "At end: " << userend << ": ";
 		diff = userend - userstart;
 		if (diff > 0) {
@@ -150,7 +150,7 @@ main(int argc, char *argv[])
 	/*
 	 * System time, after some activity.
 	 */
-	stats.getCPUTimes(nullptr, &systemend);
+	std::tie(std::ignore, systemend) = stats.getCPUTimes();
 	cout << "Total System time at start: " << systemstart << " : ";
 	cout << "At end: " << systemend << ": " << endl;
 
