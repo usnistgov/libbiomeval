@@ -66,7 +66,8 @@ namespace BiometricEvaluation {
 			 *	Failure to create the FileLogsheet in the
 			 *	cabinet.
 			 */
-			Statistics(IO::FileLogCabinet * const logCabinet);
+			Statistics(const std::shared_ptr<IO::FileLogCabinet>
+			    &logCabinet);
 
 			/**
 			 * @brief
@@ -228,8 +229,8 @@ namespace BiometricEvaluation {
 		private:
 
 			pid_t _pid;
-			IO::FileLogCabinet *_logCabinet;
-			std::shared_ptr<IO::Logsheet> _logSheet;
+			std::shared_ptr<IO::FileLogCabinet> _logCabinet{};
+			std::shared_ptr<IO::Logsheet> _logSheet{};
 			bool _logging;
 			bool _autoLogging;
 			pthread_t _loggingThread;

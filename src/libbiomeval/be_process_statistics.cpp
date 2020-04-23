@@ -217,7 +217,6 @@ static void internalGetCPUTimes(
 BiometricEvaluation::Process::Statistics::Statistics()
 {
 	_pid = getpid();
-	_logCabinet = nullptr;
 	_logging = false;
 	_autoLogging = false;
 	pthread_mutex_init(&_logMutex, nullptr);
@@ -236,10 +235,10 @@ BiometricEvaluation::Process::Statistics::~Statistics()
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
-    IO::FileLogCabinet * const logCabinet)
+    const std::shared_ptr<IO::FileLogCabinet> &logCabinet) :
+    _logCabinet(logCabinet)
 {
 	_pid = getpid();
-	_logCabinet = logCabinet;
 
 	std::ostringstream lsname, descr;
 	std::string procname = internalGetProcName(_pid);
@@ -261,7 +260,6 @@ BiometricEvaluation::Process::Statistics::Statistics(
 BiometricEvaluation::Process::Statistics::Statistics(
     const std::shared_ptr<BE::IO::Logsheet> &logSheet) :
     _pid(getpid()),
-    _logCabinet(nullptr),
     _logSheet(logSheet),
     _logging(true),
     _autoLogging(false)
