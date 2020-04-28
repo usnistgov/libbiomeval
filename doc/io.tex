@@ -124,7 +124,7 @@ the common interface to all implementations. In addition, objects of this class
 can be created to provide a ``Null'' \class{Logsheet} where messages are
 not saved.
 
-A \class{Logsheet} is an output stream (subclass of \class{std::ostringstream}),
+A \class{Logsheet} is an output stream (subclass of \class{std::ostream}),
 and therefore can handle built-in types and any class that supports streaming.
 Each entry is numbered by the \class{Logsheet} class when written to the log.
 A call to the
@@ -136,7 +136,7 @@ In addition to streaming by using the \code{Logsheet::\allowbreak <<} operator,
 applications can directly commit an entry to the log file by calling the 
 \code{write()} method, thereby not disrupting the entry that is being formed.
 After an entry is committed, the entry number is automatically incremented.
-\class{Logsheet} also supports the writing of ``debug'' and comment entries.
+\class{Logsheet} also supports the writing of debug and comment entries.
 Each entry is prefixed with a letter code indicating the type.
 
 \subsection{FileLogsheet}
@@ -158,37 +158,45 @@ a \class{FileLogsheet}, contained within a \class{FileLogCabinet}, to record
 operational information.
 
 \begin{lstlisting}[caption={Using a \class{FileLogsheet} within a \class{FileLogCabinet}}, label=lst:logcabinetuse]
+include <iostream>
 #include <be_io_filelogcabinet.h>
-using namespace BiometricEvaluation;
-using namespace BiometricEvaluation::IO;
 
-FileLogCabinet *lc;
-try {
-    lc = new FileLogCabinet(lcname, "A Log Cabinet", "");
-} catch (Error::ObjectExists &e) {
-    cout << "The Log Cabinet already exists." << endl;
-    return (-1);
-} catch (Error::StrategyError& e) {
-    cout << "Caught " << e.whatString() << endl;
-    return (-1);
+using namespace std;
+using namespace BiometricEvaluation;
+
+int
+main(int argc, char* argv[]) {
+    IO::FileLogCabinet *lc;
+    try {
+        lc = new IO::FileLogCabinet("MyLogCabinet", "A Log Cabinet");
+    } catch (Error::ObjectExists &e) {
+        cout << "The Log Cabinet already exists." << endl;
+        return (EXIT_FAILURE);
+    } catch (Error::StrategyError& e) {
+        cout << "Caught " << e.whatString() << endl;
+        return (EXIT_FAILURE);
+    }
+    std::unique_ptr<IO::FileLogCabinet> alc(lc);
+    std::shared_ptr<IO::Logsheet> ls;
+    try {
+        ls = alc->newLogsheet("log01", "Log Sheet in Cabinet");
+    } catch (Error::ObjectExists &e) {
+        cout << "The log sheet already exists." << endl;
+        return (EXIT_FAILURE);
+    } catch (Error::StrategyError& e) {
+        cout << "Caught " << e.whatString() << endl;
+        return (EXIT_FAILURE);
+    }
+    ls->setAutoSync(true);  // Force write of every entry when finished
+    int i = 10;
+    *ls << "Adding an integer value " << i << " to the log." << endl;
+    ls->newEntry();
+
+    /*
+     * Further processing ....
+    */
+    return (EXIT_SUCCESS);
 }
-std::unique_ptr<FileLogCabinet> ulc(lc);
-try {
-    ls = alc->newLogsheet("log01", "Log Sheet in Cabinet");
-} catch (Error::ObjectExists &e) {
-    cout << "The log sheet already exists." << endl;
-    return (-1);
-} catch (Error::StrategyError& e) {
-    cout << "Caught " << e.whatString() << endl;
-    return (-1);
-}
-ls->setAutoSync(true);	// Force write of every entry when finished
-int i = ...
-*ls << "Adding an integer value " << i << " to the log." << endl;
-ls->newEntry();		// Forces the write of the current entry
-.........
-delete ls;
-return;			// The LogCabinet is destructed by the unique_ptr
 \end{lstlisting}
 
 \subsection{SysLogsheet}
@@ -208,44 +216,43 @@ message streams.
 
 \section{Properties}
 \label{sec-properties}
-The \class{Properties} class is used to store simple key-value string pairs, with the
-option to save to a file. Applications can use a \class{Properties} object to manage
-runtime settings that are persistent across invocations, or to simply store
-some settings in memory only.
+The \class{Properties} class is used to store simple key-value string pairs, 
+and the \class{PropertiesFile} class stores the properties in a text file.
+Applications can use a \class{PropertiesFile} object to manage
+runtime settings that are persistent across invocations, or use a 
+\class{Properties} object to store some settings in memory.
 
-\begin{lstlisting}[caption={Using a \class{Properties} Object}, label=lst:propertiesuse]
-IO::Properties *props;
-string fname = "test.prop";
-try {
-    props = new IO::Properties(fname);
-} catch (Error::StrategyError &e) {
-    cerr << "Caught " << e.whatString()  << endl;
-    return;
-} catch (Error::FileError& e) {
-    cerr << "A file error occurred: " << e.whatString() << endl;
-    return;
-}
-props->setProperty("foo", "bar");
-props->setProperty("theAnswer", "42");
-    :
-    :
-    :
-try {
-    int64_t theAnswer = props->getProperty("theAnswer");
-    cout << "The answer is " << theAnswer << endl;
-} catch (Error::ObjectDoesNotExist &e) {
-    cerr << "The answer is elusive." << endl;
-    return;
-}
-string fooProp = props->getProperty("foo");
-cout << "Foo is set to " << fooProp << endl;
-    :
-    :
-    :
-try {
-    props->removeProperty("foo");
-} catch (Error::ObjectDoesNotExist &e) {
-    cerr << "Failed to remove property." << endl;
+\begin{lstlisting}[caption={Using a \class{PropertiesFile} Object}, label=lst:propertiesuse]
+int
+main(int argc, char* argv[]) {
+
+
+        /* Construct a Properties object with initialization */
+        IO::PropertiesFile rwProps{"myProps", IO::Mode::ReadWrite,
+            {{"One", "1"}, {"Two", "Two"}, {"Three", "3.0"}}};
+
+        /* Set a property from an integer value */
+        rwProps.setPropertyFromInteger("One", 1);
+
+        /* Get a property as an integer value */
+        try {
+                int val = rwProps.getPropertyAsInteger("One");
+                std::cout << "Property One is set to " << val << ".\n";
+        } catch (const Error::Exception&) {
+                std::cout << "Could not retrieve property.\n";
+        }
+
+        /* Set a new property */
+        rwProps.setProperty("Four", "Four");
+
+        /* Overwrite a default property */
+        try {
+                rwProps.setProperty("One", "New Value");
+        } catch (const Error::Exception&) {
+                std::cout << "Failed to overwrite a default value" << std::endl;
+        }
+        std::string  sval = rwProps.getProperty("One");
+        std::cout << "Property One is now set to " << sval << ".\n";
 }
 \end{lstlisting}
 

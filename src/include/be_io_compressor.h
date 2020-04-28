@@ -24,7 +24,11 @@ namespace BiometricEvaluation
 {
 	namespace IO
 	{
-		/** Implementations for compressing and decompressing data */
+		/**
+		 * @brief
+		 * Common interface for classes providing compressing and
+		 * decompressing functionality.
+		 */
 		class Compressor
 		{
 		public:
