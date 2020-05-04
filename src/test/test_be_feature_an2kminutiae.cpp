@@ -128,6 +128,16 @@ testAN2K11EFS(const std::string &fname)
 	cout << "\nMinutiae Ridge Count Information:\n";
 	auto mrci = an2kefs->getMRCI(); 
 	cout << mrci << "\n";
+
+	cout << "\nLatent Processing Method:\n";
+	const auto lpms = an2kefs->getLPM();
+	if (lpms.empty())
+		cout << " * [No LPM specified]\n";
+	else {
+		for (const auto &lpm : lpms)
+			cout << " * " << lpm << '\n';
+	}
+
 	return(0);
 }
 

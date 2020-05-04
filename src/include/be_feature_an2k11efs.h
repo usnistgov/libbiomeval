@@ -371,6 +371,60 @@ namespace BiometricEvaluation
 		std::ostream& operator<< (
 		     std::ostream&, const NoFeaturesPresent&);
 
+		/** Representation of latent processing method (9.352) */
+		enum class LatentProcessingMethod
+		{
+			I12,
+			ADX,
+			ALS,
+			AMB,
+			AY7,
+			BAR,
+			BLE,
+			BLP,
+			BPA,
+			BRY,
+			CBB,
+			CDS,
+			COG,
+			DAB,
+			DFO,
+			FLP,
+			GEN,
+			GRP,
+			GTV,
+			HCA,
+			IOD,
+			ISR,
+			LAS,
+			LCV,
+			LIQ,
+			LQD,
+			MBD,
+			MBP,
+			MGP,
+			MPD,
+			MRM,
+			NIN,
+			OTH,
+			PDV,
+			R6G,
+			RAM,
+			RUV,
+			SAO,
+			SDB,
+			SGF,
+			SPR,
+			SSP,
+			SVN,
+			TEC,
+			TID,
+			VIS,
+			WHP,
+			ZIC
+		};
+		using LPM = LatentProcessingMethod;
+
 		/**
 		 * @brief
 		 * A class to represent the Extended Feature Set optionally
@@ -500,6 +554,19 @@ namespace BiometricEvaluation
 			BiometricEvaluation::Feature::AN2K11EFS::DeltaPointSet
 		 	getDPS();
 
+		 	/**
+			 * @brief
+			 * Obtain set of methods used to process this latent.
+			 * @details
+			 * The set may be empty as this Type-9 field is
+			 * optional.
+			 *
+			 * @return
+			 * The set of latent processing methods.
+			 */
+			std::vector<LatentProcessingMethod>
+		 	getLPM();
+
 			/**
 			 * Obtain the No Features Present indicators.
 			 * @return
@@ -545,6 +612,10 @@ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Feature::AN2K11EFS::DeltaType,
     BE_Feature_AN2K11EFS_DeltaType_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod,
+    BE_Feature_AN2K11EFS_LatentProcessingMethod_EnumToStringMap);
 
 #endif /* __BE_FEATURE_AN2K11EFS_H__ */
 
