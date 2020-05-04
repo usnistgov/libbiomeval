@@ -71,6 +71,12 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getDPS()
 	return (this->_dps);
 }
 
+std::vector<BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod>
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getLPM()
+{
+	return (this->_lpm);
+}
+
 BiometricEvaluation::Feature::AN2K11EFS::NoFeaturesPresent
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getNFP()
 {
@@ -98,6 +104,7 @@ static const int EFS_MRA_ID = 332;
 static const int EFS_MRC_ID = 333;
 static const int EFS_NMIN_ID = 334;
 static const int EFS_RCC_ID = 335;
+static const int EFS_LPM_ID = 352;
 
 static const std::string pDelim = "-";	// Separator for points
 static const std::string cDelim = ",";	// Separator for coordinates
@@ -556,6 +563,82 @@ readDPS(
 }
 
 static void
+readLPM(
+    const RECORD *type9,
+    std::vector<BiometricEvaluation::Feature::AN2K11EFS::LPM> &lpm)
+{
+	static const std::map<std::string,
+	    BiometricEvaluation::Feature::AN2K11EFS::LPM> lpmCodeMap{
+		{"12I", BiometricEvaluation::Feature::AN2K11EFS::LPM::I12},
+		{"ADX", BiometricEvaluation::Feature::AN2K11EFS::LPM::ADX},
+		{"ALS", BiometricEvaluation::Feature::AN2K11EFS::LPM::ALS},
+		{"AMB", BiometricEvaluation::Feature::AN2K11EFS::LPM::AMB},
+		{"AY7", BiometricEvaluation::Feature::AN2K11EFS::LPM::AY7},
+		{"BAR", BiometricEvaluation::Feature::AN2K11EFS::LPM::BAR},
+		{"BLE", BiometricEvaluation::Feature::AN2K11EFS::LPM::BLE},
+		{"BLP", BiometricEvaluation::Feature::AN2K11EFS::LPM::BLP},
+		{"BPA", BiometricEvaluation::Feature::AN2K11EFS::LPM::BPA},
+		{"BRY", BiometricEvaluation::Feature::AN2K11EFS::LPM::BRY},
+		{"CBB", BiometricEvaluation::Feature::AN2K11EFS::LPM::CBB},
+		{"CDS", BiometricEvaluation::Feature::AN2K11EFS::LPM::CDS},
+		{"COG", BiometricEvaluation::Feature::AN2K11EFS::LPM::COG},
+		{"DAB", BiometricEvaluation::Feature::AN2K11EFS::LPM::DAB},
+		{"DFO", BiometricEvaluation::Feature::AN2K11EFS::LPM::DFO},
+		{"FLP", BiometricEvaluation::Feature::AN2K11EFS::LPM::FLP},
+		{"GEN", BiometricEvaluation::Feature::AN2K11EFS::LPM::GEN},
+		{"GRP", BiometricEvaluation::Feature::AN2K11EFS::LPM::GRP},
+		{"GTV", BiometricEvaluation::Feature::AN2K11EFS::LPM::GTV},
+		{"HCA", BiometricEvaluation::Feature::AN2K11EFS::LPM::HCA},
+		{"IOD", BiometricEvaluation::Feature::AN2K11EFS::LPM::IOD},
+		{"ISR", BiometricEvaluation::Feature::AN2K11EFS::LPM::ISR},
+		{"LAS", BiometricEvaluation::Feature::AN2K11EFS::LPM::LAS},
+		{"LCV", BiometricEvaluation::Feature::AN2K11EFS::LPM::LCV},
+		{"LIQ", BiometricEvaluation::Feature::AN2K11EFS::LPM::LIQ},
+		{"LQD", BiometricEvaluation::Feature::AN2K11EFS::LPM::LQD},
+		{"MBD", BiometricEvaluation::Feature::AN2K11EFS::LPM::MBD},
+		{"MBP", BiometricEvaluation::Feature::AN2K11EFS::LPM::MBP},
+		{"MGP", BiometricEvaluation::Feature::AN2K11EFS::LPM::MGP},
+		{"MPD", BiometricEvaluation::Feature::AN2K11EFS::LPM::MPD},
+		{"MRM", BiometricEvaluation::Feature::AN2K11EFS::LPM::MRM},
+		{"NIN", BiometricEvaluation::Feature::AN2K11EFS::LPM::NIN},
+		{"OTH", BiometricEvaluation::Feature::AN2K11EFS::LPM::OTH},
+		{"PDV", BiometricEvaluation::Feature::AN2K11EFS::LPM::PDV},
+		{"R6G", BiometricEvaluation::Feature::AN2K11EFS::LPM::R6G},
+		{"RAM", BiometricEvaluation::Feature::AN2K11EFS::LPM::RAM},
+		{"RUV", BiometricEvaluation::Feature::AN2K11EFS::LPM::RUV},
+		{"SAO", BiometricEvaluation::Feature::AN2K11EFS::LPM::SAO},
+		{"SDB", BiometricEvaluation::Feature::AN2K11EFS::LPM::SDB},
+		{"SGF", BiometricEvaluation::Feature::AN2K11EFS::LPM::SGF},
+		{"SPR", BiometricEvaluation::Feature::AN2K11EFS::LPM::SPR},
+		{"SSP", BiometricEvaluation::Feature::AN2K11EFS::LPM::SSP},
+		{"SVN", BiometricEvaluation::Feature::AN2K11EFS::LPM::SVN},
+		{"TEC", BiometricEvaluation::Feature::AN2K11EFS::LPM::TEC},
+		{"TID", BiometricEvaluation::Feature::AN2K11EFS::LPM::TID},
+		{"VIS", BiometricEvaluation::Feature::AN2K11EFS::LPM::VIS},
+		{"WHP", BiometricEvaluation::Feature::AN2K11EFS::LPM::WHP},
+		{"ZIC", BiometricEvaluation::Feature::AN2K11EFS::LPM::ZIC}
+	};
+
+	FIELD *field;
+	int idx;
+	if (lookup_ANSI_NIST_field(&field, &idx, EFS_LPM_ID, type9) == TRUE) {
+		lpm.reserve(field->num_subfields);
+		for (int i{0}; i < field->num_subfields; ++i) {
+			try {
+				lpm.push_back(lpmCodeMap.at(std::string(
+				    (char *)field->subfields[i]->items[0]->
+				    value, 3)));
+			} catch (const std::out_of_range&) {
+				throw BiometricEvaluation::Error::
+				    ObjectDoesNotExist("Invalid LPM: " +
+				    std::string((char *)field->subfields[i]->
+				    items[0]->value, 3));
+			}
+		}
+	}
+}
+
+static void
 readNFP(
     const RECORD *type9,
     BiometricEvaluation::Feature::AN2K11EFS::NoFeaturesPresent &nfp)
@@ -709,6 +792,7 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::readType9Reco
 	readMPS(type9, this->_mps);
 	readCPS(type9, this->_cps);
 	readDPS(type9, this->_dps);
+	readLPM(type9, this->_lpm);
 	readNFP(type9, this->_nfp);
 	readMRCI(type9, this->_mrci);
 }

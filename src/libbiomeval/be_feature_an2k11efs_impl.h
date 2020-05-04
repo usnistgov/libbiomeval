@@ -86,7 +86,8 @@ namespace BiometricEvaluation
 			Feature::AN2K11EFS::CorePointSet getCPS();
 			Feature::AN2K11EFS::DeltaPointSet getDPS();
 			Feature::AN2K11EFS::NoFeaturesPresent getNFP();
-		
+			std::vector<AN2K11EFS::LatentProcessingMethod> getLPM();
+
 		private:
 			Feature::AN2K11EFS::ImageInfo _ii{};
 			Feature::AN2K11EFS::MinutiaPointSet _mps{};
@@ -94,6 +95,7 @@ namespace BiometricEvaluation
 			Feature::AN2K11EFS::DeltaPointSet _dps{};
 			Feature::AN2K11EFS::NoFeaturesPresent _nfp{};
 			Feature::AN2K11EFS::MinutiaeRidgeCountInfo _mrci{};
+			std::vector<AN2K11EFS::LatentProcessingMethod> _lpm{};
 
 			void readType9Record(
 			    Memory::uint8Array &buf,

@@ -294,6 +294,66 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
 	return (s);
 }
 
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::LPM, std::string>
+BE_Feature_AN2K11EFS_LatentProcessingMethod_EnumToStringMap = {
+    {BE::Feature::AN2K11EFS::LPM::I12, "1,2 Indanedione"},
+    {BE::Feature::AN2K11EFS::LPM::ADX, "Ardrox"},
+    {BE::Feature::AN2K11EFS::LPM::ALS, "Alternate light source"},
+    {BE::Feature::AN2K11EFS::LPM::AMB, "Amido black"},
+    {BE::Feature::AN2K11EFS::LPM::AY7, "Acid yellow 7"},
+    {BE::Feature::AN2K11EFS::LPM::BAR, "Basic red 26"},
+    {BE::Feature::AN2K11EFS::LPM::BLE, "Bleach (sodium hypochlorite)"},
+    {BE::Feature::AN2K11EFS::LPM::BLP, "Black powder"},
+    {BE::Feature::AN2K11EFS::LPM::BPA, "Black powder alternative (for tape)"},
+    {BE::Feature::AN2K11EFS::LPM::BRY, "Brilliant yellow (basic yellow 40)"},
+    {BE::Feature::AN2K11EFS::LPM::CBB, "Coomassie brilliant blue"},
+    {BE::Feature::AN2K11EFS::LPM::CDS, "Crowle's double stain"},
+    {BE::Feature::AN2K11EFS::LPM::COG, "Colloidal gold"},
+    {BE::Feature::AN2K11EFS::LPM::DAB, "Diaminobenzidine"},
+    {BE::Feature::AN2K11EFS::LPM::DFO, "1,8-diazafluoren-9-one"},
+    {BE::Feature::AN2K11EFS::LPM::FLP, "Fluorescent powder"},
+    {BE::Feature::AN2K11EFS::LPM::GEN, "Genipin"},
+    {BE::Feature::AN2K11EFS::LPM::GRP, "Gray powder"},
+    {BE::Feature::AN2K11EFS::LPM::GTV, "Gentian violet"},
+    {BE::Feature::AN2K11EFS::LPM::HCA, "Hydrochloric acid fuming"},
+    {BE::Feature::AN2K11EFS::LPM::IOD, "Iodine fuming"},
+    {BE::Feature::AN2K11EFS::LPM::ISR, "Iodine spray reagent"},
+    {BE::Feature::AN2K11EFS::LPM::LAS, "Laser"},
+    {BE::Feature::AN2K11EFS::LPM::LCV, "Leucocrystal violet"},
+    {BE::Feature::AN2K11EFS::LPM::LIQ, "Liquinox"},
+    {BE::Feature::AN2K11EFS::LPM::LQD, "Liquid-drox"},
+    {BE::Feature::AN2K11EFS::LPM::MBD, "7-(p-methoxybenzylanimo)-4-nitrobenz-2-"
+        "oxa-1,3-diazole"},
+    {BE::Feature::AN2K11EFS::LPM::MBP, "Magnetic black powder"},
+    {BE::Feature::AN2K11EFS::LPM::MGP, "Magnetic grey powder"},
+    {BE::Feature::AN2K11EFS::LPM::MPD, "Modified physical developer"},
+    {BE::Feature::AN2K11EFS::LPM::MRM, "Maxillon flavine 10gff, Rhodamine 6g, "
+        "and MBD"},
+    {BE::Feature::AN2K11EFS::LPM::NIN, "Ninhydrin"},
+    {BE::Feature::AN2K11EFS::LPM::OTH, "Other"},
+    {BE::Feature::AN2K11EFS::LPM::PDV, "Physical developer"},
+    {BE::Feature::AN2K11EFS::LPM::R6G, "Rhodamine 6G"},
+    {BE::Feature::AN2K11EFS::LPM::RAM, "Cyanoacrylate fluorescent dye "
+        "(Rhodamine 6G, Ardrox, MBD)"},
+    {BE::Feature::AN2K11EFS::LPM::RUV, "Reflective ultra-violet imaging system "
+        "(RUVIS)"},
+    {BE::Feature::AN2K11EFS::LPM::SAO, "Safranin O"},
+    {BE::Feature::AN2K11EFS::LPM::SDB, "Sudan black"},
+    {BE::Feature::AN2K11EFS::LPM::SGF, "Superglue fuming (cyanoacrylate)"},
+    {BE::Feature::AN2K11EFS::LPM::SPR, "Small particle reagent"},
+    {BE::Feature::AN2K11EFS::LPM::SSP, "Stickyside powder"},
+    {BE::Feature::AN2K11EFS::LPM::SVN, "Silver nitrate"},
+    {BE::Feature::AN2K11EFS::LPM::TEC, "Theonyl Europiom Chelate"},
+    {BE::Feature::AN2K11EFS::LPM::TID, "Titanium dioxide"},
+    {BE::Feature::AN2K11EFS::LPM::VIS, "Visual (latent image, not processed by "
+        "other means)"},
+    {BE::Feature::AN2K11EFS::LPM::WHP, "White powder"},
+    {BE::Feature::AN2K11EFS::LPM::ZIC, "Zinc chloride"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod,
+    BE_Feature_AN2K11EFS_LatentProcessingMethod_EnumToStringMap);
+
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
@@ -377,6 +437,12 @@ BiometricEvaluation::Feature::AN2K11EFS::DeltaPointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getDPS()
 {
 	return (this->pimpl->getDPS());
+}
+
+std::vector<BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod>
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getLPM()
+{
+	return (this->pimpl->getLPM());
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::NoFeaturesPresent
