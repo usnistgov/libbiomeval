@@ -160,9 +160,6 @@ if(MPI_CXX_FOUND)
   add_library(mpiobjs OBJECT ${MPISOURCES})
   set_target_properties(
     mpiobjs
-    PROPERTIES CXX_COMPILER_LAUNCHER "${MPI_CXX_COMPILER}")
-  set_target_properties(
-    mpiobjs
     PROPERTIES COMPILE_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
   target_include_directories(
     mpiobjs
