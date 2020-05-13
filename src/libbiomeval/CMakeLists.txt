@@ -158,15 +158,20 @@ set(MPISOURCES ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER})
 find_package(MPI)
 if(MPI_CXX_FOUND)
   add_library(mpiobjs OBJECT ${MPISOURCES})
-  set_target_properties(
-    mpiobjs
-    PROPERTIES CXX_COMPILER_LAUNCHER "${MPI_CXX_COMPILER}")
-  set_target_properties(
-    mpiobjs
-    PROPERTIES COMPILE_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
-  target_include_directories(
-    mpiobjs
-    PUBLIC ${MPI_CXX_INCLUDE_PATH} ${BIOMEVAL_INCLUDE})
+  if (${CMAKE_VERSION} VERSION_LESS "3.10")
+    set_target_properties(
+      mpiobjs
+      PROPERTIES COMPILE_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
+    target_include_directories(
+      mpiobjs
+      PUBLIC ${MPI_CXX_INCLUDE_PATH} ${BIOMEVAL_INCLUDE})
+  else(${CMAKE_VERSION} VERSION_LESS "3.10")
+    target_compile_definitions(mpiobjs PUBLIC "${MPI_CXX_COMPILE_DEFINITIONS}")
+    target_compile_options(mpiobjs PUBLIC "${MPI_CXX_COMPILE_OPTIONS}")
+    target_include_directories(
+      mpiobjs
+      PUBLIC ${MPI_CXX_INCLUDE_DIRS} ${BIOMEVAL_INCLUDE})
+  endif(${CMAKE_VERSION} VERSION_LESS "3.10")
 else(MPI_CXX_FOUND)
   message(STATUS "Building without MPI support.")
 endif(MPI_CXX_FOUND)
