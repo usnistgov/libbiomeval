@@ -366,6 +366,47 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
     BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap);
 
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode, std::string>
+BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap = {
+    {BE::Feature::AN2K11EFS::SubstrateCode::Paper, "Paper"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Cardboard, "Cardboard"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::UnfinishedWood,
+        "Unfinished/raw wood"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::OtherOrUnknownPorous,
+        "Other/unknown porous"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Plastic, "Plastic"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Glass, "Glass"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::PaintedMetal, "Metal (painted)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::UnpaintedMetal,
+        "Metal (unpainted)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::GlossyPaintedSurface,
+        "Glossy painted surface"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::AdhesiveSideTape,
+        "Tape (adhesive side)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::NonAdhesiveSideTape,
+        "Tape (nonadhesive side)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::AluminumFoil, "Aluminum foil"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::OtherOrUnknownNonporous,
+        "Other/unknown nonporous"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Rubber, "Rubber or latex"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Leather, "Leather"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::EmulsionSidePhotograph,
+        "Photograph (emulsion side)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::PaperSidePhotograph,
+        "Photograph (paper side)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::GlossyOrSemiglossyPaperOrCardboard,
+        "Glossy or semi-glossy paper or cardboard"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::SatinOrFlatFinishedPaintedSurface,
+        "Satin or flat finished painted surface"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::OtherOrUnknownSemiporous,
+        "Other/unknown semi-porous surface"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Other, "Other"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Unknown, "Unknown"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode,
+    BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap);
+
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,

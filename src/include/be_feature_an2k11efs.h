@@ -460,6 +460,36 @@ namespace BiometricEvaluation
 			bool cxf{};
 		};
 
+		/** Substrates on which latent impression was deposited */
+		enum class SubstrateCode
+		{
+			Paper,
+			Cardboard,
+			UnfinishedWood,
+			OtherOrUnknownPorous,
+
+			Plastic,
+			Glass,
+			PaintedMetal,
+			UnpaintedMetal,
+			GlossyPaintedSurface,
+			AdhesiveSideTape,
+			NonAdhesiveSideTape,
+			AluminumFoil,
+			OtherOrUnknownNonporous,
+
+			Rubber,
+			Leather,
+			EmulsionSidePhotograph,
+			PaperSidePhotograph,
+			GlossyOrSemiglossyPaperOrCardboard,
+			SatinOrFlatFinishedPaintedSurface,
+			OtherOrUnknownSemiporous,
+
+			Other,
+			Unknown
+		};
+
 		/**
 		 * @brief
 		 * A class to represent the Extended Feature Set optionally
@@ -667,6 +697,10 @@ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
     BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode,
+    BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap);
 
 #endif /* __BE_FEATURE_AN2K11EFS_H__ */
 
