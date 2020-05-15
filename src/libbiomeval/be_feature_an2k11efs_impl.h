@@ -92,6 +92,10 @@ namespace BiometricEvaluation
 			getEAA()
 			    const;
 
+			Feature::AN2K11EFS::Substrate
+			getLSB()
+			    const;
+
 		private:
 			Feature::AN2K11EFS::ImageInfo _ii{};
 			Feature::AN2K11EFS::MinutiaPointSet _mps{};
@@ -101,6 +105,7 @@ namespace BiometricEvaluation
 			Feature::AN2K11EFS::MinutiaeRidgeCountInfo _mrci{};
 			std::vector<AN2K11EFS::LatentProcessingMethod> _lpm{};
 			Feature::AN2K11EFS::ExaminerAnalysisAssessment _eaa{};
+			Feature::AN2K11EFS::Substrate _lsb{};
 
 			void readType9Record(
 			    Memory::uint8Array &buf,

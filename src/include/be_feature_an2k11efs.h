@@ -490,6 +490,15 @@ namespace BiometricEvaluation
 			Unknown
 		};
 
+		/** Description of surface on which latent was deposited */
+		struct Substrate
+		{
+			/** Type of substrate (required) */
+			SubstrateCode cls{SubstrateCode::Unknown};
+			/** Description and/or clarification (optional) */
+			std::string osd{};
+		};
+
 		/**
 		 * @brief
 		 * A class to represent the Extended Feature Set optionally
@@ -650,6 +659,15 @@ namespace BiometricEvaluation
 			 */
 			ExaminerAnalysisAssessment
 			getEAA()
+			    const;
+
+			/**
+			 * @return
+			 * Substrate/surface on which the impression was
+			 * deposited.
+			 */
+			Substrate
+			getLSB()
 			    const;
 
 			~ExtendedFeatureSet();

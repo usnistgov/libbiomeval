@@ -90,6 +90,13 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getEAA()
 	return (this->_eaa);
 }
 
+BiometricEvaluation::Feature::AN2K11EFS::Substrate
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getLSB()
+    const
+{
+	return (this->_lsb);
+}
+
 /*
  * Implementation.
  */
@@ -113,6 +120,7 @@ static const int EFS_NMIN_ID = 334;
 static const int EFS_RCC_ID = 335;
 static const int EFS_LPM_ID = 352;
 static const int EFS_EAA_ID = 353;
+static const int EFS_LSB_ID = 355;
 
 static const std::string pDelim = "-";	// Separator for points
 static const std::string cDelim = ",";	// Separator for coordinates
@@ -712,6 +720,69 @@ readEAA(
 }
 
 static void
+readLSB(
+    const RECORD *type9,
+    BiometricEvaluation::Feature::AN2K11EFS::Substrate &lsb)
+{
+	FIELD *field{nullptr};
+	int idx{};
+
+	/* LSB is optional */
+	if (lookup_ANSI_NIST_field(&field, &idx, EFS_LSB_ID, type9) == FALSE)
+		return;
+	if (field->num_subfields <= 0)
+		return;
+	if (field->subfields[0]->num_items < 1)
+		throw BE::Error::DataError("Insufficient item count in EFS "
+		    "substrate");
+
+	static const std::map<std::string, BE::Feature::AN2K11EFS::
+	    SubstrateCode> scMap{
+		{"1A", BE::Feature::AN2K11EFS::SubstrateCode::Paper},
+		{"1B", BE::Feature::AN2K11EFS::SubstrateCode::Cardboard},
+		{"1C", BE::Feature::AN2K11EFS::SubstrateCode::UnfinishedWood},
+		{"1D", BE::Feature::AN2K11EFS::SubstrateCode::
+		    OtherOrUnknownPorous},
+		{"2A", BE::Feature::AN2K11EFS::SubstrateCode::Plastic},
+		{"2B", BE::Feature::AN2K11EFS::SubstrateCode::Glass},
+		{"2C", BE::Feature::AN2K11EFS::SubstrateCode::PaintedMetal},
+		{"2D", BE::Feature::AN2K11EFS::SubstrateCode::UnpaintedMetal},
+		{"2E", BE::Feature::AN2K11EFS::SubstrateCode::
+		    GlossyPaintedSurface},
+		{"2F", BE::Feature::AN2K11EFS::SubstrateCode::AdhesiveSideTape},
+		{"2G", BE::Feature::AN2K11EFS::SubstrateCode::NonAdhesiveSideTape},
+		{"2H", BE::Feature::AN2K11EFS::SubstrateCode::AluminumFoil},
+		{"2I", BE::Feature::AN2K11EFS::SubstrateCode::
+		    OtherOrUnknownNonporous},
+		{"3A", BE::Feature::AN2K11EFS::SubstrateCode::Rubber},
+		{"3B", BE::Feature::AN2K11EFS::SubstrateCode::Leather},
+		{"3C", BE::Feature::AN2K11EFS::SubstrateCode::
+		    EmulsionSidePhotograph},
+		{"3D", BE::Feature::AN2K11EFS::SubstrateCode::
+		    PaperSidePhotograph},
+		{"3E", BE::Feature::AN2K11EFS::SubstrateCode::
+		    GlossyOrSemiglossyPaperOrCardboard},
+		{"3F", BE::Feature::AN2K11EFS::SubstrateCode::
+		    SatinOrFlatFinishedPaintedSurface},
+		{"3G", BE::Feature::AN2K11EFS::SubstrateCode::
+		    OtherOrUnknownSemiporous},
+		{"4A", BE::Feature::AN2K11EFS::SubstrateCode::Other},
+		{"4B", BE::Feature::AN2K11EFS::SubstrateCode::Unknown}
+	};
+
+	try {
+		lsb.cls = scMap.at((char*)field->subfields[0]->items[0]->value);
+	} catch (const std::out_of_range&) {
+		throw BE::Error::DataError{"Invalid CLS in LSB: " +
+		    std::string((char*)field->subfields[0]->items[0]->value)};
+	}
+
+	if (field->subfields[0]->num_items >= 2)
+		lsb.osd = (char*)field->subfields[0]->items[1]->value;
+
+}
+
+static void
 readMRCI(
     const RECORD *type9,
     BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo &mrci)
@@ -854,5 +925,6 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::readType9Reco
 	readNFP(type9, this->_nfp);
 	readMRCI(type9, this->_mrci);
 	readEAA(type9, this->_eaa);
+	readLSB(type9, this->_lsb);
 }
 

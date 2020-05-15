@@ -511,3 +511,10 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getEAA()
 	return (this->pimpl->getEAA());
 }
 
+BiometricEvaluation::Feature::AN2K11EFS::Substrate
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getLSB()
+    const
+{
+	return (this->pimpl->getLSB());
+}
+
