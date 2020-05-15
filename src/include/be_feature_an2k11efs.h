@@ -425,6 +425,17 @@ namespace BiometricEvaluation
 		};
 		using LPM = LatentProcessingMethod;
 
+		/** Code indicating the value of a print */
+		enum class ValueAssessmentCode
+		{
+			Value,
+			ValueForIndividualization = Value,
+			Limited,
+			ValueForExclusionOnly = Limited,
+			NoValue,
+			NonPrint
+		};
+
 		/**
 		 * @brief
 		 * A class to represent the Extended Feature Set optionally
@@ -616,6 +627,10 @@ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod,
     BE_Feature_AN2K11EFS_LatentProcessingMethod_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
+    BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap);
 
 #endif /* __BE_FEATURE_AN2K11EFS_H__ */
 

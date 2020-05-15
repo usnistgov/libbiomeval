@@ -354,6 +354,18 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod,
     BE_Feature_AN2K11EFS_LatentProcessingMethod_EnumToStringMap);
 
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
+std::string>
+BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap = {
+    {BE::Feature::AN2K11EFS::ValueAssessmentCode::Value, "Value (VID)"},
+    {BE::Feature::AN2K11EFS::ValueAssessmentCode::Limited, "Limited (VEO)"},
+    {BE::Feature::AN2K11EFS::ValueAssessmentCode::NoValue, "No Value (NV)"},
+    {BE::Feature::AN2K11EFS::ValueAssessmentCode::NonPrint, "Not a print"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
+    BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap);
+
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
