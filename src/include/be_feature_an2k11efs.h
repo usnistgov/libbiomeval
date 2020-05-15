@@ -430,9 +430,12 @@ namespace BiometricEvaluation
 		{
 			Value,
 			ValueForIndividualization = Value,
+			VID = Value,
 			Limited,
 			ValueForExclusionOnly = Limited,
+			VEO = Limited,
 			NoValue,
+			NV = NoValue,
 			NonPrint
 		};
 
