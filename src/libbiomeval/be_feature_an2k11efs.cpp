@@ -463,3 +463,10 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getNFP()
 	return (this->pimpl->getNFP());
 }
 
+BiometricEvaluation::Feature::AN2K11EFS::ExaminerAnalysisAssessment
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getEAA()
+    const
+{
+	return (this->pimpl->getEAA());
+}
+

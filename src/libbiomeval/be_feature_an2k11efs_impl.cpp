@@ -83,6 +83,13 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getNFP()
 	return (this->_nfp);
 }
 
+BiometricEvaluation::Feature::AN2K11EFS::ExaminerAnalysisAssessment
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getEAA()
+    const
+{
+	return (this->_eaa);
+}
+
 /*
  * Implementation.
  */
@@ -105,6 +112,7 @@ static const int EFS_MRC_ID = 333;
 static const int EFS_NMIN_ID = 334;
 static const int EFS_RCC_ID = 335;
 static const int EFS_LPM_ID = 352;
+static const int EFS_EAA_ID = 353;
 
 static const std::string pDelim = "-";	// Separator for points
 static const std::string cDelim = ",";	// Separator for coordinates
@@ -654,6 +662,56 @@ readNFP(
 }
 
 static void
+readEAA(
+    const RECORD *type9,
+    BiometricEvaluation::Feature::AN2K11EFS::ExaminerAnalysisAssessment &eaa)
+{
+	FIELD *field;
+	int idx;
+
+	/* EAA is optional */
+	if (lookup_ANSI_NIST_field(&field, &idx, EFS_EAA_ID, type9) == FALSE)
+		return;
+	if (field->num_subfields <= 0)
+		return;
+	if (field->subfields[0]->num_items < 5)
+		throw BE::Error::DataError("Insufficient item count "
+		    "in EFS examiner analysis");
+
+	static const std::map<std::string, BE::Feature::AN2K11EFS::
+	   ValueAssessmentCode> vacMap{
+		{"VALUE", BE::Feature::AN2K11EFS::ValueAssessmentCode::VID},
+		{"LIMITED", BE::Feature::AN2K11EFS::ValueAssessmentCode::VEO},
+		{"NOVALUE", BE::Feature::AN2K11EFS::ValueAssessmentCode::NV},
+		{"NONPRINT", BE::Feature::AN2K11EFS::ValueAssessmentCode::
+		    NonPrint}
+	};
+
+	try {
+		eaa.aav = vacMap.at((char*)field->subfields[0]->items[0]->
+		    value);
+	} catch (const std::out_of_range&) {
+		throw BE::Error::DataError{"Invalid AAV in EAA: " +
+		    std::string((char*)field->subfields[0]->items[0]->value)};
+	}
+	eaa.aln = (char*)field->subfields[0]->items[1]->value;
+	eaa.afn = (char*)field->subfields[0]->items[2]->value;
+	eaa.aaf = (char*)field->subfields[0]->items[3]->value;
+	eaa.amt = (char*)field->subfields[0]->items[4]->value;
+
+	if (field->subfields[0]->num_items >= 6)
+		eaa.acm = (char*)field->subfields[0]->items[5]->value;
+
+	if (field->subfields[0]->num_items >= 7) {
+		eaa.has_cxf = true;
+		eaa.cxf = (std::string((char*)field->subfields[0]->items[6]->
+		    value) == "COMPLEX");
+	} else
+		eaa.has_cxf = false;
+
+}
+
+static void
 readMRCI(
     const RECORD *type9,
     BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo &mrci)
@@ -795,5 +853,6 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::readType9Reco
 	readLPM(type9, this->_lpm);
 	readNFP(type9, this->_nfp);
 	readMRCI(type9, this->_mrci);
+	readEAA(type9, this->_eaa);
 }
 

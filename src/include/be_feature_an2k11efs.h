@@ -439,6 +439,27 @@ namespace BiometricEvaluation
 			NonPrint
 		};
 
+		/** Examiner's assessment of an impression */
+		struct ExaminerAnalysisAssessment
+		{
+			/** Value of impression (required) */
+			ValueAssessmentCode aav;
+			/** Examiner's surname (required) */
+			std::string aln;
+			/** Examiner's first and middle names (required) */
+			std::string afn;
+			/** Examiner's employer/affiliation (required) */
+			std::string aaf;
+			/** Date and time determination made (GMT, required) */
+			std::string amt;
+			/** Comment (optional) */
+			std::string acm{};
+			/** Whether `cxf` is populated (required) */
+			bool has_cxf{false};
+			/** Whether analysis was complex (optional) */
+			bool cxf{};
+		};
+
 		/**
 		 * @brief
 		 * A class to represent the Extended Feature Set optionally
@@ -588,6 +609,18 @@ namespace BiometricEvaluation
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::NoFeaturesPresent
 			getNFP();
+
+			/**
+			 * @brief
+			 * Obtain the examiner's analysis assessment of the
+			 * print.
+			 *
+			 * @return
+			 * Examiner's analysis assessment.
+			 */
+			ExaminerAnalysisAssessment
+			getEAA()
+			    const;
 
 			~ExtendedFeatureSet();
 
