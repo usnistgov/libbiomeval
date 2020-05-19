@@ -407,6 +407,66 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode,
     BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap);
 
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::Pattern::
+    GeneralClassification, std::string>
+BE_Feature_AN2K11EFS_Pattern_GeneralClassification_EnumToStringMap{
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Arch, "Arch"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Whorl, "Whorl"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::RightSlantLoop,
+        "RightSlantLoop"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::LeftSlantLoop,
+        "LeftSlantLoop"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Amputation,
+        "Amputation"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::
+        TemporarilyUnavailable, "Temporarily Unavailable (e.g., bandaged)"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Unclassifiable,
+        "Unclassifiable"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Scar, "Scar"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::DissociatedRidges,
+        "Dissociated Ridges/Dysplasia"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::GeneralClassification,
+    BE_Feature_AN2K11EFS_Pattern_GeneralClassification_EnumToStringMap);
+
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::Pattern::
+    ArchSubclassification, std::string>
+BE_Feature_AN2K11EFS_Pattern_ArchSubclassification_EnumToStringMap{
+    {BE::Feature::AN2K11EFS::Pattern::ArchSubclassification::Plain, "Plain"},
+    {BE::Feature::AN2K11EFS::Pattern::ArchSubclassification::Tented, "Tented"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::ArchSubclassification,
+    BE_Feature_AN2K11EFS_Pattern_ArchSubclassification_EnumToStringMap);
+
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::Pattern::
+    WhorlSubclassification, std::string>
+BE_Feature_AN2K11EFS_Pattern_WhorlSubclassification_EnumToStringMap{
+    {BE::Feature::AN2K11EFS::Pattern::WhorlSubclassification::Plain, "Plain"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlSubclassification::CentralPocketLoop,
+        "Central Pocket Loop"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlSubclassification::DoubleLoop,
+        "Double Loop"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlSubclassification::Accidental,
+        "Accidental"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlSubclassification,
+    BE_Feature_AN2K11EFS_Pattern_WhorlSubclassification_EnumToStringMap);
+
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::Pattern::
+    WhorlDeltaRelationship, std::string>
+BE_Feature_AN2K11EFS_Pattern_WhorlDeltaRelationship_EnumToStringMap{
+    {BE::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship::Inner, "Inner"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship::Outer, "Outer"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship::Meeting,
+        "Meeting"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship,
+    BE_Feature_AN2K11EFS_Pattern_WhorlDeltaRelationship_EnumToStringMap);
+
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,

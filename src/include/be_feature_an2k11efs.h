@@ -499,6 +499,66 @@ namespace BiometricEvaluation
 			std::string osd{};
 		};
 
+		/** Fingerprint classification. */
+		struct Pattern
+		{
+			/**
+			 * @brief
+			 * General pattern classification
+			 *
+			 * @seealso
+			 * BiometricEvaluation::Finger::PatternClassification
+			 */
+			enum class GeneralClassification
+			{
+				Arch,
+				Whorl,
+				RightSlantLoop,
+				LeftSlantLoop,
+				Amputation,
+				TemporarilyUnavailable,
+				Unclassifiable,
+				Scar,
+				DissociatedRidges
+			};
+
+			/* Details subclassification for arches */
+			enum class ArchSubclassification
+			{
+				Plain,
+				Tented
+			};
+
+			/* Details subclassification for whorls */
+			enum class WhorlSubclassification
+			{
+				Plain,
+				CentralPocketLoop,
+				DoubleLoop,
+				Accidental
+			};
+
+			/** Relationship between multiple deltas in a whorl */
+			enum class WhorlDeltaRelationship
+			{
+				Inner,
+				Outer,
+				Meeting
+			};
+
+			GeneralClassification general;
+
+			bool hasSubclass{false};
+			union
+			{
+				ArchSubclassification archSubclass;
+				WhorlSubclassification whorlSubclass;
+			} subclass;
+
+			bool hasWhorlDeltaRelationship{false};
+			WhorlDeltaRelationship whorlDeltaRelationship;
+		};
+
 		/**
 		 * @brief
 		 * A class to represent the Extended Feature Set optionally
@@ -719,6 +779,22 @@ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode,
     BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::GeneralClassification,
+    BE_Feature_AN2K11EFS_Pattern_GeneralClassification_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::ArchSubclassification,
+    BE_Feature_AN2K11EFS_Pattern_ArchSubclassification_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlSubclassification,
+    BE_Feature_AN2K11EFS_Pattern_WhorlSubclassification_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship,
+    BE_Feature_AN2K11EFS_Pattern_WhorlDeltaRelationship_EnumToStringMap);
 
 #endif /* __BE_FEATURE_AN2K11EFS_H__ */
 
