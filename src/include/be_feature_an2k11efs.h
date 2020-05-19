@@ -730,6 +730,14 @@ namespace BiometricEvaluation
 			getLSB()
 			    const;
 
+			/**
+			 * @return
+			 * Collection of possible pattern classifications.
+			 */
+			std::vector<Pattern>
+			getPAT()
+			    const;
+
 			~ExtendedFeatureSet();
 
 		private:

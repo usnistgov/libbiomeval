@@ -97,6 +97,13 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getLSB()
 	return (this->_lsb);
 }
 
+std::vector<BiometricEvaluation::Feature::AN2K11EFS::Pattern>
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getPAT()
+    const
+{
+	return (this->_pat);
+}
+
 /*
  * Implementation.
  */
@@ -107,6 +114,7 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getLSB()
 static const int EFS_ROI_ID = 300;
 static const int EFS_ORT_ID = 301;
 static const int EFS_FPP_ID = 302;
+static const int EFS_PAT_ID = 307;
 static const int EFS_TRV_ID = 314;
 static const int EFS_PLR_ID = 315;
 static const int EFS_COR_ID = 320;
@@ -783,6 +791,138 @@ readLSB(
 }
 
 static void
+readPAT(
+    const RECORD *type9,
+    std::vector<BiometricEvaluation::Feature::AN2K11EFS::Pattern> &pats)
+{
+	static const std::map<std::string, BE::Feature::AN2K11EFS::Pattern::
+	    GeneralClassification> gcMap{
+		{"AU", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Arch},
+		{"WU", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Whorl},
+		{"RS", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::RightSlantLoop},
+		{"LS", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::LeftSlantLoop},
+		{"XX", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Amputation},
+		{"UP", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::TemporarilyUnavailable},
+		{"UC", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Unclassifiable},
+		{"SR", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Scar},
+		{"DR", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::DissociatedRidges}
+	};
+
+	static const std::map<std::string, BE::Feature::AN2K11EFS::Pattern::
+	    ArchSubclassification> archMap{
+		{"PA", BE::Feature::AN2K11EFS::Pattern::
+		    ArchSubclassification::Plain},
+		{"TA", BE::Feature::AN2K11EFS::Pattern::
+		    ArchSubclassification::Tented}
+	};
+
+	static const std::map<std::string, BE::Feature::AN2K11EFS::Pattern::
+	    WhorlSubclassification> whorlMap{
+		{"PW", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlSubclassification::Plain},
+		{"CP", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlSubclassification::CentralPocketLoop},
+		{"DL", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlSubclassification::DoubleLoop},
+		{"AW", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlSubclassification::Accidental},
+	};
+	static const std::map<std::string, BE::Feature::AN2K11EFS::Pattern::
+	    WhorlDeltaRelationship> whorlDeltaMap{
+		{"I", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlDeltaRelationship::Inner},
+		{"M", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlDeltaRelationship::Meeting},
+		{"O", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlDeltaRelationship::Outer}
+	};
+
+	FIELD *field{nullptr};
+	int idx{};
+
+	/* PAT is optional */
+	if (lookup_ANSI_NIST_field(&field, &idx, EFS_PAT_ID, type9) == FALSE)
+		return;
+	if (field->num_subfields <= 0)
+		return;
+
+	/* Maximum of 7 pattern classifications */
+	if (field->num_subfields > 7)
+		throw BE::Error::DataError{"Too many subfields for EFS PAT"};
+
+	for (int i{0}; i < field->num_subfields; ++i) {
+		if (field->subfields[i]->num_items < 1)
+			throw BE::Error::DataError{"Insufficient item count "
+			    "for PAT subfield #" + std::to_string(i + 1)};
+
+		BE::Feature::AN2K11EFS::Pattern pat{};
+		try {
+			pat.general = gcMap.at((char*)field->subfields[i]->
+			    items[0]->value);
+		} catch (const std::out_of_range&) {
+			throw BE::Error::DataError{"Invalid GCF in PAT "
+			    "subfield #" + std::to_string(i + 1) + ": " +
+			    std::string((char*)field->subfields[i]->items[0]->
+			    value)};
+		}
+
+		if (field->subfields[i]->num_items < 2) {
+			pats.push_back(pat);
+			continue;
+		}
+		pat.hasSubclass = true;
+		try {
+			if (pat.general == BE::Feature::AN2K11EFS::Pattern::
+			    GeneralClassification::Arch)
+				pat.subclass.archSubclass = archMap.at((char*)
+				    field->subfields[i]->items[1]->value);
+			else if (pat.general == BE::Feature::AN2K11EFS::
+			    Pattern::GeneralClassification::Whorl)
+				pat.subclass.whorlSubclass = whorlMap.at((char*)
+				    field->subfields[i]->items[1]->value);
+			else
+				throw std::out_of_range{"Invalid GCF for SUB"};
+		} catch (const std::out_of_range&) {
+			throw BE::Error::DataError{"Invalid SUB in PAT "
+			    "subfield #" + std::to_string(i + 1) + ": " +
+			    std::string((char*)field->subfields[i]->items[1]->
+			    value)};
+		}
+
+		if (field->subfields[i]->num_items < 3) {
+			pats.push_back(pat);
+			continue;
+		}
+		pat.hasWhorlDeltaRelationship = true;
+		try {
+			if (pat.general == BE::Feature::AN2K11EFS::Pattern::
+			    GeneralClassification::Whorl)
+				pat.whorlDeltaRelationship = whorlDeltaMap.at(
+				    (char*)field->subfields[i]->items[2]->
+				    value);
+			else
+				throw std::out_of_range{"Invalid FCF for WDR"};
+		} catch (const std::out_of_range&) {
+			throw BE::Error::DataError{"Invalid WDR in PAT "
+			    "subfield #" + std::to_string(i + 1) + ": " +
+			    std::string((char*)field->subfields[i]->items[2]->
+			    value)};
+		}
+
+		pats.push_back(pat);
+	}
+}
+
+static void
 readMRCI(
     const RECORD *type9,
     BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo &mrci)
@@ -926,5 +1066,6 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::readType9Reco
 	readMRCI(type9, this->_mrci);
 	readEAA(type9, this->_eaa);
 	readLSB(type9, this->_lsb);
+	readPAT(type9, this->_pat);
 }
 

@@ -96,6 +96,10 @@ namespace BiometricEvaluation
 			getLSB()
 			    const;
 
+			std::vector<Feature::AN2K11EFS::Pattern>
+			getPAT()
+			    const;
+
 		private:
 			Feature::AN2K11EFS::ImageInfo _ii{};
 			Feature::AN2K11EFS::MinutiaPointSet _mps{};
@@ -106,6 +110,7 @@ namespace BiometricEvaluation
 			std::vector<AN2K11EFS::LatentProcessingMethod> _lpm{};
 			Feature::AN2K11EFS::ExaminerAnalysisAssessment _eaa{};
 			Feature::AN2K11EFS::Substrate _lsb{};
+			std::vector<AN2K11EFS::Pattern> _pat{};
 
 			void readType9Record(
 			    Memory::uint8Array &buf,

@@ -578,3 +578,11 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getLSB()
 	return (this->pimpl->getLSB());
 }
 
+std::vector<BiometricEvaluation::Feature::AN2K11EFS::Pattern>
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getPAT()
+    const
+{
+	return (this->pimpl->getPAT());
+}
+
+
