@@ -366,6 +366,34 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
     BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap);
 
+std::ostream&
+BiometricEvaluation::Feature::AN2K11EFS::operator<<(
+    std::ostream &s,
+    const ExaminerAnalysisAssessment &eaa)
+{
+	if (!eaa.present)
+		return (s << "<# NOT SET #>");
+
+	s << "Determination: " << BE::Framework::Enumeration::to_string(
+	    eaa.aav) << ", as determined by " << eaa.afn << " " <<
+	    eaa.aln << " of " << eaa.aaf << " on " << eaa.amt;
+
+	if ((eaa.has_cxf && eaa.cxf) || !eaa.acm.empty()) {
+		s << " (";
+		if (eaa.has_cxf && eaa.cxf) {
+			s << "[Complex analysis]";
+			if (!eaa.acm.empty())
+				s << ", ";
+		}
+		if (!eaa.acm.empty())
+			s << eaa.acm;
+
+		s << ')';
+	}
+
+	return (s);
+}
+
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode, std::string>
 BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap = {
     {BE::Feature::AN2K11EFS::SubstrateCode::Paper, "Paper"},
@@ -406,6 +434,21 @@ BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap = {
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode,
     BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap);
+
+std::ostream&
+BiometricEvaluation::Feature::AN2K11EFS::operator<<(
+     std::ostream &s,
+     const Substrate &lsb)
+{
+	if (!lsb.present)
+		return (s << "<# NOT SET #>");
+
+	s << BE::Framework::Enumeration::to_string(lsb.cls);
+	if (!lsb.osd.empty())
+		s << " (Comment: " << lsb.osd << ')';
+
+	return (s);
+}
 
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::Pattern::
     GeneralClassification, std::string>
@@ -466,6 +509,32 @@ BE_Feature_AN2K11EFS_Pattern_WhorlDeltaRelationship_EnumToStringMap{
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship,
     BE_Feature_AN2K11EFS_Pattern_WhorlDeltaRelationship_EnumToStringMap);
+
+std::ostream&
+BiometricEvaluation::Feature::AN2K11EFS::operator<<(
+     std::ostream &s,
+     const Pattern &p)
+{
+	if (!p.present)
+		return (s << "<# NOT SET #>");
+
+	s << BE::Framework::Enumeration::to_string(p.general);
+	if (p.hasSubclass &&
+	    (p.general == Pattern::GeneralClassification::Arch))
+		s << " (" << BE::Framework::Enumeration::to_string(
+		    p.subclass.arch) << ')';
+	else if (p.hasSubclass &&
+	    (p.general == Pattern::GeneralClassification::Whorl)) {
+		s << " (" << BE::Framework::Enumeration::to_string(
+		    p.subclass.whorl);
+		if (p.hasWhorlDeltaRelationship)
+			s << ", WDR: " << BE::Framework::Enumeration::to_string(
+			    p.whorlDeltaRelationship);
+		s << ')';
+	}
+
+	return (s);
+}
 
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (

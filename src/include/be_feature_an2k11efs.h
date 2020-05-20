@@ -462,6 +462,10 @@ namespace BiometricEvaluation
 			/** Whether analysis was complex (optional) */
 			bool cxf{};
 		};
+		std::ostream&
+		operator<<(
+		     std::ostream&,
+		     const ExaminerAnalysisAssessment&);
 
 		/** Substrates on which latent impression was deposited */
 		enum class SubstrateCode
@@ -504,6 +508,10 @@ namespace BiometricEvaluation
 			/** Description and/or clarification (optional) */
 			std::string osd{};
 		};
+		std::ostream&
+		operator<<(
+		     std::ostream&,
+		     const Substrate&);
 
 		/** Fingerprint classification. */
 		struct Pattern
@@ -566,6 +574,10 @@ namespace BiometricEvaluation
 			bool hasWhorlDeltaRelationship{false};
 			WhorlDeltaRelationship whorlDeltaRelationship;
 		};
+		std::ostream&
+		operator<<(
+		     std::ostream&,
+		     const Pattern&);
 
 		/**
 		 * @brief
