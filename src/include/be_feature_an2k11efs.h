@@ -442,6 +442,9 @@ namespace BiometricEvaluation
 		/** Examiner's assessment of an impression */
 		struct ExaminerAnalysisAssessment
 		{
+			/** Whether this field was present */
+			bool present{false};
+
 			/** Value of impression (required) */
 			ValueAssessmentCode aav;
 			/** Examiner's surname (required) */
@@ -493,6 +496,9 @@ namespace BiometricEvaluation
 		/** Description of surface on which latent was deposited */
 		struct Substrate
 		{
+			/** Whether this field was present */
+			bool present{false};
+
 			/** Type of substrate (required) */
 			SubstrateCode cls{SubstrateCode::Unknown};
 			/** Description and/or clarification (optional) */
@@ -545,6 +551,8 @@ namespace BiometricEvaluation
 				Outer,
 				Meeting
 			};
+
+			bool present{false};
 
 			GeneralClassification general;
 

@@ -703,6 +703,7 @@ readEAA(
 		    NonPrint}
 	};
 
+	eaa.present = true;
 	try {
 		eaa.aav = vacMap.at((char*)field->subfields[0]->items[0]->
 		    value);
@@ -778,6 +779,7 @@ readLSB(
 		{"4B", BE::Feature::AN2K11EFS::SubstrateCode::Unknown}
 	};
 
+	lsb.present = true;
 	try {
 		lsb.cls = scMap.at((char*)field->subfields[0]->items[0]->value);
 	} catch (const std::out_of_range&) {
@@ -865,6 +867,7 @@ readPAT(
 			    "for PAT subfield #" + std::to_string(i + 1)};
 
 		BE::Feature::AN2K11EFS::Pattern pat{};
+		pat.present = true;
 		try {
 			pat.general = gcMap.at((char*)field->subfields[i]->
 			    items[0]->value);
