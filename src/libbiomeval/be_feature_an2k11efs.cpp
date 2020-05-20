@@ -34,15 +34,6 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::FingerprintSegment,
     BE_Feature_AN2K11EFS_FingerprintSegment_EnumToStringMap);
 
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const FingerprintSegment& fs)
-{
-	return (s << BE::Framework::Enumeration::to_string(fs));
-}
-
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::OCF,
     std::string>
 BE_Feature_AN2K11EFS_OCF_EnumToStringMap = {
@@ -54,20 +45,13 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::OCF,
     BE_Feature_AN2K11EFS_OCF_EnumToStringMap);
 
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const OffCenterFingerPosition& ocf)
-{
-	return (s << BE::Framework::Enumeration::to_string(ocf));
-}
-
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const Feature::AN2K11EFS::FPPPosition& fpp)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << "FGP: " << fpp.fgp;
 	s << "; ";
 	s << "FSM: "; if (fpp.has_fsm) s << fpp.fsm; else s << "N/A";
@@ -89,15 +73,6 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::TonalReversal,
     BE_Feature_AN2K11EFS_TonalReversal_EnumToStringMap);
 
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const AN2K11EFS::TonalReversal& trv)
-{
-	return (s << BE::Framework::Enumeration::to_string(trv));
-}
-
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::LateralReversal,
     std::string>
 BE_Feature_AN2K11EFS_LateralReversal_EnumToStringMap = {
@@ -111,16 +86,10 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
-    const AN2K11EFS::LateralReversal& plr)
-{
-	return (s << BE::Framework::Enumeration::to_string(plr));
-}
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
     const AN2K11EFS::ImageInfo& ii)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 #if 0
 	/* Alternative output: All fields on one line demarcated by [] */
 	s << "ROI = [" << ii.roi;
@@ -150,6 +119,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::MinutiaPoint& mp)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << static_cast<const Feature::MinutiaPoint&>(mp);
 	s << "MRU: "; if (mp.has_mru) s << mp.mru; else s << "N/A";
 	s << "; ";
@@ -162,6 +133,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::MinutiaeRidgeCount& mrc)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << "IdxA/IdxB/Count: " << mrc.mia << "/" << mrc.mib << "/" << mrc.mir;
 	s << "; ";
 	s << "MRN: "; if (mrc.has_mrn) s << mrc.mrn; else s << "N/A";
@@ -181,15 +154,6 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::MethodOfRidgeCounting,
     BE_Feature_AN2K11EFS_MethodOfRidgeCounting_EnumToStringMap);
 
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const AN2K11EFS::MethodOfRidgeCounting& morc)
-{
-	s << BE::Framework::Enumeration::to_string(morc);
-	return (s);
-}
-
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::MRA,
     std::string>
 BE_Feature_AN2K11EFS_MRA_EnumToStringMap = {
@@ -204,17 +168,10 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
-    const AN2K11EFS::MinutiaeRidgeCountAlgorithm& mra)
-{
-	s << BE::Framework::Enumeration::to_string(mra);
-	return (s);
-}
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
     const AN2K11EFS::MRCC& rcc)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << rcc.pointA << "<->" << rcc.pointB << "/(" <<
 	    rcc.morc << "): " << rcc.mcv << "\n";
 	return (s);
@@ -225,6 +182,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::MinutiaeRidgeCountInfo& mrci)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << "MRA: ";
 	if (mrci.has_mra) s << mrci.mra << "\n"; else s << "N/A\n";
 	s << "MRC: ";
@@ -253,6 +212,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::CorePoint& ecp)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << ecp.location;
 	s << "; ";
 	s << "CDI: "; if (ecp.has_cdi) s << ecp.cdi; else s << "N/A";
@@ -284,15 +245,6 @@ BE_Feature_AN2K11EFS_DeltaType_EnumToStringMap = {
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::DeltaType,
     BE_Feature_AN2K11EFS_DeltaType_EnumToStringMap);
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const AN2K11EFS::DeltaType& dtp)
-{
-	s << BE::Framework::Enumeration::to_string(dtp);
-	return (s);
-}
 
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::LPM, std::string>
 BE_Feature_AN2K11EFS_LatentProcessingMethod_EnumToStringMap = {
@@ -354,11 +306,195 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod,
     BE_Feature_AN2K11EFS_LatentProcessingMethod_EnumToStringMap);
 
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
+std::string>
+BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap = {
+    {BE::Feature::AN2K11EFS::ValueAssessmentCode::Value, "Value (VID)"},
+    {BE::Feature::AN2K11EFS::ValueAssessmentCode::Limited, "Limited (VEO)"},
+    {BE::Feature::AN2K11EFS::ValueAssessmentCode::NoValue, "No Value (NV)"},
+    {BE::Feature::AN2K11EFS::ValueAssessmentCode::NonPrint, "Not a print"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
+    BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap);
+
+std::ostream&
+BiometricEvaluation::Feature::AN2K11EFS::operator<<(
+    std::ostream &s,
+    const ExaminerAnalysisAssessment &eaa)
+{
+	if (!eaa.present)
+		return (s << "<# NOT SET #>");
+
+	s << "Determination: " << BE::Framework::Enumeration::to_string(
+	    eaa.aav) << ", as determined by " << eaa.afn << " " <<
+	    eaa.aln << " of " << eaa.aaf << " on " << eaa.amt;
+
+	if ((eaa.has_cxf && eaa.cxf) || !eaa.acm.empty()) {
+		s << " (";
+		if (eaa.has_cxf && eaa.cxf) {
+			s << "[Complex analysis]";
+			if (!eaa.acm.empty())
+				s << ", ";
+		}
+		if (!eaa.acm.empty())
+			s << eaa.acm;
+
+		s << ')';
+	}
+
+	return (s);
+}
+
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode, std::string>
+BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap = {
+    {BE::Feature::AN2K11EFS::SubstrateCode::Paper, "Paper"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Cardboard, "Cardboard"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::UnfinishedWood,
+        "Unfinished/raw wood"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::OtherOrUnknownPorous,
+        "Other/unknown porous"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Plastic, "Plastic"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Glass, "Glass"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::PaintedMetal, "Metal (painted)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::UnpaintedMetal,
+        "Metal (unpainted)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::GlossyPaintedSurface,
+        "Glossy painted surface"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::AdhesiveSideTape,
+        "Tape (adhesive side)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::NonAdhesiveSideTape,
+        "Tape (nonadhesive side)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::AluminumFoil, "Aluminum foil"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::OtherOrUnknownNonporous,
+        "Other/unknown nonporous"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Rubber, "Rubber or latex"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Leather, "Leather"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::EmulsionSidePhotograph,
+        "Photograph (emulsion side)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::PaperSidePhotograph,
+        "Photograph (paper side)"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::GlossyOrSemiglossyPaperOrCardboard,
+        "Glossy or semi-glossy paper or cardboard"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::SatinOrFlatFinishedPaintedSurface,
+        "Satin or flat finished painted surface"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::OtherOrUnknownSemiporous,
+        "Other/unknown semi-porous surface"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Other, "Other"},
+    {BE::Feature::AN2K11EFS::SubstrateCode::Unknown, "Unknown"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode,
+    BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap);
+
+std::ostream&
+BiometricEvaluation::Feature::AN2K11EFS::operator<<(
+     std::ostream &s,
+     const Substrate &lsb)
+{
+	if (!lsb.present)
+		return (s << "<# NOT SET #>");
+
+	s << BE::Framework::Enumeration::to_string(lsb.cls);
+	if (!lsb.osd.empty())
+		s << " (Comment: " << lsb.osd << ')';
+
+	return (s);
+}
+
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::Pattern::
+    GeneralClassification, std::string>
+BE_Feature_AN2K11EFS_Pattern_GeneralClassification_EnumToStringMap{
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Arch, "Arch"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Whorl, "Whorl"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::RightSlantLoop,
+        "RightSlantLoop"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::LeftSlantLoop,
+        "LeftSlantLoop"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Amputation,
+        "Amputation"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::
+        TemporarilyUnavailable, "Temporarily Unavailable (e.g., bandaged)"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Unclassifiable,
+        "Unclassifiable"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::Scar, "Scar"},
+    {BE::Feature::AN2K11EFS::Pattern::GeneralClassification::DissociatedRidges,
+        "Dissociated Ridges/Dysplasia"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::GeneralClassification,
+    BE_Feature_AN2K11EFS_Pattern_GeneralClassification_EnumToStringMap);
+
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::Pattern::
+    ArchSubclassification, std::string>
+BE_Feature_AN2K11EFS_Pattern_ArchSubclassification_EnumToStringMap{
+    {BE::Feature::AN2K11EFS::Pattern::ArchSubclassification::Plain, "Plain"},
+    {BE::Feature::AN2K11EFS::Pattern::ArchSubclassification::Tented, "Tented"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::ArchSubclassification,
+    BE_Feature_AN2K11EFS_Pattern_ArchSubclassification_EnumToStringMap);
+
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::Pattern::
+    WhorlSubclassification, std::string>
+BE_Feature_AN2K11EFS_Pattern_WhorlSubclassification_EnumToStringMap{
+    {BE::Feature::AN2K11EFS::Pattern::WhorlSubclassification::Plain, "Plain"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlSubclassification::CentralPocketLoop,
+        "Central Pocket Loop"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlSubclassification::DoubleLoop,
+        "Double Loop"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlSubclassification::Accidental,
+        "Accidental"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlSubclassification,
+    BE_Feature_AN2K11EFS_Pattern_WhorlSubclassification_EnumToStringMap);
+
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::Pattern::
+    WhorlDeltaRelationship, std::string>
+BE_Feature_AN2K11EFS_Pattern_WhorlDeltaRelationship_EnumToStringMap{
+    {BE::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship::Inner, "Inner"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship::Outer, "Outer"},
+    {BE::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship::Meeting,
+        "Meeting"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship,
+    BE_Feature_AN2K11EFS_Pattern_WhorlDeltaRelationship_EnumToStringMap);
+
+std::ostream&
+BiometricEvaluation::Feature::AN2K11EFS::operator<<(
+     std::ostream &s,
+     const Pattern &p)
+{
+	if (!p.present)
+		return (s << "<# NOT SET #>");
+
+	s << BE::Framework::Enumeration::to_string(p.general);
+	if (p.hasSubclass &&
+	    (p.general == Pattern::GeneralClassification::Arch))
+		s << " (" << BE::Framework::Enumeration::to_string(
+		    p.subclass.arch) << ')';
+	else if (p.hasSubclass &&
+	    (p.general == Pattern::GeneralClassification::Whorl)) {
+		s << " (" << BE::Framework::Enumeration::to_string(
+		    p.subclass.whorl);
+		if (p.hasWhorlDeltaRelationship)
+			s << ", WDR: " << BE::Framework::Enumeration::to_string(
+			    p.whorlDeltaRelationship);
+		s << ')';
+	}
+
+	return (s);
+}
+
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::DeltaPoint& edp)
 {
+ 	using BE::Framework::Enumeration::operator<<;
+
 	s << edp.location << "\n";
 	s << "DUP: "; if (edp.has_dup) s << edp.dup; else s << "N/A";
 	s << "; ";
@@ -411,43 +547,72 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::~ExtendedFeatureSet
 
 BiometricEvaluation::Feature::AN2K11EFS::ImageInfo
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getImageInfo()
+    const
 {
 	return (this->pimpl->getImageInfo());
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::MinutiaPointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getMPS()
+    const
 {
 	return (this->pimpl->getMPS());
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getMRCI()
+    const
 {
 	return (this->pimpl->getMRCI());
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::CorePointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getCPS()
+    const
 {
 	return (this->pimpl->getCPS());
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::DeltaPointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getDPS()
+    const
 {
 	return (this->pimpl->getDPS());
 }
 
 std::vector<BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod>
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getLPM()
+    const
 {
 	return (this->pimpl->getLPM());
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::NoFeaturesPresent
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getNFP()
+    const
 {
 	return (this->pimpl->getNFP());
 }
+
+BiometricEvaluation::Feature::AN2K11EFS::ExaminerAnalysisAssessment
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getEAA()
+    const
+{
+	return (this->pimpl->getEAA());
+}
+
+BiometricEvaluation::Feature::AN2K11EFS::Substrate
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getLSB()
+    const
+{
+	return (this->pimpl->getLSB());
+}
+
+std::vector<BiometricEvaluation::Feature::AN2K11EFS::Pattern>
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getPAT()
+    const
+{
+	return (this->pimpl->getPAT());
+}
+
 

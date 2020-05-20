@@ -80,13 +80,28 @@ namespace BiometricEvaluation
 
 			~Impl();
 
-			Feature::AN2K11EFS::ImageInfo getImageInfo();
-			Feature::AN2K11EFS::MinutiaPointSet getMPS();
-			Feature::AN2K11EFS::MinutiaeRidgeCountInfo getMRCI();
-			Feature::AN2K11EFS::CorePointSet getCPS();
-			Feature::AN2K11EFS::DeltaPointSet getDPS();
-			Feature::AN2K11EFS::NoFeaturesPresent getNFP();
-			std::vector<AN2K11EFS::LatentProcessingMethod> getLPM();
+			Feature::AN2K11EFS::ImageInfo getImageInfo() const;
+			Feature::AN2K11EFS::MinutiaPointSet getMPS() const;
+			Feature::AN2K11EFS::MinutiaeRidgeCountInfo getMRCI()
+			    const;
+			Feature::AN2K11EFS::CorePointSet getCPS() const;
+			Feature::AN2K11EFS::DeltaPointSet getDPS() const;
+			Feature::AN2K11EFS::NoFeaturesPresent getNFP()
+			    const;
+			std::vector<AN2K11EFS::LatentProcessingMethod> getLPM()
+			    const;
+
+			Feature::AN2K11EFS::ExaminerAnalysisAssessment
+			getEAA()
+			    const;
+
+			Feature::AN2K11EFS::Substrate
+			getLSB()
+			    const;
+
+			std::vector<Feature::AN2K11EFS::Pattern>
+			getPAT()
+			    const;
 
 		private:
 			Feature::AN2K11EFS::ImageInfo _ii{};
@@ -96,6 +111,9 @@ namespace BiometricEvaluation
 			Feature::AN2K11EFS::NoFeaturesPresent _nfp{};
 			Feature::AN2K11EFS::MinutiaeRidgeCountInfo _mrci{};
 			std::vector<AN2K11EFS::LatentProcessingMethod> _lpm{};
+			Feature::AN2K11EFS::ExaminerAnalysisAssessment _eaa{};
+			Feature::AN2K11EFS::Substrate _lsb{};
+			std::vector<AN2K11EFS::Pattern> _pat{};
 
 			void readType9Record(
 			    Memory::uint8Array &buf,

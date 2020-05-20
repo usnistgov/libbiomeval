@@ -43,44 +43,72 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::~Impl()
 
 BiometricEvaluation::Feature::AN2K11EFS::ImageInfo
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getImageInfo()
+    const
 {
 	return (this->_ii);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::MinutiaPointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getMPS()
+    const
 {
 	return (this->_mps);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getMRCI()
+    const
 {
 	return (this->_mrci);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::CorePointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getCPS()
+    const
 {
 	return (this->_cps);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::DeltaPointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getDPS()
+    const
 {
 	return (this->_dps);
 }
 
 std::vector<BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod>
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getLPM()
+    const
 {
 	return (this->_lpm);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::NoFeaturesPresent
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getNFP()
+    const
 {
 	return (this->_nfp);
+}
+
+BiometricEvaluation::Feature::AN2K11EFS::ExaminerAnalysisAssessment
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getEAA()
+    const
+{
+	return (this->_eaa);
+}
+
+BiometricEvaluation::Feature::AN2K11EFS::Substrate
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getLSB()
+    const
+{
+	return (this->_lsb);
+}
+
+std::vector<BiometricEvaluation::Feature::AN2K11EFS::Pattern>
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getPAT()
+    const
+{
+	return (this->_pat);
 }
 
 /*
@@ -93,6 +121,7 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getNFP()
 static const int EFS_ROI_ID = 300;
 static const int EFS_ORT_ID = 301;
 static const int EFS_FPP_ID = 302;
+static const int EFS_PAT_ID = 307;
 static const int EFS_TRV_ID = 314;
 static const int EFS_PLR_ID = 315;
 static const int EFS_COR_ID = 320;
@@ -105,6 +134,8 @@ static const int EFS_MRC_ID = 333;
 static const int EFS_NMIN_ID = 334;
 static const int EFS_RCC_ID = 335;
 static const int EFS_LPM_ID = 352;
+static const int EFS_EAA_ID = 353;
+static const int EFS_LSB_ID = 355;
 
 static const std::string pDelim = "-";	// Separator for points
 static const std::string cDelim = ",";	// Separator for coordinates
@@ -654,6 +685,260 @@ readNFP(
 }
 
 static void
+readEAA(
+    const RECORD *type9,
+    BiometricEvaluation::Feature::AN2K11EFS::ExaminerAnalysisAssessment &eaa)
+{
+	FIELD *field;
+	int idx;
+
+	/* EAA is optional */
+	if (lookup_ANSI_NIST_field(&field, &idx, EFS_EAA_ID, type9) == FALSE)
+		return;
+	if (field->num_subfields <= 0)
+		return;
+	if (field->subfields[0]->num_items < 5)
+		throw BE::Error::DataError("Insufficient item count "
+		    "in EFS examiner analysis");
+
+	static const std::map<std::string, BE::Feature::AN2K11EFS::
+	   ValueAssessmentCode> vacMap{
+		{"VALUE", BE::Feature::AN2K11EFS::ValueAssessmentCode::VID},
+		{"LIMITED", BE::Feature::AN2K11EFS::ValueAssessmentCode::VEO},
+		{"NOVALUE", BE::Feature::AN2K11EFS::ValueAssessmentCode::NV},
+		{"NONPRINT", BE::Feature::AN2K11EFS::ValueAssessmentCode::
+		    NonPrint}
+	};
+
+	eaa.present = true;
+	try {
+		eaa.aav = vacMap.at((char*)field->subfields[0]->items[0]->
+		    value);
+	} catch (const std::out_of_range&) {
+		throw BE::Error::DataError{"Invalid AAV in EAA: " +
+		    std::string((char*)field->subfields[0]->items[0]->value)};
+	}
+	eaa.aln = (char*)field->subfields[0]->items[1]->value;
+	eaa.afn = (char*)field->subfields[0]->items[2]->value;
+	eaa.aaf = (char*)field->subfields[0]->items[3]->value;
+	eaa.amt = (char*)field->subfields[0]->items[4]->value;
+
+	if (field->subfields[0]->num_items >= 6)
+		eaa.acm = (char*)field->subfields[0]->items[5]->value;
+
+	if (field->subfields[0]->num_items >= 7) {
+		eaa.has_cxf = true;
+		eaa.cxf = (std::string((char*)field->subfields[0]->items[6]->
+		    value) == "COMPLEX");
+	} else
+		eaa.has_cxf = false;
+
+}
+
+static void
+readLSB(
+    const RECORD *type9,
+    BiometricEvaluation::Feature::AN2K11EFS::Substrate &lsb)
+{
+	FIELD *field{nullptr};
+	int idx{};
+
+	/* LSB is optional */
+	if (lookup_ANSI_NIST_field(&field, &idx, EFS_LSB_ID, type9) == FALSE)
+		return;
+	if (field->num_subfields <= 0)
+		return;
+	if (field->subfields[0]->num_items < 1)
+		throw BE::Error::DataError("Insufficient item count in EFS "
+		    "substrate");
+
+	static const std::map<std::string, BE::Feature::AN2K11EFS::
+	    SubstrateCode> scMap{
+		{"1A", BE::Feature::AN2K11EFS::SubstrateCode::Paper},
+		{"1B", BE::Feature::AN2K11EFS::SubstrateCode::Cardboard},
+		{"1C", BE::Feature::AN2K11EFS::SubstrateCode::UnfinishedWood},
+		{"1D", BE::Feature::AN2K11EFS::SubstrateCode::
+		    OtherOrUnknownPorous},
+		{"2A", BE::Feature::AN2K11EFS::SubstrateCode::Plastic},
+		{"2B", BE::Feature::AN2K11EFS::SubstrateCode::Glass},
+		{"2C", BE::Feature::AN2K11EFS::SubstrateCode::PaintedMetal},
+		{"2D", BE::Feature::AN2K11EFS::SubstrateCode::UnpaintedMetal},
+		{"2E", BE::Feature::AN2K11EFS::SubstrateCode::
+		    GlossyPaintedSurface},
+		{"2F", BE::Feature::AN2K11EFS::SubstrateCode::AdhesiveSideTape},
+		{"2G", BE::Feature::AN2K11EFS::SubstrateCode::NonAdhesiveSideTape},
+		{"2H", BE::Feature::AN2K11EFS::SubstrateCode::AluminumFoil},
+		{"2I", BE::Feature::AN2K11EFS::SubstrateCode::
+		    OtherOrUnknownNonporous},
+		{"3A", BE::Feature::AN2K11EFS::SubstrateCode::Rubber},
+		{"3B", BE::Feature::AN2K11EFS::SubstrateCode::Leather},
+		{"3C", BE::Feature::AN2K11EFS::SubstrateCode::
+		    EmulsionSidePhotograph},
+		{"3D", BE::Feature::AN2K11EFS::SubstrateCode::
+		    PaperSidePhotograph},
+		{"3E", BE::Feature::AN2K11EFS::SubstrateCode::
+		    GlossyOrSemiglossyPaperOrCardboard},
+		{"3F", BE::Feature::AN2K11EFS::SubstrateCode::
+		    SatinOrFlatFinishedPaintedSurface},
+		{"3G", BE::Feature::AN2K11EFS::SubstrateCode::
+		    OtherOrUnknownSemiporous},
+		{"4A", BE::Feature::AN2K11EFS::SubstrateCode::Other},
+		{"4B", BE::Feature::AN2K11EFS::SubstrateCode::Unknown}
+	};
+
+	lsb.present = true;
+	try {
+		lsb.cls = scMap.at((char*)field->subfields[0]->items[0]->value);
+	} catch (const std::out_of_range&) {
+		throw BE::Error::DataError{"Invalid CLS in LSB: " +
+		    std::string((char*)field->subfields[0]->items[0]->value)};
+	}
+
+	if (field->subfields[0]->num_items >= 2)
+		lsb.osd = (char*)field->subfields[0]->items[1]->value;
+
+}
+
+static void
+readPAT(
+    const RECORD *type9,
+    std::vector<BiometricEvaluation::Feature::AN2K11EFS::Pattern> &pats)
+{
+	static const std::map<std::string, BE::Feature::AN2K11EFS::Pattern::
+	    GeneralClassification> gcMap{
+		{"AU", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Arch},
+		{"WU", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Whorl},
+		{"RS", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::RightSlantLoop},
+		{"LS", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::LeftSlantLoop},
+		{"XX", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Amputation},
+		{"UP", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::TemporarilyUnavailable},
+		{"UC", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Unclassifiable},
+		{"SR", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::Scar},
+		{"DR", BE::Feature::AN2K11EFS::Pattern::
+		    GeneralClassification::DissociatedRidges}
+	};
+
+	static const std::map<std::string, BE::Feature::AN2K11EFS::Pattern::
+	    ArchSubclassification> archMap{
+		{"PA", BE::Feature::AN2K11EFS::Pattern::
+		    ArchSubclassification::Plain},
+		{"TA", BE::Feature::AN2K11EFS::Pattern::
+		    ArchSubclassification::Tented}
+	};
+
+	static const std::map<std::string, BE::Feature::AN2K11EFS::Pattern::
+	    WhorlSubclassification> whorlMap{
+		{"PW", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlSubclassification::Plain},
+		{"CP", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlSubclassification::CentralPocketLoop},
+		{"DL", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlSubclassification::DoubleLoop},
+		{"AW", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlSubclassification::Accidental},
+	};
+	static const std::map<std::string, BE::Feature::AN2K11EFS::Pattern::
+	    WhorlDeltaRelationship> whorlDeltaMap{
+		{"I", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlDeltaRelationship::Inner},
+		{"M", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlDeltaRelationship::Meeting},
+		{"O", BE::Feature::AN2K11EFS::Pattern::
+		    WhorlDeltaRelationship::Outer}
+	};
+
+	FIELD *field{nullptr};
+	int idx{};
+
+	/* PAT is optional */
+	if (lookup_ANSI_NIST_field(&field, &idx, EFS_PAT_ID, type9) == FALSE)
+		return;
+	if (field->num_subfields <= 0)
+		return;
+
+	/* Maximum of 7 pattern classifications */
+	if (field->num_subfields > 7)
+		throw BE::Error::DataError{"Too many subfields for EFS PAT"};
+
+	for (int i{0}; i < field->num_subfields; ++i) {
+		if (field->subfields[i]->num_items < 1)
+			throw BE::Error::DataError{"Insufficient item count "
+			    "for PAT subfield #" + std::to_string(i + 1)};
+
+		BE::Feature::AN2K11EFS::Pattern pat{};
+		pat.present = true;
+		try {
+			pat.general = gcMap.at((char*)field->subfields[i]->
+			    items[0]->value);
+		} catch (const std::out_of_range&) {
+			throw BE::Error::DataError{"Invalid GCF in PAT "
+			    "subfield #" + std::to_string(i + 1) + ": " +
+			    std::string((char*)field->subfields[i]->items[0]->
+			    value)};
+		}
+
+		if ((field->subfields[i]->num_items < 2) ||
+		    std::string((char*)field->subfields[i]->items[1]->value).
+		    empty()) {
+			pats.push_back(pat);
+			continue;
+		}
+		pat.hasSubclass = true;
+		try {
+			if (pat.general == BE::Feature::AN2K11EFS::Pattern::
+			    GeneralClassification::Arch)
+				pat.subclass.arch = archMap.at((char*)field->
+				    subfields[i]->items[1]->value);
+			else if (pat.general == BE::Feature::AN2K11EFS::
+			    Pattern::GeneralClassification::Whorl)
+				pat.subclass.whorl = whorlMap.at((char*)field->
+				    subfields[i]->items[1]->value);
+			else
+				throw std::out_of_range{"Invalid GCF for PAT "
+				    "SUB, subfield #" + std::to_string(i + 1)};
+		} catch (const std::out_of_range&) {
+			throw BE::Error::DataError{"Invalid SUB in PAT "
+			    "subfield #" + std::to_string(i + 1) + ": " +
+			    std::string((char*)field->subfields[i]->items[1]->
+			    value)};
+		}
+
+		if ((field->subfields[i]->num_items < 3) ||
+		    std::string((char*)field->subfields[i]->items[2]->value).
+		    empty()) {
+			pats.push_back(pat);
+			continue;
+		}
+		pat.hasWhorlDeltaRelationship = true;
+		try {
+			if (pat.general == BE::Feature::AN2K11EFS::Pattern::
+			    GeneralClassification::Whorl)
+				pat.whorlDeltaRelationship = whorlDeltaMap.at(
+				    (char*)field->subfields[i]->items[2]->
+				    value);
+			else
+				throw std::out_of_range{"Invalid GCF for PAT "
+				    "WDR, subfield #" + std::to_string(i + 1)};
+		} catch (const std::out_of_range&) {
+			throw BE::Error::DataError{"Invalid WDR in PAT "
+			    "subfield #" + std::to_string(i + 1) + ": " +
+			    std::string((char*)field->subfields[i]->items[2]->
+			    value)};
+		}
+
+		pats.push_back(pat);
+	}
+}
+
+static void
 readMRCI(
     const RECORD *type9,
     BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo &mrci)
@@ -795,5 +1080,8 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::readType9Reco
 	readLPM(type9, this->_lpm);
 	readNFP(type9, this->_nfp);
 	readMRCI(type9, this->_mrci);
+	readEAA(type9, this->_eaa);
+	readLSB(type9, this->_lsb);
+	readPAT(type9, this->_pat);
 }
 

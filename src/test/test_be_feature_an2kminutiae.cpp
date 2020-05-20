@@ -143,6 +143,21 @@ testAN2K11EFS(const std::string &fname)
 			cout << " * " << lpm << '\n';
 	}
 
+	cout << "\nPattern Classification:\n";
+	const auto pats = an2kefs->getPAT();
+	if (pats.empty())
+		cout << " * [No PAT specified]\n";
+	else {
+		for (const auto &pat : pats)
+			cout << " * " << pat << '\n';
+	}
+
+	cout << "\nLatent Substrate\n";
+	cout << an2kefs->getLSB() << '\n';
+
+	cout << "\nExaminer Analysis Assessment\n";
+	cout << an2kefs->getEAA() << '\n';
+
 	return(0);
 }
 

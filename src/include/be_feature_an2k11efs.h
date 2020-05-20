@@ -56,8 +56,6 @@ namespace BiometricEvaluation
 			MED,
 			UNK
 		};
-		std::ostream& operator<< (std::ostream&,
-		    const FingerprintSegment&);
 
 		/**
 		 * @brief
@@ -69,8 +67,6 @@ namespace BiometricEvaluation
 			L
 		};
 		using OCF = OffCenterFingerPosition;
-		std::ostream& operator<< (std::ostream&,
-		    const OffCenterFingerPosition&);
 
 		/**
 		 * @brief
@@ -120,7 +116,6 @@ namespace BiometricEvaluation
 			 */
 			U
 		};
-		std::ostream& operator<< (std::ostream&, const TonalReversal&);
 
 		/**
 		 * @brief
@@ -132,7 +127,6 @@ namespace BiometricEvaluation
 			/** Image may be be laterally reversed. */
 			U
 		};
-		std::ostream& operator<< (std::ostream&, const LateralReversal&);
 
 		/**
 		 * @brief
@@ -224,8 +218,6 @@ namespace BiometricEvaluation
 			M
 		};
 		using MORC = enum MethodOfRidgeCounting;
-		std::ostream& operator<< (std::ostream&,
-		    const MethodOfRidgeCounting&);
 
 		/**
 		 * @brief
@@ -254,8 +246,6 @@ namespace BiometricEvaluation
 			QUADRANT
 		};
 		using MRA = enum MinutiaeRidgeCountAlgorithm;
-		std::ostream& operator<< (std::ostream&,
-		    const MinutiaeRidgeCountAlgorithm&);
 
 		/**
 		 * @brief
@@ -324,7 +314,6 @@ namespace BiometricEvaluation
 			/** Other */
 			Other
 		};
-		std::ostream& operator<< (std::ostream&, const DeltaType&);
 
 		/**
 		 * @brief
@@ -425,6 +414,160 @@ namespace BiometricEvaluation
 		};
 		using LPM = LatentProcessingMethod;
 
+		/** Code indicating the value of a print */
+		enum class ValueAssessmentCode
+		{
+			Value,
+			ValueForIndividualization = Value,
+			VID = Value,
+			Limited,
+			ValueForExclusionOnly = Limited,
+			VEO = Limited,
+			NoValue,
+			NV = NoValue,
+			NonPrint
+		};
+
+		/** Examiner's assessment of an impression */
+		struct ExaminerAnalysisAssessment
+		{
+			/** Whether this field was present */
+			bool present{false};
+
+			/** Value of impression (required) */
+			ValueAssessmentCode aav;
+			/** Examiner's surname (required) */
+			std::string aln;
+			/** Examiner's first and middle names (required) */
+			std::string afn;
+			/** Examiner's employer/affiliation (required) */
+			std::string aaf;
+			/** Date and time determination made (GMT, required) */
+			std::string amt;
+			/** Comment (optional) */
+			std::string acm{};
+			/** Whether `cxf` is populated (required) */
+			bool has_cxf{false};
+			/** Whether analysis was complex (optional) */
+			bool cxf{};
+		};
+		std::ostream&
+		operator<<(
+		     std::ostream&,
+		     const ExaminerAnalysisAssessment&);
+
+		/** Substrates on which latent impression was deposited */
+		enum class SubstrateCode
+		{
+			Paper,
+			Cardboard,
+			UnfinishedWood,
+			OtherOrUnknownPorous,
+
+			Plastic,
+			Glass,
+			PaintedMetal,
+			UnpaintedMetal,
+			GlossyPaintedSurface,
+			AdhesiveSideTape,
+			NonAdhesiveSideTape,
+			AluminumFoil,
+			OtherOrUnknownNonporous,
+
+			Rubber,
+			Leather,
+			EmulsionSidePhotograph,
+			PaperSidePhotograph,
+			GlossyOrSemiglossyPaperOrCardboard,
+			SatinOrFlatFinishedPaintedSurface,
+			OtherOrUnknownSemiporous,
+
+			Other,
+			Unknown
+		};
+
+		/** Description of surface on which latent was deposited */
+		struct Substrate
+		{
+			/** Whether this field was present */
+			bool present{false};
+
+			/** Type of substrate (required) */
+			SubstrateCode cls{SubstrateCode::Unknown};
+			/** Description and/or clarification (optional) */
+			std::string osd{};
+		};
+		std::ostream&
+		operator<<(
+		     std::ostream&,
+		     const Substrate&);
+
+		/** Fingerprint classification. */
+		struct Pattern
+		{
+			/**
+			 * @brief
+			 * General pattern classification
+			 *
+			 * @seealso
+			 * BiometricEvaluation::Finger::PatternClassification
+			 */
+			enum class GeneralClassification
+			{
+				Arch,
+				Whorl,
+				RightSlantLoop,
+				LeftSlantLoop,
+				Amputation,
+				TemporarilyUnavailable,
+				Unclassifiable,
+				Scar,
+				DissociatedRidges
+			};
+
+			/* Details subclassification for arches */
+			enum class ArchSubclassification
+			{
+				Plain,
+				Tented
+			};
+
+			/* Details subclassification for whorls */
+			enum class WhorlSubclassification
+			{
+				Plain,
+				CentralPocketLoop,
+				DoubleLoop,
+				Accidental
+			};
+
+			/** Relationship between multiple deltas in a whorl */
+			enum class WhorlDeltaRelationship
+			{
+				Inner,
+				Outer,
+				Meeting
+			};
+
+			bool present{false};
+
+			GeneralClassification general;
+
+			bool hasSubclass{false};
+			union
+			{
+				ArchSubclassification arch;
+				WhorlSubclassification whorl;
+			} subclass;
+
+			bool hasWhorlDeltaRelationship{false};
+			WhorlDeltaRelationship whorlDeltaRelationship;
+		};
+		std::ostream&
+		operator<<(
+		     std::ostream&,
+		     const Pattern&);
+
 		/**
 		 * @brief
 		 * A class to represent the Extended Feature Set optionally
@@ -498,7 +641,8 @@ namespace BiometricEvaluation
 			 * The information about the image.
 			 */
 			ImageInfo
-			getImageInfo();
+			getImageInfo()
+			    const;
 
 			/**
 			 * @brief
@@ -511,7 +655,8 @@ namespace BiometricEvaluation
 			 * The set of minutia points.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::MinutiaPointSet
-		 	getMPS();
+		 	getMPS()
+		 	    const;
 
 			/**
 			 * @brief
@@ -526,7 +671,8 @@ namespace BiometricEvaluation
 			 * The minutiae ridge count information structure.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo
-			getMRCI();
+			getMRCI()
+			    const;
 
 			/**
 			 * @brief
@@ -539,7 +685,8 @@ namespace BiometricEvaluation
 			 * The set of core points.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::CorePointSet
-		 	getCPS();
+		 	getCPS()
+		 	    const;
 
 			/**
 			 * @brief
@@ -552,7 +699,8 @@ namespace BiometricEvaluation
 			 * The set of delta points.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::DeltaPointSet
-		 	getDPS();
+		 	getDPS()
+		 	    const;
 
 		 	/**
 			 * @brief
@@ -565,7 +713,8 @@ namespace BiometricEvaluation
 			 * The set of latent processing methods.
 			 */
 			std::vector<LatentProcessingMethod>
-		 	getLPM();
+		 	getLPM()
+		 	    const;
 
 			/**
 			 * Obtain the No Features Present indicators.
@@ -573,7 +722,37 @@ namespace BiometricEvaluation
 			 * The flags for No Features Present.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::NoFeaturesPresent
-			getNFP();
+			getNFP()
+			    const;
+
+			/**
+			 * @brief
+			 * Obtain the examiner's analysis assessment of the
+			 * print.
+			 *
+			 * @return
+			 * Examiner's analysis assessment.
+			 */
+			ExaminerAnalysisAssessment
+			getEAA()
+			    const;
+
+			/**
+			 * @return
+			 * Substrate/surface on which the impression was
+			 * deposited.
+			 */
+			Substrate
+			getLSB()
+			    const;
+
+			/**
+			 * @return
+			 * Collection of possible pattern classifications.
+			 */
+			std::vector<Pattern>
+			getPAT()
+			    const;
 
 			~ExtendedFeatureSet();
 
@@ -616,6 +795,30 @@ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod,
     BE_Feature_AN2K11EFS_LatentProcessingMethod_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
+    BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::SubstrateCode,
+    BE_Feature_AN2K11EFS_SubstrateCode_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::GeneralClassification,
+    BE_Feature_AN2K11EFS_Pattern_GeneralClassification_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::ArchSubclassification,
+    BE_Feature_AN2K11EFS_Pattern_ArchSubclassification_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlSubclassification,
+    BE_Feature_AN2K11EFS_Pattern_WhorlSubclassification_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship,
+    BE_Feature_AN2K11EFS_Pattern_WhorlDeltaRelationship_EnumToStringMap);
 
 #endif /* __BE_FEATURE_AN2K11EFS_H__ */
 
