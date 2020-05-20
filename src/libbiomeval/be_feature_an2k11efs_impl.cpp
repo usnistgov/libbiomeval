@@ -890,7 +890,8 @@ readPAT(
 				pat.subclass.whorlSubclass = whorlMap.at((char*)
 				    field->subfields[i]->items[1]->value);
 			else
-				throw std::out_of_range{"Invalid GCF for SUB"};
+				throw std::out_of_range{"Invalid GCF for PAT "
+				    "SUB, subfield #" + std::to_string(i + 1)};
 		} catch (const std::out_of_range&) {
 			throw BE::Error::DataError{"Invalid SUB in PAT "
 			    "subfield #" + std::to_string(i + 1) + ": " +
@@ -910,7 +911,8 @@ readPAT(
 				    (char*)field->subfields[i]->items[2]->
 				    value);
 			else
-				throw std::out_of_range{"Invalid FCF for WDR"};
+				throw std::out_of_range{"Invalid GCF for PAT "
+				    "WDR, subfield #" + std::to_string(i + 1)};
 		} catch (const std::out_of_range&) {
 			throw BE::Error::DataError{"Invalid WDR in PAT "
 			    "subfield #" + std::to_string(i + 1) + ": " +
