@@ -878,7 +878,9 @@ readPAT(
 			    value)};
 		}
 
-		if (field->subfields[i]->num_items < 2) {
+		if ((field->subfields[i]->num_items < 2) ||
+		    std::string((char*)field->subfields[i]->items[1]->value).
+		    empty()) {
 			pats.push_back(pat);
 			continue;
 		}
@@ -902,7 +904,9 @@ readPAT(
 			    value)};
 		}
 
-		if (field->subfields[i]->num_items < 3) {
+		if ((field->subfields[i]->num_items < 3) ||
+		    std::string((char*)field->subfields[i]->items[2]->value).
+		    empty()) {
 			pats.push_back(pat);
 			continue;
 		}
