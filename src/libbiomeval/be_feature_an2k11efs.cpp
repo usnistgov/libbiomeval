@@ -34,15 +34,6 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::FingerprintSegment,
     BE_Feature_AN2K11EFS_FingerprintSegment_EnumToStringMap);
 
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const FingerprintSegment& fs)
-{
-	return (s << BE::Framework::Enumeration::to_string(fs));
-}
-
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::OCF,
     std::string>
 BE_Feature_AN2K11EFS_OCF_EnumToStringMap = {
@@ -54,20 +45,13 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::OCF,
     BE_Feature_AN2K11EFS_OCF_EnumToStringMap);
 
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const OffCenterFingerPosition& ocf)
-{
-	return (s << BE::Framework::Enumeration::to_string(ocf));
-}
-
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const Feature::AN2K11EFS::FPPPosition& fpp)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << "FGP: " << fpp.fgp;
 	s << "; ";
 	s << "FSM: "; if (fpp.has_fsm) s << fpp.fsm; else s << "N/A";
@@ -89,15 +73,6 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::TonalReversal,
     BE_Feature_AN2K11EFS_TonalReversal_EnumToStringMap);
 
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const AN2K11EFS::TonalReversal& trv)
-{
-	return (s << BE::Framework::Enumeration::to_string(trv));
-}
-
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::LateralReversal,
     std::string>
 BE_Feature_AN2K11EFS_LateralReversal_EnumToStringMap = {
@@ -111,16 +86,10 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
-    const AN2K11EFS::LateralReversal& plr)
-{
-	return (s << BE::Framework::Enumeration::to_string(plr));
-}
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
     const AN2K11EFS::ImageInfo& ii)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 #if 0
 	/* Alternative output: All fields on one line demarcated by [] */
 	s << "ROI = [" << ii.roi;
@@ -150,6 +119,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::MinutiaPoint& mp)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << static_cast<const Feature::MinutiaPoint&>(mp);
 	s << "MRU: "; if (mp.has_mru) s << mp.mru; else s << "N/A";
 	s << "; ";
@@ -162,6 +133,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::MinutiaeRidgeCount& mrc)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << "IdxA/IdxB/Count: " << mrc.mia << "/" << mrc.mib << "/" << mrc.mir;
 	s << "; ";
 	s << "MRN: "; if (mrc.has_mrn) s << mrc.mrn; else s << "N/A";
@@ -181,15 +154,6 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::MethodOfRidgeCounting,
     BE_Feature_AN2K11EFS_MethodOfRidgeCounting_EnumToStringMap);
 
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const AN2K11EFS::MethodOfRidgeCounting& morc)
-{
-	s << BE::Framework::Enumeration::to_string(morc);
-	return (s);
-}
-
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::MRA,
     std::string>
 BE_Feature_AN2K11EFS_MRA_EnumToStringMap = {
@@ -204,17 +168,10 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
-    const AN2K11EFS::MinutiaeRidgeCountAlgorithm& mra)
-{
-	s << BE::Framework::Enumeration::to_string(mra);
-	return (s);
-}
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
     const AN2K11EFS::MRCC& rcc)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << rcc.pointA << "<->" << rcc.pointB << "/(" <<
 	    rcc.morc << "): " << rcc.mcv << "\n";
 	return (s);
@@ -225,6 +182,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::MinutiaeRidgeCountInfo& mrci)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << "MRA: ";
 	if (mrci.has_mra) s << mrci.mra << "\n"; else s << "N/A\n";
 	s << "MRC: ";
@@ -253,6 +212,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::CorePoint& ecp)
 {
+	using BE::Framework::Enumeration::operator<<;
+
 	s << ecp.location;
 	s << "; ";
 	s << "CDI: "; if (ecp.has_cdi) s << ecp.cdi; else s << "N/A";
@@ -284,15 +245,6 @@ BE_Feature_AN2K11EFS_DeltaType_EnumToStringMap = {
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::DeltaType,
     BE_Feature_AN2K11EFS_DeltaType_EnumToStringMap);
-
-std::ostream&
-BiometricEvaluation::Feature::AN2K11EFS::operator<< (
-    std::ostream& s,
-    const AN2K11EFS::DeltaType& dtp)
-{
-	s << BE::Framework::Enumeration::to_string(dtp);
-	return (s);
-}
 
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::LPM, std::string>
 BE_Feature_AN2K11EFS_LatentProcessingMethod_EnumToStringMap = {
@@ -541,6 +493,8 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::DeltaPoint& edp)
 {
+ 	using BE::Framework::Enumeration::operator<<;
+
 	s << edp.location << "\n";
 	s << "DUP: "; if (edp.has_dup) s << edp.dup; else s << "N/A";
 	s << "; ";

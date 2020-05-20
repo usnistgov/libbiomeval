@@ -56,8 +56,6 @@ namespace BiometricEvaluation
 			MED,
 			UNK
 		};
-		std::ostream& operator<< (std::ostream&,
-		    const FingerprintSegment&);
 
 		/**
 		 * @brief
@@ -69,8 +67,6 @@ namespace BiometricEvaluation
 			L
 		};
 		using OCF = OffCenterFingerPosition;
-		std::ostream& operator<< (std::ostream&,
-		    const OffCenterFingerPosition&);
 
 		/**
 		 * @brief
@@ -120,7 +116,6 @@ namespace BiometricEvaluation
 			 */
 			U
 		};
-		std::ostream& operator<< (std::ostream&, const TonalReversal&);
 
 		/**
 		 * @brief
@@ -132,7 +127,6 @@ namespace BiometricEvaluation
 			/** Image may be be laterally reversed. */
 			U
 		};
-		std::ostream& operator<< (std::ostream&, const LateralReversal&);
 
 		/**
 		 * @brief
@@ -224,8 +218,6 @@ namespace BiometricEvaluation
 			M
 		};
 		using MORC = enum MethodOfRidgeCounting;
-		std::ostream& operator<< (std::ostream&,
-		    const MethodOfRidgeCounting&);
 
 		/**
 		 * @brief
@@ -254,8 +246,6 @@ namespace BiometricEvaluation
 			QUADRANT
 		};
 		using MRA = enum MinutiaeRidgeCountAlgorithm;
-		std::ostream& operator<< (std::ostream&,
-		    const MinutiaeRidgeCountAlgorithm&);
 
 		/**
 		 * @brief
@@ -324,7 +314,6 @@ namespace BiometricEvaluation
 			/** Other */
 			Other
 		};
-		std::ostream& operator<< (std::ostream&, const DeltaType&);
 
 		/**
 		 * @brief
