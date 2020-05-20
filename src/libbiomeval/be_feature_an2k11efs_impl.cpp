@@ -883,12 +883,12 @@ readPAT(
 		try {
 			if (pat.general == BE::Feature::AN2K11EFS::Pattern::
 			    GeneralClassification::Arch)
-				pat.subclass.archSubclass = archMap.at((char*)
-				    field->subfields[i]->items[1]->value);
+				pat.subclass.arch = archMap.at((char*)field->
+				    subfields[i]->items[1]->value);
 			else if (pat.general == BE::Feature::AN2K11EFS::
 			    Pattern::GeneralClassification::Whorl)
-				pat.subclass.whorlSubclass = whorlMap.at((char*)
-				    field->subfields[i]->items[1]->value);
+				pat.subclass.whorl = whorlMap.at((char*)field->
+				    subfields[i]->items[1]->value);
 			else
 				throw std::out_of_range{"Invalid GCF for PAT "
 				    "SUB, subfield #" + std::to_string(i + 1)};

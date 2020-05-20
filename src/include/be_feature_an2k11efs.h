@@ -551,8 +551,8 @@ namespace BiometricEvaluation
 			bool hasSubclass{false};
 			union
 			{
-				ArchSubclassification archSubclass;
-				WhorlSubclassification whorlSubclass;
+				ArchSubclassification arch;
+				WhorlSubclassification whorl;
 			} subclass;
 
 			bool hasWhorlDeltaRelationship{false};
