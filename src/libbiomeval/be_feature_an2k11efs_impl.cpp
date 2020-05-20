@@ -43,42 +43,49 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::~Impl()
 
 BiometricEvaluation::Feature::AN2K11EFS::ImageInfo
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getImageInfo()
+    const
 {
 	return (this->_ii);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::MinutiaPointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getMPS()
+    const
 {
 	return (this->_mps);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getMRCI()
+    const
 {
 	return (this->_mrci);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::CorePointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getCPS()
+    const
 {
 	return (this->_cps);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::DeltaPointSet
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getDPS()
+    const
 {
 	return (this->_dps);
 }
 
 std::vector<BiometricEvaluation::Feature::AN2K11EFS::LatentProcessingMethod>
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getLPM()
+    const
 {
 	return (this->_lpm);
 }
 
 BiometricEvaluation::Feature::AN2K11EFS::NoFeaturesPresent
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getNFP()
+    const
 {
 	return (this->_nfp);
 }

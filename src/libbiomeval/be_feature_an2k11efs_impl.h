@@ -80,13 +80,16 @@ namespace BiometricEvaluation
 
 			~Impl();
 
-			Feature::AN2K11EFS::ImageInfo getImageInfo();
-			Feature::AN2K11EFS::MinutiaPointSet getMPS();
-			Feature::AN2K11EFS::MinutiaeRidgeCountInfo getMRCI();
-			Feature::AN2K11EFS::CorePointSet getCPS();
-			Feature::AN2K11EFS::DeltaPointSet getDPS();
-			Feature::AN2K11EFS::NoFeaturesPresent getNFP();
-			std::vector<AN2K11EFS::LatentProcessingMethod> getLPM();
+			Feature::AN2K11EFS::ImageInfo getImageInfo() const;
+			Feature::AN2K11EFS::MinutiaPointSet getMPS() const;
+			Feature::AN2K11EFS::MinutiaeRidgeCountInfo getMRCI()
+			    const;
+			Feature::AN2K11EFS::CorePointSet getCPS() const;
+			Feature::AN2K11EFS::DeltaPointSet getDPS() const;
+			Feature::AN2K11EFS::NoFeaturesPresent getNFP()
+			    const;
+			std::vector<AN2K11EFS::LatentProcessingMethod> getLPM()
+			    const;
 
 			Feature::AN2K11EFS::ExaminerAnalysisAssessment
 			getEAA()

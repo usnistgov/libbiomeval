@@ -652,7 +652,8 @@ namespace BiometricEvaluation
 			 * The information about the image.
 			 */
 			ImageInfo
-			getImageInfo();
+			getImageInfo()
+			    const;
 
 			/**
 			 * @brief
@@ -665,7 +666,8 @@ namespace BiometricEvaluation
 			 * The set of minutia points.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::MinutiaPointSet
-		 	getMPS();
+		 	getMPS()
+		 	    const;
 
 			/**
 			 * @brief
@@ -680,7 +682,8 @@ namespace BiometricEvaluation
 			 * The minutiae ridge count information structure.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo
-			getMRCI();
+			getMRCI()
+			    const;
 
 			/**
 			 * @brief
@@ -693,7 +696,8 @@ namespace BiometricEvaluation
 			 * The set of core points.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::CorePointSet
-		 	getCPS();
+		 	getCPS()
+		 	    const;
 
 			/**
 			 * @brief
@@ -706,7 +710,8 @@ namespace BiometricEvaluation
 			 * The set of delta points.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::DeltaPointSet
-		 	getDPS();
+		 	getDPS()
+		 	    const;
 
 		 	/**
 			 * @brief
@@ -719,7 +724,8 @@ namespace BiometricEvaluation
 			 * The set of latent processing methods.
 			 */
 			std::vector<LatentProcessingMethod>
-		 	getLPM();
+		 	getLPM()
+		 	    const;
 
 			/**
 			 * Obtain the No Features Present indicators.
@@ -727,7 +733,8 @@ namespace BiometricEvaluation
 			 * The flags for No Features Present.
 			 */
 			BiometricEvaluation::Feature::AN2K11EFS::NoFeaturesPresent
-			getNFP();
+			getNFP()
+			    const;
 
 			/**
 			 * @brief
