@@ -110,6 +110,12 @@ BiometricEvaluation::Feature::AN2K7Minutiae::getDeltas() const
 	return (_deltaPointSet);
 }
 
+BiometricEvaluation::Finger::PositionSet
+BiometricEvaluation::Feature::AN2K7Minutiae::getPositions()
+    const
+{
+	return (this->_fgp);
+}
 
 BiometricEvaluation::Feature::AN2K7Minutiae::PatternClassification::Entry::Entry(
     bool standard,

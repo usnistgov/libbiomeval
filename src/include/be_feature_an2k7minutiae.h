@@ -224,6 +224,11 @@ namespace BiometricEvaluation
 			FingerprintReadingSystem
 			getOriginatingFingerprintReadingSystem() const;
 
+			/** Obtain the set of possible finger positions. */
+			Finger::PositionSet
+			getPositions()
+			    const;
+
 			/**
 			 * @brief
 			 * Obtain a Coordinate given an AN2K entry.
