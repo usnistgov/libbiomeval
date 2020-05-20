@@ -5,6 +5,7 @@
 *.so.*
 *.dylib
 nbis/big_endian_check
+build*/
 
 # Image test write raw files
 src/test/*raw
