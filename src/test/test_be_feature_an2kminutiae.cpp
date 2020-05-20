@@ -48,11 +48,13 @@ testAN2K7Minutiae(const std::string &fname)
 	Feature::RidgeCountItemSet rcs;
 	Feature::CorePointSet cps;
 	Feature::DeltaPointSet dps;
+	Finger::PositionSet fgp;
 	try {
 		mps = an2km->getMinutiaPoints();
 		rcs = an2km->getRidgeCountItems();
 		cps = an2km->getCores();
 		dps = an2km->getDeltas();
+		fgp = an2km->getPositions();
 
 	} catch (Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
@@ -71,6 +73,9 @@ testAN2K7Minutiae(const std::string &fname)
 	}
 	cout << "There are " << cps.size() << " cores." << endl;
 	cout << "There are " << dps.size() << " deltas." << endl;
+	cout << "There are " << fgp.size() << " positions.\n";
+	for (const auto &p : fgp)
+		cout << " * " << p << '\n';
 
 	/*
 	 * Test the AN2K7Minutiae specialization
