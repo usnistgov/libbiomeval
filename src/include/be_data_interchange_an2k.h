@@ -21,6 +21,7 @@
 #include <be_finger_an2kview_capture.h>
 #include <be_io_utility.h>
 #include <be_memory_autobuffer.h>
+#include <be_palm_an2kview.h>
 
 namespace BiometricEvaluation 
 {
@@ -258,7 +259,33 @@ namespace BiometricEvaluation
 			 */
 			std::vector<Finger::AN2KViewCapture>
 			    getFingerCaptures() const;
-			
+
+			/**
+			 * @brief
+			 * Obtain the count of capture (Type-15) palm views.
+			 *
+			 * @return
+			 * The number of palm captures in the AN2K record.
+			 */
+			uint32_t
+			getPalmCaptureCount()
+			    const;
+
+			/**
+			 * @brief
+			 * Obtain all capture (Type-15) palm views.
+			 * @details
+			 * The returned vector will be empty when no capture
+			 * views are present in the AN2KRecord.
+			 *
+			 * @return
+			 * A vector of AN2KView objects, each representing
+			 * a single capture palm view.
+			 */
+			std::vector<Palm::AN2KView>
+			getPalmCaptures()
+			    const;
+
 			/**
 			 * @brief
 			 * Obtain all minutiae (Type-9) data.
@@ -343,6 +370,7 @@ namespace BiometricEvaluation
 			
 			std::vector<Latent::AN2KView> _fingerLatents;
 			std::vector<Finger::AN2KViewCapture> _fingerCaptures;
+			std::vector<Palm::AN2KView> _palmCaptures;
 			/** Type-9 Records. */
 			std::vector<Finger::AN2KMinutiaeDataRecord> 
 			    _minutiaeDataRecordSet;
@@ -368,6 +396,7 @@ namespace BiometricEvaluation
     			void readMinutiaeData(Memory::uint8Array &buf);
 			void readFingerCaptures(Memory::uint8Array &buf);
 			void readFingerLatents(Memory::uint8Array &buf);
+			void readPalmCaptures(Memory::uint8Array &buf);
 		};
 	}
 }

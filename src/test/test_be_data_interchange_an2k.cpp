@@ -174,6 +174,16 @@ main(int argc, char* argv[]) {
 			printRecordInfo(an2k);
 
 			int i = 0;
+			std::vector<Palm ::AN2KView> palms =
+			    an2k.getPalmCaptures();
+			for (auto p: palms) {
+				cout << "[Palm View " << i <<"]" << endl;
+				printViewInfo(p, record.key + ".palm", i++);
+				cout << "\tPosition: " << p.getPosition()
+				    << endl;
+				cout << "[End of Palm View]" << endl;
+			}
+			i = 0;
 			std::vector<Finger::AN2KViewCapture> captures =
 			    an2k.getFingerCaptures();
 			for (auto c: captures) {

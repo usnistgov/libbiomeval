@@ -164,6 +164,21 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
 }
 
 void
+BiometricEvaluation::DataInterchange::AN2KRecord::readPalmCaptures(
+    Memory::uint8Array &buf)
+{
+	int i{1};
+	while (true) {
+		try {
+			this->_palmCaptures.emplace_back(buf, i);
+		} catch (const Error::DataError&) {
+			break;
+		}
+		++i;
+	}
+}
+
+void
 BiometricEvaluation::DataInterchange::AN2KRecord::readFingerCaptures(
     Memory::uint8Array &buf)
 {
@@ -250,6 +265,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readAN2KRecord(
 	readMinutiaeData(buf);
 	readFingerCaptures(buf);
 	readFingerLatents(buf);
+	readPalmCaptures(buf);
 }
 
 std::string
@@ -323,6 +339,20 @@ std::vector<BE::Finger::AN2KViewCapture>
 BiometricEvaluation::DataInterchange::AN2KRecord::getFingerCaptures() const
 {
 	return (_fingerCaptures);
+}
+
+uint32_t
+BiometricEvaluation::DataInterchange::AN2KRecord::getPalmCaptureCount()
+   const
+{
+	return (this->_palmCaptures.size());
+}
+
+std::vector<BE::Palm::AN2KView>
+BiometricEvaluation::DataInterchange::AN2KRecord::getPalmCaptures()
+    const
+{
+	return (this->_palmCaptures);
 }
 
 uint8_t
