@@ -170,4 +170,6 @@ endforeach(src)
 #
 # Link the test data into the build directory.
 #
-execute_process(COMMAND ln -s ${PROJECT_SOURCE_DIR}/test_data test_data)
+if (NOT EXISTS test_data)
+	execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/test_data test_data)
+endif (NOT EXISTS test_data)
