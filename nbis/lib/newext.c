@@ -54,11 +54,11 @@ of the software.
       extension with a new one.
 
       ROUTINES:
-#cat: newext - takes a filename, strips off the rightmost extenstion, and
+#cat: biomeval_nbis_newext - takes a filename, strips off the rightmost extenstion, and
 #cat:          appends a new extension.  This routine exits upon error.
-#cat: newext_ret - takes a filename, strips off the rightmost extenstion, and
+#cat: biomeval_nbis_newext_ret - takes a filename, strips off the rightmost extenstion, and
 #cat:          appends a new extension.  This routine returns an error code.
-#cat: newextlong - takes a pointer to a filename, strips the rightmost
+#cat: biomeval_nbis_newextlong - takes a pointer to a filename, strips the rightmost
 #cat:		 extenstion, and appends an arbitrary new extension.
 
 ***********************************************************************/
@@ -73,7 +73,7 @@ of the software.
 /* and strips off the rightmost extension (if one exists) and*/
 /* appends the extension passed.  Exits upon error.          */
 /*************************************************************/
-void newext(char *file, const int len, char *ext)
+void biomeval_nbis_newext(char *file, const int len, char *ext)
 {
    char *cptr;
 
@@ -82,7 +82,7 @@ void newext(char *file, const int len, char *ext)
       cptr--;
    if(cptr == file){
       if(strlen(file) == len)
-         fatalerr("newext","File manipulation exceeds allocated memory",NULL);
+         biomeval_nbis_fatalerr("biomeval_nbis_newext","File manipulation exceeds allocated memory",NULL);
       cptr += strlen(file);
       *cptr++ = '.';
       /* EDIT MDG 1/25/99
@@ -98,7 +98,7 @@ void newext(char *file, const int len, char *ext)
       *cptr = '\0';
    }
    if(strlen(file) + strlen(ext) > len)
-      fatalerr("newext", file, "proposed extension too long");
+      biomeval_nbis_fatalerr("biomeval_nbis_newext", file, "proposed extension too long");
 
    strcat(file,ext);
 }
@@ -108,7 +108,7 @@ void newext(char *file, const int len, char *ext)
 /* and striping off the rightmost extension (if one exists)  */
 /* & appends the extension passed.  Returns code upon error. */
 /*************************************************************/
-int newext_ret(char *file, int len, char *ext)
+int biomeval_nbis_newext_ret(char *file, int len, char *ext)
 {
    char *cptr;
 
@@ -118,7 +118,7 @@ int newext_ret(char *file, int len, char *ext)
    if(cptr == file){
       if(strlen(file) == len){
          fprintf(
-         stderr, "ERROR : newext_ret: file manipulation exceeds memory\n");
+         stderr, "ERROR : biomeval_nbis_newext_ret: file manipulation exceeds memory\n");
          return(-2);
       }
       cptr += strlen(file);
@@ -130,7 +130,7 @@ int newext_ret(char *file, int len, char *ext)
       *cptr = '\0';	 /* (char)NULL -> '\0' by JCK on 2009-02-04 */
    }
    if(strlen(file) + strlen(ext) > len){
-      fprintf(stderr, "ERROR : newext_ret : proposed extension too long\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_newext_ret : proposed extension too long\n");
       return(-3);
    }
 
@@ -140,7 +140,7 @@ int newext_ret(char *file, int len, char *ext)
 }
 
 /*************************************************************/
-void newextlong(char **file, char *ext)
+void biomeval_nbis_newextlong(char **file, char *ext)
 {
 int n, m;
 char *cptr, *tmp;
@@ -156,7 +156,7 @@ char *cptr, *tmp;
    {
       n += m;
       if ((tmp = (char *)calloc(n+1, sizeof(char))) == NULL)
-         syserr("newextlong", "calloc", "space for new string result");
+         biomeval_nbis_syserr("biomeval_nbis_newextlong", "calloc", "space for new string result");
       sprintf(tmp, "%s.%s", *file, ext);
       free(*file);
       *file = tmp;
@@ -172,7 +172,7 @@ char *cptr, *tmp;
       {
          n += m;
          if ((tmp = (char *)calloc(n+1, sizeof(char))) == NULL)
-            syserr("newextlong", "calloc", "space for new string result");
+            biomeval_nbis_syserr("biomeval_nbis_newextlong", "calloc", "space for new string result");
          sprintf(tmp, "%s%s", *file, ext);
          free(*file);
          *file = tmp;

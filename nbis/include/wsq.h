@@ -143,8 +143,8 @@ typedef struct hcode {
 */
 
 typedef struct table_dtt {
-   float *lofilt;
-   float *hifilt;
+   float *biomeval_nbis_lofilt;
+   float *biomeval_nbis_hifilt;
    unsigned char losz;
    unsigned char hisz;
    char lodef;
@@ -186,155 +186,155 @@ typedef struct header_frm {
 
 /* External global variables. */
 extern int debug;
-extern QUANT_VALS quant_vals;
-extern W_TREE w_tree[];
-extern Q_TREE q_tree[];
-extern DTT_TABLE dtt_table;
-extern DQT_TABLE dqt_table;
-extern DHT_TABLE dht_table[];
-extern FRM_HEADER_WSQ frm_header_wsq;
-extern float hifilt[];
-extern float lofilt[];
+extern QUANT_VALS biomeval_nbis_quant_vals;
+extern W_TREE biomeval_nbis_w_tree[];
+extern Q_TREE biomeval_nbis_q_tree[];
+extern DTT_TABLE biomeval_nbis_dtt_table;
+extern DQT_TABLE biomeval_nbis_dqt_table;
+extern DHT_TABLE biomeval_nbis_dht_table[];
+extern FRM_HEADER_WSQ biomeval_nbis_frm_header_wsq;
+extern float biomeval_nbis_hifilt[];
+extern float biomeval_nbis_lofilt[];
 
 
 /* External function definitions. */
 /* cropcoeff.c */
-extern void quant_block_sizes2(int *, int *, int *, const DQT_TABLE *,
+extern void biomeval_nbis_quant_block_sizes2(int *, int *, int *, const DQT_TABLE *,
                  W_TREE *, const int, Q_TREE *, const int);
-extern int wsq_crop_qdata(const DQT_TABLE *, Q_TREE *, Q_TREE *, Q_TREE *,
+extern int biomeval_nbis_wsq_crop_qdata(const DQT_TABLE *, Q_TREE *, Q_TREE *, Q_TREE *,
                  short *, int, int, int, int, short *);
-extern int wsq_cropcoeff_mem(unsigned char **, int *, int *, int *, int, int,
+extern int biomeval_nbis_wsq_cropcoeff_mem(unsigned char **, int *, int *, int *, int, int,
                  int, int, int *, int *, unsigned char *, const int, short **,
                  int *, int *);
-extern int wsq_huffcode_mem(unsigned char *, int *, short *, int, int,
+extern int biomeval_nbis_wsq_huffcode_mem(unsigned char *, int *, short *, int, int,
                  unsigned char *, const int, const int, const int);
-extern int wsq_dehuff_mem(short **, int *, int *, double *, double *, 
+extern int biomeval_nbis_wsq_dehuff_mem(short **, int *, int *, double *, double *, 
                  int *, int *, unsigned char *, const int ilen);
-extern int read_wsq_frame_header(unsigned char *, const int, int *, int *,
+extern int biomeval_nbis_read_wsq_frame_header(unsigned char *, const int, int *, int *,
 				 double *, double *);
 
 /* decoder.c */
-extern int wsq_decode_mem(unsigned char **, int *, int *, int *, int *, int *,
+extern int biomeval_nbis_wsq_decode_mem(unsigned char **, int *, int *, int *, int *, int *,
                  unsigned char *, const int);
-extern int wsq_decode_file(unsigned char **, int *, int *, int *, int *,
+extern int biomeval_nbis_wsq_decode_file(unsigned char **, int *, int *, int *, int *,
                  int *, FILE *);
 extern int huffman_decode_data_mem(short *, DTT_TABLE *, DQT_TABLE *,
                  DHT_TABLE *, unsigned char **, unsigned char *);
 extern int huffman_decode_data_file(short *, DTT_TABLE *, DQT_TABLE *,
                  DHT_TABLE *, FILE *);
-extern int decode_data_mem(int *, int *, int *, int *, unsigned char *,
+extern int biomeval_nbis_decode_data_mem(int *, int *, int *, int *, unsigned char *,
                  unsigned char **, unsigned char *, int *, unsigned short *);
-extern int decode_data_file(int *, int *, int *, int *, unsigned char *, FILE *,
+extern int biomeval_nbis_decode_data_file(int *, int *, int *, int *, unsigned char *, FILE *,
                  int *, unsigned short *);
-extern int nextbits_wsq(unsigned short *, unsigned short *, FILE *, int *,
+extern int biomeval_nbis_nextbits_wsq(unsigned short *, unsigned short *, FILE *, int *,
                  const int);
-extern int getc_nextbits_wsq(unsigned short *, unsigned short *,
+extern int biomeval_nbis_getc_nextbits_wsq(unsigned short *, unsigned short *,
                  unsigned char **, unsigned char *, int *, const int);
 
 /* encoder.c */
-extern int wsq_encode_mem(unsigned char **, int *, const float, unsigned char *,
+extern int biomeval_nbis_wsq_encode_mem(unsigned char **, int *, const float, unsigned char *,
                  const int, const int, const int, const int, char *);
-extern int gen_hufftable_wsq(HUFFCODE **, unsigned char **, unsigned char **,
+extern int biomeval_nbis_gen_hufftable_wsq(HUFFCODE **, unsigned char **, unsigned char **,
                  short *, const int *, const int);
-extern int compress_block(unsigned char *, int *, short *,
+extern int biomeval_nbis_compress_block(unsigned char *, int *, short *,
                  const int, const int, const int, HUFFCODE *);
-extern int count_block(int **, const int, short *,
+extern int biomeval_nbis_count_block(int **, const int, short *,
                  const int, const int, const int);
 
 /* huff.c */
-extern int check_huffcodes_wsq(HUFFCODE *, int);
+extern int biomeval_nbis_check_huffcodes_wsq(HUFFCODE *, int);
 
 /* ppi.c */
-extern int read_ppi_wsq(int *, FILE *);
-extern int getc_ppi_wsq(int *, unsigned char *, const int);
+extern int biomeval_nbis_read_ppi_wsq(int *, FILE *);
+extern int biomeval_nbis_getc_ppi_wsq(int *, unsigned char *, const int);
 
 /* tableio.c */
-extern int read_marker_wsq(unsigned short *, const int, FILE *);
-extern int getc_marker_wsq(unsigned short *, const int, unsigned char **,
+extern int biomeval_nbis_read_marker_wsq(unsigned short *, const int, FILE *);
+extern int biomeval_nbis_getc_marker_wsq(unsigned short *, const int, unsigned char **,
                  unsigned char *);
-extern int read_table_wsq(unsigned short, DTT_TABLE *, DQT_TABLE *, DHT_TABLE *,
+extern int biomeval_nbis_read_table_wsq(unsigned short, DTT_TABLE *, DQT_TABLE *, DHT_TABLE *,
                  FILE *);
-extern int getc_table_wsq(unsigned short, DTT_TABLE *, DQT_TABLE *, DHT_TABLE *,
+extern int biomeval_nbis_getc_table_wsq(unsigned short, DTT_TABLE *, DQT_TABLE *, DHT_TABLE *,
                  unsigned char **, unsigned char *);
-extern int read_transform_table(DTT_TABLE *, FILE *);
-extern int getc_transform_table(DTT_TABLE *, unsigned char **, unsigned char *);
-extern int write_transform_table(float *, const int, float *, const int,
+extern int biomeval_nbis_read_transform_table(DTT_TABLE *, FILE *);
+extern int biomeval_nbis_getc_transform_table(DTT_TABLE *, unsigned char **, unsigned char *);
+extern int biomeval_nbis_write_transform_table(float *, const int, float *, const int,
                  FILE *);
-extern int putc_transform_table(float *, const int, float *, const int,
+extern int biomeval_nbis_putc_transform_table(float *, const int, float *, const int,
                  unsigned char *, const int, int *);
-extern int read_quantization_table(DQT_TABLE *, FILE *);
-extern int getc_quantization_table(DQT_TABLE *, unsigned char **,
+extern int biomeval_nbis_read_quantization_table(DQT_TABLE *, FILE *);
+extern int biomeval_nbis_getc_quantization_table(DQT_TABLE *, unsigned char **,
                  unsigned char *);
-extern int write_quantization_table(QUANT_VALS *, FILE *);
-extern int putc_quantization_table(QUANT_VALS *, unsigned char *, const int,
+extern int biomeval_nbis_write_quantization_table(QUANT_VALS *, FILE *);
+extern int biomeval_nbis_putc_quantization_table(QUANT_VALS *, unsigned char *, const int,
                  int *);
-extern int read_huffman_table_wsq(DHT_TABLE *, FILE *);
-extern int getc_huffman_table_wsq(DHT_TABLE *, unsigned char **,
+extern int biomeval_nbis_read_huffman_table_wsq(DHT_TABLE *, FILE *);
+extern int biomeval_nbis_getc_huffman_table_wsq(DHT_TABLE *, unsigned char **,
                  unsigned char *);
-extern int read_frame_header_wsq(FRM_HEADER_WSQ *, FILE *);
-extern int getc_frame_header_wsq(FRM_HEADER_WSQ *, unsigned char **,
+extern int biomeval_nbis_read_frame_header_wsq(FRM_HEADER_WSQ *, FILE *);
+extern int biomeval_nbis_getc_frame_header_wsq(FRM_HEADER_WSQ *, unsigned char **,
                  unsigned char *);
-extern int write_frame_header_wsq(const int, const int, const float,
+extern int biomeval_nbis_write_frame_header_wsq(const int, const int, const float,
                  const float, FILE *);
-extern int putc_frame_header_wsq(const int, const int, const float,
+extern int biomeval_nbis_putc_frame_header_wsq(const int, const int, const float,
                  const float, unsigned char *, const int, int *);
-extern int read_block_header(unsigned char *, FILE *);
-extern int getc_block_header(unsigned char *, unsigned char **,
+extern int biomeval_nbis_read_block_header(unsigned char *, FILE *);
+extern int biomeval_nbis_getc_block_header(unsigned char *, unsigned char **,
                  unsigned char *);
-extern int write_block_header(const int, FILE *);
-extern int putc_block_header(const int, unsigned char *, const int, int *);
-extern int add_comment_wsq(unsigned char **, int *, unsigned char *,
+extern int biomeval_nbis_write_block_header(const int, FILE *);
+extern int biomeval_nbis_putc_block_header(const int, unsigned char *, const int, int *);
+extern int biomeval_nbis_add_comment_wsq(unsigned char **, int *, unsigned char *,
                  const int, unsigned char *);
-extern int putc_nistcom_wsq(char *, const int, const int, const int,
+extern int biomeval_nbis_putc_nistcom_wsq(char *, const int, const int, const int,
                  const int, const int, const float, unsigned char *,
                  const int, int *);
-extern int read_nistcom_wsq(NISTCOM **, FILE *);
-extern int getc_nistcom_wsq(NISTCOM **, unsigned char *, const int);
-extern int print_comments_wsq(FILE *, unsigned char *, const int);
+extern int biomeval_nbis_read_nistcom_wsq(NISTCOM **, FILE *);
+extern int biomeval_nbis_getc_nistcom_wsq(NISTCOM **, unsigned char *, const int);
+extern int biomeval_nbis_print_comments_wsq(FILE *, unsigned char *, const int);
 
 /* tree.c */
-extern void build_wsq_trees(W_TREE w_tree[], const int,
-                 Q_TREE q_tree[], const int, const int, const int);
-extern void build_w_tree(W_TREE w_tree[], const int, const int);
-extern void w_tree4(W_TREE w_tree[], const int, const int,
+extern void biomeval_nbis_build_wsbiomeval_nbis_q_trees(W_TREE biomeval_nbis_w_tree[], const int,
+                 Q_TREE biomeval_nbis_q_tree[], const int, const int, const int);
+extern void biomeval_nbis_build_w_tree(W_TREE biomeval_nbis_w_tree[], const int, const int);
+extern void biomeval_nbis_w_tree4(W_TREE biomeval_nbis_w_tree[], const int, const int,
                  const int, const int, const int, const int, const int);
-extern void build_q_tree(W_TREE w_tree[], Q_TREE q_tree[]);
-extern void q_tree16(Q_TREE q_tree[], const int, const int, const int,
+extern void biomeval_nbis_build_q_tree(W_TREE biomeval_nbis_w_tree[], Q_TREE biomeval_nbis_q_tree[]);
+extern void biomeval_nbis_q_tree16(Q_TREE biomeval_nbis_q_tree[], const int, const int, const int,
                  const int, const int, const int, const int);
-extern void q_tree4(Q_TREE q_tree[], const int, const int, const int,
+extern void biomeval_nbis_q_tree4(Q_TREE biomeval_nbis_q_tree[], const int, const int, const int,
                  const int, const int);
 
 /* util.c */
-extern int conv_img_2_flt_ret(float *, float *, float *, unsigned char *,
+extern int biomeval_nbis_conv_img_2_flt_ret(float *, float *, float *, unsigned char *,
                  const int);
-extern void conv_img_2_flt(float *, float *, float *, unsigned char *,
+extern void biomeval_nbis_conv_img_2_flt(float *, float *, float *, unsigned char *,
                  const int);
-extern void conv_img_2_uchar(unsigned char *, float *, const int, const int,
+extern void biomeval_nbis_conv_img_2_uchar(unsigned char *, float *, const int, const int,
                  const float, const float);
-extern void variance( QUANT_VALS *quant_vals, Q_TREE q_tree[], const int,
+extern void biomeval_nbis_variance( QUANT_VALS *biomeval_nbis_quant_vals, Q_TREE biomeval_nbis_q_tree[], const int,
                  float *, const int, const int);
-extern int quantize(short **, int *, QUANT_VALS *, Q_TREE qtree[], const int,
+extern int biomeval_nbis_quantize(short **, int *, QUANT_VALS *, Q_TREE qtree[], const int,
                  float *, const int, const int);
-extern void quant_block_sizes(int *, int *, int *,
-                 QUANT_VALS *, W_TREE w_tree[], const int,
-                 Q_TREE q_tree[], const int);
-extern int unquantize(float **, const DQT_TABLE *,
-                 Q_TREE q_tree[], const int, short *, const int, const int);
-extern int wsq_decompose(float *, const int, const int,
-                 W_TREE w_tree[], const int, float *, const int,
+extern void biomeval_nbis_quant_block_sizes(int *, int *, int *,
+                 QUANT_VALS *, W_TREE biomeval_nbis_w_tree[], const int,
+                 Q_TREE biomeval_nbis_q_tree[], const int);
+extern int unbiomeval_nbis_quantize(float **, const DQT_TABLE *,
+                 Q_TREE biomeval_nbis_q_tree[], const int, short *, const int, const int);
+extern int biomeval_nbis_wsq_decompose(float *, const int, const int,
+                 W_TREE biomeval_nbis_w_tree[], const int, float *, const int,
                  float *, const int);
-extern void get_lets(float *, float *, const int, const int, const int,
+extern void biomeval_nbis_get_lets(float *, float *, const int, const int, const int,
                  const int, float *, const int, float *, const int, const int);
-extern int wsq_reconstruct(float *, const int, const int,
-                 W_TREE w_tree[], const int, const DTT_TABLE *);
-extern void  join_lets(float *, float *, const int, const int,
+extern int biomeval_nbis_wsq_reconstruct(float *, const int, const int,
+                 W_TREE biomeval_nbis_w_tree[], const int, const DTT_TABLE *);
+extern void  biomeval_nbis_join_lets(float *, float *, const int, const int,
                  const int, const int, float *, const int,
                  float *, const int, const int);
-extern int int_sign(const int);
-extern int image_size(const int, short *, short *);
-extern void init_wsq_decoder_resources(void);
-extern void free_wsq_decoder_resources(void);
+extern int biomeval_nbis_int_sign(const int);
+extern int biomeval_nbis_image_size(const int, short *, short *);
+extern void biomeval_nbis_init_wsq_decoder_resources(void);
+extern void biomeval_nbis_free_wsq_decoder_resources(void);
 
-extern int delete_comments_wsq(unsigned char **, int *, unsigned char *, int);
+extern int biomeval_nbis_delete_comments_wsq(unsigned char **, int *, unsigned char *, int);
 
 #endif /* !_WSQ_H */

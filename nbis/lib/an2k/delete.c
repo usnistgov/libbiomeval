@@ -60,13 +60,13 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        do_delete()
-                        delete_ANSI_NIST_select()
-                        delete_ANSI_NIST_record()
-                        adjust_delrec_CNT_IDCs()
-                        delete_ANSI_NIST_field()
-                        delete_ANSI_NIST_subfield()
-                        delete_ANSI_NIST_item()
+                        biomeval_nbis_do_delete()
+                        biomeval_nbis_delete_ANSI_NIST_select()
+                        biomeval_nbis_delete_ANSI_NIST_record()
+                        biomeval_nbis_adjust_delrec_CNT_IDCs()
+                        biomeval_nbis_delete_ANSI_NIST_field()
+                        biomeval_nbis_delete_ANSI_NIST_subfield()
+                        biomeval_nbis_delete_ANSI_NIST_item()
 
 ***********************************************************************/
 
@@ -77,7 +77,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: do_delete - Master routine used to carry out a requested structure
+#cat: biomeval_nbis_do_delete - Master routine used to carry out a requested structure
 #cat:              deletion and write the results to file.  The structure
 #cat:              to be deleted is represented by a 4-tuple of indices.
 
@@ -93,7 +93,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int do_delete(const char *ofile,
+int biomeval_nbis_do_delete(const char *ofile,
               const int record_i, const int field_i,
               const int subfield_i, const int item_i,
               ANSI_NIST *ansi_nist)
@@ -102,7 +102,7 @@ int do_delete(const char *ofile,
    FILE *fpout;
 
    /* Conduct structure deletion. */
-   if((ret = delete_ANSI_NIST_select(record_i, field_i, subfield_i, item_i,
+   if((ret = biomeval_nbis_delete_ANSI_NIST_select(record_i, field_i, subfield_i, item_i,
                                     ansi_nist)) != 0){
       return(ret);
    }
@@ -111,7 +111,7 @@ int do_delete(const char *ofile,
    if(ofile != NULL){
       fpout = fopen(ofile, "wb");
       if(fpout == NULL){
-         fprintf(stderr, "ERROR : do_delete : fopen '%s': %s\n", 
+         fprintf(stderr, "ERROR : biomeval_nbis_do_delete : fopen '%s': %s\n", 
 		 ofile, strerror(errno));
          return(-2);
       }
@@ -120,13 +120,13 @@ int do_delete(const char *ofile,
    else
       fpout = DEFAULT_FPOUT;
 
-   if((ret = write_ANSI_NIST(fpout, ansi_nist)) != 0)
+   if((ret = biomeval_nbis_write_ANSI_NIST(fpout, ansi_nist)) != 0)
       return(ret);
 
    /* Close the file pointer if necessary. */
    if(ofile != NULL){
       if(fclose(fpout) != 0){
-         fprintf(stderr, "ERROR : do_delete : fclose '%s': %s\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_do_delete : fclose '%s': %s\n",
 		 ofile, strerror(errno));
          return(-3);
       }
@@ -138,7 +138,7 @@ int do_delete(const char *ofile,
 
 /***********************************************************************
 ************************************************************************
-#cat: delete_ANSI_NIST_select - Routine used to carry out a requested
+#cat: biomeval_nbis_delete_ANSI_NIST_select - Routine used to carry out a requested
 #cat:              structure deletion based on a 4-tuple of structure
 #cat:              indices. These indices represent the physical order
 #cat:              of subsequent logical records, fields, subfields, and
@@ -159,7 +159,7 @@ int do_delete(const char *ofile,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int delete_ANSI_NIST_select(const int record_i, const int field_i,
+int biomeval_nbis_delete_ANSI_NIST_select(const int record_i, const int field_i,
                             const int subfield_i, const int item_i,
                             ANSI_NIST *ansi_nist)
 {
@@ -174,7 +174,7 @@ int delete_ANSI_NIST_select(const int record_i, const int field_i,
             /* If item index defined ... */
             if(item_i != UNDEFINED_INT){
                /* Delete the item. */
-               if((ret = delete_ANSI_NIST_item(record_i, field_i,
+               if((ret = biomeval_nbis_delete_ANSI_NIST_item(record_i, field_i,
 					       subfield_i, item_i, 
 					       ansi_nist)) != 0)
                   return(ret);
@@ -182,7 +182,7 @@ int delete_ANSI_NIST_select(const int record_i, const int field_i,
             /* Otherwise, item index is UNDEFINED ... */
             else{
                /* Delete the subfield. */
-               if((ret = delete_ANSI_NIST_subfield(record_i, field_i,
+               if((ret = biomeval_nbis_delete_ANSI_NIST_subfield(record_i, field_i,
 						   subfield_i, ansi_nist)) != 0)
                   return(ret);
             }
@@ -190,21 +190,21 @@ int delete_ANSI_NIST_select(const int record_i, const int field_i,
          /* Otherwise, subfield index is UNDEFINED ... */
          else{
             /* Delete the field. */
-            if((ret = delete_ANSI_NIST_field(record_i, field_i, ansi_nist)) != 0)
+            if((ret = biomeval_nbis_delete_ANSI_NIST_field(record_i, field_i, ansi_nist)) != 0)
                return(ret);
          }
       }
       /* Otherwise, field ID is UNDEFINED ... */
       else{
          /* Delete the record. */
-         if((ret = delete_ANSI_NIST_record(record_i, ansi_nist)) != 0)
+         if((ret = biomeval_nbis_delete_ANSI_NIST_record(record_i, ansi_nist)) != 0)
             return(ret);
       }
    }
    /* Otherwise, record type is UNDEFINED ... */
    else{
       /* So ignore request. */
-      fprintf(stderr, "WARNING : delete_ANSI_NIST_select : "
+      fprintf(stderr, "WARNING : biomeval_nbis_delete_ANSI_NIST_select : "
 	      "record index not specified so request ignored\n");
    }
 
@@ -214,7 +214,7 @@ int delete_ANSI_NIST_select(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: delete_ANSI_NIST_record - Routine used to delete the specified
+#cat: biomeval_nbis_delete_ANSI_NIST_record - Routine used to delete the specified
 #cat:              logical record from an ANSI/NIST file structure.
 #cat:              This routine also updates the CNT field of the Type-1
 #cat:              record to accurately reflect the deletion.
@@ -228,14 +228,14 @@ int delete_ANSI_NIST_select(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int delete_ANSI_NIST_record(const int record_i, ANSI_NIST *ansi_nist)
+int biomeval_nbis_delete_ANSI_NIST_record(const int record_i, ANSI_NIST *ansi_nist)
 {
    int ret, j, k; 
    RECORD *record;
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_record : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
       return(-2);
@@ -258,7 +258,7 @@ int delete_ANSI_NIST_record(const int record_i, ANSI_NIST *ansi_nist)
    /* By deleting a record, the Type-1 CNT field must be updated, and */
    /* it is possible that the deleted record's IDC is orphaned, and   */
    /* subsequent IDCs may need to be adjusted.                        */
-   if((ret = adjust_delrec_CNT_IDCs(record_i, ansi_nist)) != 0)
+   if((ret = biomeval_nbis_adjust_delrec_CNT_IDCs(record_i, ansi_nist)) != 0)
       return(ret);
 
    /* Leave ANSI_NIST allocated even if empty after deletion. */
@@ -270,7 +270,7 @@ int delete_ANSI_NIST_record(const int record_i, ANSI_NIST *ansi_nist)
            record_i+1, record->type);
 
    /* Deallocate record's memory. */
-   free_ANSI_NIST_record(record);
+   biomeval_nbis_free_ANSI_NIST_record(record);
 
    /* Return normally. */
    return(0);
@@ -278,7 +278,7 @@ int delete_ANSI_NIST_record(const int record_i, ANSI_NIST *ansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: adjust_delrec_CNT_IDCs - Routine used to update an ANSI/NIST file
+#cat: biomeval_nbis_adjust_delrec_CNT_IDCs - Routine used to update an ANSI/NIST file
 #cat:              structure's Type-1 record, CNT 1.3 field, due to a
 #cat:              deleted logical record.  This routine also manages
 #cat:              the remaining records' IDC values in an attempt to
@@ -293,7 +293,7 @@ int delete_ANSI_NIST_record(const int record_i, ANSI_NIST *ansi_nist)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
+int biomeval_nbis_adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
 {
    int ret, j, found; 
    FIELD *cntfield, *idcfield;
@@ -309,31 +309,31 @@ int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
    /* Type-1 record must be first in record list ... */
    if((ansi_nist->num_records <= 0) ||
       (ansi_nist->records[0]->type != TYPE_1_ID)){
-      fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 	      "Type-1 record not found\n");
       return(-2);
    }
 
    /* If CNT field within Type-1 record not found ... */
-   if(lookup_ANSI_NIST_field(&cntfield, &cntfield_i, CNT_ID,
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&cntfield, &cntfield_i, CNT_ID,
 			     ansi_nist->records[0]) == 0){
-      fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 	      "CNT field not found in record index [1] [Type-1.%03d]\n",
 	      CNT_ID);
       return(-3);
    }
 
    /* If CNT subfield for deleted record not found ... */
-   if(lookup_ANSI_NIST_subfield(&subfield, record_i, cntfield) == 0){
-      fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+   if(biomeval_nbis_lookup_ANSI_NIST_subfield(&subfield, record_i, cntfield) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 	      "subfield index [1.%d.%d] not found in "
 	      "CNT field [Type-1.%d]\n", cntfield_i+1, record_i+1, CNT_ID);
       return(-4);
    }
 
    /* If the IDC item for deleted record in CNT not found ... */
-   if(lookup_ANSI_NIST_item(&item, 1, subfield) == 0){
-      fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+   if(biomeval_nbis_lookup_ANSI_NIST_item(&item, 1, subfield) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 	      "IDC item index [1.%d.%d.2] not found in "
 	      "CNT field [Type-1.%03d]\n", cntfield_i+1, record_i+1, CNT_ID);
       return(-5);
@@ -343,27 +343,27 @@ int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
    delidc = atoi((char *)item->value);
 
    /* Delete subfield from CNT corresponding to deleted record. */
-   if((ret = delete_ANSI_NIST_subfield(0, cntfield_i, record_i, ansi_nist)) != 0)
+   if((ret = biomeval_nbis_delete_ANSI_NIST_subfield(0, cntfield_i, record_i, ansi_nist)) != 0)
       return(ret);
 
    /* If first subfield in CNT field not found ... */
-   if(lookup_ANSI_NIST_subfield(&subfield, 0, cntfield) == 0){
-      fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+   if(biomeval_nbis_lookup_ANSI_NIST_subfield(&subfield, 0, cntfield) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 	      "subfield index [1.%d.1] not found "
 	      "in CNT field [Type-1.%d]\n", cntfield_i+1, CNT_ID);
       return(-6);
    }
 
    /* If record count item in first subfield in CNT not found ... */
-   if(lookup_ANSI_NIST_item(&item, 1, subfield) == 0){
-      fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+   if(biomeval_nbis_lookup_ANSI_NIST_item(&item, 1, subfield) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 	      "Record count item index [1.%d.1.2] not found "
 	      "in CNT field [Type-1.%d]\n", cntfield_i+1, CNT_ID);
       return(-7);
    }
 
    /* Decrement number of records contained in the CNT field. */
-   if((ret = decrement_numeric_item(0, cntfield_i, 0, 1,
+   if((ret = biomeval_nbis_decrement_numeric_item(0, cntfield_i, 0, 1,
                                    ansi_nist, (char *)NULL)) != 0)
       return(ret);
 
@@ -377,8 +377,8 @@ int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
    /* special meaning) ... */
    for(j = 1; j < cntfield->num_subfields; j++){
       /* If next record's IDC not found in CNT subfield ... */
-      if(lookup_ANSI_NIST_item(&item, 1, cntfield->subfields[j]) == 0){
-         fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+      if(biomeval_nbis_lookup_ANSI_NIST_item(&item, 1, cntfield->subfields[j]) == 0){
+         fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 		 "IDC index [1.%d.%d.2] not found "
 		 "in CNT field [Type-1.%d]\n", cntfield_i+1, j+1, CNT_ID);
          return(-8);
@@ -401,8 +401,8 @@ int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
       /* special meaning) ... */
       for(j = 1; j < cntfield->num_subfields; j++){
          /* If next record's IDC not found in CNT subfield ... */
-         if(lookup_ANSI_NIST_item(&item, 1, cntfield->subfields[j]) == 0){
-            fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+         if(biomeval_nbis_lookup_ANSI_NIST_item(&item, 1, cntfield->subfields[j]) == 0){
+            fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 		    "IDC index [1.%d.%d.2] not found "
 		    "in CNT field [Type-1.%d]\n", cntfield_i+1, j+1, CNT_ID);
             return(-9);
@@ -414,14 +414,14 @@ int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
          if(itemint > delidc){
 
             /* Decrement the current record's IDC in the CNT field. */
-            if((ret = decrement_numeric_item(0, cntfield_i, j, 1,
+            if((ret = biomeval_nbis_decrement_numeric_item(0, cntfield_i, j, 1,
                                             ansi_nist, IDC_FMT)) != 0)
                return(ret);
 
             /* If IDC field in corresponding record not found ... */
-            if(lookup_ANSI_NIST_field(&idcfield, &idcfield_i,
+            if(biomeval_nbis_lookup_ANSI_NIST_field(&idcfield, &idcfield_i,
 				      IDC_ID, ansi_nist->records[j]) == 0){
-               fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+               fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 		       "IDC field not found "
 		       "in record index [%d] [Type-%d.%03d]\n",
                        j+1, ansi_nist->records[j]->type, IDC_ID);
@@ -430,7 +430,7 @@ int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
 
             if((idcfield->num_subfields != 1) ||
                (idcfield->subfields[0]->num_items != 1)){
-               fprintf(stderr, "ERROR : adjust_delrec_CNT_IDCs : "
+               fprintf(stderr, "ERROR : biomeval_nbis_adjust_delrec_CNT_IDCs : "
 		       "bad format of IDC field "
 		       "in record index [%d] [Type-%d.%03d]\n",
                        j+1, ansi_nist->records[j]->type, IDC_ID);
@@ -439,7 +439,7 @@ int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
 
             /* Decrement the IDC stored in the corresponing record's */
             /* IDC field.                                            */
-            if((ret = decrement_numeric_item(j, idcfield_i, 0, 0,
+            if((ret = biomeval_nbis_decrement_numeric_item(j, idcfield_i, 0, 0,
 					     ansi_nist, IDC_FMT)) != 0)
                return(ret);
          }
@@ -454,7 +454,7 @@ int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: delete_ANSI_NIST_field - Routine used to delete the specified
+#cat: biomeval_nbis_delete_ANSI_NIST_field - Routine used to delete the specified
 #cat:              field from an ANSI/NIST file structure.
 
    Input:
@@ -467,7 +467,7 @@ int adjust_delrec_CNT_IDCs(const int record_i, ANSI_NIST *ansi_nist)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int delete_ANSI_NIST_field(const int record_i, const int field_i,
+int biomeval_nbis_delete_ANSI_NIST_field(const int record_i, const int field_i,
                            ANSI_NIST *ansi_nist)
 {
    int ret, j, k; 
@@ -477,7 +477,7 @@ int delete_ANSI_NIST_field(const int record_i, const int field_i,
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_field : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
       return(-2);
@@ -486,7 +486,7 @@ int delete_ANSI_NIST_field(const int record_i, const int field_i,
 
    /* If field index is out of range ... */
    if((field_i < 0) || (field_i >= record->num_fields)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_field : "
 	      "field index [%d.%d] out of range [1..%d] "
 	      "in record [Type-%d]\n",
 	      record_i+1, field_i+1, record->num_fields, record->type);
@@ -495,8 +495,8 @@ int delete_ANSI_NIST_field(const int record_i, const int field_i,
    field = record->fields[field_i];
 
    /* Do not permit deletion of binary fields ... */
-   if(binary_record(record->type) != 0){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_field : "
+   if(biomeval_nbis_binary_record(record->type) != 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_field : "
 	      "field index [%d.%d] is fixed "
 	      "in binary record [Type-%d.%03d]\n",
               record_i+1, field_i+1, record->type, field->field_int);
@@ -508,7 +508,7 @@ int delete_ANSI_NIST_field(const int record_i, const int field_i,
       fprintf(stderr, "Field index [%d.%d] last in record [Type-%d]\n",
               record_i+1, field_i+1, record->type);
       /* Then go and remove entire record. */
-      if((ret = delete_ANSI_NIST_record(record_i, ansi_nist)) != 0)
+      if((ret = biomeval_nbis_delete_ANSI_NIST_record(record_i, ansi_nist)) != 0)
          return(ret);
    }
    /* Otherwise, more than one field currently in the record. */
@@ -540,14 +540,14 @@ int delete_ANSI_NIST_field(const int record_i, const int field_i,
       ansi_nist->num_bytes -= byte_adjust;
 
       /* Update the current record's length field. */
-      if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)) != 0)
+      if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)) != 0)
          return(ret);
 
       fprintf(stderr, "Deleted field index [%d.%d] in record [Type-%d.%03d]\n",
               record_i+1, field_i+1, record->type, field->field_int);
 
       /* Deallocate field's memory */
-      free_ANSI_NIST_field(field);
+      biomeval_nbis_free_ANSI_NIST_field(field);
 
    }
 
@@ -557,7 +557,7 @@ int delete_ANSI_NIST_field(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: delete_ANSI_NIST_subfield - Routine used to delete the specified
+#cat: biomeval_nbis_delete_ANSI_NIST_subfield - Routine used to delete the specified
 #cat:              subfield from an ANSI/NIST file structure.
 
    Input:
@@ -571,7 +571,7 @@ int delete_ANSI_NIST_field(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
+int biomeval_nbis_delete_ANSI_NIST_subfield(const int record_i, const int field_i,
                               const int subfield_i, ANSI_NIST *ansi_nist)
 {
    int ret, j, k; 
@@ -582,7 +582,7 @@ int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_subfield : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
       return(-2);
@@ -591,7 +591,7 @@ int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
 
    /* If field index is out of range ... */
    if((field_i < 0) || (field_i >= record->num_fields)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_subfield : "
 	      "field index [%d.%d] out of range [1..%d] "
 	      "in record [Type-%d]\n",
               record_i+1, field_i+1, record->num_fields, record->type);
@@ -600,8 +600,8 @@ int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
    field = record->fields[field_i];
 
    /* Do not permit deletion of binary subfield ... */
-   if(binary_record(record->type) != 0){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_subfield : "
+   if(biomeval_nbis_binary_record(record->type) != 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_subfield : "
 	      "subfield index [%d.%d.%d] is fixed "
 	      "in binary record [Type-%d.%03d]\n",
               record_i+1, field_i+1, subfield_i+1,
@@ -611,7 +611,7 @@ int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
 
    /* If subfield index is out of range ... */
    if((subfield_i < 0) || (subfield_i >= field->num_subfields)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_subfield : "
 	      "subfield index [%d.%d.%d] out of range [1..%d] "
 	      "in record [Type-%d.%03d]\n",
               record_i+1, field_i+1, subfield_i+1, field->num_subfields+1,
@@ -627,7 +627,7 @@ int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
               record_i+1, field_i+1, subfield_i+1,
               record->type, field->field_int);
       /* Then go and remove entire field. */
-      if((ret = delete_ANSI_NIST_field(record_i, field_i, ansi_nist)) != 0)
+      if((ret = biomeval_nbis_delete_ANSI_NIST_field(record_i, field_i, ansi_nist)) != 0)
          return(ret);
    }
    /* Otherwise, more than one subfield currently in the field. */
@@ -662,7 +662,7 @@ int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
       ansi_nist->num_bytes -= byte_adjust;
 
       /* Update the current record's length field. */
-      if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)) != 0)
+      if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)) != 0)
          return(ret);
 
       fprintf(stderr, "Deleted subfield index [%d.%d.%d] "
@@ -671,7 +671,7 @@ int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
               record->type, field->field_int);
 
       /* Deallocate subfield's memory */
-      free_ANSI_NIST_subfield(subfield);
+      biomeval_nbis_free_ANSI_NIST_subfield(subfield);
    }
 
    /* Return normally. */
@@ -680,7 +680,7 @@ int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: delete_ANSI_NIST_item - Routine used to delete the specified
+#cat: biomeval_nbis_delete_ANSI_NIST_item - Routine used to delete the specified
 #cat:              information item from an ANSI/NIST file structure.
 
    Input:
@@ -695,7 +695,7 @@ int delete_ANSI_NIST_subfield(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int delete_ANSI_NIST_item(const int record_i, const int field_i,
+int biomeval_nbis_delete_ANSI_NIST_item(const int record_i, const int field_i,
                           const int subfield_i, const int item_i,
                           ANSI_NIST *ansi_nist)
 {
@@ -708,7 +708,7 @@ int delete_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_item : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
       return(-2);
@@ -717,7 +717,7 @@ int delete_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If field index is out of range ... */
    if((field_i < 0) || (field_i >= record->num_fields)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_item : "
 	      "field index [%d.%d] out of range [1..%d] "
 	      "in record [Type-%d]\n",
               record_i+1, field_i+1, record->num_fields, record->type);
@@ -726,8 +726,8 @@ int delete_ANSI_NIST_item(const int record_i, const int field_i,
    field = record->fields[field_i];
 
    /* Do not permit deletion of binary field's item ... */
-   if(binary_record(record->type) != 0){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_item : "
+   if(biomeval_nbis_binary_record(record->type) != 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_item : "
 	      "item index [%d.%d.%d.%d] is fixed "
 	      "in binary record [Type-%d.%03d]\n",
               record_i+1, field_i+1, subfield_i+1, item_i+1,
@@ -737,7 +737,7 @@ int delete_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If subfield index is out of range ... */
    if((subfield_i < 0) || (subfield_i >= field->num_subfields)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_item : "
 	      "subfield index [%d.%d.%d] out of range [1..%d] "
 	      "in record [Type-%d.%03d]\n",
               record_i+1, field_i+1, subfield_i+1, field->num_subfields,
@@ -748,7 +748,7 @@ int delete_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If item index is out of range ... */
    if((item_i < 0) || (item_i >= subfield->num_items)){
-      fprintf(stderr, "ERROR : delete_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_ANSI_NIST_item : "
 	      "item index [%d.%d.%d.%d] out of range [1..%d] "
 	      "in record [Type-%d.%03d]\n",
               record_i+1, field_i+1, subfield_i+1, item_i+1,
@@ -764,7 +764,7 @@ int delete_ANSI_NIST_item(const int record_i, const int field_i,
               record_i+1, field_i+1, subfield_i+1, item_i+1,
               record->type, field->field_int);
       /* Then go and remove entire subfield. */
-      if((ret = delete_ANSI_NIST_subfield(record_i, field_i,
+      if((ret = biomeval_nbis_delete_ANSI_NIST_subfield(record_i, field_i,
                                          subfield_i, ansi_nist)) != 0)
          return(ret);
    }
@@ -799,7 +799,7 @@ int delete_ANSI_NIST_item(const int record_i, const int field_i,
       ansi_nist->num_bytes -= byte_adjust;
 
       /* Update the current record's length field. */
-      if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)) != 0)
+      if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)) != 0)
          return(ret);
 
       fprintf(stderr, "Deleted item index [%d.%d.%d.%d] "
@@ -808,7 +808,7 @@ int delete_ANSI_NIST_item(const int record_i, const int field_i,
               record->type, field->field_int, (char *)item->value);
 
       /* Deallocate item's memory */
-      free_ANSI_NIST_item(item);
+      biomeval_nbis_free_ANSI_NIST_item(item);
    }
 
    /* Return normally. */

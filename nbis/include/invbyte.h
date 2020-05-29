@@ -42,4 +42,4 @@ of the software.
 *******************************************************************************/
 
 
-extern unsigned char Inv_Byte[256];
+extern unsigned char biomeval_nbis_Inv_Byte[256];

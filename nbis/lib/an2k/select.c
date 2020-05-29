@@ -41,27 +41,27 @@ identified are necessarily the best available for the purpose.
       position, impression type, and other features.
 ***********************************************************************
                ROUTINES:
-	                * get_type_params_by_type()
-                        * get_type_params_by_name()
-                        select_ANSI_NIST_record()
-                        new_rec_sel()
-                        alloc_rec_sel()
-                        free_rec_sel()
-                        add_rec_sel_num()
-                        add_rec_sel_str()
-                        add_rec_sel()
-                        simplify_rec_sel()
-                        * validate_rec_sel_num_value()
-                        * rec_sel_usage()
-                        parse_rec_sel_option()
-                        write_rec_sel()
-                        write_rec_sel_file()
-                        read_rec_sel()
-                        read_rec_sel_file()
-                        imp_is_live_scan()
-                        imp_is_latent()
-                        imp_is_rolled()
-                        imp_is_flat()
+	                * biomeval_nbis_get_type_params_by_type()
+                        * biomeval_nbis_get_type_params_by_name()
+                        biomeval_nbis_select_ANSI_NIST_record()
+                        biomeval_nbis_new_rec_sel()
+                        biomeval_nbis_alloc_rec_sel()
+                        biomeval_nbis_free_rec_sel()
+                        biomeval_nbis_add_rec_sel_num()
+                        biomeval_nbis_add_rec_sel_str()
+                        biomeval_nbis_add_rec_sel()
+                        biomeval_nbis_simplify_rec_sel()
+                        * biomeval_nbis_validate_rec_sel_num_value()
+                        * biomeval_nbis_rec_sel_usage()
+                        biomeval_nbis_parse_rec_sel_option()
+                        biomeval_nbis_write_rec_sel()
+                        biomeval_nbis_write_rec_sel_file()
+                        biomeval_nbis_read_rec_sel()
+                        biomeval_nbis_read_rec_sel_file()
+                        biomeval_nbis_imp_is_live_scan()
+                        biomeval_nbis_imp_is_latent()
+                        biomeval_nbis_imp_is_rolled()
+                        biomeval_nbis_imp_is_flat()
 
       * The marked functions are delcared static and called only from
         within select.c.
@@ -82,11 +82,11 @@ identified are necessarily the best available for the purpose.
 Data Structures
 
    The following data structures and tables are used by
-   parse_rec_sel_option to decide how to parse record selection
+   biomeval_nbis_parse_rec_sel_option to decide how to parse record selection
    options and what limits to enforce.  To add the ability to parse
    options for another type, it might only be necessary to add it to
    these tables.  However, to actually use the values so entered, the
-   select_ANSI_NIST_record function would also need to be modified to
+   biomeval_nbis_select_ANSI_NIST_record function would also need to be modified to
    handle the new type of value properly instead of warning that it is
    not implemented.
 
@@ -104,7 +104,7 @@ typedef struct rec_sel_named_sets_s {
 } REC_SEL_NAMED_SETS;
 
 /* Logical Record Types, based on ANSI/NIST-ITL 1-2007, Table 4, p. 13. */
-static const REC_SEL_NAMED_SETS lrt_names[] = {
+static const REC_SEL_NAMED_SETS biomeval_nbis_lrt_names[] = {
    {{ "grey print", "gp", NULL },    3, {{.num = 4}, {.num = 13}, {.num = 14}}},
    {{ "Transaction information", "ti", NULL },            1, {{.num = 1}}},
    {{ "User-defined descriptive text", "udt", NULL },     1, {{.num = 2}}},
@@ -123,7 +123,7 @@ static const REC_SEL_NAMED_SETS lrt_names[] = {
    {{ "Iris image", "ii", NULL },                         1, {{.num = 17}}},
    {{ "CBEFF Biometric data record", "cbdr", NULL },      1, {{.num = 99}}},
 };
-static const REC_SEL_VALUE lrt_values[] = {
+static const REC_SEL_VALUE biomeval_nbis_lrt_values[] = {
    {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, /* 11 & 12 reserved */
    {13}, {14}, {15}, {16}, {17}, /* 18 through 98 reserved */
    {99}
@@ -141,7 +141,7 @@ static const REC_SEL_VALUE lrt_values[] = {
 #define FGP_NAMES_COUNT 24
 #define FGP_VALUES_COUNT 17
 
-static const REC_SEL_NAMED_SETS fgplp_names[] = {
+static const REC_SEL_NAMED_SETS biomeval_nbis_fgplp_names[] = {
    {{ "thumb", "t", NULL },                         4, {{.num = 1},{.num = 6},{.num = 11},{.num = 12}}}, /*0*/
    {{ "index finger", "i", "if", NULL },            2, {{.num = 2}, {.num = 7}}},       /*1*/
    {{ "middle finger", "m", "mf", NULL },           2, {{.num = 3}, {.num = 8}}},       /*2*/
@@ -199,7 +199,7 @@ static const REC_SEL_NAMED_SETS fgplp_names[] = {
    {{ "left thenar", "lthe", NULL },            1, {{.num = 35}}},
    {{ "left hypothenar", "lhy", NULL },         1, {{.num = 36}}},
 };
-static const REC_SEL_VALUE fgplp_values[] = {
+static const REC_SEL_VALUE biomeval_nbis_fgplp_values[] = {
      {0},  {1},  {2},  {3},  {4},  {5},  {6},  {7},  {8},  {9}, 
     {10}, {11}, {12}, {13}, {14}, {15}, /*16-18 omitted*/ {19},
     /* Preceeding are FGP, following are PLP.  The PLP are contiguous */
@@ -208,7 +208,7 @@ static const REC_SEL_VALUE fgplp_values[] = {
 };
 
 /* Impression Type, based on ANSI/NIST-ITL {1}-{2007}, Table {11}, p. {30}. */
-static const REC_SEL_NAMED_SETS imp_names[] = {
+static const REC_SEL_NAMED_SETS biomeval_nbis_imp_names[] = {
    {{ "rolled", "r", NULL },   6, {{.num = 1}, {.num = 3}, {.num = 21}, {.num = 23}, {.num = 25}, {.num = 27}}},
    {{ "plain", "p", NULL },    6, {{.num = 0}, {.num = 2}, {.num = 20}, {.num = 22}, {.num = 24}, {.num = 26}}},
    {{ "latent", "lat", NULL }, 8, {{.num = 4}, {.num = 5}, {.num = 6}, {.num = 7}, {.num = 12}, {.num = 13}, {.num = 14}, {.num = 15}}},
@@ -245,19 +245,19 @@ static const REC_SEL_NAMED_SETS imp_names[] = {
    {{ "other", NULL },                             1, {{.num = 28}}},
    {{ "unknown", NULL },                           1, {{.num = 29}}},
 };
-static const REC_SEL_VALUE imp_values[] = {
+static const REC_SEL_VALUE biomeval_nbis_imp_values[] = {
     {0},  {1},  {2},  {3},  {4},  {5},  {6},  {7},  {8}, /* 9 omitted */
    {10}, {11}, {12}, {13}, {14}, {15}, /* 16 through 19 omitted */
    {20}, {21}, {22}, {23}, {24}, {25}, {26}, {27}, {28}, {29} 
 };
-static const REC_SEL_NAMED_SETS *imp_rolled_set    = &imp_names[0];
-static const REC_SEL_NAMED_SETS *imp_flat_set      = &imp_names[1];
-static const REC_SEL_NAMED_SETS *imp_latent_set    = &imp_names[2];
-static const REC_SEL_NAMED_SETS *imp_live_scan_set = &imp_names[3];
+static const REC_SEL_NAMED_SETS *biomeval_nbis_imp_rolled_set    = &biomeval_nbis_imp_names[0];
+static const REC_SEL_NAMED_SETS *biomeval_nbis_imp_flat_set      = &biomeval_nbis_imp_names[1];
+static const REC_SEL_NAMED_SETS *biomeval_nbis_imp_latent_set    = &biomeval_nbis_imp_names[2];
+static const REC_SEL_NAMED_SETS *biomeval_nbis_imp_live_scan_set = &biomeval_nbis_imp_names[3];
 
 
 /* NIST IR {7175}, August {2004}, Fingerprint Image Quality, Table {2}, p. {12}. */
-static const REC_SEL_NAMED_SETS nqm_names[] = {
+static const REC_SEL_NAMED_SETS biomeval_nbis_nqm_names[] = {
    {{ "excellent", NULL },       1, {{.num = 1}}},
    {{ "very good", "vg", NULL }, 1, {{.num = 2}}},
    {{ "good", NULL },            1, {{.num = 3}}},
@@ -266,7 +266,7 @@ static const REC_SEL_NAMED_SETS nqm_names[] = {
 };
 
 /* Image Type, based on ANSI/NIST-ITL 1-2007, Section 15.1.4, p. 45. */
-static const REC_SEL_NAMED_SETS imt_names[] = {
+static const REC_SEL_NAMED_SETS biomeval_nbis_imt_names[] = {
    {{ "face",   NULL }, 1, {{.str = "FACE"}}},
    {{ "scar",   NULL }, 1, {{.str = "SCAR"}}},
    {{ "mark",   NULL }, 1, {{.str = "MARK"}}},
@@ -274,11 +274,11 @@ static const REC_SEL_NAMED_SETS imt_names[] = {
 };
 
 /* Subject Pose, based on ANSI/NIST-ITL 1-2007, Table 11, p. 30.19, p. 51. */
-static const REC_SEL_VALUE pos_values[] = {
+static const REC_SEL_VALUE biomeval_nbis_pos_values[] = {
    {.str = "F"}, {.str = "R"}, {.str = "L"}, {.str = "A"}, {.str = "D"}
 };
 
-static const REC_SEL_NAMED_SETS pos_names[] = {
+static const REC_SEL_NAMED_SETS biomeval_nbis_pos_names[] = {
    {{ "full face frontal", "fff", NULL },   1, {{.str = "F"}}},
    {{ "right profile", "rp", NULL },        1, {{.str = "R"}}},
    {{ "left profile", "lp", NULL },         1, {{.str = "L"}}},
@@ -289,7 +289,7 @@ static const REC_SEL_NAMED_SETS pos_names[] = {
 /* The structure below ties together the structures and arrays defined
    above with more information about each type of record selector.
    The record selector types themselves are enumerated in an2k.h. */
-typedef struct rec_sel_type_params_s {
+typedef struct biomeval_nbis_rec_sel_type_params_s {
    const REC_SEL_TYPE type;
    const char *name;
    const char *description;
@@ -304,7 +304,7 @@ typedef struct rec_sel_type_params_s {
 } REC_SEL_TYPE_PARAMS;
 
 /* These types are enumerated in an2k.h. */
-static const REC_SEL_TYPE_PARAMS rec_sel_type_params[] = {
+static const REC_SEL_TYPE_PARAMS biomeval_nbis_rec_sel_type_params[] = {
    { rs_and, "AND", "Boolean AND",
      NULL, /* no reference in std */
      0, 0, rsv_rs,
@@ -316,23 +316,23 @@ static const REC_SEL_TYPE_PARAMS rec_sel_type_params[] = {
    { rs_lrt, "LRT", "Logical Record Type",
      "ANSI/NIST-ITL 1-2007, Table 4, p. 13.",
      1, 99, rsv_num, 
-     AR_SZ(lrt_values), lrt_values, AR_SZ(lrt_names), lrt_names },
+     AR_SZ(biomeval_nbis_lrt_values), biomeval_nbis_lrt_values, AR_SZ(biomeval_nbis_lrt_names), biomeval_nbis_lrt_names },
    { rs_fgplp, "FGPLP", "Finger or Palm Position",
      "ANSI/NIST-ITL 1-2007, Tables 12 and 35, pp. 31 and 84.",
      0, 36, rsv_num,
-     AR_SZ(fgplp_values), fgplp_values, AR_SZ(fgplp_names), fgplp_names },
+     AR_SZ(biomeval_nbis_fgplp_values), biomeval_nbis_fgplp_values, AR_SZ(biomeval_nbis_fgplp_names), biomeval_nbis_fgplp_names },
    { rs_fgp, "FGP", "Finger Position",
      "ANSI/NIST-ITL 1-2007, Table 12, p. 31.",
      0, 19, rsv_num,
-     FGP_VALUES_COUNT, fgplp_values, FGP_NAMES_COUNT, fgplp_names },
+     FGP_VALUES_COUNT, biomeval_nbis_fgplp_values, FGP_NAMES_COUNT, biomeval_nbis_fgplp_names },
    { rs_plp, "PLP", "Palmprint Position",
      "ANSI/NIST-ITL 1-2007, Table 35, p. 84.",
      20, 36, rsv_num,
-     0, NULL, AR_SZ(fgplp_names)-FGP_NAMES_COUNT, fgplp_names+FGP_NAMES_COUNT },
+     0, NULL, AR_SZ(biomeval_nbis_fgplp_names)-FGP_NAMES_COUNT, biomeval_nbis_fgplp_names+FGP_NAMES_COUNT },
    { rs_imp, "IMP", "Impression Type",
      "ANSI/NIST-ITL 1-2007, Table 11, p. 30.",
      0, 29, rsv_num,
-     AR_SZ(imp_values), imp_values, AR_SZ(imp_names), imp_names },
+     AR_SZ(biomeval_nbis_imp_values), biomeval_nbis_imp_values, AR_SZ(biomeval_nbis_imp_names), biomeval_nbis_imp_names },
    { rs_idc, "IDC", "Image Designation Character",
      "ANSI/NIST-ITL 1-2007.",
      0, 0, rsv_num,
@@ -340,20 +340,20 @@ static const REC_SEL_TYPE_PARAMS rec_sel_type_params[] = {
    { rs_nqm, "NQM", "NIST Quality Metric",
      "NIST IR 7151, August 2004, Fingerprint Image Quality",
      1, 5, rsv_num,
-     0, NULL, AR_SZ(nqm_names), nqm_names },
+     0, NULL, AR_SZ(biomeval_nbis_nqm_names), biomeval_nbis_nqm_names },
    { rs_imt, "IMT", "Image Type",
      "ANSI/NIST-ITL 1-2007, Section 15.1.3, p. 45.",
      0, 0, rsv_str,
-     0, NULL, AR_SZ(imt_names), imt_names },
+     0, NULL, AR_SZ(biomeval_nbis_imt_names), biomeval_nbis_imt_names },
    { rs_pos, "POS", "Subject Pose",
      "ANSI/NIST-ITL 1-2007, Table 19, p. 51.",
      0, 0, rsv_str,
-     AR_SZ(pos_values), pos_values, AR_SZ(pos_names), pos_names },
+     AR_SZ(biomeval_nbis_pos_values), biomeval_nbis_pos_values, AR_SZ(biomeval_nbis_pos_names), biomeval_nbis_pos_names },
 };
 
 /***********************************************************************
 ************************************************************************
-#cat: get_type_params_by_name - Takes a string representation
+#cat: biomeval_nbis_get_type_params_by_name - Takes a string representation
 #cat:               of a possible record selection parameter type name
 #cat:               and returns the corresponding record selection
 #cat:               type, if it exists.
@@ -368,19 +368,19 @@ static const REC_SEL_TYPE_PARAMS rec_sel_type_params[] = {
 
 ************************************************************************/
 static int
-get_type_params_by_type(const REC_SEL_TYPE_PARAMS **params,
+biomeval_nbis_get_type_params_by_type(const REC_SEL_TYPE_PARAMS **params,
 			const REC_SEL_TYPE type)
-#define ERRHDR "ERROR : get_type_params_by_type : "
+#define ERRHDR "ERROR : biomeval_nbis_get_type_params_by_type : "
 {
    const REC_SEL_TYPE_PARAMS *type_params;
 
-   for (type_params = rec_sel_type_params;
-	type_params - rec_sel_type_params < AR_SZ(rec_sel_type_params);
+   for (type_params = biomeval_nbis_rec_sel_type_params;
+	type_params - biomeval_nbis_rec_sel_type_params < AR_SZ(biomeval_nbis_rec_sel_type_params);
 	type_params++) {
       if (type == type_params->type)
 	 break;
    }
-   if (type_params - rec_sel_type_params == AR_SZ(rec_sel_type_params)) {
+   if (type_params - biomeval_nbis_rec_sel_type_params == AR_SZ(biomeval_nbis_rec_sel_type_params)) {
       fprintf(stderr, ERRHDR "parameters not specified for type %d\n", type);
       return -1;
    }
@@ -392,7 +392,7 @@ get_type_params_by_type(const REC_SEL_TYPE_PARAMS **params,
 
 /***********************************************************************
 ************************************************************************
-#cat: get_type_params_by_name - Takes a string representation
+#cat: biomeval_nbis_get_type_params_by_name - Takes a string representation
 #cat:               of a possible record selection parameter type name
 #cat:               and returns the corresponding record selection
 #cat:               type, if it exists.
@@ -407,19 +407,19 @@ get_type_params_by_type(const REC_SEL_TYPE_PARAMS **params,
 
 ************************************************************************/
 static int
-get_type_params_by_name(const REC_SEL_TYPE_PARAMS **params,
+biomeval_nbis_get_type_params_by_name(const REC_SEL_TYPE_PARAMS **params,
 			const char *const type_name)
-#define ERRHDR "ERROR : get_type_params_by_name : "
+#define ERRHDR "ERROR : biomeval_nbis_get_type_params_by_name : "
 {
    const REC_SEL_TYPE_PARAMS *type_params;
 
-   for (type_params = rec_sel_type_params;
-	type_params - rec_sel_type_params < AR_SZ(rec_sel_type_params);
+   for (type_params = biomeval_nbis_rec_sel_type_params;
+	type_params - biomeval_nbis_rec_sel_type_params < AR_SZ(biomeval_nbis_rec_sel_type_params);
 	type_params++) {
       if (!strcmp(type_params->name, type_name)) /* match */
 	 break;
    }
-   if (type_params - rec_sel_type_params == AR_SZ(rec_sel_type_params)) {
+   if (type_params - biomeval_nbis_rec_sel_type_params == AR_SZ(biomeval_nbis_rec_sel_type_params)) {
       fprintf(stderr, ERRHDR "parameters not specified for type '%s'\n",
 	      type_name);
       return -1;
@@ -432,7 +432,7 @@ get_type_params_by_name(const REC_SEL_TYPE_PARAMS **params,
 
 /***********************************************************************
 ************************************************************************
-#cat: select_ANSI_NIST_record - Takes an ANSI/NIST record and a set of
+#cat: biomeval_nbis_select_ANSI_NIST_record - Takes an ANSI/NIST record and a set of
 #cat:               selection criteria and determines whether the
 #cat:               record matches the criteria.
 
@@ -444,9 +444,9 @@ get_type_params_by_name(const REC_SEL_TYPE_PARAMS **params,
       TRUE       - record meets the criteria
       FALSE      - record does not meet the criteria
 ************************************************************************/
-int select_ANSI_NIST_record(RECORD *record,
+int biomeval_nbis_select_ANSI_NIST_record(RECORD *record,
 			    const REC_SEL *const criteria)
-#define ERRHDR "ERROR : select_ANSI_NIST_record : "
+#define ERRHDR "ERROR : biomeval_nbis_select_ANSI_NIST_record : "
 {
    FIELD *field;
    int parm_i, subfield_i, field_i;
@@ -473,12 +473,12 @@ int select_ANSI_NIST_record(RECORD *record,
 	 /* Both 'rs_and' and 'or' either short circuit or continue, others
 	    return TRUE or FALSE immediatly. */
       case rs_and:
-	 if (!select_ANSI_NIST_record(record, criteria->value.rs[parm_i]))
+	 if (!biomeval_nbis_select_ANSI_NIST_record(record, criteria->value.rs[parm_i]))
 	    return FALSE;	/* 'rs_and' short circuit */
 	 break;
 
       case rs_or:
-	 if (select_ANSI_NIST_record(record, criteria->value.rs[parm_i]))
+	 if (biomeval_nbis_select_ANSI_NIST_record(record, criteria->value.rs[parm_i]))
 	    return TRUE;	/* 'rs_or' short circuit */
 	 break;
 
@@ -486,7 +486,7 @@ int select_ANSI_NIST_record(RECORD *record,
       case rs_plp:			/* palmprint position */
       case rs_fgplp:		/* finger or palmprint position */
 	 /* First, find the values and convert them to integers... */
-	 if (!lookup_FGP_field(&field, &field_i, record))
+	 if (!biomeval_nbis_lookup_FGP_field(&field, &field_i, record))
 	    return FALSE;
 	 for (subfield_i=0;
 	      subfield_i < field->num_subfields;
@@ -517,7 +517,7 @@ int select_ANSI_NIST_record(RECORD *record,
 	 break;
 
       case rs_imp:			/* impression type */
-	 if (!lookup_IMP_field(&field, &field_i, record))
+	 if (!biomeval_nbis_lookup_IMP_field(&field, &field_i, record))
 	    return FALSE;
 	 item_value = atoi((char *)field->subfields[0]->items[0]->value);
 	 if (criteria->value.num == item_value)
@@ -527,7 +527,7 @@ int select_ANSI_NIST_record(RECORD *record,
       case rs_idc:			/* image descriptor character */
 	 if (record->type == TYPE_1_ID)
 	    return FALSE;	/* Records of TYPE-1 have no IDC. */
-	 if (!lookup_ANSI_NIST_field(&field, &field_i, IDC_ID, record))
+	 if (!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, IDC_ID, record))
 	    return FALSE;
 	 item_value = atoi((char *)field->subfields[0]->items[0]->value);
 	 if (criteria->value.num == item_value)
@@ -542,7 +542,7 @@ int select_ANSI_NIST_record(RECORD *record,
      case rs_nqm:
 	if (record->type != TYPE_14_ID)
 	   return FALSE;
-	if (!lookup_ANSI_NIST_field(&field, &field_i, NQM_ID, record))
+	if (!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, NQM_ID, record))
 	   return FALSE;
 	for (subfield_i = 0;
 	     subfield_i < field->num_subfields;
@@ -569,7 +569,7 @@ int select_ANSI_NIST_record(RECORD *record,
      case rs_pos:
 	if (record->type != TYPE_10_ID)
 	   return FALSE;
-	if (!lookup_ANSI_NIST_field(&field, &field_i, POS_ID, record))
+	if (!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, POS_ID, record))
 	   return FALSE;
 	for (subfield_i = 0;
 	     subfield_i < field->num_subfields;
@@ -588,7 +588,7 @@ int select_ANSI_NIST_record(RECORD *record,
 	break;
 
       default:
-	 if (get_type_params_by_type(&type_params, criteria->type))
+	 if (biomeval_nbis_get_type_params_by_type(&type_params, criteria->type))
 	    fprintf(stderr, ERRHDR 
 		    "missing implementation of criterion type # %d\n",
 		    criteria->type);
@@ -606,7 +606,7 @@ int select_ANSI_NIST_record(RECORD *record,
 
 /***********************************************************************
 ************************************************************************
-#cat: new_rec_sel - Allocates then fills a record selector structure
+#cat: biomeval_nbis_new_rec_sel - Allocates then fills a record selector structure
 #cat:              designed to be combined with other similar
 #cat:              structures to represent the criteria for selecting
 #cat:              records from ANSI/NIST files.
@@ -621,9 +621,9 @@ int select_ANSI_NIST_record(RECORD *record,
       Zero       - success
       Negative   - error
 ************************************************************************/
-int new_rec_sel(REC_SEL **rec_sel, const REC_SEL_TYPE type,
+int biomeval_nbis_new_rec_sel(REC_SEL **rec_sel, const REC_SEL_TYPE type,
 		const int num_values, ...)
-#define ERRHDR "ERROR : new_rec_sel : "
+#define ERRHDR "ERROR : biomeval_nbis_new_rec_sel : "
 {
    va_list values;
    int ret, i, j;
@@ -634,7 +634,7 @@ int new_rec_sel(REC_SEL **rec_sel, const REC_SEL_TYPE type,
       fprintf(stderr, ERRHDR "at least one value must be supplied");
       ret = -1;
    } else {
-      ret = alloc_rec_sel(rec_sel, type, num_values);
+      ret = biomeval_nbis_alloc_rec_sel(rec_sel, type, num_values);
       if (!ret) {
 	 if (type == rs_and || type == rs_or) { /* boolean combination */
 	    /* i counts args, j counts stored non-NULL values */
@@ -646,7 +646,7 @@ int new_rec_sel(REC_SEL **rec_sel, const REC_SEL_TYPE type,
 	    (*rec_sel)->num_values = j;
 	 } else if (num_values > 1) { /* error */
 	    const REC_SEL_TYPE_PARAMS *type_params;
-	    if (!get_type_params_by_type(&type_params, type)) {
+	    if (!biomeval_nbis_get_type_params_by_type(&type_params, type)) {
 	       fprintf(stderr, ERRHDR "too many values %d for type %s\n",
 		       num_values, type_params->name);
 	    }
@@ -665,7 +665,7 @@ int new_rec_sel(REC_SEL **rec_sel, const REC_SEL_TYPE type,
 
 /***********************************************************************
 ************************************************************************
-#cat: alloc_rec_sel - Allocates an empty initialized structure
+#cat: biomeval_nbis_alloc_rec_sel - Allocates an empty initialized structure
 #cat:              designed to be combined with other similar
 #cat:              structures to represent the criteria for selecting
 #cat:              records from ANSI/NIST files.
@@ -679,7 +679,7 @@ int new_rec_sel(REC_SEL **rec_sel, const REC_SEL_TYPE type,
       Zero       - success
       Negative   - error
 ************************************************************************/
-int alloc_rec_sel(REC_SEL **rec_sel,
+int biomeval_nbis_alloc_rec_sel(REC_SEL **rec_sel,
 		  const REC_SEL_TYPE type,
 		  const int alloc_values)
 {
@@ -693,7 +693,7 @@ int alloc_rec_sel(REC_SEL **rec_sel,
 
    rs = (REC_SEL *)malloc(size);
    if (!rs) {
-      perror("ERROR : alloc_rec_sel : cannot malloc %d bytes : ");
+      perror("ERROR : biomeval_nbis_alloc_rec_sel : cannot malloc %d bytes : ");
       return(-1);
    }
    rs->alloc_values = alloc_values;
@@ -709,20 +709,20 @@ int alloc_rec_sel(REC_SEL **rec_sel,
 
 /***********************************************************************
 ************************************************************************
-#cat: free_rec_sel - Deallocate a record selection criteria structure
+#cat: biomeval_nbis_free_rec_sel - Deallocate a record selection criteria structure
 #cat:              and all the nested allocated structures.  Ignore
 #cat:              NULL pointers.
 
    Input:
       critera	 - points to the structure to be deallocated
 ************************************************************************/
-void free_rec_sel(REC_SEL *criteria) {
+void biomeval_nbis_free_rec_sel(REC_SEL *criteria) {
    int i;
 
    if (criteria) {
       if (criteria->type == rs_and || criteria->type == rs_or) {
 	 for (i = 0; i < criteria->num_values; i++) {
-	    free_rec_sel(criteria->value.rs[i]);
+	    biomeval_nbis_free_rec_sel(criteria->value.rs[i]);
 	 }
       }
       free(criteria);
@@ -731,7 +731,7 @@ void free_rec_sel(REC_SEL *criteria) {
 
 /***********************************************************************
 ************************************************************************
-#cat: add_rec_sel_num - Create a record selection criteria structure
+#cat: biomeval_nbis_add_rec_sel_num - Create a record selection criteria structure
 #cat:              of the specified type and numeric value, and add it to
 #cat:              another record selection criteria structure, which
 #cat:              has been created separately and assigned a logical
@@ -749,22 +749,22 @@ void free_rec_sel(REC_SEL *criteria) {
       zero  	 - success
       negative   - error
 ************************************************************************/
-int add_rec_sel_num(REC_SEL **head, const REC_SEL_TYPE type, const int value)
+int biomeval_nbis_add_rec_sel_num(REC_SEL **head, const REC_SEL_TYPE type, const int value)
 {
    REC_SEL *new_sel;
    int res;
    
-   res = new_rec_sel(&new_sel, type, 1, value);
+   res = biomeval_nbis_new_rec_sel(&new_sel, type, 1, value);
    if (res < 0) {
       return res;
    }
 
-   return add_rec_sel(head, new_sel);
+   return biomeval_nbis_add_rec_sel(head, new_sel);
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: add_rec_sel_str - Create a record selection criteria structure
+#cat: biomeval_nbis_add_rec_sel_str - Create a record selection criteria structure
 #cat:              of the specified type and string value, and add it to
 #cat:              another record selection criteria structure, which
 #cat:              has been created separately and assigned a logical
@@ -782,24 +782,24 @@ int add_rec_sel_num(REC_SEL **head, const REC_SEL_TYPE type, const int value)
       zero  	 - success
       negative   - error
 ************************************************************************/
-int add_rec_sel_str(REC_SEL **head, const REC_SEL_TYPE type, const char* value)
+int biomeval_nbis_add_rec_sel_str(REC_SEL **head, const REC_SEL_TYPE type, const char* value)
 {
    REC_SEL *new_sel;
    int res;
 
-   res = alloc_rec_sel(&new_sel, type, 1);
+   res = biomeval_nbis_alloc_rec_sel(&new_sel, type, 1);
    if (res < 0) {
       return res;
    }
    new_sel->num_values = 1;
    new_sel->value.str = (char *)value;
 
-   return add_rec_sel(head, new_sel);
+   return biomeval_nbis_add_rec_sel(head, new_sel);
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: add_rec_sel - Add specified record selection criteria
+#cat: biomeval_nbis_add_rec_sel - Add specified record selection criteria
 #cat:              structure to another record selection criteria
 #cat:              structure, which has been created separately and
 #cat:              assigned a logical operation to apply in combining
@@ -816,8 +816,8 @@ int add_rec_sel_str(REC_SEL **head, const REC_SEL_TYPE type, const char* value)
       zero  	 - success
       negative   - error
 ************************************************************************/
-int add_rec_sel(REC_SEL **head, const REC_SEL *const new_sel)
-#define ERRHDR "ERROR : add_rec_sel : "
+int biomeval_nbis_add_rec_sel(REC_SEL **head, const REC_SEL *const new_sel)
+#define ERRHDR "ERROR : biomeval_nbis_add_rec_sel : "
 {
    REC_SEL* new_ptr;
 
@@ -851,7 +851,7 @@ int add_rec_sel(REC_SEL **head, const REC_SEL *const new_sel)
 
 /***********************************************************************
 ************************************************************************
-#cat: validate_rec_sel_num_value - Check the given integer value
+#cat: biomeval_nbis_validate_rec_sel_num_value - Check the given integer value
 #cat:              against the restrictions in the given type
 #cat:              parameters, and indicate whether the value is
 #cat:              valid for this type.
@@ -864,9 +864,9 @@ int add_rec_sel(REC_SEL **head, const REC_SEL *const new_sel)
       nonzero    - not valid
 ************************************************************************/
 static int 
-validate_rec_sel_num_value(const REC_SEL_TYPE_PARAMS *const type_params,
+biomeval_nbis_validate_rec_sel_num_value(const REC_SEL_TYPE_PARAMS *const type_params,
 			   const int value)
-#define ERRHDR "ERROR : validate_rec_sel_num_value : "
+#define ERRHDR "ERROR : biomeval_nbis_validate_rec_sel_num_value : "
 {
    /* The standard does not define numeric values for some things... */
    if (rsv_num != type_params->value_type)
@@ -910,7 +910,7 @@ validate_rec_sel_num_value(const REC_SEL_TYPE_PARAMS *const type_params,
 
 /***********************************************************************
 ************************************************************************
-#cat: rec_sel_usage - Print information about how to specify record
+#cat: biomeval_nbis_rec_sel_usage - Print information about how to specify record
 #cat:              selectors of a particular type
 
    Input:
@@ -920,7 +920,7 @@ validate_rec_sel_num_value(const REC_SEL_TYPE_PARAMS *const type_params,
    Return Code:
                  - none
 ***********************************************************************/
-static void rec_sel_usage(const REC_SEL_TYPE_PARAMS *const tp)
+static void biomeval_nbis_rec_sel_usage(const REC_SEL_TYPE_PARAMS *const tp)
 {
    const int ind_inc = 3, line_len = 80;
    int i, pos, indent = ind_inc;
@@ -987,7 +987,7 @@ static void rec_sel_usage(const REC_SEL_TYPE_PARAMS *const tp)
 
 /***********************************************************************
 ************************************************************************
-#cat: parse_rec_sel_option - Parse a command line option specifying
+#cat: biomeval_nbis_parse_rec_sel_option - Parse a command line option specifying
 #cat:              record selection criteria, such as FGP or IMP.
 #cat:              Values may be specified as integers from tables in
 #cat:              the standard, lists or ranges of such integers, or
@@ -1011,12 +1011,12 @@ static void rec_sel_usage(const REC_SEL_TYPE_PARAMS *const tp)
       zero     	 - success
       nonzero    - error
 ************************************************************************/
-int parse_rec_sel_option(const REC_SEL_TYPE type,
+int biomeval_nbis_parse_rec_sel_option(const REC_SEL_TYPE type,
 			 const char *const optstr,
 			 const char **remainder,
 			 REC_SEL **head,
 			 const int verbose)
-#define ERRHDR "ERROR : parse_rec_sel_option : "
+#define ERRHDR "ERROR : biomeval_nbis_parse_rec_sel_option : "
 {
    const char *const separators = ",-:"; /* meanings: list, range, stop */
    const REC_SEL_TYPE_PARAMS *type_params;
@@ -1028,7 +1028,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
    if (*head == NULL) {
       REC_SEL *orsel;
 
-      if (alloc_rec_sel(&orsel, rs_or, 5)) {
+      if (biomeval_nbis_alloc_rec_sel(&orsel, rs_or, 5)) {
 	 return -1;
       }
       *head = orsel;
@@ -1036,7 +1036,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
    
    /* Choose a table for interpreting names and validating values
       based on the selector type. */
-   if (get_type_params_by_type(&type_params, type)) {
+   if (biomeval_nbis_get_type_params_by_type(&type_params, type)) {
       fprintf(stderr, ERRHDR "option parsing not implemented for type %d\n",
 	      type);
       return -1;
@@ -1086,7 +1086,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
       }
       
       if (!strncasecmp(startp, "help", 4)) {
- 	 rec_sel_usage(type_params);
+ 	 biomeval_nbis_rec_sel_usage(type_params);
 	 if ( remainder && 
 	      (*strendp != ':' || !strncasecmp(strendp, ":help", 5)) ) {
 	    *remainder = startp;
@@ -1100,7 +1100,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
       if (numendp == strendp) {                              /* number found */
 
 	 /* Validate the number.  First check the extremes. */
-	 if (validate_rec_sel_num_value(type_params, new_value))
+	 if (biomeval_nbis_validate_rec_sel_num_value(type_params, new_value))
 	    return -3;
 	 
 	 /* What is the use of the number? */
@@ -1116,7 +1116,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
 		  if ((*valp).num >= range_start && (*valp).num <= new_value) {
 		     if (verbose) 
 			fprintf(stderr, "%ld ", (*valp).num);
-		     if (add_rec_sel_num(head, type, (*valp).num))
+		     if (biomeval_nbis_add_rec_sel_num(head, type, (*valp).num))
 			return -5;
 		  }
 	       }
@@ -1127,7 +1127,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
 	       for (val = range_start; val <= new_value; val++) {
 		  if (verbose)
 		     fprintf(stderr, "%d ", val);
-		  if (add_rec_sel_num(head, type, val))
+		  if (biomeval_nbis_add_rec_sel_num(head, type, val))
 		     return -5;
 	       }
 	    }
@@ -1139,7 +1139,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
 	 } else {		                  /* just a number */
 	    if (verbose)
 	       fprintf(stderr, "%d ", new_value);
-	    if (add_rec_sel_num(head, type, new_value))
+	    if (biomeval_nbis_add_rec_sel_num(head, type, new_value))
 	       return -6;
 	 }
 
@@ -1205,12 +1205,12 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
 	       if (rsv_num == type_params->value_type) {
 		  if (verbose)
 		     fprintf(stderr, "%ld ", valp->num);
-		  if (add_rec_sel_num(head, type, valp->num) < 0)
+		  if (biomeval_nbis_add_rec_sel_num(head, type, valp->num) < 0)
 		     return -9;
 	       } else if (rsv_str == type_params->value_type) {
 		  if (verbose)
 		     fprintf(stderr, "\"%s\" ", valp->str);
-		  if (add_rec_sel_str(head, type, valp->str) < 0)
+		  if (biomeval_nbis_add_rec_sel_str(head, type, valp->str) < 0)
 		     return -11;
 	       }
 	    }
@@ -1247,7 +1247,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
 
 /***********************************************************************
 ************************************************************************
-#cat: simplify_rec_sel - Simplify a set of record selectors,
+#cat: biomeval_nbis_simplify_rec_sel - Simplify a set of record selectors,
 #cat:              eliminating unnecessary or redundant elements, like
 #cat:              an 'rs_and' or 'rs_or' with one or no arguments,
 #cat:              combining nested 'rs_and's, etc.
@@ -1260,7 +1260,7 @@ int parse_rec_sel_option(const REC_SEL_TYPE type,
       zero     	 - success
       negative   - error
 ************************************************************************/
-int simplify_rec_sel(REC_SEL **rs)
+int biomeval_nbis_simplify_rec_sel(REC_SEL **rs)
 {
 #if 0
    int i, j, k;		/* loop control is tricky here */
@@ -1270,7 +1270,7 @@ int simplify_rec_sel(REC_SEL **rs)
    if ((*rs)->type == rs_and || (*rs)->type == rs_or) {
       REC_SEL **rsvn = (*rs)->value.rs;
       for (i = 0; i < (*rs)->num_values; i++) {
-	 if (simplify_rec_sel(&rsvn[i])) /* depth first recursion */
+	 if (biomeval_nbis_simplify_rec_sel(&rsvn[i])) /* depth first recursion */
 	    return -1;
 	 
 	 /* eliminate NULLs */
@@ -1300,12 +1300,12 @@ int simplify_rec_sel(REC_SEL **rs)
 
       /* splice out unneeded boolean item */
       if ((*rs)->num_values == 0) {
-	 /*	 free_rec_sel(*rs); */
+	 /*	 biomeval_nbis_free_rec_sel(*rs); */
 	 *rs = NULL;
       } else if ((*rs)->num_values == 1) {
 	 REC_SEL *old_rs = *rs;
 	 *rs = (*rs)->value.rs[0];
-	 /*	 free_rec_sel(old_rs); */
+	 /*	 biomeval_nbis_free_rec_sel(old_rs); */
       }
    }
 #endif
@@ -1314,10 +1314,10 @@ int simplify_rec_sel(REC_SEL **rs)
 
 /***********************************************************************
 ************************************************************************
-#cat: write_rec_sel - Write a set of record selectors to an open I/O
+#cat: biomeval_nbis_write_rec_sel - Write a set of record selectors to an open I/O
 #cat:              stream in a human readable format that can be
 #cat:              examined, modified, and read back in with
-#cat:              read_rec_sel.
+#cat:              biomeval_nbis_read_rec_sel.
 
    Input:
       fpout      - pointer to a writeable file I/O stream
@@ -1328,8 +1328,8 @@ int simplify_rec_sel(REC_SEL **rs)
       zero     	 - success
       nonzero    - error
 ************************************************************************/
-int write_rec_sel(FILE *fpout, const REC_SEL *const sel)
-#define ERRHDR "ERROR : write_rec_sel : "
+int biomeval_nbis_write_rec_sel(FILE *fpout, const REC_SEL *const sel)
+#define ERRHDR "ERROR : biomeval_nbis_write_rec_sel : "
 {
    static int indent = 0;
    const REC_SEL_TYPE_PARAMS *type_params;
@@ -1352,7 +1352,7 @@ int write_rec_sel(FILE *fpout, const REC_SEL *const sel)
 
    /* lookup the record selector type parameters,
       which includes the type name string */
-   if (get_type_params_by_type(&type_params, sel->type)) {
+   if (biomeval_nbis_get_type_params_by_type(&type_params, sel->type)) {
       fprintf(stderr, ERRHDR "unimplemented type %d\n", sel->type);
       return -3;
    }
@@ -1365,7 +1365,7 @@ int write_rec_sel(FILE *fpout, const REC_SEL *const sel)
       fprintf(fpout, "{\n");
       indent += indent_increment;
       for (rs_i = 0; rs_i < sel->num_values; rs_i++) {
-	 if (write_rec_sel(fpout, sel->value.rs[rs_i]) < 0) {
+	 if (biomeval_nbis_write_rec_sel(fpout, sel->value.rs[rs_i]) < 0) {
 	    return -4;
 	 }
       }
@@ -1394,10 +1394,10 @@ int write_rec_sel(FILE *fpout, const REC_SEL *const sel)
 
 /***********************************************************************
 ************************************************************************
-#cat: write_rec_sel_file - Write a set of record selectors to the
+#cat: biomeval_nbis_write_rec_sel_file - Write a set of record selectors to the
 #cat:              named file in a human readable format that can be
 #cat:              examined, modified, and read back in with
-#cat:              read_rec_sel_file.
+#cat:              biomeval_nbis_read_rec_sel_file.
 
    Input:
       file       - the name of a file to be written
@@ -1408,9 +1408,9 @@ int write_rec_sel(FILE *fpout, const REC_SEL *const sel)
       zero     	 - success
       nonzero    - error
 ************************************************************************/
-int write_rec_sel_file(const char *const file, 
+int biomeval_nbis_write_rec_sel_file(const char *const file, 
 		       const REC_SEL *const sel)
-#define ERRHDR "ERROR : write_rec_sel_file : "
+#define ERRHDR "ERROR : biomeval_nbis_write_rec_sel_file : "
 {
    FILE *fpout;
    int ret;
@@ -1421,7 +1421,7 @@ int write_rec_sel_file(const char *const file,
       return -1;
    }
    
-   if ( (ret = write_rec_sel(fpout, sel)) ) {
+   if ( (ret = biomeval_nbis_write_rec_sel(fpout, sel)) ) {
       if (fclose(fpout)) {
 	  fprintf(stderr, ERRHDR "fclose : %s : %s\n",
 		  file, strerror(errno));
@@ -1440,7 +1440,7 @@ int write_rec_sel_file(const char *const file,
 
 /***********************************************************************
 ************************************************************************
-#cat: read_rec_sel - Read a set or record selectors from an open file
+#cat: biomeval_nbis_read_rec_sel - Read a set or record selectors from an open file
 #cat:              I/O stream into a set of record selector
 #cat:              structures.
 
@@ -1449,13 +1449,13 @@ int write_rec_sel_file(const char *const file,
    Output
       sel        - Address used to return a pointer to the record selection
                    criteria read.  The space is dynamically allocated and can
-                   be freed with free_rec_sel.
+                   be freed with biomeval_nbis_free_rec_sel.
    Return
       zero       - success
       nonzero    - error
 ************************************************************************/
-int read_rec_sel(FILE *fpin, REC_SEL **sel)
-#define ERRHDR "ERROR : read_rec_sel : "
+int biomeval_nbis_read_rec_sel(FILE *fpin, REC_SEL **sel)
+#define ERRHDR "ERROR : biomeval_nbis_read_rec_sel : "
 {
    char buffer[64], *cp, *ep;
    const REC_SEL_TYPE_PARAMS *type_params = NULL;
@@ -1511,11 +1511,11 @@ int read_rec_sel(FILE *fpin, REC_SEL **sel)
 	       return -2;
 	    }
 	    while (1) {		/* iterate over nested criteria */
-	       if (read_rec_sel(fpin, &new_sel))
+	       if (biomeval_nbis_read_rec_sel(fpin, &new_sel))
 		  return -3;
 	       if (!new_sel) /* exit loop after closing bracket */
 		  break;
-	       if (add_rec_sel(&current_sel, new_sel))
+	       if (biomeval_nbis_add_rec_sel(&current_sel, new_sel))
 		  return -4;
 	    }
 	    *sel = current_sel;
@@ -1540,7 +1540,7 @@ int read_rec_sel(FILE *fpin, REC_SEL **sel)
 		       type_params->name, num, line_no, col_no);
 	       return -6;
 	    }       
-	    if (validate_rec_sel_num_value(type_params, num))
+	    if (biomeval_nbis_validate_rec_sel_num_value(type_params, num))
 	       return -7;
 
 	    current_sel->value.num = num;
@@ -1549,8 +1549,8 @@ int read_rec_sel(FILE *fpin, REC_SEL **sel)
 	    return 0;	/* success reading simple type/value pair */
 	    
 	 } else if (!type_params &&              /* record selector type name */
-		    !get_type_params_by_name(&type_params, buffer)) {
-	    if (alloc_rec_sel(&current_sel, type_params->type, 1))
+		    !biomeval_nbis_get_type_params_by_name(&type_params, buffer)) {
+	    if (biomeval_nbis_alloc_rec_sel(&current_sel, type_params->type, 1))
 	       return -8;
 	    /* proceed to read the next token */
 	    
@@ -1574,7 +1574,7 @@ int read_rec_sel(FILE *fpin, REC_SEL **sel)
 
 /***********************************************************************
 ************************************************************************
-#cat: read_rec_sel_file - Read a set or record selectors from a file
+#cat: biomeval_nbis_read_rec_sel_file - Read a set or record selectors from a file
 #cat:              into a set of record selector structures.
 
    Input
@@ -1585,33 +1585,33 @@ int read_rec_sel(FILE *fpin, REC_SEL **sel)
       sel -        Address used to return a pointer to the record
                    selection criteria structure created from the data
                    read from the input file.  The space is dynamically
-                   allocated and can be freed with free_rec_sel.
+                   allocated and can be freed with biomeval_nbis_free_rec_sel.
    Return
       zero       - success
       nonzero    - error
 ************************************************************************/
-int read_rec_sel_file(const char *const input_file, REC_SEL **sel)
+int biomeval_nbis_read_rec_sel_file(const char *const input_file, REC_SEL **sel)
 {
    FILE *fpin;
    int ret;
 
    fpin = fopen(input_file, "r");
    if (fpin == NULL) {
-      fprintf(stderr, "ERROR : read_rec_sel_file : fopen : %s : %s\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_read_rec_sel_file : fopen : %s : %s\n",
 	      input_file, strerror(errno));
       return -1;
    }
 
-   if ( (ret = read_rec_sel(fpin, sel)) ) {
+   if ( (ret = biomeval_nbis_read_rec_sel(fpin, sel)) ) {
       if (fclose(fpin)) {
-	 fprintf(stderr, "ERROR : read_rec_sel_file : fclose : %s : %s\n",
+	 fprintf(stderr, "ERROR : biomeval_nbis_read_rec_sel_file : fclose : %s : %s\n",
 		 input_file, strerror(errno));
       }
       return ret;	  
    }
 
    if (fclose(fpin)) {
-      fprintf(stderr, "ERROR : read_rec_sel_file : fclose : %s : %s\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_read_rec_sel_file : fclose : %s : %s\n",
 	      input_file, strerror(errno));
       return -2;
    }
@@ -1621,7 +1621,7 @@ int read_rec_sel_file(const char *const input_file, REC_SEL **sel)
 
 /***********************************************************************
 ************************************************************************
-#cat: imp_is_live_scan - Indicates whether an impression of a given type
+#cat: biomeval_nbis_imp_is_live_scan - Indicates whether an impression of a given type
 #cat:              is a live scan.
 
    Input
@@ -1630,12 +1630,12 @@ int read_rec_sel_file(const char *const input_file, REC_SEL **sel)
    Return
       TRUE or FALSE
 ************************************************************************/
-int imp_is_live_scan(const int imp)
+int biomeval_nbis_imp_is_live_scan(const int imp)
 {
    int i;
 
-   for (i = 0; i < imp_live_scan_set->num_values; i++) {
-      if (imp == imp_live_scan_set->values[i].num)
+   for (i = 0; i < biomeval_nbis_imp_live_scan_set->num_values; i++) {
+      if (imp == biomeval_nbis_imp_live_scan_set->values[i].num)
 	 return TRUE;
    }
    return FALSE;
@@ -1644,7 +1644,7 @@ int imp_is_live_scan(const int imp)
 
 /***********************************************************************
 ************************************************************************
-#cat: imp_is_latent - Indicates whether an impression of a given type
+#cat: biomeval_nbis_imp_is_latent - Indicates whether an impression of a given type
 #cat:              is a latent print.
 
    Input
@@ -1653,12 +1653,12 @@ int imp_is_live_scan(const int imp)
    Return
       TRUE or FALSE
 ************************************************************************/
-int imp_is_latent(const int imp)
+int biomeval_nbis_imp_is_latent(const int imp)
 {
    int i;
 
-   for (i = 0; i < imp_latent_set->num_values; i++) {
-      if (imp == imp_latent_set->values[i].num)
+   for (i = 0; i < biomeval_nbis_imp_latent_set->num_values; i++) {
+      if (imp == biomeval_nbis_imp_latent_set->values[i].num)
 	 return TRUE;
    }
    return FALSE;
@@ -1666,7 +1666,7 @@ int imp_is_latent(const int imp)
 
 /***********************************************************************
 ************************************************************************
-#cat: imp_is_rolled - Indicates whether an impression of a given type
+#cat: biomeval_nbis_imp_is_rolled - Indicates whether an impression of a given type
 #cat:              is a rolled print.
 
    Input
@@ -1675,12 +1675,12 @@ int imp_is_latent(const int imp)
    Return
       TRUE or FALSE
 ************************************************************************/
-int imp_is_rolled(const int imp)
+int biomeval_nbis_imp_is_rolled(const int imp)
 {
    int i;
 
-   for (i = 0; i < imp_rolled_set->num_values; i++) {
-      if (imp == imp_rolled_set->values[i].num)
+   for (i = 0; i < biomeval_nbis_imp_rolled_set->num_values; i++) {
+      if (imp == biomeval_nbis_imp_rolled_set->values[i].num)
 	 return TRUE;
    }
    return FALSE;
@@ -1688,7 +1688,7 @@ int imp_is_rolled(const int imp)
 
 /***********************************************************************
 ************************************************************************
-#cat: imp_is_flat - Indicates whether an impression of a given type
+#cat: biomeval_nbis_imp_is_flat - Indicates whether an impression of a given type
 #cat:              is a flat print.
 
    Input
@@ -1697,12 +1697,12 @@ int imp_is_rolled(const int imp)
    Return
       TRUE or FALSE
 ************************************************************************/
-int imp_is_flat(const int imp)
+int biomeval_nbis_imp_is_flat(const int imp)
 {
    int i;
 
-   for (i = 0; i < imp_flat_set->num_values; i++) {
-      if (imp == imp_flat_set->values[i].num)
+   for (i = 0; i < biomeval_nbis_imp_flat_set->num_values; i++) {
+      if (imp == biomeval_nbis_imp_flat_set->values[i].num)
 	 return TRUE;
    }
    return FALSE;

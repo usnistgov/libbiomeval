@@ -55,16 +55,16 @@ of the software.
       compressed data stream.
 
       ROUTINES:
-#cat: jpegl_decode_mem - Decodes a datastream of JPEGL compressed bytes
+#cat: biomeval_nbis_jpegl_decode_mem - Decodes a datastream of JPEGL compressed bytes
 #cat:                    from a memory buffer, returning a lossless
 #cat:                    reconstructed pixmap.
-#cat: build_huff_decode_table - Builds a table of pixel difference values.
+#cat: biomeval_nbis_build_huff_decode_table - Builds a table of pixel difference values.
 #cat:
-#cat: decode_data - Decodes compressed data buffer.
+#cat: biomeval_nbis_decode_data - Decodes compressed data buffer.
 #cat:
-#cat: nextbits_jpegl - Gets next sequence of bits for data decoding
+#cat: biomeval_nbis_nextbits_jpegl - Gets next sequence of bits for data decoding
 #cat:                    from an open file.
-#cat: getc_nextbits_jpegl - Gets next sequence of bits for data decoding
+#cat: biomeval_nbis_getc_nextbits_jpegl - Gets next sequence of bits for data decoding
 #cat:                    from a memory buffer.
 
 ***********************************************************************/
@@ -76,7 +76,7 @@ of the software.
 /******************/
 /*Start of Decoder*/
 /******************/
-int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
+int biomeval_nbis_jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
                      unsigned char *idata, const int ilen)
 {
    int ret;
@@ -87,7 +87,7 @@ int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
    int full_diff_code;     /*difference code extend to full precision*/
    int num_pixels;         /*number of pixels image will expand too*/
    int bit_count = 0;      /*marks the bit to receive from the input byte*/
-   short data_pred;        /*prediction of pixel value*/
+   short data_pred;        /*biomeval_nbis_prediction of pixel value*/
    /*holds the code for all possible
      difference values that occur when encoding*/
    int huff_decoder[MAX_CATEGORY][LARGESTDIFF+1];
@@ -102,7 +102,7 @@ int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
    unsigned char *optr;
 
    /*this routine builds a table used in decoding coded difference pixels*/
-   build_huff_decode_table(huff_decoder);
+   biomeval_nbis_build_huff_decode_table(huff_decoder);
 
    for(i = 0; i < MAX_CMPNTS; i++)
       huf_table[i] = (HUF_TABLE *)NULL;
@@ -111,53 +111,53 @@ int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
    cbufptr = idata;
    ebufptr = idata + ilen;
 
-   if((ret = getc_marker_jpegl(&marker, SOI, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_jpegl(&marker, SOI, &cbufptr, ebufptr)))
       return(ret);
 
-   if((ret = getc_marker_jpegl(&marker, APP0, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_jpegl(&marker, APP0, &cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_jfif_header(&jfif_header, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_jfif_header(&jfif_header, &cbufptr, ebufptr)))
       return(ret);
-   if((ret = get_ppi_jpegl(&ppi, jfif_header))){
+   if((ret = biomeval_nbis_get_ppi_jpegl(&ppi, jfif_header))){
       free(jfif_header);
       return(ret);
    }
    free(jfif_header);
 
-   if((ret = getc_marker_jpegl(&marker, TBLS_N_SOF, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_jpegl(&marker, TBLS_N_SOF, &cbufptr, ebufptr)))
       return(ret);
 
    /* While not at Start of Frame ... */
    while(marker != SOF3){
       /* Get next Huffman table or comment ... */
-      if((ret = getc_table_jpegl(marker, huf_table, &cbufptr, ebufptr))){
-         free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+      if((ret = biomeval_nbis_getc_table_jpegl(marker, huf_table, &cbufptr, ebufptr))){
+         biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
          return(ret);
       }
       /* Get next marker ... */
-      if((ret = getc_marker_jpegl(&marker, TBLS_N_SOF, &cbufptr, ebufptr))){
-         free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+      if((ret = biomeval_nbis_getc_marker_jpegl(&marker, TBLS_N_SOF, &cbufptr, ebufptr))){
+         biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
          return(ret);
       }
    }
 
    /* Get the Frame Header. */
-   if((ret = getc_frame_header_jpegl(&frm_header, &cbufptr, ebufptr))){
-      free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+   if((ret = biomeval_nbis_getc_frame_header_jpegl(&frm_header, &cbufptr, ebufptr))){
+      biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
       return(ret);
    }
 
    /* Allocate and initialize the output IMG_DAT structure. */
-   if((ret = setup_IMG_DAT_decode(&img_dat, ppi, frm_header))){
-      free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+   if((ret = biomeval_nbis_setup_IMG_DAT_decode(&img_dat, ppi, frm_header))){
+      biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
       free(frm_header);
       return(ret);
    }
    free(frm_header);
 
-   if((ret = getc_marker_jpegl(&marker, TBLS_N_SOS, &cbufptr, ebufptr))){
-      free_HUFF_TABLES(huf_table, MAX_CMPNTS);
-      free_IMG_DAT(img_dat, NO_FREE_IMAGE);
+   if((ret = biomeval_nbis_getc_marker_jpegl(&marker, TBLS_N_SOS, &cbufptr, ebufptr))){
+      biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+      biomeval_nbis_free_IMG_DAT(img_dat, NO_FREE_IMAGE);
       return(ret);
    }
 
@@ -166,32 +166,32 @@ int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
       /* While not at Start of Scan ... */
       while(marker != SOS) {
          /* Get next Huffman table or comment ... */
-         if((ret = getc_table_jpegl(marker, huf_table, &cbufptr, ebufptr))){
-            free_HUFF_TABLES(huf_table, MAX_CMPNTS);
-            free_IMG_DAT(img_dat, FREE_IMAGE);
+         if((ret = biomeval_nbis_getc_table_jpegl(marker, huf_table, &cbufptr, ebufptr))){
+            biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+            biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
             return(ret);
          }
          /* Get next marker ... */
-         if((ret = getc_marker_jpegl(&marker, TBLS_N_SOS, &cbufptr, ebufptr))){
-            free_HUFF_TABLES(huf_table, MAX_CMPNTS);
-            free_IMG_DAT(img_dat, FREE_IMAGE);
+         if((ret = biomeval_nbis_getc_marker_jpegl(&marker, TBLS_N_SOS, &cbufptr, ebufptr))){
+            biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+            biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
             return(ret);
          }
       }
 
       /* Get the Scan Header. */
-      if((ret = getc_scan_header(&scn_header, &cbufptr, ebufptr))){
-         free_HUFF_TABLES(huf_table, MAX_CMPNTS);
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+      if((ret = biomeval_nbis_getc_scan_header(&scn_header, &cbufptr, ebufptr))){
+         biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          return(ret);
       }
 
       /* Decode image data ... */
 
-      if((ret = update_IMG_DAT_decode(img_dat, scn_header, huf_table))){
-         free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+      if((ret = biomeval_nbis_update_IMG_DAT_decode(img_dat, scn_header, huf_table))){
+         biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
          free(scn_header);
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          return(ret);
       }
 
@@ -206,23 +206,23 @@ int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
 	 for(pixel = 0; pixel < num_pixels; pixel++) {
             /*get next huffman category code from compressed input
               data stream*/
-            if((ret = decode_data(&diff_cat, huf_table[cmpnt_i]->mincode,
+            if((ret = biomeval_nbis_decode_data(&diff_cat, huf_table[cmpnt_i]->mincode,
                                  huf_table[cmpnt_i]->maxcode,
                                  huf_table[cmpnt_i]->valptr,
                                  huf_table[cmpnt_i]->values,
                                  &cbufptr, ebufptr, &bit_count))){
-               free_HUFF_TABLES(huf_table, MAX_CMPNTS);
-               free_IMG_DAT(img_dat, FREE_IMAGE);
+               biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+               biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
                free(scn_header);
                return(ret);
             }
 
             /*get the required bits (given by huffman code) to reconstruct
               the difference value for the pixel*/
-            if((ret = getc_nextbits_jpegl(&diff_code, &cbufptr, ebufptr,
+            if((ret = biomeval_nbis_getc_nextbits_jpegl(&diff_code, &cbufptr, ebufptr,
                                    &bit_count, diff_cat))){
-               free_HUFF_TABLES(huf_table, MAX_CMPNTS);
-               free_IMG_DAT(img_dat, FREE_IMAGE);
+               biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+               biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
                free(scn_header);
                return(ret);
             }
@@ -230,14 +230,14 @@ int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
             /*extend the difference value to full precision*/
             full_diff_code = huff_decoder[diff_cat][diff_code];
 
-            /*reverse the pixel prediction and store the pixel value in the
+            /*reverse the pixel biomeval_nbis_prediction and store the pixel value in the
               output buffer*/
-            if((ret = predict(&data_pred, optr, img_dat->samp_width[cmpnt_i],
+            if((ret = biomeval_nbis_predict(&data_pred, optr, img_dat->samp_width[cmpnt_i],
                              pixel, img_dat->cmpnt_depth,
-                             img_dat->predict[cmpnt_i],
+                             img_dat->biomeval_nbis_predict[cmpnt_i],
                              img_dat->point_trans[cmpnt_i]))){
-               free_HUFF_TABLES(huf_table, MAX_CMPNTS);
-               free_IMG_DAT(img_dat, FREE_IMAGE);
+               biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+               biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
                free(scn_header);
                return(ret);
             }
@@ -247,11 +247,11 @@ int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
       }
       /* Otherwise, encoded data IS interleaved ... */
       else {
-         fprintf(stderr, "ERROR: jpegl_decode_mem : ");
+         fprintf(stderr, "ERROR: biomeval_nbis_jpegl_decode_mem : ");
          fprintf(stderr, "Sorry, this decoder does not handle ");
          fprintf(stderr, "encoded data that is interleaved.\n");
-         free_HUFF_TABLES(huf_table, MAX_CMPNTS);
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+         biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
 	 free(scn_header);
          return(-2);
       }
@@ -268,14 +268,14 @@ int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
       }
 
       /* Get next marker ... */
-      if((ret = getc_ushort(&marker, &cbufptr, ebufptr))){
-         free_HUFF_TABLES(huf_table, MAX_CMPNTS);
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+      if((ret = biomeval_nbis_getc_ushort(&marker, &cbufptr, ebufptr))){
+         biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          return(ret);
       }
    }
 
-   free_HUFF_TABLES(huf_table, MAX_CMPNTS);
+   biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
    *oimg_dat = img_dat;
    *lossyflag = 0;
 
@@ -285,7 +285,7 @@ int jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
 /***************************************************/
 /*Routine to build code table for difference values*/
 /***************************************************/
-void build_huff_decode_table(int huff_decoder[MAX_CATEGORY][LARGESTDIFF+1])
+void biomeval_nbis_build_huff_decode_table(int huff_decoder[MAX_CATEGORY][LARGESTDIFF+1])
 {
    short diff;
    int cat, count;     /*variables used to obtain desired
@@ -295,7 +295,7 @@ void build_huff_decode_table(int huff_decoder[MAX_CATEGORY][LARGESTDIFF+1])
 
    for(count = -LARGESTDIFF; count <= LARGESTDIFF; count++) {
       diff = (short)count;
-      cat = (int)categorize(diff);
+      cat = (int)biomeval_nbis_categorize(diff);
       if(diff < 0) {
 	 diff--;
 	 difftemp = 0;
@@ -313,7 +313,7 @@ void build_huff_decode_table(int huff_decoder[MAX_CATEGORY][LARGESTDIFF+1])
 /************************************/
 /*routine to decode the encoded data*/
 /************************************/
-int decode_data(int *odiff_cat, int *mincode, int *maxcode,
+int biomeval_nbis_decode_data(int *odiff_cat, int *mincode, int *maxcode,
                 int *valptr, unsigned char *huffvalues,
                 unsigned char **cbufptr, unsigned char *ebufptr, int *bit_count)
 {
@@ -323,12 +323,12 @@ int decode_data(int *odiff_cat, int *mincode, int *maxcode,
    unsigned short tcode, tcode2;
    int diff_cat;     /*category of the huffman code word*/
 
-   if((ret = getc_nextbits_jpegl(&tcode, cbufptr, ebufptr, bit_count, 1)))
+   if((ret = biomeval_nbis_getc_nextbits_jpegl(&tcode, cbufptr, ebufptr, bit_count, 1)))
       return(ret);
    code = tcode;
 
    for(inx = 1; code > maxcode[inx]; inx++){
-      if((ret = getc_nextbits_jpegl(&tcode2, cbufptr, ebufptr, bit_count, 1)))
+      if((ret = biomeval_nbis_getc_nextbits_jpegl(&tcode2, cbufptr, ebufptr, bit_count, 1)))
          return(ret);
       code = (code << 1) + tcode2;
    }
@@ -344,7 +344,7 @@ int decode_data(int *odiff_cat, int *mincode, int *maxcode,
 /**************************************************************/
 /*routine to get nextbit(s) of data stream from memory buffer */
 /**************************************************************/
-int nextbits_jpegl(unsigned short *obits, FILE *infp,
+int biomeval_nbis_nextbits_jpegl(unsigned short *obits, FILE *infp,
                   int *bit_count, const int bits_req)
 {
    int ret;
@@ -363,14 +363,14 @@ int nextbits_jpegl(unsigned short *obits, FILE *infp,
    }
 
    if(*bit_count == 0) {
-      if((ret = read_byte(&code, infp)))
+      if((ret = biomeval_nbis_read_byte(&code, infp)))
          return(ret);
       *bit_count = BITSPERBYTE;
       if(code == 0xff) {
-         if((ret = read_byte(&code2, infp)))
+         if((ret = biomeval_nbis_read_byte(&code2, infp)))
             return(ret);
 	 if(code2 != 0x00) {
-	    fprintf(stderr, "ERROR: nextbits_jpegl : no stuffed zeros\n");
+	    fprintf(stderr, "ERROR: biomeval_nbis_nextbits_jpegl : no stuffed zeros\n");
 	    return(-2);
 	 }
       }
@@ -384,7 +384,7 @@ int nextbits_jpegl(unsigned short *obits, FILE *infp,
       bits_needed = bits_req - *bit_count;
       bits = code << bits_needed;
       *bit_count = 0;
-      if((ret = nextbits_jpegl(&tbits, infp, bit_count, bits_needed)))
+      if((ret = biomeval_nbis_nextbits_jpegl(&tbits, infp, bit_count, bits_needed)))
          return(ret);
       bits |= tbits;
    }
@@ -396,7 +396,7 @@ int nextbits_jpegl(unsigned short *obits, FILE *infp,
 /**************************************************************/
 /*routine to get nextbit(s) of data stream from memory buffer */
 /**************************************************************/
-int getc_nextbits_jpegl(unsigned short *obits, unsigned char **cbufptr,
+int biomeval_nbis_getc_nextbits_jpegl(unsigned short *obits, unsigned char **cbufptr,
                   unsigned char *ebufptr, int *bit_count, const int bits_req)
 {
    int ret;
@@ -415,14 +415,14 @@ int getc_nextbits_jpegl(unsigned short *obits, unsigned char **cbufptr,
    }
 
    if(*bit_count == 0) {
-      if((ret = getc_byte(&code, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_byte(&code, cbufptr, ebufptr)))
          return(ret);
       *bit_count = BITSPERBYTE;
       if(code == 0xff) {
-         if((ret = getc_byte(&code2, cbufptr, ebufptr)))
+         if((ret = biomeval_nbis_getc_byte(&code2, cbufptr, ebufptr)))
             return(ret);
 	 if(code2 != 0x00) {
-	    fprintf(stderr, "ERROR: getc_nextbits_jpegl : no stuffed zeros\n");
+	    fprintf(stderr, "ERROR: biomeval_nbis_getc_nextbits_jpegl : no stuffed zeros\n");
 	    return(-2);
 	 }
       }
@@ -436,7 +436,7 @@ int getc_nextbits_jpegl(unsigned short *obits, unsigned char **cbufptr,
       bits_needed = bits_req - *bit_count;
       bits = code << bits_needed;
       *bit_count = 0;
-      if((ret = getc_nextbits_jpegl(&tbits, cbufptr, ebufptr, bit_count,
+      if((ret = biomeval_nbis_getc_nextbits_jpegl(&tbits, cbufptr, ebufptr, bit_count,
                                    bits_needed)))
          return(ret);
       bits |= tbits;

@@ -53,7 +53,7 @@ of the software.
       Contains routines responsible for exiting upon an system error.
 
       ROUTINES:
-#cat: syserr - exits on error with a status of -1, printing to stderr a
+#cat: biomeval_nbis_syserr - exits on error with a status of -1, printing to stderr a
 #cat:          caller-defined message.
 
 ***********************************************************************/
@@ -63,7 +63,7 @@ of the software.
 #include <stdio.h>
 #include <stdlib.h>
 
-void syserr(char *funcname, char *syscall, char *msg)
+void biomeval_nbis_syserr(char *funcname, char *syscall, char *msg)
 {
 
    (void) fflush(stdout);

@@ -61,9 +61,9 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        decode_ANSI_NIST_image()
-                        decode_binary_field_image()
-                        decode_tagged_field_image()
+                        biomeval_nbis_decode_ANSI_NIST_image()
+                        biomeval_nbis_decode_binary_field_image()
+                        biomeval_nbis_decode_tagged_field_image()
 
 ***********************************************************************/
 
@@ -87,7 +87,7 @@ of the software.
 
 /*************************************************************************
 **************************************************************************
-#cat:   decode_ANSI_NIST_image() - Takes an ANSI/NIST image record and
+#cat:   biomeval_nbis_decode_ANSI_NIST_image() - Takes an ANSI/NIST image record and
 #cat:                decodes its image data (if necessary) and returns
 #cat:                the reconstructed pixmap and image attributes.
 
@@ -107,7 +107,7 @@ of the software.
       FALSE    - image record ignored
       Negative - system error
 **************************************************************************/
-int decode_ANSI_NIST_image(unsigned char **odata,
+int biomeval_nbis_decode_ANSI_NIST_image(unsigned char **odata,
                      int *ow, int *oh, int *od, double *oppmm,
                      const ANSI_NIST *ansi_nist, const int imgrecord_i,
                      const int intrlvflag)
@@ -117,7 +117,7 @@ int decode_ANSI_NIST_image(unsigned char **odata,
 
    /* If image record index is out of range ... */
    if((imgrecord_i < 1) || (imgrecord_i > ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : decode_ANSI_NIST_image : "
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_ANSI_NIST_image : "
 	      "record index [%d] out of range [1..%d]\n",
               imgrecord_i+1, ansi_nist->num_records+1);
       return(-2);
@@ -127,22 +127,22 @@ int decode_ANSI_NIST_image(unsigned char **odata,
    imgrecord = ansi_nist->records[imgrecord_i];
 
    /* If Type-3,4,5,6 ... */
-   if(binary_image_record(imgrecord->type) != 0){
-      ret = decode_binary_field_image(odata, ow, oh, od, oppmm, ansi_nist,
+   if(biomeval_nbis_binary_image_record(imgrecord->type) != 0){
+      ret = biomeval_nbis_decode_binary_field_image(odata, ow, oh, od, oppmm, ansi_nist,
                                       imgrecord_i);
       /* if ERROR, IGNORE, or successfull ... return code. */
       return(ret);
    }
    /* If Type-10,13,14,15,16 ... */
    else if(tagged_image_record(imgrecord->type) != 0){
-      ret = decode_tagged_field_image(odata, ow, oh, od, oppmm, ansi_nist,
+      ret = biomeval_nbis_decode_tagged_field_image(odata, ow, oh, od, oppmm, ansi_nist,
                                       imgrecord_i, intrlvflag);
       /* if ERROR, IGNORE, or successfull ... return code. */
       return(ret);
    }
    /* Otherwise, not an image record, so ERROR. */
    else{
-      fprintf(stderr, "ERROR : decode_ANSI_NIST_image : "
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_ANSI_NIST_image : "
 	      "Record index [%d] [Type-%d] not an image record\n",
               imgrecord_i+1, imgrecord->type);
       return(-2);
@@ -153,7 +153,7 @@ int decode_ANSI_NIST_image(unsigned char **odata,
 
 /*************************************************************************
 **************************************************************************
-#cat:   decode_binary_field_image() - Takes an ANSI/NIST binary field
+#cat:   biomeval_nbis_decode_binary_field_image() - Takes an ANSI/NIST binary field
 #cat:                image record and decodes its image data (if necessary)
 #cat:                and returns the reconstructed pixmap and its attributes.
 
@@ -171,7 +171,7 @@ int decode_ANSI_NIST_image(unsigned char **odata,
       FALSE    - image record ignored
       Negative - system error
 **************************************************************************/
-int decode_binary_field_image(unsigned char **odata,
+int biomeval_nbis_decode_binary_field_image(unsigned char **odata,
                      int *ow, int *oh, int *od, double *oppmm,
                      const ANSI_NIST *ansi_nist, const int imgrecord_i)
 {
@@ -187,7 +187,7 @@ int decode_binary_field_image(unsigned char **odata,
 
    /* If image record index is out of range ... */
    if((imgrecord_i < 1) || (imgrecord_i > ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : decode_binary_field_image : "
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_binary_field_image : "
 	      "record index [%d] out of range [1..%d]\n",
               imgrecord_i+1, ansi_nist->num_records+1);
       return(-2);
@@ -199,7 +199,7 @@ int decode_binary_field_image(unsigned char **odata,
    /* If for some reason someone's passes a Type-8 record ... */
    if(imgrecord->type == TYPE_8_ID){
       /* Post warning and ignore record Type-8. */
-      fprintf(stderr, "WARNING : decode_binary_field_image : "
+      fprintf(stderr, "WARNING : biomeval_nbis_decode_binary_field_image : "
 	      "Type-8 record [%d] not supported.\n"
 	      "Image record ignored.\n", imgrecord_i+1);
       return(FALSE);
@@ -207,8 +207,8 @@ int decode_binary_field_image(unsigned char **odata,
 
    /* 1. Determine Compression */
    /* Lookup binary compression algorithm (BIN_CA_ID). */
-   if(lookup_ANSI_NIST_field(&field, &field_i, BIN_CA_ID, imgrecord) == 0){
-      fprintf(stderr, "ERROR : decode_binary_field_image : "
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, BIN_CA_ID, imgrecord) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_binary_field_image : "
 	      "BIN_CA field not found in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, BIN_CA_ID);
       return(-3);
@@ -220,7 +220,7 @@ int decode_binary_field_image(unsigned char **odata,
       (imgrecord->type == TYPE_6_ID)){
       /* If the image data is compressed ... */
       if(strcmp(img_comp, BIN_COMP_NONE) != 0){
-         fprintf(stderr, "WARNING : decode_binary_field_image : "
+         fprintf(stderr, "WARNING : biomeval_nbis_decode_binary_field_image : "
 		   "binary image compression of "
 		   "record index [%d] [Type-%d] is unsupported.\n"
 		   "Image record ignored.\n",
@@ -232,8 +232,8 @@ int decode_binary_field_image(unsigned char **odata,
          
    /* 2. Determine image W */
    /* Lookup horizontal line length (HLL_ID). */
-   if(lookup_ANSI_NIST_field(&field, &field_i, HLL_ID, imgrecord) == 0){
-      fprintf(stderr, "ERROR : decode_binary_field_image : "
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, HLL_ID, imgrecord) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_binary_field_image : "
 	      "HLL field not found in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, HLL_ID);
       return(-4);
@@ -242,8 +242,8 @@ int decode_binary_field_image(unsigned char **odata,
 
    /* 3. Determine image H */
    /* Lookup vertical line length (VLL_ID). */
-   if(lookup_ANSI_NIST_field(&field, &field_i, VLL_ID, imgrecord) == 0){
-      fprintf(stderr, "ERROR : decode_binary_field_image : "
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, VLL_ID, imgrecord) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_binary_field_image : "
 	      "VLL field not found in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, VLL_ID);
       return(-5);
@@ -263,14 +263,14 @@ int decode_binary_field_image(unsigned char **odata,
            id1 = 1;
            break;
       default:
-           fprintf(stderr, "ERROR : decode_binary_field_image : "
+           fprintf(stderr, "ERROR : biomeval_nbis_decode_binary_field_image : "
 		   "illegal binary image record type = %d\n", imgrecord->type);
            return(-6);
    }
 
    /* 5. Determine ppmm */
    /* Lookup image record's pixel/mm scan resolution. */
-   if((ret = lookup_binary_field_image_ppmm(&ppmm, ansi_nist, imgrecord_i)) !=0)
+   if((ret = biomeval_nbis_lookup_binary_field_image_ppmm(&ppmm, ansi_nist, imgrecord_i)) !=0)
       return(ret);
 
    /* Set image pointer to last field value in record. */
@@ -282,7 +282,7 @@ int decode_binary_field_image(unsigned char **odata,
    if(strcmp(img_comp, BIN_COMP_NONE) == 0){
       idata2 = (unsigned char *)malloc((size_t)ilen);
       if(idata2 == NULL){
-         fprintf(stderr, "ERROR : decode_binary_field_image : "
+         fprintf(stderr, "ERROR : biomeval_nbis_decode_binary_field_image : "
 		 "malloc : idata2 (%d bytes)\n", ilen);
          return(-7);
       }
@@ -299,13 +299,13 @@ int decode_binary_field_image(unsigned char **odata,
    /* Otherwise, binary field image data is compressed ... */
    /* If WSQ compressed ... */
    else if(strcmp(img_comp, BIN_COMP_WSQ) == 0){
-      if((ret = wsq_decode_mem(&idata2, &iw2, &ih2, &id2, &ppi, &lossyflag,
+      if((ret = biomeval_nbis_wsq_decode_mem(&idata2, &iw2, &ih2, &id2, &ppi, &lossyflag,
 			       idata1, ilen)) != 0)
          return(ret);
    }
    /* Otherwise, unsupported compression algorithm. */
    else{
-      fprintf(stderr, "WARNING : decode_binary_field_image : "
+      fprintf(stderr, "WARNING : biomeval_nbis_decode_binary_field_image : "
 	      "unsupported compression algorithm %.10s%s in "
 	      "image record index [%d] [Type-%d].\n"
 	      "Image record ignored.\n",
@@ -316,7 +316,7 @@ int decode_binary_field_image(unsigned char **odata,
    }
 
    if(iw1 != iw2){
-      fprintf(stderr, "ERROR : decode_binary_field_image : "
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_binary_field_image : "
 	      "[HLL field (from file) = %d] != "
 	      "[image width (from decoder) = %d]\n",
 	      iw1, iw2);
@@ -324,14 +324,14 @@ int decode_binary_field_image(unsigned char **odata,
       return(-8);
    }
    if(ih1 != ih2){
-      fprintf(stderr, "ERROR : decode_binary_field_image : "
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_binary_field_image : "
 	      "[VLL field (from file) = %d] != "
 	      "[image height (from decoder) = %d]\n", ih1, ih2);
       free(idata2);
       return(-9);
    }
    if(id1 != id2){
-      fprintf(stderr, "ERROR : decode_binary_field_image : "
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_binary_field_image : "
 	      "[pixel depth (from record Type-%d) = %d] != "
 	      "[pixel depth (from decoder) = %d]\n",
 	      id2, imgrecord->type, id1);
@@ -350,7 +350,7 @@ int decode_binary_field_image(unsigned char **odata,
 
 /*************************************************************************
 **************************************************************************
-#cat:   decode_tagged_field_image() - Takes an ANSI/NIST tagged field
+#cat:   biomeval_nbis_decode_tagged_field_image() - Takes an ANSI/NIST tagged field
 #cat:                image record and decodes its image data (if necessary)
 #cat:                and returns the reconstructed pixmap and its attributes.
 
@@ -370,7 +370,7 @@ int decode_binary_field_image(unsigned char **odata,
       FALSE    - image record ignored
       Negative - system error
 **************************************************************************/
-int decode_tagged_field_image(unsigned char **odata,
+int biomeval_nbis_decode_tagged_field_image(unsigned char **odata,
                      int *ow, int *oh, int *od, double *oppmm,
                      const ANSI_NIST *ansi_nist, const int imgrecord_i,
                      const int intrlvflag)
@@ -390,7 +390,7 @@ int decode_tagged_field_image(unsigned char **odata,
 
    /* If image record index is out of range ... */
    if((imgrecord_i < 1) || (imgrecord_i > ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : decode_tagged_field_image : "
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_tagged_field_image : "
 	      "record index [%d] out of range [1..%d]\n",
               imgrecord_i+1, ansi_nist->num_records+1);
       return(-2);
@@ -401,7 +401,7 @@ int decode_tagged_field_image(unsigned char **odata,
 
    /* If NOT Type-10,13,14,15,16 ... */
    if(tagged_image_record(ansi_nist->records[imgrecord_i]->type) == 0){
-      fprintf(stderr, "ERROR : decode_tagged_field_image : "
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_tagged_field_image : "
 	      "record index [%d] [Type-%d] is not a tagged file image record\n",
               imgrecord_i+1, imgrecord->type);
       return(-3);
@@ -409,8 +409,8 @@ int decode_tagged_field_image(unsigned char **odata,
 
    /* 1. Determine Compression */
    /* Lookup grayscale compression algorithm (TAG_CA_ID). */
-   if(lookup_ANSI_NIST_field(&field, &field_i, TAG_CA_ID, imgrecord) == 0){
-      fprintf(stderr, "ERROR : decode_tagged_field_image : "
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, TAG_CA_ID, imgrecord) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_tagged_field_image : "
 	      "TAG_CA field not found in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, TAG_CA_ID);
       return(-4);
@@ -419,8 +419,8 @@ int decode_tagged_field_image(unsigned char **odata,
 
    /* 2. Determine image W */
    /* Lookup horizontal line length (HLL_ID). */
-   if(lookup_ANSI_NIST_field(&field, &field_i, HLL_ID, imgrecord) == 0){
-      fprintf(stderr, "ERROR : decode_tagged_field_image : "
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, HLL_ID, imgrecord) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_tagged_field_image : "
 	      "HLL field not found in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, HLL_ID);
       return(-5);
@@ -429,8 +429,8 @@ int decode_tagged_field_image(unsigned char **odata,
 
    /* 3. Determine image H */
    /* Lookup vertical line length (VLL_ID). */
-   if(lookup_ANSI_NIST_field(&field, &field_i, VLL_ID, imgrecord) == 0){
-      fprintf(stderr, "ERROR : decode_tagged_field_image : "
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, VLL_ID, imgrecord) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_tagged_field_image : "
 	      "VLL field not found in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, VLL_ID);
       return(-6);
@@ -439,8 +439,8 @@ int decode_tagged_field_image(unsigned char **odata,
 
    /* 4. Determine pixel depth */
    /* Lookup bits per pixel or colorspace (BPX_ID==CSP_ID). */
-   if(lookup_ANSI_NIST_field(&field, &field_i, BPX_ID, imgrecord) == 0){
-      fprintf(stderr, "ERROR : decode_tagged_field_image : "
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, BPX_ID, imgrecord) == 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_decode_tagged_field_image : "
 	      "BPX field not found in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, BPX_ID);
       return(-7);
@@ -449,7 +449,7 @@ int decode_tagged_field_image(unsigned char **odata,
    if((imgrecord->type == TYPE_10_ID) || (imgrecord->type == TYPE_17_ID)){
       if (imgrecord->type == TYPE_10_ID){
       /* Grayscale? CSP_ID = 12, "GRAY" */
-         if(lookup_ANSI_NIST_field(&field, &field_i, CSP_ID, imgrecord) == 0){
+         if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, CSP_ID, imgrecord) == 0){
             fprintf(stderr, "ERROR : dpyan2k_tagged_record : "
 		    "CSP field in record index [%d] [Type-%d.%03d] not found\n",
                     imgrecord_i+1, imgrecord->type, CSP_ID);
@@ -458,7 +458,7 @@ int decode_tagged_field_image(unsigned char **odata,
       }     
       if (imgrecord->type == TYPE_17_ID){
       /* Grayscale? CSP_ID_Type_17 = 13, "GRAY" */
-         if(lookup_ANSI_NIST_field(&field, &field_i, CSP_ID_Type_17, imgrecord)
+         if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, CSP_ID_Type_17, imgrecord)
 	    == 0){
             fprintf(stderr, "ERROR : dpyan2k_tagged_record : "
 		    "CSP field in record index [%d] [Type-%d.%03d] not found\n",
@@ -479,7 +479,7 @@ int decode_tagged_field_image(unsigned char **odata,
          id1 = 24;
       /* Otherwise, unsupported color space, so ignore image record. */
       else{
-         fprintf(stderr, "WARNING : decode_tagged_field_image : "
+         fprintf(stderr, "WARNING : biomeval_nbis_decode_tagged_field_image : "
 		 "colorspace \"%.10s%s\" not supported in "
 		 "in record [%d] [Type-%d.%03d].\n"
 		 "Image record ignored.\n", 
@@ -496,7 +496,7 @@ int decode_tagged_field_image(unsigned char **odata,
 
    /* 5. Determine ppmm */
    /* Lookup image record's pixel/mm scan resolution. */
-   ret = lookup_tagged_field_image_ppmm(&ppmm, imgrecord);
+   ret = biomeval_nbis_lookup_tagged_field_image_ppmm(&ppmm, imgrecord);
    /* If error or IGNORE ... */
    if(ret <= 0)
       return(ret);
@@ -510,7 +510,7 @@ int decode_tagged_field_image(unsigned char **odata,
    if(strcmp(img_comp, COMP_NONE) == 0){
       idata2 = (unsigned char *)malloc((size_t)ilen1);
       if(idata2 == NULL){
-         fprintf(stderr, "ERROR : decode_tagged_field_image : "
+         fprintf(stderr, "ERROR : biomeval_nbis_decode_tagged_field_image : "
 		 "malloc : idata2 (%d bytes)\n", ilen1);
          return(-8);
       }
@@ -527,7 +527,7 @@ int decode_tagged_field_image(unsigned char **odata,
             hor_sampfctr[i] = 1;
             vrt_sampfctr[i] = 1;
          }
-         if((ret = not2intrlv_mem(&idata1, &ilen1, idata2, iw1, ih1, id1,
+         if((ret = biomeval_nbis_not2intrlv_mem(&idata1, &ilen1, idata2, iw1, ih1, id1,
 				  hor_sampfctr, vrt_sampfctr, n_cmpnts)) != 0){
             free(idata2);
             return(ret);
@@ -547,13 +547,13 @@ int decode_tagged_field_image(unsigned char **odata,
    }
    /* If WSQ compressed ... */
    else if(strcmp(img_comp, COMP_WSQ) == 0){
-      if((ret = wsq_decode_mem(&idata2, &iw2, &ih2, &id2, &ppi, &lossyflag,
+      if((ret = biomeval_nbis_wsq_decode_mem(&idata2, &iw2, &ih2, &id2, &ppi, &lossyflag,
                               idata1, ilen1)) != 0)
          return(ret);
    }
    /* If JPEGB compressed ... */
    else if(strcmp(img_comp, COMP_JPEGB) == 0){
-      if((ret = jpegb_decode_mem(&idata2, &iw2, &ih2, &id2, &ppi, &lossyflag,
+      if((ret = biomeval_nbis_jpegb_decode_mem(&idata2, &iw2, &ih2, &id2, &ppi, &lossyflag,
                                  idata1, ilen1)) != 0)
          return(ret);
       /* For 3 component color, JPEGB's decoder returns interleaved RGB. */
@@ -565,7 +565,7 @@ int decode_tagged_field_image(unsigned char **odata,
             hor_sampfctr[i] = 1;
             vrt_sampfctr[i] = 1;
          }
-         if((ret = intrlv2not_mem(&idata1, &ilen1, idata2, iw2, ih2, id2,
+         if((ret = biomeval_nbis_intrlv2not_mem(&idata1, &ilen1, idata2, iw2, ih2, id2,
                                  hor_sampfctr, vrt_sampfctr, n_cmpnts)) != 0){
             free(idata2);
             return(ret);
@@ -577,11 +577,11 @@ int decode_tagged_field_image(unsigned char **odata,
    }
    /* If JPEGL compressed ... */
    else if(strcmp(img_comp, COMP_JPEGL) == 0){
-      if((ret = jpegl_decode_mem(&img_dat, &lossyflag, idata1, ilen1)) != 0)
+      if((ret = biomeval_nbis_jpegl_decode_mem(&img_dat, &lossyflag, idata1, ilen1)) != 0)
          return(ret);
-      if((ret = get_IMG_DAT_image(&idata2, &ilen2, &iw2, &ih2, &id2, &ppi,
+      if((ret = biomeval_nbis_get_IMG_DAT_image(&idata2, &ilen2, &iw2, &ih2, &id2, &ppi,
                                  img_dat)) != 0){
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          return(ret);
       }
       /* For 3 component color, JPEGL's decoder returns non-interleaved  */
@@ -593,11 +593,11 @@ int decode_tagged_field_image(unsigned char **odata,
          /* of this routine. */
          /* The operational assumption is that the encoded color space */
          /* was RGB. */
-         if((ret = not2intrlv_mem(&idata1, &ilen1, idata2,
+         if((ret = biomeval_nbis_not2intrlv_mem(&idata1, &ilen1, idata2,
                                  img_dat->max_width, img_dat->max_height,
                                  img_dat->pix_depth, img_dat->hor_sampfctr,
                                  img_dat->vrt_sampfctr, img_dat->n_cmpnts)) !=0){
-            free_IMG_DAT(img_dat, FREE_IMAGE);
+            biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
             free(idata2);
             return(ret);
          }
@@ -606,7 +606,7 @@ int decode_tagged_field_image(unsigned char **odata,
          idata2 = idata1;
          ilen2 = ilen1;
       }
-      free_IMG_DAT(img_dat, FREE_IMAGE);
+      biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
    }
 #ifdef __NBIS_JASPER__
    /* If JPEG2K compress ... */
@@ -619,24 +619,24 @@ int decode_tagged_field_image(unsigned char **odata,
       if((ret = jpeg2k_decode_mem(&img_dat, &lossyflag, idata1, ilen1)) != 0)
          return(ret);
   
-      if((ret = get_IMG_DAT_image(&idata2, &ilen2, &iw2, &ih2, &id2, &ppi,
+      if((ret = biomeval_nbis_get_IMG_DAT_image(&idata2, &ilen2, &iw2, &ih2, &id2, &ppi,
                                  img_dat)) != 0){
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          return(ret);
       }
       /* For 3 component color, JPEG2K's decoder returns non-interleaved  */
       /* components planes.  So, if flag set to interleaved ...          */
       if((id2 == 24) && (intrlvflag != 0)){
-         if((ret = not2intrlv_mem(&idata1, &ilen1, idata2,
+         if((ret = biomeval_nbis_not2intrlv_mem(&idata1, &ilen1, idata2,
                                   img_dat->max_width, img_dat->max_height,
                                   img_dat->pix_depth, img_dat->hor_sampfctr,
                                   img_dat->vrt_sampfctr, img_dat->n_cmpnts)) != 0){
-            free_IMG_DAT(img_dat, FREE_IMAGE);
+            biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
             free(idata2);
             return(ret);
 
          }
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          free(idata2);
          idata2 = idata1;
          ilen2 = ilen1;
@@ -654,24 +654,24 @@ int decode_tagged_field_image(unsigned char **odata,
       if((ret = openjpeg2k_decode_mem(&img_dat, &lossyflag, idata1, ilen1)) != 0)
          return(ret);
  
-      if((ret = get_IMG_DAT_image(&idata2, &ilen2, &iw2, &ih2, &id2, &ppi,
+      if((ret = biomeval_nbis_get_IMG_DAT_image(&idata2, &ilen2, &iw2, &ih2, &id2, &ppi,
                                  img_dat)) != 0){
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          return(ret);
       }
       /* For 3 component color, JPEG2K's decoder returns non-interleaved  */
       /* components planes.  So, if flag set to interleaved ...          */
       if((id2 == 24) && (intrlvflag != 0)){
-         if((ret = not2intrlv_mem(&idata1, &ilen1, idata2,
+         if((ret = biomeval_nbis_not2intrlv_mem(&idata1, &ilen1, idata2,
                                   img_dat->max_width, img_dat->max_height,
                                   img_dat->pix_depth, img_dat->hor_sampfctr,
                                   img_dat->vrt_sampfctr, img_dat->n_cmpnts)) != 0){
-            free_IMG_DAT(img_dat, FREE_IMAGE);
+            biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
             free(idata2);
             return(ret);
 
          }
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          free(idata2);
          idata2 = idata1;
          ilen2 = ilen1;
@@ -683,23 +683,23 @@ int decode_tagged_field_image(unsigned char **odata,
    else if(strcmp(img_comp, COMP_PNG) == 0){
       if((ret = png_decode_mem(&img_dat, &lossyflag, idata1, ilen1)) != 0)
          return(ret);
-      if((ret = get_IMG_DAT_image(&idata2, &ilen2, &iw2, &ih2, &id2, &ppi,
+      if((ret = biomeval_nbis_get_IMG_DAT_image(&idata2, &ilen2, &iw2, &ih2, &id2, &ppi,
                                  img_dat)) != 0){
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          return(ret);
       }
       /* For 3 component color, PNG's decoder returns non-interleaved  */
       /* components planes.  So, if flag set to interleaved ...          */
       if((id2 == 24) && (intrlvflag != 0)){
-         if((ret = not2intrlv_mem(&idata1, &ilen1, idata2,
+         if((ret = biomeval_nbis_not2intrlv_mem(&idata1, &ilen1, idata2,
                                   img_dat->max_width, img_dat->max_height,
                                   img_dat->pix_depth, img_dat->hor_sampfctr,
                                   img_dat->vrt_sampfctr, img_dat->n_cmpnts)) !=  0){
-            free_IMG_DAT(img_dat, FREE_IMAGE); 
+            biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE); 
             free(idata2);
             return(ret);
          }
-         free_IMG_DAT(img_dat, FREE_IMAGE);
+         biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);
          free(idata2);
          idata2 = idata1;
          ilen2 = ilen1;
@@ -708,7 +708,7 @@ int decode_tagged_field_image(unsigned char **odata,
 #endif
    /* Otherwise, unsupported compression algorithm. */
    else{
-      fprintf(stderr, "WARNING : decode_tagged_field_image : "
+      fprintf(stderr, "WARNING : biomeval_nbis_decode_tagged_field_image : "
 	      "unsupported compression algorithm %.10s%s in "
 	      "image record index [%d] [Type-%d].\n"
 	      "Image record ignored.\n",
@@ -724,7 +724,7 @@ int decode_tagged_field_image(unsigned char **odata,
    /* block.  In these cases, we post a warning and then set      */
    /* image attributes to be consistent with what was decoded.    */
    if(iw1 != iw2){
-      fprintf(stderr, "WARNING : decode_tagged_field_image : "
+      fprintf(stderr, "WARNING : biomeval_nbis_decode_tagged_field_image : "
 	      "[HLL field (from file) = %d] != "
 	      "[image width (from decoder) = %d]\n"
 	      "Will continue with operating assumption "
@@ -732,7 +732,7 @@ int decode_tagged_field_image(unsigned char **odata,
       iw1 = iw2;
    }
    if(ih1 != ih2){
-      fprintf(stderr, "WARNING : decode_tagged_field_image : "
+      fprintf(stderr, "WARNING : biomeval_nbis_decode_tagged_field_image : "
 	      "[VLL field (from file) = %d] != "
 	      "[image height (from decoder) = %d]\n"
 	      "Will continue with operating assumption "
@@ -740,7 +740,7 @@ int decode_tagged_field_image(unsigned char **odata,
       ih1 = ih2;
    }
    if(id1 != id2){
-      fprintf(stderr, "WARNING : decode_tagged_field_image : "
+      fprintf(stderr, "WARNING : biomeval_nbis_decode_tagged_field_image : "
 	      "[pixel depth (from field value) = %d] != "
 	      "[pixel depth (from decoder) = %d]\n"
 	      "Will continue with operating assumption "

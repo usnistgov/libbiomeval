@@ -55,10 +55,10 @@ of the software.
       a specified attribute in an attribute-value paird list.
 
       ROUTINES:
-#cat: updatefet - replaces a feature entry in an fet structure, or creates
+#cat: biomeval_nbis_updatefet - replaces a feature entry in an fet structure, or creates
 #cat:             a new entry if the feature does not already exist.
 #cat:             Exits on error.
-#cat: updatefet_ret - replaces a feature entry in an fet structure, or
+#cat: biomeval_nbis_updatefet_ret - replaces a feature entry in an fet structure, or
 #cat:             creates a new entry if the feature does not already exist.
 #cat:             Returns on error.
 
@@ -72,7 +72,7 @@ of the software.
 #include <util.h>
 
 /***********************************************************************/
-void updatefet(char *feature, char *value, FET *fet)
+void biomeval_nbis_updatefet(char *feature, char *value, FET *fet)
 {
   int item;
   int increased, incr;
@@ -90,7 +90,7 @@ void updatefet(char *feature, char *value, FET *fet)
         len = strlen(value) + 1;
         fet->values[item] = malloc(len);
         if(fet->values[item] == (char *)NULL)
-           syserr("updatefet","malloc","fet->values[]");
+           biomeval_nbis_syserr("biomeval_nbis_updatefet","malloc","fet->values[]");
 	strncpy(fet->values[item], value, len);
      }
   }
@@ -98,18 +98,18 @@ void updatefet(char *feature, char *value, FET *fet)
      if(fet->num >= fet->alloc){
         incr      = fet->alloc / 10;		/* add 10% or 10 which-	*/
         increased = fet->alloc + max(10, incr);	/* ever is larger	*/
-        reallocfet(fet, increased);
+        rebiomeval_nbis_allocfet(fet, increased);
      }
      len = strlen(feature) + 1;
      fet->names[fet->num] = malloc(len);
      if(fet->names[fet->num] == (char *)NULL)
-        syserr("updatefet","malloc","fet->names[]");
+        biomeval_nbis_syserr("biomeval_nbis_updatefet","malloc","fet->names[]");
      strncpy(fet->names[fet->num], feature, len);
      if(value != (char *)NULL){
         len = strlen(value) + 1;
         fet->values[fet->num] = malloc(len);
         if(fet->values[fet->num] == (char *)NULL)
-           syserr("updatefet","malloc","fet->values[]");
+           biomeval_nbis_syserr("biomeval_nbis_updatefet","malloc","fet->values[]");
 	strncpy(fet->values[fet->num], value, len);
      }
      (fet->num)++;
@@ -117,7 +117,7 @@ void updatefet(char *feature, char *value, FET *fet)
 }
 
 /***********************************************************************/
-int updatefet_ret(char *feature, char *value, FET *fet)
+int biomeval_nbis_updatefet_ret(char *feature, char *value, FET *fet)
 {
   int ret, item;
   int increased, incr;
@@ -135,7 +135,7 @@ int updatefet_ret(char *feature, char *value, FET *fet)
         len = strlen(value) + 1;
         fet->values[item] = malloc(len);
         if(fet->values[item] == (char *)NULL){
-           fprintf(stderr, "ERROR : updatefet_ret : malloc : fet->values[]\n");
+           fprintf(stderr, "ERROR : biomeval_nbis_updatefet_ret : malloc : fet->values[]\n");
            return(-2);
         }
 	strncpy(fet->values[item], value, len);
@@ -145,13 +145,13 @@ int updatefet_ret(char *feature, char *value, FET *fet)
      if(fet->num >= fet->alloc){
         incr      = fet->alloc / 10;		/* add 10% or 10 which-	*/
         increased = fet->alloc + max(10, incr);	/* ever is larger	*/
-        if((ret = reallocfet_ret(&fet, increased)))
+        if((ret = rebiomeval_nbis_allocfet_ret(&fet, increased)))
            return(ret);
      }
      len = strlen(feature) + 1;
      fet->names[fet->num] = malloc(len);
      if(fet->names[fet->num] == (char *)NULL){
-        fprintf(stderr, "ERROR : updatefet_ret : malloc : fet->names[]\n");
+        fprintf(stderr, "ERROR : biomeval_nbis_updatefet_ret : malloc : fet->names[]\n");
         return(-3);
      }
      strncpy(fet->names[fet->num], feature, len);
@@ -159,7 +159,7 @@ int updatefet_ret(char *feature, char *value, FET *fet)
      	len = strlen(value) + 1;
         fet->values[fet->num] = malloc(len);
         if(fet->values[fet->num] == (char *)NULL){
-           fprintf(stderr, "ERROR : updatefet_ret : malloc : fet->values[]\n");
+           fprintf(stderr, "ERROR : biomeval_nbis_updatefet_ret : malloc : fet->values[]\n");
            return(-4);
         }
 	strncpy(fet->values[fet->num], value, len);

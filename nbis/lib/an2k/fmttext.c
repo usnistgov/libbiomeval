@@ -60,16 +60,16 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        read_fmttext_file()
-                        read_fmttext()
-                        read_fmttext_item()
-                        write_fmttext_file()
-                        write_fmttext()
-                        write_fmttext_record()
-                        write_fmttext_field()
-                        write_fmttext_image_field()
-                        write_fmttext_subfield()
-                        write_fmttext_item()
+                        biomeval_nbis_read_fmttext_file()
+                        biomeval_nbis_read_fmttext()
+                        biomeval_nbis_read_fmttext_item()
+                        biomeval_nbis_write_fmttext_file()
+                        biomeval_nbis_write_fmttext()
+                        biomeval_nbis_write_fmttext_record()
+                        biomeval_nbis_write_fmttext_field()
+                        biomeval_nbis_write_fmttext_image_field()
+                        biomeval_nbis_write_fmttext_subfield()
+                        biomeval_nbis_write_fmttext_item()
 
 ***********************************************************************/
 
@@ -83,7 +83,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: read_fmttext_file - Routine reads into memory the contents of the
+#cat: biomeval_nbis_read_fmttext_file - Routine reads into memory the contents of the
 #cat:              specified textually formatted version of an ANSI/NIST file.
 
    Input:
@@ -94,31 +94,31 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int read_fmttext_file(const char *ifile, ANSI_NIST **oansi_nist)
+int biomeval_nbis_read_fmttext_file(const char *ifile, ANSI_NIST **oansi_nist)
 {
    FILE *fpin;
    int ret;
    ANSI_NIST *ansi_nist;
 
    if((fpin = fopen(ifile, "rb")) == NULL){
-      fprintf(stderr, "ERROR : read_fmttext_file : fopen '%s': %s\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_file : fopen '%s': %s\n",
 	      ifile, strerror(errno));
       return(-2);
    }
 
-   if((ret = alloc_ANSI_NIST(&ansi_nist))){
+   if((ret = biomeval_nbis_alloc_ANSI_NIST(&ansi_nist))){
       if(fclose(fpin)){
-         fprintf(stderr, "ERROR : read_fmttext_file : fclose '%s': %s\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_file : fclose '%s': %s\n",
 		 ifile, strerror(errno));
         return(-3);
       }
       return(ret);
    }
 
-   if((ret = read_fmttext(fpin, ansi_nist))){
-      free_ANSI_NIST(ansi_nist);
+   if((ret = biomeval_nbis_read_fmttext(fpin, ansi_nist))){
+      biomeval_nbis_free_ANSI_NIST(ansi_nist);
       if(fclose(fpin)){
-         fprintf(stderr, "ERROR : read_fmttext_file : fclose '%s': %s\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_file : fclose '%s': %s\n",
 		 ifile, strerror(errno));
         return(-4);
       }
@@ -129,10 +129,10 @@ int read_fmttext_file(const char *ifile, ANSI_NIST **oansi_nist)
    /* bytes in the ANSI-NIST structures may no longer be in     */
    /* sync with byte lengths stored in the records' LEN fields. */
    /* Where needed, change the LEN fields to bring in sync.     */
-   if((ret = update_ANSI_NIST_record_LENs(ansi_nist))){
-      free_ANSI_NIST(ansi_nist);
+   if((ret = biomeval_nbis_update_ANSI_NIST_record_LENs(ansi_nist))){
+      biomeval_nbis_free_ANSI_NIST(ansi_nist);
       if(fclose(fpin)){
-         fprintf(stderr, "ERROR : read_fmttext_file : fclose '%s': %s\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_file : fclose '%s': %s\n",
 		 ifile, strerror(errno));
         return(-5);
       }
@@ -140,7 +140,7 @@ int read_fmttext_file(const char *ifile, ANSI_NIST **oansi_nist)
    }
 
    if(fclose(fpin)){
-      fprintf(stderr, "ERROR : read_fmttext_file : fclose '%s': %s\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_file : fclose '%s': %s\n",
 	      ifile, strerror(errno));
      return(-6);
    }
@@ -152,7 +152,7 @@ int read_fmttext_file(const char *ifile, ANSI_NIST **oansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: read_fmttext - Routine reads into memory the contents from an
+#cat: biomeval_nbis_read_fmttext - Routine reads into memory the contents from an
 #cat:              open file pointer of a textually formatted version
 #cat:              of an ANSI/NIST file.
 
@@ -164,7 +164,7 @@ int read_fmttext_file(const char *ifile, ANSI_NIST **oansi_nist)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
+int biomeval_nbis_read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
 {
    int ret, ret_bytes;
    int record_i, field_i, subfield_i, item_i;
@@ -186,7 +186,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
 
    while(1){
       /* Read next information item line from formatted text file ... */
-      ret = read_fmttext_item(fpin, &record_i, &field_i,
+      ret = biomeval_nbis_read_fmttext_item(fpin, &record_i, &field_i,
                  &subfield_i, &item_i, &record_type, &field_int, &itemvalue);
 
       if(ret < 0)
@@ -202,11 +202,11 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
       /* If item read belonging to new record ... */
       if(record_i != orecord_i){
          /* Allocate new record. */
-         if((ret = alloc_ANSI_NIST_record(&record)))
+         if((ret = biomeval_nbis_alloc_ANSI_NIST_record(&record)))
             return(ret);
          /* Add new record to ANSI-NIST structure. */
-         if((ret = update_ANSI_NIST(ansi_nist, record))){
-            free_ANSI_NIST_record(record);
+         if((ret = biomeval_nbis_update_ANSI_NIST(ansi_nist, record))){
+            biomeval_nbis_free_ANSI_NIST_record(record);
             return(ret);
          }
 
@@ -220,7 +220,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
 
          /* Only tagged field records have separator characters, */
          /* binary image records do not.                         */
-         if(tagged_record(record_type)){
+         if(biomeval_nbis_tagged_record(record_type)){
             /* Every tagged record ends with an FS separator. */
             /* Add trailing FS separator to record.           */
             record->fs_char = TRUE;
@@ -235,7 +235,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
          (field_i != ofield_i)){
          /* If field(s) already read and a tagged field record ... */
          /* (Only tagged fields have separator characters.)        */
-         if((field_repeat) && (tagged_record(record->type))){
+         if((field_repeat) && (biomeval_nbis_tagged_record(record->type))){
             /* Add GS separator to previous field. */
             field->gs_char = TRUE;
             /* Bump bytes in field and parent structures. */
@@ -252,10 +252,10 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
          item_repeat = FALSE;
 
          /* Allocate new field. */
-         if((ret = alloc_ANSI_NIST_field(&field)))
+         if((ret = biomeval_nbis_alloc_ANSI_NIST_field(&field)))
             return(ret);
          /* Add new field to current record ... */
-         if((ret = update_ANSI_NIST_record(record, field))){
+         if((ret = biomeval_nbis_update_ANSI_NIST_record(record, field))){
             return(ret);
          }
 
@@ -265,12 +265,12 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
 
          /* Only tagged fields (including 999 image fields) have */
          /* field ID strings, binary image record fields do not. */
-         if(tagged_record(record->type)){
+         if(biomeval_nbis_tagged_record(record->type)){
             /* Allocate and generate the field's ID string. */
             field->id = (char *)malloc((2 * FIELD_NUM_LEN) + 3);
             if(field->id == NULL){
-               free_ANSI_NIST_field(field);
-               fprintf(stderr, "ERROR : read_fmttext : "
+               biomeval_nbis_free_ANSI_NIST_field(field);
+               fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext : "
                        "malloc : ID string for field index [%d] [Type-%d.%03d] "
 		       "(%d bytes)\n", field_i, record_type, field_int,
 		       (2 * FIELD_NUM_LEN) + 3);
@@ -293,7 +293,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
          (subfield_i != osubfield_i)){
          /* If subfield(s) already read and a tagged field record ... */
          /* (Only tagged field records have separator characters.)    */
-         if((subfield_repeat) && (tagged_record(record->type))){
+         if((subfield_repeat) && (biomeval_nbis_tagged_record(record->type))){
             /* Add RS separator to previous subfield. */
             subfield->rs_char = TRUE;
             /* Bump bytes in subfield and parent structures. */
@@ -310,10 +310,10 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
          item_repeat = FALSE;
 
          /* Allocate new subfield. */
-         if((ret = alloc_ANSI_NIST_subfield(&subfield)))
+         if((ret = biomeval_nbis_alloc_ANSI_NIST_subfield(&subfield)))
             return(ret);
          /* Add new subfield to current field ... */
-         if((ret = update_ANSI_NIST_field(field, subfield))){
+         if((ret = biomeval_nbis_update_ANSI_NIST_field(field, subfield))){
             return(ret);
          }
       }
@@ -328,7 +328,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
          /* Could test for tagged 999 image field here, but it should  */
          /* always be the last field in the record with a single item, */
          /* so don't bother.                                           */
-         if((item_repeat) && (tagged_record(record->type))){
+         if((item_repeat) && (biomeval_nbis_tagged_record(record->type))){
             /* Add US separator to previous item. */
             item->us_char = TRUE;
             /* Bump bytes in item and parent structures. */
@@ -343,17 +343,17 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
             item_repeat = TRUE;
 
          /* Allocate new item. */
-         if((ret = alloc_ANSI_NIST_item(&item)))
+         if((ret = biomeval_nbis_alloc_ANSI_NIST_item(&item)))
             return(ret);
          /* Add new item to current subfield ... */
-         if((ret = update_ANSI_NIST_subfield(subfield, item))){
+         if((ret = biomeval_nbis_update_ANSI_NIST_subfield(subfield, item))){
             return(ret);
          }
 
          /* If image field (binary or tagged field) ... */
-         if(image_field(field)){
+         if(biomeval_nbis_image_field(field)){
             /* Read in the externally referenced binary image block. */
-            if((ret = read_binary_image_data(itemvalue, &bindata, &binbytes)))
+            if((ret = biomeval_nbis_read_binary_image_data(itemvalue, &bindata, &binbytes)))
                return(ret);
             fprintf(stderr, "Read %d bytes of binary image data\n", binbytes);
 
@@ -373,7 +373,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
 #ifdef UNLINK
             /* Unlink the externally referenced file. */
             if(unlink(itemvalue)){
-               fprintf(stderr, "ERROR : read_fmttext : unlink failed : %s\n",
+               fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext : unlink failed : %s\n",
 		       itemvalue);
                return(-3);
             }
@@ -381,7 +381,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
 #endif
          }
          /* If binary (non-image) field ... */
-         else if(binary_record(record->type)){
+         else if(biomeval_nbis_binary_record(record->type)){
             /* Set item attributes. */
             alloc_chars = strlen(itemvalue) + 1;
             if(alloc_chars >= item->alloc_chars){
@@ -389,7 +389,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
 		  = (unsigned char *)realloc(item->value, alloc_chars);
 
                if(new_ptr == NULL){
-                  fprintf(stderr, "ERROR : read_fmttext : "
+                  fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext : "
 			  "realloc : item->value (increase %d bytes to %d)\n",
 			  item->alloc_chars, alloc_chars);
                   return(-4);
@@ -401,24 +401,24 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
             item->num_chars = strlen(itemvalue);
 
             /* Determine fixed byte size for binary field... */
-            if(binary_image_record(record->type)){
+            if(biomeval_nbis_binary_image_record(record->type)){
                if(field->field_int == FGP_ID)
                   byte_adjust = 1;
                else{
                   if((ret_bytes =
-                         binary_image_field_bytes(field->field_int)) < 0)
+                         biomeval_nbis_binary_image_field_bytes(field->field_int)) < 0)
                      return(ret_bytes);
                   byte_adjust = ret_bytes;
                }
             }
-            else if(binary_signature_record(record->type)){
+            else if(biomeval_nbis_binary_signature_record(record->type)){
                if((ret_bytes =
-                      binary_signature_field_bytes(field->field_int)) < 0)
+                      biomeval_nbis_binary_signature_field_bytes(field->field_int)) < 0)
                   return(ret_bytes);
                byte_adjust = ret_bytes;
             }
             else{
-               fprintf(stderr, "ERROR : read_fmttext : "
+               fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext : "
 		       "unknown binary record [Type-%d]\n", record->type);
                return(-5);
             }
@@ -440,7 +440,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
 		  = (unsigned char *)realloc(item->value, alloc_chars);
 
                if(new_ptr == NULL){
-                  fprintf(stderr, "ERROR : read_fmttext : "
+                  fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext : "
 			  "realloc : item->value (increase %d bytes to %d)\n",
 			  item->alloc_chars, alloc_chars);
                   return(-6);
@@ -461,7 +461,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
          }
       }
       else{
-         fprintf(stderr, "ERROR : read_fmttext : "
+         fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext : "
 		 "duplicate information item read\n");
          return(-7);
       }
@@ -479,7 +479,7 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: read_fmttext_item - Routine reads into memory an entry (or line of
+#cat: biomeval_nbis_read_fmttext_item - Routine reads into memory an entry (or line of
 #cat:              text) from an open file pointer of a textually formatted
 #cat:              version of an ANSI/NIST file.  Each line read is an
 #cat:              information item according to the standard, and returned
@@ -501,74 +501,74 @@ int read_fmttext(FILE *fpin, ANSI_NIST *ansi_nist)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int read_fmttext_item(FILE *fpin, int *orecord_i, int *ofield_i,
+int biomeval_nbis_read_fmttext_item(FILE *fpin, int *orecord_i, int *ofield_i,
                                 int *osubfield_i, int *oitem_i,
                                 int *orecord_type, int *ofield_int,
                                 char **oitemvalue)
 {
    /* Skip white space, and return FALSE, if EOF. */
-   if(skip_white_space(fpin) == EOF)
+   if(biomeval_nbis_skip_white_space(fpin) == EOF)
       return(FALSE);
 
    /* Read record index. */
-   if(read_integer(fpin, orecord_i, '.') <= 0){
-      fprintf(stderr, "ERROR : read_fmttext_item : record index not read\n");
+   if(biomeval_nbis_read_integer(fpin, orecord_i, '.') <= 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : record index not read\n");
       return(-2);
    }
 
    /* Read field index. */
-   if(read_integer(fpin, ofield_i, '.') <= 0){
-      fprintf(stderr, "ERROR : read_fmttext_item : field index not read\n");
+   if(biomeval_nbis_read_integer(fpin, ofield_i, '.') <= 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : field index not read\n");
       return(-3);
    }
 
    /* Read subfield index. */
-   if(read_integer(fpin, osubfield_i, '.') <= 0){
-      fprintf(stderr, "ERROR : read_fmttext_item : subfield index not read\n");
+   if(biomeval_nbis_read_integer(fpin, osubfield_i, '.') <= 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : subfield index not read\n");
       return(-4);
    }
 
    /* Read item index. */
-   if(read_integer(fpin, oitem_i, ' ') <= 0){
-      fprintf(stderr, "ERROR : read_fmttext_item : item index not read\n");
+   if(biomeval_nbis_read_integer(fpin, oitem_i, ' ') <= 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : item index not read\n");
       return(-5);
    }
 
-   if(skip_white_space(fpin) == EOF){
-      fprintf(stderr, "ERROR : read_fmttext_item : "
+   if(biomeval_nbis_skip_white_space(fpin) == EOF){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : "
 	      "premature EOF after item index\n");
       return(-6);
    }
 
    /* Read '['. */
-   if(!read_char(fpin, '[')){
-      fprintf(stderr, "ERROR : read_fmttext_item : "
+   if(!biomeval_nbis_read_char(fpin, '[')){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : "
 	      "\"[\" not read following item index\n");
       return(-7);
    }
 
    /* Read record type. */
-   if(read_integer(fpin, orecord_type, '.') <= 0){
-      fprintf(stderr, "ERROR : read_fmttext_item : record type not read\n");
+   if(biomeval_nbis_read_integer(fpin, orecord_type, '.') <= 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : record type not read\n");
       return(-8);
    }
 
    /* Read field ID. */
-   if(read_integer(fpin, ofield_int, ']') <= 0){
-      fprintf(stderr, "ERROR : read_fmttext_item : field ID not read\n");
+   if(biomeval_nbis_read_integer(fpin, ofield_int, ']') <= 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : field ID not read\n");
       return(-9);
    }
 
    /* Read '='. */
-   if(!read_char(fpin, ITEM_START)){
-      fprintf(stderr, "ERROR : read_fmttext_item : "
+   if(!biomeval_nbis_read_char(fpin, ITEM_START)){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : "
 	      "\"%c\" (start item value character) not read\n", ITEM_START);
       return(-10);
    }
 
    /* Read item's value. */
-   if(read_string(fpin, oitemvalue, ITEM_END) <= 0){
-      fprintf(stderr, "ERROR : read_fmttext_item : item value not read\n");
+   if(biomeval_nbis_read_string(fpin, oitemvalue, ITEM_END) <= 0){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fmttext_item : item value not read\n");
       return(-11);
    }
 
@@ -578,7 +578,7 @@ int read_fmttext_item(FILE *fpin, int *orecord_i, int *ofield_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: write_fmttext_file - Routine writes an ANSI/NIST file structure
+#cat: biomeval_nbis_write_fmttext_file - Routine writes an ANSI/NIST file structure
 #cat:              to the specified filename in a textually formatted
 #cat:              representation that can be viewed and edited.
 
@@ -590,7 +590,7 @@ int read_fmttext_item(FILE *fpin, int *orecord_i, int *ofield_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int write_fmttext_file(const char *ofile, const ANSI_NIST *ansi_nist)
+int biomeval_nbis_write_fmttext_file(const char *ofile, const ANSI_NIST *ansi_nist)
 {
    FILE *fpout;
    int  ret;
@@ -598,14 +598,14 @@ int write_fmttext_file(const char *ofile, const ANSI_NIST *ansi_nist)
    /* Open the output file pointer. */
    fpout = fopen(ofile, "wb");
    if(fpout == NULL){
-      fprintf(stderr, "ERROR : write_fmttext_file : fopen '%s': %s\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_write_fmttext_file : fopen '%s': %s\n",
 	      ofile, strerror(errno));
       return(-2);
    }
 
-   if((ret = write_fmttext(fpout, ansi_nist))){
+   if((ret = biomeval_nbis_write_fmttext(fpout, ansi_nist))){
       if(fclose(fpout)){
-         fprintf(stderr, "ERROR : write_fmttext_file : fclose '%s': %s\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_write_fmttext_file : fclose '%s': %s\n",
 		 ofile, strerror(errno));
          return(-3);
       }
@@ -614,7 +614,7 @@ int write_fmttext_file(const char *ofile, const ANSI_NIST *ansi_nist)
 
    /* Close the output file pointer. */
    if(fclose(fpout)){
-      fprintf(stderr, "ERROR : write_fmttext_file : fopen '%s': %s\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_write_fmttext_file : fopen '%s': %s\n",
 	      ofile, strerror(errno));
       return(-4);
    }
@@ -625,7 +625,7 @@ int write_fmttext_file(const char *ofile, const ANSI_NIST *ansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: write_fmttext - Routine writes an ANSI/NIST file structure
+#cat: biomeval_nbis_write_fmttext - Routine writes an ANSI/NIST file structure
 #cat:              in a textually formatted representation that can be
 #cat:              viewed and edited to an open file pointer.
 
@@ -637,14 +637,14 @@ int write_fmttext_file(const char *ofile, const ANSI_NIST *ansi_nist)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int write_fmttext(FILE *fpout, const ANSI_NIST *ansi_nist)
+int biomeval_nbis_write_fmttext(FILE *fpout, const ANSI_NIST *ansi_nist)
 {
    int  ret, record_i;
 
 
    /* For each record in the ANSI_NIST structure ... */
    for(record_i = 0; record_i < ansi_nist->num_records; record_i++){
-      if((ret = write_fmttext_record(fpout, record_i, ansi_nist)))
+      if((ret = biomeval_nbis_write_fmttext_record(fpout, record_i, ansi_nist)))
          return(ret);
    }
 
@@ -654,7 +654,7 @@ int write_fmttext(FILE *fpout, const ANSI_NIST *ansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: write_fmttext_record - Routine writes the contents of a logical
+#cat: biomeval_nbis_write_fmttext_record - Routine writes the contents of a logical
 #cat:              record to the open file pointer in a textually formatted
 #cat:              representation that can be viewed and edited.
 
@@ -667,7 +667,7 @@ int write_fmttext(FILE *fpout, const ANSI_NIST *ansi_nist)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int write_fmttext_record(FILE *fpout, const int record_i,
+int biomeval_nbis_write_fmttext_record(FILE *fpout, const int record_i,
                                     const ANSI_NIST *ansi_nist)
                                    
 {
@@ -678,7 +678,7 @@ int write_fmttext_record(FILE *fpout, const int record_i,
 
    /* Foreach field in record ... */
    for(field_i = 0; field_i < record->num_fields; field_i++){
-      if((ret = write_fmttext_field(fpout, record_i, field_i,
+      if((ret = biomeval_nbis_write_fmttext_field(fpout, record_i, field_i,
                                     ansi_nist)))
          return(ret);
    }
@@ -689,7 +689,7 @@ int write_fmttext_record(FILE *fpout, const int record_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: write_fmttext_field - Routine writes the contents of a field
+#cat: biomeval_nbis_write_fmttext_field - Routine writes the contents of a field
 #cat:              to the open file pointer in a textually formatted
 #cat:              representation that can be viewed and edited.
 
@@ -703,7 +703,7 @@ int write_fmttext_record(FILE *fpout, const int record_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int write_fmttext_field(FILE *fpout, const int record_i,
+int biomeval_nbis_write_fmttext_field(FILE *fpout, const int record_i,
                            const int field_i, const ANSI_NIST *ansi_nist)
 {
    RECORD *record;
@@ -714,16 +714,16 @@ int write_fmttext_field(FILE *fpout, const int record_i,
    field = record->fields[field_i];
 
    /* If image field ... */
-   if(image_field(field)){
+   if(biomeval_nbis_image_field(field)){
       /* Write the image field's contents to temporary file. */
-      if((ret = write_fmttext_image_field(fpout, record_i,
+      if((ret = biomeval_nbis_write_fmttext_image_field(fpout, record_i,
                                          field_i, ansi_nist)))
          return(ret);
    }
    else{
       for(subfield_i = 0; subfield_i < field->num_subfields; subfield_i++){
          /* Write the subfield in text format to the file pointer. */
-         if((ret = write_fmttext_subfield(fpout, record_i, field_i,
+         if((ret = biomeval_nbis_write_fmttext_subfield(fpout, record_i, field_i,
                                          subfield_i, ansi_nist)))
             return(ret);
       }
@@ -735,7 +735,7 @@ int write_fmttext_field(FILE *fpout, const int record_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: write_fmttext_image_field - Routine writes the contents of a binary
+#cat: biomeval_nbis_write_fmttext_image_field - Routine writes the contents of a binary
 #cat:              image field to a temporary file and generates an external
 #cat:              file reference to be written to the  open file pointer
 #cat:              in the textually formatted representation.  This way
@@ -752,7 +752,7 @@ int write_fmttext_field(FILE *fpout, const int record_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int write_fmttext_image_field(FILE *fpout, const int record_i,
+int biomeval_nbis_write_fmttext_image_field(FILE *fpout, const int record_i,
                              const int field_i, const ANSI_NIST *ansi_nist)
 {
    FILE *bfp;
@@ -764,20 +764,20 @@ int write_fmttext_image_field(FILE *fpout, const int record_i,
 
    sprintf(bfile, "fld_%d_%d.tmp", record_i+1, field_i+1);
 
-   ret = file_exists(bfile);
+   ret = biomeval_nbis_file_exists(bfile);
    /* If error ... */
    if(ret < 0)
       return(ret);
    /* If file exists ... */
    if(ret){
-      fprintf(stderr, "ERROR : write_fmttext_image_field :"
+      fprintf(stderr, "ERROR : biomeval_nbis_write_fmttext_image_field :"
 	      "file %s already exists (won't overwrite)\n", bfile);
       return(-2);
    }
 
    bfp = fopen(bfile, "wb");
    if(bfp == NULL){
-      fprintf(stderr, "ERROR : write_fmttext_image_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_write_fmttext_image_field : "
 	      "fopen '%s': %s\n", bfile, strerror(errno));
       return(-3);
    }
@@ -788,14 +788,14 @@ int write_fmttext_image_field(FILE *fpout, const int record_i,
    n = fwrite(data_item->value, 1, data_item->num_chars, bfp);
 
    if(n != data_item->num_chars){
-      fprintf(stderr, "ERROR : write_fmttext_image_field :"
+      fprintf(stderr, "ERROR : biomeval_nbis_write_fmttext_image_field :"
 	      "fwrite : only %d bytes of %d written\n",
 	      n, data_item->num_chars);
       return(-4);
    }
 
    if(fclose(bfp)){
-      fprintf(stderr, "ERROR : write_fmttext_image_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_write_fmttext_image_field : "
 	      "fclose : %s\n", bfile);
       return(-5);
    }
@@ -816,7 +816,7 @@ int write_fmttext_image_field(FILE *fpout, const int record_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: write_fmttext_subfield - Routine writes the contents of subfield
+#cat: biomeval_nbis_write_fmttext_subfield - Routine writes the contents of subfield
 #cat:              structure to the  open file pointer in a textually
 #cat:              formatted representation that can be viewed and edited.
 
@@ -831,7 +831,7 @@ int write_fmttext_image_field(FILE *fpout, const int record_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int write_fmttext_subfield(FILE *fpout, const int record_i,
+int biomeval_nbis_write_fmttext_subfield(FILE *fpout, const int record_i,
                              const int field_i, const int subfield_i,
                              const ANSI_NIST *ansi_nist)
 {
@@ -846,9 +846,9 @@ int write_fmttext_subfield(FILE *fpout, const int record_i,
    subfield = field->subfields[subfield_i];
 
    /* If image field ... */
-   if(image_field(field)){
+   if(biomeval_nbis_image_field(field)){
       /* Write the binary field's contents to temporary file. */
-      if((ret = write_fmttext_image_field(fpout, record_i,
+      if((ret = biomeval_nbis_write_fmttext_image_field(fpout, record_i,
                                                   field_i, ansi_nist)))
          return(ret);
    }
@@ -856,7 +856,7 @@ int write_fmttext_subfield(FILE *fpout, const int record_i,
       /* For each item in subfield ... */
       for(item_i = 0; item_i < subfield->num_items; item_i++){
          /* Write item in text format to file pointer. */
-         if((ret = write_fmttext_item(fpout, record_i, field_i, subfield_i,
+         if((ret = biomeval_nbis_write_fmttext_item(fpout, record_i, field_i, subfield_i,
                                       item_i, ansi_nist)))
             return(ret);
       }
@@ -868,7 +868,7 @@ int write_fmttext_subfield(FILE *fpout, const int record_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: write_fmttext_item - Routine writes the contents of an information
+#cat: biomeval_nbis_write_fmttext_item - Routine writes the contents of an information
 #cat:              item to the  open file pointer in a textually
 #cat:              formatted representation that can be viewed and edited.
 
@@ -884,7 +884,7 @@ int write_fmttext_subfield(FILE *fpout, const int record_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int write_fmttext_item(FILE *fpout, const int record_i,
+int biomeval_nbis_write_fmttext_item(FILE *fpout, const int record_i,
                     const int field_i, const int subfield_i, const int item_i,
                     const ANSI_NIST *ansi_nist)
 {
@@ -900,9 +900,9 @@ int write_fmttext_item(FILE *fpout, const int record_i,
    item = subfield->items[item_i];
 
    /* If image field ... */
-   if(image_field(field)){
+   if(biomeval_nbis_image_field(field)){
       /* Write the binary field's contents to temporary file. */
-      if((ret = write_fmttext_image_field(fpout, record_i,
+      if((ret = biomeval_nbis_write_fmttext_image_field(fpout, record_i,
                                                   field_i, ansi_nist)))
          return(ret);
    }

@@ -55,7 +55,7 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        lookup_type14_segments()
+                        biomeval_nbis_lookup_type14_segments()
 
 ***********************************************************************/
 
@@ -66,7 +66,7 @@ of the software.
 
 /*************************************************************************
 **************************************************************************
-#cat:   lookup_type14_segments - Examines Type-14 record for any FINGER 
+#cat:   biomeval_nbis_lookup_type14_segments - Examines Type-14 record for any FINGER 
 #cat:              SEGMENT POSITION and if found stores it in a SEG array.
 
    Input:
@@ -78,7 +78,7 @@ of the software.
       Zero     - successful completion
       Negative - system error
 **************************************************************************/
-int lookup_type14_segments(SEG **osegs, int *onsgs, RECORD *record)
+int biomeval_nbis_lookup_type14_segments(SEG **osegs, int *onsgs, RECORD *record)
 {
   FIELD *field;
   SUBFIELD *subfield;
@@ -88,13 +88,13 @@ int lookup_type14_segments(SEG **osegs, int *onsgs, RECORD *record)
 
   /* Check that record is Type-14 */
   if(record->type != TYPE_14_ID) {
-    fprintf(stderr, "ERROR : lookup_type14_segments : "
+    fprintf(stderr, "ERROR : biomeval_nbis_lookup_type14_segments : "
 	    "unsupported record type : Type-%d\n", record->type);
     return(-2);
   }
 
   /* Find segment data ... */
-  if(!lookup_ANSI_NIST_field(&field, &field_i, SEG_ID, record)){
+  if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, SEG_ID, record)){
     *onsgs = 0;
     *osegs = (SEG *) NULL;
     return(0);
@@ -106,7 +106,7 @@ int lookup_type14_segments(SEG **osegs, int *onsgs, RECORD *record)
   segs = (SEG *)malloc(nsgs * sizeof(SEG));
    
   if(segs == NULL){
-    fprintf(stderr, "ERROR : lookup_type14_segments : "
+    fprintf(stderr, "ERROR : biomeval_nbis_lookup_type14_segments : "
 	    "malloc : %d segs (%lu bytes)\n", nsgs,
 	    (unsigned long)(nsgs * sizeof(SEG)));
     return(-3);

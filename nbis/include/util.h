@@ -58,32 +58,32 @@ of the software.
 #endif
 
 /* bres.c */
-extern int bres_line_alloc(const int, const int, const int, const int, int **,
+extern int biomeval_nbis_bres_line_alloc(const int, const int, const int, const int, int **,
            int **, int *, int *);
 
 /* bubble.c */
-extern void bubble_sort_int(int *, const int);
+extern void biomeval_nbis_bubble_sort_int(int *, const int);
 
-/* fatalerr.c */
-extern void fatalerr(char *, char *, char *);
+/* biomeval_nbis_fatalerr.c */
+extern void biomeval_nbis_fatalerr(char *, char *, char *);
 
 /* invbytes.h */
-extern void inv_bytes(unsigned char *, int);
+extern void biomeval_nbis_inv_bytes(unsigned char *, int);
 
-/* ssxstats.c */
-extern double ssx_stddev(const double, const double, const int);
-extern double ssx_variance(const double, const double, const int);
-extern double ssx(const double, const double, const int);
+/* biomeval_nbis_ssxstats.c */
+extern double biomeval_nbis_ssx_stddev(const double, const double, const int);
+extern double biomeval_nbis_ssx_variance(const double, const double, const int);
+extern double biomeval_nbis_ssx(const double, const double, const int);
 
-/* syserr.c */
-extern void syserr(char *, char *, char *);
+/* biomeval_nbis_syserr.c */
+extern void biomeval_nbis_syserr(char *, char *, char *);
 
-/* ticks.c */
-extern clock_t ticks(void);
-extern int ticksPerSec(void);
+/* biomeval_nbis_ticks.c */
+extern clock_t biomeval_nbis_ticks(void);
+extern int biomeval_nbis_ticksPerSec(void);
 
 /* time.c */
-extern char *current_time(void);
+extern char *biomeval_nbis_current_time(void);
 
 /* fixup.c */
 /*

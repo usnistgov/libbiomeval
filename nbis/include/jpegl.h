@@ -154,7 +154,7 @@ typedef struct image {
    int samp_width[MAX_CMPNTS];
    int samp_height[MAX_CMPNTS];
    unsigned char point_trans[MAX_CMPNTS];
-   unsigned char predict[MAX_CMPNTS];
+   unsigned char biomeval_nbis_predict[MAX_CMPNTS];
    unsigned char *image[MAX_CMPNTS];
    short *diff[MAX_CMPNTS]; /* was short ** */
 } IMG_DAT;
@@ -196,108 +196,108 @@ typedef struct sheader {
 extern int debug;
 
 /* encoder.c */
-extern int jpegl_encode_mem(unsigned char **, int *, IMG_DAT *, char *);
-extern int gen_diff_freqs(IMG_DAT *, HUF_TABLE **);
+extern int biomeval_nbis_jpegl_encode_mem(unsigned char **, int *, IMG_DAT *, char *);
+extern int biomeval_nbis_gen_diff_freqs(IMG_DAT *, HUF_TABLE **);
 extern int compress_image_intrlv(IMG_DAT *, HUF_TABLE **,
                     unsigned char *, const int, int *);
-extern int compress_image_non_intrlv(IMG_DAT *, HUF_TABLE **,
+extern int biomeval_nbis_compress_image_non_intrlv(IMG_DAT *, HUF_TABLE **,
                     unsigned char *, const int, int *);
-extern int code_diff(HUFFCODE *, HUFFCODE *, int *, unsigned int *, short *);
+extern int biomeval_nbis_code_diff(HUFFCODE *, HUFFCODE *, int *, unsigned int *, short *);
 
 /* decoder.c */
-extern int jpegl_decode_mem(IMG_DAT **, int *, unsigned char *, const int);
-extern void build_huff_decode_table(int [MAX_CATEGORY][LARGESTDIFF+1]);
-extern int decode_data(int *, int *, int *, int *, unsigned char *,
+extern int biomeval_nbis_jpegl_decode_mem(IMG_DAT **, int *, unsigned char *, const int);
+extern void biomeval_nbis_build_huff_decode_table(int [MAX_CATEGORY][LARGESTDIFF+1]);
+extern int biomeval_nbis_decode_data(int *, int *, int *, int *, unsigned char *,
                     unsigned char **, unsigned char *, int *);
-extern int nextbits_jpegl(unsigned short *, FILE *, int *, const int);
-extern int getc_nextbits_jpegl(unsigned short *, unsigned char **,
+extern int biomeval_nbis_nextbits_jpegl(unsigned short *, FILE *, int *, const int);
+extern int biomeval_nbis_getc_nextbits_jpegl(unsigned short *, unsigned char **,
                     unsigned char *, int *, const int);
 
 /* huff.c */
-extern int read_huffman_table(unsigned char *, unsigned char **,
+extern int biomeval_nbis_read_huffman_table(unsigned char *, unsigned char **,
                    unsigned char **, const int, FILE *, const int, int *);
-extern int getc_huffman_table(unsigned char *, unsigned char **,
+extern int biomeval_nbis_getc_huffman_table(unsigned char *, unsigned char **,
                    unsigned char **, const int, unsigned char **,
                    unsigned char *, const int, int *);
-extern int write_huffman_table(const unsigned short, const unsigned char,
+extern int biomeval_nbis_write_huffman_table(const unsigned short, const unsigned char,
                    unsigned char *, unsigned char *, FILE  *);
-extern int putc_huffman_table(const unsigned short, const unsigned char,
+extern int biomeval_nbis_putc_huffman_table(const unsigned short, const unsigned char,
                    unsigned char *, unsigned char *, unsigned char *,
                    const int, int *);
-extern int find_huff_sizes(int **, int *, const int);
-extern void find_least_freq(int *, int *, int *, const int);
-extern int find_num_huff_sizes(unsigned char **, int *, int *, const int);
-extern int sort_huffbits(unsigned char *);
-extern int sort_code_sizes(unsigned char **, int *, const int);
-extern int build_huffcode_table(HUFFCODE **, HUFFCODE *, const int,
+extern int biomeval_nbis_find_huff_sizes(int **, int *, const int);
+extern void biomeval_nbis_find_least_freq(int *, int *, int *, const int);
+extern int biomeval_nbis_find_num_huff_sizes(unsigned char **, int *, int *, const int);
+extern int biomeval_nbis_sort_huffbits(unsigned char *);
+extern int biomeval_nbis_sort_code_sizes(unsigned char **, int *, const int);
+extern int biomeval_nbis_build_huffcode_table(HUFFCODE **, HUFFCODE *, const int,
                    unsigned char *, const int);
-extern int build_huffsizes(HUFFCODE **, int *, unsigned char *, const int);
-extern void build_huffcodes(HUFFCODE *);
-extern void gen_decode_table(HUFFCODE *, int *, int *, int *, unsigned char *);
+extern int biomeval_nbis_build_huffsizes(HUFFCODE **, int *, unsigned char *, const int);
+extern void biomeval_nbis_build_huffcodes(HUFFCODE *);
+extern void biomeval_nbis_gen_decode_table(HUFFCODE *, int *, int *, int *, unsigned char *);
 
 /* huftable.c */
-extern int gen_huff_tables(HUF_TABLE **, const int);
-extern int read_huffman_table_jpegl(HUF_TABLE **, FILE *);
-extern int getc_huffman_table_jpegl(HUF_TABLE **, unsigned char **,
+extern int biomeval_nbis_gen_huff_tables(HUF_TABLE **, const int);
+extern int biomeval_nbis_read_huffman_table_jpegl(HUF_TABLE **, FILE *);
+extern int biomeval_nbis_getc_huffman_table_jpegl(HUF_TABLE **, unsigned char **,
                    unsigned char *);
-extern void free_HUFF_TABLES(HUF_TABLE **, const int);
-extern void free_HUFF_TABLE(HUF_TABLE *);
+extern void biomeval_nbis_free_HUFF_TABLES(HUF_TABLE **, const int);
+extern void biomeval_nbis_free_HUFF_TABLE(HUF_TABLE *);
 
 /* imgdat.c */
-int get_IMG_DAT_image(unsigned char **, int *, int *, int *, int *, int *,
+int biomeval_nbis_get_IMG_DAT_image(unsigned char **, int *, int *, int *, int *, int *,
                    IMG_DAT *);
-extern int setup_IMG_DAT_nonintrlv_encode(IMG_DAT **, unsigned char *,
+extern int biomeval_nbis_setup_IMG_DAT_nonintrlv_encode(IMG_DAT **, unsigned char *,
                    const int, const int, const int, const int, int *, int *,
                    const int, const unsigned char, const unsigned char);
-extern int setup_IMG_DAT_decode(IMG_DAT **, const int, FRM_HEADER_JPEGL *);
-extern int update_IMG_DAT_decode(IMG_DAT *, SCN_HEADER *, HUF_TABLE **);
-extern void free_IMG_DAT(IMG_DAT *, const int);
+extern int biomeval_nbis_setup_IMG_DAT_decode(IMG_DAT **, const int, FRM_HEADER_JPEGL *);
+extern int biomeval_nbis_update_IMG_DAT_decode(IMG_DAT *, SCN_HEADER *, HUF_TABLE **);
+extern void biomeval_nbis_free_IMG_DAT(IMG_DAT *, const int);
 
 /* ppi.c */
-extern int get_ppi_jpegl(int *, JFIF_HEADER *);
+extern int biomeval_nbis_get_ppi_jpegl(int *, JFIF_HEADER *);
 
 /* tableio.c */
-extern int read_marker_jpegl(unsigned short *, const int, FILE *);
-extern int getc_marker_jpegl(unsigned short *, const int, unsigned char **,
+extern int biomeval_nbis_read_marker_jpegl(unsigned short *, const int, FILE *);
+extern int biomeval_nbis_getc_marker_jpegl(unsigned short *, const int, unsigned char **,
                    unsigned char *);
-extern int setup_jfif_header(JFIF_HEADER **, const unsigned char,
+extern int biomeval_nbis_setup_jfif_header(JFIF_HEADER **, const unsigned char,
                    const int, const int);
-extern int read_jfif_header(JFIF_HEADER **, FILE *);
-extern int getc_jfif_header(JFIF_HEADER **, unsigned char **, unsigned char *);
-extern int write_jfif_header(JFIF_HEADER *, FILE *);
-extern int putc_jfif_header(JFIF_HEADER *, unsigned char *, const int, int *);
-extern int read_table_jpegl(const unsigned short, HUF_TABLE **, FILE *);
-extern int getc_table_jpegl(const unsigned short, HUF_TABLE **,
+extern int biomeval_nbis_read_jfif_header(JFIF_HEADER **, FILE *);
+extern int biomeval_nbis_getc_jfif_header(JFIF_HEADER **, unsigned char **, unsigned char *);
+extern int biomeval_nbis_write_jfif_header(JFIF_HEADER *, FILE *);
+extern int biomeval_nbis_putc_jfif_header(JFIF_HEADER *, unsigned char *, const int, int *);
+extern int biomeval_nbis_read_table_jpegl(const unsigned short, HUF_TABLE **, FILE *);
+extern int biomeval_nbis_getc_table_jpegl(const unsigned short, HUF_TABLE **,
                    unsigned char **, unsigned char *);
-extern int setup_frame_header_jpegl(FRM_HEADER_JPEGL **, IMG_DAT *);
-extern int read_frame_header_jpegl(FRM_HEADER_JPEGL **, FILE *);
-extern int getc_frame_header_jpegl(FRM_HEADER_JPEGL **, unsigned char **,
+extern int biomeval_nbis_setup_frame_header_jpegl(FRM_HEADER_JPEGL **, IMG_DAT *);
+extern int biomeval_nbis_read_frame_header_jpegl(FRM_HEADER_JPEGL **, FILE *);
+extern int biomeval_nbis_getc_frame_header_jpegl(FRM_HEADER_JPEGL **, unsigned char **,
                    unsigned char *);
-extern int write_frame_header_jpegl(FRM_HEADER_JPEGL *, FILE *);
-extern int putc_frame_header_jpegl(FRM_HEADER_JPEGL *, unsigned char *,
+extern int biomeval_nbis_write_frame_header_jpegl(FRM_HEADER_JPEGL *, FILE *);
+extern int biomeval_nbis_putc_frame_header_jpegl(FRM_HEADER_JPEGL *, unsigned char *,
                    const int, int *);
-extern int setup_scan_header(SCN_HEADER **, IMG_DAT *, const int);
-extern int read_scan_header(SCN_HEADER **, FILE *);
-extern int getc_scan_header(SCN_HEADER **, unsigned char **, unsigned char *);
-extern int write_scan_header(SCN_HEADER *, FILE *);
-extern int putc_scan_header(SCN_HEADER *, unsigned char *, const int, int *);
-extern int read_comment(unsigned char **, FILE *);
-extern int getc_comment(unsigned char **, unsigned char **, unsigned char *);
-extern int write_comment(const unsigned short, unsigned char *, const int,
+extern int biomeval_nbis_setup_scan_header(SCN_HEADER **, IMG_DAT *, const int);
+extern int biomeval_nbis_read_scan_header(SCN_HEADER **, FILE *);
+extern int biomeval_nbis_getc_scan_header(SCN_HEADER **, unsigned char **, unsigned char *);
+extern int biomeval_nbis_write_scan_header(SCN_HEADER *, FILE *);
+extern int biomeval_nbis_putc_scan_header(SCN_HEADER *, unsigned char *, const int, int *);
+extern int biomeval_nbis_read_comment(unsigned char **, FILE *);
+extern int biomeval_nbis_getc_comment(unsigned char **, unsigned char **, unsigned char *);
+extern int biomeval_nbis_write_comment(const unsigned short, unsigned char *, const int,
                    FILE *);
-extern int putc_comment(const unsigned short, unsigned char *, const int,
+extern int biomeval_nbis_putc_comment(const unsigned short, unsigned char *, const int,
                    unsigned char *, const int, int *);
-extern int add_comment_jpegl(unsigned char **, int *, unsigned char *,
+extern int biomeval_nbis_add_comment_jpegl(unsigned char **, int *, unsigned char *,
                    const int, unsigned char *);
-extern int getc_nistcom_jpegl(NISTCOM **, unsigned char *, const int);
-extern int putc_nistcom_jpegl(char *, const int, const int, const int,
+extern int biomeval_nbis_getc_nistcom_jpegl(NISTCOM **, unsigned char *, const int);
+extern int biomeval_nbis_putc_nistcom_jpegl(char *, const int, const int, const int,
                    const int, const int, const int, int *, int *,
                    const int, unsigned char *, const int, int *);
 
 
 /* util.c */
-extern int predict(short *, unsigned char *, const int, const int, const int,
+extern int biomeval_nbis_predict(short *, unsigned char *, const int, const int, const int,
                    const int, const int);
-extern short categorize(const short);
+extern short biomeval_nbis_categorize(const short);
 
 #endif /* !_JPEGL_H */

@@ -55,13 +55,13 @@ of the software.
       image pixel data.
 
       ROUTINES:
-#cat: jpegl_encode_mem - JPEGL encodes image data storing the compressed
+#cat: biomeval_nbis_jpegl_encode_mem - JPEGL encodes image data storing the compressed
 #cat:                    bytes to a memory buffer.
-#cat: gen_diff_freqs - Computes pixel differences and their fequency.
+#cat: biomeval_nbis_gen_diff_freqs - Computes pixel differences and their fequency.
 #cat:
 #cat: compress_image_intrlv - Compresses difference values from
 #cat:                    non-interleaved image data.
-#cat: code_diff - Huffman encodes difference values.
+#cat: biomeval_nbis_code_diff - Huffman encodes difference values.
 #cat:
 
 ***********************************************************************/
@@ -73,7 +73,7 @@ of the software.
 /******************/
 /*Start of Encoder*/
 /******************/
-int jpegl_encode_mem(unsigned char **odata, int *olen, IMG_DAT *img_dat,
+int biomeval_nbis_jpegl_encode_mem(unsigned char **odata, int *olen, IMG_DAT *img_dat,
                      char *comment_text)
 {
    int ret, i;
@@ -95,7 +95,7 @@ int jpegl_encode_mem(unsigned char **odata, int *olen, IMG_DAT *img_dat,
                  i, img_dat->hor_sampfctr[i], i, img_dat->vrt_sampfctr[i]);
       for(i = 0; i < img_dat->n_cmpnts; i++)
          fprintf(stdout, "Pt[%d] = %d, p[%d] = %d\n",
-                 i, img_dat->point_trans[i], i, img_dat->predict[i]);
+                 i, img_dat->point_trans[i], i, img_dat->biomeval_nbis_predict[i]);
    }
 
    /* Set output buffer length to size of uncompressed image pixels. */
@@ -107,71 +107,71 @@ int jpegl_encode_mem(unsigned char **odata, int *olen, IMG_DAT *img_dat,
    /* Allocate output buffer. */
    outlen = 0;
    if((outbuf = (unsigned char *)malloc(outalloc)) == (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : jpegl_encode_mem : malloc : outbuf\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_jpegl_encode_mem : malloc : outbuf\n");
       return(-2);
    }
 
-   if((ret = putc_ushort(SOI, outbuf, outalloc, &outlen))){
+   if((ret = biomeval_nbis_putc_ushort(SOI, outbuf, outalloc, &outlen))){
       free(outbuf);
       return(ret);
    }
 
-   if((ret = setup_jfif_header(&jfif_header,
+   if((ret = biomeval_nbis_setup_jfif_header(&jfif_header,
                               PPI_UNITS, img_dat->ppi, img_dat->ppi))){
       free(outbuf);
       return(ret);
    }
 
-   if((ret = putc_jfif_header(jfif_header, outbuf, outalloc, &outlen))){
+   if((ret = biomeval_nbis_putc_jfif_header(jfif_header, outbuf, outalloc, &outlen))){
       free(outbuf);
       free(jfif_header);
       return(ret);
    }
    free(jfif_header);
 
-   if((ret = putc_nistcom_jpegl(comment_text,
+   if((ret = biomeval_nbis_putc_nistcom_jpegl(comment_text,
                               img_dat->max_width, img_dat->max_height,
                               img_dat->pix_depth, img_dat->ppi,
                               0 /* lossless */, img_dat->n_cmpnts,
                               img_dat->hor_sampfctr, img_dat->vrt_sampfctr,
-                              img_dat->predict[0],
+                              img_dat->biomeval_nbis_predict[0],
                               outbuf, outalloc, &outlen))){
       free(outbuf);
       return(ret);
    }
 
-   if((ret = setup_frame_header_jpegl(&frm_header, img_dat))){
+   if((ret = biomeval_nbis_setup_frame_header_jpegl(&frm_header, img_dat))){
       free(outbuf);
       return(ret);
    }
 
-   if((ret = putc_frame_header_jpegl(frm_header, outbuf, outalloc, &outlen))){
+   if((ret = biomeval_nbis_putc_frame_header_jpegl(frm_header, outbuf, outalloc, &outlen))){
       free(outbuf);
       free(frm_header);
       return(ret);
    }
    free(frm_header);
 
-   if((ret = gen_diff_freqs(img_dat, huf_table))){
+   if((ret = biomeval_nbis_gen_diff_freqs(img_dat, huf_table))){
       free(outbuf);
       return(ret);
    }
 
-   if((ret = gen_huff_tables(huf_table, img_dat->n_cmpnts))){
+   if((ret = biomeval_nbis_gen_huff_tables(huf_table, img_dat->n_cmpnts))){
       free(outbuf);
-      free_HUFF_TABLES(huf_table, img_dat->n_cmpnts);
+      biomeval_nbis_free_HUFF_TABLES(huf_table, img_dat->n_cmpnts);
       return(ret);
    }
 
-   if((ret = compress_image_non_intrlv(img_dat, huf_table,
+   if((ret = biomeval_nbis_compress_image_non_intrlv(img_dat, huf_table,
                                       outbuf, outalloc, &outlen))){
       free(outbuf);
-      free_HUFF_TABLES(huf_table, img_dat->n_cmpnts);
+      biomeval_nbis_free_HUFF_TABLES(huf_table, img_dat->n_cmpnts);
       return(ret);
    }
-   free_HUFF_TABLES(huf_table, img_dat->n_cmpnts);
+   biomeval_nbis_free_HUFF_TABLES(huf_table, img_dat->n_cmpnts);
 
-   if((ret = putc_ushort(EOI, outbuf, outalloc, &outlen))){
+   if((ret = biomeval_nbis_putc_ushort(EOI, outbuf, outalloc, &outlen))){
       free(outbuf);
       return(ret);
    }
@@ -184,10 +184,10 @@ int jpegl_encode_mem(unsigned char **odata, int *olen, IMG_DAT *img_dat,
 /*****************************************/
 /*routine to obtain the pixel differences*/
 /*****************************************/
-int gen_diff_freqs(IMG_DAT *img_dat, HUF_TABLE **huf_table)
+int biomeval_nbis_gen_diff_freqs(IMG_DAT *img_dat, HUF_TABLE **huf_table)
 {
    int ret, i, pixel, np; /*current pixel and total number of pixels*/
-   short data_pred;       /*predicted pixel value*/
+   short data_pred;       /*biomeval_nbis_predicted pixel value*/
    short *data_diff;      /*difference values*/
    short diff_cat;        /*difference category*/
    unsigned char *indata;
@@ -203,16 +203,16 @@ int gen_diff_freqs(IMG_DAT *img_dat, HUF_TABLE **huf_table)
       /* Calloc inits all member addresses to NULL. */
       huf_table[i] = (HUF_TABLE *)calloc(1, sizeof(HUF_TABLE));
       if(huf_table[i] == (HUF_TABLE *)NULL){
-         fprintf(stderr, "ERROR : gen_diff_freqs : calloc : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_gen_diff_freqs : calloc : ");
          fprintf(stderr, "huf_table[%d]\n", i);
-         free_HUFF_TABLES(huf_table, i);
+         biomeval_nbis_free_HUFF_TABLES(huf_table, i);
          return(-2);
       }
       huf_table[i]->freq = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1, sizeof(int));
       if(huf_table[i]->freq == (int *)NULL){
-         fprintf(stderr, "ERROR : gen_diff_freqs : calloc : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_gen_diff_freqs : calloc : ");
          fprintf(stderr, "huf_table[%d]->freq\n", i);
-         free_HUFF_TABLES(huf_table, i+1);
+         biomeval_nbis_free_HUFF_TABLES(huf_table, i+1);
          return(-3);
       }
 
@@ -220,21 +220,21 @@ int gen_diff_freqs(IMG_DAT *img_dat, HUF_TABLE **huf_table)
 
       img_dat->diff[i] = (short *)malloc(np * sizeof(short));
       if(img_dat->diff[i] == (short *)NULL){
-         fprintf(stderr, "ERROR : gen_diff_freqs : malloc : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_gen_diff_freqs : malloc : ");
          fprintf(stderr, "img_dat->diff[%d]\n", i);
-         free_HUFF_TABLES(huf_table, i+1);
+         biomeval_nbis_free_HUFF_TABLES(huf_table, i+1);
          return(-4);
       }
 
       /* If intrlv ... */
       if(!(img_dat->intrlv)) {
          Pt = img_dat->point_trans[i];
-         p = img_dat->predict[i];
+         p = img_dat->biomeval_nbis_predict[i];
       }
       /* Otherwise, nonintrlv ... */
       else {
          Pt = img_dat->point_trans[0];
-         p = img_dat->predict[0];
+         p = img_dat->biomeval_nbis_predict[0];
       }
 
       /* Set pointer to next component plane origin. */
@@ -242,18 +242,18 @@ int gen_diff_freqs(IMG_DAT *img_dat, HUF_TABLE **huf_table)
       data_diff = img_dat->diff[i];
       for(pixel = 0; pixel < np; pixel++) {
          *indata >>= Pt;
-         if((ret = predict(&data_pred, indata, img_dat->samp_width[i], pixel,
+         if((ret = biomeval_nbis_predict(&data_pred, indata, img_dat->samp_width[i], pixel,
                           img_dat->cmpnt_depth, p, Pt))){
-            free_HUFF_TABLES(huf_table, i+1);
+            biomeval_nbis_free_HUFF_TABLES(huf_table, i+1);
             return(ret);
          }
          *data_diff = ((short)*indata) - data_pred;
          indata++;
-         diff_cat = categorize(*data_diff);
+         diff_cat = biomeval_nbis_categorize(*data_diff);
          if((diff_cat < 0) || (diff_cat > MAX_HUFFCOUNTS_JPEGL)){
-            fprintf(stderr, "ERROR : gen_diff_freqs : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_gen_diff_freqs : ");
             fprintf(stderr, "Invalid code length = %d\n", diff_cat);
-            free_HUFF_TABLES(huf_table, i+1);
+            biomeval_nbis_free_HUFF_TABLES(huf_table, i+1);
             return(-5);
          }
          huf_table[i]->freq[diff_cat]++;
@@ -273,7 +273,7 @@ int gen_diff_freqs(IMG_DAT *img_dat, HUF_TABLE **huf_table)
 /*********************************************/
 /*Routine to "compress" the difference values*/
 /*********************************************/
-int compress_image_non_intrlv(IMG_DAT *img_dat, HUF_TABLE **huf_table,
+int biomeval_nbis_compress_image_non_intrlv(IMG_DAT *img_dat, HUF_TABLE **huf_table,
              unsigned char *outbuf, const int outalloc, int *outlen)
 {
    int ret, size;       /*huffman code size*/
@@ -288,22 +288,22 @@ int compress_image_non_intrlv(IMG_DAT *img_dat, HUF_TABLE **huf_table,
 
 
    for(i = 0; i < img_dat->n_cmpnts; i++) {
-      if((ret = putc_huffman_table(DHT, huf_table[i]->table_id,
+      if((ret = biomeval_nbis_putc_huffman_table(DHT, huf_table[i]->table_id,
                             huf_table[i]->bits, huf_table[i]->values,
                             outbuf, outalloc, outlen)))
          return(ret);
 
-      if((ret = setup_scan_header(&scn_header, img_dat, i)))
+      if((ret = biomeval_nbis_setup_scan_header(&scn_header, img_dat, i)))
          return(ret);
 
-      if((ret = putc_scan_header(scn_header, outbuf, outalloc, outlen)))
+      if((ret = biomeval_nbis_putc_scan_header(scn_header, outbuf, outalloc, outlen)))
          return(ret);
       free(scn_header);
 
       huff_encoder = (HUFFCODE *)calloc((LARGESTDIFF<<1)+1,
                                         sizeof(HUFFCODE));
       if(huff_encoder == (HUFFCODE *)NULL){
-         fprintf(stderr, "ERROR : compress_image_non_intrlv : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_compress_image_non_intrlv : ");
          fprintf(stderr, "calloc : huff_encoder[%d]\n", i);
          return(-2);
       }
@@ -312,7 +312,7 @@ int compress_image_non_intrlv(IMG_DAT *img_dat, HUF_TABLE **huf_table,
       diffptr = img_dat->diff[i];
 
       if((*outlen) >= outalloc){
-         fprintf(stderr, "ERROR : compress_image_non_intrlv : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_compress_image_non_intrlv : ");
          fprintf(stderr, "buffer overlow: alloc = %d, request = %d\n",
                           outalloc, *outlen);
          free(huff_encoder);
@@ -322,7 +322,7 @@ int compress_image_non_intrlv(IMG_DAT *img_dat, HUF_TABLE **huf_table,
       *outptr = 0;
 
       for(p = 0; p < np; p++) {
-         if((ret = code_diff(huf_table[i]->huffcode_table,
+         if((ret = biomeval_nbis_code_diff(huf_table[i]->huffcode_table,
                    (huff_encoder + (*diffptr) + LARGESTDIFF),
                    &size, &code, diffptr))){
             free(huff_encoder);
@@ -375,7 +375,7 @@ int compress_image_non_intrlv(IMG_DAT *img_dat, HUF_TABLE **huf_table,
             (*outlen)++;
             outptr++;
             if((*outlen) >= outalloc){
-               fprintf(stderr, "ERROR : compress_image_non_intrlv : ");
+               fprintf(stderr, "ERROR : biomeval_nbis_compress_image_non_intrlv : ");
                fprintf(stderr, "buffer overlow: ");
                fprintf(stderr, "alloc = %d, request = %d\n",
                                 outalloc, *outlen);
@@ -394,7 +394,7 @@ int compress_image_non_intrlv(IMG_DAT *img_dat, HUF_TABLE **huf_table,
 /*****************************************************************/
 /*Routine to build code table and code existing difference values*/
 /*****************************************************************/
-int code_diff(HUFFCODE *huffcode_table, HUFFCODE *huff_encoder,
+int biomeval_nbis_code_diff(HUFFCODE *huffcode_table, HUFFCODE *huff_encoder,
               int *new_size, unsigned int *new_code, short *pdiff)
 {
 
@@ -405,9 +405,9 @@ int code_diff(HUFFCODE *huffcode_table, HUFFCODE *huff_encoder,
    diff = *pdiff;
 
    if((huff_encoder->size) == 0) {
-      cat = (int)categorize(diff);
+      cat = (int)biomeval_nbis_categorize(diff);
       if((cat < 0) || (cat > MAX_HUFFCOUNTS_JPEGL)){
-	 fprintf(stderr, "ERROR : code_diff : invalid code length = %d\n",
+	 fprintf(stderr, "ERROR : biomeval_nbis_code_diff : invalid code length = %d\n",
                  cat);
          return(-2);
       }

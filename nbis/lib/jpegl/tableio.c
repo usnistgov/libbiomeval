@@ -56,59 +56,59 @@ of the software.
       encoder/decoder.
 
       ROUTINES:
-#cat: read_marker_jpegl - Read a specified JPEGL marker from 
+#cat: biomeval_nbis_read_marker_jpegl - Read a specified JPEGL marker from 
 #cat:                     an open file.
-#cat: getc_marker_jpegl - Read a specified JPEGL marker from
+#cat: biomeval_nbis_getc_marker_jpegl - Read a specified JPEGL marker from
 #cat:                     a memory buffer.
-#cat: setup_jfif_header - Initializes a JFIF Header for JPEGL compression
+#cat: biomeval_nbis_setup_jfif_header - Initializes a JFIF Header for JPEGL compression
 #cat:                     given pixel scan resolution attributes.
-#cat: read_jfif_header - Reads a JFIF Header from an open JPEGL
+#cat: biomeval_nbis_read_jfif_header - Reads a JFIF Header from an open JPEGL
 #cat:                    compressed file.
-#cat: getc_jfif_header - Reads a JFIF Header from a JPEGL compressed
+#cat: biomeval_nbis_getc_jfif_header - Reads a JFIF Header from a JPEGL compressed
 #cat:                    memory buffer.
-#cat: write_jfif_header - Writes a JFIF Header to an open file.
+#cat: biomeval_nbis_write_jfif_header - Writes a JFIF Header to an open file.
 #cat:
-#cat: putc_jfif_header - Writes a JFIF Header to a memory buffer.
+#cat: biomeval_nbis_putc_jfif_header - Writes a JFIF Header to a memory buffer.
 #cat:
-#cat: read_table_jpegl - Reads huffman tables or comment blocks from
+#cat: biomeval_nbis_read_table_jpegl - Reads huffman tables or comment blocks from
 #cat:                    an open file.
-#cat: getc_table_jpegl - Reads huffman tables or comment blocks from
+#cat: biomeval_nbis_getc_table_jpegl - Reads huffman tables or comment blocks from
 #cat:                    a memory buffer.
-#cat: setup_frame_header_jpegl - Initializes a JPEGL Frame Header given
+#cat: biomeval_nbis_setup_frame_header_jpegl - Initializes a JPEGL Frame Header given
 #cat:                    attributes of the pixmap to be compressed.
-#cat: read_frame_header_jpegl - Reads a Frame Header from an open
+#cat: biomeval_nbis_read_frame_header_jpegl - Reads a Frame Header from an open
 #cat:                    JPEGL compressed file.
-#cat: getc_frame_header_jpegl - Reads a Frame Header from a JPEGL
+#cat: biomeval_nbis_getc_frame_header_jpegl - Reads a Frame Header from a JPEGL
 #cat:                    compressed memory buffer.
-#cat: write_frame_header_jpegl - Writes a JPEGL Frame Header to
+#cat: biomeval_nbis_write_frame_header_jpegl - Writes a JPEGL Frame Header to
 #cat:                    an open file.
-#cat: putc_frame_header_jpegl - Writes a JPEGL Frame Header to
+#cat: biomeval_nbis_putc_frame_header_jpegl - Writes a JPEGL Frame Header to
 #cat:                    a memory buffer.
-#cat: setup_scan_header - Initializes a JPEGL SCN Header given attributes
+#cat: biomeval_nbis_setup_scan_header - Initializes a JPEGL SCN Header given attributes
 #cat:                    of the pixmap to be compressed.
-#cat: read_scan_header - Reads a SCN Header fram an open
+#cat: biomeval_nbis_read_scan_header - Reads a SCN Header fram an open
 #cat:                    JPEGL compressed file.
-#cat: getc_scan_header - Reads a SCN Header fram a JPEGL
+#cat: biomeval_nbis_getc_scan_header - Reads a SCN Header fram a JPEGL
 #cat:                    compressed memory buffer.
-#cat: write_scan_header - Writes a JPEGL SCN Header to an open file.
+#cat: biomeval_nbis_write_scan_header - Writes a JPEGL SCN Header to an open file.
 #cat:
-#cat: putc_scan_header - Writes a JPEGL SCN Header to a memory buffer.
+#cat: biomeval_nbis_putc_scan_header - Writes a JPEGL SCN Header to a memory buffer.
 #cat:
-#cat: read_comment - Reads the contents of a JPEGL comment block from
+#cat: biomeval_nbis_read_comment - Reads the contents of a JPEGL comment block from
 #cat:                    an open file, returning the comment text as a
 #cat:                    null-terminated string.
-#cat: getc_comment - Reads the contents of a JPEGL comment block from
+#cat: biomeval_nbis_getc_comment - Reads the contents of a JPEGL comment block from
 #cat:                    a memory buffer, returning the comment text as a
 #cat:                    null-terminated string.
-#cat: write_comment - Writes a text string out as a JPEGL comment block
+#cat: biomeval_nbis_write_comment - Writes a text string out as a JPEGL comment block
 #cat:                    to an open file.
-#cat: putc_comment - Writes a text string out as a JPEGL comment block
+#cat: biomeval_nbis_putc_comment - Writes a text string out as a JPEGL comment block
 #cat:                    to a memory buffer.
-#cat: add_comment_jpegl - Inserts a comment block into a preexisting JPEGL
+#cat: biomeval_nbis_add_comment_jpegl - Inserts a comment block into a preexisting JPEGL
 #cat:                    datastream.
-#cat: getc_nistcom_jpegl - Find and return the first NISTCOM comment block
+#cat: biomeval_nbis_getc_nistcom_jpegl - Find and return the first NISTCOM comment block
 #cat:                    from a JPEGL encoded datastream.
-#cat: putc_nistcom_jpegl - Generate a JPEGL NISTCOM comment from the
+#cat: biomeval_nbis_putc_nistcom_jpegl - Generate a JPEGL NISTCOM comment from the
 #cat:                    attributes passed, and writes the NISTCOM and
 #cat:                    possibly a general comment to a memory buffer.
 
@@ -123,12 +123,12 @@ of the software.
 /************************************/
 /* Get markers from compressed file */
 /************************************/
-int read_marker_jpegl(unsigned short *omarker, const int type, FILE *infp)
+int biomeval_nbis_read_marker_jpegl(unsigned short *omarker, const int type, FILE *infp)
 {
    int ret;
    unsigned short marker;
 
-   if((ret = read_ushort(&marker, infp)))
+   if((ret = biomeval_nbis_read_ushort(&marker, infp)))
       return(ret);
 
    if(debug > 0)
@@ -138,41 +138,41 @@ int read_marker_jpegl(unsigned short *omarker, const int type, FILE *infp)
    case SOI:
       if(marker != SOI) {
          fprintf(stderr,
-         "ERROR : read_marker_jpegl : No SOI marker. {%d}\n", marker);
+         "ERROR : biomeval_nbis_read_marker_jpegl : No SOI marker. {%d}\n", marker);
          return(-2);
       }
       break;
    case APP0:
       if(marker != APP0) {
          fprintf(stderr,
-         "ERROR : read_marker_jpegl : No APP0 (JFIF) marker. {%d}\n", marker);
+         "ERROR : biomeval_nbis_read_marker_jpegl : No APP0 (JFIF) marker. {%d}\n", marker);
          return(-3);
       }
       break;
    case TBLS_N_SOF:
       if(marker != DHT && marker != COM && marker != SOF3 ) {
-         fprintf(stderr, "ERROR : read_marker_jpegl : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_read_marker_jpegl : ");
          fprintf(stderr, "No DHT, COM, or SOF3 markers.\n");
          return(-4);
       }
       break;
    case TBLS_N_SOS:
       if(marker != DHT && marker != COM && marker != SOS ) {
-         fprintf(stderr, "ERROR : read_marker_jpegl : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_read_marker_jpegl : ");
          fprintf(stderr, "No DHT, COM, or SOS markers.\n");
          return(-5);
       }
       break;
    case ANY:
       if((marker & 0xff00) != 0xff00){
-	fprintf(stderr,"ERROR : read_marker_jpegl : no marker found {%04X}\n",
+	fprintf(stderr,"ERROR : biomeval_nbis_read_marker_jpegl : no marker found {%04X}\n",
                 marker);
          return(-6);
       }
       break;
    default:
       fprintf(stderr,
-      "ERROR : read_marker_jpegl : Invalid marker -> {%4X}\n", marker);
+      "ERROR : biomeval_nbis_read_marker_jpegl : Invalid marker -> {%4X}\n", marker);
       return(-6);
    }
 
@@ -183,13 +183,13 @@ int read_marker_jpegl(unsigned short *omarker, const int type, FILE *infp)
 /*********************************************/
 /* Get markers from compressed memory buffer */
 /*********************************************/
-int getc_marker_jpegl(unsigned short *omarker, const int type,
+int biomeval_nbis_getc_marker_jpegl(unsigned short *omarker, const int type,
                 unsigned char **cbufptr, unsigned char *ebufptr)
 {
    int ret;
    unsigned short marker;
 
-   if((ret = getc_ushort(&marker, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&marker, cbufptr, ebufptr)))
       return(ret);
 
    if(debug > 0)
@@ -199,41 +199,41 @@ int getc_marker_jpegl(unsigned short *omarker, const int type,
    case SOI:
       if(marker != SOI) {
          fprintf(stderr,
-         "ERROR : getc_marker_jpegl : No SOI marker. {%d}\n", marker);
+         "ERROR : biomeval_nbis_getc_marker_jpegl : No SOI marker. {%d}\n", marker);
          return(-2);
       }
       break;
    case APP0:
       if(marker != APP0) {
          fprintf(stderr,
-         "ERROR : getc_marker_jpegl : No APP0 (JFIF) marker. {%d}\n", marker);
+         "ERROR : biomeval_nbis_getc_marker_jpegl : No APP0 (JFIF) marker. {%d}\n", marker);
          return(-3);
       }
       break;
    case TBLS_N_SOF:
       if(marker != DHT && marker != COM && marker != SOF3 ) {
-         fprintf(stderr, "ERROR : getc_marker_jpegl : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_getc_marker_jpegl : ");
          fprintf(stderr, "No DHT, COM, or SOF3 markers.\n");
          return(-4);
       }
       break;
    case TBLS_N_SOS:
       if(marker != DHT && marker != COM && marker != SOS ) {
-         fprintf(stderr, "ERROR : getc_marker_jpegl : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_getc_marker_jpegl : ");
          fprintf(stderr, "No DHT, COM, or SOS markers.\n");
          return(-5);
       }
       break;
    case ANY:
       if((marker & 0xff00) != 0xff00){
-	fprintf(stderr,"ERROR : getc_marker_jpegl : no marker found {%04X}\n",
+	fprintf(stderr,"ERROR : biomeval_nbis_getc_marker_jpegl : no marker found {%04X}\n",
                 marker);
          return(-6);
       }
       break;
    default:
       fprintf(stderr,
-      "ERROR : getc_marker_jpegl : Invalid marker -> {%4X}\n", marker);
+      "ERROR : biomeval_nbis_getc_marker_jpegl : Invalid marker -> {%4X}\n", marker);
       return(-6);
    }
 
@@ -244,14 +244,14 @@ int getc_marker_jpegl(unsigned short *omarker, const int type,
 /***********************/
 /* Setup a JFIF header */
 /***********************/
-int setup_jfif_header(JFIF_HEADER **ojfif_header,
+int biomeval_nbis_setup_jfif_header(JFIF_HEADER **ojfif_header,
                       const unsigned char units, const int dx, const int dy)
 {
    JFIF_HEADER *jfif_header;
 
    jfif_header = (JFIF_HEADER *)calloc(1, sizeof(JFIF_HEADER));
    if(jfif_header == (JFIF_HEADER *)NULL){
-      fprintf(stderr, "ERROR : setup_jfif_header : calloc : jfif_header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_setup_jfif_header : calloc : jfif_header\n");
       return(-2);
    }
    sprintf(jfif_header->ident, "%s", JFIF_IDENT);
@@ -278,7 +278,7 @@ int setup_jfif_header(JFIF_HEADER **ojfif_header,
 /*****************************************/
 /* Reads JFIF table from compressed file */
 /*****************************************/
-int read_jfif_header(JFIF_HEADER **ojfif_header, FILE *infp)
+int biomeval_nbis_read_jfif_header(JFIF_HEADER **ojfif_header, FILE *infp)
 {
    int ret, i;
    JFIF_HEADER *jfif_header;
@@ -289,57 +289,57 @@ int read_jfif_header(JFIF_HEADER **ojfif_header, FILE *infp)
 
    jfif_header = (JFIF_HEADER *)malloc(sizeof(JFIF_HEADER));
    if(jfif_header == (JFIF_HEADER *)NULL){
-      fprintf(stderr, "ERROR : read_jfif_header : malloc : jfif_header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_jfif_header : malloc : jfif_header\n");
       return(-2);
    }
 
    /* table_len */
-   if((ret = read_ushort(&table_len, infp))){
+   if((ret = biomeval_nbis_read_ushort(&table_len, infp))){
       free(jfif_header);
       return(-3);
    }
 
    /* Ident */
    for(i = 0; i < JFIF_IDENT_LEN; i++){
-      if((ret = read_byte((unsigned char *)&(jfif_header->ident[i]), infp))){
+      if((ret = biomeval_nbis_read_byte((unsigned char *)&(jfif_header->ident[i]), infp))){
          free(jfif_header);
          return(-4);
       }
    }
 
    if(strcmp(jfif_header->ident, JFIF_IDENT) != 0){
-      fprintf(stderr, "ERROR : read_jfif_header : Not a JFIF Header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_jfif_header : Not a JFIF Header\n");
       free(jfif_header);
       return(-5);
    }
 
-   if((ret = read_ushort(&(jfif_header->ver), infp))){
+   if((ret = biomeval_nbis_read_ushort(&(jfif_header->ver), infp))){
       free(jfif_header);
       return(-6);
    }
-   if((ret = read_byte(&(jfif_header->units), infp))){
+   if((ret = biomeval_nbis_read_byte(&(jfif_header->units), infp))){
       free(jfif_header);
       return(-7);
    }
-   if((ret = read_ushort(&(jfif_header->dx), infp))){
+   if((ret = biomeval_nbis_read_ushort(&(jfif_header->dx), infp))){
       free(jfif_header);
       return(-8);
    }
-   if((ret = read_ushort(&(jfif_header->dy), infp))){
+   if((ret = biomeval_nbis_read_ushort(&(jfif_header->dy), infp))){
       free(jfif_header);
       return(-9);
    }
-   if((ret = read_byte(&(jfif_header->tx), infp))){
+   if((ret = biomeval_nbis_read_byte(&(jfif_header->tx), infp))){
       free(jfif_header);
       return(-10);
    }
-   if((ret = read_byte(&(jfif_header->ty), infp))){
+   if((ret = biomeval_nbis_read_byte(&(jfif_header->ty), infp))){
       free(jfif_header);
       return(-11);
    }
 
    if(jfif_header->ty != 0 || jfif_header->tx != 0){
-      fprintf(stderr, "ERROR : read_jfif_header : Can't handle thumbnails\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_jfif_header : Can't handle thumbnails\n");
       free(jfif_header);
       return(-12);
    }
@@ -366,7 +366,7 @@ int read_jfif_header(JFIF_HEADER **ojfif_header, FILE *infp)
 /**************************************************/
 /* Reads JFIF table from compressed memory buffer */
 /**************************************************/
-int getc_jfif_header(JFIF_HEADER **ojfif_header,
+int biomeval_nbis_getc_jfif_header(JFIF_HEADER **ojfif_header,
                      unsigned char **cbufptr, unsigned char *ebufptr)
 {
    int ret, i;
@@ -378,19 +378,19 @@ int getc_jfif_header(JFIF_HEADER **ojfif_header,
 
    jfif_header = (JFIF_HEADER *)malloc(sizeof(JFIF_HEADER));
    if(jfif_header == (JFIF_HEADER *)NULL){
-      fprintf(stderr, "ERROR : getc_jfif_header : malloc : jfif_header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_jfif_header : malloc : jfif_header\n");
       return(-2);
    }
 
    /* table_len */
-   if((ret = getc_ushort(&table_len, cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&table_len, cbufptr, ebufptr))){
       free(jfif_header);
       return(-3);
    }
 
    /* Ident */
    for(i = 0; i < JFIF_IDENT_LEN; i++){
-      if((ret = getc_byte((unsigned char *)&(jfif_header->ident[i]),
+      if((ret = biomeval_nbis_getc_byte((unsigned char *)&(jfif_header->ident[i]),
                           cbufptr, ebufptr))){
          free(jfif_header);
          return(-4);
@@ -398,38 +398,38 @@ int getc_jfif_header(JFIF_HEADER **ojfif_header,
    }
 
    if(strcmp(jfif_header->ident, JFIF_IDENT) != 0){
-      fprintf(stderr, "ERROR : getc_jfif_header : Not a JFIF Header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_jfif_header : Not a JFIF Header\n");
       free(jfif_header);
       return(-5);
    }
 
-   if((ret = getc_ushort(&(jfif_header->ver), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&(jfif_header->ver), cbufptr, ebufptr))){
       free(jfif_header);
       return(-6);
    }
-   if((ret = getc_byte(&(jfif_header->units), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_byte(&(jfif_header->units), cbufptr, ebufptr))){
       free(jfif_header);
       return(-7);
    }
-   if((ret = getc_ushort(&(jfif_header->dx), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&(jfif_header->dx), cbufptr, ebufptr))){
       free(jfif_header);
       return(-8);
    }
-   if((ret = getc_ushort(&(jfif_header->dy), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&(jfif_header->dy), cbufptr, ebufptr))){
       free(jfif_header);
       return(-9);
    }
-   if((ret = getc_byte(&(jfif_header->tx), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_byte(&(jfif_header->tx), cbufptr, ebufptr))){
       free(jfif_header);
       return(-10);
    }
-   if((ret = getc_byte(&(jfif_header->ty), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_byte(&(jfif_header->ty), cbufptr, ebufptr))){
       free(jfif_header);
       return(-11);
    }
 
    if(jfif_header->ty != 0 || jfif_header->tx != 0){
-      fprintf(stderr, "ERROR : getc_jfif_header : Can't handle thumbnails\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_jfif_header : Can't handle thumbnails\n");
       free(jfif_header);
       return(-12);
    }
@@ -456,7 +456,7 @@ int getc_jfif_header(JFIF_HEADER **ojfif_header,
 /******************************************/
 /* Writes JFIF table into compressed file */
 /******************************************/
-int write_jfif_header(JFIF_HEADER *jfif_header, FILE *outfp)
+int biomeval_nbis_write_jfif_header(JFIF_HEADER *jfif_header, FILE *outfp)
 {
    int table_len, i;
    int ret;
@@ -465,12 +465,12 @@ int write_jfif_header(JFIF_HEADER *jfif_header, FILE *outfp)
       fprintf(stdout, "Start writing JFIF header.\n");
    
    if(strcmp(jfif_header->ident, JFIF_IDENT) != 0){
-      fprintf(stderr, "ERROR : write_jfif_header : Not a JFIF Header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_write_jfif_header : Not a JFIF Header\n");
       return(-2);
    }
 
    if(jfif_header->ty != 0 || jfif_header->tx != 0){
-      fprintf(stderr, "ERROR : write_jfif_header : Can't handle thumbnails\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_write_jfif_header : Can't handle thumbnails\n");
       return(-3);
    }
 
@@ -489,29 +489,29 @@ int write_jfif_header(JFIF_HEADER *jfif_header, FILE *outfp)
    }
 
    /* APP0 0xffe0 */
-   if((ret = write_ushort(APP0, outfp)))
+   if((ret = biomeval_nbis_write_ushort(APP0, outfp)))
       return(ret);
 
    /* Table_len */
-   if((ret = write_ushort(table_len, outfp)))
+   if((ret = biomeval_nbis_write_ushort(table_len, outfp)))
       return(ret);
 
    /* Ident */
    for(i = 0; i < JFIF_IDENT_LEN; i++)
-      if((ret = write_byte(jfif_header->ident[i], outfp)))
+      if((ret = biomeval_nbis_write_byte(jfif_header->ident[i], outfp)))
          return(ret);
 
-   if((ret = write_ushort(jfif_header->ver, outfp)))
+   if((ret = biomeval_nbis_write_ushort(jfif_header->ver, outfp)))
       return(ret);
-   if((ret = write_byte(jfif_header->units, outfp)))
+   if((ret = biomeval_nbis_write_byte(jfif_header->units, outfp)))
       return(ret);
-   if((ret = write_ushort(jfif_header->dx, outfp)))
+   if((ret = biomeval_nbis_write_ushort(jfif_header->dx, outfp)))
       return(ret);
-   if((ret = write_ushort(jfif_header->dy, outfp)))
+   if((ret = biomeval_nbis_write_ushort(jfif_header->dy, outfp)))
       return(ret);
-   if((ret = write_byte(jfif_header->tx, outfp)))
+   if((ret = biomeval_nbis_write_byte(jfif_header->tx, outfp)))
       return(ret);
-   if((ret = write_byte(jfif_header->ty, outfp)))
+   if((ret = biomeval_nbis_write_byte(jfif_header->ty, outfp)))
       return(ret);
 
    if(debug > 0)
@@ -523,7 +523,7 @@ int write_jfif_header(JFIF_HEADER *jfif_header, FILE *outfp)
 /***************************************************/
 /* Writes JFIF table into compressed memory buffer */
 /***************************************************/
-int putc_jfif_header(JFIF_HEADER *jfif_header, unsigned char *outbuf,
+int biomeval_nbis_putc_jfif_header(JFIF_HEADER *jfif_header, unsigned char *outbuf,
                      const int outalloc, int *outlen)
 {
    int table_len, i;
@@ -533,12 +533,12 @@ int putc_jfif_header(JFIF_HEADER *jfif_header, unsigned char *outbuf,
       fprintf(stdout, "Start writing JFIF header.\n");
    
    if(strcmp(jfif_header->ident, JFIF_IDENT) != 0){
-      fprintf(stderr, "ERROR : putc_jfif_header : Not a JFIF Header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_putc_jfif_header : Not a JFIF Header\n");
       return(-2);
    }
 
    if(jfif_header->ty != 0 || jfif_header->tx != 0){
-      fprintf(stderr, "ERROR : putc_jfif_header : Can't handle thumbnails\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_putc_jfif_header : Can't handle thumbnails\n");
       return(-3);
    }
 
@@ -557,29 +557,29 @@ int putc_jfif_header(JFIF_HEADER *jfif_header, unsigned char *outbuf,
    }
 
    /* APP0 0xffe0 */
-   if((ret = putc_ushort(APP0, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(APP0, outbuf, outalloc, outlen)))
       return(ret);
 
    /* Table_len */
-   if((ret = putc_ushort(table_len, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(table_len, outbuf, outalloc, outlen)))
       return(ret);
 
    /* Ident */
    for(i = 0; i < JFIF_IDENT_LEN; i++)
-      if((ret = putc_byte(jfif_header->ident[i], outbuf, outalloc, outlen)))
+      if((ret = biomeval_nbis_putc_byte(jfif_header->ident[i], outbuf, outalloc, outlen)))
          return(ret);
 
-   if((ret = putc_ushort(jfif_header->ver, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(jfif_header->ver, outbuf, outalloc, outlen)))
       return(ret);
-   if((ret = putc_byte(jfif_header->units, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(jfif_header->units, outbuf, outalloc, outlen)))
       return(ret);
-   if((ret = putc_ushort(jfif_header->dx, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(jfif_header->dx, outbuf, outalloc, outlen)))
       return(ret);
-   if((ret = putc_ushort(jfif_header->dy, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(jfif_header->dy, outbuf, outalloc, outlen)))
       return(ret);
-   if((ret = putc_byte(jfif_header->tx, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(jfif_header->tx, outbuf, outalloc, outlen)))
       return(ret);
-   if((ret = putc_byte(jfif_header->ty, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(jfif_header->ty, outbuf, outalloc, outlen)))
       return(ret);
 
    if(debug > 0)
@@ -591,7 +591,7 @@ int putc_jfif_header(JFIF_HEADER *jfif_header, unsigned char *outbuf,
 /********************************************************/
 /* Reads Huffman table or comment from compressed file. */
 /********************************************************/
-int read_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
+int biomeval_nbis_read_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
                      FILE *infp)
 {
    int ret;
@@ -599,11 +599,11 @@ int read_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
 
    switch(marker){
    case DHT:
-      if((ret = read_huffman_table_jpegl(huf_table, infp)))
+      if((ret = biomeval_nbis_read_huffman_table_jpegl(huf_table, infp)))
          return(ret);
       break;
    case COM:
-      if((ret = read_comment(&comment, infp)))
+      if((ret = biomeval_nbis_read_comment(&comment, infp)))
          return(ret);
 #ifdef PRINT_COMMENT
       fprintf(stderr, "COMMENT:\n%s\n\n", comment);
@@ -612,7 +612,7 @@ int read_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
       break;
    default:
       fprintf(stderr,
-              "ERROR: read_table_jpegl : Invalid table defined -> {%u}\n",
+              "ERROR: biomeval_nbis_read_table_jpegl : Invalid table defined -> {%u}\n",
               marker);
       return(-2);
    }
@@ -623,7 +623,7 @@ int read_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
 /*****************************************************************/
 /* Reads Huffman table or comment from compressed memory buffer. */
 /*****************************************************************/
-int getc_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
+int biomeval_nbis_getc_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
                      unsigned char **cbufptr, unsigned char *ebufptr)
 {
    int ret;
@@ -631,11 +631,11 @@ int getc_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
 
    switch(marker){
    case DHT:
-      if((ret = getc_huffman_table_jpegl(huf_table, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_huffman_table_jpegl(huf_table, cbufptr, ebufptr)))
          return(ret);
       break;
    case COM:
-      if((ret = getc_comment(&comment, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_comment(&comment, cbufptr, ebufptr)))
          return(ret);
 #ifdef PRINT_COMMENT
       fprintf(stderr, "COMMENT:\n%s\n\n", comment);
@@ -644,7 +644,7 @@ int getc_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
       break;
    default:
       fprintf(stderr,
-              "ERROR: getc_table_jpegl : Invalid table defined -> {%u}\n",
+              "ERROR: biomeval_nbis_getc_table_jpegl : Invalid table defined -> {%u}\n",
               marker);
       return(-2);
    }
@@ -655,14 +655,14 @@ int getc_table_jpegl(const unsigned short marker, HUF_TABLE **huf_table,
 /********************************************/
 /* Sets frame header values from image data */
 /********************************************/
-int setup_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, IMG_DAT *img_dat)
+int biomeval_nbis_setup_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, IMG_DAT *img_dat)
 {
    int i;
    FRM_HEADER_JPEGL *frm_header;
 
    frm_header = (FRM_HEADER_JPEGL *)malloc(sizeof(FRM_HEADER_JPEGL));
    if(frm_header == (FRM_HEADER_JPEGL *)NULL){
-      fprintf(stderr, "ERROR : setup_frame_header_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_setup_frame_header_jpegl : ");
       fprintf(stderr, "malloc : frm_header\n");
       return(-2);
    }
@@ -687,7 +687,7 @@ int setup_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, IMG_DAT *img_dat)
 /*******************************************/
 /* Reads frame header from compressed file */
 /*******************************************/
-int read_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, FILE *infp)
+int biomeval_nbis_read_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, FILE *infp)
 {
    int ret, i;
    unsigned short Lf;
@@ -698,50 +698,50 @@ int read_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, FILE *infp)
 
    frm_header = (FRM_HEADER_JPEGL *)malloc(sizeof(FRM_HEADER_JPEGL));
    if(frm_header == (FRM_HEADER_JPEGL *)NULL){
-      fprintf(stderr, "ERROR : read_frame_header_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_frame_header_jpegl : ");
       fprintf(stderr, "malloc : frm_header\n");
       return(-2);
    }
 
    /* Lf */
-   if((ret = read_ushort(&Lf, infp))){
+   if((ret = biomeval_nbis_read_ushort(&Lf, infp))){
       free(frm_header);
       return(ret);
    }
    /* P */
-   if((ret = read_byte(&(frm_header->prec), infp))){
+   if((ret = biomeval_nbis_read_byte(&(frm_header->prec), infp))){
       free(frm_header);
       return(ret);
    }
    /* Y */
-   if((ret = read_ushort(&(frm_header->y), infp))){
+   if((ret = biomeval_nbis_read_ushort(&(frm_header->y), infp))){
       free(frm_header);
       return(ret);
    }
    /* X */
-   if((ret = read_ushort(&(frm_header->x), infp))){
+   if((ret = biomeval_nbis_read_ushort(&(frm_header->x), infp))){
       free(frm_header);
       return(ret);
    }
    /* Nf */
-   if((ret = read_byte(&(frm_header->Nf), infp))){
+   if((ret = biomeval_nbis_read_byte(&(frm_header->Nf), infp))){
       free(frm_header);
       return(ret);
    }
 
    for(i = 0; i < frm_header->Nf; i++) {
       /* C */
-      if((ret = read_byte(&(frm_header->C[i]), infp))){
+      if((ret = biomeval_nbis_read_byte(&(frm_header->C[i]), infp))){
          free(frm_header);
          return(ret);
       }
       /* HV */
-      if((ret = read_byte(&(frm_header->HV[i]), infp))){
+      if((ret = biomeval_nbis_read_byte(&(frm_header->HV[i]), infp))){
          free(frm_header);
          return(ret);
       }
       /* Tq */
-      if((ret = read_byte(&(frm_header->Tq[i]), infp))){
+      if((ret = biomeval_nbis_read_byte(&(frm_header->Tq[i]), infp))){
          free(frm_header);
          return(ret);
       }
@@ -770,7 +770,7 @@ int read_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, FILE *infp)
 /****************************************************/
 /* Reads frame header from compressed memory buffer */
 /****************************************************/
-int getc_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header,
+int biomeval_nbis_getc_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header,
                       unsigned char **cbufptr, unsigned char *ebufptr)
 {
    int ret, i;
@@ -782,50 +782,50 @@ int getc_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header,
 
    frm_header = (FRM_HEADER_JPEGL *)malloc(sizeof(FRM_HEADER_JPEGL));
    if(frm_header == (FRM_HEADER_JPEGL *)NULL){
-      fprintf(stderr, "ERROR : getc_frame_header_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_frame_header_jpegl : ");
       fprintf(stderr, "malloc : frm_header\n");
       return(-2);
    }
 
    /* Lf */
-   if((ret = getc_ushort(&Lf, cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&Lf, cbufptr, ebufptr))){
       free(frm_header);
       return(ret);
    }
    /* P */
-   if((ret = getc_byte(&(frm_header->prec), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_byte(&(frm_header->prec), cbufptr, ebufptr))){
       free(frm_header);
       return(ret);
    }
    /* Y */
-   if((ret = getc_ushort(&(frm_header->y), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&(frm_header->y), cbufptr, ebufptr))){
       free(frm_header);
       return(ret);
    }
    /* X */
-   if((ret = getc_ushort(&(frm_header->x), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&(frm_header->x), cbufptr, ebufptr))){
       free(frm_header);
       return(ret);
    }
    /* Nf */
-   if((ret = getc_byte(&(frm_header->Nf), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_byte(&(frm_header->Nf), cbufptr, ebufptr))){
       free(frm_header);
       return(ret);
    }
 
    for(i = 0; i < frm_header->Nf; i++) {
       /* C */
-      if((ret = getc_byte(&(frm_header->C[i]), cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&(frm_header->C[i]), cbufptr, ebufptr))){
          free(frm_header);
          return(ret);
       }
       /* HV */
-      if((ret = getc_byte(&(frm_header->HV[i]), cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&(frm_header->HV[i]), cbufptr, ebufptr))){
          free(frm_header);
          return(ret);
       }
       /* Tq */
-      if((ret = getc_byte(&(frm_header->Tq[i]), cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&(frm_header->Tq[i]), cbufptr, ebufptr))){
          free(frm_header);
          return(ret);
       }
@@ -855,7 +855,7 @@ int getc_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header,
 /**********************************************/
 /* Writes frame header to the compressed file */
 /**********************************************/
-int write_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, FILE *outfp)
+int biomeval_nbis_write_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, FILE *outfp)
 {
    int i, ret;
 
@@ -876,33 +876,33 @@ int write_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, FILE *outfp)
    }
 
    /* SOF3 */
-   if((ret = write_ushort(SOF3, outfp)))
+   if((ret = biomeval_nbis_write_ushort(SOF3, outfp)))
       return(ret);
    /* Lf */
-   if((ret = write_ushort((8+(3*frm_header->Nf)), outfp)))
+   if((ret = biomeval_nbis_write_ushort((8+(3*frm_header->Nf)), outfp)))
       return(ret);
    /* P */
-   if((ret = write_byte(frm_header->prec, outfp)))
+   if((ret = biomeval_nbis_write_byte(frm_header->prec, outfp)))
       return(ret);
    /* Y */
-   if((ret = write_ushort(frm_header->y, outfp)))
+   if((ret = biomeval_nbis_write_ushort(frm_header->y, outfp)))
       return(ret);
    /* X */
-   if((ret = write_ushort(frm_header->x, outfp)))
+   if((ret = biomeval_nbis_write_ushort(frm_header->x, outfp)))
       return(ret);
    /* Nf */
-   if((ret = write_byte(frm_header->Nf, outfp)))
+   if((ret = biomeval_nbis_write_byte(frm_header->Nf, outfp)))
       return(ret);
 
    for(i = 0; i < frm_header->Nf; i++) {
       /* C */
-      if((ret = write_byte(frm_header->C[i], outfp)))
+      if((ret = biomeval_nbis_write_byte(frm_header->C[i], outfp)))
          return(ret);
       /* HV */
-      if((ret = write_byte(frm_header->HV[i], outfp)))
+      if((ret = biomeval_nbis_write_byte(frm_header->HV[i], outfp)))
          return(ret);
       /* Tq */
-      if((ret = write_byte(frm_header->Tq[i], outfp)))
+      if((ret = biomeval_nbis_write_byte(frm_header->Tq[i], outfp)))
          return(ret);
    }
 
@@ -915,7 +915,7 @@ int write_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, FILE *outfp)
 /*******************************************************/
 /* Writes frame header to the compressed memory buffer */
 /*******************************************************/
-int putc_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, unsigned char *outbuf,
+int biomeval_nbis_putc_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, unsigned char *outbuf,
                        const int outalloc, int *outlen)
 {
    int i, ret;
@@ -937,33 +937,33 @@ int putc_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, unsigned char *outbuf,
    }
 
    /* SOF3 */
-   if((ret = putc_ushort(SOF3, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(SOF3, outbuf, outalloc, outlen)))
       return(ret);
    /* Lf */
-   if((ret = putc_ushort((8+(3*frm_header->Nf)), outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort((8+(3*frm_header->Nf)), outbuf, outalloc, outlen)))
       return(ret);
    /* P */
-   if((ret = putc_byte(frm_header->prec, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(frm_header->prec, outbuf, outalloc, outlen)))
       return(ret);
    /* Y */
-   if((ret = putc_ushort(frm_header->y, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(frm_header->y, outbuf, outalloc, outlen)))
       return(ret);
    /* X */
-   if((ret = putc_ushort(frm_header->x, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(frm_header->x, outbuf, outalloc, outlen)))
       return(ret);
    /* Nf */
-   if((ret = putc_byte(frm_header->Nf, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(frm_header->Nf, outbuf, outalloc, outlen)))
       return(ret);
 
    for(i = 0; i < frm_header->Nf; i++) {
       /* C */
-      if((ret = putc_byte(frm_header->C[i], outbuf, outalloc, outlen)))
+      if((ret = biomeval_nbis_putc_byte(frm_header->C[i], outbuf, outalloc, outlen)))
          return(ret);
       /* HV */
-      if((ret = putc_byte(frm_header->HV[i], outbuf, outalloc, outlen)))
+      if((ret = biomeval_nbis_putc_byte(frm_header->HV[i], outbuf, outalloc, outlen)))
          return(ret);
       /* Tq */
-      if((ret = putc_byte(frm_header->Tq[i], outbuf, outalloc, outlen)))
+      if((ret = biomeval_nbis_putc_byte(frm_header->Tq[i], outbuf, outalloc, outlen)))
          return(ret);
    }
 
@@ -976,7 +976,7 @@ int putc_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, unsigned char *outbuf,
 /*********************************************/
 /* Writes scan header to the compressed file */
 /*********************************************/
-int setup_scan_header(SCN_HEADER **oscn_header, IMG_DAT *img_dat,
+int biomeval_nbis_setup_scan_header(SCN_HEADER **oscn_header, IMG_DAT *img_dat,
                       const int cmpnt_i)
 {
    int i;
@@ -984,7 +984,7 @@ int setup_scan_header(SCN_HEADER **oscn_header, IMG_DAT *img_dat,
 
    scn_header = (SCN_HEADER *)malloc(sizeof(SCN_HEADER));
    if(scn_header == (SCN_HEADER *)NULL){
-      fprintf(stderr, "ERROR : setup_scan_header : malloc : scn_header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_setup_scan_header : malloc : scn_header\n");
       return(-2);
    }
 
@@ -995,7 +995,7 @@ int setup_scan_header(SCN_HEADER **oscn_header, IMG_DAT *img_dat,
       scn_header->Cs[0] = cmpnt_i;
       scn_header->Tda[0] = cmpnt_i<<4;
       scn_header->Ahl = img_dat->point_trans[cmpnt_i];
-      scn_header->Ss = img_dat->predict[cmpnt_i];
+      scn_header->Ss = img_dat->biomeval_nbis_predict[cmpnt_i];
       scn_header->Se = 0;
    }
    /* When intrlv, one scan header is setup and written out for */
@@ -1009,9 +1009,9 @@ int setup_scan_header(SCN_HEADER **oscn_header, IMG_DAT *img_dat,
       /* One point transform applies to all interleaved components, */
       /* so choose 1st one. */
       scn_header->Ahl = img_dat->point_trans[0];
-      /* One predictor applies to all interleaved components, */
+      /* One biomeval_nbis_predictor applies to all interleaved components, */
       /* so choose 1st one. */
-      scn_header->Ss = img_dat->predict[0];
+      scn_header->Ss = img_dat->biomeval_nbis_predict[0];
       scn_header->Se = 0;
    }
 
@@ -1022,7 +1022,7 @@ int setup_scan_header(SCN_HEADER **oscn_header, IMG_DAT *img_dat,
 /******************************************/
 /* Reads scan header from compressed file */
 /******************************************/
-int read_scan_header(SCN_HEADER **oscn_header, FILE *infp)
+int biomeval_nbis_read_scan_header(SCN_HEADER **oscn_header, FILE *infp)
 {
    int ret, i;
    unsigned short Ls;
@@ -1033,29 +1033,29 @@ int read_scan_header(SCN_HEADER **oscn_header, FILE *infp)
 
    scn_header = (SCN_HEADER *)malloc(sizeof(SCN_HEADER));
    if(scn_header == (SCN_HEADER *)NULL){
-      fprintf(stderr, "ERROR : read_scan_header : malloc : scn_header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_scan_header : malloc : scn_header\n");
       return(-2);
    }
 
    /* Ls */
-   if((ret = read_ushort(&Ls, infp))){
+   if((ret = biomeval_nbis_read_ushort(&Ls, infp))){
       free(scn_header);
       return(ret);
    }
    /* Ns */
-   if((ret = read_byte(&(scn_header->Ns), infp))){
+   if((ret = biomeval_nbis_read_byte(&(scn_header->Ns), infp))){
       free(scn_header);
       return(ret);
    }
 
    for(i = 0; i < scn_header->Ns; i++) {
       /* Cs */
-      if((ret = read_byte(&(scn_header->Cs[i]), infp))){
+      if((ret = biomeval_nbis_read_byte(&(scn_header->Cs[i]), infp))){
          free(scn_header);
          return(ret);
       }
       /* Tda */
-      if((ret = read_byte(&(scn_header->Tda[i]), infp))){
+      if((ret = biomeval_nbis_read_byte(&(scn_header->Tda[i]), infp))){
          free(scn_header);
          return(ret);
       }
@@ -1063,17 +1063,17 @@ int read_scan_header(SCN_HEADER **oscn_header, FILE *infp)
    }
 
    /* Ss */
-   if((ret = read_byte(&(scn_header->Ss), infp))){
+   if((ret = biomeval_nbis_read_byte(&(scn_header->Ss), infp))){
       free(scn_header);
       return(ret);
    }
    /* Se */
-   if((ret = read_byte(&(scn_header->Se), infp))){
+   if((ret = biomeval_nbis_read_byte(&(scn_header->Se), infp))){
       free(scn_header);
       return(ret);
    }
    /* Ahl */
-   if((ret = read_byte(&(scn_header->Ahl), infp))){
+   if((ret = biomeval_nbis_read_byte(&(scn_header->Ahl), infp))){
       free(scn_header);
       return(ret);
    }
@@ -1103,7 +1103,7 @@ int read_scan_header(SCN_HEADER **oscn_header, FILE *infp)
 /***************************************************/
 /* Reads scan header from compressed memory buffer */
 /***************************************************/
-int getc_scan_header(SCN_HEADER **oscn_header, unsigned char **cbufptr,
+int biomeval_nbis_getc_scan_header(SCN_HEADER **oscn_header, unsigned char **cbufptr,
          unsigned char *ebufptr)
 {
    int ret, i;
@@ -1115,29 +1115,29 @@ int getc_scan_header(SCN_HEADER **oscn_header, unsigned char **cbufptr,
 
    scn_header = (SCN_HEADER *)malloc(sizeof(SCN_HEADER));
    if(scn_header == (SCN_HEADER *)NULL){
-      fprintf(stderr, "ERROR : getc_scan_header : malloc : scn_header\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_scan_header : malloc : scn_header\n");
       return(-2);
    }
 
    /* Ls */
-   if((ret = getc_ushort(&Ls, cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&Ls, cbufptr, ebufptr))){
       free(scn_header);
       return(ret);
    }
    /* Ns */
-   if((ret = getc_byte(&(scn_header->Ns), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_byte(&(scn_header->Ns), cbufptr, ebufptr))){
       free(scn_header);
       return(ret);
    }
 
    for(i = 0; i < scn_header->Ns; i++) {
       /* Cs */
-      if((ret = getc_byte(&(scn_header->Cs[i]), cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&(scn_header->Cs[i]), cbufptr, ebufptr))){
          free(scn_header);
          return(ret);
       }
       /* Tda */
-      if((ret = getc_byte(&(scn_header->Tda[i]), cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&(scn_header->Tda[i]), cbufptr, ebufptr))){
          free(scn_header);
          return(ret);
       }
@@ -1145,17 +1145,17 @@ int getc_scan_header(SCN_HEADER **oscn_header, unsigned char **cbufptr,
    }
 
    /* Ss */
-   if((ret = getc_byte(&(scn_header->Ss), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_byte(&(scn_header->Ss), cbufptr, ebufptr))){
       free(scn_header);
       return(ret);
    }
    /* Se */
-   if((ret = getc_byte(&(scn_header->Se), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_byte(&(scn_header->Se), cbufptr, ebufptr))){
       free(scn_header);
       return(ret);
    }
    /* Ahl */
-   if((ret = getc_byte(&(scn_header->Ahl), cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_byte(&(scn_header->Ahl), cbufptr, ebufptr))){
       free(scn_header);
       return(ret);
    }
@@ -1185,7 +1185,7 @@ int getc_scan_header(SCN_HEADER **oscn_header, unsigned char **cbufptr,
 /*********************************************/
 /* Writes scan header to the compressed file */
 /*********************************************/
-int write_scan_header(SCN_HEADER *scn_header, FILE *outfp)
+int biomeval_nbis_write_scan_header(SCN_HEADER *scn_header, FILE *outfp)
 {
    int i, ret;
 
@@ -1207,32 +1207,32 @@ int write_scan_header(SCN_HEADER *scn_header, FILE *outfp)
    }
 
    /* SOS */
-   if((ret = write_ushort(SOS, outfp)))
+   if((ret = biomeval_nbis_write_ushort(SOS, outfp)))
       return(ret);
    /* Ls */
-   if((ret = write_ushort((6+(2*scn_header->Ns)), outfp)))
+   if((ret = biomeval_nbis_write_ushort((6+(2*scn_header->Ns)), outfp)))
       return(ret);
    /* Ns */
-   if((ret = write_byte(scn_header->Ns, outfp)))
+   if((ret = biomeval_nbis_write_byte(scn_header->Ns, outfp)))
       return(ret);
 
    for(i = 0; i < scn_header->Ns; i++) {
       /* Cs */
-      if((ret = write_byte(scn_header->Cs[i], outfp)))
+      if((ret = biomeval_nbis_write_byte(scn_header->Cs[i], outfp)))
          return(ret);
       /* Tda */
-      if((ret = write_byte(scn_header->Tda[i], outfp)))
+      if((ret = biomeval_nbis_write_byte(scn_header->Tda[i], outfp)))
          return(ret);
    }
 
    /* Ss */
-   if((ret = write_byte(scn_header->Ss, outfp)))
+   if((ret = biomeval_nbis_write_byte(scn_header->Ss, outfp)))
       return(ret);
    /* Se */
-   if((ret = write_byte(scn_header->Se, outfp)))
+   if((ret = biomeval_nbis_write_byte(scn_header->Se, outfp)))
       return(ret);
    /* Ahl */
-   if((ret = write_byte(scn_header->Ahl, outfp)))
+   if((ret = biomeval_nbis_write_byte(scn_header->Ahl, outfp)))
       return(ret);
 
    if(debug > 0)
@@ -1244,7 +1244,7 @@ int write_scan_header(SCN_HEADER *scn_header, FILE *outfp)
 /******************************************************/
 /* Writes scan header to the compressed memory buffer */
 /******************************************************/
-int putc_scan_header(SCN_HEADER *scn_header, unsigned char *outbuf,
+int biomeval_nbis_putc_scan_header(SCN_HEADER *scn_header, unsigned char *outbuf,
                      const int outalloc, int *outlen)
 {
    int i, ret;
@@ -1267,32 +1267,32 @@ int putc_scan_header(SCN_HEADER *scn_header, unsigned char *outbuf,
    }
 
    /* SOS */
-   if((ret = putc_ushort(SOS, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(SOS, outbuf, outalloc, outlen)))
       return(ret);
    /* Ls */
-   if((ret = putc_ushort((6+(2*scn_header->Ns)), outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort((6+(2*scn_header->Ns)), outbuf, outalloc, outlen)))
       return(ret);
    /* Ns */
-   if((ret = putc_byte(scn_header->Ns, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(scn_header->Ns, outbuf, outalloc, outlen)))
       return(ret);
 
    for(i = 0; i < scn_header->Ns; i++) {
       /* Cs */
-      if((ret = putc_byte(scn_header->Cs[i], outbuf, outalloc, outlen)))
+      if((ret = biomeval_nbis_putc_byte(scn_header->Cs[i], outbuf, outalloc, outlen)))
          return(ret);
       /* Tda */
-      if((ret = putc_byte(scn_header->Tda[i], outbuf, outalloc, outlen)))
+      if((ret = biomeval_nbis_putc_byte(scn_header->Tda[i], outbuf, outalloc, outlen)))
          return(ret);
    }
 
    /* Ss */
-   if((ret = putc_byte(scn_header->Ss, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(scn_header->Ss, outbuf, outalloc, outlen)))
       return(ret);
    /* Se */
-   if((ret = putc_byte(scn_header->Se, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(scn_header->Se, outbuf, outalloc, outlen)))
       return(ret);
    /* Ahl */
-   if((ret = putc_byte(scn_header->Ahl, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(scn_header->Ahl, outbuf, outalloc, outlen)))
       return(ret);
 
    if(debug > 0)
@@ -1305,7 +1305,7 @@ int putc_scan_header(SCN_HEADER *scn_header, unsigned char *outbuf,
 /* Routine to read comment block from an open file.                     */
 /*      NOTE: forces return of NULL termnated comment string.           */
 /************************************************************************/
-int read_comment(
+int biomeval_nbis_read_comment(
    unsigned char **ocomment,
    FILE *infp)            /* input file */
 {
@@ -1316,7 +1316,7 @@ int read_comment(
    if(debug > 0)
       fprintf(stderr, "Reading Comment Field.\n");
 
-   if((ret = read_ushort(&hdr_size, infp)))
+   if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
       return(ret);
 
    /* cs = hdr_size - sizeof(length value) */
@@ -1325,14 +1325,14 @@ int read_comment(
    /* Allocate including a possible NULL terminator. */
    comment = (unsigned char *)calloc(cs+1, sizeof(unsigned char));
    if(comment == (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : read_comment : malloc : comment\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_comment : malloc : comment\n");
       return(-2);
    }
 
    /* Read only the number of bytes as specified in the header length. */
    if((ret = fread(comment, sizeof(unsigned char), cs, infp)) != cs){
       fprintf(stderr,
-              "ERROR : read_comment : fread : only %d of %d bytes read\n",
+              "ERROR : biomeval_nbis_read_comment : fread : only %d of %d bytes read\n",
               ret, cs);
       free(comment);
       return(-3);
@@ -1353,7 +1353,7 @@ int read_comment(
 /* Routine to read comment block from a memory buffer.                  */
 /*      NOTE: forces return of NULL termnated comment string.           */
 /************************************************************************/
-int getc_comment(
+int biomeval_nbis_getc_comment(
    unsigned char **ocomment,
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
@@ -1365,7 +1365,7 @@ int getc_comment(
    if(debug > 0)
       fprintf(stderr, "Reading Comment Field.\n");
 
-   if((ret = getc_ushort(&hdr_size, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
       return(ret);
 
    /* cs = hdr_size - sizeof(length value) */
@@ -1374,12 +1374,12 @@ int getc_comment(
    /* Allocate including a possible NULL terminator. */
    comment = (unsigned char *)calloc(cs+1, sizeof(unsigned char));
    if(comment == (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : getc_comment : malloc : comment\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_comment : malloc : comment\n");
       return(-2);
    }
 
    /* Read only the number of bytes as specified in the header length. */
-   if((ret = getc_bytes(&comment, cs, cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_bytes(&comment, cs, cbufptr, ebufptr))){
       free(comment);
       return(ret);
    }
@@ -1398,7 +1398,7 @@ int getc_comment(
 /***********************************/
 /* Routine to write comment field. */
 /***********************************/
-int write_comment(
+int biomeval_nbis_write_comment(
    const unsigned short marker,
    unsigned char *comment,            /* comment */
    const int cs,          /* comment size */
@@ -1410,16 +1410,16 @@ int write_comment(
    if(debug > 0)
       fprintf(stderr, "Writing Comment Field.\n");
 
-   if((ret = write_ushort(marker, outfp)))
+   if((ret = biomeval_nbis_write_ushort(marker, outfp)))
       return(ret);
    /* comment size */
    hdr_size = 2 + cs;
-   if((ret = write_ushort(hdr_size, outfp)))
+   if((ret = biomeval_nbis_write_ushort(hdr_size, outfp)))
       return(ret);
 
    if((ret = fwrite(comment, cs, sizeof(unsigned char), outfp)) != cs){
      fprintf(stderr,
-             "ERROR : write_comment : fwrite : only %d of %d bytes written\n",
+             "ERROR : biomeval_nbis_write_comment : fwrite : only %d of %d bytes written\n",
              ret, cs);
      return(-2);
    }
@@ -1434,7 +1434,7 @@ int write_comment(
 /****************************************/
 /* Puts comment field in output buffer. */
 /****************************************/
-int putc_comment(
+int biomeval_nbis_putc_comment(
    const unsigned short marker,
    unsigned char *comment,        /* comment */
    const int cs,      /* comment size */
@@ -1448,14 +1448,14 @@ int putc_comment(
    if(debug > 0)
       fprintf(stderr, "Writing Comment Field to Buffer.\n");
 
-   if((ret = putc_ushort(marker, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(marker, odata, oalloc, olen)))
       return(ret);
    /* comment size */
    hdr_size = 2 + cs;
-   if((ret = putc_ushort(hdr_size, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(hdr_size, odata, oalloc, olen)))
       return(ret);
    for(i = 0; i < cs; i++)
-      if((ret = putc_byte(comment[i], odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_byte(comment[i], odata, oalloc, olen)))
          return(ret);
 
    if(debug > 0)
@@ -1465,7 +1465,7 @@ int putc_comment(
 }
 
 /*******************************************/
-int add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
+int biomeval_nbis_add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
                       const int ilen, unsigned char *comment)
 {
    int ret, nlen, nalloc;
@@ -1477,7 +1477,7 @@ int add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
    if((comment == (unsigned char *)NULL) ||
       (strlen((char *)comment) == 0)){
       fprintf(stderr,
-             "ERROR : add_comment_jpegl : empty comment passed\n");
+             "ERROR : biomeval_nbis_add_comment_jpegl : empty comment passed\n");
       return(-2);
    }
 
@@ -1490,7 +1490,7 @@ int add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
    /* Allocate new compressed byte stream. */
    if((ndata = (unsigned char *)malloc(nalloc * sizeof(unsigned char))) ==
                                        (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : add_comment_jpegl : malloc : ndata\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_add_comment_jpegl : malloc : ndata\n");
       return(-3);
    }
    cbufptr = idata;
@@ -1499,19 +1499,19 @@ int add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
    /* Parse idata and determine comment destination in byte stream. */
    
    /* Parse SOI */
-   if((ret = getc_marker_jpegl(&marker, SOI, &cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_marker_jpegl(&marker, SOI, &cbufptr, ebufptr))){
       free(ndata);
       return(ret);
    }
 
    /* Copy SOI */
-   if((ret = putc_ushort(marker, ndata, nalloc, &nlen))){
+   if((ret = biomeval_nbis_putc_ushort(marker, ndata, nalloc, &nlen))){
       free(ndata);
       return(ret);
    }
 
    /* Read next marker. */
-   if((ret = getc_ushort(&marker, &cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&marker, &cbufptr, ebufptr))){
       free(ndata);
       return(ret);
    }
@@ -1519,19 +1519,19 @@ int add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
    /* If JFIF header ... */
    if(marker == APP0){
       /* Read JFIF header. */
-      if((ret = getc_jfif_header(&jfif_header, &cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_jfif_header(&jfif_header, &cbufptr, ebufptr))){
          free(ndata);
          return(ret);
       }
       /* Copy JFIF header. */
-      if((ret = putc_jfif_header(jfif_header, ndata, nalloc, &nlen))){
+      if((ret = biomeval_nbis_putc_jfif_header(jfif_header, ndata, nalloc, &nlen))){
          free(ndata);
          free(jfif_header);
          return(ret);
       }
       free(jfif_header);
       /* Read next marker. */
-      if((ret = getc_ushort(&marker, &cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_ushort(&marker, &cbufptr, ebufptr))){
          free(ndata);
          return(ret);
       }
@@ -1542,12 +1542,12 @@ int add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
       /* Do ... while COM segments exist in input byte stream ... */
       do{
          /* Read COM segment. */
-         if((ret = getc_comment(&ocomment, &cbufptr, ebufptr))){
+         if((ret = biomeval_nbis_getc_comment(&ocomment, &cbufptr, ebufptr))){
             free(ndata);
             return(ret);
          }
          /* Copy COM segment. */
-         if((ret = putc_comment(COM, ocomment, strlen((char *)ocomment),
+         if((ret = biomeval_nbis_putc_comment(COM, ocomment, strlen((char *)ocomment),
                                ndata, nalloc, &nlen))){
             free(ndata);
             free(ocomment);
@@ -1555,7 +1555,7 @@ int add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
          }
          free(ocomment);
          /* Read next marker. */
-         if((ret = getc_ushort(&marker, &cbufptr, ebufptr))){
+         if((ret = biomeval_nbis_getc_ushort(&marker, &cbufptr, ebufptr))){
             free(ndata);
             return(ret);
          }
@@ -1566,14 +1566,14 @@ int add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
    cbufptr -= sizeof(unsigned short);
 
    /* Insert Comment Segment - includes NULL in comment string. */
-   if((ret = putc_comment(COM, comment, strlen((char *)comment),
+   if((ret = biomeval_nbis_putc_comment(COM, comment, strlen((char *)comment),
                          ndata, nalloc, &nlen))){
       free(ndata);
       return(ret);
    }
 
    /* Append remaining byte stream */
-   if((ret = putc_bytes(cbufptr, ebufptr - cbufptr, ndata, nalloc, &nlen))){
+   if((ret = biomeval_nbis_putc_bytes(cbufptr, ebufptr - cbufptr, ndata, nalloc, &nlen))){
       free(ndata);
       return(ret);
    }
@@ -1587,7 +1587,7 @@ int add_comment_jpegl(unsigned char **ocdata, int *oclen, unsigned char *idata,
 /*****************************************************************/
 /* Get and return first NISTCOM from encoded data stream.        */
 /*****************************************************************/
-int getc_nistcom_jpegl(NISTCOM **onistcom, unsigned char *idata,
+int biomeval_nbis_getc_nistcom_jpegl(NISTCOM **onistcom, unsigned char *idata,
                         const int ilen)
 {
    int ret;
@@ -1601,11 +1601,11 @@ int getc_nistcom_jpegl(NISTCOM **onistcom, unsigned char *idata,
    ebufptr = idata + ilen;
 
    /* Get SOI */
-   if((ret = getc_marker_jpegl(&marker, SOI, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_jpegl(&marker, SOI, &cbufptr, ebufptr)))
       return(ret);
 
    /* Get next marker. */
-   if((ret = getc_marker_jpegl(&marker, ANY, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_jpegl(&marker, ANY, &cbufptr, ebufptr)))
       return(ret);
 
    /* While not at Start of Scan (SOS) -     */
@@ -1614,21 +1614,21 @@ int getc_nistcom_jpegl(NISTCOM **onistcom, unsigned char *idata,
       if(marker == COM){
          if(strncmp((char *)cbufptr+2 /* skip Length */,
                     NCM_HEADER, strlen(NCM_HEADER)) == 0){
-            if((ret = getc_comment(&ucomment_text, &cbufptr,
+            if((ret = biomeval_nbis_getc_comment(&ucomment_text, &cbufptr,
                                   ebufptr)))
                return(ret);
             comment_text = (char *)ucomment_text;
-            if((ret = string2fet(&nistcom, comment_text)))
+            if((ret = biomeval_nbis_string2fet(&nistcom, comment_text)))
                return(ret);
             *onistcom = nistcom;
             return(0);
          }
       }
       /* Skip marker segment. */
-      if((ret = getc_skip_marker_segment(marker, &cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_skip_marker_segment(marker, &cbufptr, ebufptr)))
          return(ret);
       /* Get next marker. */
-      if((ret = getc_marker_jpegl(&marker, ANY, &cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_marker_jpegl(&marker, ANY, &cbufptr, ebufptr)))
          return(ret);
    }
 
@@ -1638,11 +1638,11 @@ int getc_nistcom_jpegl(NISTCOM **onistcom, unsigned char *idata,
 }
 
 /*******************************************/
-int putc_nistcom_jpegl(char *comment_text, const int w, const int h,
+int biomeval_nbis_putc_nistcom_jpegl(char *comment_text, const int w, const int h,
                        const int d, const int ppi, const int lossyflag,
                        const int n_cmpnts,
                        int *hor_sampfctr, int *vrt_sampfctr,
-                       const int predict,
+                       const int biomeval_nbis_predict,
                        unsigned char *odata, const int oalloc, int *olen)
 {
    int ret, gencomflag;
@@ -1655,7 +1655,7 @@ int putc_nistcom_jpegl(char *comment_text, const int w, const int h,
    if(comment_text != (char *)NULL){
       /* if NISTCOM ... */
       if(strncmp(comment_text, NCM_HEADER, strlen(NCM_HEADER)) == 0){
-         if((ret = string2fet(&nistcom, comment_text))){
+         if((ret = biomeval_nbis_string2fet(&nistcom, comment_text))){
             return(ret);
          }
       }
@@ -1667,34 +1667,34 @@ int putc_nistcom_jpegl(char *comment_text, const int w, const int h,
    /* Otherwise, no comment passed ... */
 
    /* Combine image attributes to NISTCOM. */
-   if((ret = combine_jpegl_nistcom(&nistcom, w, h, d, ppi, lossyflag,
+   if((ret = biomeval_nbis_combine_jpegl_nistcom(&nistcom, w, h, d, ppi, lossyflag,
                                   n_cmpnts, hor_sampfctr, vrt_sampfctr,
-                                  0 /* nonintrlv */, predict))){
+                                  0 /* nonintrlv */, biomeval_nbis_predict))){
       if(nistcom != (NISTCOM *)NULL)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* Put NISTCOM ... */
    /* NISTCOM to string. */
-   if((ret = fet2string(&comstr, nistcom))){
-      freefet(nistcom);
+   if((ret = biomeval_nbis_fet2string(&comstr, nistcom))){
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
    /* Put NISTCOM comment string. */
-   if((ret = putc_comment(COM, (unsigned char *)comstr, strlen((char *)comstr),
+   if((ret = biomeval_nbis_putc_comment(COM, (unsigned char *)comstr, strlen((char *)comstr),
                           odata, oalloc, olen))){
-      freefet(nistcom);
+      biomeval_nbis_freefet(nistcom);
       free(comstr);
       return(ret);
    }
-   freefet(nistcom);
+   biomeval_nbis_freefet(nistcom);
    free(comstr);
 
    /* If general comment exists ... */
    if(gencomflag){
       /* Put general comment to its own segment. */
-      if((ret = putc_comment(COM, (unsigned char *)comment_text,
+      if((ret = biomeval_nbis_putc_comment(COM, (unsigned char *)comment_text,
                              strlen((char *)comment_text),
                              odata, oalloc, olen)))
          return(ret);

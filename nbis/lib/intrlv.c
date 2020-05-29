@@ -56,13 +56,13 @@ of the software.
       an image pixmap.
 
       ROUTINES:
-#cat: intrlv2not_mem - takes an interleaved pixmap and de-interleaves
+#cat: biomeval_nbis_intrlv2not_mem - takes an interleaved pixmap and de-interleaves
 #cat:                  its pixels into separate component planes.
-#cat: not2intrlv_mem - takes a non-interleaved pixmap and interleaves
+#cat: biomeval_nbis_not2intrlv_mem - takes a non-interleaved pixmap and interleaves
 #cat:                  its component planes into a single composite plane.
-#cat: compute_component_padding - computes any pixel padding required to
+#cat: biomeval_nbis_compute_component_padding - computes any pixel padding required to
 #cat:                  interleave a pixmap.
-#cat: pad_component_planes - pads component planes prior to interleaving
+#cat: biomeval_nbis_pad_component_planes - pads component planes prior to interleaving
 #cat:                  them into a single plane.
 #cat: test_image_size - compares the byte size of a pixmap's datastream
 #cat:                  to component plane downsampling factors passed
@@ -78,7 +78,7 @@ of the software.
 
 
 /*****************************************************************/
-int intrlv2not_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
+int biomeval_nbis_intrlv2not_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
                    const int width, const int height, const int depth,
                    int *hor_sampfctr, int *vrt_sampfctr, const int n_cmpnts)
 {
@@ -95,7 +95,7 @@ int intrlv2not_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
 
    if(n_cmpnts > MAX_CMPNTS){
       fprintf(stderr,
-              "ERROR : intrlv2not_mem : number of components = %d > %d\n",
+              "ERROR : biomeval_nbis_intrlv2not_mem : number of components = %d > %d\n",
               n_cmpnts, MAX_CMPNTS);
       return(-2);
    }
@@ -122,7 +122,7 @@ int intrlv2not_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
       olen += samp_width[c] * samp_height[c];
    }
 
-   compute_component_padding(pad_width, pad_height,
+   biomeval_nbis_compute_component_padding(pad_width, pad_height,
                      width, height, samp_width, samp_height,
                      hor_sampfctr, vrt_sampfctr, n_cmpnts);
 
@@ -131,7 +131,7 @@ int intrlv2not_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
    /* component planes MINUS ANY IMAGE PADDING! */
    odata = (unsigned char *)malloc(olen * sizeof(unsigned char));
    if(odata == (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : intrlv2not_mem : malloc : odata\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_intrlv2not_mem : malloc : odata\n");
       return(-3);
    }
 
@@ -291,7 +291,7 @@ int intrlv2not_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
 }
 
 /*****************************************************************/
-int not2intrlv_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
+int biomeval_nbis_not2intrlv_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
                    const int width, const int height, const int depth,
                    int *hor_sampfctr, int *vrt_sampfctr, const int n_cmpnts)
 {
@@ -306,20 +306,20 @@ int not2intrlv_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
 
    if(n_cmpnts > MAX_CMPNTS){
       fprintf(stderr,
-              "ERROR : not2intrlv_mem : number of components = %d > %d\n",
+              "ERROR : biomeval_nbis_not2intrlv_mem : number of components = %d > %d\n",
               n_cmpnts, MAX_CMPNTS);
       return(-2);
    }
 
    /* 1. Compute Pixel Pads */
 
-   compute_component_padding(pad_width, pad_height,
+   biomeval_nbis_compute_component_padding(pad_width, pad_height,
                      width, height, samp_width, samp_height,
                      hor_sampfctr, vrt_sampfctr, n_cmpnts);
 
    /* 2. Pad Component Planes */
 
-   if((ret = pad_component_planes(idata, &olen, new_samp_width,
+   if((ret = biomeval_nbis_pad_component_planes(idata, &olen, new_samp_width,
                                   new_samp_height, samp_width, samp_height,
                                   pad_width, pad_height, n_cmpnts)))
       return(ret);
@@ -336,7 +336,7 @@ int not2intrlv_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
    /* padded component planes. */
    odata = (unsigned char *)malloc(olen * sizeof(unsigned char));
    if(odata == (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : not2intrlv_mem : malloc : odata\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_not2intrlv_mem : malloc : odata\n");
       return(-3);
    }
 
@@ -398,7 +398,7 @@ int not2intrlv_mem(unsigned char **oodata, int *oolen, unsigned char *idata,
 }
 
 /*****************************************************************/
-void compute_component_padding(int *pad_width, int *pad_height,
+void biomeval_nbis_compute_component_padding(int *pad_width, int *pad_height,
                        const int width, const int height,
                        int *samp_width, int *samp_height,
                        int *hor_sampfctr, int *vrt_sampfctr,
@@ -435,7 +435,7 @@ void compute_component_padding(int *pad_width, int *pad_height,
 }
 
 /*****************************************************************/
-int pad_component_planes(unsigned char *idata, int *onlen,
+int biomeval_nbis_pad_component_planes(unsigned char *idata, int *onlen,
                       int *new_samp_width, int *new_samp_height,
                       int *samp_width, int *samp_height,
                       int *pad_width, int *pad_height, const int n_cmpnts)
@@ -461,7 +461,7 @@ int pad_component_planes(unsigned char *idata, int *onlen,
    }
 
    if(realloc(idata, nlen * sizeof(unsigned char)) == (void *)NULL){
-      fprintf(stderr, "ERROR : pad_component_planes : realloc : idata\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_pad_component_planes : realloc : idata\n");
       return(-2);
    }
 
@@ -570,7 +570,7 @@ int test_image_size(const int ilen, const int w, const int h, int *hor_sampfctr,
    }
 
    if(intrlvflag)
-      compute_component_padding(pad_width, pad_height,
+      biomeval_nbis_compute_component_padding(pad_width, pad_height,
                         w, h, samp_width, samp_height,
                         hor_sampfctr, vrt_sampfctr, n_cmpnts);
 
@@ -580,7 +580,7 @@ int test_image_size(const int ilen, const int w, const int h, int *hor_sampfctr,
 
    if(olen != ilen) {
       fprintf(stderr, "ERROR : check_filesize : given file size %d ", ilen);
-      fprintf(stderr, "not equal to computed filesize %d\n", olen);
+      fprintf(stderr, "not equal to computed biomeval_nbis_filesize %d\n", olen);
       return(-2);
    }
    return(0);

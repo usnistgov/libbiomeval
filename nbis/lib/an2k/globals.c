@@ -61,7 +61,7 @@ of the software.
 #include <an2k.h>
 
 /* List of tagged records. */
-unsigned int tagged_records[] = {
+unsigned int biomeval_nbis_tagged_records[] = {
                       TYPE_1_ID,
                       TYPE_2_ID,
                       TYPE_9_ID,
@@ -74,7 +74,7 @@ unsigned int tagged_records[] = {
                       TYPE_99_ID};
 
 /* List of binary records. */
-unsigned int binary_records[] = {
+unsigned int biomeval_nbis_binary_records[] = {
                       TYPE_3_ID,
                       TYPE_4_ID,
                       TYPE_5_ID,
@@ -93,7 +93,7 @@ unsigned int tagged_image_records[] = {
                       TYPE_99_ID};
 
 /* List of binary image records. */
-unsigned int binary_image_records[] = {
+unsigned int biomeval_nbis_binary_image_records[] = {
                       TYPE_3_ID,
                       TYPE_4_ID,
                       TYPE_5_ID,
@@ -101,5 +101,5 @@ unsigned int binary_image_records[] = {
                       TYPE_7_ID};
 
 /* List of binary signature records. */
-unsigned int binary_signature_records[] = {
+unsigned int biomeval_nbis_binary_signature_records[] = {
                       TYPE_8_ID};

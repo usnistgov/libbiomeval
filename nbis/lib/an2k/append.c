@@ -62,9 +62,9 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        append_ANSI_NIST_record()
-                        append_ANSI_NIST_field()
-                        append_ANSI_NIST_subfield()
+                        biomeval_nbis_append_ANSI_NIST_record()
+                        biomeval_nbis_append_ANSI_NIST_field()
+                        biomeval_nbis_append_ANSI_NIST_subfield()
 
 ***********************************************************************/
 
@@ -73,7 +73,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: append_ANSI_NIST_record - Takes a new field and adds it to the
+#cat: biomeval_nbis_append_ANSI_NIST_record - Takes a new field and adds it to the
 #cat:              end of the specified record, updating the size of
 #cat:              the record and setting any separator characters.
 
@@ -84,7 +84,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int append_ANSI_NIST_record(RECORD *record, FIELD *field)
+int biomeval_nbis_append_ANSI_NIST_record(RECORD *record, FIELD *field)
 {
    int ret;
    FIELD *lastfield;
@@ -107,7 +107,7 @@ int append_ANSI_NIST_record(RECORD *record, FIELD *field)
       }
    }
    /* Update record with new field. */
-   if((ret = update_ANSI_NIST_record(record, field)))
+   if((ret = biomeval_nbis_update_ANSI_NIST_record(record, field)))
       return(ret);
 
    /* Return normally. */
@@ -116,7 +116,7 @@ int append_ANSI_NIST_record(RECORD *record, FIELD *field)
 
 /***********************************************************************
 ************************************************************************
-#cat: append_ANSI_NIST_field - Takes a new subfield and adds it to the
+#cat: biomeval_nbis_append_ANSI_NIST_field - Takes a new subfield and adds it to the
 #cat:              end of the specified field, updating the size of
 #cat:              the field and setting any separator characters.
 
@@ -127,7 +127,7 @@ int append_ANSI_NIST_record(RECORD *record, FIELD *field)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int append_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
+int biomeval_nbis_append_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
 {
    int ret;
    SUBFIELD *lastsubfield;
@@ -144,7 +144,7 @@ int append_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
       }
    }
    /* Update field with new subfield. */
-   if((ret = update_ANSI_NIST_field(field, subfield)))
+   if((ret = biomeval_nbis_update_ANSI_NIST_field(field, subfield)))
       return(ret);
 
    /* Return normally. */
@@ -153,7 +153,7 @@ int append_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
 
 /***********************************************************************
 ************************************************************************
-#cat: append_ANSI_NIST_subfield - Takes a new item and adds it to the
+#cat: biomeval_nbis_append_ANSI_NIST_subfield - Takes a new item and adds it to the
 #cat:              end of the specified subfield, updating the size of
 #cat:              the subfield and setting any separator characters.
 
@@ -164,7 +164,7 @@ int append_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int append_ANSI_NIST_subfield(SUBFIELD *subfield, ITEM *item)
+int biomeval_nbis_append_ANSI_NIST_subfield(SUBFIELD *subfield, ITEM *item)
 {
    int ret;
    ITEM *lastitem;
@@ -181,7 +181,7 @@ int append_ANSI_NIST_subfield(SUBFIELD *subfield, ITEM *item)
       }
    }
    /* Update subfield with new item. */
-   if((ret = update_ANSI_NIST_subfield(subfield, item)))
+   if((ret = biomeval_nbis_update_ANSI_NIST_subfield(subfield, item)))
       return(ret);
 
    /* Return normally. */

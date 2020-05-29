@@ -54,7 +54,7 @@ of the software.
       in units of pixels per inch from a JPEGL compressed datastream.
 
       ROUTINES:
-#cat: get_ppi_jpegl - Given a JFIF Header from a JPEGL compressed
+#cat: biomeval_nbis_get_ppi_jpegl - Given a JFIF Header from a JPEGL compressed
 #cat:                 datastream, extracts/derives the pixel scan
 #cat:                 resolution in units of pixel per inch.
 
@@ -66,7 +66,7 @@ of the software.
 #define CM_PER_INCH   2.54
 
 /************************************************************************/
-int get_ppi_jpegl(int *oppi, JFIF_HEADER *jfif_header)
+int biomeval_nbis_get_ppi_jpegl(int *oppi, JFIF_HEADER *jfif_header)
 {
    int ppi;
 
@@ -91,7 +91,7 @@ int get_ppi_jpegl(int *oppi, JFIF_HEADER *jfif_header)
          break;
       /* ERROR */
       default:
-         fprintf(stderr, "ERROR : get_ppi_jpegl : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_get_ppi_jpegl : ");
          fprintf(stderr, "illegal density unit = %d\n", jfif_header->units);
          return(-2);
    }

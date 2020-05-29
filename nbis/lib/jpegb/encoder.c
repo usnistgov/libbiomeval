@@ -16,9 +16,9 @@
       modified to fit our needs.
 
       ROUTINES:
-#cat: jpegb_encode_mem - JPEGB encodes image data storing the compressed
+#cat: biomeval_nbis_jpegb_encode_mem - JPEGB encodes image data storing the compressed
 #cat:                    bytes to a memory buffer.
-#cat: jpegb_encode_file - JPEGB encodes image data storing the compressed
+#cat: biomeval_nbis_jpegb_encode_file - JPEGB encodes image data storing the compressed
 #cat:                    bytes to an open file.
 
 ***********************************************************************/
@@ -28,7 +28,7 @@
 #include <jpegb.h>
 
 /**********************************************************************/
-int jpegb_encode_mem(unsigned char **oout_buffer, int *oolen,
+int biomeval_nbis_jpegb_encode_mem(unsigned char **oout_buffer, int *oolen,
                      const int quality, unsigned char *in_buffer,
                      const int w, const int h, const int d,
                      const int ppi, char *comment_text)
@@ -90,10 +90,10 @@ int jpegb_encode_mem(unsigned char **oout_buffer, int *oolen,
   /* Allocate output buffer. */
   out_buffer = (JOCTET *)malloc(out_buffer_size * sizeof(JOCTET));
   if(out_buffer == (JOCTET *)NULL){
-     fprintf(stderr, "ERROR : jpegb_encode_mem : malloc : out_buffer\n");
+     fprintf(stderr, "ERROR : biomeval_nbis_jpegb_encode_mem : malloc : out_buffer\n");
      return(-3);
   }
-  jpeg_membuf_dest(&cinfo, out_buffer, out_buffer_size);
+  biomeval_nbis_jpeg_membuf_dest(&cinfo, out_buffer, out_buffer_size);
 
   /* Step 3: set parameters for compression */
 
@@ -138,7 +138,7 @@ int jpegb_encode_mem(unsigned char **oout_buffer, int *oolen,
   jpeg_start_compress(&cinfo, TRUE);
 
   /* Write user-supplied comment and/or NISTCOM. */
-  if((ret = put_nistcom_jpegb(&cinfo, comment_text, w, h, d, ppi,
+  if((ret = biomeval_nbis_put_nistcom_jpegb(&cinfo, comment_text, w, h, d, ppi,
                               1 /* lossy */, quality))){
      jpeg_destroy_compress(&cinfo);
      return(ret);
@@ -180,7 +180,7 @@ int jpegb_encode_mem(unsigned char **oout_buffer, int *oolen,
 }
 
 /**********************************************************************/
-int jpegb_encode_file(FILE *outfp, const int quality,
+int biomeval_nbis_jpegb_encode_file(FILE *outfp, const int quality,
                       unsigned char *in_buffer,
                       const int w, const int h, const int d,
                       const int ppi, char *comment_text)
@@ -278,7 +278,7 @@ int jpegb_encode_file(FILE *outfp, const int quality,
   jpeg_start_compress(&cinfo, TRUE);
 
   /* Write user-supplied comment and/or NISTCOM. */
-  if((ret = put_nistcom_jpegb(&cinfo, comment_text, w, h, d, ppi,
+  if((ret = biomeval_nbis_put_nistcom_jpegb(&cinfo, comment_text, w, h, d, ppi,
                               1 /* lossy */, quality))){
      jpeg_destroy_compress(&cinfo);
      return(ret);

@@ -72,6 +72,6 @@ typedef struct {
 
 /***********************************************************************/
 /* SEG.C : ROUTINES */
-extern int lookup_type14_segments(SEG **, int *, RECORD *);
+extern int biomeval_nbis_lookup_type14_segments(SEG **, int *, RECORD *);
 
 #endif /* !_AN2KSEG_H */

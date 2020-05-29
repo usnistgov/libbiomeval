@@ -172,7 +172,7 @@ parsePositionDescriptors(
 	int idx;
 	FIELD *field;
 	BE::Finger::PositionDescriptors pd;
-	if (lookup_ANSI_NIST_field(&field, &idx, field_num, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, field_num, record) != TRUE)
 		throw BE::Error::DataError(
 		    "Position descriptor field not found");
 	for (int i = 0; i < field->num_subfields; i++) {
@@ -312,7 +312,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 	FIELD *field;
 	int idx;
 
-	if (lookup_ANSI_NIST_field(&field, &idx, FGP3_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, FGP3_ID, record) != TRUE)
 		throw Error::DataError("Field FGP not found");
 	_positions = populateFGP(field);
 
@@ -333,12 +333,12 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 				pd_id = PPD_ID;
 				break;
 			}
-			if (lookup_ANSI_NIST_field(&field, &idx, pd_id, record)
+			if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, pd_id, record)
 			    == TRUE) {
 				_pd = parsePositionDescriptors(typeID, record);
 			}
 			/* Print Position Coordinates */
-			if (lookup_ANSI_NIST_field(&field, &idx, PPC_ID, record)
+			if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, PPC_ID, record)
 			    == TRUE) {
 				for (int i = 0; i < field->num_subfields; i++) {
 					_ppcs.push_back(
@@ -352,7 +352,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 	/*********************************************************************/
 	/* Required Fields.                                                  */
 	/*********************************************************************/
-	if (lookup_ANSI_NIST_field(&field, &idx, IMP_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, IMP_ID, record) != TRUE)
 		throw Error::DataError("Field IMP not found");
 	_imp = BE::Finger::AN2KView::convertImpression(
 	    field->subfields[0]->items[0]->value);
@@ -360,17 +360,17 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 	/* For some required fields, where no other information is dependent
 	 * on them, we'll allow them to be missing.
 	 */
-	 if (lookup_ANSI_NIST_field(&field, &idx, SRC_ID, record) == TRUE)
+	 if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, SRC_ID, record) == TRUE)
 		_sourceAgency = (char *)field->subfields[0]->items[0]->value;
 
-	 if (lookup_ANSI_NIST_field(&field, &idx, CD_ID, record) == TRUE)
+	 if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, CD_ID, record) == TRUE)
 		_captureDate = (char *)field->subfields[0]->items[0]->value;
 
 	/*
 	 * Convert the Horizontal/Vertical pixel scale to the image
 	 * resolution. Field SLC has the scale units indicator.
 	 */
-	if (lookup_ANSI_NIST_field(&field, &idx, SLC_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, SLC_ID, record) != TRUE)
                 throw Error::DataError("Field SLC not found");
 	int slc = atoi((char *)field->subfields[0]->items[0]->value);
 
@@ -380,28 +380,28 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 		case 1: ir.units = BE::Image::Resolution::Units::PPI; break;
 		case 2: ir.units = BE::Image::Resolution::Units::PPCM; break;
 	}
-	if (lookup_ANSI_NIST_field(&field, &idx, HPS_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, HPS_ID, record) != TRUE)
                 throw Error::DataError("Field HPS not found");
 	ir.xRes = atoi((char *)field->subfields[0]->items[0]->value);
-	if (lookup_ANSI_NIST_field(&field, &idx, VPS_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, VPS_ID, record) != TRUE)
                 throw Error::DataError("Field VPS not found");
 	ir.yRes = atoi((char *)field->subfields[0]->items[0]->value);
 	AN2KView::AN2KView::setImageResolution(ir);
 
 	/* Compression Algorithm, ASCII version */
-	 if (lookup_ANSI_NIST_field(&field, &idx, TAG_CA_ID, record) != TRUE)
+	 if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, TAG_CA_ID, record) != TRUE)
                 throw Error::DataError("Field TAG_CA not found");
         AN2KView::setCompressionAlgorithm(
 	    AN2KView::convertCompressionAlgorithm(
 		(*record).type, field->subfields[0]->items[0]->value));
 
-	 if (lookup_ANSI_NIST_field(&field, &idx, BPX_ID, record) != TRUE)
+	 if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, BPX_ID, record) != TRUE)
                 throw Error::DataError("Field BPX not found");
         AN2KView::setImageColorDepth(
 	    atoi((char *)field->subfields[0]->items[0]->value));
 
 	/* Read the image data */
-	if (lookup_ANSI_NIST_field(&field, &idx, DAT2_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, DAT2_ID, record) != TRUE)
 		throw Error::DataError("Field DAT2 not found");
 	Memory::AutoArray<uint8_t>imageData = Memory::AutoArray<uint8_t>(
 	    field->subfields[0]->items[0]->num_bytes);
@@ -415,13 +415,13 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 
 	/* Reuse units from SLC */
 	ir.xRes = ir.yRes = 0.0;
-	if (lookup_ANSI_NIST_field(&field, &idx, SHPS_ID, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, SHPS_ID, record) == TRUE)
 		ir.xRes = atoi((char *)field->subfields[0]->items[0]->value);
-	if (lookup_ANSI_NIST_field(&field, &idx, SVPS_ID, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, SVPS_ID, record) == TRUE)
 		ir.yRes = atoi((char *)field->subfields[0]->items[0]->value);
 	AN2KView::setScanResolution(ir);
 
-	if (lookup_ANSI_NIST_field(&field, &idx, COM_ID, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, COM_ID, record) == TRUE)
 		_comment = (char *)field->subfields[0]->items[0]->value;
 
 	/* Latent/finger/palm quality metric */
@@ -442,11 +442,11 @@ BiometricEvaluation::View::AN2KViewVariableResolution::readImageRecord(
 		type = Feature::PositionType::Finger;
 		break;
 	}
-	if (lookup_ANSI_NIST_field(&field, &idx, quality_id, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, quality_id, record) == TRUE)
 		_qms = extractQuality(field, type);
 
 	/* FrictionRidgeCaptureTechnology (FRCT) */
-	if (lookup_ANSI_NIST_field(&field, &idx, 901, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, 901, record) == TRUE)
 		this->_frct = convertCaptureTechnology(
 		    (char *)field->subfields[0]->items[0]->value);
 }
@@ -462,7 +462,7 @@ BiometricEvaluation::View::AN2KViewVariableResolution::parseUserDefinedField(
 
 	FIELD *field;
 	int idx;
-	if (lookup_ANSI_NIST_field(&field, &idx, fieldID, record) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, fieldID, record) == FALSE)
 		throw Error::ObjectDoesNotExist("Field " +
 		    std::to_string(fieldID) + " does not exist");
 

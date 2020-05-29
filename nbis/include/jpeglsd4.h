@@ -49,7 +49,7 @@ of the software.
 
 #define MAX_HUFFBITS_JPEGL_SD4 10
 
-extern int jpegl_sd4_decode_mem(unsigned char *, const int, const int,
+extern int biomeval_nbis_jpegl_sd4_decode_mem(unsigned char *, const int, const int,
                  const int, const int, unsigned char *);
 
 #endif /* !_JPEGLSD4_H */

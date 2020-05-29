@@ -182,7 +182,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readRegisteredVendorBlock(
 	 * parsed to create the RECORD struct.
 	 */
 	for (uint16_t i = startField; i < endField; i++) {
-		if (lookup_ANSI_NIST_field(&field, &idx, i, type9) == FALSE)
+		if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, i, type9) == FALSE)
 			continue;
 			
 		/* 
@@ -219,12 +219,12 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
     int recordNumber)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k =
-	    Memory::AutoBuffer<ANSI_NIST>(&alloc_ANSI_NIST,
-		&free_ANSI_NIST, &copy_ANSI_NIST);
+	    Memory::AutoBuffer<ANSI_NIST>(&biomeval_nbis_alloc_ANSI_NIST,
+		&biomeval_nbis_free_ANSI_NIST, &biomeval_nbis_copy_ANSI_NIST);
 
 	AN2KBDB bdb;
 	INIT_AN2KBDB(&bdb, buf, buf.size());
-	if (scan_ANSI_NIST(&bdb, an2k) != 0)
+	if (biomeval_nbis_scan_ANSI_NIST(&bdb, an2k) != 0)
 		throw Error::DataError("Could not read complete AN2K record");
 
 	/*
@@ -249,7 +249,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
 	int idx;
 	
 	/* Impression type (IMP) -- Field 9.003 (mandatory) */
-	if (lookup_ANSI_NIST_field(&field, &idx, IMP_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, IMP_ID, type9) == FALSE)
 		throw Error::DataError("Field IMP not found");
 	_imp = Finger::AN2KView::convertImpression(field->subfields[0]->
 	    items[0]->value);

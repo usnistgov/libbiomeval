@@ -56,8 +56,8 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        binary_image_field_bytes()
-                        binary_signature_field_bytes()
+                        biomeval_nbis_binary_image_field_bytes()
+                        biomeval_nbis_binary_signature_field_bytes()
 
 ***********************************************************************/
 
@@ -66,7 +66,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: binary_image_field_bytes - Takes an integer field ID associated
+#cat: biomeval_nbis_binary_image_field_bytes - Takes an integer field ID associated
 #cat:              with a specific field in a binary image record
 #cat:              (Type-3,4,5,6) and returns the number of bytes used
 #cat:              to represent that field.
@@ -77,7 +77,7 @@ of the software.
       Positive   - byte size of binary field
       Negative   - unrecognized field ID
 ************************************************************************/
-int binary_image_field_bytes(const int field_int)
+int biomeval_nbis_binary_image_field_bytes(const int field_int)
 {
    switch(field_int){
       case LEN_ID:
@@ -97,7 +97,7 @@ int binary_image_field_bytes(const int field_int)
       case BIN_CA_ID:
            return(BINARY_CA_BYTES);
       default:
-           fprintf(stderr, "ERROR : binary_image_field_bytes : "
+           fprintf(stderr, "ERROR : biomeval_nbis_binary_image_field_bytes : "
 		   "illegal binary image field ID [%d]\n",
                    field_int);
            return(-1);
@@ -106,7 +106,7 @@ int binary_image_field_bytes(const int field_int)
 
 /***********************************************************************
 ************************************************************************
-#cat: binary_signature_field_bytes - Takes an integer field ID associated
+#cat: biomeval_nbis_binary_signature_field_bytes - Takes an integer field ID associated
 #cat:              with a specific field in a signature record (Type-8)
 #cat:              and returns the number of bytes used to represent
 #cat:              that field.
@@ -117,7 +117,7 @@ int binary_image_field_bytes(const int field_int)
       Positive   - byte size of binary field
       Negative   - unrecognized field ID
 ************************************************************************/
-int binary_signature_field_bytes(const int field_int)
+int biomeval_nbis_binary_signature_field_bytes(const int field_int)
 {
    switch(field_int){
       case LEN_ID:
@@ -135,7 +135,7 @@ int binary_signature_field_bytes(const int field_int)
       case VLL_ID:
            return(BINARY_VLL_BYTES);
       default:
-           fprintf(stderr, "ERROR : binary_signature_field_bytes : "
+           fprintf(stderr, "ERROR : biomeval_nbis_binary_signature_field_bytes : "
 		   "illegal binary signature field ID [%d]\n",
                    field_int);
            return(-1);

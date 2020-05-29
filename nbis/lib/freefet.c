@@ -53,14 +53,14 @@ of the software.
       structure used to hold an attribute-value paired list.
 
       ROUTINES:
-#cat: freefet - deallocates the memory for an fet structure.
+#cat: biomeval_nbis_freefet - deallocates the memory for an fet structure.
 #cat:
 
 ***********************************************************************/
 
 #include <fet.h>
 
-void freefet(FET *fet)
+void biomeval_nbis_freefet(FET *fet)
 {
   int item;
   for (item=0;item<fet->num;item++){

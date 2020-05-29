@@ -55,15 +55,15 @@ of the software.
       used for JPEGL (lossless) image compression.
 
       ROUTINES:
-#cat: gen_huff_tables - Given frequency of difference categories, generates
+#cat: biomeval_nbis_gen_huff_tables - Given frequency of difference categories, generates
 #cat:                   huffman tables for use with JPEGL compression.
-#cat: read_huffman_table_jpegl - Reads the next huffman table from an
+#cat: biomeval_nbis_read_huffman_table_jpegl - Reads the next huffman table from an
 #cat:                   open JPEGL compressed file.
-#cat: getc_huffman_table_jpegl - Reads the next huffman table from a
+#cat: biomeval_nbis_getc_huffman_table_jpegl - Reads the next huffman table from a
 #cat:                   JPEGL compressed memory buffer.
-#cat: free_HUFF_TABLES - deallocates a list of huffman tables.
+#cat: biomeval_nbis_free_HUFF_TABLES - deallocates a list of huffman tables.
 #cat:
-#cat: free_HUFF_TABLE - deallocates a huffman table structure.
+#cat: biomeval_nbis_free_HUFF_TABLE - deallocates a huffman table structure.
 #cat:
 
 ***********************************************************************/
@@ -74,7 +74,7 @@ of the software.
 
 /*****************************************************/
 /* for encoder                                       */
-int gen_huff_tables(HUF_TABLE **huf_table, const int N)
+int biomeval_nbis_gen_huff_tables(HUF_TABLE **huf_table, const int N)
 {
    int i, ret, adjust; 
    HUFFCODE *thuffcode_table;
@@ -83,35 +83,35 @@ int gen_huff_tables(HUF_TABLE **huf_table, const int N)
 
       huf_table[i]->table_id = MIN_HUFFTABLE_ID + i;
 
-      if((ret = find_huff_sizes(&(huf_table[i]->codesize),
+      if((ret = biomeval_nbis_find_huff_sizes(&(huf_table[i]->codesize),
                                huf_table[i]->freq, MAX_HUFFCOUNTS_JPEGL))){
          return(ret);
       }
 
-      if((ret = find_num_huff_sizes(&(huf_table[i]->bits), &adjust,
+      if((ret = biomeval_nbis_find_num_huff_sizes(&(huf_table[i]->bits), &adjust,
                              huf_table[i]->codesize, MAX_HUFFCOUNTS_JPEGL))){
          return(ret);
       }
 
       if(adjust){
-         if((ret = sort_huffbits(huf_table[i]->bits))){
+         if((ret = biomeval_nbis_sort_huffbits(huf_table[i]->bits))){
             return(ret);
          }
       }
 
-      if((ret = sort_code_sizes(&(huf_table[i]->values),
+      if((ret = biomeval_nbis_sort_code_sizes(&(huf_table[i]->values),
                                huf_table[i]->codesize, MAX_HUFFCOUNTS_JPEGL))){
          return(ret);
       }
 
-      if((ret = build_huffsizes(&thuffcode_table, &(huf_table[i]->last_size),
+      if((ret = biomeval_nbis_build_huffsizes(&thuffcode_table, &(huf_table[i]->last_size),
                                huf_table[i]->bits, MAX_HUFFCOUNTS_JPEGL))){
          return(ret);
       }
 
-      build_huffcodes(thuffcode_table);
+      biomeval_nbis_build_huffcodes(thuffcode_table);
 
-      if((ret = build_huffcode_table(&(huf_table[i]->huffcode_table),
+      if((ret = biomeval_nbis_build_huffcode_table(&(huf_table[i]->huffcode_table),
                        thuffcode_table, huf_table[i]->last_size,
                        huf_table[i]->values, MAX_HUFFCOUNTS_JPEGL))){
          free(thuffcode_table);
@@ -127,7 +127,7 @@ int gen_huff_tables(HUF_TABLE **huf_table, const int N)
 
 /***************************************************/
 /* for decoder                                     */
-int read_huffman_table_jpegl(HUF_TABLE **huf_table, FILE *infp)
+int biomeval_nbis_read_huffman_table_jpegl(HUF_TABLE **huf_table, FILE *infp)
 {
    int ret, i, bytes_left;
    unsigned char table_id;
@@ -135,24 +135,24 @@ int read_huffman_table_jpegl(HUF_TABLE **huf_table, FILE *infp)
 
    thuf_table = (HUF_TABLE *)calloc(1, sizeof(HUF_TABLE));
    if(thuf_table == (HUF_TABLE *)NULL){
-      fprintf(stderr, "ERROR : read_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table_jpegl : ");
       fprintf(stderr, "calloc : thuf_table\n");
       return(-2);
    }
 
-   if((ret = read_huffman_table(&table_id, &(thuf_table->bits),
+   if((ret = biomeval_nbis_read_huffman_table(&table_id, &(thuf_table->bits),
                  &(thuf_table->values), MAX_HUFFCOUNTS_JPEGL,
                  infp, READ_TABLE_LEN, &bytes_left))){
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(ret);
    }
 
    /* There should only be one table in each DHT record in a */
    /* JPEGL file.  If extra bytes remain, then ERROR. */
    if(bytes_left){
-      fprintf(stderr, "ERROR : read_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table_jpegl : ");
       fprintf(stderr, "extra bytes after huffman table ID = %d\n", table_id);
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-3);
    }
 
@@ -160,7 +160,7 @@ int read_huffman_table_jpegl(HUF_TABLE **huf_table, FILE *infp)
       (table_id >= (MIN_HUFFTABLE_ID + MAX_CMPNTS))){
 
       if(table_id <= 3){
-         fprintf(stderr, "WARNING : read_huffman_table_jpegl : ");
+         fprintf(stderr, "WARNING : biomeval_nbis_read_huffman_table_jpegl : ");
          fprintf(stderr, "huffman table index %d not in range %d - %d\n",
                           table_id, MIN_HUFFTABLE_ID,
                           MAX_CMPNTS+MIN_HUFFTABLE_ID-1);
@@ -169,11 +169,11 @@ int read_huffman_table_jpegl(HUF_TABLE **huf_table, FILE *infp)
          table_id += MIN_HUFFTABLE_ID;
       }
       else{
-         fprintf(stderr, "ERROR : read_huffman_table_jpegl : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table_jpegl : ");
          fprintf(stderr, "huffman table index %d not in range %d - %d\n",
                           table_id, MIN_HUFFTABLE_ID,
                           MAX_CMPNTS+MIN_HUFFTABLE_ID-1);
-         free_HUFF_TABLE(thuf_table);
+         biomeval_nbis_free_HUFF_TABLE(thuf_table);
          return(-4);
       }
    }
@@ -188,9 +188,9 @@ int read_huffman_table_jpegl(HUF_TABLE **huf_table, FILE *infp)
       (huf_table[i]->def == 1)){
 
       fprintf(stderr,
-      "ERROR : jpegl_decode_mem : huffman table %d illegally redefined\n",
+      "ERROR : biomeval_nbis_jpegl_decode_mem : huffman table %d illegally redefined\n",
               thuf_table->table_id);
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-5);
    }
 
@@ -201,43 +201,43 @@ int read_huffman_table_jpegl(HUF_TABLE **huf_table, FILE *infp)
    thuf_table->maxcode = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1,
                                           sizeof(int));
    if(thuf_table->maxcode == (int *)NULL){
-      fprintf(stderr, "ERROR : read_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table_jpegl : ");
       fprintf(stderr, "calloc : maxcode\n");
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-6);
    }
 
    thuf_table->mincode = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1,
                                           sizeof(int));
    if(thuf_table->mincode == (int *)NULL){
-      fprintf(stderr, "ERROR : read_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table_jpegl : ");
       fprintf(stderr, "calloc : mincode\n");
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-7);
    }
 
    thuf_table->valptr = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1, sizeof(int));
    if(thuf_table->valptr == (int *)NULL){
-      fprintf(stderr, "ERROR : read_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table_jpegl : ");
       fprintf(stderr, "calloc : valptr\n");
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-8);
    }
 
    /*the next two routines reconstruct the huffman tables that were used
      in the Jpeg lossless compression*/
-   if((ret = build_huffsizes(&(thuf_table->huffcode_table),
+   if((ret = biomeval_nbis_build_huffsizes(&(thuf_table->huffcode_table),
                             &(thuf_table->last_size), thuf_table->bits,
                             MAX_HUFFCOUNTS_JPEGL))){
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(ret);
    }
 
-   build_huffcodes(thuf_table->huffcode_table);
+   biomeval_nbis_build_huffcodes(thuf_table->huffcode_table);
 
    /*this routine builds a set of three tables used in decoding the compressed
      data*/
-   gen_decode_table(thuf_table->huffcode_table,
+   biomeval_nbis_gen_decode_table(thuf_table->huffcode_table,
                     thuf_table->maxcode, thuf_table->mincode,
                     thuf_table->valptr, thuf_table->bits);
 
@@ -249,7 +249,7 @@ int read_huffman_table_jpegl(HUF_TABLE **huf_table, FILE *infp)
 
 /***************************************************/
 /* for decoder                                     */
-int getc_huffman_table_jpegl(HUF_TABLE **huf_table,
+int biomeval_nbis_getc_huffman_table_jpegl(HUF_TABLE **huf_table,
                              unsigned char **cbufptr, unsigned char *ebufptr)
 {
    int ret, i, bytes_left;
@@ -258,24 +258,24 @@ int getc_huffman_table_jpegl(HUF_TABLE **huf_table,
 
    thuf_table = (HUF_TABLE *)calloc(1, sizeof(HUF_TABLE));
    if(thuf_table == (HUF_TABLE *)NULL){
-      fprintf(stderr, "ERROR : getc_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl : ");
       fprintf(stderr, "calloc : thuf_table\n");
       return(-2);
    }
 
-   if((ret = getc_huffman_table(&table_id, &(thuf_table->bits),
+   if((ret = biomeval_nbis_getc_huffman_table(&table_id, &(thuf_table->bits),
                  &(thuf_table->values), MAX_HUFFCOUNTS_JPEGL,
                  cbufptr, ebufptr, READ_TABLE_LEN, &bytes_left))){
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(ret);
    }
 
    /* There should only be one table in each DHT record in a */
    /* JPEGL file.  If extra bytes remain, then ERROR. */
    if(bytes_left){
-      fprintf(stderr, "ERROR : getc_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl : ");
       fprintf(stderr, "extra bytes after huffman table ID = %d\n", table_id);
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-3);
    }
 
@@ -283,7 +283,7 @@ int getc_huffman_table_jpegl(HUF_TABLE **huf_table,
       (table_id >= (MIN_HUFFTABLE_ID + MAX_CMPNTS))){
 
       if(table_id <= 3){
-         fprintf(stderr, "WARNING : getc_huffman_table_jpegl : ");
+         fprintf(stderr, "WARNING : biomeval_nbis_getc_huffman_table_jpegl : ");
          fprintf(stderr, "huffman table index %d not in range %d - %d\n",
                           table_id, MIN_HUFFTABLE_ID,
                           MAX_CMPNTS+MIN_HUFFTABLE_ID-1);
@@ -292,11 +292,11 @@ int getc_huffman_table_jpegl(HUF_TABLE **huf_table,
          table_id += MIN_HUFFTABLE_ID;
       }
       else{
-         fprintf(stderr, "ERROR : getc_huffman_table_jpegl : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl : ");
          fprintf(stderr, "huffman table index %d not in range %d - %d\n",
                           table_id, MIN_HUFFTABLE_ID,
                           MAX_CMPNTS+MIN_HUFFTABLE_ID-1);
-         free_HUFF_TABLE(thuf_table);
+         biomeval_nbis_free_HUFF_TABLE(thuf_table);
          return(-4);
       }
    }
@@ -311,9 +311,9 @@ int getc_huffman_table_jpegl(HUF_TABLE **huf_table,
       (huf_table[i]->def == 1)){
 
       fprintf(stderr,
-      "ERROR : jpegl_decode_mem : huffman table %d illegally redefined\n",
+      "ERROR : biomeval_nbis_jpegl_decode_mem : huffman table %d illegally redefined\n",
               thuf_table->table_id);
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-5);
    }
 
@@ -324,43 +324,43 @@ int getc_huffman_table_jpegl(HUF_TABLE **huf_table,
    thuf_table->maxcode = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1,
                                           sizeof(int));
    if(thuf_table->maxcode == (int *)NULL){
-      fprintf(stderr, "ERROR : getc_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl : ");
       fprintf(stderr, "calloc : maxcode\n");
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-6);
    }
 
    thuf_table->mincode = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1,
                                           sizeof(int));
    if(thuf_table->mincode == (int *)NULL){
-      fprintf(stderr, "ERROR : getc_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl : ");
       fprintf(stderr, "calloc : mincode\n");
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-7);
    }
 
    thuf_table->valptr = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1, sizeof(int));
    if(thuf_table->valptr == (int *)NULL){
-      fprintf(stderr, "ERROR : getc_huffman_table_jpegl : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl : ");
       fprintf(stderr, "calloc : valptr\n");
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-8);
    }
 
    /*the next two routines reconstruct the huffman tables that were used
      in the Jpeg lossless compression*/
-   if((ret = build_huffsizes(&(thuf_table->huffcode_table),
+   if((ret = biomeval_nbis_build_huffsizes(&(thuf_table->huffcode_table),
                             &(thuf_table->last_size), thuf_table->bits,
                             MAX_HUFFCOUNTS_JPEGL))){
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(ret);
    }
 
-   build_huffcodes(thuf_table->huffcode_table);
+   biomeval_nbis_build_huffcodes(thuf_table->huffcode_table);
 
    /*this routine builds a set of three tables used in decoding the compressed
      data*/
-   gen_decode_table(thuf_table->huffcode_table,
+   biomeval_nbis_gen_decode_table(thuf_table->huffcode_table,
                     thuf_table->maxcode, thuf_table->mincode,
                     thuf_table->valptr, thuf_table->bits);
 
@@ -373,13 +373,13 @@ int getc_huffman_table_jpegl(HUF_TABLE **huf_table,
 /******************************************************/
 /* Deallocate list of JPEGL huffman table structures. */
 /******************************************************/
-void free_HUFF_TABLES(HUF_TABLE **huf_table, const int N)
+void biomeval_nbis_free_HUFF_TABLES(HUF_TABLE **huf_table, const int N)
 {
    int i;
 
    for(i = 0; i < N; i++){
       if(huf_table[i] != (HUF_TABLE *)NULL){
-         free_HUFF_TABLE(huf_table[i]);
+         biomeval_nbis_free_HUFF_TABLE(huf_table[i]);
       }
    }
 }
@@ -387,7 +387,7 @@ void free_HUFF_TABLES(HUF_TABLE **huf_table, const int N)
 /************** ********************************/
 /* Deallocate a JPEGL huffman table structure. */
 /***********************************************/
-void free_HUFF_TABLE(HUF_TABLE *huf_table)
+void biomeval_nbis_free_HUFF_TABLE(HUF_TABLE *huf_table)
 {
    if(huf_table->freq != (int *)NULL)
       free(huf_table->freq);

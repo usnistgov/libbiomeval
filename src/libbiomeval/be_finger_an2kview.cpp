@@ -156,11 +156,11 @@ BiometricEvaluation::Finger::AN2KView::readImageRecord(
 	FIELD *field;
 	int idx;
 
-	if (lookup_ANSI_NIST_field(&field, &idx, IMP_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, IMP_ID, record) != TRUE)
 		throw Error::DataError("Field IMP not found");
 	_imp = convertImpression(field->subfields[0]->items[0]->value);
 							
-	if (lookup_ANSI_NIST_field(&field, &idx, FGP_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, FGP_ID, record) != TRUE)
 		throw Error::DataError("Field FGP not found");
 	_positions = populateFGP(field);
 }

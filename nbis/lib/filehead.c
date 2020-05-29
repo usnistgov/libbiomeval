@@ -54,7 +54,7 @@ of the software.
       a the directory path in a file name string.
 
       ROUTINES:
-#cat: filehead - takes a full pathname and returns the information to the
+#cat: biomeval_nbis_filehead - takes a full pathname and returns the information to the
 #cat:            left of the rightmost directory level.
 
 ***********************************************************************/
@@ -69,7 +69,7 @@ of the software.
 /* name and returns all directory information to the left    */
 /* of the rightmost directory level.                         */
 /*************************************************************/
-void filehead(char *head)
+void biomeval_nbis_filehead(char *head)
 {
 
    char *cptr;
@@ -83,5 +83,5 @@ void filehead(char *head)
      */
       *cptr = '\0';
    else
-      fatalerr("filehead","full path required as input",NULL);
+      biomeval_nbis_fatalerr("biomeval_nbis_filehead","full path required as input",NULL);
 }

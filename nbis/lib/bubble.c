@@ -52,7 +52,7 @@ of the software.
 ***********************************************************************
 
       ROUTINES:
-#cat: bubble_sort_int - sorts a list of integers into decreasing order with a
+#cat: biomeval_nbis_bubble_sort_int - sorts a list of integers into decreasing order with a
 #cat:                   bubble sort. It is destructive to the integer list
 #cat:                   passed to it.
 
@@ -61,7 +61,7 @@ of the software.
 #include<swap.h>
 
 /***************************************************************************/
-void bubble_sort_int(int *pts, const int n)
+void biomeval_nbis_bubble_sort_int(int *pts, const int n)
 {
    int done = 0;
    int i, p;

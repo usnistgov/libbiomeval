@@ -52,7 +52,7 @@ of the software.
       UPDATE:  01/31/2008 by Kenneth Ko
       UPDATE:  09/03/2008 by Kenneth Ko
       UPDATE:  04/01/2008 by Joseph Konczal - fixed memory overrun error in
-                          copy_ANSI_NIST, caused by the wrong letter case
+                          biomeval_nbis_copy_ANSI_NIST, caused by the wrong letter case
 
       Contains routines responsible for creating memory copies
       of ANSI/NIST file structures plus individual logical records,
@@ -73,7 +73,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: copy_ANSI_NIST - Takes an ANSI/NIST structure and creates a
+#cat: biomeval_nbis_copy_ANSI_NIST - Takes an ANSI/NIST structure and creates a
 #cat:              memory copy of its contents.
 
    Input:
@@ -84,7 +84,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int copy_ANSI_NIST(ANSI_NIST **oansi_nist, ANSI_NIST *ansi_nist)
+int biomeval_nbis_copy_ANSI_NIST(ANSI_NIST **oansi_nist, ANSI_NIST *ansi_nist)
 {
    int i, ret;
    ANSI_NIST *nansi_nist;
@@ -93,7 +93,7 @@ int copy_ANSI_NIST(ANSI_NIST **oansi_nist, ANSI_NIST *ansi_nist)
    /* Allocate new ANSI/NIST structure. */
    nansi_nist = (ANSI_NIST *)malloc(sizeof(ANSI_NIST)); /* upcased - jck */
    if(nansi_nist == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST : "
 	      "malloc : nansi_nist (%lu bytes)\n", 
 	      (unsigned long)sizeof(ANSI_NIST));
       return(-2);
@@ -106,7 +106,7 @@ int copy_ANSI_NIST(ANSI_NIST **oansi_nist, ANSI_NIST *ansi_nist)
    nansi_nist->records = (RECORD **)malloc(ansi_nist->alloc_records *
                                            sizeof(RECORD *));
    if(nansi_nist->records == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST : "
 	      "malloc : %d records (%lu bytes)\n", ansi_nist->alloc_records,
 	      (unsigned long)(ansi_nist->alloc_records * sizeof(RECORD *)));
       free(nansi_nist);
@@ -115,10 +115,10 @@ int copy_ANSI_NIST(ANSI_NIST **oansi_nist, ANSI_NIST *ansi_nist)
 
    /* Foreach record in input ANSI/NIST ... */
    for(i = 0; i < ansi_nist->num_records; i++){
-      if((ret = copy_ANSI_NIST_record(&nrecord, ansi_nist->records[i])) != 0){
+      if((ret = biomeval_nbis_copy_ANSI_NIST_record(&nrecord, ansi_nist->records[i])) != 0){
 	 /* error - clean up and return */
 	 nansi_nist->num_records = i;
-	 free_ANSI_NIST(nansi_nist);
+	 biomeval_nbis_free_ANSI_NIST(nansi_nist);
          return(ret);
       }
       nansi_nist->records[i] = nrecord;
@@ -133,7 +133,7 @@ int copy_ANSI_NIST(ANSI_NIST **oansi_nist, ANSI_NIST *ansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: copy_ANSI_NIST_record - Takes a logical record structure and creates a
+#cat: biomeval_nbis_copy_ANSI_NIST_record - Takes a logical record structure and creates a
 #cat:              memory copy of its contents.
 
    Input:
@@ -144,7 +144,7 @@ int copy_ANSI_NIST(ANSI_NIST **oansi_nist, ANSI_NIST *ansi_nist)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int copy_ANSI_NIST_record(RECORD **orecord, RECORD *record)
+int biomeval_nbis_copy_ANSI_NIST_record(RECORD **orecord, RECORD *record)
 {
    int i, ret;
    RECORD *nrecord;
@@ -153,7 +153,7 @@ int copy_ANSI_NIST_record(RECORD **orecord, RECORD *record)
    /* Allocate new RECORD structure. */
    nrecord = (RECORD *)malloc(sizeof(RECORD));
    if(nrecord == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST_record : "
 	      "malloc : nrecord (%lu bytes)\n", (unsigned long)sizeof(RECORD));
       return(-2);
    }
@@ -165,7 +165,7 @@ int copy_ANSI_NIST_record(RECORD **orecord, RECORD *record)
    nrecord->fields = (FIELD **)malloc(record->alloc_fields * 
 				      sizeof(FIELD *));
    if(nrecord->fields == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST_record : "
 	      "malloc : %d fields (%lu bytes)\n", record->alloc_fields,
 	      (unsigned long)(record->alloc_fields * sizeof(FIELD *)));
       free(nrecord);
@@ -174,9 +174,9 @@ int copy_ANSI_NIST_record(RECORD **orecord, RECORD *record)
 
    /* Foreach field in input RECORD ... */
    for(i = 0; i < record->num_fields; i++){
-      if((ret = copy_ANSI_NIST_field(&nfield, record->fields[i])) != 0){
+      if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, record->fields[i])) != 0){
 	 nrecord->num_fields = i;
-	 free_ANSI_NIST_record(nrecord);
+	 biomeval_nbis_free_ANSI_NIST_record(nrecord);
          return(ret);
       }
       nrecord->fields[i] = nfield;
@@ -191,7 +191,7 @@ int copy_ANSI_NIST_record(RECORD **orecord, RECORD *record)
 
 /***********************************************************************
 ************************************************************************
-#cat: copy_ANSI_NIST_field - Takes a field structure and creates a
+#cat: biomeval_nbis_copy_ANSI_NIST_field - Takes a field structure and creates a
 #cat:              memory copy of its contents.
 
    Input:
@@ -202,7 +202,7 @@ int copy_ANSI_NIST_record(RECORD **orecord, RECORD *record)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int copy_ANSI_NIST_field(FIELD **ofield, FIELD *field)
+int biomeval_nbis_copy_ANSI_NIST_field(FIELD **ofield, FIELD *field)
 {
    int i, ret;
    FIELD *nfield;
@@ -212,7 +212,7 @@ int copy_ANSI_NIST_field(FIELD **ofield, FIELD *field)
    /* Allocate new FIELD structure. */
    nfield = (FIELD *)malloc(sizeof(FIELD));
    if(nfield == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST_field : "
 	      "malloc : nfield (%lu bytes)\n", (unsigned long)sizeof(FIELD));
       return(-2);
    }
@@ -231,7 +231,7 @@ int copy_ANSI_NIST_field(FIELD **ofield, FIELD *field)
       /* Use calloc so that ID buffer is set to all zeros (NULL). */
       nfield->id = (char *)calloc((size_t)field_id_bytes, 1);
       if(nfield->id == NULL){
-         fprintf(stderr, "ERROR : copy_ANSI_NIST_field : "
+         fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST_field : "
 		 "calloc : nfield->id (%d bytes)\n", field_id_bytes);
 	 free(nfield);
          return(-3);
@@ -245,7 +245,7 @@ int copy_ANSI_NIST_field(FIELD **ofield, FIELD *field)
    nfield->subfields = (SUBFIELD **)malloc(field->alloc_subfields *
                                            sizeof(SUBFIELD *));
    if(nfield->subfields == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST_field : "
 	      "malloc : %d subfields (%lu bytes)\n", field->alloc_subfields,
 	      (unsigned long)(field->alloc_subfields * sizeof(SUBFIELD *)));
       free(nfield->id);
@@ -255,9 +255,9 @@ int copy_ANSI_NIST_field(FIELD **ofield, FIELD *field)
 
    /* Foreach subfield in input FIELD ... */
    for(i = 0; i < field->num_subfields; i++){
-      if((ret = copy_ANSI_NIST_subfield(&nsubfield, field->subfields[i])) != 0){
+      if((ret = biomeval_nbis_copy_ANSI_NIST_subfield(&nsubfield, field->subfields[i])) != 0){
 	 nfield->num_subfields = i;
-	 free_ANSI_NIST_field(nfield);
+	 biomeval_nbis_free_ANSI_NIST_field(nfield);
          return(ret);
       }
       nfield->subfields[i] = nsubfield;
@@ -272,7 +272,7 @@ int copy_ANSI_NIST_field(FIELD **ofield, FIELD *field)
 
 /***********************************************************************
 ************************************************************************
-#cat: copy_ANSI_NIST_subfield - Takes a subfield structure and creates a
+#cat: biomeval_nbis_copy_ANSI_NIST_subfield - Takes a subfield structure and creates a
 #cat:              memory copy of its contents.
 
    Input:
@@ -283,7 +283,7 @@ int copy_ANSI_NIST_field(FIELD **ofield, FIELD *field)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int copy_ANSI_NIST_subfield(SUBFIELD **osubfield, SUBFIELD *subfield)
+int biomeval_nbis_copy_ANSI_NIST_subfield(SUBFIELD **osubfield, SUBFIELD *subfield)
 {
    int i, ret;
    SUBFIELD *nsubfield;
@@ -292,7 +292,7 @@ int copy_ANSI_NIST_subfield(SUBFIELD **osubfield, SUBFIELD *subfield)
    /* Allocate new SUBFIELD structure. */
    nsubfield = (SUBFIELD *)malloc(sizeof(SUBFIELD));
    if(nsubfield == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST_subfield : "
 	      "malloc : nsubfield (%lu bytes)\n",
 	      (unsigned long)sizeof(SUBFIELD));
       return(-2);
@@ -305,7 +305,7 @@ int copy_ANSI_NIST_subfield(SUBFIELD **osubfield, SUBFIELD *subfield)
    nsubfield->items = (ITEM **)malloc(subfield->alloc_items *
                                       sizeof(ITEM *));
    if(nsubfield->items == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST_subfield : "
 	      "malloc : %d items (%lu bytes)\n", subfield->alloc_items,
 	      (unsigned long)(subfield->alloc_items * sizeof(ITEM *)));
       free(nsubfield);
@@ -314,9 +314,9 @@ int copy_ANSI_NIST_subfield(SUBFIELD **osubfield, SUBFIELD *subfield)
 
    /* Foreach item in input SUBFIELD ... */
    for(i = 0; i < subfield->num_items; i++){
-      if((ret = copy_ANSI_NIST_item(&nitem, subfield->items[i])) != 0){
+      if((ret = biomeval_nbis_copy_ANSI_NIST_item(&nitem, subfield->items[i])) != 0){
 	 nsubfield->num_items = i;
-	 free_ANSI_NIST_subfield(nsubfield);
+	 biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
          return(ret);
       }
       nsubfield->items[i] = nitem;
@@ -331,7 +331,7 @@ int copy_ANSI_NIST_subfield(SUBFIELD **osubfield, SUBFIELD *subfield)
 
 /***********************************************************************
 ************************************************************************
-#cat: copy_ANSI_NIST_item - Takes an information item and creates a
+#cat: biomeval_nbis_copy_ANSI_NIST_item - Takes an information item and creates a
 #cat:              memory copy of its contents.
 
    Input:
@@ -342,14 +342,14 @@ int copy_ANSI_NIST_subfield(SUBFIELD **osubfield, SUBFIELD *subfield)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int copy_ANSI_NIST_item(ITEM **oitem, ITEM *item)
+int biomeval_nbis_copy_ANSI_NIST_item(ITEM **oitem, ITEM *item)
 {
    ITEM *nitem;
 
    /* Allocate new ITEM structure. */
    nitem = (ITEM *)malloc(sizeof(ITEM));
    if(nitem == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST_item : "
 	      "malloc : nitem (%lu bytes)\n", (unsigned long)sizeof(ITEM));
       return(-2);
    }
@@ -361,7 +361,7 @@ int copy_ANSI_NIST_item(ITEM **oitem, ITEM *item)
    nitem->value = (unsigned char *)calloc((size_t)item->alloc_chars,
 					  sizeof(unsigned char));
    if(nitem->value == NULL){
-      fprintf(stderr, "ERROR : copy_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_copy_ANSI_NIST_item : "
 	      "calloc : value (%lu bytes)\n",
 	      (unsigned long)(item->alloc_chars * sizeof(unsigned char)));
       free(nitem);

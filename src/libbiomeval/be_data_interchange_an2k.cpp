@@ -26,11 +26,11 @@ BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
     Memory::uint8Array &buf,
     View::AN2KView::RecordType recordType)
 {
-	Memory::AutoBuffer<ANSI_NIST> an2k(&alloc_ANSI_NIST,
-	    &free_ANSI_NIST, &copy_ANSI_NIST);
+	Memory::AutoBuffer<ANSI_NIST> an2k(&biomeval_nbis_alloc_ANSI_NIST,
+	    &biomeval_nbis_free_ANSI_NIST, &biomeval_nbis_copy_ANSI_NIST);
 	AN2KBDB bdb;
         INIT_AN2KBDB(&bdb, buf, buf.size());
-	if (scan_ANSI_NIST(&bdb, an2k) != 0)
+	if (biomeval_nbis_scan_ANSI_NIST(&bdb, an2k) != 0)
 		throw Error::DataError("Could not read AN2K buffer");
 
 	return (recordLocations(an2k, recordType));
@@ -55,11 +55,11 @@ void
 BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
     Memory::uint8Array &buf)
 {
-	Memory::AutoBuffer<ANSI_NIST> an2k(&alloc_ANSI_NIST,
-	    &free_ANSI_NIST, &copy_ANSI_NIST);
+	Memory::AutoBuffer<ANSI_NIST> an2k(&biomeval_nbis_alloc_ANSI_NIST,
+	    &biomeval_nbis_free_ANSI_NIST, &biomeval_nbis_copy_ANSI_NIST);
 	AN2KBDB bdb;
         INIT_AN2KBDB(&bdb, buf, buf.size());
-	if (scan_ANSI_NIST(&bdb, an2k) != 0)
+	if (biomeval_nbis_scan_ANSI_NIST(&bdb, an2k) != 0)
 		throw Error::DataError("Could not read AN2K buffer");
 
 	/* The Type-1 record is always first, but check anyway. */
@@ -77,42 +77,42 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
 	FIELD *field;
 	int field_idx;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, VER_ID, rec) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, VER_ID, rec) == TRUE)
 		_version = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, DAT_ID, rec) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, DAT_ID, rec) == TRUE)
 		_date = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, DAI_ID, rec) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, DAI_ID, rec) == TRUE)
 		_dai = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, ORI_ID, rec) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, ORI_ID, rec) == TRUE)
 		_ori = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, TCN_ID, rec) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, TCN_ID, rec) == TRUE)
 		_tcn = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, NSR_ID, rec) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, NSR_ID, rec) == TRUE)
 		_nsr = (char *)field->subfields[0]->items[0]->value;
 
-	if (lookup_ANSI_NIST_field(&field, &field_idx, NTR_ID, rec) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, NTR_ID, rec) == TRUE)
 		_ntr = (char *)field->subfields[0]->items[0]->value;
 
 	/*
 	 * Optional fields.
 	 */
 	/* Priority */
-	if (lookup_ANSI_NIST_field(&field, &field_idx, PRY_ID, rec) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, PRY_ID, rec) == TRUE)
 		_pry = atoi((char *)field->subfields[0]->items[0]->value);
 	else
 		_pry = 0;
 	/* Transaction control reference */
-	if (lookup_ANSI_NIST_field(&field, &field_idx, TCR_ID, rec) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, TCR_ID, rec) == TRUE)
 		_tcr = (char *)field->subfields[0]->items[0]->value;
 	else
 		_tcr = "";
 	/* Domain Name*/
-	if (lookup_ANSI_NIST_field(&field, &field_idx, DOM_ID, rec) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, DOM_ID, rec) == TRUE) {
 		switch (field->subfields[0]->num_items) {
 		case 2:	/* Version and identifier present */
 			_domainName.version = 
@@ -128,7 +128,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
 		}
 	}
 	/* Greenwich Mean Time */
-	if (lookup_ANSI_NIST_field(&field, &field_idx, GMT_ID, rec) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, GMT_ID, rec) == TRUE) {
 		std::string gmt = (char *)field->subfields[0]->items[0]->value;
 		if (gmt.length() != 15)
 			throw Error::DataError("Field GMT has invalid length");
@@ -140,7 +140,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readType1Record(
 		_gmt.tm_sec = atoi(gmt.substr(12, 2).c_str());
 	}
 	/* Directory of character sets */
-	if (lookup_ANSI_NIST_field(&field, &field_idx, DCS_ID, rec) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_idx, DCS_ID, rec) == TRUE) {
 		for (int i = 0; i < field->num_subfields; i++) {
 			CharacterSet cs;
 			switch (field->subfields[i]->num_items) {

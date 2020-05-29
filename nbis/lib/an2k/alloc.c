@@ -60,18 +60,18 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        alloc_ANSI_NIST()
-			new_ANSI_NIST_record()
-                        alloc_ANSI_NIST_record()
-			new_ANSI_NIST_field()
-                        alloc_ANSI_NIST_field()
-                        alloc_ANSI_NIST_subfield()
-                        alloc_ANSI_NIST_item()
-                        free_ANSI_NIST()
-                        free_ANSI_NIST_record()
-                        free_ANSI_NIST_field()
-                        free_ANSI_NIST_subfield()
-                        free_ANSI_NIST_item()
+                        biomeval_nbis_alloc_ANSI_NIST()
+			biomeval_nbis_new_ANSI_NIST_record()
+                        biomeval_nbis_alloc_ANSI_NIST_record()
+			biomeval_nbis_new_ANSI_NIST_field()
+                        biomeval_nbis_alloc_ANSI_NIST_field()
+                        biomeval_nbis_alloc_ANSI_NIST_subfield()
+                        biomeval_nbis_alloc_ANSI_NIST_item()
+                        biomeval_nbis_free_ANSI_NIST()
+                        biomeval_nbis_free_ANSI_NIST_record()
+                        biomeval_nbis_free_ANSI_NIST_field()
+                        biomeval_nbis_free_ANSI_NIST_subfield()
+                        biomeval_nbis_free_ANSI_NIST_item()
 
 ***********************************************************************/
 
@@ -81,7 +81,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: alloc_ANSI_NIST - Allocates an empty initialized structure
+#cat: biomeval_nbis_alloc_ANSI_NIST - Allocates an empty initialized structure
 #cat:              designed to respresent and manipulate the contents
 #cat:              of an ANSI/NIST file.
 
@@ -91,13 +91,13 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int alloc_ANSI_NIST(ANSI_NIST **oansi_nist)
+int biomeval_nbis_alloc_ANSI_NIST(ANSI_NIST **oansi_nist)
 {
    ANSI_NIST *ansi_nist;
 
    ansi_nist = (ANSI_NIST *)malloc(sizeof(ANSI_NIST));
    if(ansi_nist == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST : "
 	      "malloc : ansi_nist (%lu bytes)\n",
 	      (unsigned long)sizeof(ANSI_NIST));
       return(-2);
@@ -109,7 +109,7 @@ int alloc_ANSI_NIST(ANSI_NIST **oansi_nist)
    ansi_nist->alloc_records = ANSI_NIST_CHUNK;
    ansi_nist->records = (RECORD **)malloc(ANSI_NIST_CHUNK * sizeof(RECORD *));
    if(ansi_nist->records == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST : "
 	      "malloc : %d records (%lu bytes)\n", ANSI_NIST_CHUNK,
 	      (unsigned long)(ANSI_NIST_CHUNK * sizeof(RECORD *)));
       free(ansi_nist);
@@ -125,9 +125,9 @@ int alloc_ANSI_NIST(ANSI_NIST **oansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: new_ANSI_NIST_record - Allocates and initializes an empty record
+#cat: biomeval_nbis_new_ANSI_NIST_record - Allocates and initializes an empty record
 #cat:              structure.  Note - This routine sets the record type
-#cat:              in addition to calling alloc_ANSI_NIST_record.
+#cat:              in addition to calling biomeval_nbis_alloc_ANSI_NIST_record.
 
    Input:
       record_type - the type of record to be created
@@ -137,13 +137,13 @@ int alloc_ANSI_NIST(ANSI_NIST **oansi_nist)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int new_ANSI_NIST_record(RECORD **orecord, const int record_type)
+int biomeval_nbis_new_ANSI_NIST_record(RECORD **orecord, const int record_type)
 {
    int ret;
    RECORD *record;
 
    /* Allocate record. */
-   if ((ret = alloc_ANSI_NIST_record(&record)) != 0)
+   if ((ret = biomeval_nbis_alloc_ANSI_NIST_record(&record)) != 0)
       return(ret);
 
    /* Assign record type. */
@@ -162,7 +162,7 @@ int new_ANSI_NIST_record(RECORD **orecord, const int record_type)
 
 /***********************************************************************
 ************************************************************************
-#cat: alloc_ANSI_NIST_record - Allocates an empty initialized structure
+#cat: biomeval_nbis_alloc_ANSI_NIST_record - Allocates an empty initialized structure
 #cat:              designed to respresent and manipulate the contents
 #cat:              of an ANSI/NIST logical record.
 
@@ -172,20 +172,20 @@ int new_ANSI_NIST_record(RECORD **orecord, const int record_type)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int alloc_ANSI_NIST_record(RECORD **orecord)
+int biomeval_nbis_alloc_ANSI_NIST_record(RECORD **orecord)
 {
    RECORD *record;
 
    record = (RECORD *)malloc(sizeof(RECORD));
    if(record == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST_record : "
 	      "malloc : record (%lu bytes)\n", (unsigned long)sizeof(RECORD));
       return(-2);
    }
 
    record->fields = (FIELD **)malloc(ANSI_NIST_CHUNK * sizeof(FIELD *));
    if(record->fields == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST_record : "
 	      "malloc : %d fields (%lu bytes)\n", ANSI_NIST_CHUNK,
 	      (unsigned long)(ANSI_NIST_CHUNK * sizeof(FIELD *)));
       free(record);
@@ -210,9 +210,9 @@ int alloc_ANSI_NIST_record(RECORD **orecord)
 
 /***********************************************************************
 ************************************************************************
-#cat: new_ANSI_NIST_field - Allocates and initializes an empty field
+#cat: biomeval_nbis_new_ANSI_NIST_field - Allocates and initializes an empty field
 #cat:              structure.  Note - This routine sets the field ID
-#cat:              in addition to calling alloc_ANSI_NIST_field.
+#cat:              in addition to calling biomeval_nbis_alloc_ANSI_NIST_field.
 
    Input:
       record_type - the type of record to be created
@@ -223,7 +223,7 @@ int alloc_ANSI_NIST_record(RECORD **orecord)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int new_ANSI_NIST_field(FIELD **ofield, const int record_type,
+int biomeval_nbis_new_ANSI_NIST_field(FIELD **ofield, const int record_type,
                         const int field_int)
 {
    int ret, id_strlen;
@@ -231,7 +231,7 @@ int new_ANSI_NIST_field(FIELD **ofield, const int record_type,
    int field_id_bytes;
 
    /* Allocate field. */
-   if((ret = alloc_ANSI_NIST_field(&field)))
+   if((ret = biomeval_nbis_alloc_ANSI_NIST_field(&field)))
       return(ret);
 
    /* Assign record type and field ID. */
@@ -246,7 +246,7 @@ int new_ANSI_NIST_field(FIELD **ofield, const int record_type,
    /* Use calloc so that ID buffer is set to all zeros. */
    field->id = (char *)calloc((size_t)field_id_bytes, 1);
    if(field->id == NULL){
-      fprintf(stderr, "ERROR : new_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_new_ANSI_NIST_field : "
 	      "calloc : field->id [%d.%03d] (%d bytes)\n",
 	      record_type, field_int, field_id_bytes);
       free(field);
@@ -258,7 +258,7 @@ int new_ANSI_NIST_field(FIELD **ofield, const int record_type,
 
    /* This should never happen. */
    if (id_strlen >= field_id_bytes) {
-      fprintf(stderr, "ERROR : new_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_new_ANSI_NIST_field : "
 	      "snprintf %d byte string overflows %d byte buffer\n",
 	      id_strlen, field_id_bytes);
       free(field->id);
@@ -278,7 +278,7 @@ int new_ANSI_NIST_field(FIELD **ofield, const int record_type,
 
 /***********************************************************************
 ************************************************************************
-#cat: alloc_ANSI_NIST_field - Allocates an empty initialized structure
+#cat: biomeval_nbis_alloc_ANSI_NIST_field - Allocates an empty initialized structure
 #cat:              designed to respresent and manipulate the contents
 #cat:              of an ANSI/NIST field.
 
@@ -288,20 +288,20 @@ int new_ANSI_NIST_field(FIELD **ofield, const int record_type,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int alloc_ANSI_NIST_field(FIELD **ofield)
+int biomeval_nbis_alloc_ANSI_NIST_field(FIELD **ofield)
 {
    FIELD *field;
 
    field = (FIELD *)malloc(sizeof(FIELD));
    if(field == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST_field : "
 	      "malloc : field (%lu bytes)\n", (unsigned long)sizeof(FIELD));
       return(-2);
    }
 
    field->subfields = (SUBFIELD **)malloc(ANSI_NIST_CHUNK * sizeof(SUBFIELD *));
    if(field->subfields == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST_field : "
 	      "malloc : %d subfields (%lu bytes)\n", ANSI_NIST_CHUNK,
 	      (unsigned long)(ANSI_NIST_CHUNK * sizeof(SUBFIELD *)));
       free(field);
@@ -325,7 +325,7 @@ int alloc_ANSI_NIST_field(FIELD **ofield)
 
 /***********************************************************************
 ************************************************************************
-#cat: alloc_ANSI_NIST_subfield - Allocates an empty initialized structure
+#cat: biomeval_nbis_alloc_ANSI_NIST_subfield - Allocates an empty initialized structure
 #cat:              designed to respresent and manipulate the contents
 #cat:              of an ANSI/NIST subfield.
 
@@ -335,13 +335,13 @@ int alloc_ANSI_NIST_field(FIELD **ofield)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int alloc_ANSI_NIST_subfield(SUBFIELD **osubfield)
+int biomeval_nbis_alloc_ANSI_NIST_subfield(SUBFIELD **osubfield)
 {
    SUBFIELD *subfield;
 
    subfield = (SUBFIELD *)malloc(sizeof(SUBFIELD));
    if(subfield == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST_subfield : "
 	      "malloc : subfield (%lu bytes)\n", 
 	      (unsigned long)sizeof(SUBFIELD));
       return(-2);
@@ -350,7 +350,7 @@ int alloc_ANSI_NIST_subfield(SUBFIELD **osubfield)
    subfield->alloc_items = ANSI_NIST_CHUNK;
    subfield->items = (ITEM **)malloc(ANSI_NIST_CHUNK * sizeof(ITEM *));
    if(subfield->items == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST_subfield : "
 	      "malloc : %d items (%lu bytes)\n", ANSI_NIST_CHUNK,
 	      (unsigned long)(ANSI_NIST_CHUNK * sizeof(ITEM *)));
       free(subfield);
@@ -370,7 +370,7 @@ int alloc_ANSI_NIST_subfield(SUBFIELD **osubfield)
 
 /***********************************************************************
 ************************************************************************
-#cat: alloc_ANSI_NIST_item - Allocates an empty initialized structure
+#cat: biomeval_nbis_alloc_ANSI_NIST_item - Allocates an empty initialized structure
 #cat:              designed to respresent and manipulate the contents
 #cat:              of an ANSI/NIST information item.
 
@@ -380,13 +380,13 @@ int alloc_ANSI_NIST_subfield(SUBFIELD **osubfield)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int alloc_ANSI_NIST_item(ITEM **oitem)
+int biomeval_nbis_alloc_ANSI_NIST_item(ITEM **oitem)
 {
    ITEM *item;
 
    item = (ITEM *)malloc(sizeof(ITEM));
    if(item == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST_item : "
 	      "malloc : item (%lu bytes)\n", (unsigned long)sizeof(ITEM));
       return(-2);
    }
@@ -394,7 +394,7 @@ int alloc_ANSI_NIST_item(ITEM **oitem)
    item->alloc_chars = ANSI_NIST_CHUNK;
    item->value = (unsigned char *)malloc(ANSI_NIST_CHUNK);
    if(item->value == NULL){
-      fprintf(stderr, "ERROR : alloc_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_alloc_ANSI_NIST_item : "
 	      "malloc : item->value (%d bytes)\n", ANSI_NIST_CHUNK);
       free(item);
       return(-3);
@@ -415,54 +415,54 @@ int alloc_ANSI_NIST_item(ITEM **oitem)
 
 /***********************************************************************
 ************************************************************************
-#cat: free_ANSI_NIST - Deallocates an ANSI/NIST file structure and
+#cat: biomeval_nbis_free_ANSI_NIST - Deallocates an ANSI/NIST file structure and
 #cat:              all of its allocated substructures.
 
    Input:
       ansi_nist  - points to the structure to be deallocated
 ************************************************************************/
-void free_ANSI_NIST(ANSI_NIST *ansi_nist)
+void biomeval_nbis_free_ANSI_NIST(ANSI_NIST *ansi_nist)
 {
    int i;
 
    for(i = 0; i < ansi_nist->num_records; i++)
-      free_ANSI_NIST_record(ansi_nist->records[i]);
+      biomeval_nbis_free_ANSI_NIST_record(ansi_nist->records[i]);
    free(ansi_nist->records);	/* It's safe to free NULL in C89 and C99. */
    free(ansi_nist);
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: free_ANSI_NIST_record - Deallocates an ANSI/NIST logical record
+#cat: biomeval_nbis_free_ANSI_NIST_record - Deallocates an ANSI/NIST logical record
 #cat:              structure and all of its allocated substructures.
 
    Input:
       record  - points to the structure to be deallocated
 ************************************************************************/
-void free_ANSI_NIST_record(RECORD *record)
+void biomeval_nbis_free_ANSI_NIST_record(RECORD *record)
 {
    int i;
 
    for(i = 0; i < record->num_fields; i++)
-      free_ANSI_NIST_field(record->fields[i]);
+      biomeval_nbis_free_ANSI_NIST_field(record->fields[i]);
    free(record->fields);	/* It's safe to free NULL in C89 and C99. */
    free(record);
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: free_ANSI_NIST_field - Deallocates an ANSI/NIST field
+#cat: biomeval_nbis_free_ANSI_NIST_field - Deallocates an ANSI/NIST field
 #cat:              structure and all of its allocated substructures.
 
    Input:
       field - points to the structure to be deallocated
 ************************************************************************/
-void free_ANSI_NIST_field(FIELD *field)
+void biomeval_nbis_free_ANSI_NIST_field(FIELD *field)
 {
    int i;
 
    for(i = 0; i < field->num_subfields; i++)
-      free_ANSI_NIST_subfield(field->subfields[i]);
+      biomeval_nbis_free_ANSI_NIST_subfield(field->subfields[i]);
    free(field->subfields);
    free(field->id);
    free(field);
@@ -470,31 +470,31 @@ void free_ANSI_NIST_field(FIELD *field)
 
 /***********************************************************************
 ************************************************************************
-#cat: free_ANSI_NIST_subfield - Deallocates an ANSI/NIST subfield
+#cat: biomeval_nbis_free_ANSI_NIST_subfield - Deallocates an ANSI/NIST subfield
 #cat:              structure and all of its allocated substructures.
 
    Input:
       subfield - points to the structure to be deallocated
 ************************************************************************/
-void free_ANSI_NIST_subfield(SUBFIELD *subfield)
+void biomeval_nbis_free_ANSI_NIST_subfield(SUBFIELD *subfield)
 {
    int i;
 
    for(i = 0; i < subfield->num_items; i++)
-      free_ANSI_NIST_item(subfield->items[i]);
+      biomeval_nbis_free_ANSI_NIST_item(subfield->items[i]);
    free(subfield->items);
    free(subfield);
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: free_ANSI_NIST_subfield_item - Deallocates an ANSI/NIST information
+#cat: biomeval_nbis_free_ANSI_NIST_subfield_item - Deallocates an ANSI/NIST information
 #cat:              item structure and all of its allocated substructures.
 
    Input:
       item - points to the structure to be deallocated
 ************************************************************************/
-void free_ANSI_NIST_item(ITEM *item)
+void biomeval_nbis_free_ANSI_NIST_item(ITEM *item)
 {
    free(item->value);
    free(item);

@@ -54,14 +54,14 @@ of the software.
       JPEG markers.
 
       ROUTINES:
-#cat: read_marker_jpegb - Reads a specified JPEG marker from
+#cat: biomeval_nbis_read_marker_jpegb - Reads a specified JPEG marker from
 #cat:                     an open file.
-#cat: getc_marker_jpegb - Reads a specified JPEG marker from a
+#cat: biomeval_nbis_getc_marker_jpegb - Reads a specified JPEG marker from a
 #cat:                     memory buffer.
-#cat: put_nistcom_jpegb - Inserts a NISTCOM comment into a JPEGB datastream.
-#cat: read_nistcom_jpegb - Reads the first NISTCOM comment from an
+#cat: biomeval_nbis_put_nistcom_jpegb - Inserts a NISTCOM comment into a JPEGB datastream.
+#cat: biomeval_nbis_read_nistcom_jpegb - Reads the first NISTCOM comment from an
 #cat:                     open JPEGB file.
-#cat: getc_nistcom_jpegb - Reads the first NISTCOM comment from a
+#cat: biomeval_nbis_getc_nistcom_jpegb - Reads the first NISTCOM comment from a
 #cat:                     memory buffer containing a JPEGB datastream.
 
 ***********************************************************************/
@@ -77,32 +77,32 @@ of the software.
 /*****************************************/
 /* Get markers from compressed open file */
 /*****************************************/
-int read_marker_jpegb(unsigned short *omarker, const int type, FILE *infp)
+int biomeval_nbis_read_marker_jpegb(unsigned short *omarker, const int type, FILE *infp)
 {
    int ret;
    unsigned short marker;
 
-   if((ret = read_ushort(&marker, infp)))
+   if((ret = biomeval_nbis_read_ushort(&marker, infp)))
       return(ret);
 
    switch(type){
    case SOI:
       if(marker != SOI) {
          fprintf(stderr,
-         "ERROR : read_marker_jpegb : No SOI marker. {%d}\n", marker);
+         "ERROR : biomeval_nbis_read_marker_jpegb : No SOI marker. {%d}\n", marker);
          return(-2);
       }
       break;
    case ANY:
       if((marker & 0xff00) != 0xff00){
-	fprintf(stderr,"ERROR : read_marker_jpegb : no marker found {%04X}\n",
+	fprintf(stderr,"ERROR : biomeval_nbis_read_marker_jpegb : no marker found {%04X}\n",
                 marker);
          return(-3);
       }
       break;
    default:
       fprintf(stderr,
-      "ERROR : read_marker_jpegb : invalid marker case -> {%4X}\n", type);
+      "ERROR : biomeval_nbis_read_marker_jpegb : invalid marker case -> {%4X}\n", type);
       return(-4);
    }
 
@@ -113,33 +113,33 @@ int read_marker_jpegb(unsigned short *omarker, const int type, FILE *infp)
 /*********************************************/
 /* Get markers from compressed memory buffer */
 /*********************************************/
-int getc_marker_jpegb(unsigned short *omarker, const int type,
+int biomeval_nbis_getc_marker_jpegb(unsigned short *omarker, const int type,
                       unsigned char **cbufptr, unsigned char *ebufptr)
 {
    int ret;
    unsigned short marker;
 
-   if((ret = getc_ushort(&marker, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&marker, cbufptr, ebufptr)))
       return(ret);
 
    switch(type){
    case SOI:
       if(marker != SOI) {
          fprintf(stderr,
-         "ERROR : getc_marker_jpegb : No SOI marker. {%d}\n", marker);
+         "ERROR : biomeval_nbis_getc_marker_jpegb : No SOI marker. {%d}\n", marker);
          return(-2);
       }
       break;
    case ANY:
       if((marker & 0xff00) != 0xff00){
-	fprintf(stderr,"ERROR : getc_marker_jpegb : no marker found {%04X}\n",
+	fprintf(stderr,"ERROR : biomeval_nbis_getc_marker_jpegb : no marker found {%04X}\n",
                 marker);
          return(-3);
       }
       break;
    default:
       fprintf(stderr,
-      "ERROR : getc_marker_jpegb : invalid marker case -> {%4X}\n", type);
+      "ERROR : biomeval_nbis_getc_marker_jpegb : invalid marker case -> {%4X}\n", type);
       return(-4);
    }
 
@@ -148,7 +148,7 @@ int getc_marker_jpegb(unsigned short *omarker, const int type,
 }
 
 /*******************************************/
-int put_nistcom_jpegb(j_compress_ptr cinfo, char *comment_text,
+int biomeval_nbis_put_nistcom_jpegb(j_compress_ptr cinfo, char *comment_text,
                        const int w, const int h, const int d, const int ppi,
                        const int lossyflag, const int quality)
 {
@@ -163,7 +163,7 @@ int put_nistcom_jpegb(j_compress_ptr cinfo, char *comment_text,
    if(comment_text != (char *)NULL){
       /* if NISTCOM ... */
       if(strncmp(comment_text, NCM_HEADER, strlen(NCM_HEADER)) == 0){
-         if((ret = string2fet(&nistcom, comment_text))){
+         if((ret = biomeval_nbis_string2fet(&nistcom, comment_text))){
             return(ret);
          }
       }
@@ -180,30 +180,30 @@ int put_nistcom_jpegb(j_compress_ptr cinfo, char *comment_text,
    else if(n_cmpnts == 3)
       colorspace = "YCbCr";
    else{
-      fprintf(stderr, "ERROR : put_nistcom_jpegb : \n");
+      fprintf(stderr, "ERROR : biomeval_nbis_put_nistcom_jpegb : \n");
       fprintf(stderr, "number of components = %d != {1,3}\n", n_cmpnts);
       if(nistcom != (NISTCOM *)NULL)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(-2);
    }
 
    /* Combine image attributes to NISTCOM. */
-   if((ret = combine_jpegb_nistcom(&nistcom, w, h, d, ppi, lossyflag,
+   if((ret = biomeval_nbis_combine_jpegb_nistcom(&nistcom, w, h, d, ppi, lossyflag,
                           colorspace, n_cmpnts, 1 /* intrlv */, quality))){
       if(nistcom != (NISTCOM *)NULL)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* Put NISTCOM ... */
    /* NISTCOM to string. */
-   if((ret = fet2string(&comstr, nistcom))){
-      freefet(nistcom);
+   if((ret = biomeval_nbis_fet2string(&comstr, nistcom))){
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
    /* Put NISTCOM comment string. */
    jpeg_write_marker(cinfo, JPEG_COM, (JOCTET *)comstr, strlen(comstr));
-   freefet(nistcom);
+   biomeval_nbis_freefet(nistcom);
    free(comstr);
 
    /* If general comment exists ... */
@@ -219,7 +219,7 @@ int put_nistcom_jpegb(j_compress_ptr cinfo, char *comment_text,
 /***************************************************************/
 /* Get and return first NISTCOM from encoded open file.        */
 /***************************************************************/
-int read_nistcom_jpegb(NISTCOM **onistcom, FILE *infp)
+int biomeval_nbis_read_nistcom_jpegb(NISTCOM **onistcom, FILE *infp)
 {
    int ret;
    long savepos;
@@ -230,18 +230,18 @@ int read_nistcom_jpegb(NISTCOM **onistcom, FILE *infp)
    int id_len;
 
    /* Get SOI */
-   if((ret = read_marker_jpegb(&marker, SOI, infp)))
+   if((ret = biomeval_nbis_read_marker_jpegb(&marker, SOI, infp)))
       return(ret);
 
    /* Get next marker. */
-   if((ret = read_marker_jpegb(&marker, ANY, infp)))
+   if((ret = biomeval_nbis_read_marker_jpegb(&marker, ANY, infp)))
       return(ret);
 
    /* Allocate temporary buffer the size of the NIST_COM Header ID. */
    id_len = strlen(NCM_HEADER);
    value = (char *)calloc(id_len+1, sizeof(char));
    if(value == (char *)NULL){
-      fprintf(stderr, "ERROR : read_nistcom_jpegb : calloc : value\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_jpegb : calloc : value\n");
       return(-2);
    }
 
@@ -250,14 +250,14 @@ int read_nistcom_jpegb(NISTCOM **onistcom, FILE *infp)
    while(marker != SOS){
       if(marker == COM){
          if((savepos = ftell(infp)) < 0){
-            fprintf(stderr, "ERROR : read_nistcom_jpegb : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_jpegb : ");
             fprintf(stderr, "ftell : unable to determine current position\n");
             free(value);
             return(-3);
          }
          /* Skip Length (short) Bytes */
          if(fseek(infp, 2L, SEEK_CUR) < 0){
-            fprintf(stderr, "ERROR : read_nistcom_jpegb : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_jpegb : ");
             fprintf(stderr, "fseek : unable to skip length bytes\n");
             free(value);
             return(-4);
@@ -267,7 +267,7 @@ int read_nistcom_jpegb(NISTCOM **onistcom, FILE *infp)
          /* read all id_len bytes, then flag error.           */
          ret = fread(value, sizeof(char), id_len, infp);
          if(ret != id_len){
-            fprintf(stderr, "ERROR : read_nistcom_jpegb : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_jpegb : ");
             fprintf(stderr, "fread : only %d of %d bytes read\n",
                     ret, id_len);
             free(value);
@@ -275,18 +275,18 @@ int read_nistcom_jpegb(NISTCOM **onistcom, FILE *infp)
          }
          /* Reset file pointer to original position. */
          if(fseek(infp, savepos, SEEK_SET) < 0){
-            fprintf(stderr, "ERROR : read_nistcom_jpegb : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_jpegb : ");
             fprintf(stderr, "fseek : unable to reset file position\n");
             free(value);
             return(-6);
          }
          if(strncmp(value, NCM_HEADER, id_len) == 0){
-            if((ret = read_comment(&ucomment_text, infp))){
+            if((ret = biomeval_nbis_read_comment(&ucomment_text, infp))){
                free(value);
                return(ret);
             }
             comment_text = (char *)ucomment_text;
-            if((ret = string2fet(&nistcom, comment_text))){
+            if((ret = biomeval_nbis_string2fet(&nistcom, comment_text))){
                free(value);
                return(ret);
             }
@@ -296,12 +296,12 @@ int read_nistcom_jpegb(NISTCOM **onistcom, FILE *infp)
          }
       }
       /* Skip marker segment. */
-      if((ret = read_skip_marker_segment(marker, infp))){
+      if((ret = biomeval_nbis_read_skip_marker_segment(marker, infp))){
          free(value);
          return(ret);
       }
       /* Get next marker. */
-      if((ret = read_marker_jpegb(&marker, ANY, infp))){
+      if((ret = biomeval_nbis_read_marker_jpegb(&marker, ANY, infp))){
          free(value);
          return(ret);
       }
@@ -317,7 +317,7 @@ int read_nistcom_jpegb(NISTCOM **onistcom, FILE *infp)
 /*****************************************************************/
 /* Get and return first NISTCOM from encoded data stream.        */
 /*****************************************************************/
-int getc_nistcom_jpegb(NISTCOM **onistcom, unsigned char *idata,
+int biomeval_nbis_getc_nistcom_jpegb(NISTCOM **onistcom, unsigned char *idata,
                         const int ilen)
 {
    int ret;
@@ -331,11 +331,11 @@ int getc_nistcom_jpegb(NISTCOM **onistcom, unsigned char *idata,
    ebufptr = idata + ilen;
 
    /* Get SOI */
-   if((ret = getc_marker_jpegb(&marker, SOI, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_jpegb(&marker, SOI, &cbufptr, ebufptr)))
       return(ret);
 
    /* Get next marker. */
-   if((ret = getc_marker_jpegb(&marker, ANY, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_jpegb(&marker, ANY, &cbufptr, ebufptr)))
       return(ret);
 
    /* While not at Start of Scan (SOS) -     */
@@ -344,20 +344,20 @@ int getc_nistcom_jpegb(NISTCOM **onistcom, unsigned char *idata,
       if(marker == COM){
          if(strncmp((char *)cbufptr+2 /* skip Length */,
                     NCM_HEADER, strlen(NCM_HEADER)) == 0){
-            if((ret = getc_comment(&ucomment_text, &cbufptr, ebufptr)))
+            if((ret = biomeval_nbis_getc_comment(&ucomment_text, &cbufptr, ebufptr)))
                return(ret);
             comment_text = (char *)ucomment_text;
-            if((ret = string2fet(&nistcom, comment_text)))
+            if((ret = biomeval_nbis_string2fet(&nistcom, comment_text)))
                return(ret);
             *onistcom = nistcom;
             return(0);
          }
       }
       /* Skip marker segment. */
-      if((ret = getc_skip_marker_segment(marker, &cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_skip_marker_segment(marker, &cbufptr, ebufptr)))
          return(ret);
       /* Get next marker. */
-      if((ret = getc_marker_jpegb(&marker, ANY, &cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_marker_jpegb(&marker, ANY, &cbufptr, ebufptr)))
          return(ret);
    }
 

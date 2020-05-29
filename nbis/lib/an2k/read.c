@@ -49,7 +49,7 @@ of the software.
       AUTHOR:  Michael D. Garris
       DATE:    03/28/2000
       UPDATED: 03/08/2005 by MDG
-      UPDATED: 01/04/2008 by Joseph C. Konczal - simplified read_char
+      UPDATED: 01/04/2008 by Joseph C. Konczal - simplified biomeval_nbis_read_char
       UPDATE:  01/31/2008 by Kenneth Ko
       UPDATE:  09/03/2008 by Kenneth Ko
       UPDATE:  12/02/2008 by Kenneth Ko - Fix to support 64-bit
@@ -62,15 +62,15 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        read_binary_item_data()
-                        read_binary_uint()
-                        read_binary_ushort()
-                        read_binary_uchar()
-                        read_binary_image_data()
-                        read_char()
-                        read_string()
-                        read_integer()
-                        skip_white_space()
+                        biomeval_nbis_read_binary_item_data()
+                        biomeval_nbis_read_binary_uint()
+                        biomeval_nbis_read_binary_ushort()
+                        biomeval_nbis_read_binary_uchar()
+                        biomeval_nbis_read_binary_image_data()
+                        biomeval_nbis_read_char()
+                        biomeval_nbis_read_string()
+                        biomeval_nbis_read_integer()
+                        biomeval_nbis_skip_white_space()
 
 ***********************************************************************/
 
@@ -101,7 +101,7 @@ of the software.
  */
 /***********************************************************************
 ************************************************************************
-#cat: fbgetc - Reads a single character from a file pointer, or a
+#cat: biomeval_nbis_fbgetc - Reads a single character from a file pointer, or a
 #cat:          AN2KBDB-wrapped pointer, and return that character.
 #cat:          This function can be a replacement for fgetc(2).
 
@@ -113,7 +113,7 @@ of the software.
       The character read
       EOF - stream is at end-of-file, or buffer is exhausted
 ************************************************************************/
-int fbgetc(FILE *stream, AN2KBDB *bdb)
+int biomeval_nbis_fbgetc(FILE *stream, AN2KBDB *bdb)
 {
 	if (stream != NULL) {
 		return (fgetc(stream));
@@ -129,7 +129,7 @@ int fbgetc(FILE *stream, AN2KBDB *bdb)
 
 /***********************************************************************
 ************************************************************************
-#cat: fbread - Reads items of a given size from an open file pointer, or
+#cat: biomeval_nbis_fbread - Reads items of a given size from an open file pointer, or
 #cat:          AN2KBDB-wrapped pointer, and return count of elements read.
 #cat:          This function can be a replacement for fread(2).
 
@@ -148,7 +148,7 @@ int fbgetc(FILE *stream, AN2KBDB *bdb)
       The number of items read; on error, ferror(3)/feof(3) can be used
       on the file stream
 ************************************************************************/
-size_t fbread(void *ptr, size_t size, size_t nitems, FILE *stream, AN2KBDB *bdb)
+size_t biomeval_nbis_fbread(void *ptr, size_t size, size_t nitems, FILE *stream, AN2KBDB *bdb)
 {
 	if (stream != NULL) {
 		return (fread(ptr, size, nitems, stream));
@@ -168,7 +168,7 @@ size_t fbread(void *ptr, size_t size, size_t nitems, FILE *stream, AN2KBDB *bdb)
 
 /***********************************************************************
 ************************************************************************
-#cat: fbtell - Returns the current file position, or buffer position.
+#cat: biomeval_nbis_fbtell - Returns the current file position, or buffer position.
 #cat:          This function can be used as a replacement for ftell(3).
 
    Input:
@@ -177,7 +177,7 @@ size_t fbread(void *ptr, size_t size, size_t nitems, FILE *stream, AN2KBDB *bdb)
    Return Value:
       The current position of the file stream or buffer.
 ************************************************************************/
-long fbtell(FILE *stream, AN2KBDB *bdb)
+long biomeval_nbis_fbtell(FILE *stream, AN2KBDB *bdb)
 {
 	if (stream != NULL)
 		return (ftell(stream));
@@ -188,15 +188,15 @@ long fbtell(FILE *stream, AN2KBDB *bdb)
 /*
  * Local functions to do the actual reading or scanning work.
  */
-static int i_read_binary_uint(FILE *fpin, AN2KBDB *buf, unsigned int *ouint_val)
+static int biomeval_nbis_i_read_binary_uint(FILE *fpin, AN2KBDB *buf, unsigned int *ouint_val)
 {
    unsigned int uint_val;
 
    /* Read unsigned integer bytes. */
-   if(fbread(&uint_val, sizeof(unsigned int), 1, fpin, buf) != 1){
-      fprintf(stderr, "ERROR : read_binary_uint : "
+   if(biomeval_nbis_fbread(&uint_val, sizeof(unsigned int), 1, fpin, buf) != 1){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_binary_uint : "
 	      "read : uint not read, at %ld: %s\n",
-	       fbtell(fpin, buf), SHORT_READ_ERR_MSG(fpin));
+	       biomeval_nbis_fbtell(fpin, buf), SHORT_READ_ERR_MSG(fpin));
       return(-2);
    }
 
@@ -212,16 +212,16 @@ static int i_read_binary_uint(FILE *fpin, AN2KBDB *buf, unsigned int *ouint_val)
 
 /*
  */
-static int i_read_binary_ushort(FILE *fpin, AN2KBDB *buf,
+static int biomeval_nbis_i_read_binary_ushort(FILE *fpin, AN2KBDB *buf,
     unsigned short *oushort_val)
 {
    unsigned short ushort_val;
 
    /* Read unsigned short bytes. */
-   if(fbread(&ushort_val, sizeof(unsigned short), 1, fpin, buf) != 1){
-      fprintf(stderr, "ERROR : read_binary_ushort : "
+   if(biomeval_nbis_fbread(&ushort_val, sizeof(unsigned short), 1, fpin, buf) != 1){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_binary_ushort : "
 	      "read : ushort not read, at %ld: %s\n",
-	      fbtell(fpin, buf), SHORT_READ_ERR_MSG(fpin));
+	      biomeval_nbis_fbtell(fpin, buf), SHORT_READ_ERR_MSG(fpin));
       return(-2);
    }
 
@@ -237,16 +237,16 @@ static int i_read_binary_ushort(FILE *fpin, AN2KBDB *buf,
 
 /*
  */
-static int i_read_binary_uchar(FILE *fpin, AN2KBDB *buf,
+static int biomeval_nbis_i_read_binary_uchar(FILE *fpin, AN2KBDB *buf,
     unsigned char *ouchar_val)
 {
    unsigned char uchar_val;
 
    /* Read unsigned short bytes. */
-   if(fbread(&uchar_val, sizeof(unsigned char), 1, fpin, buf) != 1){
-      fprintf(stderr, "ERROR : read_binary_uchar : "
+   if(biomeval_nbis_fbread(&uchar_val, sizeof(unsigned char), 1, fpin, buf) != 1){
+      fprintf(stderr, "ERROR : biomeval_nbis_read_binary_uchar : "
 	      "read : uchar not read, at %ld: %s\n",
-	      fbtell(fpin, buf), SHORT_READ_ERR_MSG(fpin));
+	      biomeval_nbis_fbtell(fpin, buf), SHORT_READ_ERR_MSG(fpin));
       return(-2);
    }
 
@@ -258,7 +258,7 @@ static int i_read_binary_uchar(FILE *fpin, AN2KBDB *buf,
 
 /*
  */
-static int i_read_binary_item_data(FILE *fpin, AN2KBDB *buf,
+static int biomeval_nbis_i_read_binary_item_data(FILE *fpin, AN2KBDB *buf,
     unsigned char **ovalue, const int num_bytes)
 {
    int ret;
@@ -269,11 +269,11 @@ static int i_read_binary_item_data(FILE *fpin, AN2KBDB *buf,
 
    switch(num_bytes){
       case 4:
-         if((ret = i_read_binary_uint(fpin, buf, &uint_val)))
+         if((ret = biomeval_nbis_i_read_binary_uint(fpin, buf, &uint_val)))
             return(ret);
          value = (unsigned char *)malloc(MAX_UINT_CHARS + 1);
          if(value == NULL){
-            fprintf(stderr, "ERROR : read_binary_item_data : "
+            fprintf(stderr, "ERROR : biomeval_nbis_read_binary_item_data : "
 		    "malloc : uint string value (%d bytes)\n", 
 		    MAX_UINT_CHARS + 1);
             return(-2);
@@ -281,11 +281,11 @@ static int i_read_binary_item_data(FILE *fpin, AN2KBDB *buf,
          sprintf((char *)value, "%d", uint_val);
          break;
       case 2:
-         if((ret = i_read_binary_ushort(fpin, buf, &ushort_val)))
+         if((ret = biomeval_nbis_i_read_binary_ushort(fpin, buf, &ushort_val)))
             return(ret);
          value = (unsigned char *)malloc(MAX_USHORT_CHARS + 1);
          if(value == NULL){
-            fprintf(stderr, "ERROR : read_binary_item_data : "
+            fprintf(stderr, "ERROR : biomeval_nbis_read_binary_item_data : "
 		    "malloc : ushort string value (%d bytes)\n",
 		    MAX_USHORT_CHARS + 1);
             return(-3);
@@ -293,11 +293,11 @@ static int i_read_binary_item_data(FILE *fpin, AN2KBDB *buf,
          sprintf((char *)value, "%d", ushort_val);
          break;
       case 1:
-         if((ret = i_read_binary_uchar(fpin, buf, &uchar_val)))
+         if((ret = biomeval_nbis_i_read_binary_uchar(fpin, buf, &uchar_val)))
             return(ret);
          value = (unsigned char *)malloc(MAX_UCHAR_CHARS + 1);
          if(value == NULL){
-            fprintf(stderr, "ERROR : read_binary_item_data : "
+            fprintf(stderr, "ERROR : biomeval_nbis_read_binary_item_data : "
 		    "malloc : uchar string value (%d bytes)\n",
 		    MAX_UCHAR_CHARS + 1);
             return(-4);
@@ -305,7 +305,7 @@ static int i_read_binary_item_data(FILE *fpin, AN2KBDB *buf,
          sprintf((char *)value, "%d", uchar_val);
          break;
       default:
-         fprintf(stderr, "ERROR : read_binary_item_data : "
+         fprintf(stderr, "ERROR : biomeval_nbis_read_binary_item_data : "
 		 "number of bytes %d to be read unsupported\n", num_bytes);
          return(-5);
    }
@@ -318,10 +318,10 @@ static int i_read_binary_item_data(FILE *fpin, AN2KBDB *buf,
 
 /***********************************************************************
 ************************************************************************
-#cat: read_binary_item_data - Reads a binary unsigned int, unsigned short,
+#cat: biomeval_nbis_read_binary_item_data - Reads a binary unsigned int, unsigned short,
 #cat:              or unsigned char from the open file pointer and returns
 #cat:              the value read converted into an ASCII string.
-#cat: scan_binary_item_data - Reads a binary unsigned int, unsigned short,
+#cat: biomeval_nbis_scan_binary_item_data - Reads a binary unsigned int, unsigned short,
 #cat:              or unsigned char from the wrapped buffer and returns
 #cat:              the value read converted into an ASCII string.
 
@@ -335,24 +335,24 @@ static int i_read_binary_item_data(FILE *fpin, AN2KBDB *buf,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int read_binary_item_data(FILE *fpin, unsigned char **ovalue,
+int biomeval_nbis_read_binary_item_data(FILE *fpin, unsigned char **ovalue,
     const int num_bytes)
 {
-    return(i_read_binary_item_data(fpin, NULL, ovalue, num_bytes));
+    return(biomeval_nbis_i_read_binary_item_data(fpin, NULL, ovalue, num_bytes));
 }
 
-int scan_binary_item_data(AN2KBDB *buf, unsigned char **ovalue,
+int biomeval_nbis_scan_binary_item_data(AN2KBDB *buf, unsigned char **ovalue,
     const int num_bytes)
 {
-    return(i_read_binary_item_data(NULL, buf, ovalue, num_bytes));
+    return(biomeval_nbis_i_read_binary_item_data(NULL, buf, ovalue, num_bytes));
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: read_binary_uint - Reads a binary unsigned integer from the open
+#cat: biomeval_nbis_read_binary_uint - Reads a binary unsigned integer from the open
 #cat:              file pointer and swaps the bytes if architecture is
 #cat:              not Big Endian.
-#cat: scan_binary_uint - Reads a binary unsigned integer from the wrapped
+#cat: biomeval_nbis_scan_binary_uint - Reads a binary unsigned integer from the wrapped
 #cat:              buffer and swaps the bytes if architecture is
 #cat:              not Big Endian.
 
@@ -365,21 +365,21 @@ int scan_binary_item_data(AN2KBDB *buf, unsigned char **ovalue,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int read_binary_uint(FILE *fpin, unsigned int *ouint_val)
+int biomeval_nbis_read_binary_uint(FILE *fpin, unsigned int *ouint_val)
 {
-    return (i_read_binary_uint(fpin, NULL, ouint_val));
+    return (biomeval_nbis_i_read_binary_uint(fpin, NULL, ouint_val));
 }
-int scan_binary_uint(AN2KBDB *buf, unsigned int *ouint_val)
+int biomeval_nbis_scan_binary_uint(AN2KBDB *buf, unsigned int *ouint_val)
 {
-    return (i_read_binary_uint(NULL, buf, ouint_val));
+    return (biomeval_nbis_i_read_binary_uint(NULL, buf, ouint_val));
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: read_binary_ushort - Reads a binary unsigned short from the open
+#cat: biomeval_nbis_read_binary_ushort - Reads a binary unsigned short from the open
 #cat:              file pointer and swaps the bytes if architecture is
 #cat:              not Big Endian.
-#cat: scan_binary_ushort - Reads a binary unsigned short from the wrapped
+#cat: biomeval_nbis_scan_binary_ushort - Reads a binary unsigned short from the wrapped
 #cat:              buffer and swaps the bytes if architecture is
 #cat:              not Big Endian.
 
@@ -392,20 +392,20 @@ int scan_binary_uint(AN2KBDB *buf, unsigned int *ouint_val)
       Zero        - successful completion
       Negative    - system error
 ************************************************************************/
-int read_binary_ushort(FILE *fpin, unsigned short *oushort_val)
+int biomeval_nbis_read_binary_ushort(FILE *fpin, unsigned short *oushort_val)
 {
-    return(i_read_binary_ushort(fpin, NULL, oushort_val));
+    return(biomeval_nbis_i_read_binary_ushort(fpin, NULL, oushort_val));
 }
-int scan_binary_ushort(AN2KBDB *buf, unsigned short *oushort_val)
+int biomeval_nbis_scan_binary_ushort(AN2KBDB *buf, unsigned short *oushort_val)
 {
-    return(i_read_binary_ushort(NULL, buf, oushort_val));
+    return(biomeval_nbis_i_read_binary_ushort(NULL, buf, oushort_val));
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: read_binary_uchar - Reads a binary unsigned character from the open
+#cat: biomeval_nbis_read_binary_uchar - Reads a binary unsigned character from the open
 #cat:              file pointer.
-#cat: scan_binary_uchar - Reads a binary unsigned character from the wrapped
+#cat: biomeval_nbis_scan_binary_uchar - Reads a binary unsigned character from the wrapped
 #cat:              buffer.
 
    Input:
@@ -417,18 +417,18 @@ int scan_binary_ushort(AN2KBDB *buf, unsigned short *oushort_val)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int read_binary_uchar(FILE *fpin, unsigned char *ouchar_val)
+int biomeval_nbis_read_binary_uchar(FILE *fpin, unsigned char *ouchar_val)
 {
-    return(i_read_binary_uchar(fpin, NULL, ouchar_val));
+    return(biomeval_nbis_i_read_binary_uchar(fpin, NULL, ouchar_val));
 }
-int scan_binary_uchar(AN2KBDB *buf, unsigned char *ouchar_val)
+int biomeval_nbis_scan_binary_uchar(AN2KBDB *buf, unsigned char *ouchar_val)
 {
-    return(i_read_binary_uchar(NULL, buf, ouchar_val));
+    return(biomeval_nbis_i_read_binary_uchar(NULL, buf, ouchar_val));
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: read_binary_image_data - Reads a raw raster image from the specified
+#cat: biomeval_nbis_read_binary_image_data - Reads a raw raster image from the specified
 #cat:              filename.
 
    Input:
@@ -440,7 +440,7 @@ int scan_binary_uchar(AN2KBDB *buf, unsigned char *ouchar_val)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int read_binary_image_data(const char *bfile, unsigned char **obindata,
+int biomeval_nbis_read_binary_image_data(const char *bfile, unsigned char **obindata,
                            int *obinbytes)
 {
    FILE *bfp;
@@ -449,7 +449,7 @@ int read_binary_image_data(const char *bfile, unsigned char **obindata,
    struct stat binstat;
 
    if(stat(bfile, &binstat)){
-      fprintf(stderr, "ERROR : read_binary_image_data : "
+      fprintf(stderr, "ERROR : biomeval_nbis_read_binary_image_data : "
 	      "stat failed : %s\n", bfile);
       return(-2);
    }
@@ -458,25 +458,25 @@ int read_binary_image_data(const char *bfile, unsigned char **obindata,
 
    bfp = fopen(bfile, "rb");
    if(bfp == NULL){
-      fprintf(stderr, "ERROR : read_binary_image_data : "
+      fprintf(stderr, "ERROR : biomeval_nbis_read_binary_image_data : "
 	      "fopen '%s': %s\n", bfile, strerror(errno));
       return(-3);
    }
 
    bindata = (unsigned char *)malloc(binbytes);
    if(bindata == NULL){
-      fprintf(stderr, "ERROR : read_binary_image_data : "
+      fprintf(stderr, "ERROR : biomeval_nbis_read_binary_image_data : "
 	      "malloc : bindata (%d bytes)\n", binbytes);
       return(-4);
    }
 
    nread = fread(bindata, 1, binbytes, bfp);
    if(nread != binbytes){
-      fprintf(stderr, "ERROR : read_binary_image_data : "
+      fprintf(stderr, "ERROR : biomeval_nbis_read_binary_image_data : "
 	      "fread : only %d bytes of %d read, at %ld: %s\n",
 	      nread, binbytes, ftell(bfp), SHORT_READ_ERR_MSG(bfp));
       if(fclose(bfp)){
-         fprintf(stderr, "ERROR : read_binary_image_data : "
+         fprintf(stderr, "ERROR : biomeval_nbis_read_binary_image_data : "
 		 "fclose '%s': %s\n", bfile, strerror(errno));
          return(-5);
       }
@@ -484,7 +484,7 @@ int read_binary_image_data(const char *bfile, unsigned char **obindata,
    }
 
    if(fclose(bfp)){
-      fprintf(stderr, "ERROR : read_binary_image_data : "
+      fprintf(stderr, "ERROR : biomeval_nbis_read_binary_image_data : "
 	      "fclose '%s': %s\n", bfile, strerror(errno));
       return(-7);
    }
@@ -498,7 +498,7 @@ int read_binary_image_data(const char *bfile, unsigned char **obindata,
 
 /***********************************************************************
 ************************************************************************
-#cat: read_char - Reads a single specified byte from the open file pointer.
+#cat: biomeval_nbis_read_char - Reads a single specified byte from the open file pointer.
 #cat:              An error code is returned if the next byte read does
 #cat:              not match the desired character.
 
@@ -509,14 +509,14 @@ int read_binary_image_data(const char *bfile, unsigned char **obindata,
       TRUE         - desired character read
       FALSE        - desired character NOT read
 ************************************************************************/
-int read_char(FILE *fpin, const int desired_char)
+int biomeval_nbis_read_char(FILE *fpin, const int desired_char)
 {
    int c;
 
    c = fgetc(fpin);   
    if (c != desired_char) {  /* assuming EOF is never desired - jck */
       if (c == EOF) {
-	 fprintf(stderr, "ERROR : read_char : "
+	 fprintf(stderr, "ERROR : biomeval_nbis_read_char : "
 		 "fgetc '%c' (0x%02x), at %ld: %s\n",
 		 desired_char, desired_char, ftell(fpin),
 		 SHORT_READ_ERR_MSG(fpin));
@@ -528,7 +528,7 @@ int read_char(FILE *fpin, const int desired_char)
 
 /***********************************************************************
 ************************************************************************
-#cat: read_string - Reads a sequence of characters up to a specified
+#cat: biomeval_nbis_read_string - Reads a sequence of characters up to a specified
 #cat:              delimiter and returns the characters concatenated
 #cat:              together in NULL-terminiated character string.  The
 #cat:              delimiter is NOT stored in the string.
@@ -543,7 +543,7 @@ int read_char(FILE *fpin, const int desired_char)
       FALSE       - EOF occured without reading delimiter character
       Negative    - system error
 ************************************************************************/
-int read_string(FILE *fpin, char **ostring, const int delimiter)
+int biomeval_nbis_read_string(FILE *fpin, char **ostring, const int delimiter)
 {
    int alloc_chars, num_chars;
    unsigned char *string;
@@ -554,7 +554,7 @@ int read_string(FILE *fpin, char **ostring, const int delimiter)
 
    string = (unsigned char *)malloc(alloc_chars);
    if(string == NULL){
-      fprintf(stderr, "ERROR : read_string : malloc : string (%d bytes)\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_read_string : malloc : string (%d bytes)\n",
 	      alloc_chars);
       return(-2);
    }
@@ -563,7 +563,7 @@ int read_string(FILE *fpin, char **ostring, const int delimiter)
    do{
       /* Read next character and if EOF ... */
       if((c = fgetc(fpin)) == EOF){
-	 fprintf(stderr, "ERROR : read_string : fgetc, at %ld: %s\n",
+	 fprintf(stderr, "ERROR : biomeval_nbis_read_string : fgetc, at %ld: %s\n",
 		 ftell(fpin), SHORT_READ_ERR_MSG(fpin));
          free(string);
          return(FALSE);
@@ -578,7 +578,7 @@ int read_string(FILE *fpin, char **ostring, const int delimiter)
 
             if(new_ptr == NULL){
 	       free(string);
-               fprintf(stderr, "ERROR : read_string : "
+               fprintf(stderr, "ERROR : biomeval_nbis_read_string : "
 		       "realloc : string (increase %d bytes to %d), at %ld\n",
 		       alloc_chars, alloc_chars + READ_CHUNK, ftell(fpin));
                return(-3);
@@ -602,7 +602,7 @@ int read_string(FILE *fpin, char **ostring, const int delimiter)
 
 /***********************************************************************
 ************************************************************************
-#cat: read_integer - Reads a sequence of characters up to a specified
+#cat: biomeval_nbis_read_integer - Reads a sequence of characters up to a specified
 #cat:              delimiter and converts those character into an
 #cat:              integer which is returned.  The delimiter is NOT
 #cat:              part of the integer value.
@@ -617,7 +617,7 @@ int read_string(FILE *fpin, char **ostring, const int delimiter)
       FALSE       - EOF occured without reading delimiter character
       Negative    - system error
 ************************************************************************/
-int read_integer(FILE *fpin, int *ointeger, const int delimiter)
+int biomeval_nbis_read_integer(FILE *fpin, int *ointeger, const int delimiter)
 {
    char string[MAX_UINT_CHARS+2]; /* add 1 byte each for sign and terminator */
    int num_chars = 0;
@@ -627,7 +627,7 @@ int read_integer(FILE *fpin, int *ointeger, const int delimiter)
    do{
       /* Read next character and if EOF ... */
       if((c = fgetc(fpin)) == EOF){
-	 fprintf(stderr, "ERROR : read_integer : fgetc, at %ld: %s\n",
+	 fprintf(stderr, "ERROR : biomeval_nbis_read_integer : fgetc, at %ld: %s\n",
 		 ftell(fpin), SHORT_READ_ERR_MSG(fpin));
          return(FALSE);
       }
@@ -635,7 +635,7 @@ int read_integer(FILE *fpin, int *ointeger, const int delimiter)
       /* Otherwise ... */
       if(c != delimiter){
          if((c < '0') || (c > '9')){
-            fprintf(stderr, "ERROR : read_integer : "
+            fprintf(stderr, "ERROR : biomeval_nbis_read_integer : "
 		    "non-numeric character '%c' (0x%02x) read, at %ld\n",
 		     c, c, ftell(fpin));
             return(-3);
@@ -645,7 +645,7 @@ int read_integer(FILE *fpin, int *ointeger, const int delimiter)
 
          /* Include eventual Null terminator character in the test. */
          if(num_chars >= sizeof(string)){
-	    fprintf(stderr, "ERROR : read_integer : "
+	    fprintf(stderr, "ERROR : biomeval_nbis_read_integer : "
 		    "read %*s, maximum integer length %d exceeded, at %ld\n",
 		    (unsigned int)sizeof(string), string,
 		    (unsigned int)sizeof(string), ftell(fpin));
@@ -666,7 +666,7 @@ int read_integer(FILE *fpin, int *ointeger, const int delimiter)
 
 /***********************************************************************
 ************************************************************************
-#cat: skip_white_space - Reads a contiguous sequence of white space characters
+#cat: biomeval_nbis_skip_white_space - Reads a contiguous sequence of white space characters
 #cat:              (spaces, tabs, and new lines) up to the next non-white
 #cat:              space character is read from the open file pointer.
 #cat:              Upon reading a non-white space character, the reading
@@ -680,7 +680,7 @@ int read_integer(FILE *fpin, int *ointeger, const int delimiter)
                     into input stream
       EOF         - EOF occured
 ************************************************************************/
-int skip_white_space(FILE *fpin)
+int biomeval_nbis_skip_white_space(FILE *fpin)
 {
    int c;
 
@@ -689,7 +689,7 @@ int skip_white_space(FILE *fpin)
       /* Read next character and if EOF ... */
       if((c = fgetc(fpin)) == EOF) {
 	 if (! feof(fpin)) {
-	    fprintf(stderr, "ERROR : skip_white_space : "
+	    fprintf(stderr, "ERROR : biomeval_nbis_skip_white_space : "
 		    "fgetc, at %ld: %s\n",
 		    ftell(fpin), SHORT_READ_ERR_MSG(fpin));
 	 }

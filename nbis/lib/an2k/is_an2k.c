@@ -59,8 +59,8 @@ of the software.
 ************************************************************************
 
                ROUTINES:
-                        is_ANSI_NIST_file()
-                        is_ANSI_NIST()
+                        biomeval_nbis_is_ANSI_NIST_file()
+                        biomeval_nbis_is_ANSI_NIST()
 
 ************************************************************************/
 
@@ -69,7 +69,7 @@ of the software.
 
 /*************************************************************************
 **************************************************************************
-#cat:   is_ANSI_NIST_file - Takes an input file, opens it, and scans the
+#cat:   biomeval_nbis_is_ANSI_NIST_file - Takes an input file, opens it, and scans the
 #cat:                       start of the file for field id ("1.001:").
 #cat:                       If field id found, then assumed AN2K format.
    Input:
@@ -79,7 +79,7 @@ of the software.
       FALSE    - not ANSI/NIST format
       Negative - system error
 **************************************************************************/
-int is_ANSI_NIST_file(const char *const ifile)
+int biomeval_nbis_is_ANSI_NIST_file(const char *const ifile)
 {
    FILE *fp;
    int ret, n;
@@ -88,14 +88,14 @@ int is_ANSI_NIST_file(const char *const ifile)
    unsigned int record_type, field_int;
 
    if((fp = fopen(ifile, "rb")) == NULL){
-      fprintf(stderr, "ERROR : is_ANSI_NIST_file : fopen '%s': %s\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_is_ANSI_NIST_file : fopen '%s': %s\n",
 	      ifile, strerror(errno));
       return(-2);
    }
 
    n = fread(buffer, sizeof(unsigned char), (2 * FIELD_NUM_LEN) + 2, fp);
    if(ferror(fp)){
-      fprintf(stderr, "ERROR : is_ANSI_NIST_file : fread '%s': %s\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_is_ANSI_NIST_file : fread '%s': %s\n",
 	      ifile, SHORT_READ_ERR_MSG(fp));
       fclose(fp);
       return(-4);
@@ -105,7 +105,7 @@ int is_ANSI_NIST_file(const char *const ifile)
    cbufptr = buffer;
    ebufptr = buffer+n;
 
-   ret = parse_ANSI_NIST_field_ID(&cbufptr, ebufptr, &field_id,
+   ret = biomeval_nbis_parse_ANSI_NIST_field_ID(&cbufptr, ebufptr, &field_id,
                                      &record_type, &field_int);
    /* if system error */
    if(ret < 0){
@@ -126,7 +126,7 @@ int is_ANSI_NIST_file(const char *const ifile)
 
 /*************************************************************************
 **************************************************************************
-#cat:   is_ANSI_NIST - Takes a byte stream, and scans the start of
+#cat:   biomeval_nbis_is_ANSI_NIST - Takes a byte stream, and scans the start of
 #cat:                  stream for field id ("1.001:").
 #cat:                  If field id found, then assumed AN2K format.
    Input:
@@ -137,7 +137,7 @@ int is_ANSI_NIST_file(const char *const ifile)
       FALSE    - not ANSI/NIST format
       Negative - system error
 **************************************************************************/
-int is_ANSI_NIST(unsigned char *idata, const int ilen)
+int biomeval_nbis_is_ANSI_NIST(unsigned char *idata, const int ilen)
 {
    int ret;
    unsigned char *cbufptr, *ebufptr;
@@ -147,7 +147,7 @@ int is_ANSI_NIST(unsigned char *idata, const int ilen)
    cbufptr = idata;
    ebufptr = idata + ilen;
 
-   ret = parse_ANSI_NIST_field_ID(&cbufptr, ebufptr, &field_id,
+   ret = biomeval_nbis_parse_ANSI_NIST_field_ID(&cbufptr, ebufptr, &field_id,
                                      &record_type, &field_int);
    /* if system error */
    if(ret < 0)

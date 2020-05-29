@@ -62,34 +62,34 @@ of the software.
 #define ANY   0xffff
 
 /* encoder.c */
-extern int jpegb_encode_mem(unsigned char **, int *, const int,
+extern int biomeval_nbis_jpegb_encode_mem(unsigned char **, int *, const int,
                             unsigned char *, const int, const int,
                             const int, const int, char *);
-extern int jpegb_encode_file(FILE *, const int,
+extern int biomeval_nbis_jpegb_encode_file(FILE *, const int,
                              unsigned char *, const int, const int,
                              const int, const int, char *);
 
 /* decoder.c */
-extern int jpegb_decode_mem(unsigned char **, int *, int *, int *, int *,
+extern int biomeval_nbis_jpegb_decode_mem(unsigned char **, int *, int *, int *, int *,
                             int *, unsigned char *, const int);
-extern int jpegb_decode_file(unsigned char **, int *, int *, int *, int *,
+extern int biomeval_nbis_jpegb_decode_file(unsigned char **, int *, int *, int *, int *,
                              int *, FILE *);
 
 /* marker.c */
-extern int read_marker_jpegb(unsigned short *, const int, FILE *);
-extern int getc_marker_jpegb(unsigned short *, const int,
+extern int biomeval_nbis_read_marker_jpegb(unsigned short *, const int, FILE *);
+extern int biomeval_nbis_getc_marker_jpegb(unsigned short *, const int,
                              unsigned char **, unsigned char *);
-extern int put_nistcom_jpegb(j_compress_ptr, char *, const int, const int,
+extern int biomeval_nbis_put_nistcom_jpegb(j_compress_ptr, char *, const int, const int,
                              const int, const int, const int, const int);
-extern int read_nistcom_jpegb(NISTCOM **, FILE *);
-extern int getc_nistcom_jpegb(NISTCOM **, unsigned char *, const int);
+extern int biomeval_nbis_read_nistcom_jpegb(NISTCOM **, FILE *);
+extern int biomeval_nbis_getc_nistcom_jpegb(NISTCOM **, unsigned char *, const int);
 
 
 /* membuf.c */
-extern void jpeg_membuf_dest(j_compress_ptr, JOCTET *, size_t);
-extern void jpeg_membuf_src(j_decompress_ptr, JOCTET *, size_t);
+extern void biomeval_nbis_jpeg_membuf_dest(j_compress_ptr, JOCTET *, size_t);
+extern void biomeval_nbis_jpeg_membuf_src(j_decompress_ptr, JOCTET *, size_t);
 
 /* ppi.c */
-extern int get_ppi_jpegb(int *, j_decompress_ptr);
+extern int biomeval_nbis_get_ppi_jpegb(int *, j_decompress_ptr);
 
 #endif /* !_JPEGB_H */

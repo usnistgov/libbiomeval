@@ -53,7 +53,7 @@ of the software.
       scan resolution in units of pixels per inch.
 
       ROUTINES:
-#cat: get_ppi_jpegb - If possible, computes and returns the scan resolution
+#cat: biomeval_nbis_get_ppi_jpegb - If possible, computes and returns the scan resolution
 #cat:                 in pixels per inch of a JPEGB datastream given a
 #cat:                 JPEGB decompess structure.
 
@@ -65,7 +65,7 @@ of the software.
 #define CM_PER_INCH   2.54
 
 /************************************************************************/
-int get_ppi_jpegb(int *oppi, j_decompress_ptr cinfo)
+int biomeval_nbis_get_ppi_jpegb(int *oppi, j_decompress_ptr cinfo)
 {
    int ppi;
 
@@ -90,7 +90,7 @@ int get_ppi_jpegb(int *oppi, j_decompress_ptr cinfo)
          break;
       /* ERROR */
       default:
-         fprintf(stderr, "ERROR : get_ppi_jpegb : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_get_ppi_jpegb : ");
          fprintf(stderr, "illegal density unit = %d\n", cinfo->density_unit);
          return(-2);
    }

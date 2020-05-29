@@ -54,7 +54,7 @@ of the software.
       from a file name string.
 
       ROUTINES:
-#cat: fileroot - takes a file name and strips off the rightmost extension,
+#cat: biomeval_nbis_fileroot - takes a file name and strips off the rightmost extension,
 #cat:            if one is present.
 
 ***********************************************************************/
@@ -66,7 +66,7 @@ of the software.
 /* Fileroot() is a destructive procedure which takes a file  */
 /* name and strips off the rightmost extension, if it exists.*/
 /*************************************************************/
-void fileroot(char *file)
+void biomeval_nbis_fileroot(char *file)
 {
    char *cptr;
 

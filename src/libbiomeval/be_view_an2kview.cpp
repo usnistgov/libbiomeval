@@ -79,9 +79,9 @@ BiometricEvaluation::View::AN2KView::AN2KView(
 	if (fp == nullptr)
 		throw (Error::FileError("Could not open file."));
 
-	_an2k = Memory::AutoBuffer<ANSI_NIST>(&alloc_ANSI_NIST,
-		&free_ANSI_NIST, &copy_ANSI_NIST);
-	if (read_ANSI_NIST(fp, _an2k) != 0) {
+	_an2k = Memory::AutoBuffer<ANSI_NIST>(&biomeval_nbis_alloc_ANSI_NIST,
+		&biomeval_nbis_free_ANSI_NIST, &biomeval_nbis_copy_ANSI_NIST);
+	if (biomeval_nbis_read_ANSI_NIST(fp, _an2k) != 0) {
 		fclose(fp);
 		throw Error::FileError("Could not read AN2K file");
 	}
@@ -97,12 +97,12 @@ BiometricEvaluation::View::AN2KView::AN2KView(
     const uint32_t recordNumber) :
 	_an2kRecord(nullptr)
 {
-	_an2k = Memory::AutoBuffer<ANSI_NIST>(&alloc_ANSI_NIST,
-		&free_ANSI_NIST, &copy_ANSI_NIST);
+	_an2k = Memory::AutoBuffer<ANSI_NIST>(&biomeval_nbis_alloc_ANSI_NIST,
+		&biomeval_nbis_free_ANSI_NIST, &biomeval_nbis_copy_ANSI_NIST);
 	
 	AN2KBDB bdb;
 	INIT_AN2KBDB(&bdb, buf, buf.size());
-	if (scan_ANSI_NIST(&bdb, _an2k) != 0)
+	if (biomeval_nbis_scan_ANSI_NIST(&bdb, _an2k) != 0)
 		throw Error::DataError("Could not read AN2K buffer");
 	readImageCommon(_an2k, typeID, recordNumber);
 	associateMinutiaeData(buf);
@@ -287,17 +287,17 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
 	FIELD *field;
 	int idx;
 
-	if (lookup_ANSI_NIST_field(&field, &idx, IDC_ID, _an2kRecord) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, IDC_ID, _an2kRecord) != TRUE)
 		throw Error::DataError("Field IDC not found");
 	_idc = atoi((char *)field->subfields[0]->items[0]->value);
 		
-	if (lookup_ANSI_NIST_field(&field, &idx, HLL_ID, _an2kRecord) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, HLL_ID, _an2kRecord) != TRUE)
 		throw Error::DataError("Field HLL not found");
 	
 	Image::Size imageSize;
 	imageSize.xSize = atoi((char *)field->subfields[0]->items[0]->value);
 		
-	if (lookup_ANSI_NIST_field(&field, &idx, VLL_ID, _an2kRecord) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, VLL_ID, _an2kRecord) != TRUE)
 		throw Error::DataError("Field VLL not found");
 	imageSize.ySize = atoi((char *)field->subfields[0]->items[0]->value);
 	this->setImageSize(imageSize);
@@ -307,14 +307,14 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
 	case RecordType::Type_4:	
 	case RecordType::Type_5:
 	case RecordType::Type_6:
-		if (lookup_ANSI_NIST_field(&field, &idx, BIN_CA_ID,
+		if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, BIN_CA_ID,
 		    _an2kRecord) != TRUE)
 			throw Error::DataError("Field CA not found");
 		break;
 	case RecordType::Type_13:
 	case RecordType::Type_14:
 	case RecordType::Type_15:
-		if (lookup_ANSI_NIST_field(&field, &idx, TAG_CA_ID,
+		if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, TAG_CA_ID,
 		    _an2kRecord) != TRUE)
     			throw Error::DataError("Field CA not found");
     		break;
@@ -332,14 +332,14 @@ BiometricEvaluation::View::AN2KView::readImageCommon(
 	case RecordType::Type_4:	
 	case RecordType::Type_5:
 	case RecordType::Type_6:
-		if (lookup_ANSI_NIST_field(&field, &idx, BIN_IMAGE_ID,
+		if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, BIN_IMAGE_ID,
 		    _an2kRecord) != TRUE)
 			throw Error::DataError("Field DATA not found");
 		break;
 	case RecordType::Type_13:
 	case RecordType::Type_14:
 	case RecordType::Type_15:
-		if (lookup_ANSI_NIST_field(&field, &idx, DAT2_ID,
+		if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, DAT2_ID,
 		    _an2kRecord) != TRUE)
     			throw Error::DataError("Field DATA not found");
     		break;
@@ -363,7 +363,7 @@ BiometricEvaluation::View::AN2KView::associateMinutiaeData(
 	    DataInterchange::AN2KRecord::recordLocations(buf, RecordType::Type_9);
 	for (std::set<int>::const_iterator it = type9Recs.begin(); 
 	    it != type9Recs.end(); it++) {
-		if (lookup_ANSI_NIST_field(&field, &idx, IDC_ID, 
+		if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, IDC_ID, 
 		    _an2k->records[*it]) == TRUE) {
 			if (_idc == atoi((char *)field->subfields[0]->
 			    items[0]->value)) {
