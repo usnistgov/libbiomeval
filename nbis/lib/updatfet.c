@@ -98,7 +98,7 @@ void biomeval_nbis_updatefet(char *feature, char *value, FET *fet)
      if(fet->num >= fet->alloc){
         incr      = fet->alloc / 10;		/* add 10% or 10 which-	*/
         increased = fet->alloc + max(10, incr);	/* ever is larger	*/
-        rebiomeval_nbis_allocfet(fet, increased);
+        biomeval_nbis_reallocfet(fet, increased);
      }
      len = strlen(feature) + 1;
      fet->names[fet->num] = malloc(len);
@@ -145,7 +145,7 @@ int biomeval_nbis_updatefet_ret(char *feature, char *value, FET *fet)
      if(fet->num >= fet->alloc){
         incr      = fet->alloc / 10;		/* add 10% or 10 which-	*/
         increased = fet->alloc + max(10, incr);	/* ever is larger	*/
-        if((ret = rebiomeval_nbis_allocfet_ret(&fet, increased)))
+        if((ret = biomeval_nbis_reallocfet_ret(&fet, increased)))
            return(ret);
      }
      len = strlen(feature) + 1;

@@ -95,7 +95,7 @@ int biomeval_nbis_jpegl_encode_mem(unsigned char **odata, int *olen, IMG_DAT *im
                  i, img_dat->hor_sampfctr[i], i, img_dat->vrt_sampfctr[i]);
       for(i = 0; i < img_dat->n_cmpnts; i++)
          fprintf(stdout, "Pt[%d] = %d, p[%d] = %d\n",
-                 i, img_dat->point_trans[i], i, img_dat->biomeval_nbis_predict[i]);
+                 i, img_dat->point_trans[i], i, img_dat->predict[i]);
    }
 
    /* Set output buffer length to size of uncompressed image pixels. */
@@ -134,7 +134,7 @@ int biomeval_nbis_jpegl_encode_mem(unsigned char **odata, int *olen, IMG_DAT *im
                               img_dat->pix_depth, img_dat->ppi,
                               0 /* lossless */, img_dat->n_cmpnts,
                               img_dat->hor_sampfctr, img_dat->vrt_sampfctr,
-                              img_dat->biomeval_nbis_predict[0],
+                              img_dat->predict[0],
                               outbuf, outalloc, &outlen))){
       free(outbuf);
       return(ret);
@@ -187,7 +187,7 @@ int biomeval_nbis_jpegl_encode_mem(unsigned char **odata, int *olen, IMG_DAT *im
 int biomeval_nbis_gen_diff_freqs(IMG_DAT *img_dat, HUF_TABLE **huf_table)
 {
    int ret, i, pixel, np; /*current pixel and total number of pixels*/
-   short data_pred;       /*biomeval_nbis_predicted pixel value*/
+   short data_pred;       /*predicted pixel value*/
    short *data_diff;      /*difference values*/
    short diff_cat;        /*difference category*/
    unsigned char *indata;
@@ -229,12 +229,12 @@ int biomeval_nbis_gen_diff_freqs(IMG_DAT *img_dat, HUF_TABLE **huf_table)
       /* If intrlv ... */
       if(!(img_dat->intrlv)) {
          Pt = img_dat->point_trans[i];
-         p = img_dat->biomeval_nbis_predict[i];
+         p = img_dat->predict[i];
       }
       /* Otherwise, nonintrlv ... */
       else {
          Pt = img_dat->point_trans[0];
-         p = img_dat->biomeval_nbis_predict[0];
+         p = img_dat->predict[0];
       }
 
       /* Set pointer to next component plane origin. */

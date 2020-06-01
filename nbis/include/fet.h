@@ -63,18 +63,18 @@ typedef struct fetstruct{
    char **values;
 } FET;
 
-/* biomeval_nbis_allocfet.c */
+/* allocfet.c */
 extern FET  *biomeval_nbis_allocfet(int);
 extern int  biomeval_nbis_allocfet_ret(FET **, int);
-extern FET  *rebiomeval_nbis_allocfet(FET *, int);
-extern int  rebiomeval_nbis_allocfet_ret(FET **, int);
+extern FET  *biomeval_nbis_reallocfet(FET *, int);
+extern int  biomeval_nbis_reallocfet_ret(FET **, int);
 /* delfet.c */
 extern void biomeval_nbis_deletefet(char *, FET *);
 extern int  biomeval_nbis_deletefet_ret(char *, FET *);
 /* extfet.c */
 extern char *biomeval_nbis_extractfet(char *, FET *);
 extern int  biomeval_nbis_extractfet_ret(char **, char *, FET *);
-/* biomeval_nbis_freefet.c */
+/* freefet.c */
 extern void biomeval_nbis_freefet(FET *);
 /* lkupfet.c */
 extern int  biomeval_nbis_lookupfet(char **, char *, FET *);

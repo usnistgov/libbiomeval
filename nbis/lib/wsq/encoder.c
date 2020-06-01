@@ -58,9 +58,9 @@ of the software.
       ROUTINES:
 #cat: biomeval_nbis_wsq_encode_mem - WSQ encodes image data storing the compressed
 #cat:                   bytes to a memory buffer.
-#cat: biomeval_nbis_gen_hufftable_wsq - Generates a huffman table for a biomeval_nbis_quantized
+#cat: biomeval_nbis_gen_hufftable_wsq - Generates a huffman table for a quantized
 #cat:                   data block.
-#cat: biomeval_nbis_compress_block - Codes a biomeval_nbis_quantized image using huffman tables.
+#cat: biomeval_nbis_compress_block - Codes a quantized image using huffman tables.
 #cat:
 #cat: biomeval_nbis_count_block - Counts the number of occurrences of each category
 #cat:                   in a huffman table.
@@ -86,8 +86,8 @@ int biomeval_nbis_wsq_encode_mem(unsigned char **odata, int *olen, const float r
    int ret, num_pix;
    float *fdata;                 /* floating point pixel image  */
    float m_shift, r_scale;       /* shift/scale parameters      */
-   short *qdata;                 /* biomeval_nbis_quantized image pointer     */
-   int qsize, qsize1, qsize2, qsize3;  /* biomeval_nbis_quantized block sizes */
+   short *qdata;                 /* quantized image pointer     */
+   int qsize, qsize1, qsize2, qsize3;  /* quantized block sizes */
    unsigned char *huffbits, *huffvalues; /* huffman code parameters     */
    HUFFCODE *hufftable;          /* huffcode table              */
    unsigned char *huff_buf;      /* huffman encoded buffer      */
@@ -115,7 +115,7 @@ int biomeval_nbis_wsq_encode_mem(unsigned char **odata, int *olen, const float r
       fprintf(stderr, "Input image pixels converted to floating point\n\n");
 
    /* Build WSQ decomposition trees */
-   biomeval_nbis_build_wsbiomeval_nbis_q_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, w, h);
+   biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, w, h);
 
    if(debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
@@ -152,9 +152,9 @@ int biomeval_nbis_wsq_encode_mem(unsigned char **odata, int *olen, const float r
    free(fdata);
 
    if(debug > 0)
-      fprintf(stderr, "WSQ subband decomposition data biomeval_nbis_quantized\n\n");
+      fprintf(stderr, "WSQ subband decomposition data quantized\n\n");
 
-   /* Compute biomeval_nbis_quantized WSQ subband block sizes */
+   /* Compute quantized WSQ subband block sizes */
    biomeval_nbis_quant_block_sizes(&qsize1, &qsize2, &qsize3, &biomeval_nbis_quant_vals,
                            biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN);
 
@@ -375,7 +375,7 @@ int biomeval_nbis_wsq_encode_mem(unsigned char **odata, int *olen, const float r
    /* Done with current Huffman table. */
    free(hufftable);
 
-   /* Done with biomeval_nbis_quantized image buffer. */
+   /* Done with quantized image buffer. */
    free(qdata);
 
    /* Accumulate number of bytes compressed. */
@@ -422,7 +422,7 @@ int biomeval_nbis_wsq_encode_mem(unsigned char **odata, int *olen, const float r
 }
 
 /*************************************************************/
-/* Generate a Huffman code table for a biomeval_nbis_quantized data block. */
+/* Generate a Huffman code table for a quantized data block. */
 /*************************************************************/
 int biomeval_nbis_gen_hufftable_wsq(HUFFCODE **ohufftable, unsigned char **ohuffbits,
                unsigned char **ohuffvalues, short *sip, const int *block_sizes,
@@ -517,13 +517,13 @@ int biomeval_nbis_gen_hufftable_wsq(HUFFCODE **ohufftable, unsigned char **ohuff
 }
 
 /*****************************************************************/
-/* Routine "codes" the biomeval_nbis_quantized image using the huffman tables. */
+/* Routine "codes" the quantized image using the huffman tables. */
 /*****************************************************************/
 int biomeval_nbis_compress_block(
    unsigned char *outbuf,       /* compressed output buffer            */
    int   *obytes,       /* number of compressed bytes          */
-   short *sip,          /* biomeval_nbis_quantized image                     */
-   const int sip_siz,   /* size of biomeval_nbis_quantized image to compress */
+   short *sip,          /* quantized image                     */
+   const int sip_siz,   /* size of quantized image to compress */
    const int MaxCoeff,  /* Maximum values for coefficients     */
    const int MaxZRun,   /* Maximum zero runs                   */
    HUFFCODE *codes)     /* huffman code table                  */
@@ -708,7 +708,7 @@ int biomeval_nbis_compress_block(
 int biomeval_nbis_count_block(
    int **ocounts,     /* output count for each huffman catetory */
    const int max_huffcounts, /* maximum number of counts */
-   short *sip,          /* biomeval_nbis_quantized data */
+   short *sip,          /* quantized data */
    const int sip_siz,   /* size of block being compressed */
    const int MaxCoeff,  /* maximum values for coefficients */
    const int MaxZRun)   /* maximum zero runs */

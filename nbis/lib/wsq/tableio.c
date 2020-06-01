@@ -366,14 +366,14 @@ int biomeval_nbis_read_transform_table(
 
    /* Added 02-24-05 by MDG */
    /* If biomeval_nbis_lofilt member previously allocated ... */
-   if(biomeval_nbis_dtt_table->biomeval_nbis_lofilt != (float *)NULL){
+   if(biomeval_nbis_dtt_table->lofilt != (float *)NULL){
       /* Deallocate the member prior to new allocation */
-      free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-      biomeval_nbis_dtt_table->biomeval_nbis_lofilt = (float *)NULL;
+      free(biomeval_nbis_dtt_table->lofilt);
+      biomeval_nbis_dtt_table->lofilt = (float *)NULL;
    }
 
-   biomeval_nbis_dtt_table->biomeval_nbis_lofilt = (float *)calloc(biomeval_nbis_dtt_table->losz,sizeof(float));
-   if(biomeval_nbis_dtt_table->biomeval_nbis_lofilt == (float *)NULL) {
+   biomeval_nbis_dtt_table->lofilt = (float *)calloc(biomeval_nbis_dtt_table->losz,sizeof(float));
+   if(biomeval_nbis_dtt_table->lofilt == (float *)NULL) {
       fprintf(stderr,
       "ERROR : biomeval_nbis_read_transform_table : calloc : biomeval_nbis_lofilt\n");
       return(-76);
@@ -381,15 +381,15 @@ int biomeval_nbis_read_transform_table(
 
    /* Added 02-24-05 by MDG */
    /* If biomeval_nbis_hifilt member previously allocated ... */
-   if(biomeval_nbis_dtt_table->biomeval_nbis_hifilt != (float *)NULL){
+   if(biomeval_nbis_dtt_table->hifilt != (float *)NULL){
       /* Deallocate the member prior to new allocation */
-      free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
-      biomeval_nbis_dtt_table->biomeval_nbis_hifilt = (float *)NULL;
+      free(biomeval_nbis_dtt_table->hifilt);
+      biomeval_nbis_dtt_table->hifilt = (float *)NULL;
    }
 
-   biomeval_nbis_dtt_table->biomeval_nbis_hifilt = (float *)calloc(biomeval_nbis_dtt_table->hisz,sizeof(float));
-   if(biomeval_nbis_dtt_table->biomeval_nbis_hifilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
+   biomeval_nbis_dtt_table->hifilt = (float *)calloc(biomeval_nbis_dtt_table->hisz,sizeof(float));
+   if(biomeval_nbis_dtt_table->hifilt == (float *)NULL) {
+      free(biomeval_nbis_dtt_table->lofilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_read_transform_table : calloc : biomeval_nbis_hifilt\n");
       return(-77);
@@ -402,8 +402,8 @@ int biomeval_nbis_read_transform_table(
 
    a_lofilt = (float *) calloc(a_size, sizeof(float));
    if(a_lofilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-      free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+      free(biomeval_nbis_dtt_table->lofilt);
+      free(biomeval_nbis_dtt_table->hifilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_read_transform_table : calloc : a_lofilt\n");
       return(-78);
@@ -412,20 +412,20 @@ int biomeval_nbis_read_transform_table(
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
       if((ret = biomeval_nbis_read_byte(&sign, infp))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
       if((ret = biomeval_nbis_read_byte(&scale, infp))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
       if((ret = biomeval_nbis_read_uint(&shrt_dat, infp))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
@@ -441,16 +441,16 @@ int biomeval_nbis_read_transform_table(
          fprintf(stderr, "biomeval_nbis_lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
 
       if(biomeval_nbis_dtt_table->hisz % 2) {
-         biomeval_nbis_dtt_table->biomeval_nbis_hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
+         biomeval_nbis_dtt_table->hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_lofilt[cnt]);
          if(cnt > 0)
-            biomeval_nbis_dtt_table->biomeval_nbis_hifilt[a_size - cnt] = biomeval_nbis_dtt_table->biomeval_nbis_hifilt[cnt + a_size];
+            biomeval_nbis_dtt_table->hifilt[a_size - cnt] = biomeval_nbis_dtt_table->hifilt[cnt + a_size];
       }
       else {
-         biomeval_nbis_dtt_table->biomeval_nbis_hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
+         biomeval_nbis_dtt_table->hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
                                              * a_lofilt[cnt]);
-         biomeval_nbis_dtt_table->biomeval_nbis_hifilt[a_size - cnt] = -1.0 *
-                                    biomeval_nbis_dtt_table->biomeval_nbis_hifilt[cnt + a_size + 1];
+         biomeval_nbis_dtt_table->hifilt[a_size - cnt] = -1.0 *
+                                    biomeval_nbis_dtt_table->hifilt[cnt + a_size + 1];
       }
 
    }
@@ -463,8 +463,8 @@ int biomeval_nbis_read_transform_table(
 
    a_hifilt = (float *) calloc(a_size, sizeof(float));
    if(a_hifilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-      free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+      free(biomeval_nbis_dtt_table->lofilt);
+      free(biomeval_nbis_dtt_table->hifilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_read_transform_table : calloc : a_hifilt\n");
       return(-79);
@@ -473,20 +473,20 @@ int biomeval_nbis_read_transform_table(
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
       if((ret = biomeval_nbis_read_byte(&sign, infp))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
       if((ret = biomeval_nbis_read_byte(&scale, infp))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
       if((ret = biomeval_nbis_read_uint(&shrt_dat, infp))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
@@ -502,15 +502,15 @@ int biomeval_nbis_read_transform_table(
          fprintf(stderr, "biomeval_nbis_hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
 
       if(biomeval_nbis_dtt_table->losz % 2) {
-         biomeval_nbis_dtt_table->biomeval_nbis_lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
+         biomeval_nbis_dtt_table->lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_hifilt[cnt]);
          if(cnt > 0)
-            biomeval_nbis_dtt_table->biomeval_nbis_lofilt[a_size - cnt] = biomeval_nbis_dtt_table->biomeval_nbis_lofilt[cnt + a_size];
+            biomeval_nbis_dtt_table->lofilt[a_size - cnt] = biomeval_nbis_dtt_table->lofilt[cnt + a_size];
       }
       else {
-         biomeval_nbis_dtt_table->biomeval_nbis_lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
+         biomeval_nbis_dtt_table->lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
                                              * a_hifilt[cnt]);
-         biomeval_nbis_dtt_table->biomeval_nbis_lofilt[a_size - cnt] = biomeval_nbis_dtt_table->biomeval_nbis_lofilt[cnt + a_size + 1];
+         biomeval_nbis_dtt_table->lofilt[a_size - cnt] = biomeval_nbis_dtt_table->lofilt[cnt + a_size + 1];
       }
 
 
@@ -559,14 +559,14 @@ int biomeval_nbis_getc_transform_table(
 
    /* Added 02-24-05 by MDG */
    /* If biomeval_nbis_lofilt member previously allocated ... */
-   if(biomeval_nbis_dtt_table->biomeval_nbis_lofilt != (float *)NULL){
+   if(biomeval_nbis_dtt_table->lofilt != (float *)NULL){
       /* Deallocate the member prior to new allocation */
-      free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-      biomeval_nbis_dtt_table->biomeval_nbis_lofilt = (float *)NULL;
+      free(biomeval_nbis_dtt_table->lofilt);
+      biomeval_nbis_dtt_table->lofilt = (float *)NULL;
    }
 
-   biomeval_nbis_dtt_table->biomeval_nbis_lofilt = (float *)calloc(biomeval_nbis_dtt_table->losz,sizeof(float));
-   if(biomeval_nbis_dtt_table->biomeval_nbis_lofilt == (float *)NULL) {
+   biomeval_nbis_dtt_table->lofilt = (float *)calloc(biomeval_nbis_dtt_table->losz,sizeof(float));
+   if(biomeval_nbis_dtt_table->lofilt == (float *)NULL) {
       fprintf(stderr,
       "ERROR : biomeval_nbis_getc_transform_table : calloc : biomeval_nbis_lofilt\n");
       return(-94);
@@ -574,15 +574,15 @@ int biomeval_nbis_getc_transform_table(
 
    /* Added 02-24-05 by MDG */
    /* If biomeval_nbis_hifilt member previously allocated ... */
-   if(biomeval_nbis_dtt_table->biomeval_nbis_hifilt != (float *)NULL){
+   if(biomeval_nbis_dtt_table->hifilt != (float *)NULL){
       /* Deallocate the member prior to new allocation */
-      free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
-      biomeval_nbis_dtt_table->biomeval_nbis_hifilt = (float *)NULL;
+      free(biomeval_nbis_dtt_table->hifilt);
+      biomeval_nbis_dtt_table->hifilt = (float *)NULL;
    }
 
-   biomeval_nbis_dtt_table->biomeval_nbis_hifilt = (float *)calloc(biomeval_nbis_dtt_table->hisz,sizeof(float));
-   if(biomeval_nbis_dtt_table->biomeval_nbis_hifilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
+   biomeval_nbis_dtt_table->hifilt = (float *)calloc(biomeval_nbis_dtt_table->hisz,sizeof(float));
+   if(biomeval_nbis_dtt_table->hifilt == (float *)NULL) {
+      free(biomeval_nbis_dtt_table->lofilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_getc_transform_table : calloc : biomeval_nbis_hifilt\n");
       return(-95);
@@ -595,8 +595,8 @@ int biomeval_nbis_getc_transform_table(
 
    a_lofilt = (float *) calloc(a_size, sizeof(float));
    if(a_lofilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-      free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+      free(biomeval_nbis_dtt_table->lofilt);
+      free(biomeval_nbis_dtt_table->hifilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_getc_transform_table : calloc : a_lofilt\n");
       return(-96);
@@ -605,20 +605,20 @@ int biomeval_nbis_getc_transform_table(
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
       if((ret = biomeval_nbis_getc_byte(&sign, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
       if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
       if((ret = biomeval_nbis_getc_uint(&shrt_dat, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
@@ -634,16 +634,16 @@ int biomeval_nbis_getc_transform_table(
          fprintf(stderr, "biomeval_nbis_lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
 
       if(biomeval_nbis_dtt_table->hisz % 2) {
-         biomeval_nbis_dtt_table->biomeval_nbis_hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
+         biomeval_nbis_dtt_table->hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_lofilt[cnt]);
          if(cnt > 0)
-            biomeval_nbis_dtt_table->biomeval_nbis_hifilt[a_size - cnt] = biomeval_nbis_dtt_table->biomeval_nbis_hifilt[cnt + a_size];
+            biomeval_nbis_dtt_table->hifilt[a_size - cnt] = biomeval_nbis_dtt_table->hifilt[cnt + a_size];
       }
       else {
-         biomeval_nbis_dtt_table->biomeval_nbis_hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
+         biomeval_nbis_dtt_table->hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
                                              * a_lofilt[cnt]);
-         biomeval_nbis_dtt_table->biomeval_nbis_hifilt[a_size - cnt] = -1.0 *
-                                    biomeval_nbis_dtt_table->biomeval_nbis_hifilt[cnt + a_size + 1];
+         biomeval_nbis_dtt_table->hifilt[a_size - cnt] = -1.0 *
+                                    biomeval_nbis_dtt_table->hifilt[cnt + a_size + 1];
       }
 
    }
@@ -656,8 +656,8 @@ int biomeval_nbis_getc_transform_table(
 
    a_hifilt = (float *) calloc(a_size, sizeof(float));
    if(a_hifilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-      free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+      free(biomeval_nbis_dtt_table->lofilt);
+      free(biomeval_nbis_dtt_table->hifilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_getc_transform_table : calloc : a_hifilt\n");
       return(-97);
@@ -666,20 +666,20 @@ int biomeval_nbis_getc_transform_table(
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
       if((ret = biomeval_nbis_getc_byte(&sign, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
       if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
       if((ret = biomeval_nbis_getc_uint(&shrt_dat, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->biomeval_nbis_lofilt);
-         free(biomeval_nbis_dtt_table->biomeval_nbis_hifilt);
+         free(biomeval_nbis_dtt_table->lofilt);
+         free(biomeval_nbis_dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
@@ -695,15 +695,15 @@ int biomeval_nbis_getc_transform_table(
          fprintf(stderr, "biomeval_nbis_hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
 
       if(biomeval_nbis_dtt_table->losz % 2) {
-         biomeval_nbis_dtt_table->biomeval_nbis_lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
+         biomeval_nbis_dtt_table->lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_hifilt[cnt]);
          if(cnt > 0)
-            biomeval_nbis_dtt_table->biomeval_nbis_lofilt[a_size - cnt] = biomeval_nbis_dtt_table->biomeval_nbis_lofilt[cnt + a_size];
+            biomeval_nbis_dtt_table->lofilt[a_size - cnt] = biomeval_nbis_dtt_table->lofilt[cnt + a_size];
       }
       else {
-         biomeval_nbis_dtt_table->biomeval_nbis_lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
+         biomeval_nbis_dtt_table->lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
                                              * a_hifilt[cnt]);
-         biomeval_nbis_dtt_table->biomeval_nbis_lofilt[a_size - cnt] = biomeval_nbis_dtt_table->biomeval_nbis_lofilt[cnt + a_size + 1];
+         biomeval_nbis_dtt_table->lofilt[a_size - cnt] = biomeval_nbis_dtt_table->lofilt[cnt + a_size + 1];
       }
 
 

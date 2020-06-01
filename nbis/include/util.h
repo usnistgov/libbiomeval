@@ -64,21 +64,21 @@ extern int biomeval_nbis_bres_line_alloc(const int, const int, const int, const 
 /* bubble.c */
 extern void biomeval_nbis_bubble_sort_int(int *, const int);
 
-/* biomeval_nbis_fatalerr.c */
+/* fatalerr.c */
 extern void biomeval_nbis_fatalerr(char *, char *, char *);
 
 /* invbytes.h */
 extern void biomeval_nbis_inv_bytes(unsigned char *, int);
 
-/* biomeval_nbis_ssxstats.c */
+/* ssxstats.c */
 extern double biomeval_nbis_ssx_stddev(const double, const double, const int);
 extern double biomeval_nbis_ssx_variance(const double, const double, const int);
 extern double biomeval_nbis_ssx(const double, const double, const int);
 
-/* biomeval_nbis_syserr.c */
+/* syserr.c */
 extern void biomeval_nbis_syserr(char *, char *, char *);
 
-/* biomeval_nbis_ticks.c */
+/* ticks.c */
 extern clock_t biomeval_nbis_ticks(void);
 extern int biomeval_nbis_ticksPerSec(void);
 

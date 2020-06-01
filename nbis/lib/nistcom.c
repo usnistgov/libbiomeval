@@ -216,7 +216,7 @@ int biomeval_nbis_combine_nistcom(NISTCOM **onistcom, const int w, const int h,
 int biomeval_nbis_combine_jpegl_nistcom(NISTCOM **onistcom, const int w, const int h,
                   const int d, const int ppi, const int lossyflag,
                   const int n_cmpnts, int *hor_sampfctr, int *vrt_sampfctr,
-                  const int intrlvflag, const int biomeval_nbis_predict)
+                  const int intrlvflag, const int predict)
 {
    int ret, i, allocflag;
    NISTCOM *nistcom;
@@ -283,7 +283,7 @@ int biomeval_nbis_combine_jpegl_nistcom(NISTCOM **onistcom, const int w, const i
    }
 
    /* PREDICT */
-   sprintf(cbuff, "%d", biomeval_nbis_predict);
+   sprintf(cbuff, "%d", predict);
    if((ret = biomeval_nbis_updatefet_ret(NCM_JPEGL_PREDICT, cbuff, nistcom))){
       if(allocflag)
          biomeval_nbis_freefet(nistcom);

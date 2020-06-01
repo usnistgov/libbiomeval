@@ -87,7 +87,7 @@ int biomeval_nbis_jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
    int full_diff_code;     /*difference code extend to full precision*/
    int num_pixels;         /*number of pixels image will expand too*/
    int bit_count = 0;      /*marks the bit to receive from the input byte*/
-   short data_pred;        /*biomeval_nbis_prediction of pixel value*/
+   short data_pred;        /*prediction of pixel value*/
    /*holds the code for all possible
      difference values that occur when encoding*/
    int huff_decoder[MAX_CATEGORY][LARGESTDIFF+1];
@@ -230,11 +230,11 @@ int biomeval_nbis_jpegl_decode_mem(IMG_DAT **oimg_dat, int *lossyflag,
             /*extend the difference value to full precision*/
             full_diff_code = huff_decoder[diff_cat][diff_code];
 
-            /*reverse the pixel biomeval_nbis_prediction and store the pixel value in the
+            /*reverse the pixel prediction and store the pixel value in the
               output buffer*/
             if((ret = biomeval_nbis_predict(&data_pred, optr, img_dat->samp_width[cmpnt_i],
                              pixel, img_dat->cmpnt_depth,
-                             img_dat->biomeval_nbis_predict[cmpnt_i],
+                             img_dat->predict[cmpnt_i],
                              img_dat->point_trans[cmpnt_i]))){
                biomeval_nbis_free_HUFF_TABLES(huf_table, MAX_CMPNTS);
                biomeval_nbis_free_IMG_DAT(img_dat, FREE_IMAGE);

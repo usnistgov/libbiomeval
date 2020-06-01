@@ -90,7 +90,7 @@ int biomeval_nbis_jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, con
                                            1 plane of data not MAX_CMPNTS*/
    int i, ret;
    unsigned char *cbufptr, *ebufptr;
-   unsigned char biomeval_nbis_predictor;                /*biomeval_nbis_predictor type used*/
+   unsigned char predictor;                /*predictor type used*/
    unsigned char Pt = 0;                   /*Point Transform*/
    /*holds the code for all possible difference values */
    /*that occur when encoding*/
@@ -100,7 +100,7 @@ int biomeval_nbis_jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, con
    int bit_count = 0;        /*marks the bit to receive from the input byte*/
    unsigned short diff_code; /*"raw" difference pixel*/
    int full_diff_code;       /*difference code extend to full precision*/
-   short data_pred;          /*biomeval_nbis_prediction of pixel value*/
+   short data_pred;          /*prediction of pixel value*/
    unsigned char *outbuf;
 
    /* Set memory buffer pointers. */
@@ -116,7 +116,7 @@ int biomeval_nbis_jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, con
    if((ret = biomeval_nbis_getc_huffman_table_jpegl_sd4(huf_table, &cbufptr, ebufptr)))
       return(ret);
 
-   if((ret = biomeval_nbis_getc_byte(&biomeval_nbis_predictor, &cbufptr, ebufptr))) {
+   if((ret = biomeval_nbis_getc_byte(&predictor, &cbufptr, ebufptr))) {
       biomeval_nbis_free_HUFF_TABLES(huf_table, 1);
       return(ret);
    }
@@ -152,11 +152,11 @@ int biomeval_nbis_jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, con
 				  full precision*/
       full_diff_code = huff_decoder[diff_cat][diff_code];
 
-				/*reverse the pixel biomeval_nbis_prediction and
+				/*reverse the pixel prediction and
 				  store the pixel value in the
 				  output buffer*/
       if((ret = biomeval_nbis_predict(&data_pred, outbuf, width, i, depth,
-                          biomeval_nbis_predictor, Pt))){
+                          predictor, Pt))){
          biomeval_nbis_free_HUFF_TABLES(huf_table, 1);
          return(ret);
       }

@@ -55,17 +55,17 @@ of the software.
 
 /* fileexst.c */
 extern int biomeval_nbis_file_exists(char *);
-/* biomeval_nbis_filehead.c */
+/* filehead.c */
 extern void biomeval_nbis_filehead(char *);
-/* biomeval_nbis_fileroot.c */
+/* fileroot.c */
 extern void biomeval_nbis_fileroot(char *);
-/* biomeval_nbis_filesize.c */
+/* filesize.c */
 extern int biomeval_nbis_filesize(char *);
-/* biomeval_nbis_filetail.c */
+/* filetail.c */
 extern void biomeval_nbis_filetail(char *);
 /* findfile.c */
 extern int biomeval_nbis_find_file(char *, char *);
-/* biomeval_nbis_newext.c */
+/* newext.c */
 extern void biomeval_nbis_newext(char *, const int, char *);
 extern int biomeval_nbis_newext_ret(char *, int, char *);
 extern void biomeval_nbis_newextlong(char **, char *);

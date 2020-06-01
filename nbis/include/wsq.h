@@ -143,8 +143,8 @@ typedef struct hcode {
 */
 
 typedef struct table_dtt {
-   float *biomeval_nbis_lofilt;
-   float *biomeval_nbis_hifilt;
+   float *lofilt;
+   float *hifilt;
    unsigned char losz;
    unsigned char hisz;
    char lodef;
@@ -218,9 +218,9 @@ extern int biomeval_nbis_wsq_decode_mem(unsigned char **, int *, int *, int *, i
                  unsigned char *, const int);
 extern int biomeval_nbis_wsq_decode_file(unsigned char **, int *, int *, int *, int *,
                  int *, FILE *);
-extern int huffman_decode_data_mem(short *, DTT_TABLE *, DQT_TABLE *,
+extern int biomeval_nbis_huffman_decode_data_mem(short *, DTT_TABLE *, DQT_TABLE *,
                  DHT_TABLE *, unsigned char **, unsigned char *);
-extern int huffman_decode_data_file(short *, DTT_TABLE *, DQT_TABLE *,
+extern int biomeval_nbis_huffman_decode_data_file(short *, DTT_TABLE *, DQT_TABLE *,
                  DHT_TABLE *, FILE *);
 extern int biomeval_nbis_decode_data_mem(int *, int *, int *, int *, unsigned char *,
                  unsigned char **, unsigned char *, int *, unsigned short *);
@@ -293,7 +293,7 @@ extern int biomeval_nbis_getc_nistcom_wsq(NISTCOM **, unsigned char *, const int
 extern int biomeval_nbis_print_comments_wsq(FILE *, unsigned char *, const int);
 
 /* tree.c */
-extern void biomeval_nbis_build_wsbiomeval_nbis_q_trees(W_TREE biomeval_nbis_w_tree[], const int,
+extern void biomeval_nbis_build_wsq_trees(W_TREE biomeval_nbis_w_tree[], const int,
                  Q_TREE biomeval_nbis_q_tree[], const int, const int, const int);
 extern void biomeval_nbis_build_w_tree(W_TREE biomeval_nbis_w_tree[], const int, const int);
 extern void biomeval_nbis_w_tree4(W_TREE biomeval_nbis_w_tree[], const int, const int,
@@ -318,7 +318,7 @@ extern int biomeval_nbis_quantize(short **, int *, QUANT_VALS *, Q_TREE qtree[],
 extern void biomeval_nbis_quant_block_sizes(int *, int *, int *,
                  QUANT_VALS *, W_TREE biomeval_nbis_w_tree[], const int,
                  Q_TREE biomeval_nbis_q_tree[], const int);
-extern int unbiomeval_nbis_quantize(float **, const DQT_TABLE *,
+extern int biomeval_nbis_unquantize(float **, const DQT_TABLE *,
                  Q_TREE biomeval_nbis_q_tree[], const int, short *, const int, const int);
 extern int biomeval_nbis_wsq_decompose(float *, const int, const int,
                  W_TREE biomeval_nbis_w_tree[], const int, float *, const int,

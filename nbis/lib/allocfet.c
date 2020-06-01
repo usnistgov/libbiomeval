@@ -58,9 +58,9 @@ of the software.
 #cat:            Exits on error.
 #cat: biomeval_nbis_allocfet_ret - allocates and initialized an empty fet structure.
 #cat:            Returns on error.
-#cat: rebiomeval_nbis_allocfet - reallocates an fet structure of a
+#cat: biomeval_nbis_reallocfet - reallocates an fet structure of a
 #cat:            specified length.  Exits on error.
-#cat: rebiomeval_nbis_allocfet_ret - reallocates an fet structure of a
+#cat: biomeval_nbis_reallocfet_ret - reallocates an fet structure of a
 #cat:            specified length.  Returns on error.
 
 ***********************************************************************/
@@ -122,24 +122,24 @@ int biomeval_nbis_allocfet_ret(FET **ofet, int numfeatures)
 }
 
 /********************************************************************/
-FET *rebiomeval_nbis_allocfet(FET *fet, int newlen)
+FET *biomeval_nbis_reallocfet(FET *fet, int newlen)
 {
    if (fet == (FET *)NULL || fet->alloc == 0)
       return(biomeval_nbis_allocfet(newlen));
 
    fet->names = (char **)realloc(fet->names, newlen * sizeof(char *));
    if (fet->names == (char **)NULL)
-      biomeval_nbis_fatalerr("rebiomeval_nbis_allocfet", "realloc", "space for increased fet->names");
+      biomeval_nbis_fatalerr("biomeval_nbis_reallocfet", "realloc", "space for increased fet->names");
    fet->values = (char **)realloc(fet->values, newlen * sizeof(char *));
    if (fet->values == (char **)NULL)
-      biomeval_nbis_fatalerr("rebiomeval_nbis_allocfet", "realloc", "space for increased fet->values");
+      biomeval_nbis_fatalerr("biomeval_nbis_reallocfet", "realloc", "space for increased fet->values");
    fet->alloc = newlen;
 
    return(fet);
 }
 
 /********************************************************************/
-int rebiomeval_nbis_allocfet_ret(FET **ofet, int newlen)
+int biomeval_nbis_reallocfet_ret(FET **ofet, int newlen)
 {
    int ret;
    FET *fet;
@@ -159,12 +159,12 @@ int rebiomeval_nbis_allocfet_ret(FET **ofet, int newlen)
    /* Oherwise, reallocate fet. */
    fet->names = (char **)realloc(fet->names, newlen * sizeof(char *));
    if (fet->names == (char **)NULL){
-      fprintf(stderr, "ERROR : rebiomeval_nbis_allocfet_ret : realloc : fet->names\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_reallocfet_ret : realloc : fet->names\n");
       return(-2);
    }
    fet->values = (char **)realloc(fet->values, newlen * sizeof(char *));
    if (fet->values == (char **)NULL){
-      fprintf(stderr, "ERROR : rebiomeval_nbis_allocfet_ret : realloc : fet->values");
+      fprintf(stderr, "ERROR : biomeval_nbis_reallocfet_ret : realloc : fet->values");
       return(-3);
    }
    fet->alloc = newlen;

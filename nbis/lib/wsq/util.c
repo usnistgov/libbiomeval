@@ -68,7 +68,7 @@ of the software.
 #cat:
 #cat: biomeval_nbis_quant_block_sizes - Quantizes an image's subband block.
 #cat:
-#cat: unbiomeval_nbis_quantize - Unbiomeval_nbis_quantizes an image's wavelet subbands.
+#cat: biomeval_nbis_unquantize - unquantizes an image's wavelet subbands.
 #cat:
 #cat: biomeval_nbis_wsq_decompose - Computes the wavelet decomposition of an input image.
 #cat:
@@ -103,7 +103,7 @@ of the software.
 /*        converting the image data from unsigned char            */
 /*        to float and integer to unsigned char,                  */
 /*        splitting the image into the subbands as well           */
-/*        the rejoining process, subband biomeval_nbis_variance                 */
+/*        the rejoining process, subband variance                 */
 /*        calculations, and quantization.                         */
 /******************************************************************/
 /******************************************************************/
@@ -250,36 +250,36 @@ void biomeval_nbis_conv_img_2_uchar(
 /* This routine calculates the biomeval_nbis_variances of the subbands. */
 /**********************************************************/
 void biomeval_nbis_variance(
-   QUANT_VALS *biomeval_nbis_quant_vals, /* quantization parameters */
-   Q_TREE biomeval_nbis_q_tree[],        /* quantization "tree"     */
-   const int biomeval_nbis_q_treelen,    /* length of biomeval_nbis_q_tree        */
+   QUANT_VALS *quant_vals, /* quantization parameters */
+   Q_TREE q_tree[],        /* quantization "tree"     */
+   const int q_treelen,    /* length of q_tree        */
    float *fip,             /* image pointer           */
    const int width,        /* image width             */
    const int height)       /* image height            */
 {
    float *fp;              /* temp image pointer */
    int cvr;                /* subband counter */
-   int lenx = 0, leny = 0; /* dimensions of area to calculate biomeval_nbis_variance */
+   int lenx = 0, leny = 0; /* dimensions of area to calculate variance */
    int skipx, skipy;       /* pixels to skip to get to area for
-                              biomeval_nbis_variance calculation */
+                              variance calculation */
    int row, col;           /* dimension counters */
    float ssq;             /* sum of squares */
-   float sum2;            /* biomeval_nbis_variance calculation parameter */
+   float sum2;            /* variance calculation parameter */
    float sum_pix;         /* sum of pixels */
-   float vsum;            /* biomeval_nbis_variance sum for subbands 0-3 */
+   float vsum;            /* variance sum for subbands 0-3 */
    
 
    vsum = 0.0;
    for(cvr = 0; cvr < 4; cvr++) {
-      fp = fip + (biomeval_nbis_q_tree[cvr].y * width) + biomeval_nbis_q_tree[cvr].x;
+      fp = fip + (q_tree[cvr].y * width) + q_tree[cvr].x;
       ssq = 0.0;
       sum_pix = 0.0;
 
-      skipx = biomeval_nbis_q_tree[cvr].lenx / 8;
-      skipy = (9 * biomeval_nbis_q_tree[cvr].leny)/32;
+      skipx = q_tree[cvr].lenx / 8;
+      skipy = (9 * q_tree[cvr].leny)/32;
    
-      lenx = (3 * biomeval_nbis_q_tree[cvr].lenx)/4;
-      leny = (7 * biomeval_nbis_q_tree[cvr].leny)/16;
+      lenx = (3 * q_tree[cvr].lenx)/4;
+      leny = (7 * q_tree[cvr].leny)/16;
 
       fp += (skipy * width) + skipx;
       for(row = 0; row < leny; row++, fp += (width - lenx)) {
@@ -290,18 +290,18 @@ void biomeval_nbis_variance(
          }
       }
       sum2 = (sum_pix * sum_pix)/(lenx * leny);
-      biomeval_nbis_quant_vals->var[cvr] = (float)((ssq - sum2)/((lenx * leny)-1.0));
-      vsum += biomeval_nbis_quant_vals->var[cvr];
+      quant_vals->var[cvr] = (float)((ssq - sum2)/((lenx * leny)-1.0));
+      vsum += quant_vals->var[cvr];
    }
 
    if(vsum < 20000.0) {
       for(cvr = 0; cvr < NUM_SUBBANDS; cvr++) {
-         fp = fip + (biomeval_nbis_q_tree[cvr].y * width) + biomeval_nbis_q_tree[cvr].x;
+         fp = fip + (q_tree[cvr].y * width) + q_tree[cvr].x;
          ssq = 0.0;
          sum_pix = 0.0;
 
-         lenx = biomeval_nbis_q_tree[cvr].lenx;
-         leny = biomeval_nbis_q_tree[cvr].leny;
+         lenx = q_tree[cvr].lenx;
+         leny = q_tree[cvr].leny;
 
          for(row = 0; row < leny; row++, fp += (width - lenx)) {
             for(col = 0; col < lenx; col++) {
@@ -311,20 +311,20 @@ void biomeval_nbis_variance(
             }
          }
          sum2 = (sum_pix * sum_pix)/(lenx * leny);
-         biomeval_nbis_quant_vals->var[cvr] = (float)((ssq - sum2)/((lenx * leny)-1.0));
+         quant_vals->var[cvr] = (float)((ssq - sum2)/((lenx * leny)-1.0));
       }
    }
    else {
       for(cvr = 4; cvr < NUM_SUBBANDS; cvr++) {
-         fp = fip + (biomeval_nbis_q_tree[cvr].y * width) + biomeval_nbis_q_tree[cvr].x;
+         fp = fip + (q_tree[cvr].y * width) + q_tree[cvr].x;
          ssq = 0.0;
          sum_pix = 0.0;
 
-         skipx = biomeval_nbis_q_tree[cvr].lenx / 8;
-         skipy = (9 * biomeval_nbis_q_tree[cvr].leny)/32;
+         skipx = q_tree[cvr].lenx / 8;
+         skipy = (9 * q_tree[cvr].leny)/32;
    
-         lenx = (3 * biomeval_nbis_q_tree[cvr].lenx)/4;
-         leny = (7 * biomeval_nbis_q_tree[cvr].leny)/16;
+         lenx = (3 * q_tree[cvr].lenx)/4;
+         leny = (7 * q_tree[cvr].leny)/16;
 
          fp += (skipy * width) + skipx;
          for(row = 0; row < leny; row++, fp += (width - lenx)) {
@@ -335,20 +335,20 @@ void biomeval_nbis_variance(
             }
          }
          sum2 = (sum_pix * sum_pix)/(lenx * leny);
-         biomeval_nbis_quant_vals->var[cvr] = (float)((ssq - sum2)/((lenx * leny)-1.0));
+         quant_vals->var[cvr] = (float)((ssq - sum2)/((lenx * leny)-1.0));
       }
    }
 }
 
 /************************************************/
-/* This routine biomeval_nbis_quantizes the wavelet subbands. */
+/* This routine quantizes the wavelet subbands. */
 /************************************************/
 int biomeval_nbis_quantize(
-   short **osip,           /* biomeval_nbis_quantized output             */
-   int *ocmp_siz,          /* size of biomeval_nbis_quantized output     */
-   QUANT_VALS *biomeval_nbis_quant_vals, /* quantization parameters      */
-   Q_TREE biomeval_nbis_q_tree[],        /* quantization "tree"          */
-   const int biomeval_nbis_q_treelen,    /* size of biomeval_nbis_q_tree               */
+   short **osip,           /* quantized output             */
+   int *ocmp_siz,          /* size of quantized output     */
+   QUANT_VALS *quant_vals, /* quantization parameters      */
+   Q_TREE q_tree[],        /* quantization "tree"          */
+   const int q_treelen,    /* size of q_tree               */
    float *fip,             /* floating point image pointer */
    const int width,        /* image width                  */
    const int height)       /* image height                 */
@@ -356,7 +356,7 @@ int biomeval_nbis_quantize(
    int i;                 /* temp counter */
    int j;                 /* interation index */
    float *fptr;           /* temp image pointer */
-   short *sip, *sptr;     /* pointers to biomeval_nbis_quantized image */
+   short *sip, *sptr;     /* pointers to quantized image */
    int row, col;          /* temp image characteristic parameters */
    int cnt;               /* subband counter */
    float zbin;            /* zero bin size */
@@ -364,8 +364,8 @@ int biomeval_nbis_quantize(
    float m[NUM_SUBBANDS]; /* subband size to image size ratios */
                           /* (reciprocal of FBI spec for 'm')  */
    float m1, m2, m3;      /* reciprocal constants for 'm' */
-   float sigma[NUM_SUBBANDS]; /* square root of subband biomeval_nbis_variances */
-   int K0[NUM_SUBBANDS];  /* initial list of subbands w/biomeval_nbis_variance >= thresh */
+   float sigma[NUM_SUBBANDS]; /* square root of subband variances */
+   int K0[NUM_SUBBANDS];  /* initial list of subbands w/variance >= thresh */
    int K1[NUM_SUBBANDS];  /* working list of subbands */
    int *K, *nK;           /* pointers to sets of subbands */
    int NP[NUM_SUBBANDS];  /* current subbounds with nonpositive bit rates. */
@@ -389,22 +389,22 @@ int biomeval_nbis_quantize(
    A[cnt++ /*59*/] = 1.08;
 
    for(cnt = 0; cnt < MAX_SUBBANDS; cnt++) {
-      biomeval_nbis_quant_vals->qbss[cnt] = 0.0;
-      biomeval_nbis_quant_vals->qzbs[cnt] = 0.0;
+      quant_vals->qbss[cnt] = 0.0;
+      quant_vals->qzbs[cnt] = 0.0;
    }
 
    /* Set up 'Q1' (prime) table. */
    for(cnt = 0; cnt < NUM_SUBBANDS; cnt++) {
-      if(biomeval_nbis_quant_vals->var[cnt] < VARIANCE_THRESH)
-         biomeval_nbis_quant_vals->qbss[cnt] = 0.0;
+      if(quant_vals->var[cnt] < VARIANCE_THRESH)
+         quant_vals->qbss[cnt] = 0.0;
       else
          /* NOTE: q has been taken out of the denominator in the next */
          /*       2 formulas from the original code. */
          if(cnt < STRT_SIZE_REGION_2 /*4*/)
-            biomeval_nbis_quant_vals->qbss[cnt] = 1.0;
+            quant_vals->qbss[cnt] = 1.0;
          else
-            biomeval_nbis_quant_vals->qbss[cnt] = 10.0 / (A[cnt] *
-                                    (float)log(biomeval_nbis_quant_vals->var[cnt]));
+            quant_vals->qbss[cnt] = 10.0 / (A[cnt] *
+                                    (float)log(quant_vals->var[cnt]));
    }
 
 
@@ -431,11 +431,11 @@ int biomeval_nbis_quantize(
    /* Initialize 'K0' and 'K1' lists. */
    K0len = 0;
    for(cnt = 0; cnt < NUM_SUBBANDS; cnt++){
-      if(biomeval_nbis_quant_vals->var[cnt] >= VARIANCE_THRESH){
+      if(quant_vals->var[cnt] >= VARIANCE_THRESH){
          K0[K0len] = cnt;
          K1[K0len++] = cnt;
-         /* Compute square root of subband biomeval_nbis_variance. */
-         sigma[cnt] = sqrt(biomeval_nbis_quant_vals->var[cnt]);
+         /* Compute square root of subband variance. */
+         sigma[cnt] = sqrt(quant_vals->var[cnt]);
       }
    }
    K = K1;
@@ -453,17 +453,17 @@ int biomeval_nbis_quantize(
       P = 1.0;
       for(i = 0; i < Klen; i++){
          /* Remeber 'm' is the reciprocal of spec. */
-         P *= pow((sigma[K[i]] / biomeval_nbis_quant_vals->qbss[K[i]]), m[K[i]]);
+         P *= pow((sigma[K[i]] / quant_vals->qbss[K[i]]), m[K[i]]);
       }
 
       /* Compute new 'q' */
-      q = (pow(2,((biomeval_nbis_quant_vals->r/S)-1.0))/2.5) / pow(P, (1.0/S));
+      q = (pow(2,((quant_vals->r/S)-1.0))/2.5) / pow(P, (1.0/S));
 
       /* Flag subbands with non-positive bitrate. */
       memset(NP, 0, NUM_SUBBANDS * sizeof(int));
       NPlen = 0;
       for(i = 0; i < Klen; i++){
-         if((biomeval_nbis_quant_vals->qbss[K[i]] / q) >= (5.0*sigma[K[i]])){
+         if((quant_vals->qbss[K[i]] / q) >= (5.0*sigma[K[i]])){
             NP[K[i]] = TRUE;
             NPlen++;
          }
@@ -500,37 +500,37 @@ int biomeval_nbis_quantize(
    /* Set 'Q' values. */
    for(cnt = 0; cnt < NUM_SUBBANDS; cnt++) {
       if(nK[cnt])
-         biomeval_nbis_quant_vals->qbss[cnt] /= q;
+         quant_vals->qbss[cnt] /= q;
       else
-         biomeval_nbis_quant_vals->qbss[cnt] = 0.0;
-      biomeval_nbis_quant_vals->qzbs[cnt] = 1.2 * biomeval_nbis_quant_vals->qbss[cnt];
+         quant_vals->qbss[cnt] = 0.0;
+      quant_vals->qzbs[cnt] = 1.2 * quant_vals->qbss[cnt];
    }
 
    /* Now ready to compute and store bin widths for subbands. */
    for(cnt = 0; cnt < NUM_SUBBANDS; cnt++) {
-      fptr = fip + (biomeval_nbis_q_tree[cnt].y * width) + biomeval_nbis_q_tree[cnt].x;
+      fptr = fip + (q_tree[cnt].y * width) + q_tree[cnt].x;
 
-      if(biomeval_nbis_quant_vals->qbss[cnt] != 0.0) {
+      if(quant_vals->qbss[cnt] != 0.0) {
 
-         zbin = biomeval_nbis_quant_vals->qzbs[cnt] / 2.0;
+         zbin = quant_vals->qzbs[cnt] / 2.0;
 
          for(row = 0;
-            row < biomeval_nbis_q_tree[cnt].leny;
-            row++, fptr += width - biomeval_nbis_q_tree[cnt].lenx){
-            for(col = 0; col < biomeval_nbis_q_tree[cnt].lenx; col++) {
+            row < q_tree[cnt].leny;
+            row++, fptr += width - q_tree[cnt].lenx){
+            for(col = 0; col < q_tree[cnt].lenx; col++) {
                if(-zbin <= *fptr && *fptr <= zbin)
                   *sptr = 0;
                else if(*fptr > 0.0)
-                  *sptr = (short)(((*fptr-zbin)/biomeval_nbis_quant_vals->qbss[cnt]) + 1.0);
+                  *sptr = (short)(((*fptr-zbin)/quant_vals->qbss[cnt]) + 1.0);
                else
-                  *sptr = (short)(((*fptr+zbin)/biomeval_nbis_quant_vals->qbss[cnt]) - 1.0);
+                  *sptr = (short)(((*fptr+zbin)/quant_vals->qbss[cnt]) - 1.0);
                sptr++;
                fptr++;
             }
          }
       }
       else if(debug > 0)
-         fprintf(stderr, "%d -> %3.6f\n", cnt, biomeval_nbis_quant_vals->qbss[cnt]);
+         fprintf(stderr, "%d -> %3.6f\n", cnt, quant_vals->qbss[cnt]);
    }
 
    *osip = sip;
@@ -539,35 +539,35 @@ int biomeval_nbis_quantize(
 }
 
 /************************************************************************/
-/* Compute biomeval_nbis_quantized WSQ subband block sizes.                           */
+/* Compute quantized WSQ subband block sizes.                           */
 /************************************************************************/
 void biomeval_nbis_quant_block_sizes(int *oqsize1, int *oqsize2, int *oqsize3,
-                 QUANT_VALS *biomeval_nbis_quant_vals,
-                 W_TREE biomeval_nbis_w_tree[], const int biomeval_nbis_w_treelen,
-                 Q_TREE biomeval_nbis_q_tree[], const int biomeval_nbis_q_treelen)
+                 QUANT_VALS *quant_vals,
+                 W_TREE w_tree[], const int w_treelen,
+                 Q_TREE q_tree[], const int q_treelen)
 {
    int qsize1, qsize2, qsize3;
    int node;
 
    /* Compute temporary sizes of 3 WSQ subband blocks. */
-   qsize1 = biomeval_nbis_w_tree[14].lenx * biomeval_nbis_w_tree[14].leny;
-   qsize2 = (biomeval_nbis_w_tree[5].leny * biomeval_nbis_w_tree[1].lenx) +
-            (biomeval_nbis_w_tree[4].lenx * biomeval_nbis_w_tree[4].leny);
-   qsize3 = (biomeval_nbis_w_tree[2].lenx * biomeval_nbis_w_tree[2].leny) +
-            (biomeval_nbis_w_tree[3].lenx * biomeval_nbis_w_tree[3].leny);
+   qsize1 = w_tree[14].lenx * w_tree[14].leny;
+   qsize2 = (w_tree[5].leny * w_tree[1].lenx) +
+            (w_tree[4].lenx * w_tree[4].leny);
+   qsize3 = (w_tree[2].lenx * w_tree[2].leny) +
+            (w_tree[3].lenx * w_tree[3].leny);
 
-   /* Adjust size of biomeval_nbis_quantized WSQ subband blocks. */
+   /* Adjust size of quantized WSQ subband blocks. */
    for (node = 0; node < STRT_SUBBAND_2; node++)
-      if(biomeval_nbis_quant_vals->qbss[node] == 0.0)
-         qsize1 -= (biomeval_nbis_q_tree[node].lenx * biomeval_nbis_q_tree[node].leny);
+      if(quant_vals->qbss[node] == 0.0)
+         qsize1 -= (q_tree[node].lenx * q_tree[node].leny);
 
    for (node = STRT_SUBBAND_2; node < STRT_SUBBAND_3; node++)
-      if(biomeval_nbis_quant_vals->qbss[node] == 0.0)
-          qsize2 -= (biomeval_nbis_q_tree[node].lenx * biomeval_nbis_q_tree[node].leny);
+      if(quant_vals->qbss[node] == 0.0)
+          qsize2 -= (q_tree[node].lenx * q_tree[node].leny);
 
    for (node = STRT_SUBBAND_3; node < STRT_SUBBAND_DEL; node++)
-      if(biomeval_nbis_quant_vals->qbss[node] == 0.0)
-         qsize3 -= (biomeval_nbis_q_tree[node].lenx * biomeval_nbis_q_tree[node].leny);
+      if(quant_vals->qbss[node] == 0.0)
+         qsize3 -= (q_tree[node].lenx * q_tree[node].leny);
 
    *oqsize1 = qsize1;
    *oqsize2 = qsize2;
@@ -575,56 +575,56 @@ void biomeval_nbis_quant_block_sizes(int *oqsize1, int *oqsize2, int *oqsize3,
 }
 
 /*************************************/
-/* Routine to unbiomeval_nbis_quantize image data. */
+/* Routine to unquantize image data. */
 /*************************************/
-int unbiomeval_nbis_quantize(
+int biomeval_nbis_unquantize(
    float **ofip,         /* floating point image pointer         */
-   const DQT_TABLE *biomeval_nbis_dqt_table, /* quantization table structure   */
-   Q_TREE biomeval_nbis_q_tree[],      /* quantization table structure         */
-   const int biomeval_nbis_q_treelen,  /* size of biomeval_nbis_q_tree                       */
-   short *sip,           /* biomeval_nbis_quantized image pointer              */
+   const DQT_TABLE *dqt_table, /* quantization table structure   */
+   Q_TREE q_tree[],      /* quantization table structure         */
+   const int q_treelen,  /* size of q_tree                       */
+   short *sip,           /* quantized image pointer              */
    const int width,      /* image width                          */
    const int height)     /* image height                         */
 {
    float *fip;    /* floating point image */
    int row, col;  /* cover counter and row/column counters */
-   float C;       /* biomeval_nbis_quantizer bin center */
+   float C;       /* quantizer bin center */
    float *fptr;   /* image pointers */
    short *sptr;
    int cnt;       /* subband counter */
 
    if((fip = (float *) calloc(width*height, sizeof(float))) == NULL) {
-      fprintf(stderr,"ERROR : unbiomeval_nbis_quantize : calloc : fip\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_unquantize : calloc : fip\n");
       return(-91);
    }
-   if(biomeval_nbis_dqt_table->dqt_def != 1) {
+   if(dqt_table->dqt_def != 1) {
       fprintf(stderr,
-      "ERROR: unbiomeval_nbis_quantize : quantization table parameters not defined!\n");
+      "ERROR: biomeval_nbis_unquantize : quantization table parameters not defined!\n");
       return(-92);
    }
 
    sptr = sip;
-   C = biomeval_nbis_dqt_table->bin_center;
+   C = dqt_table->bin_center;
    for(cnt = 0; cnt < NUM_SUBBANDS; cnt++) {
-      if(biomeval_nbis_dqt_table->q_bin[cnt] == 0.0)
+      if(dqt_table->q_bin[cnt] == 0.0)
          continue;
-      fptr = fip + (biomeval_nbis_q_tree[cnt].y * width) + biomeval_nbis_q_tree[cnt].x;
+      fptr = fip + (q_tree[cnt].y * width) + q_tree[cnt].x;
 
       for(row = 0;
-          row < biomeval_nbis_q_tree[cnt].leny;
-          row++, fptr += width - biomeval_nbis_q_tree[cnt].lenx){
-         for(col = 0; col < biomeval_nbis_q_tree[cnt].lenx; col++) {
+          row < q_tree[cnt].leny;
+          row++, fptr += width - q_tree[cnt].lenx){
+         for(col = 0; col < q_tree[cnt].lenx; col++) {
             if(*sptr == 0)
                *fptr = 0.0;
             else if(*sptr > 0)
-               *fptr = (biomeval_nbis_dqt_table->q_bin[cnt] * ((float)*sptr - C))
-                    + (biomeval_nbis_dqt_table->z_bin[cnt] / 2.0);
+               *fptr = (dqt_table->q_bin[cnt] * ((float)*sptr - C))
+                    + (dqt_table->z_bin[cnt] / 2.0);
             else if(*sptr < 0)
-               *fptr = (biomeval_nbis_dqt_table->q_bin[cnt] * ((float)*sptr + C))
-                    - (biomeval_nbis_dqt_table->z_bin[cnt] / 2.0);
+               *fptr = (dqt_table->q_bin[cnt] * ((float)*sptr + C))
+                    - (dqt_table->z_bin[cnt] / 2.0);
             else {
                fprintf(stderr,
-               "ERROR : unbiomeval_nbis_quantize : invalid quantization pixel value\n");
+               "ERROR : biomeval_nbis_unquantize : invalid quantization pixel value\n");
                return(-93);
             }
             fptr++;
@@ -642,9 +642,9 @@ int unbiomeval_nbis_quantize(
 /* the results in "fdata".                                              */
 /************************************************************************/
 int biomeval_nbis_wsq_decompose(float *fdata, const int width, const int height,
-                  W_TREE biomeval_nbis_w_tree[], const int biomeval_nbis_w_treelen,
-                  float *biomeval_nbis_hifilt, const int hisz,
-                  float *biomeval_nbis_lofilt, const int losz)
+                  W_TREE w_tree[], const int w_treelen,
+                  float *hifilt, const int hisz,
+                  float *lofilt, const int losz)
 {
    int num_pix, node;
    float *fdata1, *fdata_bse;
@@ -657,12 +657,12 @@ int biomeval_nbis_wsq_decompose(float *fdata, const int width, const int height,
    }
 
    /* Compute the Wavelet image decomposition. */
-   for(node = 0; node < biomeval_nbis_w_treelen; node++) {
-      fdata_bse = fdata + (biomeval_nbis_w_tree[node].y * width) + biomeval_nbis_w_tree[node].x;
-      biomeval_nbis_get_lets(fdata1, fdata_bse, biomeval_nbis_w_tree[node].leny, biomeval_nbis_w_tree[node].lenx,
-               width, 1, biomeval_nbis_hifilt, hisz, biomeval_nbis_lofilt, losz, biomeval_nbis_w_tree[node].inv_rw);
-      biomeval_nbis_get_lets(fdata_bse, fdata1, biomeval_nbis_w_tree[node].lenx, biomeval_nbis_w_tree[node].leny,
-               1, width, biomeval_nbis_hifilt, hisz, biomeval_nbis_lofilt, losz, biomeval_nbis_w_tree[node].inv_cl);
+   for(node = 0; node < w_treelen; node++) {
+      fdata_bse = fdata + (w_tree[node].y * width) + w_tree[node].x;
+      biomeval_nbis_get_lets(fdata1, fdata_bse, w_tree[node].leny, w_tree[node].lenx,
+               width, 1, hifilt, hisz, lofilt, losz, w_tree[node].inv_rw);
+      biomeval_nbis_get_lets(fdata_bse, fdata1, w_tree[node].lenx, w_tree[node].leny,
+               1, width, hifilt, hisz, lofilt, losz, w_tree[node].inv_cl);
    }
    free(fdata1);
 
@@ -887,18 +887,18 @@ void biomeval_nbis_get_lets(
 /* the results in "fdata".                                              */
 /************************************************************************/
 int biomeval_nbis_wsq_reconstruct(float *fdata, const int width, const int height,
-                  W_TREE biomeval_nbis_w_tree[], const int biomeval_nbis_w_treelen,
-                  const DTT_TABLE *biomeval_nbis_dtt_table)
+                  W_TREE w_tree[], const int w_treelen,
+                  const DTT_TABLE *dtt_table)
 {
    int num_pix, node;
    float *fdata1, *fdata_bse;
 
-   if(biomeval_nbis_dtt_table->lodef != 1) {
+   if(dtt_table->lodef != 1) {
       fprintf(stderr,
       "ERROR: biomeval_nbis_wsq_reconstruct : Lopass filter coefficients not defined\n");
       return(-95);
    }
-   if(biomeval_nbis_dtt_table->hidef != 1) {
+   if(dtt_table->hidef != 1) {
       fprintf(stderr,
       "ERROR: biomeval_nbis_wsq_reconstruct : Hipass filter coefficients not defined\n");
       return(-96);
@@ -912,18 +912,18 @@ int biomeval_nbis_wsq_reconstruct(float *fdata, const int width, const int heigh
    }
 
    /* Reconstruct floating point pixmap from wavelet subband data. */
-   for (node = biomeval_nbis_w_treelen - 1; node >= 0; node--) {
-      fdata_bse = fdata + (biomeval_nbis_w_tree[node].y * width) + biomeval_nbis_w_tree[node].x;
-      biomeval_nbis_join_lets(fdata1, fdata_bse, biomeval_nbis_w_tree[node].lenx, biomeval_nbis_w_tree[node].leny,
+   for (node = w_treelen - 1; node >= 0; node--) {
+      fdata_bse = fdata + (w_tree[node].y * width) + w_tree[node].x;
+      biomeval_nbis_join_lets(fdata1, fdata_bse, w_tree[node].lenx, w_tree[node].leny,
                   1, width,
-                  biomeval_nbis_dtt_table->biomeval_nbis_hifilt, biomeval_nbis_dtt_table->hisz,
-                  biomeval_nbis_dtt_table->biomeval_nbis_lofilt, biomeval_nbis_dtt_table->losz,
-                  biomeval_nbis_w_tree[node].inv_cl);
-      biomeval_nbis_join_lets(fdata_bse, fdata1, biomeval_nbis_w_tree[node].leny, biomeval_nbis_w_tree[node].lenx,
+                  dtt_table->hifilt, dtt_table->hisz,
+                  dtt_table->lofilt, dtt_table->losz,
+                  w_tree[node].inv_cl);
+      biomeval_nbis_join_lets(fdata_bse, fdata1, w_tree[node].leny, w_tree[node].lenx,
                   width, 1,
-                  biomeval_nbis_dtt_table->biomeval_nbis_hifilt, biomeval_nbis_dtt_table->hisz,
-                  biomeval_nbis_dtt_table->biomeval_nbis_lofilt, biomeval_nbis_dtt_table->losz,
-                  biomeval_nbis_w_tree[node].inv_rw);
+                  dtt_table->hifilt, dtt_table->hisz,
+                  dtt_table->lofilt, dtt_table->losz,
+                  w_tree[node].inv_rw);
    }
    free(fdata1);
 
@@ -1340,8 +1340,8 @@ void biomeval_nbis_init_wsq_decoder_resources()
    /*    biomeval_nbis_read_transform_table()                  */
    /*    biomeval_nbis_getc_transform_table()                  */
    /*    free_wsq_resources()                    */
-   biomeval_nbis_dtt_table.biomeval_nbis_lofilt = (float *)NULL;
-   biomeval_nbis_dtt_table.biomeval_nbis_hifilt = (float *)NULL;
+   biomeval_nbis_dtt_table.lofilt = (float *)NULL;
+   biomeval_nbis_dtt_table.hifilt = (float *)NULL;
 }
 
 /*************************************************************/
@@ -1350,14 +1350,14 @@ void biomeval_nbis_init_wsq_decoder_resources()
 /*************************************************************/
 void biomeval_nbis_free_wsq_decoder_resources()
 {
-   if(biomeval_nbis_dtt_table.biomeval_nbis_lofilt != (float *)NULL){
-      free(biomeval_nbis_dtt_table.biomeval_nbis_lofilt);
-      biomeval_nbis_dtt_table.biomeval_nbis_lofilt = (float *)NULL;
+   if(biomeval_nbis_dtt_table.lofilt != (float *)NULL){
+      free(biomeval_nbis_dtt_table.lofilt);
+      biomeval_nbis_dtt_table.lofilt = (float *)NULL;
    }
 
-   if(biomeval_nbis_dtt_table.biomeval_nbis_hifilt != (float *)NULL){
-      free(biomeval_nbis_dtt_table.biomeval_nbis_hifilt);
-      biomeval_nbis_dtt_table.biomeval_nbis_hifilt = (float *)NULL;
+   if(biomeval_nbis_dtt_table.hifilt != (float *)NULL){
+      free(biomeval_nbis_dtt_table.hifilt);
+      biomeval_nbis_dtt_table.hifilt = (float *)NULL;
    }
 }
 

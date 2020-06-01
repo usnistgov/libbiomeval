@@ -154,7 +154,7 @@ typedef struct image {
    int samp_width[MAX_CMPNTS];
    int samp_height[MAX_CMPNTS];
    unsigned char point_trans[MAX_CMPNTS];
-   unsigned char biomeval_nbis_predict[MAX_CMPNTS];
+   unsigned char predict[MAX_CMPNTS];
    unsigned char *image[MAX_CMPNTS];
    short *diff[MAX_CMPNTS]; /* was short ** */
 } IMG_DAT;
@@ -198,7 +198,7 @@ extern int debug;
 /* encoder.c */
 extern int biomeval_nbis_jpegl_encode_mem(unsigned char **, int *, IMG_DAT *, char *);
 extern int biomeval_nbis_gen_diff_freqs(IMG_DAT *, HUF_TABLE **);
-extern int compress_image_intrlv(IMG_DAT *, HUF_TABLE **,
+extern int biomeval_nbis_compress_image_intrlv(IMG_DAT *, HUF_TABLE **,
                     unsigned char *, const int, int *);
 extern int biomeval_nbis_compress_image_non_intrlv(IMG_DAT *, HUF_TABLE **,
                     unsigned char *, const int, int *);

@@ -54,7 +54,7 @@ of the software.
       (lossless) image compression.
 
       ROUTINES:
-#cat: biomeval_nbis_predict - Used to biomeval_nbis_predict the pixel values in an image.
+#cat: biomeval_nbis_predict - Used to predict the pixel values in an image.
 #cat:
 #cat: biomeval_nbis_categorize - Determines the category for a given difference value.
 #cat:
@@ -65,36 +65,36 @@ of the software.
 #include <jpegl.h>
 
 /**************************************************************/
-/*This routine is used to biomeval_nbis_predict the pixel values in an image*/
+/*This routine is used to predict the pixel values in an image*/
 /**************************************************************/
 int biomeval_nbis_predict(short *odata_pred, unsigned char *indata, const int width,
             const int pixel_num, const int cmpnt_depth, const int pred_type,
             const int Pt)
 {
-   short data_pred = 0;                  /*pixel biomeval_nbis_prediction*/
+   short data_pred = 0;                  /*pixel prediction*/
 
-   if(pixel_num == 0) {                 /*determine biomeval_nbis_predictor for first pixel*/
+   if(pixel_num == 0) {                 /*determine predictor for first pixel*/
       data_pred = (1 << (cmpnt_depth-Pt-1));
       *odata_pred = data_pred;
       return(0);
    }
 
    if(pixel_num > 0 && pixel_num < width) {
-      data_pred = *(indata - 1);        /*determine biomeval_nbis_predictor for first
+      data_pred = *(indata - 1);        /*determine predictor for first
                                           line in the non-interleaved
                                           component*/
       *odata_pred = data_pred;
       return(0);
    }
-                                        /*determine biomeval_nbis_predictor for the
+                                        /*determine predictor for the
                                           rest of the pixels in the 
                                           component*/
    if(pixel_num > (width - 1))  {
-      if((pixel_num % width) == 0)      /*biomeval_nbis_predictor if pixel is at the
+      if((pixel_num % width) == 0)      /*predictor if pixel is at the
                                           beginning of a line*/
 	 data_pred = *(indata - width);
       else{ 
-         switch(pred_type) {            /*various biomeval_nbis_predictor types defined
+         switch(pred_type) {            /*various predictor types defined
                                           in the standard*/
             case PRED1:
                data_pred = *(indata - 1);
@@ -124,7 +124,7 @@ int biomeval_nbis_predict(short *odata_pred, unsigned char *indata, const int wi
                data_pred = (*(indata -1) + *(indata - width)) / 2;
                break;
             default:
-               fprintf(stderr, "ERORR : biomeval_nbis_predict : invalid biomeval_nbis_prediction type ");
+               fprintf(stderr, "ERORR : biomeval_nbis_predict : invalid prediction type ");
                fprintf(stderr, "%d not in range [%d..%d]\n",
                                 pred_type, PRED1, PRED7);
                return(-2);

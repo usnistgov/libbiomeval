@@ -39,7 +39,7 @@ fingerprint-recompression-after-segmentation
       datastream to a smaller WSQ codestream via CropCoeff method.
 
       ROUTINES:
-#cat: quant_block_size2 - Near duplicate of function already in NBIS 
+#cat: biomeval_nbis_quant_block_size2 - Near duplicate of function already in NBIS 
 #cat:                library, but passing a precomputed DQT_TABLE 
 #cat:                pointer rather than QUANT_VALS.
 #cat:                I.e. no rate control is performed in this version.
@@ -82,18 +82,18 @@ Q_TREE biomeval_nbis_q_tree3[Q_TREELEN];
 /************************************************************************/
 void biomeval_nbis_quant_block_sizes2(int *oqsize1, int *oqsize2, int *oqsize3,
    const DQT_TABLE *biomeval_nbis_dqt_table, /* quantization table structure   */
-                 W_TREE *biomeval_nbis_w_tree, const int biomeval_nbis_w_treelen,
+                 W_TREE *w_tree, const int w_treelen,
                  Q_TREE *biomeval_nbis_q_tree, const int biomeval_nbis_q_treelen)
 {
    int qsize1, qsize2, qsize3;
    int node;
 
    /* Compute temporary sizes of 3 WSQ subband blocks. */
-   qsize1 = biomeval_nbis_w_tree[14].lenx * biomeval_nbis_w_tree[14].leny;
-   qsize2 = (biomeval_nbis_w_tree[5].leny * biomeval_nbis_w_tree[1].lenx) +
-            (biomeval_nbis_w_tree[4].lenx * biomeval_nbis_w_tree[4].leny);
-   qsize3 = (biomeval_nbis_w_tree[2].lenx * biomeval_nbis_w_tree[2].leny) +
-            (biomeval_nbis_w_tree[3].lenx * biomeval_nbis_w_tree[3].leny);
+   qsize1 = w_tree[14].lenx * w_tree[14].leny;
+   qsize2 = (w_tree[5].leny * w_tree[1].lenx) +
+            (w_tree[4].lenx * w_tree[4].leny);
+   qsize3 = (w_tree[2].lenx * w_tree[2].leny) +
+            (w_tree[3].lenx * w_tree[3].leny);
 
    /* Adjust size of biomeval_nbis_quantized WSQ subband blocks. */
    for (node = 0; node < STRT_SUBBAND_2; node++)
@@ -125,9 +125,9 @@ void biomeval_nbis_quant_block_sizes2(int *oqsize1, int *oqsize2, int *oqsize3,
 /*****************************************************************/
 int biomeval_nbis_wsq_crop_qdata(
    const DQT_TABLE *biomeval_nbis_dqt_table, /* quantization table structure   */
-   Q_TREE biomeval_nbis_q_tree[], 
-   Q_TREE biomeval_nbis_q_tree2[],
-   Q_TREE biomeval_nbis_q_tree3[],
+   Q_TREE q_tree[], 
+   Q_TREE q_tree2[],
+   Q_TREE q_tree3[],
    short *sip,           /* Original biomeval_nbis_quantized data pointer      */
    int ulx,              /* UL corner col */
    int uly,              /* UL corner row */
@@ -146,20 +146,20 @@ int biomeval_nbis_wsq_crop_qdata(
      fprintf(stderr, "SERIOUS WARNING : biomeval_nbis_wsq_crop_qdata will produce awful results. \n\tUL (%d,%d) is not a multiple of 32\n", ulx,uly);
 
    /* Figure out which subband coefficients to keep.     */
-   /* biomeval_nbis_q_tree3 dims are the UL corner of each new subband */
-   /* biomeval_nbis_q_tree2 dims are the dims of the new subbands      */
+   /* q_tree3 dims are the UL corner of each new subband */
+   /* q_tree2 dims are the dims of the new subbands      */
    /* Build with the cropped width/height MUST be the last tree build prior
-      to using biomeval_nbis_w_tree and biomeval_nbis_q_tree2 for encoding the cropped data. Once this
+      to using biomeval_nbis_w_tree and q_tree2 for encoding the cropped data. Once this
       occurs, biomeval_nbis_w_tree can no longer be used to access the original uncropped
-      data.  Note that biomeval_nbis_q_tree is not touched, so it can still be used to 
+      data.  Note that q_tree is not touched, so it can still be used to 
       access the uncropped coefficient data. 
    */
-   biomeval_nbis_build_wsbiomeval_nbis_q_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree3, Q_TREELEN, ulx, uly);
-   biomeval_nbis_build_wsbiomeval_nbis_q_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree2, Q_TREELEN, width, height);
+   biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, q_tree3, Q_TREELEN, ulx, uly);
+   biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, q_tree2, Q_TREELEN, width, height);
 
    if(biomeval_nbis_dqt_table->dqt_def != 1) {
       fprintf(stderr,
-      "ERROR: unbiomeval_nbis_quantize : quantization table parameters not defined!\n");
+      "ERROR: biomeval_nbis_unquantize : quantization table parameters not defined!\n");
       return(-92);
    }
 
@@ -169,17 +169,17 @@ int biomeval_nbis_wsq_crop_qdata(
       if(biomeval_nbis_dqt_table->q_bin[cnt] == 0.0)
          continue;
       /* Length of each new subband row in bytes */
-      numbytes = biomeval_nbis_q_tree2[cnt].lenx*sizeof(short);
+      numbytes = q_tree2[cnt].lenx*sizeof(short);
       /* Start subband offset to first item to be copied */
-      sptr = bptr + biomeval_nbis_q_tree3[cnt].leny*biomeval_nbis_q_tree[cnt].lenx + biomeval_nbis_q_tree3[cnt].lenx;
+      sptr = bptr + q_tree3[cnt].leny*q_tree[cnt].lenx + q_tree3[cnt].lenx;
       /* Copy from each row as one chunk */
-      for(row = 0; row < biomeval_nbis_q_tree2[cnt].leny; row++){
+      for(row = 0; row < q_tree2[cnt].leny; row++){
 	  memcpy(cptr,sptr,numbytes);
-	  cptr += biomeval_nbis_q_tree2[cnt].lenx;
-	  sptr += biomeval_nbis_q_tree[cnt].lenx;
+	  cptr += q_tree2[cnt].lenx;
+	  sptr += q_tree[cnt].lenx;
       }
       /* Move subband pointer to next subband */
-      bptr += biomeval_nbis_q_tree[cnt].lenx * biomeval_nbis_q_tree[cnt].leny;
+      bptr += q_tree[cnt].lenx * q_tree[cnt].leny;
    }
    return(0);
 }
@@ -653,7 +653,7 @@ int biomeval_nbis_wsq_dehuff_mem(
       fprintf(stderr, "SOI, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
-   biomeval_nbis_build_wsbiomeval_nbis_q_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, width, height);
+   biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, width, height);
 
    if(debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
@@ -716,7 +716,7 @@ int biomeval_nbis_wsq_dehuff_mem(
    }
 
    /* Decode the Huffman encoded data blocks. */
-   if((ret = huffman_decode_data_mem(qdata, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table, biomeval_nbis_dht_table,
+   if((ret = biomeval_nbis_huffman_decode_data_mem(qdata, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table, biomeval_nbis_dht_table,
 				     &cbufptr, ebufptr))){
       free(qdata);
       biomeval_nbis_free_wsq_decoder_resources();

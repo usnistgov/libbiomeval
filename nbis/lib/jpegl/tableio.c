@@ -995,7 +995,7 @@ int biomeval_nbis_setup_scan_header(SCN_HEADER **oscn_header, IMG_DAT *img_dat,
       scn_header->Cs[0] = cmpnt_i;
       scn_header->Tda[0] = cmpnt_i<<4;
       scn_header->Ahl = img_dat->point_trans[cmpnt_i];
-      scn_header->Ss = img_dat->biomeval_nbis_predict[cmpnt_i];
+      scn_header->Ss = img_dat->predict[cmpnt_i];
       scn_header->Se = 0;
    }
    /* When intrlv, one scan header is setup and written out for */
@@ -1009,9 +1009,9 @@ int biomeval_nbis_setup_scan_header(SCN_HEADER **oscn_header, IMG_DAT *img_dat,
       /* One point transform applies to all interleaved components, */
       /* so choose 1st one. */
       scn_header->Ahl = img_dat->point_trans[0];
-      /* One biomeval_nbis_predictor applies to all interleaved components, */
+      /* One predictor applies to all interleaved components, */
       /* so choose 1st one. */
-      scn_header->Ss = img_dat->biomeval_nbis_predict[0];
+      scn_header->Ss = img_dat->predict[0];
       scn_header->Se = 0;
    }
 
@@ -1642,7 +1642,7 @@ int biomeval_nbis_putc_nistcom_jpegl(char *comment_text, const int w, const int 
                        const int d, const int ppi, const int lossyflag,
                        const int n_cmpnts,
                        int *hor_sampfctr, int *vrt_sampfctr,
-                       const int biomeval_nbis_predict,
+                       const int predict,
                        unsigned char *odata, const int oalloc, int *olen)
 {
    int ret, gencomflag;
@@ -1669,7 +1669,7 @@ int biomeval_nbis_putc_nistcom_jpegl(char *comment_text, const int w, const int 
    /* Combine image attributes to NISTCOM. */
    if((ret = biomeval_nbis_combine_jpegl_nistcom(&nistcom, w, h, d, ppi, lossyflag,
                                   n_cmpnts, hor_sampfctr, vrt_sampfctr,
-                                  0 /* nonintrlv */, biomeval_nbis_predict))){
+                                  0 /* nonintrlv */, predict))){
       if(nistcom != (NISTCOM *)NULL)
          biomeval_nbis_freefet(nistcom);
       return(ret);

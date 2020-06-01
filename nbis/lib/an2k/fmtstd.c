@@ -1081,7 +1081,7 @@ static int biomeval_nbis_i_read_ANSI_NIST_image_field(FILE *fpin, AN2KBDB *buf,
    FIELD *field;
    SUBFIELD *subfield;
    ITEM *image_item;
-   int biomeval_nbis_image_size;
+   int image_size;
    int delimiter;
    char *errmsg;
 
@@ -1096,15 +1096,15 @@ static int biomeval_nbis_i_read_ANSI_NIST_image_field(FILE *fpin, AN2KBDB *buf,
    }
 
    /* Set image data size to record_bytes - field ID bytes - trailing FS */
-   biomeval_nbis_image_size = record_bytes - strlen(field_id) - 1;
+   image_size = record_bytes - strlen(field_id) - 1;
 
    /* Added by jck on 2009-01-22 to fix trouble when the Type-1 record
       is not terminated with FS, before the error was caught sooner. */
-   if (biomeval_nbis_image_size < 0) {
+   if (image_size < 0) {
       fprintf(stderr, "ERROR : biomeval_nbis_read_ANSI_NIST_image_field : "
 	      "too few bytes %d remaining in Type-%d record, "
 	      "image size %d, at %ld\n",
-	      record_bytes, record_type, biomeval_nbis_image_size, biomeval_nbis_fbtell(fpin, buf));
+	      record_bytes, record_type, image_size, biomeval_nbis_fbtell(fpin, buf));
       return(-21);
    }
 
@@ -1112,37 +1112,37 @@ static int biomeval_nbis_i_read_ANSI_NIST_image_field(FILE *fpin, AN2KBDB *buf,
    if((ret = biomeval_nbis_alloc_ANSI_NIST_item(&image_item)) != 0){
       return(ret);
    }
-   if(image_item->alloc_chars < biomeval_nbis_image_size){
+   if(image_item->alloc_chars < image_size){
       unsigned char * new_ptr =
-	 (unsigned char *)realloc(image_item->value, (size_t)biomeval_nbis_image_size);
+	 (unsigned char *)realloc(image_item->value, (size_t)image_size);
 
       if(new_ptr == NULL){
          fprintf(stderr, "ERROR : biomeval_nbis_read_ANSI_NIST_image_field : "
 		 "realloc : image_item->value (increase %d bytes to %d), "
 		 "in Type-%d record, at %ld\n",
-		 image_item->alloc_chars, biomeval_nbis_image_size, record_type,
+		 image_item->alloc_chars, image_size, record_type,
 		  biomeval_nbis_fbtell(fpin, buf));
          biomeval_nbis_free_ANSI_NIST_item(image_item);
          return(-3);
       }
       image_item->value = new_ptr;
-      image_item->alloc_chars = biomeval_nbis_image_size;
+      image_item->alloc_chars = image_size;
    }
 
    /* Read image item from file. */
-   nread = biomeval_nbis_fbread(image_item->value, 1, (size_t)biomeval_nbis_image_size, fpin, buf);
-   if (nread != biomeval_nbis_image_size){
+   nread = biomeval_nbis_fbread(image_item->value, 1, (size_t)image_size, fpin, buf);
+   if (nread != image_size){
       errmsg = SHORT_SCAN_READ_ERR_MSG(fpin, buf);
       fprintf(stderr, "ERROR : biomeval_nbis_read_ANSI_NIST_image_field : "
 	      "read image_item->value: only %d bytes read of %d, "
 	      "in Type-%d record: %s, at %ld\n",
-	      nread, biomeval_nbis_image_size, record_type,
+	      nread, image_size, record_type,
 	      errmsg, biomeval_nbis_fbtell(fpin, buf));
       biomeval_nbis_free_ANSI_NIST_item(image_item);
       return(-4);
    }
-   image_item->num_bytes = biomeval_nbis_image_size;
-   image_item->num_chars = biomeval_nbis_image_size;
+   image_item->num_bytes = image_size;
+   image_item->num_chars = image_size;
    
    /* Read and check for terminating FS character. */
    if ((delimiter = biomeval_nbis_fbgetc(fpin, buf)) == EOF){

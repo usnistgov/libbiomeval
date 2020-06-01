@@ -85,7 +85,7 @@ FET *biomeval_nbis_readfetfile(char *file)
       while(((c = getc(fp)) == ' ') || (c == '\t'));
       ungetc(c, fp);
       if (fet->num >= fet->alloc)
-         rebiomeval_nbis_allocfet(fet, fet->alloc + MAXFETS);
+         biomeval_nbis_reallocfet(fet, fet->alloc + MAXFETS);
       len = strlen(buf) + 1;
       fet->names[fet->num] = malloc(len);
       if(fet->names[fet->num] == (char *)NULL)
@@ -127,7 +127,7 @@ int biomeval_nbis_readfetfile_ret(FET **ofet, char *file)
       while(((c = getc(fp)) == ' ') || (c == '\t'));
       ungetc(c, fp);
       if (fet->num >= fet->alloc){
-         if((ret = rebiomeval_nbis_allocfet_ret(&fet, fet->alloc + MAXFETS))){
+         if((ret = biomeval_nbis_reallocfet_ret(&fet, fet->alloc + MAXFETS))){
             fclose(fp);
             biomeval_nbis_freefet(fet);
             return(ret);

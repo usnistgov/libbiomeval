@@ -180,7 +180,7 @@ int biomeval_nbis_setup_IMG_DAT_nonintrlv_encode(IMG_DAT **oimg_dat, unsigned ch
       img_dat->samp_height[i] = (int)ceil(img_dat->max_height *
                                           (vrt_sampfctr[i] / (double)max_vrt));
       img_dat->point_trans[i] = pt_val;
-      img_dat->biomeval_nbis_predict[i] = pred_val;
+      img_dat->predict[i] = pred_val;
 
       plane_size = img_dat->samp_width[i] * img_dat->samp_height[i];
       img_dat->image[i] =
@@ -267,7 +267,7 @@ int biomeval_nbis_update_IMG_DAT_decode(IMG_DAT *img_dat, SCN_HEADER *scn_header
          return(-2);
       }
       img_dat->point_trans[cmpnt_i] = scn_header->Ahl;
-      img_dat->biomeval_nbis_predict[cmpnt_i] = scn_header->Ss;
+      img_dat->predict[cmpnt_i] = scn_header->Ss;
       img_dat->image[cmpnt_i] =
                (unsigned char *)malloc(img_dat->samp_width[cmpnt_i] *
                                        img_dat->samp_height[cmpnt_i]);
@@ -312,7 +312,7 @@ int biomeval_nbis_setup_IMG_DAT_decode_old(IMG_DAT **oimg_dat, const int ppi,
 	 return(-3);
       }
       img_dat->point_trans[cmpnt_i] = scn_header->Ahl;
-      img_dat->biomeval_nbis_predict[cmpnt_i] = scn_header->Ss;
+      img_dat->predict[cmpnt_i] = scn_header->Ss;
       img_dat->max_width = frm_header->x;
       img_dat->max_height = frm_header->y;
       img_dat->pix_depth = frm_header->prec;
@@ -343,7 +343,7 @@ int biomeval_nbis_setup_IMG_DAT_decode_old(IMG_DAT **oimg_dat, const int ppi,
 	    return(-5);
          }
 	 img_dat->point_trans[cmpnt_i] = scn_header->Ahl;
-	 img_dat->biomeval_nbis_predict[cmpnt_i] = scn_header->Ss;
+	 img_dat->predict[cmpnt_i] = scn_header->Ss;
 
          img_dat->image[cmpnt_i] = (unsigned char *)malloc(img_dat->max_width *
                                              img_dat->max_height);

@@ -93,10 +93,10 @@ extern int biomeval_nbis_combine_jpegb_nistcom(NISTCOM **, const int, const int,
 extern int biomeval_nbis_del_jpegl_nistcom(NISTCOM *);
 extern int biomeval_nbis_del_wsq_nistcom(NISTCOM *);
 extern int biomeval_nbis_del_jpegb_nistcom(NISTCOM *);
-extern int add_jpegb_nistcom(NISTCOM *, const int);
-extern int add_jpegl_nistcom(NISTCOM *, const int, int *, int *,
+extern int biomeval_nbis_add_jpegb_nistcom(NISTCOM *, const int);
+extern int biomeval_nbis_add_jpegl_nistcom(NISTCOM *, const int, int *, int *,
                            const int, const int);
-extern int add_wsq_nistcom(NISTCOM *);
+extern int biomeval_nbis_add_wsq_nistcom(NISTCOM *);
 extern int biomeval_nbis_sd_ihead_to_nistcom(NISTCOM **, IHEAD *, int);
 extern int biomeval_nbis_sd4_ihead_to_nistcom(NISTCOM **, IHEAD *);
 extern int biomeval_nbis_sd9_10_14_ihead_to_nistcom(NISTCOM **, IHEAD *, const int);
