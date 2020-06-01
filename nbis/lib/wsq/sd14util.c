@@ -56,12 +56,12 @@ of the software.
       obsolete.
 
       ROUTINES:
-#cat: wsq14_decode_file - Decompresses a WSQ-compressed datastream encoded
+#cat: biomeval_nbis_wsq14_decode_file - Decompresses a WSQ-compressed datastream encoded
 #cat:           according to an old image format used in NIST Special
 #cat:           Database 14.  This routine should be used to decompress
 #cat:           legacy data only.  This old format should be considered
 #cat:           obsolete.
-#cat: wsq14_2_wsq - Converts a WSQ-compressed datastream encoded according
+#cat: biomeval_nbis_wsq14_2_wsq - Converts a WSQ-compressed datastream encoded according
 #cat:           to an old image format used in NIST Special Database 14
 #cat:           to the WSQ format compliant with the FBI's WSQ Gray-Scale
 #cat:           Fingerprint Image Compression Specification.
@@ -87,33 +87,33 @@ of the software.
 #include <dataio.h>
 
 /* Old format global trees. */
-static Q_TREE q_tree_wsq14[Q_TREELEN];
+static Q_TREE biomeval_nbis_q_tree_wsq14[Q_TREELEN];
 /*
-static W_TREE w_tree_wsq14[W_TREELEN];
+static W_TREE biomeval_nbis_w_tree_wsq14[W_TREELEN];
 */
 
 /* Prototypes for functions in this file. */
-int wsq14_decode_file(unsigned char **, int *, int *, int *, int *, FILE *);
-int wsq14_2_wsq(unsigned char **, int *, FILE *);
-static int read_table_wsq14(unsigned short, DTT_TABLE *, DQT_TABLE *,
+int biomeval_nbis_wsq14_decode_file(unsigned char **, int *, int *, int *, int *, FILE *);
+int biomeval_nbis_wsq14_2_wsq(unsigned char **, int *, FILE *);
+static int biomeval_nbis_read_table_wsq14(unsigned short, DTT_TABLE *, DQT_TABLE *,
                       DHT_TABLE *, FILE *);
-static int read_huff_table_wsq14(DHT_TABLE *, FILE *);
-static void build_wsq_trees_wsq14(W_TREE [], const int, Q_TREE [], const int,
+static int biomeval_nbis_read_huff_table_wsq14(DHT_TABLE *, FILE *);
+static void biomeval_nbis_build_wsq_trees_wsq14(W_TREE [], const int, Q_TREE [], const int,
                       const int, const int);
-static void build_shuffle_trees_wsq14(W_TREE [], const int, Q_TREE [],
+static void biomeval_nbis_build_shuffle_trees_wsq14(W_TREE [], const int, Q_TREE [],
                       const int, Q_TREE [], const int, const int, const int);
-static int huffman_decode_data_file_wsq14(short *, DTT_TABLE *, DQT_TABLE *,
+static int biomeval_nbis_huffman_decode_data_file_wsq14(short *, DTT_TABLE *, DQT_TABLE *,
                       DHT_TABLE *, FILE *);
-static int unshuffle_wsq14(short **, const DQT_TABLE *, Q_TREE [], const int,
+static int biomeval_nbis_unshuffle_wsq14(short **, const DQT_TABLE *, Q_TREE [], const int,
                       short *, const int, const int);
-static int shuffle_wsq14(short **, int *, const DQT_TABLE, Q_TREE [],
+static int biomeval_nbis_shuffle_wsq14(short **, int *, const DQT_TABLE, Q_TREE [],
                       const int, short *, const int, const int);
-static int shuffle_dqt_wsq14(DQT_TABLE *);
-static void build_w_tree_wsq14(W_TREE [], const int, const int);
-static void build_q_tree_wsq14(W_TREE [], Q_TREE []);
-static void w_tree4_wsq14(W_TREE [], int, int, int, int, int, int, int);
-static void q_tree16_wsq14(Q_TREE [], int, int, int, int, int);
-static void q_tree4_wsq14(Q_TREE [], int, int, int, int, int);
+static int biomeval_nbis_shuffle_dqt_wsq14(DQT_TABLE *);
+static void biomeval_nbis_build_w_tree_wsq14(W_TREE [], const int, const int);
+static void biomeval_nbis_build_q_tree_wsq14(W_TREE [], Q_TREE []);
+static void biomeval_nbis_w_tree4_wsq14(W_TREE [], int, int, int, int, int, int, int);
+static void biomeval_nbis_q_tree16_wsq14(Q_TREE [], int, int, int, int, int);
+static void biomeval_nbis_q_tree4_wsq14(Q_TREE [], int, int, int, int, int);
 
 
 /*************************************************************************/
@@ -123,7 +123,7 @@ static void q_tree4_wsq14(Q_TREE [], int, int, int, int, int);
 /* reconstruct the pixmap.  This routine should ONLY be used to read     */
 /* files distributed with the SD14 database.                             */
 /*************************************************************************/
-int wsq14_decode_file(unsigned char **odata, int *owidth, int *oheight,
+int biomeval_nbis_wsq14_decode_file(unsigned char **odata, int *owidth, int *oheight,
                       int *odepth, int *lossyflag, FILE *infp)
 {
    int ret;
@@ -135,44 +135,44 @@ int wsq14_decode_file(unsigned char **odata, int *owidth, int *oheight,
    short *qdata;
 
    /* Added by MDG on 02-24-05 */
-   init_wsq_decoder_resources();
+   biomeval_nbis_init_wsq_decoder_resources();
 
    /* Read the SOI_WSQ marker. */
-   if((ret = read_marker_wsq(&marker, SOI_WSQ, infp))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, SOI_WSQ, infp))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
    /* Read in supporting tables up to the SOF_WSQ marker. */
-   if((ret = read_marker_wsq(&marker, TBLS_N_SOF, infp))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOF, infp))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
    while(marker != SOF_WSQ) {
-      if((ret = read_table_wsq14(marker, &dtt_table, &dqt_table, dht_table, infp))){
-         free_wsq_decoder_resources();
+      if((ret = biomeval_nbis_read_table_wsq14(marker, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table, biomeval_nbis_dht_table, infp))){
+         biomeval_nbis_free_wsq_decoder_resources();
          return(ret);
       }
-      if((ret = read_marker_wsq(&marker, TBLS_N_SOF, infp))){
-         free_wsq_decoder_resources();
+      if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOF, infp))){
+         biomeval_nbis_free_wsq_decoder_resources();
          return(ret);
       }
    }
 
    /* Read in the Frame Header. */
-   if((ret = read_frame_header_wsq(&frm_header_wsq, infp))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_read_frame_header_wsq(&biomeval_nbis_frm_header_wsq, infp))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
-   width = frm_header_wsq.width;
-   height = frm_header_wsq.height;
+   width = biomeval_nbis_frm_header_wsq.width;
+   height = biomeval_nbis_frm_header_wsq.height;
    num_pix = width * height;
 
    if(debug > 0)
       fprintf(stderr, "SOI_WSQ, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
-   build_wsq_trees_wsq14(w_tree, W_TREELEN, q_tree, Q_TREELEN, width, height);
+   biomeval_nbis_build_wsq_trees_wsq14(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, width, height);
 
    if(debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
@@ -181,15 +181,15 @@ int wsq14_decode_file(unsigned char **odata, int *owidth, int *oheight,
    qdata = (short *) malloc(num_pix * sizeof(short));
    if(qdata == (short *)NULL) {
       fprintf(stderr,"ERROR: wsq_decode_1 : malloc : qdata1\n");
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(-20);
    }
 
    /* Decode the Huffman encoded data blocks. */
-   if((ret = huffman_decode_data_file_wsq14(qdata, &dtt_table, &dqt_table,
-                                           dht_table, infp))){
+   if((ret = biomeval_nbis_huffman_decode_data_file_wsq14(qdata, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table,
+                                           biomeval_nbis_dht_table, infp))){
       free(qdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -198,10 +198,10 @@ int wsq14_decode_file(unsigned char **odata, int *owidth, int *oheight,
          "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
    /* Decode the quantize wavelet subband data. */
-   if((ret = unquantize(&fdata, &dqt_table, q_tree, Q_TREELEN,
+   if((ret = biomeval_nbis_unquantize(&fdata, &biomeval_nbis_dqt_table, biomeval_nbis_q_tree, Q_TREELEN,
                          qdata, width, height))){
       free(qdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -211,10 +211,10 @@ int wsq14_decode_file(unsigned char **odata, int *owidth, int *oheight,
    /* Done with quantized wavelet subband data. */
    free(qdata);
 
-   if((ret = wsq_reconstruct(fdata, width, height, w_tree, W_TREELEN,
-                              &dtt_table))){
+   if((ret = biomeval_nbis_wsq_reconstruct(fdata, width, height, biomeval_nbis_w_tree, W_TREELEN,
+                              &biomeval_nbis_dtt_table))){
       free(fdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -224,20 +224,20 @@ int wsq14_decode_file(unsigned char **odata, int *owidth, int *oheight,
    cdata = (unsigned char *)malloc(num_pix * sizeof(unsigned char));
    if(cdata == (unsigned char *)NULL) {
       free(fdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       fprintf(stderr,"ERROR: wsq_decode_1 : malloc : cdata\n");
       return(-21);
    }
 
    /* Convert floating point pixels to unsigned char pixels. */
-   conv_img_2_uchar(cdata, fdata, width, height,
-                      frm_header_wsq.m_shift, frm_header_wsq.r_scale);
+   biomeval_nbis_conv_img_2_uchar(cdata, fdata, width, height,
+                      biomeval_nbis_frm_header_wsq.m_shift, biomeval_nbis_frm_header_wsq.r_scale);
 
    /* Done with floating point pixels. */
    free(fdata);
 
    /* Added by MDG on 02-24-05 */
-   free_wsq_decoder_resources();
+   biomeval_nbis_free_wsq_decoder_resources();
 
   if(debug > 0)
       fprintf(stderr, "Doubleing point pixels converted to unsigned char\n\n");
@@ -263,7 +263,7 @@ int wsq14_decode_file(unsigned char **odata, int *owidth, int *oheight,
 /* certifiable, but can be successfully decoded using a certifiable        */
 /* decoder.                                                                */
 /***************************************************************************/
-int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
+int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
 {
    int ret, i;
    unsigned short marker;                 /* WSQ marker */
@@ -285,37 +285,37 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
 /**********************************/
 
    /* Read the SOI_WSQ marker. */
-   if((ret = read_marker_wsq(&marker, SOI_WSQ, infp))){
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, SOI_WSQ, infp))){
       return(ret);
    }
 
    /* Read in supporting tables up to the SOF_WSQ marker. */
-   if((ret = read_marker_wsq(&marker, TBLS_N_SOF, infp))){
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOF, infp))){
       return(ret);
    }
    while(marker != SOF_WSQ) {
-      if((ret = read_table_wsq14(marker, &dtt_table, &dqt_table, dht_table, infp))){
+      if((ret = biomeval_nbis_read_table_wsq14(marker, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table, biomeval_nbis_dht_table, infp))){
          return(ret);
       }
-      if((ret = read_marker_wsq(&marker, TBLS_N_SOF, infp))){
+      if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOF, infp))){
          return(ret);
       }
    }
 
    /* Read in the Frame Header. */
-   if((ret = read_frame_header_wsq(&frm_header_wsq, infp))){
+   if((ret = biomeval_nbis_read_frame_header_wsq(&biomeval_nbis_frm_header_wsq, infp))){
       return(ret);
    }
-   width = frm_header_wsq.width;
-   height = frm_header_wsq.height;
+   width = biomeval_nbis_frm_header_wsq.width;
+   height = biomeval_nbis_frm_header_wsq.height;
    num_pix = width * height;
 
    if(debug > 0)
       fprintf(stderr, "SOI_WSQ, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
-   build_shuffle_trees_wsq14(w_tree, W_TREELEN, q_tree, Q_TREELEN,
-                            q_tree_wsq14, Q_TREELEN, width, height);
+   biomeval_nbis_build_shuffle_trees_wsq14(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN,
+                            biomeval_nbis_q_tree_wsq14, Q_TREELEN, width, height);
 
    if(debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
@@ -328,7 +328,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    }
 
    /* Decode the Huffman encoded data blocks. */
-   if((ret = huffman_decode_data_file_wsq14(qdata, &dtt_table, &dqt_table, dht_table,
+   if((ret = biomeval_nbis_huffman_decode_data_file_wsq14(qdata, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table, biomeval_nbis_dht_table,
                                   infp))){
       free(qdata);
       return(ret);
@@ -342,17 +342,17 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
 /* 2. CONVERT OLD FORMATTED DATA ... */
 /*************************************/
 
-   if((ret = unshuffle_wsq14(&fdata, &dqt_table, q_tree, Q_TREELEN,
+   if((ret = biomeval_nbis_unshuffle_wsq14(&fdata, &biomeval_nbis_dqt_table, biomeval_nbis_q_tree, Q_TREELEN,
                            qdata, width, height))){
       free(qdata);
       return(ret);
    }
    free(qdata);
 
-   if((ret = shuffle_dqt_wsq14(&dqt_table)))
+   if((ret = biomeval_nbis_shuffle_dqt_wsq14(&biomeval_nbis_dqt_table)))
       return(ret);
 
-   if((ret = shuffle_wsq14(&qdata, &qsize, dqt_table, q_tree_wsq14, Q_TREELEN,
+   if((ret = biomeval_nbis_shuffle_wsq14(&qdata, &qsize, biomeval_nbis_dqt_table, biomeval_nbis_q_tree_wsq14, Q_TREELEN,
                          fdata, width, height))){
       free(fdata);
       return(ret);
@@ -364,13 +364,13 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
 /***********************************/
 
    for(i = 0; i < MAX_SUBBANDS; i++) {
-      quant_vals.qbss[i] = dqt_table.q_bin[i];
-      quant_vals.qzbs[i] = dqt_table.z_bin[i];
+      biomeval_nbis_quant_vals.qbss[i] = biomeval_nbis_dqt_table.q_bin[i];
+      biomeval_nbis_quant_vals.qzbs[i] = biomeval_nbis_dqt_table.z_bin[i];
    }
 
    /* Compute quantized WSQ subband block sizes */
-   quant_block_sizes(&qsize1, &qsize2, &qsize3, &quant_vals,
-                           w_tree, W_TREELEN, q_tree, Q_TREELEN);
+   biomeval_nbis_quant_block_sizes(&qsize1, &qsize2, &qsize3, &biomeval_nbis_quant_vals,
+                           biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN);
 
    if(qsize != qsize1+qsize2+qsize3){
       fprintf(stderr,
@@ -393,15 +393,15 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    wsq_len = 0;
 
    /* Add a Start Of Image (SOI_WSQ) marker to the WSQ buffer. */
-   if((ret = putc_ushort(SOI_WSQ, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_ushort(SOI_WSQ, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       return(ret);
    }
 
    /* Store the Wavelet filter taps to the WSQ buffer. */
-   if((ret = putc_transform_table(lofilt, MAX_LOFILT,
-                                 hifilt, MAX_HIFILT,
+   if((ret = biomeval_nbis_putc_transform_table(biomeval_nbis_lofilt, MAX_LOFILT,
+                                 biomeval_nbis_hifilt, MAX_HIFILT,
                                  wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -409,7 +409,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    }
 
    /* Store the quantization parameters to the WSQ buffer. */
-   if((ret = putc_quantization_table(&quant_vals,
+   if((ret = biomeval_nbis_putc_quantization_table(&biomeval_nbis_quant_vals,
                                     wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -417,7 +417,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    }
 
    /* Store a frame header to the WSQ buffer. */
-   if((ret = putc_frame_header_wsq(width, height, frm_header_wsq.m_shift, frm_header_wsq.r_scale,
+   if((ret = biomeval_nbis_putc_frame_header_wsq(width, height, biomeval_nbis_frm_header_wsq.m_shift, biomeval_nbis_frm_header_wsq.r_scale,
                               wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -443,7 +443,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    /* ENCODE Block 1 */
    /******************/
    /* Compute Huffman table for Block 1. */
-   if((ret = gen_hufftable_wsq(&hufftable, &huffbits, &huffvalues,
+   if((ret = biomeval_nbis_gen_hufftable_wsq(&hufftable, &huffbits, &huffvalues,
                             qdata, &qsize1, 1))){
       free(qdata);
       free(wsq_data);
@@ -452,7 +452,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    }
 
    /* Store Huffman table for Block 1 to WSQ buffer. */
-   if((ret = putc_huffman_table(DHT_WSQ, 0, huffbits, huffvalues,
+   if((ret = biomeval_nbis_putc_huffman_table(DHT_WSQ, 0, huffbits, huffvalues,
                                wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -469,7 +469,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
       fprintf(stderr, "Huffman code Table 1 generated and written\n\n");
 
    /* Compress Block 1 data. */
-   if((ret = compress_block(huff_buf, &hsize1, qdata, qsize1,
+   if((ret = biomeval_nbis_compress_block(huff_buf, &hsize1, qdata, qsize1,
                            MAX_HUFFCOEFF, MAX_HUFFZRUN, hufftable))){
       free(qdata);
       free(wsq_data);
@@ -484,7 +484,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    hsize = hsize1;
 
    /* Store Block 1's header to WSQ buffer. */
-   if((ret = putc_block_header(0, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_block_header(0, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       free(huff_buf);
@@ -492,7 +492,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    }
 
    /* Store Block 1's compressed data to WSQ buffer. */
-   if((ret = putc_bytes(huff_buf, hsize1, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_bytes(huff_buf, hsize1, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       free(huff_buf);
@@ -508,7 +508,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    /* Compute  Huffman table for Blocks 2 & 3. */
    block_sizes[0] = qsize2;
    block_sizes[1] = qsize3;
-   if((ret = gen_hufftable_wsq(&hufftable, &huffbits, &huffvalues,
+   if((ret = biomeval_nbis_gen_hufftable_wsq(&hufftable, &huffbits, &huffvalues,
                           qdata+qsize1, block_sizes, 2))){
       free(qdata);
       free(wsq_data);
@@ -517,7 +517,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    }
 
    /* Store Huffman table for Blocks 2 & 3 to WSQ buffer. */
-   if((ret = putc_huffman_table(DHT_WSQ, 1, huffbits, huffvalues,
+   if((ret = biomeval_nbis_putc_huffman_table(DHT_WSQ, 1, huffbits, huffvalues,
                                wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -534,7 +534,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
       fprintf(stderr, "Huffman code Table 2 generated and written\n\n");
 
    /* Compress Block 2 data. */
-   if((ret = compress_block(huff_buf, &hsize2, qdata+qsize1, qsize2,
+   if((ret = biomeval_nbis_compress_block(huff_buf, &hsize2, qdata+qsize1, qsize2,
                            MAX_HUFFCOEFF, MAX_HUFFZRUN, hufftable))){
       free(qdata);
       free(wsq_data);
@@ -547,7 +547,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    hsize += hsize2;
 
    /* Store Block 2's header to WSQ buffer. */
-   if((ret = putc_block_header(1, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_block_header(1, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       free(huff_buf);
@@ -556,7 +556,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    }
 
    /* Store Block 2's compressed data to WSQ buffer. */
-   if((ret = putc_bytes(huff_buf, hsize2, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_bytes(huff_buf, hsize2, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       free(huff_buf);
@@ -571,7 +571,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    /* ENCODE Block 3 */
    /******************/
    /* Compress Block 3 data. */
-   if((ret = compress_block(huff_buf, &hsize3, qdata+qsize1+qsize2, qsize3,
+   if((ret = biomeval_nbis_compress_block(huff_buf, &hsize3, qdata+qsize1+qsize2, qsize3,
                            MAX_HUFFCOEFF, MAX_HUFFZRUN, hufftable))){
       free(qdata);
       free(wsq_data);
@@ -589,14 +589,14 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    hsize += hsize3;
 
    /* Store Block 3's header to WSQ buffer. */
-   if((ret = putc_block_header(1, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_block_header(1, wsq_data, wsq_alloc, &wsq_len))){
       free(wsq_data);
       free(huff_buf);
       return(ret);
    }
 
    /* Store Block 3's compressed data to WSQ buffer. */
-   if((ret = putc_bytes(huff_buf, hsize3, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_bytes(huff_buf, hsize3, wsq_data, wsq_alloc, &wsq_len))){
       free(wsq_data);
       free(huff_buf);
       return(ret);
@@ -609,7 +609,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    free(huff_buf);
 
    /* Add a End Of Image (EOI_WSQ) marker to the WSQ buffer. */
-   if((ret = putc_ushort(EOI_WSQ, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_ushort(EOI_WSQ, wsq_data, wsq_alloc, &wsq_len))){
       free(wsq_data);
       return(ret);
    }
@@ -632,7 +632,7 @@ int wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
 /************************************/
 /* Routine to read specified table. */
 /************************************/
-static int read_table_wsq14(
+static int biomeval_nbis_read_table_wsq14(
    unsigned short marker,         /* WSQ marker */
    DTT_TABLE *dtt_table,  /* transform table structure */
    DQT_TABLE *dqt_table,  /* quantization table structure */
@@ -644,19 +644,19 @@ static int read_table_wsq14(
 
    switch(marker){
    case DTT_WSQ:
-      if((ret = read_transform_table(dtt_table, infp)))
+      if((ret = biomeval_nbis_read_transform_table(dtt_table, infp)))
          return(ret);
       break;
    case DQT_WSQ:
-      if((ret = read_quantization_table(dqt_table, infp)))
+      if((ret = biomeval_nbis_read_quantization_table(dqt_table, infp)))
          return(ret);
       break;
    case DHT_WSQ:
-      if((ret = read_huff_table_wsq14(dht_table, infp)))
+      if((ret = biomeval_nbis_read_huff_table_wsq14(dht_table, infp)))
          return(ret);
       break;
    case COM_WSQ:
-      if((ret = read_comment(&comment, infp)))
+      if((ret = biomeval_nbis_read_comment(&comment, infp)))
          return(ret);
 #ifdef PRINT_COMMENT
       fprintf(stderr, "COMMENT: %s\n", comment);
@@ -676,7 +676,7 @@ static int read_table_wsq14(
 /************************************************/
 /* Routine to read in huffman table parameters. */
 /************************************************/
-static int read_huff_table_wsq14(
+static int biomeval_nbis_read_huff_table_wsq14(
    DHT_TABLE *dht_table,  /* huffman table structure */
    FILE *infp)            /* input file */
 {
@@ -691,12 +691,12 @@ static int read_huff_table_wsq14(
       fprintf(stderr, "Reading huffman table.\n");
 
    bytes_cnt = 0;
-   if((ret = read_ushort(&hdr_size, infp)))
+   if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
       return(ret);
    bytes_cnt += 2;
 
    while(bytes_cnt != hdr_size) {
-      if((ret = read_byte(&table, infp)))
+      if((ret = biomeval_nbis_read_byte(&table, infp)))
          return(ret);
 
       if(debug > 2)
@@ -706,9 +706,9 @@ static int read_huff_table_wsq14(
       bytes_cnt += 33;
       for(cnt = 0; cnt < 16; cnt++) {
 /* WSQ14 OLD SPEC USED 16bits NEW 8bits */
-         if((ret = read_byte(&char_dat, infp)))
+         if((ret = biomeval_nbis_read_byte(&char_dat, infp)))
             return(ret);
-         if((ret = read_byte(&char_dat, infp)))
+         if((ret = biomeval_nbis_read_byte(&char_dat, infp)))
             return(ret);
          (dht_table+table)->huffbits[cnt] = char_dat;
 
@@ -721,7 +721,7 @@ static int read_huff_table_wsq14(
       }
 
       if(num_hufvals > MAX_HUFFCOUNTS_WSQ+1){
-         fprintf(stderr, "ERROR : read_huff_table_wsq14 : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_read_huff_table_wsq14 : ");
          fprintf(stderr, "num_hufvals (%d) is larger than", num_hufvals);
          fprintf(stderr, " MAX_HUFFCOUNTS_WSQ (%d)\n", MAX_HUFFCOUNTS_WSQ+1);
          return(-2);
@@ -730,9 +730,9 @@ static int read_huff_table_wsq14(
 
       for(cnt = 0; cnt < num_hufvals; cnt++) {
 /* WSQ14 OLD SPEC USED 16bits NEW 8bits */
-         if((ret = read_byte(&char_dat, infp)))
+         if((ret = biomeval_nbis_read_byte(&char_dat, infp)))
             return(ret);
-         if((ret = read_byte(&char_dat, infp)))
+         if((ret = biomeval_nbis_read_byte(&char_dat, infp)))
             return(ret);
          (dht_table+table)->huffvalues[cnt] = char_dat;
 
@@ -757,7 +757,7 @@ static int read_huff_table_wsq14(
 /************************************************************************/
 /* Build WSQ decomposition trees.                                       */
 /************************************************************************/
-static void build_wsq_trees_wsq14(W_TREE w_tree[], const int w_treelen,
+static void biomeval_nbis_build_wsq_trees_wsq14(W_TREE w_tree[], const int w_treelen,
                      Q_TREE q_tree[], const int q_treelen,
                      const int width, const int height)
 {
@@ -766,9 +766,9 @@ static void build_wsq_trees_wsq14(W_TREE w_tree[], const int w_treelen,
 
    /* This builds the old format of trees. */
    /* Build a W-TREE structure for the image. */
-   build_w_tree_wsq14(w_tree_wsq14, width, height);
+   biomeval_nbis_build_w_tree_wsq14(w_tree_wsq14, width, height);
    /* Build a Q-TREE structure for the image. */
-   build_q_tree_wsq14(w_tree_wsq14, q_tree);
+   biomeval_nbis_build_q_tree_wsq14(w_tree_wsq14, q_tree);
 
    /* This builds the new certifiable trees. */
    for(i = 0; i < w_treelen; i++) {
@@ -798,7 +798,7 @@ static void build_wsq_trees_wsq14(W_TREE w_tree[], const int w_treelen,
 /* Build new format Wavelet tree, and new and old format */
 /* Quantization trees.                                   */
 /*********************************************************/
-static void build_shuffle_trees_wsq14(W_TREE w_tree[], const int w_treelen,
+static void biomeval_nbis_build_shuffle_trees_wsq14(W_TREE w_tree[], const int w_treelen,
                      Q_TREE q_tree[], const int q_treelen,
                      Q_TREE q_tree_wsq14[], const int q_treelen_wsq14,
                      const int width, const int height)
@@ -807,9 +807,9 @@ static void build_shuffle_trees_wsq14(W_TREE w_tree[], const int w_treelen,
 
    /* These build the certifiable versions of the trees. */
    /* Build a W-TREE structure for the image. */
-   build_w_tree(w_tree, width, height);
+   biomeval_nbis_build_w_tree(w_tree, width, height);
    /* Build a Q-TREE structure for the image. */
-   build_q_tree(w_tree, q_tree);
+   biomeval_nbis_build_q_tree(w_tree, q_tree);
 
    /* These build the old format versions of the trees. */
    for(i = 0; i < 7; i++) {
@@ -1077,7 +1077,7 @@ static void build_shuffle_trees_wsq14(W_TREE w_tree[], const int w_treelen,
 /********************************************************************/
 /* Routine to decode an entire "block" of encoded data from a file. */
 /********************************************************************/
-static int huffman_decode_data_file_wsq14(
+static int biomeval_nbis_huffman_decode_data_file_wsq14(
    short *ip,             /* image pointer */
    DTT_TABLE *dtt_table,  /*transform table pointer */
    DQT_TABLE *dqt_table,  /* quantization table */
@@ -1087,7 +1087,7 @@ static int huffman_decode_data_file_wsq14(
    int ret;
    int blk = 0;           /* block number */
    unsigned short marker;         /* WSQ markers */
-   int bit_count;         /* bit count for nextbits_wsq routine */
+   int bit_count;         /* bit count for biomeval_nbis_nextbits_wsq routine */
    int n;                 /* zero run count */
    int nodeptr;           /* pointers for decoding */
    int last_size;         /* last huffvalue */
@@ -1099,7 +1099,7 @@ static int huffman_decode_data_file_wsq14(
    unsigned short tbits;
 
 
-   if((ret = read_marker_wsq(&marker, TBLS_N_SOB, infp)))
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOB, infp)))
       return(ret);
 
    bit_count = 0;
@@ -1109,13 +1109,13 @@ static int huffman_decode_data_file_wsq14(
       if(marker != 0) {
          blk++;
          while(marker != SOB_WSQ) {
-            if((ret = read_table_wsq14(marker, dtt_table, dqt_table,
+            if((ret = biomeval_nbis_read_table_wsq14(marker, dtt_table, dqt_table,
                                 dht_table, infp)))
                return(ret);
-            if((ret = read_marker_wsq(&marker, TBLS_N_SOB, infp)))
+            if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOB, infp)))
                return(ret);
          }
-         if((ret = read_block_header(&hufftable_id, infp)))
+         if((ret = biomeval_nbis_read_block_header(&hufftable_id, infp)))
             return(ret);
 
          if((dht_table+hufftable_id)->tabdef != 1) {
@@ -1125,15 +1125,15 @@ static int huffman_decode_data_file_wsq14(
          }
 
          /* the next two routines reconstruct the huffman tables */
-         if((ret = build_huffsizes(&hufftable, &last_size,
+         if((ret = biomeval_nbis_build_huffsizes(&hufftable, &last_size,
                        (dht_table+hufftable_id)->huffbits, MAX_HUFFCOUNTS_WSQ)))
             return(ret);
-         build_huffcodes(hufftable);
-         ret = check_huffcodes_wsq(hufftable, last_size);
+         biomeval_nbis_build_huffcodes(hufftable);
+         ret = biomeval_nbis_check_huffcodes_wsq(hufftable, last_size);
 
          /* this routine builds a set of three tables used in decoding */
          /* the compressed data*/
-         gen_decode_table(hufftable, maxcode, mincode, valptr,
+         biomeval_nbis_gen_decode_table(hufftable, maxcode, mincode, valptr,
                           (dht_table+hufftable_id)->huffbits);
          free(hufftable);
          bit_count = 0;
@@ -1141,7 +1141,7 @@ static int huffman_decode_data_file_wsq14(
       }
 
       /* get next huffman category code from compressed input data stream */
-      if((ret = decode_data_file(&nodeptr, mincode, maxcode, valptr,
+      if((ret = biomeval_nbis_decode_data_file(&nodeptr, mincode, maxcode, valptr,
                             (dht_table+hufftable_id)->huffvalues,
                             infp, &bit_count, &marker)))
          return(ret);
@@ -1156,34 +1156,34 @@ static int huffman_decode_data_file_wsq14(
       else if(nodeptr > 106)
          *ip++ = nodeptr - 180;
       else if(nodeptr == 101){
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
             return(ret);
          *ip++ = tbits;
       }
       else if(nodeptr == 102){
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
             return(ret);
          *ip++ = -tbits;
       }
       else if(nodeptr == 103){
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
             return(ret);
          *ip++ = tbits;
       }
       else if(nodeptr == 104){
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
             return(ret);
          *ip++ = -tbits;
       }
       else if(nodeptr == 105) {
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
             return(ret);
          n = tbits;
          while(n--)
             *ip++ = 0;
       }
       else if(nodeptr == 106) {
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
             return(ret);
          n = tbits;
          while(n--)
@@ -1204,7 +1204,7 @@ static int huffman_decode_data_file_wsq14(
 /****************************************************/
 /* Routine to unshuffle WSQ14 (old format) Subbands */
 /****************************************************/
-static int unshuffle_wsq14(
+static int biomeval_nbis_unshuffle_wsq14(
    short **ofip,         /* floating point image pointer         */
    const DQT_TABLE *dqt_table, /* quantization table structure   */
    Q_TREE q_tree[],      /* quantization table structure         */
@@ -1220,12 +1220,12 @@ static int unshuffle_wsq14(
    int cnt;       /* subband counter */
 
    if((fip = (short *) calloc(width*height, sizeof(short))) == NULL) {
-      fprintf(stderr,"ERROR : unquantize : calloc : fip\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_unquantize : calloc : fip\n");
       return(-2);
    }
    if(dqt_table->dqt_def != 1) {
       fprintf(stderr,
-      "ERROR: unshuffle_wsq14 : quantization table parameters not defined!\n");
+      "ERROR: biomeval_nbis_unshuffle_wsq14 : quantization table parameters not defined!\n");
       return(-3);
    }
 
@@ -1247,7 +1247,7 @@ static int unshuffle_wsq14(
 /***************************************************************/
 /* Routine shuffles quantized subbands from old to new format. */
 /***************************************************************/
-static int shuffle_wsq14(
+static int biomeval_nbis_shuffle_wsq14(
    short **osip,           /* quantized output             */
    int *ocmp_siz,          /* size of quantized output     */
    const DQT_TABLE dqt_table, /* quantization table structure   */
@@ -1264,13 +1264,13 @@ static int shuffle_wsq14(
 
    if(dqt_table.dqt_def != 1) {
       fprintf(stderr,
-      "ERROR: shuffle_wsq14 : quantization table parameters not defined!\n");
+      "ERROR: biomeval_nbis_shuffle_wsq14 : quantization table parameters not defined!\n");
       return(-92);
    }
 
    /* Set up output buffer. */
    if((sip = (short *) calloc(width*height, sizeof(short))) == NULL) {
-      fprintf(stderr,"ERROR : quantize : calloc : sip\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_shuffle_wsq14 : calloc : sip\n");
       return(-90);
    }
    sptr = sip;
@@ -1294,7 +1294,7 @@ static int shuffle_wsq14(
 /**************************************************************/
 /* Routine shuffles quantization tree from old to new format. */
 /**************************************************************/
-static int shuffle_dqt_wsq14(DQT_TABLE *dqt_table)
+static int biomeval_nbis_shuffle_dqt_wsq14(DQT_TABLE *dqt_table)
 {
    int i;
    float tq[MAX_SUBBANDS], tz[MAX_SUBBANDS];
@@ -1432,7 +1432,7 @@ static int shuffle_dqt_wsq14(DQT_TABLE *dqt_table)
 /* Routine to obtain old format subband "x-y locations" for */
 /* creating wavelets.                                       */
 /************************************************************/
-static void build_w_tree_wsq14(W_TREE w_tree[],
+static void biomeval_nbis_build_w_tree_wsq14(W_TREE w_tree[],
                         const int width, const int height)
 {
 
@@ -1469,7 +1469,7 @@ static void build_w_tree_wsq14(W_TREE w_tree[],
                                            the image being split into
                                            subbands */
 
-   w_tree4_wsq14(w_tree, 0, 1, width, height, 0, 0, 1);
+   biomeval_nbis_w_tree4_wsq14(w_tree, 0, 1, width, height, 0, 0, 1);
 
    if((w_tree[1].lenx % 2) == 0) {
       lenx = w_tree[1].lenx / 2;
@@ -1489,9 +1489,9 @@ static void build_w_tree_wsq14(W_TREE w_tree[],
       leny2 = leny - 1;
    }
 
-   w_tree4_wsq14(w_tree, 4, 6, lenx2, leny, lenx, 0, 0);
-   w_tree4_wsq14(w_tree, 5, 10, lenx, leny2, 0, leny, 0);
-   w_tree4_wsq14(w_tree, 14, 15, lenx, leny, 0, 0, 0);
+   biomeval_nbis_w_tree4_wsq14(w_tree, 4, 6, lenx2, leny, lenx, 0, 0);
+   biomeval_nbis_w_tree4_wsq14(w_tree, 5, 10, lenx, leny2, 0, leny, 0);
+   biomeval_nbis_w_tree4_wsq14(w_tree, 14, 15, lenx, leny, 0, 0, 0);
 
    w_tree[19].x = 0;
    w_tree[19].y = 0;
@@ -1510,9 +1510,9 @@ static void build_w_tree_wsq14(W_TREE w_tree[],
 
 
 /*********************************************************************/
-/* Gives location and size of subband splits for build_w_tree_wsq14. */
+/* Gives location and size of subband splits for biomeval_nbis_build_w_tree_wsq14. */
 /*********************************************************************/
-static void w_tree4_wsq14(
+static void biomeval_nbis_w_tree4_wsq14(
    W_TREE w_tree[],	/* wavelet tree structure */
    int start1,		/* w_tree locations to start calculating */
    int start2,          /*    subband split locations and sizes  */
@@ -1585,18 +1585,18 @@ static void w_tree4_wsq14(
 /* Routine obtains the old format locations and sizes of the */
 /* subbands 0-63.                                            */
 /*************************************************************/
-static void build_q_tree_wsq14(
+static void biomeval_nbis_build_q_tree_wsq14(
    W_TREE w_tree[], /* wavelet tree structure */
    Q_TREE q_tree[])  /* quantization tree structure */
 {
 
-   q_tree16_wsq14(q_tree,3,w_tree[14].lenx,w_tree[14].leny,w_tree[14].x,w_tree[14].y);
-   q_tree4_wsq14(q_tree,0,w_tree[19].lenx,w_tree[19].leny,w_tree[19].x,w_tree[19].y);
-   q_tree16_wsq14(q_tree,19,w_tree[4].lenx,w_tree[4].leny,w_tree[4].x,w_tree[4].y);
-   q_tree16_wsq14(q_tree,35,w_tree[5].lenx,w_tree[5].leny,w_tree[5].x,w_tree[5].y);
-   q_tree4_wsq14(q_tree,52,w_tree[2].lenx,w_tree[2].leny,w_tree[2].x,w_tree[2].y);
-   q_tree4_wsq14(q_tree,56,w_tree[3].lenx,w_tree[3].leny,w_tree[3].x,w_tree[3].y);
-   q_tree4_wsq14(q_tree,60,w_tree[2].lenx,w_tree[3].leny,w_tree[2].x,w_tree[3].y);
+   biomeval_nbis_q_tree16_wsq14(q_tree,3,w_tree[14].lenx,w_tree[14].leny,w_tree[14].x,w_tree[14].y);
+   biomeval_nbis_q_tree4_wsq14(q_tree,0,w_tree[19].lenx,w_tree[19].leny,w_tree[19].x,w_tree[19].y);
+   biomeval_nbis_q_tree16_wsq14(q_tree,19,w_tree[4].lenx,w_tree[4].leny,w_tree[4].x,w_tree[4].y);
+   biomeval_nbis_q_tree16_wsq14(q_tree,35,w_tree[5].lenx,w_tree[5].leny,w_tree[5].x,w_tree[5].y);
+   biomeval_nbis_q_tree4_wsq14(q_tree,52,w_tree[2].lenx,w_tree[2].leny,w_tree[2].x,w_tree[2].y);
+   biomeval_nbis_q_tree4_wsq14(q_tree,56,w_tree[3].lenx,w_tree[3].leny,w_tree[3].x,w_tree[3].y);
+   biomeval_nbis_q_tree4_wsq14(q_tree,60,w_tree[2].lenx,w_tree[3].leny,w_tree[2].x,w_tree[3].y);
 
    q_tree[51].x = w_tree[4].x;
    q_tree[51].y = w_tree[5].y;
@@ -1611,7 +1611,7 @@ static void build_q_tree_wsq14(
 /* Routine gives old format subband locations and sizes for lower frequency */
 /* subbands in groups of 16 (i.e. 19-34 and 35-50).                         */
 /****************************************************************************/
-static void q_tree16_wsq14(
+static void biomeval_nbis_q_tree16_wsq14(
    Q_TREE q_tree[],  /* quantization tree structure */
    int start,           /* q_tree location of first subband
                            in the subband group being calculated */
@@ -1763,7 +1763,7 @@ static void q_tree16_wsq14(
 /* Routine gives old format subband locations and sizes for subbands */
 /* in groups of 4 (i.e. 0-3 and 52-55).                              */
 /*********************************************************************/
-static void q_tree4_wsq14(
+static void biomeval_nbis_q_tree4_wsq14(
    Q_TREE q_tree[],  /* quantization tree structure */
    int start,		/* q_tree location of first subband
                            in the subband group being calculated */

@@ -54,10 +54,10 @@ of the software.
       paired list to and from a null-terminated string.
 
       ROUTINES:
-#cat: fet2string - takes an FET structure and concatenates (name,value)
+#cat: biomeval_nbis_fet2string - takes an FET structure and concatenates (name,value)
 #cat:              pairs into a single null-terminated string with each
 #cat:              (name,value) pair delimited by a new-line.
-#cat: string2fet - parses a null-terminated string representing a
+#cat: biomeval_nbis_string2fet - parses a null-terminated string representing a
 #cat:              list of (name,value) pairs into an FET structure.
 
 ***********************************************************************/
@@ -67,7 +67,7 @@ of the software.
 #include <fet.h>
 
 /*****************************************************************/
-int fet2string(char **ostr, FET *fet)
+int biomeval_nbis_fet2string(char **ostr, FET *fet)
 {
    int i, size;
    char *str;
@@ -83,7 +83,7 @@ int fet2string(char **ostr, FET *fet)
    size++;
 
    if((str = (char *)calloc(size, sizeof(char))) == (char *)NULL){
-      fprintf(stderr, "ERROR : fet2string : malloc : str\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_fet2string : malloc : str\n");
       return(-2);
    }
 
@@ -101,14 +101,14 @@ int fet2string(char **ostr, FET *fet)
 }
 
 /*****************************************************************/
-int string2fet(FET **ofet, char *istr)
+int biomeval_nbis_string2fet(FET **ofet, char *istr)
 {
    int ret;
    char *iptr, *optr;
    char name[MAXFETLENGTH], value[MAXFETLENGTH], *vptr;
    FET *fet;
 
-   if((ret = allocfet_ret(&fet, MAXFETS)))
+   if((ret = biomeval_nbis_allocfet_ret(&fet, MAXFETS)))
       return(ret);
 
    iptr = istr;
@@ -137,7 +137,7 @@ int string2fet(FET **ofet, char *istr)
 
       /* Test (name,value) pair */
       if(strlen(name) == 0){
-         fprintf(stderr, "ERROR : string2fet : empty name string found\n");
+         fprintf(stderr, "ERROR : biomeval_nbis_string2fet : empty name string found\n");
          return(-2);
       }
       if(strlen(value) == 0)
@@ -146,8 +146,8 @@ int string2fet(FET **ofet, char *istr)
          vptr = value;
 
       /* Store name and value pair into FET. */
-      if((ret = updatefet_ret(name, vptr, fet))){
-         freefet(fet);
+      if((ret = biomeval_nbis_updatefet_ret(name, vptr, fet))){
+         biomeval_nbis_freefet(fet);
          return(ret);
       }
    }

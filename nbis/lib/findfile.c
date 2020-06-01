@@ -54,7 +54,7 @@ of the software.
       specified directory path.
 
       ROUTINES:
-#cat: find_file - takes a directory path and a filename and determines if
+#cat: biomeval_nbis_find_file - takes a directory path and a filename and determines if
 #cat:             the file exists.
 
 ***********************************************************************/
@@ -68,7 +68,7 @@ of the software.
 #define FALSE 0
 
 /**********************************************************************/
-int find_file(char *path, char *file)
+int biomeval_nbis_find_file(char *path, char *file)
 {
     int flag,len;
     DIR *dirp;

@@ -50,16 +50,16 @@ of the software.
 #endif
 
 
-extern int intrlv2not_mem(unsigned char **, int *, unsigned char *,
+extern int biomeval_nbis_intrlv2not_mem(unsigned char **, int *, unsigned char *,
                    const int, const int, const int, int *, int *, const int);
 
-extern int not2intrlv_mem(unsigned char **, int *, unsigned char *,
+extern int biomeval_nbis_not2intrlv_mem(unsigned char **, int *, unsigned char *,
                    const int, const int, const int, int *, int *, const int);
 
-extern void compute_component_padding(int *, int *, const int, const int,
+extern void biomeval_nbis_compute_component_padding(int *, int *, const int, const int,
                    int *, int *, int *, int *, const int);
 
-extern int pad_component_planes(unsigned char *, int *, int *, int *,
+extern int biomeval_nbis_pad_component_planes(unsigned char *, int *, int *, int *,
                    int *, int *, int *, int *, const int);
 
 extern int test_image_size(const int, const int, const int, int *, int *,

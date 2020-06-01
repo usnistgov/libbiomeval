@@ -56,39 +56,39 @@ of the software.
       to/from either an open file or memory buffer.
 
       ROUTINES:
-#cat: read_byte - Reads a byte of data from an open file.
+#cat: biomeval_nbis_read_byte - Reads a byte of data from an open file.
 #cat:
-#cat: getc_byte - Reads a byte of data from a memory buffer.
+#cat: biomeval_nbis_getc_byte - Reads a byte of data from a memory buffer.
 #cat:
-#cat: getc_bytes - Reads a sequence of data bytes from a memory buffer.
+#cat: biomeval_nbis_getc_bytes - Reads a sequence of data bytes from a memory buffer.
 #cat:
-#cat: write_byte - Writes a byte of data to an open file.
+#cat: biomeval_nbis_write_byte - Writes a byte of data to an open file.
 #cat:
-#cat: putc_byte - Writes a byte of data to a memory buffer.
+#cat: biomeval_nbis_putc_byte - Writes a byte of data to a memory buffer.
 #cat:
-#cat: putc_byte - Writes a sequence of data bytes to a memory buffer.
+#cat: biomeval_nbis_putc_byte - Writes a sequence of data bytes to a memory buffer.
 #cat:
-#cat: read_ushort - Reads an unsigned short from an open file.
+#cat: biomeval_nbis_read_ushort - Reads an unsigned short from an open file.
 #cat:
-#cat: getc_ushort - Reads an unsigned short from a memory buffer.
+#cat: biomeval_nbis_getc_ushort - Reads an unsigned short from a memory buffer.
 #cat:
-#cat: write_ushort - Writes an unsigned short to an open file.
+#cat: biomeval_nbis_write_ushort - Writes an unsigned short to an open file.
 #cat:
-#cat: putc_ushort - Writes an unsigned short to a memory buffer.
+#cat: biomeval_nbis_putc_ushort - Writes an unsigned short to a memory buffer.
 #cat:
-#cat: read_uint - Reads an unsigned integer from an open file.
+#cat: biomeval_nbis_read_uint - Reads an unsigned integer from an open file.
 #cat:
-#cat: getc_uint - Reads an unsigned integer from a memory buffer.
+#cat: biomeval_nbis_getc_uint - Reads an unsigned integer from a memory buffer.
 #cat:
-#cat: write_uint - Writes an unsigned integer to an open file.
+#cat: biomeval_nbis_write_uint - Writes an unsigned integer to an open file.
 #cat:
-#cat: putc_uint - Writes an unsigned integer to a memory buffer.
+#cat: biomeval_nbis_putc_uint - Writes an unsigned integer to a memory buffer.
 #cat:
-#cat: write_bits - Writes a sequence of bits to a memory buffer.
+#cat: biomeval_nbis_write_bits - Writes a sequence of bits to a memory buffer.
 #cat:
-#cat: flush_bits - Writes remaining bits to a memory buffer.
+#cat: biomeval_nbis_flush_bits - Writes remaining bits to a memory buffer.
 #cat:
-#cat: read_ascii_file - Reads the contents of an ASCII text file
+#cat: biomeval_nbis_read_ascii_file - Reads the contents of an ASCII text file
 #cat:              into a single null-terminated string.
 
 ***********************************************************************/
@@ -103,14 +103,14 @@ of the software.
 /*******************************************************/
 /* Routine to read a byte of data from the input file. */
 /*******************************************************/
-int read_byte(
+int biomeval_nbis_read_byte(
    unsigned char *ochar_dat,
    FILE *infp)
 {
    unsigned char char_dat;
 
    if((fread(&char_dat, sizeof(unsigned char), 1, infp)) != 1) {
-      fprintf(stderr, "ERROR: read_byte : fread : char_dat\n");
+      fprintf(stderr, "ERROR: biomeval_nbis_read_byte : fread : char_dat\n");
       return(-30);
    }
 
@@ -121,14 +121,14 @@ int read_byte(
 /*******************************************************/
 /* Read a byte of data from the input buffer.          */
 /*******************************************************/
-int getc_byte(
+int biomeval_nbis_getc_byte(
    unsigned char *ochar_dat,  /* pointer to returned byte       */
    unsigned char **cbufptr,   /* pointer to next byte in buffer */
    unsigned char *ebufptr)    /* pointer to end of buffer       */
 {
    /* If at end of buffer ... */
    if((*cbufptr) >= ebufptr){
-      fprintf(stderr, "ERROR : getc_byte : premature End Of Buffer\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_byte : premature End Of Buffer\n");
       return(-39);
    }
 
@@ -143,7 +143,7 @@ int getc_byte(
 /*******************************************************/
 /* Read a sequence of data bytes from the input buffer.*/
 /*******************************************************/
-int getc_bytes(
+int biomeval_nbis_getc_bytes(
    unsigned char **ochar_dat, /* pointer to returned bytes      */
    const int ilen,            /* number of bytes to be returned */
    unsigned char **cbufptr,   /* pointer to next byte in buffer */
@@ -151,7 +151,7 @@ int getc_bytes(
 {
    /* If at end of buffer ... */
    if((*cbufptr) >= (ebufptr-(ilen-1))){
-      fprintf(stderr, "ERROR : getc_bytes : premature End Of Buffer\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_bytes : premature End Of Buffer\n");
       return(-40);
    }
 
@@ -167,12 +167,12 @@ int getc_bytes(
 /*******************************************/
 /* Writes a byte of data to the open file. */
 /*******************************************/
-int write_byte(
+int biomeval_nbis_write_byte(
    const unsigned char idata, /* data to output */
    FILE *outfp)               /* output file    */
 {
    if((fwrite(&idata, sizeof(unsigned char), 1, outfp)) != 1) {
-      fprintf(stderr,"ERROR : write_byte : fwrite : idata\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_write_byte : fwrite : idata\n");
       return(-31);
    }
    return(0);
@@ -181,7 +181,7 @@ int write_byte(
 /***********************************************/
 /* Stores a byte of data to the output buffer. */
 /***********************************************/
-int putc_byte(
+int biomeval_nbis_putc_byte(
    const unsigned char idata, /* input byte */
    unsigned char *odata,      /* output buffer of bytes */
    const int oalloc,          /* allocated size of output buffer */
@@ -191,7 +191,7 @@ int putc_byte(
    /* If output buffer is out of space ...  */
    if((*olen) >= oalloc){
       fprintf(stderr,
-      "ERROR : putc_byte : buffer overlow : alloc = %d, request = %d\n",
+      "ERROR : biomeval_nbis_putc_byte : buffer overlow : alloc = %d, request = %d\n",
       oalloc, *olen);
       return(-32);
    }
@@ -205,7 +205,7 @@ int putc_byte(
 /**********************************************************************/
 /* Stores a vector of bytes of specified length to the output buffer. */
 /**********************************************************************/
-int putc_bytes(
+int biomeval_nbis_putc_bytes(
    unsigned char *idata,  /* input buffer of bytes           */
    const int ilen,        /* bytes to be copied              */
    unsigned char *odata,  /* output buffer of bytes          */
@@ -216,7 +216,7 @@ int putc_bytes(
    /* If output buffer is out of space ...  */
    if(((*olen)+ilen) > oalloc){
       fprintf(stderr,
-      "ERROR : putc_bytes : buffer overlow : alloc = %d, request = %d\n",
+      "ERROR : biomeval_nbis_putc_bytes : buffer overlow : alloc = %d, request = %d\n",
       oalloc, (*olen)+ilen);
       return(-33);
    }
@@ -230,14 +230,14 @@ int putc_bytes(
 /*********************************************************/
 /* Routine to read an unsigned short from the open file. */
 /*********************************************************/
-int read_ushort(
+int biomeval_nbis_read_ushort(
    unsigned short *oshrt_dat,
    FILE *infp)
 {
    unsigned short shrt_dat;
 
    if((fread(&shrt_dat, sizeof(unsigned short), 1, infp)) != 1) {
-      fprintf(stderr, "ERROR: read_ushort : fread : shrt_dat\n");
+      fprintf(stderr, "ERROR: biomeval_nbis_read_ushort : fread : shrt_dat\n");
       return(-34);
    }
 #ifdef __NBISLE__
@@ -251,7 +251,7 @@ int read_ushort(
 /************************************************************/
 /* Routine to read an unsigned short from the input buffer. */
 /************************************************************/
-int getc_ushort(
+int biomeval_nbis_getc_ushort(
    unsigned short *oshrt_dat,  /* pointer to returned unsigned short */
    unsigned char  **cbufptr,   /* pointer to next byte in buffer     */
    unsigned char  *ebufptr)    /* pointer to end of buffer           */
@@ -262,7 +262,7 @@ int getc_ushort(
 
    cptr = (unsigned char *)(&shrt_dat);
 
-   if((ret = getc_bytes(&cptr, sizeof(unsigned short), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_bytes(&cptr, sizeof(unsigned short), cbufptr, ebufptr)))
       return(ret);
 
 #ifdef __NBISLE__
@@ -276,7 +276,7 @@ int getc_ushort(
 /***********************************************************/
 /* This routine writes an unsigned short to the open file. */
 /***********************************************************/
-int write_ushort(
+int biomeval_nbis_write_ushort(
    unsigned short ishort,  /* data to output */
    FILE *outfp)            /* output file    */
 {
@@ -285,7 +285,7 @@ int write_ushort(
 #endif
 
    if((fwrite(&ishort, sizeof(unsigned short), 1, outfp)) != 1) {
-      fprintf(stderr,"ERROR : write_ushort : fwrite : ishort\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_write_ushort : fwrite : ishort\n");
       return(-35);
    }
    return(0);
@@ -294,7 +294,7 @@ int write_ushort(
 /***************************************************************/
 /* This routine stores an unsigned short to the output buffer. */
 /***************************************************************/
-int putc_ushort(
+int biomeval_nbis_putc_ushort(
    unsigned short ishort,     /* input unsigned short     */
    unsigned char *odata,      /* output byte buffer       */
    const int oalloc,          /* allocated size of buffer */
@@ -309,7 +309,7 @@ int putc_ushort(
 
    cptr = (unsigned char *)(&ishort);
 
-   if((ret = putc_bytes(cptr, sizeof(unsigned short), odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_bytes(cptr, sizeof(unsigned short), odata, oalloc, olen)))
       return(ret);
 
    return(0);
@@ -318,14 +318,14 @@ int putc_ushort(
 /************************************************************/
 /* Routine to read an unsigned integer from the input file. */
 /************************************************************/
-int read_uint(
+int biomeval_nbis_read_uint(
    unsigned int *oint_dat,
    FILE *infp)
 {
    unsigned int int_dat;
 
    if((fread(&int_dat, sizeof(unsigned int), 1, infp)) != 1) {
-      fprintf(stderr, "ERROR: read_uint : fread : int_dat\n");
+      fprintf(stderr, "ERROR: biomeval_nbis_read_uint : fread : int_dat\n");
       return(-36);
    }
 
@@ -340,7 +340,7 @@ int read_uint(
 /**********************************************************/
 /* Routine to read an unsigned int from the input buffer. */
 /**********************************************************/
-int getc_uint(
+int biomeval_nbis_getc_uint(
    unsigned int  *oint_dat,  /* pointer to returned unsigned int */
    unsigned char **cbufptr,  /* pointer to next byte in buffer   */
    unsigned char *ebufptr)   /* pointer to end of buffer         */
@@ -350,7 +350,7 @@ int getc_uint(
    unsigned char  *cptr;
 
    cptr = (unsigned char *)(&int_dat);
-   if((ret = getc_bytes(&cptr, sizeof(unsigned int), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_bytes(&cptr, sizeof(unsigned int), cbufptr, ebufptr)))
       return(ret);
 
 #ifdef __NBISLE__
@@ -364,7 +364,7 @@ int getc_uint(
 /**********************************/
 /* Writes unsigned int to output. */
 /**********************************/
-int write_uint(
+int biomeval_nbis_write_uint(
    unsigned int idata,   /* data to output */
    FILE *outfp)          /* output file    */
 {
@@ -373,7 +373,7 @@ int write_uint(
 #endif
 
    if((fwrite(&idata, sizeof(unsigned int), 1, outfp)) != 1) {
-      fprintf(stderr,"ERROR : write_uint : fwrite : idata\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_write_uint : fwrite : idata\n");
       return(-37);
    }
    return(0);
@@ -382,7 +382,7 @@ int write_uint(
 /****************************************************/
 /* Stores an unsigned integer to the output buffer. */
 /****************************************************/
-int putc_uint(
+int biomeval_nbis_putc_uint(
    unsigned int iint,        /* input unsigned int       */
    unsigned char *odata,     /* output byte buffer       */
    const int oalloc,         /* allocated size of buffer */
@@ -397,7 +397,7 @@ int putc_uint(
 
    cptr = (unsigned char *)(&iint);
 
-   if((ret = putc_bytes(cptr, sizeof(unsigned int), odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_bytes(cptr, sizeof(unsigned int), odata, oalloc, olen)))
       return(ret);
 
    return(0);
@@ -406,7 +406,7 @@ int putc_uint(
 /*******************************************************/
 /*Routine to write "compressed" bits to output buffer. */
 /*******************************************************/
-void write_bits(
+void biomeval_nbis_write_bits(
    unsigned char **outbuf,    /* output data buffer                          */
    const unsigned short code, /* info to write into buffer                   */
    const short size,          /* numbers bits of code to write into buffer   */
@@ -443,7 +443,7 @@ void write_bits(
 /* Routine to "flush" left over bits in last */
 /* byte after compressing a block.           */
 /*********************************************/
-void flush_bits(
+void biomeval_nbis_flush_bits(
    unsigned char **outbuf, /* output data buffer */
    int *outbit,            /* current bit location in out buffer byte */
    unsigned char *bits,    /* byte to write to output buffer */
@@ -477,13 +477,13 @@ void flush_bits(
 /* space characters (space, tab, and newline).  The ASCII text   */
 /* is read into a NULL-terminated character array.               */
 /*****************************************************************/
-int read_ascii_file(char *filename, char **ostr)
+int biomeval_nbis_read_ascii_file(char *filename, char **ostr)
 {
    int ret, fsize;
    char *str;
    FILE *fp;
 
-   ret = filesize(filename);
+   ret = biomeval_nbis_filesize(filename);
    if(ret < 0)
       return(ret);
 
@@ -491,12 +491,12 @@ int read_ascii_file(char *filename, char **ostr)
 
    str = (char *)calloc(fsize+1, sizeof(char));
    if(str == (char *)NULL){
-      fprintf(stderr, "ERROR : read_ascii_file : calloc : str\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_ascii_file : calloc : str\n");
       return(-2);
    }
 
    if((fp = fopen(filename, "rb")) == (FILE *)NULL){
-      fprintf(stderr, "ERROR : read_ascii_file : fopen : %s\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_read_ascii_file : fopen : %s\n",
               filename);
       free(str);
       return(-3);
@@ -504,7 +504,7 @@ int read_ascii_file(char *filename, char **ostr)
 
    ret = fread(str, sizeof(char), fsize, fp);
    if(ret != fsize){
-      fprintf(stderr, "ERROR : read_ascii_file : fread : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_ascii_file : fread : ");
       fprintf(stderr, "only %d of %d bytes read\n", ret, fsize);
       free(str);
       return(-4);

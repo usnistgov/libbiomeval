@@ -54,7 +54,7 @@ of the software.
       the current time and date.
 
       ROUTINES:
-#cat: current_time - returns a string containing the current date on the
+#cat: biomeval_nbis_current_time - returns a string containing the current date on the
 #cat:                system.
 
 ***********************************************************************/
@@ -66,7 +66,7 @@ of the software.
 /* Current_Time() gets the time of day from the system and  */
 /* returns an ASCII date string without a newline char.     */
 /************************************************************/
-char *current_time(void)
+char *biomeval_nbis_current_time(void)
 {
    long tm;
    char *dptr;

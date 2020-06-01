@@ -58,15 +58,15 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        nist2iafis_fingerprints()
-                        nist2iafis_fingerprint()
-                        nist2iafis_type_9s()
-                        nist2iafis_needed()
-                        nist2iafis_type_9()
-                        nist2iafis_method()
-                        nist2iafis_minutia_type()
-                        nist2iafis_pattern_class()
-                        nist2iafis_ridgecount()
+                        biomeval_nbis_nist2iafis_fingerprints()
+                        biomeval_nbis_nist2iafis_fingerprint()
+                        biomeval_nbis_nist2iafis_type_9s()
+                        biomeval_nbis_nist2iafis_needed()
+                        biomeval_nbis_nist2iafis_type_9()
+                        biomeval_nbis_nist2iafis_method()
+                        biomeval_nbis_nist2iafis_minutia_type()
+                        biomeval_nbis_nist2iafis_pattern_class()
+                        biomeval_nbis_nist2iafis_ridgecount()
 
 ***********************************************************************/
 
@@ -77,7 +77,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: nist2iafis_fingerprints - Searches an ANSI/NIST file structure for
+#cat: biomeval_nbis_nist2iafis_fingerprints - Searches an ANSI/NIST file structure for
 #cat:              tagged field fingerprint records, and if possible,
 #cat:              converts them to binary field image records.  For
 #cat:              example, a 500 dpi 8-bit grayscale Type-14 record
@@ -91,7 +91,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int nist2iafis_fingerprints(ANSI_NIST *ansi_nist)
+int biomeval_nbis_nist2iafis_fingerprints(ANSI_NIST *ansi_nist)
 {
    int i, ret;
    RECORD *imgrecord, *nimgrecord;
@@ -101,7 +101,7 @@ int nist2iafis_fingerprints(ANSI_NIST *ansi_nist)
    /* While records remain to be searched... */
    while(i < ansi_nist->num_records){
       /* Lookup next tagged field fingerprint record ... */
-      ret = lookup_tagged_field_fingerprint(&imgrecord, &imgrecord_i,
+      ret = biomeval_nbis_lookup_tagged_field_fingerprint(&imgrecord, &imgrecord_i,
                                             i, ansi_nist);
       /* If error. */
       if(ret < 0)
@@ -112,20 +112,20 @@ int nist2iafis_fingerprints(ANSI_NIST *ansi_nist)
          return(0);
       /* Otherwise, tagged field fingerprint record found, so convert it */
       /* if possible. */
-      ret = nist2iafis_fingerprint(&nimgrecord, imgrecord);
+      ret = biomeval_nbis_nist2iafis_fingerprint(&nimgrecord, imgrecord);
       /* If error ... */
       if(ret < 0)
          return(ret);
       /* If new image record created ... */
       if(ret){
          /* Insert new binary field fingerprint record. */
-         if((ret = insert_ANSI_NIST_record_frmem(imgrecord_i, nimgrecord,
+         if((ret = biomeval_nbis_insert_ANSI_NIST_record_frmem(imgrecord_i, nimgrecord,
                                                 ansi_nist))){
-            free_ANSI_NIST_record(nimgrecord);
+            biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
             return(ret);
          }
          /* Delete old tagged field fingerprint record. */
-         if((ret = delete_ANSI_NIST_record(imgrecord_i+1, ansi_nist))){
+         if((ret = biomeval_nbis_delete_ANSI_NIST_record(imgrecord_i+1, ansi_nist))){
             return(ret);
          }
       }
@@ -141,7 +141,7 @@ int nist2iafis_fingerprints(ANSI_NIST *ansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: nist2iafis_fingerprint - Takes an ANSI/NIST tagged field image
+#cat: biomeval_nbis_nist2iafis_fingerprint - Takes an ANSI/NIST tagged field image
 #cat:              fingerprint record, and if possible, converts it to
 #cat:              a binary field image record.  For example, a 500 dpi
 #cat:              8-bit grayscale Type-14 record will be converted to
@@ -156,7 +156,7 @@ int nist2iafis_fingerprints(ANSI_NIST *ansi_nist)
       FALSE      - record ignored
       Negative   - system error
 ************************************************************************/
-int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
+int biomeval_nbis_nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
 {
    int i, ret, id, newtype;
    int record_bytes;
@@ -171,7 +171,7 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
 
    /* If record is not a tagged field fingerprint record ... */
    if((imgrecord->type != TYPE_13_ID) && (imgrecord->type != TYPE_14_ID)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "image record Type-%d not a "
 	      "tagged field fingerprint record\n", imgrecord->type);
       return(-3);
@@ -180,8 +180,8 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Determine validity and type of new record to be created. */
 
    /* Look up the compression field (TAG_CA_ID). */
-   if(!lookup_ANSI_NIST_field(&cmpfield, &cmpfield_i, TAG_CA_ID, imgrecord)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&cmpfield, &cmpfield_i, TAG_CA_ID, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "TAG_CA field not found in image record [Type-%d.%03d]\n",
 	      imgrecord->type, TAG_CA_ID);
       return(-4);
@@ -199,7 +199,7 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Otherwise, unsupported compression type so ignore ... */
    else{
       /* Post warning and ignore image record. */
-      fprintf(stderr, "WARNING : nist2iafis_fingerprint : "
+      fprintf(stderr, "WARNING : biomeval_nbis_nist2iafis_fingerprint : "
 	      "image compression \"%s\" not supported in "
 	      "image record [Type-%d.%03d]\n"
 	      "Image record ignored.\n",
@@ -210,7 +210,7 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    }
 
    /* Lookup the image record's pixels/mm scan resolution. */
-   ret = lookup_tagged_field_image_ppmm(&ppmm, imgrecord);
+   ret = biomeval_nbis_lookup_tagged_field_image_ppmm(&ppmm, imgrecord);
    /* If error ... */
    if(ret < 0)
       return(ret);
@@ -223,7 +223,7 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Minimum Scanning Resolution ... */
    if((ppmm < MIN_RESOLUTION - MM_TOLERANCE) ||
       (ppmm > MIN_RESOLUTION + MM_TOLERANCE)){
-      fprintf(stderr, "WARNING : nist2iafis_fingerprint : "
+      fprintf(stderr, "WARNING : biomeval_nbis_nist2iafis_fingerprint : "
 	      "scanning resolution = %f not within tolerance "
 	      "of Minimum Scanning Resolution = %f in "
 	      "image record [Type-%d]\n"
@@ -234,8 +234,8 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    }
 
    /* Lookup pixel depth field (BPX_ID). */
-   if(!lookup_ANSI_NIST_field(&bpxfield, &bpxfield_i, BPX_ID, imgrecord)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&bpxfield, &bpxfield_i, BPX_ID, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "BPX field not found in image record [Type-%d.%03d]\n",
 	      imgrecord->type, BPX_ID);
       return(-5);
@@ -252,7 +252,7 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
          break;
       default:
          /* Unsupported pixel depth, so post warning and ignore. */
-         fprintf(stderr, "WARNING : nist2iafis_fingerprint : "
+         fprintf(stderr, "WARNING : biomeval_nbis_nist2iafis_fingerprint : "
 		 "pixel depth \"%s\" not supported in "
 		 "in image record [Type-%d.%03d]\n"
 		 "Image record ignored.\n",
@@ -263,7 +263,7 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    }
 
    /* Allocate new image record. */
-   if((ret = new_ANSI_NIST_record(&nimgrecord, newtype)))
+   if((ret = biomeval_nbis_new_ANSI_NIST_record(&nimgrecord, newtype)))
       return(ret);
 
    /* Make sure to build ANSI/NIST structures bottom up, so that */
@@ -272,20 +272,20 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
 
    /* {4,6}.001: LEN Field */
    /* Locate LEN field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, LEN_ID, imgrecord)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, LEN_ID, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "LEN field not found in input record [Type-%d.%03d]\n",
 	      imgrecord->type, LEN_ID);
-      free_ANSI_NIST_record(nimgrecord);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(-6);
    }
    /* Copy LEN Field. */
-   if((ret = copy_ANSI_NIST_field(&nfield, field))){
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, field))){
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Change Image Data Field's ID. */
-   update_ANSI_NIST_field_ID(nfield, newtype, LEN_ID);
+   biomeval_nbis_update_ANSI_NIST_field_ID(nfield, newtype, LEN_ID);
    /* Set binary byte length of LEN field. */
    nfield->num_bytes = BINARY_LEN_BYTES;
    nfield->subfields[0]->num_bytes = BINARY_LEN_BYTES;
@@ -293,28 +293,28 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Increment binary record's bytes. */
    record_bytes = BINARY_LEN_BYTES;
    /* Append record with new LEN field. */
-   if((ret = append_ANSI_NIST_record(nimgrecord, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(nimgrecord, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
 
    /* {4,6}.002: IDC Field */
    /* Locate IDC field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, IDC_ID, imgrecord)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, IDC_ID, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "IDC field not found in input record [Type-%d.%03d]\n",
 	      imgrecord->type, IDC_ID);
-      free_ANSI_NIST_record(nimgrecord);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(-7);
    }
    /* Copy IDC Field. */
-   if((ret = copy_ANSI_NIST_field(&nfield, field))){
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, field))){
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Change Image Data Field's ID. */
-   update_ANSI_NIST_field_ID(nfield, newtype, IDC_ID);
+   biomeval_nbis_update_ANSI_NIST_field_ID(nfield, newtype, IDC_ID);
    /* Set binary byte length of IDC field. */
    nfield->num_bytes = BINARY_IDC_BYTES;
    nfield->subfields[0]->num_bytes = BINARY_IDC_BYTES;
@@ -322,28 +322,28 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Increment binary record's bytes. */
    record_bytes += BINARY_IDC_BYTES;
    /* Append record with new IDC field. */
-   if((ret = append_ANSI_NIST_record(nimgrecord, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(nimgrecord, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    
    /* {4,6}.003: IMP Field */
    /* Locate IMP field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, IMP_ID, imgrecord)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, IMP_ID, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "IMP field not found in input record [Type-%d.%03d]\n",
 	      imgrecord->type, IMP_ID);
-      free_ANSI_NIST_record(nimgrecord);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(-8);
    }
    /* Copy IMP Field. */
-   if((ret = copy_ANSI_NIST_field(&nfield, field))){
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, field))){
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Change Image Data Field's ID. */
-   update_ANSI_NIST_field_ID(nfield, newtype, IMP_ID);
+   biomeval_nbis_update_ANSI_NIST_field_ID(nfield, newtype, IMP_ID);
    /* Set binary byte length of IMP field. */
    nfield->num_bytes = BINARY_IMP_BYTES;
    nfield->subfields[0]->num_bytes = BINARY_IMP_BYTES;
@@ -351,25 +351,25 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Increment binary record's bytes. */
    record_bytes += BINARY_IMP_BYTES;
    /* Append record with new IMP field. */
-   if((ret = append_ANSI_NIST_record(nimgrecord, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(nimgrecord, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    
    /* {4,6}.004: FGP Field */
    /* Locate FGP3 field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, FGP3_ID, imgrecord)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, FGP3_ID, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "FGP field not found in input record [Type-%d.%03d]\n",
 	      imgrecord->type, FGP3_ID);
-      free_ANSI_NIST_record(nimgrecord);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(-9);
    }
    /* Create new FGP subfield from first finger position. */
-   if((ret = value2subfield(&nsubfield,
+   if((ret = biomeval_nbis_value2subfield(&nsubfield,
                            (char *)field->subfields[0]->items[0]->value))){
-      free_ANSI_NIST_record(nimgrecord);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Foreach remaining subfield (reference finger position) ... */
@@ -377,61 +377,61 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
       /* If reference positions exceed length of binary FGP field ... */
       if(i >= BINARY_FGP_BYTES){
          /* Then post warning and ignore remaining references. */
-         fprintf(stderr, "WARNING : nist2iafis_fingerprint : "
+         fprintf(stderr, "WARNING : biomeval_nbis_nist2iafis_fingerprint : "
 		 "number of reference finger positions = %d > %d: "
 		 "extra references ignored\n",
 		 field->num_subfields, BINARY_FGP_BYTES);
          break;
       }
       /* Create new FGP item from next reference position subfield. */
-      if((ret = value2item(&nitem,
+      if((ret = biomeval_nbis_value2item(&nitem,
                            (char *)field->subfields[i]->items[0]->value))){
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_record(nimgrecord);
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
          return(ret);
       }
       /* Append subfield with new item. */
-      if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-         free_ANSI_NIST_item(nitem);
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_record(nimgrecord);
+      if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+         biomeval_nbis_free_ANSI_NIST_item(nitem);
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
          return(ret);
       }
    }
    /* Foreach reference position not assigned up to fixed number ... */
    for(;i < BINARY_FGP_BYTES; i++){
       /* Create new FGP item set to UNUSED. */
-      if((ret = value2item(&nitem, UNUSED_STR))){
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_record(nimgrecord);
+      if((ret = biomeval_nbis_value2item(&nitem, UNUSED_STR))){
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
          return(ret);
       }
       /* Append subfield with new item. */
-      if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-         free_ANSI_NIST_item(nitem);
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_record(nimgrecord);
+      if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+         biomeval_nbis_free_ANSI_NIST_item(nitem);
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
          return(ret);
       }
    }
 
    /* Create new FGP field. */
-   if((ret = new_ANSI_NIST_field(&nfield, newtype, FGP_ID))){
-      free_ANSI_NIST_subfield(nsubfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_new_ANSI_NIST_field(&nfield, newtype, FGP_ID))){
+      biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Append new FGP field with subfield. */
-   if((ret = append_ANSI_NIST_field(nfield, nsubfield))){
-      free_ANSI_NIST_subfield(nsubfield);
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_field(nfield, nsubfield))){
+      biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Append record with new FGP field. */
-   if((ret = append_ANSI_NIST_record(nimgrecord, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(nimgrecord, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Set all binary items in new subfield to size of 1 byte. */
@@ -452,8 +452,8 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
       /* Otherwise, ISR = 1. */
       isr = "1";
    /* Create new ISR field. */
-   if((ret = value2field(&nfield, newtype, ISR_ID, isr))){
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_value2field(&nfield, newtype, ISR_ID, isr))){
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Set binary byte length of ISR field. */
@@ -463,28 +463,28 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Increment binary record's bytes. */
    record_bytes += BINARY_ISR_BYTES;
    /* Append record with new ISR field. */
-   if((ret = append_ANSI_NIST_record(nimgrecord, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(nimgrecord, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
 
    /* {4,6}.006: HLL Field */
    /* Locate HLL field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, HLL_ID, imgrecord)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, HLL_ID, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "HLL field not found in input record [Type-%d.%03d]\n",
 	      imgrecord->type, HLL_ID);
-      free_ANSI_NIST_record(nimgrecord);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(-10);
    }
    /* Copy HLL Field. */
-   if((ret = copy_ANSI_NIST_field(&nfield, field))){
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, field))){
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Change Image Data Field's ID. */
-   update_ANSI_NIST_field_ID(nfield, newtype, HLL_ID);
+   biomeval_nbis_update_ANSI_NIST_field_ID(nfield, newtype, HLL_ID);
    /* Set binary byte length of HLL field. */
    nfield->num_bytes = BINARY_HLL_BYTES;
    nfield->subfields[0]->num_bytes = BINARY_HLL_BYTES;
@@ -492,28 +492,28 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Increment binary record's bytes. */
    record_bytes += BINARY_HLL_BYTES;
    /* Append record with new HLL field. */
-   if((ret = append_ANSI_NIST_record(nimgrecord, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(nimgrecord, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
 
    /* {4,6}.007: VLL Field */
    /* Locate VLL field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, VLL_ID, imgrecord)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, VLL_ID, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "VLL field not found in input record [Type-%d.%03d]\n",
 	      imgrecord->type, VLL_ID);
-      free_ANSI_NIST_record(nimgrecord);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(-11);
    }
    /* Copy VLL Field. */
-   if((ret = copy_ANSI_NIST_field(&nfield, field))){
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, field))){
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Change Image Data Field's ID. */
-   update_ANSI_NIST_field_ID(nfield, newtype, VLL_ID);
+   biomeval_nbis_update_ANSI_NIST_field_ID(nfield, newtype, VLL_ID);
    /* Set binary byte length of VLL field. */
    nfield->num_bytes = BINARY_VLL_BYTES;
    nfield->subfields[0]->num_bytes = BINARY_VLL_BYTES;
@@ -521,16 +521,16 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Increment binary record's bytes. */
    record_bytes += BINARY_VLL_BYTES;
    /* Append record with new VLL field. */
-   if((ret = append_ANSI_NIST_record(nimgrecord, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(nimgrecord, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
 
    /* {4,6}.008: GCA/BCA Field */
    /* Create new GCA/BCA field. */
-   if((ret = value2field(&nfield, newtype, BIN_CA_ID, img_comp))){
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_value2field(&nfield, newtype, BIN_CA_ID, img_comp))){
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Set binary byte length of GCA/BCAL field. */
@@ -540,28 +540,28 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Increment binary record's bytes. */
    record_bytes += BINARY_CA_BYTES;
    /* Append record with new GCA/BCA field. */
-   if((ret = append_ANSI_NIST_record(nimgrecord, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(nimgrecord, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
 
    /* {4,6}.009: Image Data Field */
    /* Locate Image Data field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, IMAGE_FIELD, imgrecord)){
-      fprintf(stderr, "ERROR : nist2iafis_fingerprint : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, IMAGE_FIELD, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_fingerprint : "
 	      "Image Data field not found in input record [Type-%d.%03d]\n",
 	      imgrecord->type, IMAGE_FIELD);
-      free_ANSI_NIST_record(nimgrecord);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(-12);
    }
    /* Copy Image Data Field. */
-   if((ret = copy_ANSI_NIST_field(&nfield, field))){
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, field))){
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    /* Change Image Data Field's ID. */
-   update_ANSI_NIST_field_ID(nfield, newtype, BIN_IMAGE_ID);
+   biomeval_nbis_update_ANSI_NIST_field_ID(nfield, newtype, BIN_IMAGE_ID);
    /* Set binary byte length of Image Data field. */
    nfield->num_bytes = field->subfields[0]->items[0]->num_bytes;
    nfield->subfields[0]->num_bytes = field->subfields[0]->items[0]->num_bytes;
@@ -570,21 +570,21 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    /* Increment binary record's bytes. */
    record_bytes += field->subfields[0]->items[0]->num_bytes;
    /* Append record with new Image Data field. */
-   if((ret = append_ANSI_NIST_record(nimgrecord, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(nimgrecord, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
 
    /* Create new LEN item with correct binary record length. */
    sprintf(uint_str, "%d", record_bytes);
-   if((ret = value2item(&nitem, uint_str))){
-      free_ANSI_NIST_record(nimgrecord);
+   if((ret = biomeval_nbis_value2item(&nitem, uint_str))){
+      biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
    }
    nitem->num_bytes = BINARY_LEN_BYTES;
    /* Deallocate current LEN item. */
-   free_ANSI_NIST_item(nimgrecord->fields[0]->subfields[0]->items[0]);
+   biomeval_nbis_free_ANSI_NIST_item(nimgrecord->fields[0]->subfields[0]->items[0]);
    /* Assign new LEN item. */
    nimgrecord->fields[0]->subfields[0]->items[0] = nitem;
 
@@ -601,7 +601,7 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
 
 /***********************************************************************
 ************************************************************************
-#cat: nist2iafis_type_9s - Searches an ANSI/NIST file structure for
+#cat: biomeval_nbis_nist2iafis_type_9s - Searches an ANSI/NIST file structure for
 #cat:              Type-9 records with NIST fields populated and converts
 #cat:              the fields, populating FBI/IAFIS Type-9 fields. 
 
@@ -613,7 +613,7 @@ int nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int nist2iafis_type_9s(ANSI_NIST *ansi_nist)
+int biomeval_nbis_nist2iafis_type_9s(ANSI_NIST *ansi_nist)
 {
    int i, ret;
    RECORD *ntype_9;
@@ -622,17 +622,17 @@ int nist2iafis_type_9s(ANSI_NIST *ansi_nist)
       /* Is next record a Type-9 ... */
       if(ansi_nist->records[i]->type == TYPE_9_ID){
          /* Check to see if conversion necessary ... */
-         if(nist2iafis_needed(ansi_nist->records[i])){
+         if(biomeval_nbis_nist2iafis_needed(ansi_nist->records[i])){
             /* If so, then convert NIST Type-9 to IAFIS Type-9. */
-            if((ret = nist2iafis_type_9(&ntype_9, ansi_nist, i)))
+            if((ret = biomeval_nbis_nist2iafis_type_9(&ntype_9, ansi_nist, i)))
                return(ret);
             /* Insert new Type-9. */
-            if((ret = insert_ANSI_NIST_record_frmem(i, ntype_9, ansi_nist))){
-               free_ANSI_NIST_record(ntype_9);
+            if((ret = biomeval_nbis_insert_ANSI_NIST_record_frmem(i, ntype_9, ansi_nist))){
+               biomeval_nbis_free_ANSI_NIST_record(ntype_9);
                return(ret);
             }
             /* Delete old Type-9. */
-            if((ret = delete_ANSI_NIST_record(i+1, ansi_nist))){
+            if((ret = biomeval_nbis_delete_ANSI_NIST_record(i+1, ansi_nist))){
                return(ret);
             }
          }
@@ -647,7 +647,7 @@ int nist2iafis_type_9s(ANSI_NIST *ansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: nist2iafis_needed - Determines if the specified Type-9 record
+#cat: biomeval_nbis_nist2iafis_needed - Determines if the specified Type-9 record
 #cat:              contains populated FBI/IAFIS fields.  If not, the
 #cat:              routine returns TRUE, otherwise it returns FALSE.
 
@@ -658,29 +658,29 @@ int nist2iafis_type_9s(ANSI_NIST *ansi_nist)
       FALSE      - FBI/IAFIS fields ARE populated
       Negative   - system error
 ************************************************************************/
-int nist2iafis_needed(RECORD *record)
+int biomeval_nbis_nist2iafis_needed(RECORD *record)
 {
    FIELD *fgnfield;
    int fgnfield_i;
 
    if(record->type != TYPE_9_ID){
-      fprintf(stderr, "ERROR : nist2iafis_needed : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_needed : "
 	      "record type = %d : not Type-9", record->type);
       exit(-2);
    }
 
-   if(!lookup_ANSI_NIST_field(&fgnfield, &fgnfield_i, FGN_ID, record))
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&fgnfield, &fgnfield_i, FGN_ID, record))
       return(TRUE);
 
    /* Otherwise, IAFIS fields already exist. */
-   fprintf(stderr, "WARNING: nist2iafis_needed : "
+   fprintf(stderr, "WARNING: biomeval_nbis_nist2iafis_needed : "
 	   "IAFIS Type-9 fields already exist so ignoring record.\n");
    return(FALSE);
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: nist2iafis_type_9 - Takes a Type-9 record with NIST fields populated
+#cat: biomeval_nbis_nist2iafis_type_9 - Takes a Type-9 record with NIST fields populated
 #cat:              and converts the fields, populating FBI/IAFIS fields
 #cat:              in the record.
 
@@ -700,7 +700,7 @@ int nist2iafis_needed(RECORD *record)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
+int biomeval_nbis_nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
                       const int type_9_i)
 {
    int i, j, ret, field_i, rcflag, afis_rcflag;
@@ -721,7 +721,7 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
 
    /* If record index out of range ... */
    if((type_9_i < 1) || (type_9_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "Type 9 record index = %d out of range [2..%d]\n",
 	      type_9_i+1, ansi_nist->num_records);
       return(-2);
@@ -730,53 +730,53 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
    type_9 = ansi_nist->records[type_9_i];
    /* If record is not a Type-9 ... */
    if(type_9->type != TYPE_9_ID){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "Record index [%d] Type-%d not Type-9\n",
 	      type_9_i+1, type_9->type);
       return(-3);
    }
 
    /* Allocate new Type-9 record. */
-   if((ret = new_ANSI_NIST_record(&ntype_9, TYPE_9_ID)))
+   if((ret = biomeval_nbis_new_ANSI_NIST_record(&ntype_9, TYPE_9_ID)))
       return(ret);
 
    /* 9.001: LEN Field */
    /* Locate LEN field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, LEN_ID, type_9)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, LEN_ID, type_9)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "LEN field not found in input record [Type-9.%03d]\n", LEN_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-4);
    }
    /* Copy LEN Field. */
-   if((ret = copy_ANSI_NIST_field(&nfield, field))){
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, field))){
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append record with new LEN field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* 9.002: IDC Field */
    /* Locate IDC field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, IDC_ID, type_9)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, IDC_ID, type_9)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "IDC field not found in input record [Type-9.%03d]\n", IDC_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-5);
    }
    /* Copy IDC Field. */
-   if((ret = copy_ANSI_NIST_field(&nfield, field))){
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, field))){
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append record with new IDC field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
@@ -787,87 +787,87 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
    /* coordinates in the Type-9 record with the same IDC.  This is   */
    /* a reasonable operational assumption that might not always hold!*/
    idc = atoi((char *)field->subfields[0]->items[0]->value);
-   ret = lookup_fingerprint_with_IDC(&imgrecord, &imgrecord_i,
+   ret = biomeval_nbis_lookup_fingerprint_with_IDC(&imgrecord, &imgrecord_i,
                                      idc, 1, ansi_nist);
    /* If error ... */
    if(ret < 0){
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* If matching fingerprint image record not found ... */
    if(!ret){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "Fingerprint image record with IDC = %d not found\n", idc);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-6);
    }
    /* Otherwise, fingerprint record with matching IDC found, */
    /* so get image height and ppmm. */
    /* Lookup horizontal line length (VLL_ID). */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, VLL_ID, imgrecord)){
-      fprintf(stderr, "ERROR : lookup_ANSI_NIST_image : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, VLL_ID, imgrecord)){
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_ANSI_NIST_image : "
 	      "VLL field not found in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, VLL_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-7);
    }
    ih = atoi((char *)field->subfields[0]->items[0]->value);
 
    /* Lookup image record's pixel/mm scan resolution. */
-   if((ret = lookup_ANSI_NIST_image_ppmm(&ppmm, ansi_nist, imgrecord_i))){
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_lookup_ANSI_NIST_image_ppmm(&ppmm, ansi_nist, imgrecord_i))){
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* 9.003: IMP Field */
    /* Locate IMP field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, IMP_ID, type_9)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, IMP_ID, type_9)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "IMP field not found in input record [Type-9.%03d]\n", IMP_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-8);
    }
    /* Check to make sure IMP is in range of ANSI/NIST Table 5. */
    imp_code = atoi((char *)field->subfields[0]->items[0]->value);
    if((imp_code < MIN_TABLE_5_CODE) ||
       (imp_code > MAX_TABLE_5_CODE)){
-      fprintf(stderr, "ERROR : iafis2nist_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_iafis2nist_type_9 : "
 	      "IMP = %d out of Table 5 range [%d..%d] in [Type-9.%03d]\n",
               imp_code, MIN_TABLE_5_CODE, MAX_TABLE_5_CODE, IMP_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-9);
    }
    /* Copy IMP Field. */
-   if((ret = copy_ANSI_NIST_field(&nfield, field))){
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_copy_ANSI_NIST_field(&nfield, field))){
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append record with new IMP field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* 9.004: FMT Field */
    /* Create new FMT field with value = "U" for User-Defined fields. */
-   if((ret = value2field(&nfield, TYPE_9_ID, FMT_ID, "U"))){
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_value2field(&nfield, TYPE_9_ID, FMT_ID, "U"))){
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append record with new FMT field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* 9.014: FGN Field */
    /* Locate FGP2 (9.006) field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, FGP2_ID, type_9)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, FGP2_ID, type_9)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "FGP2 field not found in input record [Type-9.%03d]\n", FGP2_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-10);
    }
    /* Check if position code is valid ... palm or finger. */
@@ -876,161 +876,161 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
          (finger_pos <= MAX_TABLE_6_CODE)) ||
         ((finger_pos >= MIN_TABLE_19_CODE) &&
          (finger_pos <= MAX_TABLE_19_CODE)))){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "FGP = %d not a valid Table 6 or Table 19 code in "
 	      "input record [Type-9.%03d]\n", finger_pos, FGP2_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-11);
    }
    /* Create new FGN field from FGP2 value. */
-   if((ret = value2field(&nfield, TYPE_9_ID, FGN_ID,
+   if((ret = biomeval_nbis_value2field(&nfield, TYPE_9_ID, FGN_ID,
                         (char *)field->subfields[0]->items[0]->value))){
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append record with new FGN field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* 9.015: NMN Field */
    /* Locate MIN (9.010) field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, MIN_ID, type_9)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, MIN_ID, type_9)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "MIN field not found in input record [Type-9.%03d]\n", MIN_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-12);
    }
    /* If number of minutiae exceeds FBI/IAFIS limit ... */
    num_min = atoi((char *)field->subfields[0]->items[0]->value);
    if(num_min > MAX_IAFIS_MINUTIAE){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "MIN field [Type-9.%03d] Number of Minutiae "
 	      "= %d > %d, exceeds FBI/IAFIS limit\n",
 	      MIN_ID, num_min, MAX_IAFIS_MINUTIAE);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-13);
    }
    /* Create new NMN field from MIN value. */
-   if((ret = value2field(&nfield, TYPE_9_ID, NMN_ID,
+   if((ret = biomeval_nbis_value2field(&nfield, TYPE_9_ID, NMN_ID,
                         (char *)field->subfields[0]->items[0]->value))){
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append record with new NMN field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* 9.016: FCP Field */
    /* Locate OFR (9.005) field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, OFR_ID, type_9)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, OFR_ID, type_9)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "OFR field not found in input record [Type-9.%03d]\n", OFR_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-14);
    }
    if(field->subfields[0]->num_items != 2){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "OFR field does not contain two items in [Type-9.%03d]\n", OFR_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-15);
    }
    sysname = (char *)field->subfields[0]->items[0]->value;
    method = (char *)field->subfields[0]->items[1]->value;
    /* Create FCP subfield with first item == OFR System Name. */
-   if((ret = value2subfield(&nsubfield, sysname))){
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_value2subfield(&nsubfield, sysname))){
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Create default second item (version) == "00". */
-   if((ret = value2item(&nitem, "00"))){
-      free_ANSI_NIST_subfield(nsubfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_value2item(&nitem, "00"))){
+      biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append Version item to FCP subfield. */
-   if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-      free_ANSI_NIST_item(nitem);
-      free_ANSI_NIST_subfield(nsubfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+      biomeval_nbis_free_ANSI_NIST_item(nitem);
+      biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Convert ANSI/NIST system method to FBI/IAFIS method. */
-   if((ret = nist2iafis_method(&nmethod, method))){
-      free_ANSI_NIST_subfield(nsubfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_nist2iafis_method(&nmethod, method))){
+      biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
-   if((ret = value2item(&nitem, nmethod))){
-      free_ANSI_NIST_subfield(nsubfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_value2item(&nitem, nmethod))){
+      biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append Method item to FCP subfield. */
-   if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-      free_ANSI_NIST_item(nitem);
-      free_ANSI_NIST_subfield(nsubfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+      biomeval_nbis_free_ANSI_NIST_item(nitem);
+      biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* Allocate new FCP field. */
-   if((ret = new_ANSI_NIST_field(&nfield, TYPE_9_ID, FCP_ID))){
-      free_ANSI_NIST_subfield(nsubfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_new_ANSI_NIST_field(&nfield, TYPE_9_ID, FCP_ID))){
+      biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append FCP field with new subfield. */
-   if((ret = append_ANSI_NIST_field(nfield, nsubfield))){
-      free_ANSI_NIST_subfield(nsubfield);
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_field(nfield, nsubfield))){
+      biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append record with new FCP field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* 9.017: APC Field */
    /* Note: This is a manditory NIST field and an optional IAFIS field. */
    /* Locate FPC (9.007) field in input record. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, FPC_ID, type_9)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, FPC_ID, type_9)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "FPC field not found in input record [Type-9.%03d]\n", FPC_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-16);
    }
    /* First subfield is different from the rest and should have 2 items. */
    if(field->subfields[0]->num_items != 2){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "primary pattern classification not found in "
 	      "FPC field [Type-9.%03d]\n", FPC_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-17);
    }
    /* Only deal with Standard Table 8 class codes. */
    if(strcmp((char *)field->subfields[0]->items[0]->value, TBL_STR) != 0){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "Non-standard pattern classes not supported in "
 	      "FPC field [Type-9.%03d]\n", FPC_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-18);
    }
    /* If number of pattern classes exceeds FBI/IAFIS limit ... */
    if(field->num_subfields > MAX_IAFIS_PATTERN_CLASSES){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "FPC field [Type-9.%03d] number of pattern classes "
 	      "= %d > %d, exceeds FBI/IAFIS limit\n",
 	      FPC_ID, field->num_subfields, MAX_IAFIS_PATTERN_CLASSES);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-19);
    }
 
@@ -1041,9 +1041,9 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
          /* Primary pattern class is in 2nd item. */
          class = (char *)field->subfields[i]->items[1]->value;
          /* Allocate new APC field. */
-         if((ret = new_ANSI_NIST_field(&nfield, TYPE_9_ID, APC_ID))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_new_ANSI_NIST_field(&nfield, TYPE_9_ID, APC_ID))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
       }
@@ -1051,47 +1051,47 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
       else
          class = (char *)field->subfields[i]->items[0]->value;
       /* Translate Standard class codes to IAFIS class codes. */
-      if((ret = nist2iafis_pattern_class(&nclass, class, finger_pos))){
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_nist2iafis_pattern_class(&nclass, class, finger_pos))){
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
       /* Create new APC subfield with next pattern classification. */
-      if((ret = value2subfield(&nsubfield, nclass))){
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_value2subfield(&nsubfield, nclass))){
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
       /* Create 2 default Ridge Count items and add to current */
       /* subfield. */
       for(j = 0; j < 2; j++){
-         if((ret = value2item(&nitem, "31"))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_value2item(&nitem, "31"))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append subfield with new Ridge Count item. */
-         if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-            free_ANSI_NIST_item(nitem);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+            biomeval_nbis_free_ANSI_NIST_item(nitem);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
       }
       /* Append APC field with new subfield. */
-      if((ret = append_ANSI_NIST_field(nfield, nsubfield))){
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_append_ANSI_NIST_field(nfield, nsubfield))){
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
    } /* Next pattern class in FPC. */
    /* Append record with new APC field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
@@ -1103,108 +1103,108 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
 
    /* 9.020: ORN Field */
    /* Create ORN field with default value == "0" */
-   if((ret = value2field(&nfield, TYPE_9_ID, ORN_ID, "0"))){
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_value2field(&nfield, TYPE_9_ID, ORN_ID, "0"))){
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Append record with new ORN field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* 9.021: CRA Field */
    /* Optional, so populate only if Core(s) reported in NIST fields. */
    /* Locate CRP field in input record. */
-   if(lookup_ANSI_NIST_field(&field, &field_i, CRP_ID, type_9)){
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, CRP_ID, type_9)){
       /* If number of cores in CRP field within range of CRA field ... */
       if((field->num_subfields < 1) ||
          (field->num_subfields > MAX_IAFIS_CORES)) {
-         fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+         fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 		 "Number of cores = %d out of range [1..%d] in "
 		 "CRP field [Type-9.%03d], exceed FBI/IAFIS limit\n",
 		 field->num_subfields, MAX_IAFIS_CORES, CRP_ID);
-         free_ANSI_NIST_record(ntype_9);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(-20);
       }
       /* Allocate new CRA field. */
-      if((ret = new_ANSI_NIST_field(&nfield, TYPE_9_ID, CRA_ID))){
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_new_ANSI_NIST_field(&nfield, TYPE_9_ID, CRA_ID))){
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
       /* For each core reported in CRP field ... */
       for(i = 0; i < field->num_subfields; i++){
          /* Create new CRA subfield from next core's location. */
-         if((ret = value2subfield(&nsubfield, 
+         if((ret = biomeval_nbis_value2subfield(&nsubfield, 
                              (char *)field->subfields[i]->items[0]->value))){
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* If core location string not 8 characters long ... */
          if(strlen((char *)nsubfield->items[0]->value) != 8){
-            fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+            fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 		    "Core location = %s is not format XXXXYYYY in"
 		    "CRP field [Type-9.%03d]\n",
                     nsubfield->items[0]->value, CRP_ID);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(-21);
          }
          /* Flip core's y-coord. */
          /* Start 5 chars in on XXXXYYYY and proceed to work on 4 */
          /* chars from that point. */
-         if((ret = flip_y_coord((char *)&(nsubfield->items[0]->value[4]), 4,
+         if((ret = biomeval_nbis_flip_y_coord((char *)&(nsubfield->items[0]->value[4]), 4,
                                ih, ppmm))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Create Direction item with default value "000". */
-         if((ret = value2item(&nitem, "000"))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_value2item(&nitem, "000"))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append subfield with Direction item. */
-         if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-            free_ANSI_NIST_item(nitem);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+            biomeval_nbis_free_ANSI_NIST_item(nitem);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Create Position Uncertainty item with default value "0000". */
-         if((ret = value2item(&nitem, "0000"))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_value2item(&nitem, "0000"))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append subfield with Position Uncertainty item. */
-         if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-            free_ANSI_NIST_item(nitem);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+            biomeval_nbis_free_ANSI_NIST_item(nitem);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append CRA field with new subfield. */
-         if((ret = append_ANSI_NIST_field(nfield, nsubfield))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_field(nfield, nsubfield))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
       }
       /* Append record with new CRA field. */
-      if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
         return(ret);
       }
    }
@@ -1212,97 +1212,97 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
    /* 9.022: DLA Field */
    /* Optional, so populate only if Delta(s) reported in NIST fields. */
    /* Locate DLT field in input record. */
-   if(lookup_ANSI_NIST_field(&field, &field_i, DLT_ID, type_9)){
+   if(biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, DLT_ID, type_9)){
       /* If number of deltas in DLT field within range ... */
       if((field->num_subfields <= 0) ||
          (field->num_subfields > MAX_IAFIS_DELTAS)) {
-         fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+         fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 		 "Number of deltas = %d out of range [1..%d] in "
 		 "DLT field [Type-9.%03d], exceeds FBI/IAFIS limit\n",
 		 field->num_subfields, MAX_IAFIS_DELTAS, DLT_ID);
-         free_ANSI_NIST_record(ntype_9);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(-22);
       }
       /* Allocate new DLA field. */
-      if((ret = new_ANSI_NIST_field(&nfield, TYPE_9_ID, DLA_ID))){
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_new_ANSI_NIST_field(&nfield, TYPE_9_ID, DLA_ID))){
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
       /* For each delta reported in DLT field ... */
       for(i = 0; i < field->num_subfields; i++){
          /* Create new DLA subfield from next delta's location. */
-         if((ret = value2subfield(&nsubfield, 
+         if((ret = biomeval_nbis_value2subfield(&nsubfield, 
                             (char *)field->subfields[i]->items[0]->value))){
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* If delta location string not 8 characters long ... */
          if(strlen((char *)nsubfield->items[0]->value) != 8){
-            fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+            fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 		    "Delta location = %s is not format XXXXYYYY in"
 		    "DLT field [Type-9.%03d]\n",
                     nsubfield->items[0]->value, DLT_ID);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(-23);
          }
          /* Flip first delta's y-coord. */
          /* Start 5 chars in on XXXXYYYY and proceed to work on 4 */
          /* chars from that point. */
-         if((ret = flip_y_coord((char *)&(nsubfield->items[0]->value[4]), 4,
+         if((ret = biomeval_nbis_flip_y_coord((char *)&(nsubfield->items[0]->value[4]), 4,
                                ih, ppmm))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Create default directions for Upward, Leftward, and Rightward. */
          for(j = 0; j < 3; j++){
             /* Create new Direction item with default value "000". */
-            if((ret = value2item(&nitem, "000"))){
-               free_ANSI_NIST_subfield(nsubfield);
-               free_ANSI_NIST_field(nfield);
-               free_ANSI_NIST_record(ntype_9);
+            if((ret = biomeval_nbis_value2item(&nitem, "000"))){
+               biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+               biomeval_nbis_free_ANSI_NIST_field(nfield);
+               biomeval_nbis_free_ANSI_NIST_record(ntype_9);
                return(ret);
             }
             /* Append subfield with new Direction item. */
-            if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-               free_ANSI_NIST_item(nitem);
-               free_ANSI_NIST_subfield(nsubfield);
-               free_ANSI_NIST_field(nfield);
-               free_ANSI_NIST_record(ntype_9);
+            if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+               biomeval_nbis_free_ANSI_NIST_item(nitem);
+               biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+               biomeval_nbis_free_ANSI_NIST_field(nfield);
+               biomeval_nbis_free_ANSI_NIST_record(ntype_9);
                return(ret);
             }
          }
          /* Create Position Uncertainty item with default value "0000". */
-         if((ret = value2item(&nitem, "0000"))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_value2item(&nitem, "0000"))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append subfield with Position Uncertainty item. */
-         if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-            free_ANSI_NIST_item(nitem);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+            biomeval_nbis_free_ANSI_NIST_item(nitem);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append DLA field with new subfield. */
-         if((ret = append_ANSI_NIST_field(nfield, nsubfield))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_field(nfield, nsubfield))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
       }
       /* Append record with new DLA field. */
-      if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
         return(ret);
       }
    }
@@ -1311,10 +1311,10 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
    /* First determine if we have AFIS/FBI ridge counts stored in */
    /* MRC (9.012) field.                                         */
    /* Look up RDG (9.011) field. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, RDG_ID, type_9)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, RDG_ID, type_9)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "FDG field not found in input record [Type-9.%03d]\n", RDG_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-24);
    }
    rcflag = atoi((char *)field->subfields[0]->items[0]->value);
@@ -1327,15 +1327,15 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
       /* We don't have AFIS/FBI ridge counts. */
       afis_rcflag = FALSE;
    /* Look up manditory MRC (9.012) field. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, MRC_ID, type_9)){
-      fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, MRC_ID, type_9)){
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 	      "MRC field not found in input record [Type-9.%03d]\n", MRC_ID);
-      free_ANSI_NIST_record(ntype_9);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(-25);
    }
    /* Allocate new MAT field. */
-   if((ret = new_ANSI_NIST_field(&nfield, TYPE_9_ID, MAT_ID))){
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_new_ANSI_NIST_field(&nfield, TYPE_9_ID, MAT_ID))){
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
    /* Foreach minutiae reported in MRC field ... */
@@ -1345,93 +1345,93 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
       /* MRC minutiae subfields have 2 manditory items. */
       /* 1. Index  2. Location/Direction                */
       if(subfield->num_items < 2){
-         fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+         fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 		 "Minutia %s has %d items < 2 in record [Type-9.%03d]\n",
                  subfield->items[0]->value, subfield->num_items, MRC_ID);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(-26);
       }
       /* If ridge counts included, then subfield has at least 4 */
       /* manditory items.  1. Index  2. Location/Direction      */
       /* 3. Quality  4. Type  5. 0 or more Ridge Counts         */
       if(rcflag && (subfield->num_items < 4)){
-         fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+         fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 		 "Minutia %s has %d items < 4 in record [Type-9.%03d]\n",
                  subfield->items[0]->value, subfield->num_items, MRC_ID);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(-27);
       }
       /* If AFIS/FBI ridge counts, then MRC must have 4 manditory fields */
       /* plus 8 neighboring ridge counts. */
       if(afis_rcflag &&
          (subfield->num_items < (MAX_IAFIS_MINUTIA_ITEMS-1))){
-         fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+         fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 		 "Minutia %s has %d items < %d in record [Type-9.%03d]\n",
                           subfield->items[0]->value, subfield->num_items,
                           MAX_IAFIS_MINUTIA_ITEMS-1, MRC_ID);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(-28);
       }
 
       /* 1. Index Item */
       /* Create MAT subfield with first item == Index item. */
       j = 0;
-      if((ret = value2subfield(&nsubfield,
+      if((ret = biomeval_nbis_value2subfield(&nsubfield,
                                (char *)subfield->items[j++]->value))){
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
 
       /* 2. Location/Direction Item */
       /* Create MAT subfield's second item from MRC XXXXYYYYTTT value. */
-      if((ret = value2item(&nitem, (char *)subfield->items[j++]->value))){
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_value2item(&nitem, (char *)subfield->items[j++]->value))){
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
       /* If minutia's location string not 11 characters long ... */
       if(strlen((char *)nitem->value) != 11){
-         fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+         fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 		 "Minutia %s location = %s is not "
 		 "format XXXXYYYYTTT in MRC field [Type-9.%03d]\n",
                  subfield->items[0]->value, nitem->value, MRC_ID);
-         free_ANSI_NIST_item(nitem);
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+         biomeval_nbis_free_ANSI_NIST_item(nitem);
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(-29);
       }
       /* Flip minutia's y-coord. */
       /* Start 5 chars in on XXXXYYYYTTT and proceed to work on 4 */
       /* chars from that point. */
-      if((ret = flip_y_coord((char *)&(nitem->value[4]), 4, ih, ppmm))){
-         free_ANSI_NIST_item(nitem);
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_flip_y_coord((char *)&(nitem->value[4]), 4, ih, ppmm))){
+         biomeval_nbis_free_ANSI_NIST_item(nitem);
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
       /* Flip minutia's direction. */
       /* Start 9 chars in on XXXXYYYYTTT and proceed to work on 3 */
       /* chars from that point. */
-      if((ret = flip_direction((char *)&(nitem->value[8]), 3))){
-         free_ANSI_NIST_item(nitem);
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_flip_direction((char *)&(nitem->value[8]), 3))){
+         biomeval_nbis_free_ANSI_NIST_item(nitem);
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
       /* Append minutia subfield with new Location/Theta item. */
-      if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-         free_ANSI_NIST_item(nitem);
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+         biomeval_nbis_free_ANSI_NIST_item(nitem);
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
 
@@ -1442,47 +1442,47 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
          quality = atoi((char *)subfield->items[j]->value);
          if((quality < MIN_QUALITY_VALUE) ||
             (quality > MAX_QUALITY_VALUE)){
-            fprintf(stderr, "ERROR : nist2iafis_type_9 : "
+            fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_type_9 : "
 		    "Minutia %s quality = %d out of range [%d..%d] "
 		    "in [Type-9.%03d]\n",
 		    subfield->items[0]->value, quality,
 		    MIN_QUALITY_VALUE, MAX_QUALITY_VALUE, MRC_ID);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(-30);
          }
          /* Create MAT subfield's 3rd item from MRC Quality value. */
-         if((ret = value2item(&nitem, (char *)subfield->items[j++]->value))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_value2item(&nitem, (char *)subfield->items[j++]->value))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append minutia subfield with new Quality item. */
-         if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-            free_ANSI_NIST_item(nitem);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+            biomeval_nbis_free_ANSI_NIST_item(nitem);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
       }
       /* Otherwise, assign quality value = "01" for Quality Not Available. */
       else{
          /* Create MAT subfield's 3rd item with "unavailable" quality. */
-         if((ret = value2item(&nitem, "01"))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_value2item(&nitem, "01"))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append minutia subfield with default Quality item. */
-         if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-            free_ANSI_NIST_item(nitem);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+            biomeval_nbis_free_ANSI_NIST_item(nitem);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
       }
@@ -1492,43 +1492,43 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
       if(j < subfield->num_items){
          /* Translate Standard minutia type codes to IAFIS type codes. */
          type = (char *)subfield->items[j++]->value;
-         if((ret = nist2iafis_minutia_type(&ntype, type))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_nist2iafis_minutia_type(&ntype, type))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Create MAT subfield's 4th item from AFIS Type value. */
-         if((ret = value2item(&nitem, ntype))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_value2item(&nitem, ntype))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append minutia subfield with new Type item. */
-         if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-            free_ANSI_NIST_item(nitem);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+            biomeval_nbis_free_ANSI_NIST_item(nitem);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
       }
       /* Otherwise, minutia type value = "C" for No Distinction Provided. */
       else {
          /* Create MAT subfield's 4th item with default minutia type = "C". */
-         if((ret = value2item(&nitem, "C"))){
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_value2item(&nitem, "C"))){
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
          /* Append minutia subfield with default Minutia Type item. */
-         if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-            free_ANSI_NIST_item(nitem);
-            free_ANSI_NIST_subfield(nsubfield);
-            free_ANSI_NIST_field(nfield);
-            free_ANSI_NIST_record(ntype_9);
+         if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+            biomeval_nbis_free_ANSI_NIST_item(nitem);
+            biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+            biomeval_nbis_free_ANSI_NIST_field(nfield);
+            biomeval_nbis_free_ANSI_NIST_record(ntype_9);
             return(ret);
          }
       }
@@ -1537,29 +1537,29 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
       /* If AFIS/FBI ridge counts ... */
       if(afis_rcflag){
          while(j < subfield->num_items){
-            if((ret = nist2iafis_ridgecount(&afis_rc,
+            if((ret = biomeval_nbis_nist2iafis_ridgecount(&afis_rc,
                                      (char *)subfield->items[j++]->value))){
-               free_ANSI_NIST_subfield(nsubfield);
-               free_ANSI_NIST_field(nfield);
-               free_ANSI_NIST_record(ntype_9);
+               biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+               biomeval_nbis_free_ANSI_NIST_field(nfield);
+               biomeval_nbis_free_ANSI_NIST_record(ntype_9);
                return(ret);
             }
             /* Create item from new AFIS ridge count. */
-            if((ret = value2item(&nitem, afis_rc))){
+            if((ret = biomeval_nbis_value2item(&nitem, afis_rc))){
                free(afis_rc);
-               free_ANSI_NIST_subfield(nsubfield);
-               free_ANSI_NIST_field(nfield);
-               free_ANSI_NIST_record(ntype_9);
+               biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+               biomeval_nbis_free_ANSI_NIST_field(nfield);
+               biomeval_nbis_free_ANSI_NIST_record(ntype_9);
                return(ret);
             }
             /* Deallocate AFIS ridge count string. */
             free(afis_rc);
             /* Append minutia subfield with new Ridge Count item. */
-            if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-               free_ANSI_NIST_item(nitem);
-               free_ANSI_NIST_subfield(nsubfield);
-               free_ANSI_NIST_field(nfield);
-               free_ANSI_NIST_record(ntype_9);
+            if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+               biomeval_nbis_free_ANSI_NIST_item(nitem);
+               biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+               biomeval_nbis_free_ANSI_NIST_field(nfield);
+               biomeval_nbis_free_ANSI_NIST_record(ntype_9);
                return(ret);
             }
          }
@@ -1570,18 +1570,18 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
          /* Foreach octant neighbor... */
          for(j = 0; j < 8; j++){
             /* Create default item with value = "25515". */
-            if((ret = value2item(&nitem, "25515"))){
-               free_ANSI_NIST_subfield(nsubfield);
-               free_ANSI_NIST_field(nfield);
-               free_ANSI_NIST_record(ntype_9);
+            if((ret = biomeval_nbis_value2item(&nitem, "25515"))){
+               biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+               biomeval_nbis_free_ANSI_NIST_field(nfield);
+               biomeval_nbis_free_ANSI_NIST_record(ntype_9);
                return(ret);
             }
             /* Append minutia subfield with defalut Ridge Count item. */
-            if((ret = append_ANSI_NIST_subfield(nsubfield, nitem))){
-               free_ANSI_NIST_item(nitem);
-               free_ANSI_NIST_subfield(nsubfield);
-               free_ANSI_NIST_field(nfield);
-               free_ANSI_NIST_record(ntype_9);
+            if((ret = biomeval_nbis_append_ANSI_NIST_subfield(nsubfield, nitem))){
+               biomeval_nbis_free_ANSI_NIST_item(nitem);
+               biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+               biomeval_nbis_free_ANSI_NIST_field(nfield);
+               biomeval_nbis_free_ANSI_NIST_record(ntype_9);
                return(ret);
             }
          }
@@ -1592,24 +1592,24 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
       /* as they are an optional information item to FBI/IAFIS.    */
 
       /* Append MAT field with new minutia subfield. */
-      if((ret = append_ANSI_NIST_field(nfield, nsubfield))){
-         free_ANSI_NIST_subfield(nsubfield);
-         free_ANSI_NIST_field(nfield);
-         free_ANSI_NIST_record(ntype_9);
+      if((ret = biomeval_nbis_append_ANSI_NIST_field(nfield, nsubfield))){
+         biomeval_nbis_free_ANSI_NIST_subfield(nsubfield);
+         biomeval_nbis_free_ANSI_NIST_field(nfield);
+         biomeval_nbis_free_ANSI_NIST_record(ntype_9);
          return(ret);
       }
    } /* Next minutia */
 
    /* Append record with new MAT field. */
-   if((ret = append_ANSI_NIST_record(ntype_9, nfield))){
-      free_ANSI_NIST_field(nfield);
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_append_ANSI_NIST_record(ntype_9, nfield))){
+      biomeval_nbis_free_ANSI_NIST_field(nfield);
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
    /* Update the LEN field with length of new Type-9 record. */
-   if((ret = update_ANSI_NIST_tagged_record_LEN(ntype_9))){
-      free_ANSI_NIST_record(ntype_9);
+   if((ret = biomeval_nbis_update_ANSI_NIST_tagged_record_LEN(ntype_9))){
+      biomeval_nbis_free_ANSI_NIST_record(ntype_9);
       return(ret);
    }
 
@@ -1622,7 +1622,7 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
 
 /***********************************************************************
 ************************************************************************
-#cat: nist2iafis_method - Takes an ANSI/NIST system method string
+#cat: biomeval_nbis_nist2iafis_method - Takes an ANSI/NIST system method string
 #cat:              and returns an FBI/IAFIS method following an
 #cat:              "imperfect" mapping.
 
@@ -1639,12 +1639,12 @@ int nist2iafis_type_9(RECORD **otype_9, ANSI_NIST *ansi_nist,
       Zero      - successful completion
       Negative  - system error
 ************************************************************************/
-int nist2iafis_method(char **omethod, char *method)
+int biomeval_nbis_nist2iafis_method(char **omethod, char *method)
 {
    char *nmethod;
 
    if(strlen(method) != 1){
-      fprintf(stderr, "ERROR : nist2iafis_method : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_method : "
 	      "invalid method %s found : "
 	      "ANSI/NIST method must be one 1 character\n", method);
       return(-2);
@@ -1661,7 +1661,7 @@ int nist2iafis_method(char **omethod, char *method)
            nmethod = "NMV";
            break;
       default:
-           fprintf(stderr, "ERROR : nist2iafis_method : "
+           fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_method : "
 		   "invalid ANSI/NIST method %s found\n", method);
            return(-3);
    }
@@ -1674,7 +1674,7 @@ int nist2iafis_method(char **omethod, char *method)
 
 /***********************************************************************
 ************************************************************************
-#cat: nist2iafis_minutia_type - Takes an ANSI/NIST Table 7 minutia type
+#cat: biomeval_nbis_nist2iafis_minutia_type - Takes an ANSI/NIST Table 7 minutia type
 #cat:              and returns an FBI/IAFIS minutia type.
    
    Input:
@@ -1685,7 +1685,7 @@ int nist2iafis_method(char **omethod, char *method)
       Zero      - successful completion
       Negative  - system error
 ************************************************************************/
-int nist2iafis_minutia_type(char **otype, char *type)
+int biomeval_nbis_nist2iafis_minutia_type(char **otype, char *type)
 {
    char *ntype;
 
@@ -1703,7 +1703,7 @@ int nist2iafis_minutia_type(char **otype, char *type)
       ntype = "C";
    /* Illegal type */
    } else{
-      fprintf(stderr, "ERROR : nist2iafis_minutia_type : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_minutia_type : "
 	      "invalid ANSI/NIST minutia type %s found\n", type);
       return(-2);
    }
@@ -1717,7 +1717,7 @@ int nist2iafis_minutia_type(char **otype, char *type)
 
 /***********************************************************************
 ************************************************************************
-#cat: nist2iafis_pattern_class - Takes an ANSI/NIST Table 8 pattern
+#cat: biomeval_nbis_nist2iafis_pattern_class - Takes an ANSI/NIST Table 8 pattern
 #cat:              classification and a finger position (if known) and
 #cat:              if possible returns an FBI/IAFIS pattern classification.
    
@@ -1730,13 +1730,13 @@ int nist2iafis_minutia_type(char **otype, char *type)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int nist2iafis_pattern_class(char **oclass, char *class, const int finger_pos)
+int biomeval_nbis_nist2iafis_pattern_class(char **oclass, char *class, const int finger_pos)
 {
    char *nclass = NULL;
    int ret, hand;
 
    /* Determine which hand the finger is on. */
-   ret = which_hand(finger_pos);
+   ret = biomeval_nbis_which_hand(finger_pos);
    /* If error ... */
    if(ret < 0)
       return(ret);
@@ -1819,7 +1819,7 @@ int nist2iafis_pattern_class(char **oclass, char *class, const int finger_pos)
       nclass = "UC";
    /* Illegal pattern class */
    } else{
-      fprintf(stderr, "ERROR : nist2iafis_pattern_class : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_pattern_class : "
 	      "invalid pattern class = %s\n", class);
       return(-2);
    }
@@ -1833,7 +1833,7 @@ int nist2iafis_pattern_class(char **oclass, char *class, const int finger_pos)
 
 /***********************************************************************
 ************************************************************************
-#cat: nist2iafis_ridgecount - Takes a NIST formatted neighbor/ridge count
+#cat: biomeval_nbis_nist2iafis_ridgecount - Takes a NIST formatted neighbor/ridge count
 #cat:              string containing the neighbor index and ridge count
 #cat:              separated by a comma, and generates an FBI/IAFIS
 #cat:              formatted string that is fixed length with 3 characters
@@ -1848,7 +1848,7 @@ int nist2iafis_pattern_class(char **oclass, char *class, const int finger_pos)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int nist2iafis_ridgecount(char **oiafis_rc, char *nist_rc)
+int biomeval_nbis_nist2iafis_ridgecount(char **oiafis_rc, char *nist_rc)
 {
    char *iafis_rc, *cptr, c;
    int nbr_i, rc;
@@ -1856,7 +1856,7 @@ int nist2iafis_ridgecount(char **oiafis_rc, char *nist_rc)
 
    /* Parse neighbor index. */
    if((cptr = index(nist_rc, ',')) == NULL){
-      fprintf(stderr, "ERROR : nist2iafis_ridgecount : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_ridgecount : "
 	      "parse error in string = %s, no comma found.\n", nist_rc);
       return(-2);
    }
@@ -1866,7 +1866,7 @@ int nist2iafis_ridgecount(char **oiafis_rc, char *nist_rc)
    *cptr = c;
    cptr++;
    if(*cptr == '\0'){
-      fprintf(stderr, "ERROR : nist2iafis_ridgecount : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_ridgecount : "
 	      "parse error in string = %s, ridge count not found.\n", nist_rc);
       return(-3);
    }
@@ -1875,7 +1875,7 @@ int nist2iafis_ridgecount(char **oiafis_rc, char *nist_rc)
    /* Allocate IAFIS ridge count string "IIICC". */
    iafis_rc = (char *)calloc(6, sizeof(char));
    if(iafis_rc == NULL){
-      fprintf(stderr, "ERROR : nist2iafis_ridgecount : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_ridgecount : "
 	      "calloc : iafis_rc (%lu bytes)\n",
 	      (unsigned long)(6 * sizeof(char)));
       return(-4);
@@ -1883,7 +1883,7 @@ int nist2iafis_ridgecount(char **oiafis_rc, char *nist_rc)
    /* Check format of neighbor index. */
    sprintf(uint_str1, "%03d", nbr_i);
    if(strlen(uint_str1) != 3){
-      fprintf(stderr, "ERROR : nist2iafis_ridgecount : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_ridgecount : "
 	      "neighbor index = %s longer than 3 characters\n", uint_str1);
       free(iafis_rc);
       return(-5);
@@ -1891,7 +1891,7 @@ int nist2iafis_ridgecount(char **oiafis_rc, char *nist_rc)
    /* Check format of ridge count. */
    sprintf(uint_str2, "%02d", rc);
    if(strlen(uint_str2) != 2){
-      fprintf(stderr, "ERROR : nist2iafis_ridgecount : "
+      fprintf(stderr, "ERROR : biomeval_nbis_nist2iafis_ridgecount : "
 	      "ridge count = %s longer than 2 characters\n", uint_str2);
       free(iafis_rc);
       return(-6);

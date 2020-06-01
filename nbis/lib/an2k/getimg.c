@@ -57,7 +57,7 @@ of the software.
 ************************************************************************
 
                ROUTINES:
-                        get_first_grayprint()
+                        biomeval_nbis_get_first_grayprint()
 
 ************************************************************************/
 #include <stdio.h>
@@ -65,7 +65,7 @@ of the software.
 
 /*************************************************************************
 **************************************************************************
-#cat:   get_first_grayprint - Takes and ANSI/NIST structure and locates and
+#cat:   biomeval_nbis_get_first_grayprint - Takes and ANSI/NIST structure and locates and
 #cat:                         returns the first grayscale image record found.
    Input:
       ansi_nist - ANSI/NIST structure to be searched
@@ -84,7 +84,7 @@ of the software.
       FALSE    - grayscale image record NOT found
       Negative - system error
 **************************************************************************/
-int get_first_grayprint(unsigned char **odata, int *ow, int *oh, int *od,
+int biomeval_nbis_get_first_grayprint(unsigned char **odata, int *ow, int *oh, int *od,
                         double *oppmm, int *oimg_idc, int *oimg_imp,
                         RECORD **oimgrecord, int *oimgrecord_i,
                         const ANSI_NIST *ansi_nist)
@@ -98,7 +98,7 @@ int get_first_grayprint(unsigned char **odata, int *ow, int *oh, int *od,
    int imgrecord_i, idcfield_i, impfield_i;
 
    /* Look up first grayscale fingerprint in ANSI/NIST file. */
-   ret = lookup_ANSI_NIST_grayprint(&imgrecord, &imgrecord_i, 1, ansi_nist);
+   ret = biomeval_nbis_lookup_ANSI_NIST_grayprint(&imgrecord, &imgrecord_i, 1, ansi_nist);
    /* If error ... */
    if(ret < 0)
       return(ret);
@@ -106,16 +106,16 @@ int get_first_grayprint(unsigned char **odata, int *ow, int *oh, int *od,
    if(!ret)
       return(FALSE);
 
-   ret = decode_ANSI_NIST_image(&idata, &iw, &ih, &id, &ppmm,
+   ret = biomeval_nbis_decode_ANSI_NIST_image(&idata, &iw, &ih, &id, &ppmm,
                                 ansi_nist, imgrecord_i, 1 /*intrlvflag*/);
    /* If ERROR or IGNORE ... */
    if(ret <= 0)
       return(ret);
 
    /* Get IDC of selected image record. */
-   if(!lookup_ANSI_NIST_field(&idcfield, &idcfield_i, IDC_ID,
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&idcfield, &idcfield_i, IDC_ID,
                               imgrecord)){
-      fprintf(stderr, "ERROR : get_first_grayprint : IDC field not found "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_first_grayprint : IDC field not found "
 	      "in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, IDC_ID);
       return(-2);
@@ -124,9 +124,9 @@ int get_first_grayprint(unsigned char **odata, int *ow, int *oh, int *od,
    img_idc = atoi((char *)idcfield->subfields[0]->items[0]->value);
 
    /* Get IMP of selected image record. */
-   if(!lookup_ANSI_NIST_field(&impfield, &impfield_i, IMP_ID,
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&impfield, &impfield_i, IMP_ID,
                               imgrecord)){
-      fprintf(stderr, "ERROR : get_first_grayprint : IMP field not found "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_first_grayprint : IMP field not found "
 	      "in record index [%d] [Type-%d.%03d]\n",
               imgrecord_i+1, imgrecord->type, IMP_ID);
       return(-3);

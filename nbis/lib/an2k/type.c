@@ -58,15 +58,15 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        tagged_record()
-                        binary_record()
+                        biomeval_nbis_tagged_record()
+                        biomeval_nbis_binary_record()
                         tagged_image_record()
-                        binary_image_record()
-                        image_record()
-                        binary_signature_record()
-                        image_field()
-                        is_delimiter()
-                        which_hand()
+                        biomeval_nbis_binary_image_record()
+                        biomeval_nbis_image_record()
+                        biomeval_nbis_binary_signature_record()
+                        biomeval_nbis_image_field()
+                        biomeval_nbis_is_delimiter()
+                        biomeval_nbis_which_hand()
 
 ***********************************************************************/
 
@@ -75,7 +75,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: tagged_record - Determines if the specified record type is one that
+#cat: biomeval_nbis_tagged_record - Determines if the specified record type is one that
 #cat:              is formatted with tagged fields.
 
    Input:
@@ -84,13 +84,13 @@ of the software.
       TRUE        - specified record is tag formatted
       FALSE       - specified record is NOT tag formatted
 ************************************************************************/
-int tagged_record(const unsigned int record_type)
+int biomeval_nbis_tagged_record(const unsigned int record_type)
 {
    int i;
 
 
    for(i = 0; i < NUM_TAGGED_RECORDS; i++){
-      if(record_type == tagged_records[i])
+      if(record_type == biomeval_nbis_tagged_records[i])
          return(TRUE);
    }
    return(FALSE);
@@ -98,7 +98,7 @@ int tagged_record(const unsigned int record_type)
 
 /***********************************************************************
 ************************************************************************
-#cat: binary_record - Determines if the specified record type is one that
+#cat: biomeval_nbis_binary_record - Determines if the specified record type is one that
 #cat:              is formatted with binary fields.
 
    Input:
@@ -107,13 +107,13 @@ int tagged_record(const unsigned int record_type)
       TRUE        - specified record is binary formatted
       FALSE       - specified record is NOT binary formatted
 ************************************************************************/
-int binary_record(const unsigned int record_type)
+int biomeval_nbis_binary_record(const unsigned int record_type)
 {
    int i;
 
 
    for(i = 0; i < NUM_BINARY_RECORDS; i++){
-      if(record_type == binary_records[i])
+      if(record_type == biomeval_nbis_binary_records[i])
          return(TRUE);
    }
    return(FALSE);
@@ -144,7 +144,7 @@ int tagged_image_record(const unsigned int record_type)
 
 /***********************************************************************
 ************************************************************************
-#cat: binary_image_record - Determines if the specified record type is one
+#cat: biomeval_nbis_binary_image_record - Determines if the specified record type is one
 #cat:              that is formatted with binary fields and contains an image.
 
    Input:
@@ -153,13 +153,13 @@ int tagged_image_record(const unsigned int record_type)
       TRUE        - specified record is binary formatted with an image
       FALSE       - specified record is NOT binary formatted with an image
 ************************************************************************/
-int binary_image_record(const unsigned int record_type)
+int biomeval_nbis_binary_image_record(const unsigned int record_type)
 {
    int i;
 
 
    for(i = 0; i < NUM_BINARY_IMAGE_RECORDS; i++){
-      if(record_type == binary_image_records[i])
+      if(record_type == biomeval_nbis_binary_image_records[i])
          return(TRUE);
    }
    return(FALSE);
@@ -167,7 +167,7 @@ int binary_image_record(const unsigned int record_type)
 
 /***********************************************************************
 ************************************************************************
-#cat: image_record - Determines if the specified record type is one
+#cat: biomeval_nbis_image_record - Determines if the specified record type is one
 #cat:              that contains an image.
 
    Input:
@@ -176,10 +176,10 @@ int binary_image_record(const unsigned int record_type)
       TRUE        - specified record contains an image
       FALSE       - specified record does NOT contain an image
 ************************************************************************/
-int image_record(const unsigned int record_type)
+int biomeval_nbis_image_record(const unsigned int record_type)
 {
    if(tagged_image_record(record_type) ||
-      binary_image_record(record_type)){
+      biomeval_nbis_binary_image_record(record_type)){
          return(TRUE);
    }
    return(FALSE);
@@ -187,7 +187,7 @@ int image_record(const unsigned int record_type)
 
 /***********************************************************************
 ************************************************************************
-#cat: binary_signature_record - Determines if the specified record type is one
+#cat: biomeval_nbis_binary_signature_record - Determines if the specified record type is one
 #cat:              that is binary formatted and contains signature data.
 
    Input:
@@ -198,13 +198,13 @@ int image_record(const unsigned int record_type)
       FALSE       - specified record is NOT binary formatted with
                     signature data
 ************************************************************************/
-int binary_signature_record(const unsigned int record_type)
+int biomeval_nbis_binary_signature_record(const unsigned int record_type)
 {
    int i;
 
 
    for(i = 0; i < NUM_BINARY_SIGNATURE_RECORDS; i++){
-      if(record_type == binary_signature_records[i])
+      if(record_type == biomeval_nbis_binary_signature_records[i])
          return(TRUE);
    }
    return(FALSE);
@@ -212,7 +212,7 @@ int binary_signature_record(const unsigned int record_type)
 
 /***********************************************************************
 ************************************************************************
-#cat: image_field - Determines if the given field structure contains
+#cat: biomeval_nbis_image_field - Determines if the given field structure contains
 #cat:              an image.
 
    Input:
@@ -221,11 +221,11 @@ int binary_signature_record(const unsigned int record_type)
       TRUE        - specified field contains an image
       FALSE       - specified field does NOT contain an image
 ************************************************************************/
-int image_field(const FIELD *field)
+int biomeval_nbis_image_field(const FIELD *field)
 {
-   if((binary_image_record(field->record_type) &&
+   if((biomeval_nbis_binary_image_record(field->record_type) &&
        (field->field_int == NUM_BINARY_IMAGE_FIELDS)) ||
-      (binary_signature_record(field->record_type) &&
+      (biomeval_nbis_binary_signature_record(field->record_type) &&
        (field->field_int == NUM_BINARY_SIGNATURE_FIELDS)) ||
       (tagged_image_record(field->record_type) &&
        (field->field_int == IMAGE_FIELD))){
@@ -236,7 +236,7 @@ int image_field(const FIELD *field)
 
 /***********************************************************************
 ************************************************************************
-#cat: is_delimiter - Determines if the specified character is one of
+#cat: biomeval_nbis_is_delimiter - Determines if the specified character is one of
 #cat:              the special delimiters defined in the ANSI/NIST standard.
 
    Input:
@@ -245,7 +245,7 @@ int image_field(const FIELD *field)
       TRUE        - specified character is a standard delimiter
       FALSE       - specified character is NOT a standard delimiter
 ************************************************************************/
-int is_delimiter(const int nextchar)
+int biomeval_nbis_is_delimiter(const int nextchar)
 {
    switch(nextchar){
       case FS_CHAR:
@@ -260,7 +260,7 @@ int is_delimiter(const int nextchar)
 
 /***********************************************************************
 ************************************************************************
-#cat: which_hand - Takes a finger position from Table 6 of the ANSI/NIST
+#cat: biomeval_nbis_which_hand - Takes a finger position from Table 6 of the ANSI/NIST
 #cat:              standard and determines which hand the specified finger
 #cat:              is on.  The position may be "unknown".
    
@@ -272,7 +272,7 @@ int is_delimiter(const int nextchar)
       LEFT_HAND    - finger position code specified for left hand
       Negative     - system error
 ************************************************************************/
-int which_hand(const int finger_pos)
+int biomeval_nbis_which_hand(const int finger_pos)
 {
    if(finger_pos == 0){
       return(UNKNOWN_HAND);
@@ -286,7 +286,7 @@ int which_hand(const int finger_pos)
       return(LEFT_HAND);
    }
    else{
-      fprintf(stderr, "ERROR : which_hand : illegal finger position = %d "
+      fprintf(stderr, "ERROR : biomeval_nbis_which_hand : illegal finger position = %d "
 	      "not in range [0..14]\n", finger_pos);
       return(-2);
    }

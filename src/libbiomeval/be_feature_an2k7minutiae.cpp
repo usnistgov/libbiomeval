@@ -189,12 +189,12 @@ readMRC(
 	int idx;
 
 	/* Number of minutiae */
-	if (lookup_ANSI_NIST_field(&field, &idx, MIN_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, MIN_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field MIN not found");
 	int count = atoi((char*)field->subfields[0]->items[0]->value);
 
 	/* Minutiae and Ridge Count data */
-	if (lookup_ANSI_NIST_field(&field, &idx, MRC_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, MRC_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field MRC not found");	
 	for (int i = 0; i < count; i++) {
 		BiometricEvaluation::Feature::MinutiaPoint mp;
@@ -352,12 +352,12 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
     int recordNumber)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k =
-	    Memory::AutoBuffer<ANSI_NIST>(&alloc_ANSI_NIST,
-		&free_ANSI_NIST, &copy_ANSI_NIST);
+	    Memory::AutoBuffer<ANSI_NIST>(&biomeval_nbis_alloc_ANSI_NIST,
+		&biomeval_nbis_free_ANSI_NIST, &biomeval_nbis_copy_ANSI_NIST);
 
 	AN2KBDB bdb;
 	INIT_AN2KBDB(&bdb, buf, buf.size());
-	if (scan_ANSI_NIST(&bdb, an2k) != 0)
+	if (biomeval_nbis_scan_ANSI_NIST(&bdb, an2k) != 0)
 		throw BE::Error::DataError(
 		    "Could not read complete AN2K record");
 
@@ -385,11 +385,11 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
 	FIELD *field;
 	int idx;
 
-	if (lookup_ANSI_NIST_field(&field, &idx, FGP2_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, FGP2_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field FGP not found");
 	_fgp = Finger::AN2KView::populateFGP(field);
 	
-	if (lookup_ANSI_NIST_field(&field, &idx, FPC_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, FPC_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field FPC not found");
 	for (int i = 0; i < field->num_subfields; i++)
 		_fpc.push_back(PatternClassification::Entry(
@@ -397,7 +397,7 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
 		    value) == "T"), (char *)field->subfields[i]->
 		    items[1]->value));
 
-	if (lookup_ANSI_NIST_field(&field, &idx, RDG_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, RDG_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field RDG not found");
 	bool hasRDG = atoi((char*)field->subfields[0]->items[0]->value);
 
@@ -408,7 +408,7 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
 	/*********************************************************************/
 	
 	/* Originating Fingerprint Reader System */
-	if (lookup_ANSI_NIST_field(&field, &idx, OFR_ID, type9) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, OFR_ID, type9) == TRUE) {
 		_ofr.name = (char*)field->subfields[0]->items[0]->value;
 		_ofr.method = convertEncodingMethod((char*)field->
 		    subfields[0]->items[1]->value);
@@ -420,13 +420,13 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
 	}
 
 	/* Cores */
-	if (lookup_ANSI_NIST_field(&field, &idx, CRP_ID, type9) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, CRP_ID, type9) == TRUE)
 		for (int i = 0; i < field->num_subfields; i++)
 			_corePointSet.push_back(CorePoint(convertCoordinate(
 			    (char *)field->subfields[i]->items[0]->value)));
 
 	/* Deltas */
-	if (lookup_ANSI_NIST_field(&field, &idx, DLT_ID, type9) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, DLT_ID, type9) == TRUE)
 		for (int i = 0; i < field->num_subfields; i++)
 			_deltaPointSet.push_back(DeltaPoint(convertCoordinate(
 			    (char *)field->subfields[i]->items[0]->value,

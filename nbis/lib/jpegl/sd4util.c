@@ -55,7 +55,7 @@ of the software.
       This format should be considered obsolete.
 
       ROUTINES:
-#cat: jpegl_sd4_decode_mem - Decompresses a JPEGL-compressed datastream
+#cat: biomeval_nbis_jpegl_sd4_decode_mem - Decompresses a JPEGL-compressed datastream
 #cat:           according to the old image format used in NIST Special
 #cat:           Database 4.  This routine should be used to decompress
 #cat:           legacy data only.  This old format should be considered
@@ -67,11 +67,11 @@ of the software.
 #include <jpeglsd4.h>
 #include <dataio.h>
 
-static int getc_huffman_table_jpegl_sd4(HUF_TABLE **, unsigned char **,
+static int biomeval_nbis_getc_huffman_table_jpegl_sd4(HUF_TABLE **, unsigned char **,
                  unsigned char *);
-static int decode_data_jpegl_sd4(int *, int *, int *, int *,
+static int biomeval_nbis_decode_data_jpegl_sd4(int *, int *, int *, int *,
                  unsigned char *, unsigned char **, unsigned char *, int *);
-static int getc_nextbits_jpegl_sd4(unsigned short *, unsigned char **,
+static int biomeval_nbis_getc_nextbits_jpegl_sd4(unsigned short *, unsigned char **,
                  unsigned char *, int *, const int);
 
 /************************************************************************/
@@ -82,7 +82,7 @@ static int getc_nextbits_jpegl_sd4(unsigned short *, unsigned char **,
 /*                             Continuous-tone Still images"            */
 /*                                                                      */
 /************************************************************************/
-int jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, const int width,
+int biomeval_nbis_jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, const int width,
                      const int height, const int depth, unsigned char *odata)
 {
    HUF_TABLE *huf_table[MAX_CMPNTS]; /*These match the jpegl static
@@ -113,17 +113,17 @@ int jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, const int width,
       huf_table[i] = (HUF_TABLE *)NULL;
 
 
-   if((ret = getc_huffman_table_jpegl_sd4(huf_table, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_huffman_table_jpegl_sd4(huf_table, &cbufptr, ebufptr)))
       return(ret);
 
-   if((ret = getc_byte(&predictor, &cbufptr, ebufptr))) {
-      free_HUFF_TABLES(huf_table, 1);
+   if((ret = biomeval_nbis_getc_byte(&predictor, &cbufptr, ebufptr))) {
+      biomeval_nbis_free_HUFF_TABLES(huf_table, 1);
       return(ret);
    }
 
 				/*this routine builds a table used in
 				  decoding coded difference pixels*/
-   build_huff_decode_table(huff_decoder);
+   biomeval_nbis_build_huff_decode_table(huff_decoder);
 
 				/*decompress the pixel "differences"
 				  sequentially*/
@@ -131,20 +131,20 @@ int jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, const int width,
 
       			        /*get next huffman category code from
 				  compressed input data stream*/
-      if((ret = decode_data_jpegl_sd4(&diff_cat, huf_table[0]->mincode,
+      if((ret = biomeval_nbis_decode_data_jpegl_sd4(&diff_cat, huf_table[0]->mincode,
                            huf_table[0]->maxcode,
                            huf_table[0]->valptr, huf_table[0]->values,
                            &cbufptr, ebufptr, &bit_count))){
-         free_HUFF_TABLES(huf_table, 1);
+         biomeval_nbis_free_HUFF_TABLES(huf_table, 1);
          return(ret);
       }
 
 				/*get the required bits (given by huffman
 				  code to reconstruct the difference
 				  value for the pixel*/
-      if((ret = getc_nextbits_jpegl_sd4(&diff_code, &cbufptr, ebufptr,
+      if((ret = biomeval_nbis_getc_nextbits_jpegl_sd4(&diff_code, &cbufptr, ebufptr,
                              &bit_count, diff_cat))){
-         free_HUFF_TABLES(huf_table, 1);
+         biomeval_nbis_free_HUFF_TABLES(huf_table, 1);
          return(ret);
       }
 
@@ -155,16 +155,16 @@ int jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, const int width,
 				/*reverse the pixel prediction and
 				  store the pixel value in the
 				  output buffer*/
-      if((ret = predict(&data_pred, outbuf, width, i, depth,
+      if((ret = biomeval_nbis_predict(&data_pred, outbuf, width, i, depth,
                           predictor, Pt))){
-         free_HUFF_TABLES(huf_table, 1);
+         biomeval_nbis_free_HUFF_TABLES(huf_table, 1);
          return(ret);
       }
 
       *outbuf = full_diff_code + data_pred;
       outbuf++;
    }
-   free_HUFF_TABLES(huf_table, 1);
+   biomeval_nbis_free_HUFF_TABLES(huf_table, 1);
 
    return(0);
 }
@@ -173,7 +173,7 @@ int jpegl_sd4_decode_mem(unsigned char *idata, const int ilen, const int width,
 /************************************/
 /*routine to get huffman code tables*/
 /************************************/
-static int getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
+static int biomeval_nbis_getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
                         unsigned char **cbufptr, unsigned char *ebufptr)
 {
    int i, ret;                  /*increment variable*/
@@ -184,18 +184,18 @@ static int getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
    if(debug > 0)
       fprintf(stdout, "Start reading huffman table jpegl_sd4.\n");
 
-   if((ret = getc_byte(&number, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&number, cbufptr, ebufptr)))
       return(ret);
 
    huffbits = (unsigned char *)calloc(MAX_HUFFBITS, sizeof(unsigned char));
    if(huffbits == (unsigned char *)NULL){
       fprintf(stderr,
-              "ERROR : getc_huffman_table_jpegl_sd4 : calloc : huffbits\n");
+              "ERROR : biomeval_nbis_getc_huffman_table_jpegl_sd4 : calloc : huffbits\n");
       return(-2);
    }
 
    for (i = 0; i < MAX_HUFFBITS_JPEGL_SD4;  i++)
-      if((ret = getc_byte(&(huffbits[i]), cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&(huffbits[i]), cbufptr, ebufptr))){
          free(huffbits);
          return(ret);
       }
@@ -208,12 +208,12 @@ static int getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
                                         sizeof(unsigned char));
    if(huffvalues == (unsigned char *)NULL){
       fprintf(stderr,
-              "ERROR : getc_huffman_table_jpegl_sd4 : calloc : huffvalues\n");
+              "ERROR : biomeval_nbis_getc_huffman_table_jpegl_sd4 : calloc : huffvalues\n");
       free(huffbits);
       return(-3);
    }
    for (i = 0; i < (number - MAX_HUFFBITS_JPEGL_SD4); i ++)
-      if((ret = getc_byte(&(huffvalues[i]), cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&(huffvalues[i]), cbufptr, ebufptr))){
          free(huffbits);
          free(huffvalues);
          return(ret);
@@ -226,7 +226,7 @@ static int getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
 
    thuf_table = (HUF_TABLE *)calloc(1, sizeof(HUF_TABLE));
    if(thuf_table == (HUF_TABLE *)NULL){
-      fprintf(stderr, "ERROR : getc_huffman_table_jpegl_sd4 : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl_sd4 : ");
       fprintf(stderr, "calloc : thuf_table\n");
       return(-4);
    }
@@ -243,45 +243,45 @@ static int getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
    thuf_table->maxcode = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1,
                                           sizeof(int));
    if(thuf_table->maxcode == (int *)NULL){
-      fprintf(stderr, "ERROR : getc_huffman_table_jpegl_sd4 : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl_sd4 : ");
       fprintf(stderr, "calloc : maxcode\n");
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-5);
    }
 
    thuf_table->mincode = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1,
                                           sizeof(int));
    if(thuf_table->mincode == (int *)NULL){
-      fprintf(stderr, "ERROR : getc_huffman_table_jpegl_sd4 : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl_sd4 : ");
       fprintf(stderr, "calloc : mincode\n");
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-6);
    }
 
    thuf_table->valptr = (int *)calloc(MAX_HUFFCOUNTS_JPEGL+1, sizeof(int));
    if(thuf_table->valptr == (int *)NULL){
-      fprintf(stderr, "ERROR : getc_huffman_table_jpegl_sd4 : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_jpegl_sd4 : ");
       fprintf(stderr, "calloc : valptr\n");
-      free_HUFF_TABLE(thuf_table);
+      biomeval_nbis_free_HUFF_TABLE(thuf_table);
       return(-7);
    }
 
 				/*the next two routines reconstruct
    				  the huffman tables that were used
 				  in the Jpeg lossless compression*/
-   if((ret = build_huffsizes(&(thuf_table->huffcode_table),
+   if((ret = biomeval_nbis_build_huffsizes(&(thuf_table->huffcode_table),
                             &(thuf_table->last_size),
                             thuf_table->bits, MAX_HUFFCOUNTS_JPEGL))){
-      free_HUFF_TABLES(huf_table, 1);
+      biomeval_nbis_free_HUFF_TABLES(huf_table, 1);
       return(ret);
    }
 
-   build_huffcodes(thuf_table->huffcode_table);
+   biomeval_nbis_build_huffcodes(thuf_table->huffcode_table);
 
 				/*this routine builds a set of three
 				  tables used in decoding the compressed
 				  data*/
-   gen_decode_table(thuf_table->huffcode_table,
+   biomeval_nbis_gen_decode_table(thuf_table->huffcode_table,
                     thuf_table->maxcode, thuf_table->mincode,
                     thuf_table->valptr, thuf_table->bits);
 
@@ -297,7 +297,7 @@ static int getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
 /************************************/
 /*routine to decode the encoded data*/
 /************************************/
-static int decode_data_jpegl_sd4(int *odiff_cat, int *mincode, int *maxcode,
+static int biomeval_nbis_decode_data_jpegl_sd4(int *odiff_cat, int *mincode, int *maxcode,
                 int *valptr, unsigned char *huffvalues,
                 unsigned char **cbufptr, unsigned char *ebufptr,
                 int *bit_count)
@@ -308,12 +308,12 @@ static int decode_data_jpegl_sd4(int *odiff_cat, int *mincode, int *maxcode,
    unsigned short tcode, tcode2;
    int diff_cat;     /*category of the huffman code word*/
 
-   if((ret = getc_nextbits_jpegl_sd4(&tcode, cbufptr, ebufptr, bit_count, 1)))
+   if((ret = biomeval_nbis_getc_nextbits_jpegl_sd4(&tcode, cbufptr, ebufptr, bit_count, 1)))
       return(ret);
    code = tcode;
 
    for(inx = 1; code > maxcode[inx]; inx++){
-      if((ret = getc_nextbits_jpegl_sd4(&tcode2, cbufptr, ebufptr,
+      if((ret = biomeval_nbis_getc_nextbits_jpegl_sd4(&tcode2, cbufptr, ebufptr,
                                         bit_count, 1)))
          return(ret);
       code = (code << 1) + tcode2;
@@ -330,7 +330,7 @@ static int decode_data_jpegl_sd4(int *odiff_cat, int *mincode, int *maxcode,
 /**************************************************************/
 /*routine to get nextbit(s) of data stream from memory buffer */
 /**************************************************************/
-static int getc_nextbits_jpegl_sd4(unsigned short *obits,
+static int biomeval_nbis_getc_nextbits_jpegl_sd4(unsigned short *obits,
                   unsigned char **cbufptr, unsigned char *ebufptr,
                   int *bit_count, const int bits_req)
 {
@@ -349,7 +349,7 @@ static int getc_nextbits_jpegl_sd4(unsigned short *obits,
    }
 
    if(*bit_count == 0) {
-      if((ret = getc_byte(&code, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_byte(&code, cbufptr, ebufptr)))
          return(ret);
       *bit_count = BITSPERBYTE;
    }
@@ -362,7 +362,7 @@ static int getc_nextbits_jpegl_sd4(unsigned short *obits,
       bits_needed = bits_req - *bit_count;
       bits = code << bits_needed;
       *bit_count = 0;
-      if((ret = getc_nextbits_jpegl_sd4(&tbits, cbufptr, ebufptr, bit_count,
+      if((ret = biomeval_nbis_getc_nextbits_jpegl_sd4(&tbits, cbufptr, ebufptr, bit_count,
                                    bits_needed)))
          return(ret);
       bits |= tbits;

@@ -54,17 +54,17 @@ of the software.
       used in WSQ image compression.
 
       ROUTINES:
-#cat: build_wsq_trees - Builds WSQ decomposition trees.
+#cat: biomeval_nbis_build_wsq_trees - Builds WSQ decomposition trees.
 #cat:
-#cat: build_w_tree - Build subband x-y locations for creating wavelets.
+#cat: biomeval_nbis_build_w_tree - Build subband x-y locations for creating wavelets.
 #cat:
-#cat: w_tree4 - Derives location and size of subband splits.
+#cat: biomeval_nbis_w_tree4 - Derives location and size of subband splits.
 #cat:
-#cat: build_q_tree - Build WSQ quantization tree of all 64 wavelet
+#cat: biomeval_nbis_build_q_tree - Build WSQ quantization tree of all 64 wavelet
 #cat:                subband x-y locations and sizes.
-#cat: q_tree16 - Derive location and size for a 4x4 window of subbands.
+#cat: biomeval_nbis_q_tree16 - Derive location and size for a 4x4 window of subbands.
 #cat:
-#cat: q_tree4 - Derive location and size for 2x2 window of subbands.
+#cat: biomeval_nbis_q_tree4 - Derive location and size for 2x2 window of subbands.
 #cat:
 
 ***********************************************************************/
@@ -75,26 +75,26 @@ of the software.
 
 /************************************************************************/
 /*              Routines used to generate the "trees" used              */
-/*              in creating the wavelet subbands (w_tree)               */
-/*              and when quantizing the subbands (q_tree) in            */
+/*              in creating the wavelet subbands (biomeval_nbis_w_tree)               */
+/*              and when quantizing the subbands (biomeval_nbis_q_tree) in            */
 /*              the WSQ compression/decompression algorithms.           */
 /************************************************************************/
 /* Build WSQ decomposition trees.                                       */
 /************************************************************************/
-void build_wsq_trees(W_TREE w_tree[], const int w_treelen,
+void biomeval_nbis_build_wsq_trees(W_TREE w_tree[], const int w_treelen,
                      Q_TREE q_tree[], const int q_treelen,
                      const int width, const int height)
 {
    /* Build a W-TREE structure for the image. */
-   build_w_tree(w_tree, width, height);
+   biomeval_nbis_build_w_tree(w_tree, width, height);
    /* Build a Q-TREE structure for the image. */
-   build_q_tree(w_tree, q_tree);
+   biomeval_nbis_build_q_tree(w_tree, q_tree);
 }
 
 /********************************************************************/
 /* Routine to obtain subband "x-y locations" for creating wavelets. */
 /********************************************************************/
-void build_w_tree(
+void biomeval_nbis_build_w_tree(
    W_TREE w_tree[],   /* wavelet tree structure */
    const int width,   /* image width            */
    const int height)  /* image height           */
@@ -124,7 +124,7 @@ void build_w_tree(
    w_tree[17].inv_cl = 1;
    w_tree[18].inv_cl = 1;
 
-   w_tree4(w_tree, 0, 1, width, height, 0, 0, 1);
+   biomeval_nbis_w_tree4(w_tree, 0, 1, width, height, 0, 0, 1);
 
    if((w_tree[1].lenx % 2) == 0) {
       lenx = w_tree[1].lenx / 2;
@@ -144,9 +144,9 @@ void build_w_tree(
       leny2 = leny - 1;
    }
 
-   w_tree4(w_tree, 4, 6, lenx2, leny, lenx, 0, 0);
-   w_tree4(w_tree, 5, 10, lenx, leny2, 0, leny, 0);
-   w_tree4(w_tree, 14, 15, lenx, leny, 0, 0, 0);
+   biomeval_nbis_w_tree4(w_tree, 4, 6, lenx2, leny, lenx, 0, 0);
+   biomeval_nbis_w_tree4(w_tree, 5, 10, lenx, leny2, 0, leny, 0);
+   biomeval_nbis_w_tree4(w_tree, 14, 15, lenx, leny, 0, 0, 0);
 
    w_tree[19].x = 0;
    w_tree[19].y = 0;
@@ -176,7 +176,7 @@ void build_w_tree(
 /***************************************************************/
 /* Gives location and size of subband splits for build_w_tree. */
 /***************************************************************/
-void w_tree4(
+void biomeval_nbis_w_tree4(
    W_TREE w_tree[],    /* wavelet tree structure                      */
    const int start1,   /* w_tree locations to start calculating       */
    const int start2,   /*    subband split locations and sizes        */
@@ -252,21 +252,21 @@ void w_tree4(
 }
 
 /****************************************************************/
-void build_q_tree(
+void biomeval_nbis_build_q_tree(
    W_TREE *w_tree,  /* wavelet tree structure */
    Q_TREE *q_tree)   /* quantization tree structure */
 {
    int node;
 
-   q_tree16(q_tree,3,w_tree[14].lenx,w_tree[14].leny,
+   biomeval_nbis_q_tree16(q_tree,3,w_tree[14].lenx,w_tree[14].leny,
               w_tree[14].x,w_tree[14].y, 0, 0);
-   q_tree16(q_tree,19,w_tree[4].lenx,w_tree[4].leny,
+   biomeval_nbis_q_tree16(q_tree,19,w_tree[4].lenx,w_tree[4].leny,
               w_tree[4].x,w_tree[4].y, 0, 1);
-   q_tree16(q_tree,48,w_tree[0].lenx,w_tree[0].leny,
+   biomeval_nbis_q_tree16(q_tree,48,w_tree[0].lenx,w_tree[0].leny,
               w_tree[0].x,w_tree[0].y, 0, 0);
-   q_tree16(q_tree,35,w_tree[5].lenx,w_tree[5].leny,
+   biomeval_nbis_q_tree16(q_tree,35,w_tree[5].lenx,w_tree[5].leny,
               w_tree[5].x,w_tree[5].y, 1, 0);
-   q_tree4(q_tree,0,w_tree[19].lenx,w_tree[19].leny,
+   biomeval_nbis_q_tree4(q_tree,0,w_tree[19].lenx,w_tree[19].leny,
              w_tree[19].x,w_tree[19].y);
 
    if(debug > 1) {
@@ -280,7 +280,7 @@ void build_q_tree(
 }
 
 /*****************************************************************/
-void q_tree16(
+void biomeval_nbis_q_tree16(
    Q_TREE *q_tree,   /* quantization tree structure */
    const int start,  /* q_tree location of first subband        */
                      /*   in the subband group being calculated */
@@ -442,7 +442,7 @@ void q_tree16(
 }
 
 /********************************************************************/
-void q_tree4(
+void biomeval_nbis_q_tree4(
    Q_TREE *q_tree,   /* quantization tree structure */
    const int start,  /* q_tree location of first subband         */
                      /*    in the subband group being calculated */

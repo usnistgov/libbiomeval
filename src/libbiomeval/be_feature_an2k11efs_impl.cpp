@@ -214,7 +214,7 @@ readROI(
 	FIELD *field;
 	int idx;
 
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_ROI_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_ROI_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field ROI not found");
 	roi.size.xSize = std::atoi((char*)field->subfields[0]->items[0]->value);
 	roi.size.ySize = std::atoi((char*)field->subfields[0]->items[1]->value);
@@ -257,7 +257,7 @@ readFPP(
 	FIELD *field;
 	int idx;
 
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_FPP_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_FPP_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field FPP not found");
 
 	/*********************************************************************/
@@ -348,7 +348,7 @@ readImageInfo(
 	/*
 	 * Orientation
 	 */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_ORT_ID, type9) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_ORT_ID, type9) == TRUE) {
 		ii.ort.eod =
 		     std::atoi((char*)field->subfields[0]->items[0]->value);
 
@@ -369,7 +369,7 @@ readImageInfo(
 	/*
 	 * Tonal reversal
 	 */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_TRV_ID, type9) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_TRV_ID, type9) == TRUE) {
 		char c = *(char*)field->subfields[0]->items[0]->value;
 		try {
 			ii.trv = TRVMap.at(c);
@@ -381,7 +381,7 @@ readImageInfo(
 	/*
 	 * Lateral reversal
 	 */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_PLR_ID, type9) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_PLR_ID, type9) == TRUE) {
 		char c = *(char*)field->subfields[0]->items[0]->value;
 		switch (c) {
 			case 'L':
@@ -413,7 +413,7 @@ readMPS(
 	int idx;
 
 	/* Minutiae data is optional. */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_MIN_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_MIN_ID, type9) == FALSE)
 		return;
 
 	for (int i = 0; i < field->num_subfields; i++) {
@@ -469,7 +469,7 @@ readCPS(
 	int idx;
 
 	/* Core data is optional. */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_COR_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_COR_ID, type9) == FALSE)
 		return;
 
 	for (int i = 0; i < field->num_subfields; i++) {
@@ -531,7 +531,7 @@ readDPS(
 	int idx;
 
 	/* Delta data is optional. */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_DEL_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_DEL_ID, type9) == FALSE)
 		return;
 
 	for (int i = 0; i < field->num_subfields; i++) {
@@ -652,7 +652,7 @@ readLPM(
 
 	FIELD *field;
 	int idx;
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_LPM_ID, type9) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_LPM_ID, type9) == TRUE) {
 		lpm.reserve(field->num_subfields);
 		for (int i{0}; i < field->num_subfields; ++i) {
 			try {
@@ -676,11 +676,11 @@ readNFP(
 {
 	FIELD *field;
 	int idx;
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_NCOR_ID, type9) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_NCOR_ID, type9) == TRUE)
 		nfp.cores = true;
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_NDEL_ID, type9) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_NDEL_ID, type9) == TRUE)
 		nfp.deltas = true;
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_NMIN_ID, type9) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_NMIN_ID, type9) == TRUE)
 		nfp.minutiae = true;
 }
 
@@ -693,7 +693,7 @@ readEAA(
 	int idx;
 
 	/* EAA is optional */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_EAA_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_EAA_ID, type9) == FALSE)
 		return;
 	if (field->num_subfields <= 0)
 		return;
@@ -744,7 +744,7 @@ readLSB(
 	int idx{};
 
 	/* LSB is optional */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_LSB_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_LSB_ID, type9) == FALSE)
 		return;
 	if (field->num_subfields <= 0)
 		return;
@@ -859,7 +859,7 @@ readPAT(
 	int idx{};
 
 	/* PAT is optional */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_PAT_ID, type9) == FALSE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_PAT_ID, type9) == FALSE)
 		return;
 	if (field->num_subfields <= 0)
 		return;
@@ -948,7 +948,7 @@ readMRCI(
 	/*
 	 * Minutiae ridge count algorithm
 	 */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_MRA_ID, type9) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_MRA_ID, type9) == TRUE) {
 		try {
 			mrci.mra =
 			     BE::Framework::Enumeration::to_enum
@@ -963,7 +963,7 @@ readMRCI(
 	/*
 	 * Minutiae ridge counts
 	 */
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_MRC_ID, type9) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_MRC_ID, type9) == TRUE) {
 		mrci.has_mrcs = true;
 		for (int i = 0; i < field->num_subfields; i++) {
 			BE::Feature::AN2K11EFS::MinutiaeRidgeCount mrc{};
@@ -995,7 +995,7 @@ readMRCI(
 	/*
 	 * Ridge count confidence
 	*/
-	if (lookup_ANSI_NIST_field(&field, &idx, EFS_RCC_ID, type9) == TRUE) {
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_RCC_ID, type9) == TRUE) {
 		mrci.has_rccs = true;
 		for (int i = 0; i < field->num_subfields; i++) {
 			/*
@@ -1042,12 +1042,12 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::readType9Reco
     int recordNumber)
 {
 	Memory::AutoBuffer<ANSI_NIST> an2k =
-	    Memory::AutoBuffer<ANSI_NIST>(&alloc_ANSI_NIST,
-		&free_ANSI_NIST, &copy_ANSI_NIST);
+	    Memory::AutoBuffer<ANSI_NIST>(&biomeval_nbis_alloc_ANSI_NIST,
+		&biomeval_nbis_free_ANSI_NIST, &biomeval_nbis_copy_ANSI_NIST);
 
 	AN2KBDB bdb;
 	INIT_AN2KBDB(&bdb, buf, buf.size());
-	if (scan_ANSI_NIST(&bdb, an2k) != 0)
+	if (biomeval_nbis_scan_ANSI_NIST(&bdb, an2k) != 0)
 		throw BE::Error::DataError(
 		    "Could not read complete AN2K record");
 

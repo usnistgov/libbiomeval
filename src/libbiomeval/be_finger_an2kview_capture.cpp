@@ -278,36 +278,36 @@ BiometricEvaluation::Finger::AN2KViewCapture::readImageRecord()
 	/*********************************************************************/
 
 	/* Amputated/Bandaged */
-	if (lookup_ANSI_NIST_field(&field, &idx, AMP_ID, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, AMP_ID, record) == TRUE)
 		_amp = convertAmputatedBandaged((char *)field->subfields[0]->
 		    items[0]->value);
 	else
 		_amp = AmputatedBandaged::NA;
 
 	/* Finger segment positions */
-	if (lookup_ANSI_NIST_field(&field, &idx, SEG_ID, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, SEG_ID, record) == TRUE)
 		for (int i = 0; i < field->num_subfields; i++)
 			_fsps.push_back(
 			    convertFingerSegmentPosition(field->subfields[i]));
 
 	/* NIST quality metric */
-	if (lookup_ANSI_NIST_field(&field, &idx, NQM_ID, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, NQM_ID, record) == TRUE)
 		_nqm = extractNISTQuality(field);
 		
 	/* Segmentation quality metric */
-	if (lookup_ANSI_NIST_field(&field, &idx, SQM_ID, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, SQM_ID, record) == TRUE)
 		_sqm = AN2KViewVariableResolution::extractQuality(
 		    field, BE::Feature::PositionType::Finger);
 
 	/* Alternate finger segment positions */
-	if (lookup_ANSI_NIST_field(&field, &idx, ASEG_ID, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, ASEG_ID, record) == TRUE)
 		for (int i = 0; i < field->num_subfields; i++)
 			_afsps.push_back(
 			    convertAlternateFingerSegmentPosition(
 			    field->subfields[i]));
 	
 	/* Device monitoring mode */
-	if (lookup_ANSI_NIST_field(&field, &idx, DMM_ID, record) == TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, DMM_ID, record) == TRUE)
 		_dmm = convertDeviceMonitoringMode((char *)field->
 		    subfields[0]->items[0]->value);
 	else

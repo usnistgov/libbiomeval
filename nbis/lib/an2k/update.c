@@ -61,15 +61,15 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        update_ANSI_NIST()
-                        update_ANSI_NIST_field()
-                        update_ANSI_NIST_subfield()
-                        update_ANSI_NIST_item()
-                        update_ANSI_NIST_record_LENs()
-                        update_ANSI_NIST_record_LEN()
-                        update_ANSI_NIST_binary_record_LEN()
-                        update_ANSI_NIST_tagged_record_LEN()
-                        update_ANSI_NIST_field_ID()
+                        biomeval_nbis_update_ANSI_NIST()
+                        biomeval_nbis_update_ANSI_NIST_field()
+                        biomeval_nbis_update_ANSI_NIST_subfield()
+                        biomeval_nbis_update_ANSI_NIST_item()
+                        biomeval_nbis_update_ANSI_NIST_record_LENs()
+                        biomeval_nbis_update_ANSI_NIST_record_LEN()
+                        biomeval_nbis_update_ANSI_NIST_binary_record_LEN()
+                        biomeval_nbis_update_ANSI_NIST_tagged_record_LEN()
+                        biomeval_nbis_update_ANSI_NIST_field_ID()
 
 ***********************************************************************/
 
@@ -78,7 +78,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST - Takes a new logical record structure and
+#cat: biomeval_nbis_update_ANSI_NIST - Takes a new logical record structure and
 #cat:              appends it to the end of the specified ANSI/NIST
 #cat:              file structure.  This routine does nothing to
 #cat:              update the CNT field of the Type-1 record or to
@@ -92,7 +92,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int update_ANSI_NIST(ANSI_NIST *ansi_nist, RECORD *record)
+int biomeval_nbis_update_ANSI_NIST(ANSI_NIST *ansi_nist, RECORD *record)
 {
    if(ansi_nist->num_records >= ansi_nist->alloc_records){
       size_t new_size = (ansi_nist->alloc_records
@@ -100,7 +100,7 @@ int update_ANSI_NIST(ANSI_NIST *ansi_nist, RECORD *record)
       RECORD ** new_ptr = (RECORD **)realloc(ansi_nist->records, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : update_ANSI_NIST : "
+         fprintf(stderr, "ERROR : biomeval_nbis_update_ANSI_NIST : "
 		 "realloc : records (increase %lu bytes to %lu)\n",
 		 (unsigned long)(ansi_nist->alloc_records * sizeof(RECORD *)),
 		 (unsigned long)new_size);
@@ -120,7 +120,7 @@ int update_ANSI_NIST(ANSI_NIST *ansi_nist, RECORD *record)
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST_record - Takes a new field structure and
+#cat: biomeval_nbis_update_ANSI_NIST_record - Takes a new field structure and
 #cat:              appends it to the end of the specified logical record
 #cat:              structure.  This routine primarily supports the input
 #cat:              parsing of an ANSI/NIST file.
@@ -132,7 +132,7 @@ int update_ANSI_NIST(ANSI_NIST *ansi_nist, RECORD *record)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int update_ANSI_NIST_record(RECORD *record, FIELD *field)
+int biomeval_nbis_update_ANSI_NIST_record(RECORD *record, FIELD *field)
 {
    if(record->num_fields >= record->alloc_fields){
       size_t new_size = (record->alloc_fields
@@ -140,7 +140,7 @@ int update_ANSI_NIST_record(RECORD *record, FIELD *field)
       FIELD ** new_ptr = (FIELD **)realloc(record->fields, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : update_ANSI_NIST_record : "
+         fprintf(stderr, "ERROR : biomeval_nbis_update_ANSI_NIST_record : "
 		 "realloc : fields (increase %lu bytes to %lu)\n",
 		 (unsigned long)(record->alloc_fields * sizeof(FIELD *)),
 		 (unsigned long)new_size);
@@ -160,7 +160,7 @@ int update_ANSI_NIST_record(RECORD *record, FIELD *field)
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST_field - Takes a new subfield structure and
+#cat: biomeval_nbis_update_ANSI_NIST_field - Takes a new subfield structure and
 #cat:              appends it to the end of the specified field
 #cat:              structure.  This routine primarily supports the input
 #cat:              parsing of an ANSI/NIST file.
@@ -172,7 +172,7 @@ int update_ANSI_NIST_record(RECORD *record, FIELD *field)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int update_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
+int biomeval_nbis_update_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
 {
    if(field->num_subfields >= field->alloc_subfields){
       size_t new_size = (field->alloc_subfields 
@@ -180,7 +180,7 @@ int update_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
       SUBFIELD ** new_ptr = (SUBFIELD **)realloc(field->subfields, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : update_ANSI_NIST_field : "
+         fprintf(stderr, "ERROR : biomeval_nbis_update_ANSI_NIST_field : "
 		 "realloc : subfields (increase %lu bytes to %lu)\n",
 		 (unsigned long)(field->alloc_subfields * sizeof(SUBFIELD *)),
 		 (unsigned long)new_size);
@@ -200,7 +200,7 @@ int update_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST_subfield - Takes a new information item and
+#cat: biomeval_nbis_update_ANSI_NIST_subfield - Takes a new information item and
 #cat:              appends it to the end of the specified subfield
 #cat:              structure.  This routine primarily supports the input
 #cat:              parsing of an ANSI/NIST file.
@@ -212,7 +212,7 @@ int update_ANSI_NIST_field(FIELD *field, SUBFIELD *subfield)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int update_ANSI_NIST_subfield(SUBFIELD *subfield, ITEM *item)
+int biomeval_nbis_update_ANSI_NIST_subfield(SUBFIELD *subfield, ITEM *item)
 {
    if(subfield->num_items >= subfield->alloc_items){
       size_t new_size = (subfield->alloc_items
@@ -220,7 +220,7 @@ int update_ANSI_NIST_subfield(SUBFIELD *subfield, ITEM *item)
       ITEM ** new_ptr = (ITEM **)realloc(subfield->items, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : update_ANSI_NIST_subfield : "
+         fprintf(stderr, "ERROR : biomeval_nbis_update_ANSI_NIST_subfield : "
 		 "realloc : items (increase %lu bytes to %lu)\n",
 		 (unsigned long)(subfield->alloc_items * sizeof(ITEM *)),
 		 (unsigned long)new_size);
@@ -240,7 +240,7 @@ int update_ANSI_NIST_subfield(SUBFIELD *subfield, ITEM *item)
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST_item - Takes a newly read character and
+#cat: biomeval_nbis_update_ANSI_NIST_item - Takes a newly read character and
 #cat:              appends it to the end of the specified information
 #cat:              item's string value.  This routine primarily supports
 #cat:              the input parsing of an ANSI/NIST file.
@@ -252,7 +252,7 @@ int update_ANSI_NIST_subfield(SUBFIELD *subfield, ITEM *item)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int update_ANSI_NIST_item(ITEM *item, const int nextchar)
+int biomeval_nbis_update_ANSI_NIST_item(ITEM *item, const int nextchar)
 {
    int alloc_chars;
 
@@ -264,7 +264,7 @@ int update_ANSI_NIST_item(ITEM *item, const int nextchar)
       unsigned char * new_ptr = (unsigned char *)realloc(item->value, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr,"ERROR : update_ANSI_NIST_item : "
+         fprintf(stderr,"ERROR : biomeval_nbis_update_ANSI_NIST_item : "
 		 "realloc : item->value (increase %d bytes to %d)\n",
 		 item->alloc_chars, new_size);
          return(-2);
@@ -284,7 +284,7 @@ int update_ANSI_NIST_item(ITEM *item, const int nextchar)
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST_record_LENs - Takes an ANSI/NIST file structure
+#cat: biomeval_nbis_update_ANSI_NIST_record_LENs - Takes an ANSI/NIST file structure
 #cat:              and record by record recomputes and updates the
 #cat:              length/size of each record.
 
@@ -294,12 +294,12 @@ int update_ANSI_NIST_item(ITEM *item, const int nextchar)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int update_ANSI_NIST_record_LENs(ANSI_NIST *ansi_nist)
+int biomeval_nbis_update_ANSI_NIST_record_LENs(ANSI_NIST *ansi_nist)
 {
    int record_i, ret;
 
    for(record_i = 0; record_i < ansi_nist->num_records; record_i++){
-     if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
+     if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
         return(ret);
    }
 
@@ -308,7 +308,7 @@ int update_ANSI_NIST_record_LENs(ANSI_NIST *ansi_nist)
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST_record_LEN - Takes a specified logical record in
+#cat: biomeval_nbis_update_ANSI_NIST_record_LEN - Takes a specified logical record in
 #cat:              an ANSI/NIST file structure and recomputes and updates
 #cat:              the length/size of the record and parent ANSI/NIST
 #cat:              structure.
@@ -320,7 +320,7 @@ int update_ANSI_NIST_record_LENs(ANSI_NIST *ansi_nist)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int update_ANSI_NIST_record_LEN(ANSI_NIST *ansi_nist, const int record_i)
+int biomeval_nbis_update_ANSI_NIST_record_LEN(ANSI_NIST *ansi_nist, const int record_i)
 {
    int ret;
    RECORD *record;
@@ -331,7 +331,7 @@ int update_ANSI_NIST_record_LEN(ANSI_NIST *ansi_nist, const int record_i)
 
    /* If record index out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : update_ANSI_NIST_record_LEN : "
+      fprintf(stderr, "ERROR : biomeval_nbis_update_ANSI_NIST_record_LEN : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
       return(-2);
@@ -339,7 +339,7 @@ int update_ANSI_NIST_record_LEN(ANSI_NIST *ansi_nist, const int record_i)
    record = ansi_nist->records[record_i];
 
    /* If LEN "01" field not found ... */
-   if(!lookup_ANSI_NIST_field(&lenfield, &lenfield_i, LEN_ID, record)){
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&lenfield, &lenfield_i, LEN_ID, record)){
       /* Assume we have a partial tagged field record. For example, an   */
       /* fmttext file may have been parsed that specifies only a single  */
       /* field or subfield.  This happens in applications when inserting */
@@ -351,7 +351,7 @@ int update_ANSI_NIST_record_LEN(ANSI_NIST *ansi_nist, const int record_i)
    /* If LEN subfield or item not found ... */
    if((lenfield->num_subfields != 1) ||
       (lenfield->subfields[0]->num_items != 1)){
-      fprintf(stderr, "ERROR : update_ANSI_NIST_record_LEN : "
+      fprintf(stderr, "ERROR : biomeval_nbis_update_ANSI_NIST_record_LEN : "
 	      "LEN field index [%d.%d] format error in record [Type-%d.%03d]\n",
               record_i+1, lenfield_i+1, record->type, lenfield->field_int);
       return(-4);
@@ -364,9 +364,9 @@ int update_ANSI_NIST_record_LEN(ANSI_NIST *ansi_nist, const int record_i)
    /* If original LEN != byte size of record ... */
    if(orig_recordlen != record->num_bytes){
       /* If a binary record ... */
-      if(binary_record(record->type)){
+      if(biomeval_nbis_binary_record(record->type)){
          /* Update binary field record with fixed LEN field ... */
-         if((ret = update_ANSI_NIST_binary_record_LEN(record)))
+         if((ret = biomeval_nbis_update_ANSI_NIST_binary_record_LEN(record)))
             return(ret);
 
          fprintf(stderr, "LEN field index [%d.%d] [Type-%d.%03d] updated "
@@ -379,7 +379,7 @@ int update_ANSI_NIST_record_LEN(ANSI_NIST *ansi_nist, const int record_i)
       }
 
       /* Otherwise, update tagged field record with variable LEN field ... */
-      if((ret = update_ANSI_NIST_tagged_record_LEN(record)))
+      if((ret = biomeval_nbis_update_ANSI_NIST_tagged_record_LEN(record)))
          return(ret);
 
       ansi_nist->num_bytes += (record->num_bytes - orig_recordlen);
@@ -396,7 +396,7 @@ int update_ANSI_NIST_record_LEN(ANSI_NIST *ansi_nist, const int record_i)
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST_binary_record_LEN - Takes a specified binary field
+#cat: biomeval_nbis_update_ANSI_NIST_binary_record_LEN - Takes a specified binary field
 #cat:              record and recomputes and updates the length/size of
 #cat:              the record.
 
@@ -406,7 +406,7 @@ int update_ANSI_NIST_record_LEN(ANSI_NIST *ansi_nist, const int record_i)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int update_ANSI_NIST_binary_record_LEN(RECORD *record)
+int biomeval_nbis_update_ANSI_NIST_binary_record_LEN(RECORD *record)
 {
    ITEM *item;
    FIELD *field;
@@ -424,7 +424,7 @@ int update_ANSI_NIST_binary_record_LEN(RECORD *record)
 							MAX_UINT_CHARS+1);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : update_ANSI_NIST_binary_record_LEN : "
+         fprintf(stderr, "ERROR : biomeval_nbis_update_ANSI_NIST_binary_record_LEN : "
 		 "realloc : LEN item value (increase %d bytes to %d)\n",
 		 item->alloc_chars, MAX_UINT_CHARS+1);
          return(-2);
@@ -444,7 +444,7 @@ int update_ANSI_NIST_binary_record_LEN(RECORD *record)
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST_tagged_record_LEN - Takes a specified tagged field
+#cat: biomeval_nbis_update_ANSI_NIST_tagged_record_LEN - Takes a specified tagged field
 #cat:              record and recomputes and updates the length/size of
 #cat:              the record.
 
@@ -454,7 +454,7 @@ int update_ANSI_NIST_binary_record_LEN(RECORD *record)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int update_ANSI_NIST_tagged_record_LEN(RECORD *record)
+int biomeval_nbis_update_ANSI_NIST_tagged_record_LEN(RECORD *record)
 {
    int byte_adjust;
    int recordlen, recordchars;
@@ -506,7 +506,7 @@ int update_ANSI_NIST_tagged_record_LEN(RECORD *record)
 							    MAX_UINT_CHARS+1);
 
          if(new_ptr == NULL){
-            fprintf(stderr, "ERROR : update_ANSI_NIST_tagged_record_LEN : "
+            fprintf(stderr, "ERROR : biomeval_nbis_update_ANSI_NIST_tagged_record_LEN : "
 		    "realloc : LEN item value (increase %d bytes to %d)\n",
 		    item->alloc_chars, MAX_UINT_CHARS+1);
             return(-2);
@@ -531,7 +531,7 @@ int update_ANSI_NIST_tagged_record_LEN(RECORD *record)
 
 /***********************************************************************
 ************************************************************************
-#cat: update_ANSI_NIST_field_ID - Takes a field structure and assigns it a 
+#cat: biomeval_nbis_update_ANSI_NIST_field_ID - Takes a field structure and assigns it a 
 #cat:              new record type and field identifier and udpates the
 #cat:              field ID string if it has been previously allocated
 #cat:              and assigned.
@@ -543,7 +543,7 @@ int update_ANSI_NIST_tagged_record_LEN(RECORD *record)
    Output:
       field       - structure's members are udpated
 ************************************************************************/
-void update_ANSI_NIST_field_ID(FIELD *field, const int record_type,
+void biomeval_nbis_update_ANSI_NIST_field_ID(FIELD *field, const int record_type,
                                const int field_int)
 {
    /* Set new record type. */

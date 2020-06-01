@@ -53,7 +53,7 @@ of the software.
       a data structure holding an attribute-value paired list.
 
       ROUTINES:
-#cat: printfet - dumps the contents of an fet structure to the specified
+#cat: biomeval_nbis_printfet - dumps the contents of an fet structure to the specified
 #cat:            open file pointer.
 
 ***********************************************************************/
@@ -61,7 +61,7 @@ of the software.
 #include <stdio.h>
 #include <fet.h>
 
-void printfet(FILE *fp, FET *fet)
+void biomeval_nbis_printfet(FILE *fp, FET *fet)
 {
   int item;
 

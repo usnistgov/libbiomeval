@@ -53,11 +53,11 @@ of the software.
       based statistics using simple numerical methods.
 
       ROUTINES:
-#cat: ssx_stddev - computes standard deviation based on sum of samples
+#cat: biomeval_nbis_ssx_stddev - computes standard deviation based on sum of samples
 #cat:              and sum of the square of samples
-#cat: ssx_variance - comptues variance based on sum of samples
+#cat: biomeval_nbis_ssx_variance - comptues variance based on sum of samples
 #cat:              and sum of the square of samples
-#cat: ssx - fundamental computation to support variance and stddev
+#cat: biomeval_nbis_ssx - fundamental computation to support variance and stddev
 #cat:
 
 ***********************************************************************/
@@ -72,7 +72,7 @@ of the software.
 /* Date:    4/25/90                                  */
 /*****************************************************/
 /*****************************************************
-   ssx_stddev() accepts the sum of the
+   biomeval_nbis_ssx_stddev() accepts the sum of the
    values, the sum of the squares of the values, and
    the number of values contained in the sum and
    returns the standard deviation of the data.
@@ -81,12 +81,12 @@ of the software.
    double sum_x2; # sum of the squares of the x values
    int    count;  # number of items sumed
 ******************************************************/
-double ssx_stddev(const double sum_x, const double sum_x2,
+double biomeval_nbis_ssx_stddev(const double sum_x, const double sum_x2,
                           const int count)
 {
   double var = 0;
 
-  var = ssx_variance(sum_x,sum_x2,count);
+  var = biomeval_nbis_ssx_variance(sum_x,sum_x2,count);
   if (var >= 0.0)
      return (sqrt(var));
   else
@@ -100,7 +100,7 @@ double ssx_stddev(const double sum_x, const double sum_x2,
 /* Date:    4/25/90                                  */
 /*****************************************************/
 /*****************************************************
-   ssx_variance() accepts the sum of the values, the sum
+   biomeval_nbis_ssx_variance() accepts the sum of the values, the sum
    of the squares of the values, and the number of
    values contained in the sum and returns the
    variance of the data.
@@ -109,16 +109,16 @@ double ssx_stddev(const double sum_x, const double sum_x2,
    double sum_x2;  # sum of the squares of the values x
    int    count;   # number of items that were sumed
 ******************************************************/
-double ssx_variance(const double sum_x, const double sum_x2, const int count)
+double biomeval_nbis_ssx_variance(const double sum_x, const double sum_x2, const int count)
 {
   double ssxval;   /* holds value from SSx() */
   double variance; 
 
   if (count < 2){  
-     fprintf(stderr,"ERROR : ssx_variance : invalid count : %d < 2\n", count);
+     fprintf(stderr,"ERROR : biomeval_nbis_ssx_variance : invalid count : %d < 2\n", count);
      return(-2.0);
   }
-  ssxval = ssx(sum_x,sum_x2,count);
+  ssxval = biomeval_nbis_ssx(sum_x,sum_x2,count);
   variance = ssxval/(count-1);
 
   return(variance);
@@ -130,7 +130,7 @@ double ssx_variance(const double sum_x, const double sum_x2, const int count)
 /* Date:    4/25/90                                  */
 /*****************************************************/
 /*****************************************************
-   ssx() accepts the sum of the values, sum_x, the
+   biomeval_nbis_ssx() accepts the sum of the values, sum_x, the
    sum of the squares of the values, sum_x2 and the
    number of values contained in the sums, count and
    returns the value of the sum of the squares
@@ -140,7 +140,7 @@ double ssx_variance(const double sum_x, const double sum_x2, const int count)
    double sum_x2; # sum of the squares of the x values
    int count;     # number of values sumed
 ******************************************************/
-double ssx(const double sum_x, const double sum_x2, const int count)
+double biomeval_nbis_ssx(const double sum_x, const double sum_x2, const int count)
 { /* SS(x) SS(y) */
   /* SS(x) = (sum_x2 - ((sum_x * sum_x)/count)) */
   double ssx;

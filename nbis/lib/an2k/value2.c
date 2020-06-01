@@ -61,9 +61,9 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        value2field()
-                        value2subfield()
-                        value2item()
+                        biomeval_nbis_value2field()
+                        biomeval_nbis_value2subfield()
+                        biomeval_nbis_value2item()
 
 ***********************************************************************/
 
@@ -72,7 +72,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: value2field - Takes a string value encapsulating it into an
+#cat: biomeval_nbis_value2field - Takes a string value encapsulating it into an
 #cat:              information item and then embedding the item into a
 #cat:              newly allocated and initialized field structure.
 
@@ -87,7 +87,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int value2field(FIELD **ofield, const int record_type, const int field_int,
+int biomeval_nbis_value2field(FIELD **ofield, const int record_type, const int field_int,
                 const char *value)
 {
    int ret;
@@ -95,19 +95,19 @@ int value2field(FIELD **ofield, const int record_type, const int field_int,
    FIELD *field;
 
    /* Create subfield from value string. */
-   if((ret = value2subfield(&subfield, value)))
+   if((ret = biomeval_nbis_value2subfield(&subfield, value)))
       return(ret);
 
    /* Allocate and initialize new field. */
-   if((ret = new_ANSI_NIST_field(&field, record_type, field_int))){
-      free_ANSI_NIST_subfield(subfield);
+   if((ret = biomeval_nbis_new_ANSI_NIST_field(&field, record_type, field_int))){
+      biomeval_nbis_free_ANSI_NIST_subfield(subfield);
       return(ret);
    }
 
    /* Update field with subfield. */
-   if((ret = update_ANSI_NIST_field(field, subfield))){
-      free_ANSI_NIST_subfield(subfield);
-      free_ANSI_NIST_field(field);
+   if((ret = biomeval_nbis_update_ANSI_NIST_field(field, subfield))){
+      biomeval_nbis_free_ANSI_NIST_subfield(subfield);
+      biomeval_nbis_free_ANSI_NIST_field(field);
       return(ret);
    }
 
@@ -119,7 +119,7 @@ int value2field(FIELD **ofield, const int record_type, const int field_int,
 
 /***********************************************************************
 ************************************************************************
-#cat: value2subfield - Takes a string value encapsulating it into an
+#cat: biomeval_nbis_value2subfield - Takes a string value encapsulating it into an
 #cat:              information item and then embedding the item into a
 #cat:              newly allocated subfield structure.
 
@@ -132,26 +132,26 @@ int value2field(FIELD **ofield, const int record_type, const int field_int,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int value2subfield(SUBFIELD **osubfield, const char *value)
+int biomeval_nbis_value2subfield(SUBFIELD **osubfield, const char *value)
 {
    int ret;
    ITEM *item;
    SUBFIELD *subfield;
 
    /* Create item from value string. */
-   if((ret = value2item(&item, value)))
+   if((ret = biomeval_nbis_value2item(&item, value)))
       return(ret);
 
    /* Allocate subfield. */
-   if((ret = alloc_ANSI_NIST_subfield(&subfield))){
-      free_ANSI_NIST_item(item);
+   if((ret = biomeval_nbis_alloc_ANSI_NIST_subfield(&subfield))){
+      biomeval_nbis_free_ANSI_NIST_item(item);
       return(ret);
    }
 
    /* Update subfield with information item. */
-   if((ret = update_ANSI_NIST_subfield(subfield, item))){
-      free_ANSI_NIST_item(item);
-      free_ANSI_NIST_subfield(subfield);
+   if((ret = biomeval_nbis_update_ANSI_NIST_subfield(subfield, item))){
+      biomeval_nbis_free_ANSI_NIST_item(item);
+      biomeval_nbis_free_ANSI_NIST_subfield(subfield);
       return(ret);
    }
 
@@ -163,7 +163,7 @@ int value2subfield(SUBFIELD **osubfield, const char *value)
 
 /***********************************************************************
 ************************************************************************
-#cat: value2item - Takes a string value encapsulating it into a
+#cat: biomeval_nbis_value2item - Takes a string value encapsulating it into a
 #cat:              newly allocated information item.
 
    Input:
@@ -175,7 +175,7 @@ int value2subfield(SUBFIELD **osubfield, const char *value)
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int value2item(ITEM **oitem, const char *value)
+int biomeval_nbis_value2item(ITEM **oitem, const char *value)
 {
    int ret;
    ITEM *item;
@@ -187,14 +187,14 @@ int value2item(ITEM **oitem, const char *value)
    alloc_len = value_len + 1;
 
    /* Allocate item. */
-   if((ret = alloc_ANSI_NIST_item(&item)))
+   if((ret = biomeval_nbis_alloc_ANSI_NIST_item(&item)))
       return(ret);
 
    /* Realloc item's value buffer if needed. */
    if(alloc_len >= item->alloc_chars){
       unsigned char *new_ptr = (unsigned char *)realloc(item->value, alloc_len);
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : value2field : "
+         fprintf(stderr, "ERROR : biomeval_nbis_value2field : "
 		 "realloc : item->value (increase %d bytes to %d)\n",
 		 item->alloc_chars, alloc_len);
          return(-2);

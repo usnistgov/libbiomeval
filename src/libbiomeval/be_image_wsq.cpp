@@ -36,13 +36,13 @@ BiometricEvaluation::Image::WSQ::WSQ(
 	/* Read to the "start of image" marker */
 	uint16_t marker, tbl_size;
 	uint32_t rv = 0;
-	if ((rv = getc_marker_wsq(&marker, SOI_WSQ, &marker_buf,
+	if ((rv = biomeval_nbis_getc_marker_wsq(&marker, SOI_WSQ, &marker_buf,
 	    wsq_buf + size)))
 		throw Error::StrategyError("Could not read to SOI_WSQ");
 
 	/* Step through any tables up to the "start of frame" marker */
 	for (;;) {
-		if ((rv = getc_marker_wsq(&marker, TBLS_N_SOF, &marker_buf,
+		if ((rv = biomeval_nbis_getc_marker_wsq(&marker, TBLS_N_SOF, &marker_buf,
 		    wsq_buf + size)))
 			throw Error::StrategyError("Could not read to "
 			    "TBLS_N_SOF");
@@ -50,7 +50,7 @@ BiometricEvaluation::Image::WSQ::WSQ(
 		if (marker == SOF_WSQ)
 			break;
 
-		if ((rv = getc_ushort(&tbl_size, &marker_buf, wsq_buf + size)))
+		if ((rv = biomeval_nbis_getc_ushort(&tbl_size, &marker_buf, wsq_buf + size)))
 			throw Error::StrategyError("Could not read size "
 			    "of table");
 		/* Table size includes size of field but not the marker */
@@ -59,14 +59,14 @@ BiometricEvaluation::Image::WSQ::WSQ(
 
 	/* Read the frame header */
 	FRM_HEADER_WSQ wsq_header;
-	if ((rv = getc_frame_header_wsq(&wsq_header, &marker_buf,
+	if ((rv = biomeval_nbis_getc_frame_header_wsq(&wsq_header, &marker_buf,
 	    wsq_buf + size)))
 		throw Error::DataError("Could not read frame header");
 	setDimensions(Size(wsq_header.width, wsq_header.height));
 
 	/* Read PPI from NISTCOM, if present */
 	int ppi{-1};
-	if (getc_ppi_wsq(&ppi, wsq_buf, size) == 0) {
+	if (biomeval_nbis_getc_ppi_wsq(&ppi, wsq_buf, size) == 0) {
 		/* Resolution does not have to be defined */
 		if (ppi == -1)
 			/* WSQ is a 500 ppi specification */
@@ -109,7 +109,7 @@ BiometricEvaluation::Image::WSQ::getRawData()
 {
 	uint8_t *rawbuf = nullptr;
 	int32_t depth, height, lossy, ppi, rv, width;
-	if ((rv = wsq_decode_mem(&rawbuf, &width, &height, &depth, &ppi,
+	if ((rv = biomeval_nbis_wsq_decode_mem(&rawbuf, &width, &height, &depth, &ppi,
 	    &lossy, (unsigned char *)this->getDataPointer(),
 	    this->getDataSize())))
 		throw Error::DataError("Could not convert WSQ to raw.");

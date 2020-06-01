@@ -54,9 +54,9 @@ of the software.
       attribute-value paired list.
 
       ROUTINES:
-#cat: deletefet - removes the specified feature entry from an fet structure.
+#cat: biomeval_nbis_deletefet - removes the specified feature entry from an fet structure.
 #cat:             Exits on error.
-#cat: deletefet_ret - removes the specified feature entry from an fet
+#cat: biomeval_nbis_deletefet_ret - removes the specified feature entry from an fet
 #cat:             structure.  Returns on error.
 
 ***********************************************************************/
@@ -67,7 +67,7 @@ of the software.
 #include <util.h>
 
 /*********************************************************************/
-void deletefet(char *feature, FET *fet)
+void biomeval_nbis_deletefet(char *feature, FET *fet)
 {
   int item;
 
@@ -75,7 +75,7 @@ void deletefet(char *feature, FET *fet)
        (item < fet->num) && (strcmp(fet->names[item],feature) != 0);
        item++);
   if(item >= fet->num)
-     fatalerr("deletefet",feature,"Feature not found");
+     biomeval_nbis_fatalerr("biomeval_nbis_deletefet",feature,"Feature not found");
   free(fet->names[item]);
   if(fet->values[item] != (char *)NULL)
      free(fet->values[item]);
@@ -89,7 +89,7 @@ void deletefet(char *feature, FET *fet)
 }
 
 /*********************************************************************/
-int deletefet_ret(char *feature, FET *fet)
+int biomeval_nbis_deletefet_ret(char *feature, FET *fet)
 {
   int item;
 
@@ -97,7 +97,7 @@ int deletefet_ret(char *feature, FET *fet)
        (item < fet->num) && (strcmp(fet->names[item],feature) != 0);
        item++);
   if(item >= fet->num){
-    fprintf(stderr, "ERROR : deletefet_ret : feature %s not found\n",
+    fprintf(stderr, "ERROR : biomeval_nbis_deletefet_ret : feature %s not found\n",
             feature);
      return(-2);
   }

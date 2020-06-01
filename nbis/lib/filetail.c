@@ -54,7 +54,7 @@ of the software.
       directory path contained in a file name string.
 
       ROUTINES:
-#cat: filetail - takes a full pathname and returns the information to the
+#cat: biomeval_nbis_filetail - takes a full pathname and returns the information to the
 #cat:            right of the rightmost directory level.
 
 ***********************************************************************/
@@ -66,7 +66,7 @@ of the software.
 /* Filetail() is a destructive procedure which takes a path  */
 /* name and returns only the rightmost directory level.      */
 /*************************************************************/
-void filetail(char *tail)
+void biomeval_nbis_filetail(char *tail)
 {
    char *cptr;
    char temp[MAXPATHLEN];

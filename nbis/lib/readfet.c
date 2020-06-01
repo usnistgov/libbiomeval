@@ -56,9 +56,9 @@ of the software.
       paired list.
 
       ROUTINES:
-#cat: readfetfile - opens an fet file and reads its contents into an
+#cat: biomeval_nbis_readfetfile - opens an fet file and reads its contents into an
 #cat:               fet structure.  Exits on error.
-#cat: readfetfile_ret - opens an fet file and reads its contents into an
+#cat: biomeval_nbis_readfetfile_ret - opens an fet file and reads its contents into an
 #cat:               fet structure.  Returns on error.
 
 ***********************************************************************/
@@ -70,7 +70,7 @@ of the software.
 #include <util.h>
 
 /*****************************************************************/
-FET *readfetfile(char *file)
+FET *biomeval_nbis_readfetfile(char *file)
 {
    FILE *fp;
    FET *fet;
@@ -78,25 +78,25 @@ FET *readfetfile(char *file)
    size_t len = 0;
 
    if ((fp = fopen(file,"rb")) == (FILE *)NULL)
-      syserr("readfetfile","fopen",file);
+      biomeval_nbis_syserr("biomeval_nbis_readfetfile","fopen",file);
 
-   fet = allocfet(MAXFETS);
+   fet = biomeval_nbis_allocfet(MAXFETS);
    while (fscanf(fp,"%s",buf) != EOF){
       while(((c = getc(fp)) == ' ') || (c == '\t'));
       ungetc(c, fp);
       if (fet->num >= fet->alloc)
-         reallocfet(fet, fet->alloc + MAXFETS);
+         biomeval_nbis_reallocfet(fet, fet->alloc + MAXFETS);
       len = strlen(buf) + 1;
       fet->names[fet->num] = malloc(len);
       if(fet->names[fet->num] == (char *)NULL)
-         syserr("readfetfile","malloc","fet->names[]");
+         biomeval_nbis_syserr("biomeval_nbis_readfetfile","malloc","fet->names[]");
       strncpy(fet->names[fet->num], buf, len);
       fgets(buf,MAXFETLENGTH-1,fp);
       buf[strlen(buf)-1] = '\0';
       len = strlen(buf) + 1;
       fet->values[fet->num] = malloc(len);
       if(fet->values[fet->num] == (char *)NULL)
-         syserr("readfetfile","malloc","fet->values[]");
+         biomeval_nbis_syserr("biomeval_nbis_readfetfile","malloc","fet->values[]");
       strncpy(fet->values[fet->num], buf, len);
       (fet->num)++;
    }
@@ -105,7 +105,7 @@ FET *readfetfile(char *file)
 }
 
 /*****************************************************************/
-int readfetfile_ret(FET **ofet, char *file)
+int biomeval_nbis_readfetfile_ret(FET **ofet, char *file)
 {
    int ret;
    FILE *fp;
@@ -114,11 +114,11 @@ int readfetfile_ret(FET **ofet, char *file)
    size_t len = 0;
 
    if ((fp = fopen(file,"rb")) == (FILE *)NULL){
-      fprintf(stderr, "ERROR : readfetfile_ret : fopen : %s\n", file);
+      fprintf(stderr, "ERROR : biomeval_nbis_readfetfile_ret : fopen : %s\n", file);
       return(-2);
    }
 
-   if((ret = allocfet_ret(&fet, MAXFETS))){
+   if((ret = biomeval_nbis_allocfet_ret(&fet, MAXFETS))){
       fclose(fp);
       return(ret);
    }
@@ -127,18 +127,18 @@ int readfetfile_ret(FET **ofet, char *file)
       while(((c = getc(fp)) == ' ') || (c == '\t'));
       ungetc(c, fp);
       if (fet->num >= fet->alloc){
-         if((ret = reallocfet_ret(&fet, fet->alloc + MAXFETS))){
+         if((ret = biomeval_nbis_reallocfet_ret(&fet, fet->alloc + MAXFETS))){
             fclose(fp);
-            freefet(fet);
+            biomeval_nbis_freefet(fet);
             return(ret);
          }
       }
       len = strlen(buf) + 1;
       fet->names[fet->num] = malloc(len);
       if(fet->names[fet->num] == (char *)NULL){
-         fprintf(stderr, "ERROR : readfetfile_ret : malloc : fet->names[]\n");
+         fprintf(stderr, "ERROR : biomeval_nbis_readfetfile_ret : malloc : fet->names[]\n");
          fclose(fp);
-         freefet(fet);
+         biomeval_nbis_freefet(fet);
          return(-3);
       }
       strncpy(fet->names[fet->num], buf, len);
@@ -147,9 +147,9 @@ int readfetfile_ret(FET **ofet, char *file)
       len = strlen(buf) + 1;
       fet->values[fet->num] = malloc(len);
       if(fet->values[fet->num] == (char *)NULL){
-         fprintf(stderr, "ERROR : readfetfile_ret : malloc : fet->values[]\n");
+         fprintf(stderr, "ERROR : biomeval_nbis_readfetfile_ret : malloc : fet->values[]\n");
          fclose(fp);
-         freefet(fet);
+         biomeval_nbis_freefet(fet);
          return(-4);
       }
       strncpy(fet->values[fet->num], buf, len);

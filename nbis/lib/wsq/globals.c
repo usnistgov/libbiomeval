@@ -62,37 +62,37 @@ of the software.
 int debug;
 */
 #ifdef TARGET_OS
-   QUANT_VALS quant_vals;
+   QUANT_VALS biomeval_nbis_quant_vals;
 
-   W_TREE w_tree[W_TREELEN];
+   W_TREE biomeval_nbis_w_tree[W_TREELEN];
 
-   Q_TREE q_tree[Q_TREELEN];
+   Q_TREE biomeval_nbis_q_tree[Q_TREELEN];
 
-   DTT_TABLE dtt_table;
+   DTT_TABLE biomeval_nbis_dtt_table;
 
-   DQT_TABLE dqt_table;
+   DQT_TABLE biomeval_nbis_dqt_table;
 
-   DHT_TABLE dht_table[MAX_DHT_TABLES];
+   DHT_TABLE biomeval_nbis_dht_table[MAX_DHT_TABLES];
 
-   FRM_HEADER_WSQ frm_header_wsq;
+   FRM_HEADER_WSQ biomeval_nbis_frm_header_wsq;
 #else
-   QUANT_VALS quant_vals = {0};
+   QUANT_VALS biomeval_nbis_quant_vals = {0};
 
-   W_TREE w_tree[W_TREELEN] = {{0}};
+   W_TREE biomeval_nbis_w_tree[W_TREELEN] = {{0}};
 
-   Q_TREE q_tree[Q_TREELEN] = {{0}};
+   Q_TREE biomeval_nbis_q_tree[Q_TREELEN] = {{0}};
 
-   DTT_TABLE dtt_table = {NULL};
+   DTT_TABLE biomeval_nbis_dtt_table = {NULL};
 
-   DQT_TABLE dqt_table = {0};
+   DQT_TABLE biomeval_nbis_dqt_table = {0};
 
-   DHT_TABLE dht_table[MAX_DHT_TABLES] = {{0}};
+   DHT_TABLE biomeval_nbis_dht_table[MAX_DHT_TABLES] = {{0}};
 
-   FRM_HEADER_WSQ frm_header_wsq = {0};
+   FRM_HEADER_WSQ biomeval_nbis_frm_header_wsq = {0};
 #endif
 
 #ifdef FILTBANK_EVEN_8X8_1
-float hifilt[MAX_HIFILT] =  {
+float biomeval_nbis_hifilt[MAX_HIFILT] =  {
                               0.03226944131446922,
                              -0.05261415011924844,
                              -0.18870142780632693,
@@ -102,7 +102,7 @@ float hifilt[MAX_HIFILT] =  {
                               0.05261415011924844,
                              -0.03226944131446922 };
 
-float lofilt[MAX_LOFILT] =  {
+float biomeval_nbis_lofilt[MAX_LOFILT] =  {
                               0.07565691101399093,
                              -0.12335584105275092,
                              -0.09789296778409587,
@@ -112,7 +112,7 @@ float lofilt[MAX_LOFILT] =  {
                              -0.12335584105275092,
                               0.07565691101399093 };
 #else
-float hifilt[MAX_HIFILT] =  { 0.06453888262893845,
+float biomeval_nbis_hifilt[MAX_HIFILT] =  { 0.06453888262893845,
                               -0.04068941760955844,
                               -0.41809227322221221,
                                0.78848561640566439,
@@ -120,7 +120,7 @@ float hifilt[MAX_HIFILT] =  { 0.06453888262893845,
                               -0.04068941760955844,
                                0.06453888262893845 };
 
-float lofilt[MAX_LOFILT] =  { 0.03782845550699546,
+float biomeval_nbis_lofilt[MAX_LOFILT] =  { 0.03782845550699546,
                               -0.02384946501938000,
                               -0.11062440441842342,
                                0.37740285561265380,

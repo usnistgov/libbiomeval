@@ -58,8 +58,8 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        do_print()
-                        print_ANSI_NIST_select()
+                        biomeval_nbis_do_print()
+                        biomeval_nbis_print_ANSI_NIST_select()
 
 ***********************************************************************/
 
@@ -68,7 +68,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: do_print - Master routine used to print the requested logical record,
+#cat: biomeval_nbis_do_print - Master routine used to print the requested logical record,
 #cat:              field, subfield, or information item to either the
 #cat:              specified file or to standard output.  The structure
 #cat:              to be printed is represented by a 4-tuple of indices.
@@ -85,7 +85,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int do_print(const char *ofile,
+int biomeval_nbis_do_print(const char *ofile,
              const int record_i, const int field_i,
              const int subfield_i, const int item_i,
              ANSI_NIST *ansi_nist)
@@ -97,7 +97,7 @@ int do_print(const char *ofile,
    if(ofile != NULL){
       fpout = fopen(ofile, "wb");
       if(fpout == NULL){
-         fprintf(stderr, "ERROR : do_print : fopen : %s\n", ofile);
+         fprintf(stderr, "ERROR : biomeval_nbis_do_print : fopen : %s\n", ofile);
          exit(-2);
       }
    }
@@ -107,11 +107,11 @@ int do_print(const char *ofile,
 
    /* Print the contents of the specified structure to the open */
    /* file pointer. */
-   if((ret = print_ANSI_NIST_select(fpout, record_i, field_i,
+   if((ret = biomeval_nbis_print_ANSI_NIST_select(fpout, record_i, field_i,
                                    subfield_i, item_i, ansi_nist))){
       if(ofile != NULL){
          if(fclose(fpout)){
-            fprintf(stderr, "ERROR : do_print : fclose : %s\n", ofile);
+            fprintf(stderr, "ERROR : biomeval_nbis_do_print : fclose : %s\n", ofile);
             exit(-3);
          }
       }
@@ -122,7 +122,7 @@ int do_print(const char *ofile,
    /* Close the file pointer if necessary. */
    if(ofile != NULL){
       if(fclose(fpout)){
-         fprintf(stderr, "ERROR : do_print : fclose : %s\n", ofile);
+         fprintf(stderr, "ERROR : biomeval_nbis_do_print : fclose : %s\n", ofile);
          exit(-4);
       }
    }
@@ -133,7 +133,7 @@ int do_print(const char *ofile,
 
 /***********************************************************************
 ************************************************************************
-#cat: print_ANSI_NIST_select - Routine used to print in a textual format
+#cat: biomeval_nbis_print_ANSI_NIST_select - Routine used to print in a textual format
 #cat:              the contents of a requested structure based on a 4-tuple
 #cat:              of structure indices. These indices represent the physical
 #cat:              order of subsequent logical records, fields, subfields, and
@@ -154,7 +154,7 @@ int do_print(const char *ofile,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int print_ANSI_NIST_select(FILE *fpout, const int record_i, const int field_i,
+int biomeval_nbis_print_ANSI_NIST_select(FILE *fpout, const int record_i, const int field_i,
                            const int subfield_i, const int item_i,
                            ANSI_NIST *ansi_nist)
 {
@@ -167,7 +167,7 @@ int print_ANSI_NIST_select(FILE *fpout, const int record_i, const int field_i,
    /* If record index defined ... */
    if(record_i != UNDEFINED_INT){
       if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-         fprintf(stderr, "ERROR : print_ANSI_NIST_select : "
+         fprintf(stderr, "ERROR : biomeval_nbis_print_ANSI_NIST_select : "
 		 "record index [%d] out of range [1..%d]\n",
                  record_i+1, ansi_nist->num_records);
          return(-2);
@@ -177,7 +177,7 @@ int print_ANSI_NIST_select(FILE *fpout, const int record_i, const int field_i,
       /* If field index is defined ... */
       if(field_i != UNDEFINED_INT){
          if((field_i < 0) || (field_i >= record->num_fields)){
-            fprintf(stderr, "ERROR : print_ANSI_NIST_select : "
+            fprintf(stderr, "ERROR : biomeval_nbis_print_ANSI_NIST_select : "
 		    "field index [%d.%d] out of range [1..%d] "
 		    "in record [Type-%d]\n",
                     record_i+1, field_i+1, record->num_fields, record->type);
@@ -188,8 +188,8 @@ int print_ANSI_NIST_select(FILE *fpout, const int record_i, const int field_i,
          /* If subfield index is defined ... */
          if(subfield_i != UNDEFINED_INT){
             /* If subfield not found ... */
-            if(!lookup_ANSI_NIST_subfield(&subfield, subfield_i, field)){
-               fprintf(stderr, "ERROR : print_ANSI_NIST_select : "
+            if(!biomeval_nbis_lookup_ANSI_NIST_subfield(&subfield, subfield_i, field)){
+               fprintf(stderr, "ERROR : biomeval_nbis_print_ANSI_NIST_select : "
 		       "subfield index [%d.%d.%d] not found "
 		       "in record [Type-%d.%03d]\n",
                        record_i+1, field_i+1, subfield_i+1,
@@ -201,8 +201,8 @@ int print_ANSI_NIST_select(FILE *fpout, const int record_i, const int field_i,
             /* If item index is defined ... */
             if(item_i != UNDEFINED_INT){
                /* If item not found ... */
-               if(!lookup_ANSI_NIST_item(&item, item_i, subfield)){
-                  fprintf(stderr, "ERROR : print_ANSI_NIST_select : "
+               if(!biomeval_nbis_lookup_ANSI_NIST_item(&item, item_i, subfield)){
+                  fprintf(stderr, "ERROR : biomeval_nbis_print_ANSI_NIST_select : "
 			  "item index [%d.%d.%d.%d] not found "
 			  "in record [Type-%d.%03d]\n",
                           record_i+1, field_i+1, subfield_i+1, item_i+1,
@@ -212,14 +212,14 @@ int print_ANSI_NIST_select(FILE *fpout, const int record_i, const int field_i,
                /* Otherwise, item found.*/
 
                /* Write item's value to formatted text file pointer. */
-               if((ret = write_fmttext_item(fpout, record_i, field_i,
+               if((ret = biomeval_nbis_write_fmttext_item(fpout, record_i, field_i,
                                   subfield_i, item_i, ansi_nist)))
                   return(ret);
             }
             /* Otherwise, item index is UNDEFINED ... */
             else{
                /* Write subfield's contents to formatted text file pointer. */
-               if((ret = write_fmttext_subfield(fpout, record_i, field_i,
+               if((ret = biomeval_nbis_write_fmttext_subfield(fpout, record_i, field_i,
                                       subfield_i, ansi_nist)))
                   return(ret);
             }
@@ -227,7 +227,7 @@ int print_ANSI_NIST_select(FILE *fpout, const int record_i, const int field_i,
          /* Otherwise, subfield index is UNDEFINED ... */
          else{
             /* Write field's contents to formatted text file pointer. */
-            if((ret = write_fmttext_field(fpout, record_i, field_i,
+            if((ret = biomeval_nbis_write_fmttext_field(fpout, record_i, field_i,
                                           ansi_nist)))
                return(ret);
          }
@@ -235,14 +235,14 @@ int print_ANSI_NIST_select(FILE *fpout, const int record_i, const int field_i,
       /* Otherwise, field ID is UNDEFINED ... */
       else{
          /* Write records's contents to formatted text file pointer. */
-         if((ret = write_fmttext_record(fpout, record_i, ansi_nist)))
+         if((ret = biomeval_nbis_write_fmttext_record(fpout, record_i, ansi_nist)))
             return(ret);
       }
    }
    /* Otherwise, record type is UNDEFINED ... */
    else{
       /* Write ansi_nist structure's contents to formatted text file ptr. */
-      if((ret = write_fmttext(fpout, ansi_nist)))
+      if((ret = biomeval_nbis_write_fmttext(fpout, ansi_nist)))
          return(ret);
    }
 

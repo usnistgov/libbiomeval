@@ -53,7 +53,7 @@ of the software.
       a file in bytes given its path name.
 
       ROUTINES:
-#cat: filesize - opens the specified pathname and determines the size of
+#cat: biomeval_nbis_filesize - opens the specified pathname and determines the size of
 #cat:            of the file in bytes.
 
 ***********************************************************************/
@@ -62,28 +62,28 @@ of the software.
 #include <unistd.h>
 
 /**********************************************************************/
-int filesize(char *ifile)
+int biomeval_nbis_filesize(char *ifile)
 {
    FILE *fp;
    int ret;
 
    /* Open file. */
    if((fp = fopen(ifile, "rb")) == (FILE *)NULL){
-      fprintf(stderr, "ERROR : filesize : file %s could not be opened\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_filesize : file %s could not be opened\n",
               ifile);
       return(-2);
    }
 
    /* Move file pointer to end of file. */
    if(fseek(fp, 0, SEEK_END)){
-      fprintf(stderr, "ERROR : filesize : seeking to EOF of file %s failed\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_filesize : seeking to EOF of file %s failed\n",
               ifile);
       return(-3);
    }
 
    /* Get byte offest to end of file. */
    if((ret = ftell(fp)) < 0){
-      fprintf(stderr, "ERROR : filesize : ftell at EOF of file %s failed\n",
+      fprintf(stderr, "ERROR : biomeval_nbis_filesize : ftell at EOF of file %s failed\n",
               ifile);
       return(-4);
    }

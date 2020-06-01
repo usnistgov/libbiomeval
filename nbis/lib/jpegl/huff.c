@@ -54,31 +54,31 @@ of the software.
       tables used in JPEGL (lossless) image compression.
 
       ROUTINES:
-#cat: read_huffman_table - Reads a huffman table from an open file.
+#cat: biomeval_nbis_read_huffman_table - Reads a huffman table from an open file.
 #cat:
-#cat: getc_huffman_table - Reads a huffman table from a memory buffer.
+#cat: biomeval_nbis_getc_huffman_table - Reads a huffman table from a memory buffer.
 #cat:
-#cat: write_huffman_table - Writes a huffman table to an open file.
+#cat: biomeval_nbis_write_huffman_table - Writes a huffman table to an open file.
 #cat:
-#cat: putc_huffman_table - Writes a huffman table to a memory buffer.
+#cat: biomeval_nbis_putc_huffman_table - Writes a huffman table to a memory buffer.
 #cat:
-#cat: find_huff_sizes - Optimizes code sizes by the frequency of
+#cat: biomeval_nbis_find_huff_sizes - Optimizes code sizes by the frequency of
 #cat:                   pixel difference values.
-#cat: find_least_freq - Finds the larges pixel difference with the
+#cat: biomeval_nbis_find_least_freq - Finds the larges pixel difference with the
 #cat:                   least frequency.
-#cat: find_num_huff_sizes - Determines the number of codes for each size.
+#cat: biomeval_nbis_find_num_huff_sizes - Determines the number of codes for each size.
 #cat:
-#cat: sort_huffbits - Ensures that no huffman code size is greater than 16.
+#cat: biomeval_nbis_sort_huffbits - Ensures that no huffman code size is greater than 16.
 #cat:
-#cat: sort_code_sizes - Sorts a list of huffman code sizes.
+#cat: biomeval_nbis_sort_code_sizes - Sorts a list of huffman code sizes.
 #cat:
-#cat: build_huffcode_table - Sorts huffman codes and sizes.
+#cat: biomeval_nbis_build_huffcode_table - Sorts huffman codes and sizes.
 #cat:
-#cat: build_huffsizes - Defines the code sizes for each difference category.
+#cat: biomeval_nbis_build_huffsizes - Defines the code sizes for each difference category.
 #cat:
-#cat: build_huffcodes - Defines the huffman codes need for each difference
+#cat: biomeval_nbis_build_huffcodes - Defines the huffman codes need for each difference
 #cat:                   category.
-#cat: gen_decode_table - Generates the huffman decode table.
+#cat: biomeval_nbis_gen_decode_table - Generates the huffman decode table.
 #cat:
 
 ***********************************************************************/
@@ -90,7 +90,7 @@ of the software.
 /********************************************/
 /* Reads huffman table from compressed file */
 /********************************************/
-int read_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
+int biomeval_nbis_read_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
                        unsigned char **ohuffvalues, const int max_huffcounts,
                        FILE *infp, const int read_table_len, int *bytes_left)
 {
@@ -105,34 +105,34 @@ int read_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
 
    /* table_len */
    if(read_table_len){
-      if((ret = read_ushort(&table_len, infp)))
+      if((ret = biomeval_nbis_read_ushort(&table_len, infp)))
          return(ret);
       *bytes_left = table_len - 2;
    }
 
    /* If no bytes left ... */ 
    if((*bytes_left) <= 0){
-      fprintf(stderr, "ERROR : read_huffman_table : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table : ");
       fprintf(stderr, "no huffman table bytes remaining\n");
       return(-2);
    }
 
    /* Table ID */
-   if((ret = read_byte(&table_id, infp)))
+   if((ret = biomeval_nbis_read_byte(&table_id, infp)))
       return(ret);
    (*bytes_left)--;
 
    huffbits = (unsigned char *)calloc(MAX_HUFFBITS, sizeof(unsigned char));
    if(huffbits == (unsigned char *)NULL){
       fprintf(stderr,
-              "ERROR : read_huffman_table : calloc : huffbits\n");
+              "ERROR : biomeval_nbis_read_huffman_table : calloc : huffbits\n");
       return(-3);
    }
 
    num_hufvals = 0;
    /* L1 ... L16 */
    for(i = 0; i < MAX_HUFFBITS; i++){
-      if((ret = read_byte(&(huffbits[i]), infp))){
+      if((ret = biomeval_nbis_read_byte(&(huffbits[i]), infp))){
          free(huffbits);
          return(ret);
       }
@@ -141,7 +141,7 @@ int read_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
    (*bytes_left) -= MAX_HUFFBITS;
 
    if(num_hufvals > max_huffcounts+1){
-      fprintf(stderr, "ERROR : read_huffman_table : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table : ");
       fprintf(stderr, "num_hufvals (%d) is larger", num_hufvals);
       fprintf(stderr, "than MAX_HUFFCOUNTS (%d)\n", max_huffcounts+1);
       free(huffbits);
@@ -154,14 +154,14 @@ int read_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
                                         sizeof(unsigned char));
    if(huffvalues == (unsigned char *)NULL){
       fprintf(stderr,
-              "ERROR : read_huffman_table : calloc : huffvalues\n");
+              "ERROR : biomeval_nbis_read_huffman_table : calloc : huffvalues\n");
       free(huffbits);
       return(-5);
    }
 
    /* V1,1 ... V16,16 */
    for(i = 0; i < num_hufvals; i++){
-      if((ret = read_byte(&(huffvalues[i]), infp))){
+      if((ret = biomeval_nbis_read_byte(&(huffvalues[i]), infp))){
          free(huffbits);
          free(huffvalues);
          return(ret);
@@ -191,7 +191,7 @@ int read_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
 /*****************************************************/
 /* Reads huffman table from compressed memory buffer */
 /*****************************************************/
-int getc_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
+int biomeval_nbis_getc_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
                        unsigned char **ohuffvalues, const int max_huffcounts,
                        unsigned char **cbufptr, unsigned char *ebufptr,
                        const int read_table_len, int *bytes_left)
@@ -207,34 +207,34 @@ int getc_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
 
    /* table_len */
    if(read_table_len){
-      if((ret = getc_ushort(&table_len, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_ushort(&table_len, cbufptr, ebufptr)))
          return(ret);
       *bytes_left = table_len - 2;
    }
 
    /* If no bytes left ... */ 
    if((*bytes_left) <= 0){
-      fprintf(stderr, "ERROR : getc_huffman_table : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table : ");
       fprintf(stderr, "no huffman table bytes remaining\n");
       return(-2);
    }
 
    /* Table ID */
-   if((ret = getc_byte(&table_id, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&table_id, cbufptr, ebufptr)))
       return(ret);
    (*bytes_left)--;
 
    huffbits = (unsigned char *)calloc(MAX_HUFFBITS, sizeof(unsigned char));
    if(huffbits == (unsigned char *)NULL){
       fprintf(stderr,
-              "ERROR : getc_huffman_table : calloc : huffbits\n");
+              "ERROR : biomeval_nbis_getc_huffman_table : calloc : huffbits\n");
       return(-3);
    }
 
    num_hufvals = 0;
    /* L1 ... L16 */
    for(i = 0; i < MAX_HUFFBITS; i++){
-      if((ret = getc_byte(&(huffbits[i]), cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&(huffbits[i]), cbufptr, ebufptr))){
          free(huffbits);
          return(ret);
       }
@@ -243,7 +243,7 @@ int getc_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
    (*bytes_left) -= MAX_HUFFBITS;
 
    if(num_hufvals > max_huffcounts+1){
-      fprintf(stderr, "ERROR : getc_huffman_table : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table : ");
       fprintf(stderr, "num_hufvals (%d) is larger", num_hufvals);
       fprintf(stderr, "than MAX_HUFFCOUNTS (%d)\n", max_huffcounts+1);
       free(huffbits);
@@ -256,14 +256,14 @@ int getc_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
                                         sizeof(unsigned char));
    if(huffvalues == (unsigned char *)NULL){
       fprintf(stderr,
-              "ERROR : getc_huffman_table : calloc : huffvalues\n");
+              "ERROR : biomeval_nbis_getc_huffman_table : calloc : huffvalues\n");
       free(huffbits);
       return(-5);
    }
 
    /* V1,1 ... V16,16 */
    for(i = 0; i < num_hufvals; i++){
-      if((ret = getc_byte(&(huffvalues[i]), cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&(huffvalues[i]), cbufptr, ebufptr))){
          free(huffbits);
          free(huffvalues);
          return(ret);
@@ -293,7 +293,7 @@ int getc_huffman_table(unsigned char *otable_id, unsigned char **ohuffbits,
 /***********************************************/
 /* Writes huffman table to the compressed file */
 /***********************************************/
-int write_huffman_table(
+int biomeval_nbis_write_huffman_table(
    const unsigned short marker,  /* Markers are different for JPEGL and WSQ */
    const unsigned char table_id, /* huffman table indicator  */
    unsigned char *huffbits,      /* huffman table parameters */
@@ -307,7 +307,7 @@ int write_huffman_table(
       fprintf(stdout, "Start writing huffman table.\n");
 
    /* DHT */
-   if((ret = write_ushort(marker, outfp)))
+   if((ret = biomeval_nbis_write_ushort(marker, outfp)))
       return(ret);
 
    /* "value(2) + table id(1) + bits(16)" */
@@ -325,22 +325,22 @@ int write_huffman_table(
    }
    
    /* Table Len */
-   if((ret = write_ushort(table_len, outfp)))
+   if((ret = biomeval_nbis_write_ushort(table_len, outfp)))
       return(ret);
 
    /* Table ID */
-   if((ret = write_byte(table_id, outfp)))
+   if((ret = biomeval_nbis_write_byte(table_id, outfp)))
       return(ret);
 
    /* Huffbits (MAX_HUFFBITS) */
    for(i = 0; i < MAX_HUFFBITS; i++){
-      if((ret = write_byte(huffbits[i], outfp)))
+      if((ret = biomeval_nbis_write_byte(huffbits[i], outfp)))
          return(ret);
    }
 
    /* Huffvalues (MAX_HUFFCOUNTS) */
    for(i = 0; i < table_len-values_offset; i++){
-      if((ret = write_byte(huffvalues[i], outfp)))
+      if((ret = biomeval_nbis_write_byte(huffvalues[i], outfp)))
          return(ret);
    }
 
@@ -353,7 +353,7 @@ int write_huffman_table(
 /********************************************************/
 /* Writes huffman table to the compressed memory buffer */
 /********************************************************/
-int putc_huffman_table(
+int biomeval_nbis_putc_huffman_table(
    const unsigned short marker,  /* Markers are different for JPEGL and WSQ */
    const unsigned char table_id,   /* huffman table indicator  */
    unsigned char *huffbits,      /* huffman table parameters */
@@ -369,7 +369,7 @@ int putc_huffman_table(
       fprintf(stdout, "Start writing huffman table.\n");
 
    /* DHT */
-   if((ret = putc_ushort(marker, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(marker, outbuf, outalloc, outlen)))
       return(ret);
 
    /* "value(2) + table id(1) + bits(16)" */
@@ -387,22 +387,22 @@ int putc_huffman_table(
    }
 
    /* Table Len */
-   if((ret = putc_ushort(table_len, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_ushort(table_len, outbuf, outalloc, outlen)))
       return(ret);
 
    /* Table ID */
-   if((ret = putc_byte(table_id, outbuf, outalloc, outlen)))
+   if((ret = biomeval_nbis_putc_byte(table_id, outbuf, outalloc, outlen)))
       return(ret);
 
    /* Huffbits (MAX_HUFFBITS) */
    for(i = 0; i < MAX_HUFFBITS; i++){
-      if((ret = putc_byte(huffbits[i], outbuf, outalloc, outlen)))
+      if((ret = biomeval_nbis_putc_byte(huffbits[i], outbuf, outalloc, outlen)))
          return(ret);
    }
 
    /* Huffvalues (MAX_HUFFCOUNTS) */
    for(i = 0; i < table_len-values_offset; i++){
-      if((ret = putc_byte(huffvalues[i], outbuf, outalloc, outlen)))
+      if((ret = biomeval_nbis_putc_byte(huffvalues[i], outbuf, outalloc, outlen)))
          return(ret);
    }
 
@@ -415,7 +415,7 @@ int putc_huffman_table(
 /******************************************************************/
 /*routine to optimize code sizes by frequency of difference values*/
 /******************************************************************/
-int find_huff_sizes(int **ocodesize, int *freq, const int max_huffcounts)
+int biomeval_nbis_find_huff_sizes(int **ocodesize, int *freq, const int max_huffcounts)
 {
    int *codesize;       /*codesizes for each category*/
    int *others;         /*pointer used to generate codesizes*/
@@ -427,12 +427,12 @@ int find_huff_sizes(int **ocodesize, int *freq, const int max_huffcounts)
 
    codesize = (int *)calloc(max_huffcounts+1, sizeof(int));
    if(codesize == (int *)NULL){
-      fprintf(stderr, "ERROR : find_huff_sizes : calloc : codesize\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_find_huff_sizes : calloc : codesize\n");
       return(-2);
    }
    others = (int *)malloc((max_huffcounts+1) * sizeof(int));
    if(others == (int *)NULL){
-      fprintf(stderr, "ERROR : find_huff_sizes : malloc : others\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_find_huff_sizes : malloc : others\n");
       return(-3);
    }
 
@@ -441,7 +441,7 @@ int find_huff_sizes(int **ocodesize, int *freq, const int max_huffcounts)
 
    while(1) {
 
-      find_least_freq(&value1, &value2, freq, max_huffcounts);
+      biomeval_nbis_find_least_freq(&value1, &value2, freq, max_huffcounts);
 
       if(value2 == -1) {
 	 free(others);
@@ -476,7 +476,7 @@ int find_huff_sizes(int **ocodesize, int *freq, const int max_huffcounts)
 /***********************************************************************/
 /*routine to find the largest difference with the least frequency value*/
 /***********************************************************************/
-void find_least_freq(int *value1, int *value2, int *freq,
+void biomeval_nbis_find_least_freq(int *value1, int *value2, int *freq,
                      const int max_huffcounts)
 {
    int i;               /*increment variable*/
@@ -524,7 +524,7 @@ void find_least_freq(int *value1, int *value2, int *freq,
 /**********************************************/
 /*routine to find number of codes of each size*/
 /**********************************************/
-int find_num_huff_sizes(unsigned char **obits, int *adjust, int *codesize,
+int biomeval_nbis_find_num_huff_sizes(unsigned char **obits, int *adjust, int *codesize,
                         const int max_huffcounts)
 {
    unsigned char *bits;    /*defines number of codes for each size*/
@@ -535,7 +535,7 @@ int find_num_huff_sizes(unsigned char **obits, int *adjust, int *codesize,
    /* Allocate 2X desired number of bits due to possible codesize. */
    bits = (unsigned char *)calloc((MAX_HUFFBITS<<1), sizeof(unsigned char));
    if(bits == (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : find_num_huff_sizes : calloc : bits\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_find_num_huff_sizes : calloc : bits\n");
       return(-2);
    }
 
@@ -559,7 +559,7 @@ int find_num_huff_sizes(unsigned char **obits, int *adjust, int *codesize,
 /****************************************************************/
 /*routine to insure that no huffman code size is greater than 16*/
 /****************************************************************/
-int sort_huffbits(unsigned char *bits)
+int biomeval_nbis_sort_huffbits(unsigned char *bits)
 {
    int i, j;
    int l1, l2, l3;
@@ -571,7 +571,7 @@ int sort_huffbits(unsigned char *bits)
 
    tbits = (short *)malloc(l3*sizeof(short));
    if(tbits == (short *)NULL){
-      fprintf(stderr, "ERROR : sort_huffbits : malloc : tbits\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_sort_huffbits : malloc : tbits\n");
       return(-2);
    }
 
@@ -604,7 +604,7 @@ int sort_huffbits(unsigned char *bits)
    for(i = MAX_HUFFBITS; i < l3; i++){
       if(bits[i] > 0){
          fprintf(stderr,
-            "ERROR : sort_huffbits : Code length of %d is greater than 16.\n",
+            "ERROR : biomeval_nbis_sort_huffbits : Code length of %d is greater than 16.\n",
             i);
          return(-3);
       }
@@ -622,7 +622,7 @@ int sort_huffbits(unsigned char *bits)
 /****************************************/
 /*routine to sort the huffman code sizes*/
 /****************************************/
-int sort_code_sizes(unsigned char **ovalues, int *codesize,
+int biomeval_nbis_sort_code_sizes(unsigned char **ovalues, int *codesize,
          const int max_huffcounts)
 {
    unsigned char *values;      /*defines order of huffman codelengths in
@@ -632,7 +632,7 @@ int sort_code_sizes(unsigned char **ovalues, int *codesize,
 
    values = (unsigned char *)calloc(max_huffcounts+1, sizeof(unsigned char));
    if(values == (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : sort_code_sizes : calloc : value\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_sort_code_sizes : calloc : value\n");
       return(-2);
    }
 
@@ -657,7 +657,7 @@ int sort_code_sizes(unsigned char **ovalues, int *codesize,
 /*****************************************/
 /*routine to sort huffman codes and sizes*/
 /*****************************************/
-int build_huffcode_table(HUFFCODE **ohuffcode_table,
+int biomeval_nbis_build_huffcode_table(HUFFCODE **ohuffcode_table,
           HUFFCODE *in_huffcode_table, const int last_size,
           unsigned char *values, const int max_huffcounts)
 {
@@ -667,7 +667,7 @@ int build_huffcode_table(HUFFCODE **ohuffcode_table,
    new_huffcode_table = (HUFFCODE *)calloc(max_huffcounts+1, sizeof(HUFFCODE));
    if(new_huffcode_table == (HUFFCODE *)NULL){
       fprintf(stderr,
-      "ERROR : build_huffcode_table : calloc : new_huffcode_table\n");
+      "ERROR : biomeval_nbis_build_huffcode_table : calloc : new_huffcode_table\n");
       return(-2);
    }
 
@@ -692,7 +692,7 @@ int build_huffcode_table(HUFFCODE **ohuffcode_table,
 /**************************************************************************/
 /*This routine defines the huffman code sizes for each difference category*/
 /**************************************************************************/
-int build_huffsizes(HUFFCODE **ohuffcode_table, int *temp_size,
+int biomeval_nbis_build_huffsizes(HUFFCODE **ohuffcode_table, int *temp_size,
                     unsigned char *huffbits, const int max_huffcounts)
 {
    HUFFCODE *huffcode_table;    /*table of huffman codes and sizes*/
@@ -701,7 +701,7 @@ int build_huffsizes(HUFFCODE **ohuffcode_table, int *temp_size,
 
    huffcode_table = (HUFFCODE *)calloc(max_huffcounts+1, sizeof(HUFFCODE));
    if(huffcode_table == (HUFFCODE *)NULL){
-      fprintf(stderr, "ERROR : build_huffsizes : calloc : huffcode_table\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_build_huffsizes : calloc : huffcode_table\n");
       return(-2);
    }
 
@@ -719,7 +719,7 @@ int build_huffsizes(HUFFCODE **ohuffcode_table, int *temp_size,
 
    if(debug > 2){
       int ii;
-      fprintf(stderr, "In build_huffsizes:\n");
+      fprintf(stderr, "In biomeval_nbis_build_huffsizes:\n");
       for(ii = 0; ii < max_huffcounts+1; ii++)
          fprintf(stderr, "hf_sz[%d] = %d\n", ii, huffcode_table[ii].size);
       fflush(stderr);
@@ -732,7 +732,7 @@ int build_huffsizes(HUFFCODE **ohuffcode_table, int *temp_size,
 /****************************************************************************/
 /*This routine defines the huffman codes needed for each difference category*/
 /****************************************************************************/
-void build_huffcodes(HUFFCODE *huffcode_table)
+void biomeval_nbis_build_huffcodes(HUFFCODE *huffcode_table)
 {
    int pointer = 0;                     /*pointer to code word information*/
    unsigned short temp_code = 0;        /*used to construct code word*/
@@ -762,7 +762,7 @@ void build_huffcodes(HUFFCODE *huffcode_table)
 /*********************************************/
 /*routine to generate tables needed to decode*/
 /*********************************************/
-void gen_decode_table(HUFFCODE *huffcode_table,
+void biomeval_nbis_gen_decode_table(HUFFCODE *huffcode_table,
             int *maxcode, int *mincode, int *valptr, unsigned char *huffbits)
 {
    int i, i2 = 0;                   /*increment variables*/

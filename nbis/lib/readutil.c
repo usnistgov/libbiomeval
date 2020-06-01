@@ -57,8 +57,8 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        read_strstr_file();
-                        read_fltflt_file();
+                        biomeval_nbis_read_strstr_file();
+                        biomeval_nbis_read_fltflt_file();
 
 ***********************************************************************/
 
@@ -70,7 +70,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: read_strstr_file - Routine opens a column-formatted text file
+#cat: biomeval_nbis_read_strstr_file - Routine opens a column-formatted text file
 #cat:                    parsing in the first column as a list of strings
 #cat:                    and the second column as a list of strings.
 
@@ -88,7 +88,7 @@ of the software.
       Zero        - successful completion
       Negative    - system error
 ************************************************************************/
-int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
+int biomeval_nbis_read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
                       int *olistlen, const int alloc_flag)
 {
    char **str1list, **str2list;
@@ -98,7 +98,7 @@ int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
    FILE *fp;
 
    if((fp = fopen(ifile, "rb")) == (FILE *)NULL){
-      fprintf(stderr, "ERROR : read_strstr_file : fopen : %s\n", ifile);
+      fprintf(stderr, "ERROR : biomeval_nbis_read_strstr_file : fopen : %s\n", ifile);
       return(-2);
    }
 
@@ -108,7 +108,7 @@ int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
       listlen = 0;
       while((n = fscanf(fp, "%s %s\n", tmpstr1, tmpstr2)) != EOF){
          if(n != 2){
-            fprintf(stderr, "ERROR : read_strstr_file : fscanf : %d != 2\n",
+            fprintf(stderr, "ERROR : biomeval_nbis_read_strstr_file : fscanf : %d != 2\n",
                     n);
             return(-3);
          }
@@ -119,7 +119,7 @@ int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
       if((str1list = (char **)malloc(listlen * sizeof(char *))) ==
                      (char **)NULL){
          fprintf(stderr,
-                 "ERROR : read_strstr_file : malloc : (char **)str1list\n");
+                 "ERROR : biomeval_nbis_read_strstr_file : malloc : (char **)str1list\n");
          fclose(fp);
          return(-4);
       }
@@ -127,7 +127,7 @@ int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
       if((str2list = (char **)malloc(listlen * sizeof(char *))) ==
                      (char **)NULL){
          fprintf(stderr,
-                 "ERROR : read_strstr_file : malloc : (char **)str2list\n");
+                 "ERROR : biomeval_nbis_read_strstr_file : malloc : (char **)str2list\n");
          free(str1list);
          fclose(fp);
          return(-5);
@@ -143,7 +143,7 @@ int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
    for(i = 0; i < listlen; i++){
       n = fscanf(fp, "%s %s\n", tmpstr1, tmpstr2);
       if(n != 2){
-         fprintf(stderr, "ERROR : read_strstr_file : fscanf : %d != 2\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_read_strstr_file : fscanf : %d != 2\n",
                  n);
          if(alloc_flag){
             for(j = 0; j < i; j++){
@@ -164,7 +164,7 @@ int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
          str1list[i] = value1;
       }
       else{
-         fprintf(stderr, "ERROR : read_strstr_file : malloc : str1list[%d]\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_read_strstr_file : malloc : str1list[%d]\n",
                  i);
          if(alloc_flag){
             for(j = 0; j < i; j++)
@@ -186,7 +186,7 @@ int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
          str2list[i] = value2;
       }
       else{
-         fprintf(stderr, "ERROR : read_strstr_file : malloc : str2list[%d]\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_read_strstr_file : malloc : str2list[%d]\n",
                  i);
          if(alloc_flag){
             for(j = 0; j < i; j++){
@@ -217,7 +217,7 @@ int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
 
 /***********************************************************************
 ************************************************************************
-#cat: read_fltflt_file - Routine opens a column-formatted text file
+#cat: biomeval_nbis_read_fltflt_file - Routine opens a column-formatted text file
 #cat:                    parsing in the first column as a list of floats
 #cat:                    and the second column as a list of floats.
 
@@ -234,7 +234,7 @@ int read_strstr_file(char *ifile, char ***ostr1list, char ***ostr2list,
       Zero        - successful completion
       Negative    - system error
 ************************************************************************/
-int read_fltflt_file(char *ifile, float **oflt1list, float **oflt2list,
+int biomeval_nbis_read_fltflt_file(char *ifile, float **oflt1list, float **oflt2list,
                      int *olistlen, const int alloc_flag)
 {
    float *flt1list, *flt2list;
@@ -244,7 +244,7 @@ int read_fltflt_file(char *ifile, float **oflt1list, float **oflt2list,
    FILE *fp;
 
    if((fp = fopen(ifile, "rb")) == (FILE *)NULL){
-      fprintf(stderr, "ERROR : read_fltflt_file : fopen : %s\n", ifile);
+      fprintf(stderr, "ERROR : biomeval_nbis_read_fltflt_file : fopen : %s\n", ifile);
       return(-2);
    }
 
@@ -254,7 +254,7 @@ int read_fltflt_file(char *ifile, float **oflt1list, float **oflt2list,
       listlen = 0;
       while((n = fscanf(fp, "%f %f\n", &tmpflt1, &tmpflt2)) != EOF){
          if(n != 2){
-            fprintf(stderr, "ERROR : read_fltflt_file : fscanf : %d != 2\n",
+            fprintf(stderr, "ERROR : biomeval_nbis_read_fltflt_file : fscanf : %d != 2\n",
                     n);
             return(-3);
          }
@@ -265,7 +265,7 @@ int read_fltflt_file(char *ifile, float **oflt1list, float **oflt2list,
       if((flt1list = (float *)malloc(listlen * sizeof(float))) ==
                      (float *)NULL){
          fprintf(stderr,
-                 "ERROR : read_fltflt_file : malloc : (float *)flt1list\n");
+                 "ERROR : biomeval_nbis_read_fltflt_file : malloc : (float *)flt1list\n");
          fclose(fp);
          return(-4);
       }
@@ -273,7 +273,7 @@ int read_fltflt_file(char *ifile, float **oflt1list, float **oflt2list,
       if((flt2list = (float *)malloc(listlen * sizeof(float))) ==
                      (float *)NULL){
          fprintf(stderr,
-                 "ERROR : read_fltflt_file : malloc : (float *)flt2list\n");
+                 "ERROR : biomeval_nbis_read_fltflt_file : malloc : (float *)flt2list\n");
          free(flt1list);
          fclose(fp);
          return(-5);
@@ -289,7 +289,7 @@ int read_fltflt_file(char *ifile, float **oflt1list, float **oflt2list,
    for(i = 0; i < listlen; i++){
       n = fscanf(fp, "%f %f\n", &tmpflt1, &tmpflt2);
       if(n != 2){
-         fprintf(stderr, "ERROR : read_fltflt_file : fscanf : %d != 2\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_read_fltflt_file : fscanf : %d != 2\n",
                  n);
          if(alloc_flag){
             free(flt1list);

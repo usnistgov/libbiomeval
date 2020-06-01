@@ -54,7 +54,7 @@ of the software.
       in a filesystem.
 
       ROUTINES:
-#cat: file_exists - tests to see if the given pathname is an existing file.
+#cat: biomeval_nbis_file_exists - tests to see if the given pathname is an existing file.
 #cat:
 
 ***********************************************************************/
@@ -68,19 +68,19 @@ of the software.
 #define FALSE 0
 
 /**********************************************************************/
-int file_exists(char *file)
+int biomeval_nbis_file_exists(char *file)
 {
    char path[MAXPATHLEN], filename[MAXPATHLEN];
 
    strcpy(filename,file);
    if(*filename == '/'){
       strcpy(path,file);
-      filehead(path);
-      filetail(filename);
+      biomeval_nbis_filehead(path);
+      biomeval_nbis_filetail(filename);
    }
    else
       strcpy(path, "./");
-   if(find_file(path,filename))
+   if(biomeval_nbis_find_file(path,filename))
       return(TRUE);
    else
       return(FALSE);

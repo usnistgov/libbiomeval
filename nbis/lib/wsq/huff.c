@@ -54,14 +54,14 @@ of the software.
       does not allow for an all 1's code in the code table.
 
       ROUTINES:
-#cat: check_huffcodes_wsq - Checks for an all 1's code in the code table.
+#cat: biomeval_nbis_check_huffcodes_wsq - Checks for an all 1's code in the code table.
 
 ***********************************************************************/
 
 #include <stdio.h>
 #include <wsq.h>
 
-int check_huffcodes_wsq(HUFFCODE *hufftable, int last_size)
+int biomeval_nbis_check_huffcodes_wsq(HUFFCODE *hufftable, int last_size)
 {
    int i, k;
    int all_ones;

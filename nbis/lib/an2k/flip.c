@@ -59,8 +59,8 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        flip_y_coord()
-                        flip_direction()
+                        biomeval_nbis_flip_y_coord()
+                        biomeval_nbis_flip_direction()
 
 ***********************************************************************/
 
@@ -70,7 +70,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: flip_y_coord - Takes a y-coordinatenew in 0.01 mm units
+#cat: biomeval_nbis_flip_y_coord - Takes a y-coordinatenew in 0.01 mm units
 #cat:              and inverts it based on the height of the image.
 #cat:              The coordinate is encoded within a specified substring.
 
@@ -85,7 +85,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int flip_y_coord(char *ystr, const int fixed_length,
+int biomeval_nbis_flip_y_coord(char *ystr, const int fixed_length,
                  const int ih, const double ppmm)
 {
    char tchar;
@@ -110,7 +110,7 @@ int flip_y_coord(char *ystr, const int fixed_length,
    /* Create a new y-coord string.
       If new string not fixed_length in size ... */
    if(sprintf(tstr, "%0*d", fixed_length, ycoord) != fixed_length){
-      fprintf(stderr, "ERROR : flip_y_coord : "
+      fprintf(stderr, "ERROR : biomeval_nbis_flip_y_coord : "
 	      "resulting string %s has length = %d > %d\n",
 	      tstr, (int)strlen(tstr), fixed_length);
       return(-2);
@@ -126,7 +126,7 @@ int flip_y_coord(char *ystr, const int fixed_length,
 
 /***********************************************************************
 ************************************************************************
-#cat: flip_direction - Takes a direction in degrees and flips it 180
+#cat: biomeval_nbis_flip_direction - Takes a direction in degrees and flips it 180
 #cat:              degrees.  The direction is encoded within a specified
 #cat:              substring.
 
@@ -138,7 +138,7 @@ int flip_y_coord(char *ystr, const int fixed_length,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int flip_direction(char *ystr, const int fixed_length)
+int biomeval_nbis_flip_direction(char *ystr, const int fixed_length)
 {
    char tchar;
    int dir;
@@ -155,7 +155,7 @@ int flip_direction(char *ystr, const int fixed_length)
    /* Create new direction string. 
       If new string not fixed_length in size ... */
    if(sprintf(tstr, "%0*d", fixed_length, dir) != fixed_length){
-      fprintf(stderr, "ERROR : flip_direction : "
+      fprintf(stderr, "ERROR : biomeval_nbis_flip_direction : "
 	      "resulting string length = %d > %d\n",
 	      (int)strlen(tstr), fixed_length);
       return(-2);

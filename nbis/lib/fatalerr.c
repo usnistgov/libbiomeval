@@ -53,7 +53,7 @@ of the software.
       Contains routines responsible for exiting upon an application error.
 
       ROUTINES:
-#cat: fatalerr - generic application error handler that prints a specified
+#cat: biomeval_nbis_fatalerr - generic application error handler that prints a specified
 #cat:            message to stderr and exits with a status of 1.
 
 ***********************************************************************/
@@ -63,7 +63,7 @@ of the software.
 #include <stdio.h>
 #include <stdlib.h>
 
-void fatalerr(char *s1, char *s2, char *s3)
+void biomeval_nbis_fatalerr(char *s1, char *s2, char *s3)
 {
 
   (void) fflush(stdout);

@@ -55,7 +55,7 @@ of the software.
 ***********************************************************************
 
       ROUTINES:
-#cat: bres_line_alloc - generates the intervening discrete points along a
+#cat: biomeval_nbis_bres_line_alloc - generates the intervening discrete points along a
 #cat:                   line spanning (pnt1 to pnt2) two specified endpoints.
 
 ***********************************************************************/
@@ -75,7 +75,7 @@ of the software.
 /*                                                                         */
 /* If nalloc < asize will realloc memory for x_list and y_list to asize.   */
 /***************************************************************************/
-int bres_line_alloc(const int x1, const int y1, const int x2, const int y2,
+int biomeval_nbis_bres_line_alloc(const int x1, const int y1, const int x2, const int y2,
                     int **x_list, int **y_list, int *num, int *nalloc)
 {
    int x, y, i;
@@ -89,21 +89,21 @@ int bres_line_alloc(const int x1, const int y1, const int x2, const int y2,
    asize = max(abs(x2-x1)+2, abs(y2-y1)+2);
    if(*nalloc == 0) {
       *nalloc = asize;
-      if((ret = malloc_int_ret(x_list, *nalloc, "bres_line_alloc x_list")))
+      if((ret = biomeval_nbis_malloc_int_ret(x_list, *nalloc, "biomeval_nbis_bres_line_alloc x_list")))
          return(ret);
-      if((ret = malloc_int_ret(y_list, *nalloc, "bres_line_alloc y_list"))) {
+      if((ret = biomeval_nbis_malloc_int_ret(y_list, *nalloc, "biomeval_nbis_bres_line_alloc y_list"))) {
          free(*x_list);
          return(ret);
       }
    }
    else if(*nalloc < asize) {
       *nalloc = asize;
-      if((ret = realloc_int_ret(x_list, *nalloc, "bres_line_alloc x_list"))) {
+      if((ret = biomeval_nbis_realloc_int_ret(x_list, *nalloc, "biomeval_nbis_bres_line_alloc x_list"))) {
          free(*x_list);
          free(*y_list);
          return(ret);
       }
-      if((ret = realloc_int_ret(y_list, *nalloc, "bres_line_alloc y_list"))) {
+      if((ret = biomeval_nbis_realloc_int_ret(y_list, *nalloc, "biomeval_nbis_bres_line_alloc y_list"))) {
          free(*x_list);
          free(*y_list);
          return(ret);

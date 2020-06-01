@@ -55,36 +55,36 @@ of the software.
       image compression.
 
       ROUTINES:
-#cat: conv_img_2_flt_ret - Converts an image's unsigned character pixels
+#cat: biomeval_nbis_conv_img_2_flt_ret - Converts an image's unsigned character pixels
 #cat:                    to floating point values in the range +/- 128.0.
 #cat:                    Returns on error.
-#cat: conv_img_2_flt - Converts an image's unsigned character pixels
+#cat: biomeval_nbis_conv_img_2_flt - Converts an image's unsigned character pixels
 #cat:                  to floating point values in the range +/- 128.0.
-#cat: conv_img_2_uchar - Converts an image's floating point pixels
+#cat: biomeval_nbis_conv_img_2_uchar - Converts an image's floating point pixels
 #cat:                  unsigned character pixels.
-#cat: variance - Calculates the variances within image subbands.
+#cat: biomeval_nbis_variance - Calculates the variances within image subbands.
 #cat:
-#cat: quantize - Quantizes the image's wavelet subbands.
+#cat: biomeval_nbis_quantize - Quantizes the image's wavelet subbands.
 #cat:
-#cat: quant_block_sizes - Quantizes an image's subband block.
+#cat: biomeval_nbis_quant_block_sizes - Quantizes an image's subband block.
 #cat:
-#cat: unquantize - Unquantizes an image's wavelet subbands.
+#cat: biomeval_nbis_unquantize - Unquantizes an image's wavelet subbands.
 #cat:
-#cat: wsq_decompose - Computes the wavelet decomposition of an input image.
+#cat: biomeval_nbis_wsq_decompose - Computes the wavelet decomposition of an input image.
 #cat:
-#cat: get_lets - Compute the wavelet subband decomposition for the image.
+#cat: biomeval_nbis_get_lets - Compute the wavelet subband decomposition for the image.
 #cat:
-#cat: wsq_reconstruct - Reconstructs a lossy floating point pixmap from
+#cat: biomeval_nbis_wsq_reconstruct - Reconstructs a lossy floating point pixmap from
 #cat:                  a WSQ compressed datastream.
-#cat: join_lets - Reconstruct the image from the wavelet subbands.
+#cat: biomeval_nbis_join_lets - Reconstruct the image from the wavelet subbands.
 #cat:
-#cat: int_sign - Get the sign of the sythesis filter coefficients.
+#cat: biomeval_nbis_int_sign - Get the sign of the sythesis filter coefficients.
 #cat:
-#cat: image_size - Computes the size in bytes of a WSQ compressed image
+#cat: biomeval_nbis_image_size - Computes the size in bytes of a WSQ compressed image
 #cat:                  file, including headers, tables, and parameters.
-#cat: init_wsq_decoder_resources - Initializes memory resources used by the
+#cat: biomeval_nbis_init_wsq_decoder_resources - Initializes memory resources used by the
 #cat:                      WSQ decoder
-#cat: free_wsq_decoder_resources - Deallocates memory resources used by the
+#cat: biomeval_nbis_free_wsq_decoder_resources - Deallocates memory resources used by the
 #cat:                      WSQ decoder
 
 ***********************************************************************/
@@ -111,7 +111,7 @@ of the software.
 /* process it shifts and scales the data so the values range from */
 /* +/- 128.0 This function returns on error.                      */
 /******************************************************************/
-int conv_img_2_flt_ret(
+int biomeval_nbis_conv_img_2_flt_ret(
    float *fip,         /* output float image data  */
    float *m_shift,     /* shifting parameter       */
    float *r_scale,     /* scaling parameter        */
@@ -136,7 +136,7 @@ int conv_img_2_flt_ret(
          low = data[cnt];
       sum += data[cnt];
       if(sum < overflow) {
-         fprintf(stderr, "ERROR: conv_img_2_flt: overflow at %d\n", cnt);
+         fprintf(stderr, "ERROR: biomeval_nbis_conv_img_2_flt: overflow at %d\n", cnt);
          return(-91);
       }
       overflow = sum;
@@ -166,7 +166,7 @@ int conv_img_2_flt_ret(
 /* process it shifts and scales the data so the values range from */
 /* +/- 128.0                                                      */
 /******************************************************************/
-void conv_img_2_flt(
+void biomeval_nbis_conv_img_2_flt(
    float *fip,         /* output float image data  */
    float *m_shift,     /* shifting parameter       */
    float *r_scale,     /* scaling parameter        */
@@ -191,7 +191,7 @@ void conv_img_2_flt(
          low = data[cnt];
       sum += data[cnt];
       if(sum < overflow) {
-         fprintf(stderr, "ERROR: conv_img_2_flt: overflow at pixel %d\n", cnt);
+         fprintf(stderr, "ERROR: biomeval_nbis_conv_img_2_flt: overflow at pixel %d\n", cnt);
          exit(-1);
       }
       overflow = sum;
@@ -218,7 +218,7 @@ void conv_img_2_flt(
 /*********************************************************/
 /* Routine to convert image from float to unsigned char. */
 /*********************************************************/
-void conv_img_2_uchar(
+void biomeval_nbis_conv_img_2_uchar(
    unsigned char *data,                   /* uchar image pointer    */
    float *img,                    /* image pointer          */
    const int width,               /* image width            */
@@ -249,7 +249,7 @@ void conv_img_2_uchar(
 /**********************************************************/
 /* This routine calculates the variances of the subbands. */
 /**********************************************************/
-void variance(
+void biomeval_nbis_variance(
    QUANT_VALS *quant_vals, /* quantization parameters */
    Q_TREE q_tree[],        /* quantization "tree"     */
    const int q_treelen,    /* length of q_tree        */
@@ -343,7 +343,7 @@ void variance(
 /************************************************/
 /* This routine quantizes the wavelet subbands. */
 /************************************************/
-int quantize(
+int biomeval_nbis_quantize(
    short **osip,           /* quantized output             */
    int *ocmp_siz,          /* size of quantized output     */
    QUANT_VALS *quant_vals, /* quantization parameters      */
@@ -410,7 +410,7 @@ int quantize(
 
    /* Set up output buffer. */
    if((sip = (short *) calloc(width*height, sizeof(short))) == NULL) {
-      fprintf(stderr,"ERROR : quantize : calloc : sip\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_quantize : calloc : sip\n");
       return(-90);
    }
    sptr = sip;
@@ -541,7 +541,7 @@ int quantize(
 /************************************************************************/
 /* Compute quantized WSQ subband block sizes.                           */
 /************************************************************************/
-void quant_block_sizes(int *oqsize1, int *oqsize2, int *oqsize3,
+void biomeval_nbis_quant_block_sizes(int *oqsize1, int *oqsize2, int *oqsize3,
                  QUANT_VALS *quant_vals,
                  W_TREE w_tree[], const int w_treelen,
                  Q_TREE q_tree[], const int q_treelen)
@@ -577,7 +577,7 @@ void quant_block_sizes(int *oqsize1, int *oqsize2, int *oqsize3,
 /*************************************/
 /* Routine to unquantize image data. */
 /*************************************/
-int unquantize(
+int biomeval_nbis_unquantize(
    float **ofip,         /* floating point image pointer         */
    const DQT_TABLE *dqt_table, /* quantization table structure   */
    Q_TREE q_tree[],      /* quantization table structure         */
@@ -594,12 +594,12 @@ int unquantize(
    int cnt;       /* subband counter */
 
    if((fip = (float *) calloc(width*height, sizeof(float))) == NULL) {
-      fprintf(stderr,"ERROR : unquantize : calloc : fip\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_unquantize : calloc : fip\n");
       return(-91);
    }
    if(dqt_table->dqt_def != 1) {
       fprintf(stderr,
-      "ERROR: unquantize : quantization table parameters not defined!\n");
+      "ERROR: biomeval_nbis_unquantize : quantization table parameters not defined!\n");
       return(-92);
    }
 
@@ -624,7 +624,7 @@ int unquantize(
                     - (dqt_table->z_bin[cnt] / 2.0);
             else {
                fprintf(stderr,
-               "ERROR : unquantize : invalid quantization pixel value\n");
+               "ERROR : biomeval_nbis_unquantize : invalid quantization pixel value\n");
                return(-93);
             }
             fptr++;
@@ -641,7 +641,7 @@ int unquantize(
 /* WSQ decompose the image.  NOTE: this routine modifies and returns    */
 /* the results in "fdata".                                              */
 /************************************************************************/
-int wsq_decompose(float *fdata, const int width, const int height,
+int biomeval_nbis_wsq_decompose(float *fdata, const int width, const int height,
                   W_TREE w_tree[], const int w_treelen,
                   float *hifilt, const int hisz,
                   float *lofilt, const int losz)
@@ -652,16 +652,16 @@ int wsq_decompose(float *fdata, const int width, const int height,
    num_pix = width * height;
    /* Allocate temporary floating point pixmap. */
    if((fdata1 = (float *) malloc(num_pix*sizeof(float))) == NULL) {
-      fprintf(stderr,"ERROR : wsq_decompose : malloc : fdata1\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_wsq_decompose : malloc : fdata1\n");
       return(-94);
    }
 
    /* Compute the Wavelet image decomposition. */
    for(node = 0; node < w_treelen; node++) {
       fdata_bse = fdata + (w_tree[node].y * width) + w_tree[node].x;
-      get_lets(fdata1, fdata_bse, w_tree[node].leny, w_tree[node].lenx,
+      biomeval_nbis_get_lets(fdata1, fdata_bse, w_tree[node].leny, w_tree[node].lenx,
                width, 1, hifilt, hisz, lofilt, losz, w_tree[node].inv_rw);
-      get_lets(fdata_bse, fdata1, w_tree[node].lenx, w_tree[node].leny,
+      biomeval_nbis_get_lets(fdata_bse, fdata1, w_tree[node].lenx, w_tree[node].leny,
                1, width, hifilt, hisz, lofilt, losz, w_tree[node].inv_cl);
    }
    free(fdata1);
@@ -671,7 +671,7 @@ int wsq_decompose(float *fdata, const int width, const int height,
 
 /************************************************************/
 /************************************************************/
-void get_lets(
+void biomeval_nbis_get_lets(
    float *new,     /* image pointers for creating subband splits */
    float *old,
    const int len1,       /* temporary length parameters */
@@ -886,7 +886,7 @@ void get_lets(
 /* WSQ reconstructs the image.  NOTE: this routine modifies and returns */
 /* the results in "fdata".                                              */
 /************************************************************************/
-int wsq_reconstruct(float *fdata, const int width, const int height,
+int biomeval_nbis_wsq_reconstruct(float *fdata, const int width, const int height,
                   W_TREE w_tree[], const int w_treelen,
                   const DTT_TABLE *dtt_table)
 {
@@ -895,31 +895,31 @@ int wsq_reconstruct(float *fdata, const int width, const int height,
 
    if(dtt_table->lodef != 1) {
       fprintf(stderr,
-      "ERROR: wsq_reconstruct : Lopass filter coefficients not defined\n");
+      "ERROR: biomeval_nbis_wsq_reconstruct : Lopass filter coefficients not defined\n");
       return(-95);
    }
    if(dtt_table->hidef != 1) {
       fprintf(stderr,
-      "ERROR: wsq_reconstruct : Hipass filter coefficients not defined\n");
+      "ERROR: biomeval_nbis_wsq_reconstruct : Hipass filter coefficients not defined\n");
       return(-96);
    }
 
    num_pix = width * height;
    /* Allocate temporary floating point pixmap. */
    if((fdata1 = (float *) malloc(num_pix*sizeof(float))) == NULL) {
-      fprintf(stderr,"ERROR : wsq_reconstruct : malloc : fdata1\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_wsq_reconstruct : malloc : fdata1\n");
       return(-97);
    }
 
    /* Reconstruct floating point pixmap from wavelet subband data. */
    for (node = w_treelen - 1; node >= 0; node--) {
       fdata_bse = fdata + (w_tree[node].y * width) + w_tree[node].x;
-      join_lets(fdata1, fdata_bse, w_tree[node].lenx, w_tree[node].leny,
+      biomeval_nbis_join_lets(fdata1, fdata_bse, w_tree[node].lenx, w_tree[node].leny,
                   1, width,
                   dtt_table->hifilt, dtt_table->hisz,
                   dtt_table->lofilt, dtt_table->losz,
                   w_tree[node].inv_cl);
-      join_lets(fdata_bse, fdata1, w_tree[node].leny, w_tree[node].lenx,
+      biomeval_nbis_join_lets(fdata_bse, fdata1, w_tree[node].leny, w_tree[node].lenx,
                   width, 1,
                   dtt_table->hifilt, dtt_table->hisz,
                   dtt_table->lofilt, dtt_table->losz,
@@ -931,7 +931,7 @@ int wsq_reconstruct(float *fdata, const int width, const int height,
 }
 
 /****************************************************************/
-void  join_lets(
+void  biomeval_nbis_join_lets(
    float *new,    /* image pointers for creating subband splits */
    float *old,
    const int len1,       /* temporary length parameters */
@@ -1280,7 +1280,7 @@ void  join_lets(
 /* Routine to execute an integer  sign determination */
 /*****************************************************/
 
-int int_sign(
+int biomeval_nbis_int_sign(
    const int power)  /* "sign" power */
 {
    int cnt, num = -1;   /* counter and sign return value */
@@ -1298,7 +1298,7 @@ int int_sign(
 /* Computes size of compressed image file including headers, */
 /* tables, and parameters.                                   */
 /*************************************************************/
-int image_size(
+int biomeval_nbis_image_size(
    const int blocklen,  /* length of the compressed blocks */
    short *huffbits1,    /* huffman table parameters */
    short *huffbits2)
@@ -1332,44 +1332,44 @@ int image_size(
 /* Added by MDG on 02-24-05                                  */
 /* Initializes memory used by the WSQ decoder.               */
 /*************************************************************/
-void init_wsq_decoder_resources()
+void biomeval_nbis_init_wsq_decoder_resources()
 {
    /* Added 02-24-05 by MDG                      */
    /* Init dymanically allocated members to NULL */
    /* for proper memory management in:           */
-   /*    read_transform_table()                  */
-   /*    getc_transform_table()                  */
+   /*    biomeval_nbis_read_transform_table()                  */
+   /*    biomeval_nbis_getc_transform_table()                  */
    /*    free_wsq_resources()                    */
-   dtt_table.lofilt = (float *)NULL;
-   dtt_table.hifilt = (float *)NULL;
+   biomeval_nbis_dtt_table.lofilt = (float *)NULL;
+   biomeval_nbis_dtt_table.hifilt = (float *)NULL;
 }
 
 /*************************************************************/
 /* Added by MDG on 02-24-05                                  */
 /* Deallocates memory used by the WSQ decoder.               */
 /*************************************************************/
-void free_wsq_decoder_resources()
+void biomeval_nbis_free_wsq_decoder_resources()
 {
-   if(dtt_table.lofilt != (float *)NULL){
-      free(dtt_table.lofilt);
-      dtt_table.lofilt = (float *)NULL;
+   if(biomeval_nbis_dtt_table.lofilt != (float *)NULL){
+      free(biomeval_nbis_dtt_table.lofilt);
+      biomeval_nbis_dtt_table.lofilt = (float *)NULL;
    }
 
-   if(dtt_table.hifilt != (float *)NULL){
-      free(dtt_table.hifilt);
-      dtt_table.hifilt = (float *)NULL;
+   if(biomeval_nbis_dtt_table.hifilt != (float *)NULL){
+      free(biomeval_nbis_dtt_table.hifilt);
+      biomeval_nbis_dtt_table.hifilt = (float *)NULL;
    }
 }
 
 /************************************************************************
              
-#cat: delete_comments_wsq - Deletes all comments in a WSQ compressed file.
+#cat: biomeval_nbis_delete_comments_wsq - Deletes all comments in a WSQ compressed file.
       
 *************************************************************************/
    
    
 /*****************************************************************/
-int delete_comments_wsq(unsigned char **ocdata, int *oclen,
+int biomeval_nbis_delete_comments_wsq(unsigned char **ocdata, int *oclen,
          unsigned char *idata, const int ilen)
 {     
    int ret, nlen, nalloc, stp;
@@ -1383,48 +1383,48 @@ int delete_comments_wsq(unsigned char **ocdata, int *oclen,
    /* Allocate new compressed byte stream. */
    if((ndata = (unsigned char *)malloc(nalloc * sizeof(unsigned char)))
              == (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : delete_comments_wsq : malloc : ndata\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_delete_comments_wsq : malloc : ndata\n");
       return(-2);
    }
    cbufptr = idata;
    ebufptr = idata + ilen;
          
    /* Parse SOI */
-   if((ret = getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr))){
       free(ndata);
       return(ret);
    }     
             
    /* Copy SOI */
-   if((ret = putc_ushort(marker, ndata, nalloc, &nlen))){
+   if((ret = biomeval_nbis_putc_ushort(marker, ndata, nalloc, &nlen))){
       free(ndata);
       return(ret);
    }
          
    /* Read Next Marker */
-   if((ret = getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr))){
       free(ndata);
       return(ret);
    }        
    while(marker != EOI_WSQ) {
       if(marker != COM_WSQ) {
          /* Copy Marker and Data */
-         if((ret = putc_ushort(marker, ndata, nalloc, &nlen))){
+         if((ret = biomeval_nbis_putc_ushort(marker, ndata, nalloc, &nlen))){
             free(ndata);
             return(ret);
          }     
-         if((ret = getc_ushort(&length, &cbufptr, ebufptr))){
+         if((ret = biomeval_nbis_getc_ushort(&length, &cbufptr, ebufptr))){
             free(ndata);
             return(ret);
          }     
 /*                
          printf("Copying Marker %04X and Data (Length = %d)\n", marker, length);
 */
-         if((ret = putc_ushort(length, ndata, nalloc, &nlen))){
+         if((ret = biomeval_nbis_putc_ushort(length, ndata, nalloc, &nlen))){
             free(ndata);
             return(ret);
          }
-         if((ret = putc_bytes(cbufptr, length-2, ndata, nalloc, &nlen))){
+         if((ret = biomeval_nbis_putc_bytes(cbufptr, length-2, ndata, nalloc, &nlen))){
             free(ndata);
             return(ret);
          }
@@ -1432,21 +1432,21 @@ int delete_comments_wsq(unsigned char **ocdata, int *oclen,
          if(marker == SOB_WSQ) {
             stp = 0;
             while(!stp) {
-               if((ret = getc_byte(&m1, &cbufptr, ebufptr))) {
+               if((ret = biomeval_nbis_getc_byte(&m1, &cbufptr, ebufptr))) {
                   free(ndata);
                   return(ret);
                }
                if(m1 == 0xFF) {
-                  if((ret = getc_byte(&m2, &cbufptr, ebufptr))){
+                  if((ret = biomeval_nbis_getc_byte(&m2, &cbufptr, ebufptr))){
                      free(ndata);
                      return(ret);
                   }
                   if(m2 == 0x00) {
-                     if((ret = putc_byte(m1, ndata, nalloc, &nlen))){
+                     if((ret = biomeval_nbis_putc_byte(m1, ndata, nalloc, &nlen))){
                         free(ndata);
                         return(ret);
                      }
-                     if((ret = putc_byte(m2, ndata, nalloc, &nlen))){
+                     if((ret = biomeval_nbis_putc_byte(m2, ndata, nalloc, &nlen))){
                         free(ndata);
                         return(ret);
                      }
@@ -1457,7 +1457,7 @@ int delete_comments_wsq(unsigned char **ocdata, int *oclen,
                   }
                }
                else {
-                  if((ret = putc_byte(m1, ndata, nalloc, &nlen))){
+                  if((ret = biomeval_nbis_putc_byte(m1, ndata, nalloc, &nlen))){
                      free(ndata);
                      return(ret);
                   }
@@ -1467,7 +1467,7 @@ int delete_comments_wsq(unsigned char **ocdata, int *oclen,
       }
       else {
          /* Don't Copy Comments. Print to stdout. */
-         if((ret = getc_ushort(&length, &cbufptr, ebufptr))){
+         if((ret = biomeval_nbis_getc_ushort(&length, &cbufptr, ebufptr))){
             free(ndata);
             return(ret);
          }
@@ -1479,13 +1479,13 @@ int delete_comments_wsq(unsigned char **ocdata, int *oclen,
 */
          cbufptr += length-2;
       }
-      if((ret = getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr))){
          free(ndata);
          return(ret);
       }
    }
    /* Copy EOI Marker */
-   if((ret = putc_ushort(marker, ndata, nalloc, &nlen))){
+   if((ret = biomeval_nbis_putc_ushort(marker, ndata, nalloc, &nlen))){
       free(ndata);
       return(ret);
    }

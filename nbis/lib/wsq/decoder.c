@@ -55,23 +55,23 @@ of the software.
       datastream.
 
       ROUTINES:
-#cat: wsq_decode_mem - Decodes a datastream of WSQ compressed bytes
+#cat: biomeval_nbis_wsq_decode_mem - Decodes a datastream of WSQ compressed bytes
 #cat:                  from a memory buffer, returning a lossy
 #cat:                  reconstructed pixmap.
-#cat: wsq_decode_file - Decodes a datastream of WSQ compressed bytes
+#cat: biomeval_nbis_wsq_decode_file - Decodes a datastream of WSQ compressed bytes
 #cat:                  from an open file, returning a lossy
 #cat:                  reconstructed pixmap.
-#cat: huffman_decode_data_mem - Decodes a block of huffman encoded
+#cat: biomeval_nbis_huffman_decode_data_mem - Decodes a block of huffman encoded
 #cat:                  data from a memory buffer.
-#cat: huffman_decode_data_file - Decodes a block of huffman encoded
+#cat: biomeval_nbis_huffman_decode_data_file - Decodes a block of huffman encoded
 #cat:                  data from an open file.
-#cat: decode_data_mem - Decodes huffman encoded data from a memory buffer.
+#cat: biomeval_nbis_decode_data_mem - Decodes huffman encoded data from a memory buffer.
 #cat:
-#cat: decode_data_file - Decodes huffman encoded data from an open file.
+#cat: biomeval_nbis_decode_data_file - Decodes huffman encoded data from an open file.
 #cat:
-#cat: nextbits_wsq - Gets next sequence of bits for data decoding from
+#cat: biomeval_nbis_nextbits_wsq - Gets next sequence of bits for data decoding from
 #cat:                    an open file.
-#cat: getc_nextbits_wsq - Gets next sequence of bits for data decoding
+#cat: biomeval_nbis_getc_nextbits_wsq - Gets next sequence of bits for data decoding
 #cat:                    from a memory buffer.
 
 ***********************************************************************/
@@ -89,7 +89,7 @@ of the software.
 /* WSQ Decoder routine.  Takes an WSQ compressed memory buffer and decodes */
 /* it, returning the reconstructed pixmap.                                 */
 /***************************************************************************/
-int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
+int biomeval_nbis_wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
                    int *lossyflag, unsigned char *idata, const int ilen)
 {
    int ret, i;
@@ -103,7 +103,7 @@ int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
    unsigned char *ebufptr;        /* points to end of buffer */
 
    /* Added by MDG on 02-24-05 */
-   init_wsq_decoder_resources();
+   biomeval_nbis_init_wsq_decoder_resources();
 
    /* Set memory buffer pointers. */
    cbufptr = idata;
@@ -111,42 +111,42 @@ int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
 
    /* Init DHT Tables to 0. */
    for(i = 0; i < MAX_DHT_TABLES; i++)
-      (dht_table + i)->tabdef = 0;
+      (biomeval_nbis_dht_table + i)->tabdef = 0;
 
    /* Read the SOI marker. */
-   if((ret = getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
    /* Read in supporting tables up to the SOF marker. */
-   if((ret = getc_marker_wsq(&marker, TBLS_N_SOF, &cbufptr, ebufptr))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, TBLS_N_SOF, &cbufptr, ebufptr))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
    while(marker != SOF_WSQ) {
-      if((ret = getc_table_wsq(marker, &dtt_table, &dqt_table, dht_table,
+      if((ret = biomeval_nbis_getc_table_wsq(marker, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table, biomeval_nbis_dht_table,
                           &cbufptr, ebufptr))){
-         free_wsq_decoder_resources();
+         biomeval_nbis_free_wsq_decoder_resources();
          return(ret);
       }
-      if((ret = getc_marker_wsq(&marker, TBLS_N_SOF, &cbufptr, ebufptr))){
-         free_wsq_decoder_resources();
+      if((ret = biomeval_nbis_getc_marker_wsq(&marker, TBLS_N_SOF, &cbufptr, ebufptr))){
+         biomeval_nbis_free_wsq_decoder_resources();
          return(ret);
       }
    }
 
    /* Read in the Frame Header. */
-   if((ret = getc_frame_header_wsq(&frm_header_wsq, &cbufptr, ebufptr))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_getc_frame_header_wsq(&biomeval_nbis_frm_header_wsq, &cbufptr, ebufptr))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
-   width = frm_header_wsq.width;
-   height = frm_header_wsq.height;
+   width = biomeval_nbis_frm_header_wsq.width;
+   height = biomeval_nbis_frm_header_wsq.height;
    num_pix = width * height;
 
-   if((ret = getc_ppi_wsq(&ppi, idata, ilen))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_getc_ppi_wsq(&ppi, idata, ilen))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -154,7 +154,7 @@ int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
       fprintf(stderr, "SOI, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
-   build_wsq_trees(w_tree, W_TREELEN, q_tree, Q_TREELEN, width, height);
+   biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, width, height);
 
    if(debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
@@ -162,15 +162,15 @@ int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
    /* Allocate working memory. */
    qdata = (short *) malloc(num_pix * sizeof(short));
    if(qdata == (short *)NULL) {
-      fprintf(stderr,"ERROR: wsq_decode_mem : malloc : qdata1\n");
-      free_wsq_decoder_resources();
+      fprintf(stderr,"ERROR: biomeval_nbis_wsq_decode_mem : malloc : qdata1\n");
+      biomeval_nbis_free_wsq_decoder_resources();
       return(-20);
    }
    /* Decode the Huffman encoded data blocks. */
-   if((ret = huffman_decode_data_mem(qdata, &dtt_table, &dqt_table, dht_table,
+   if((ret = biomeval_nbis_huffman_decode_data_mem(qdata, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table, biomeval_nbis_dht_table,
                                     &cbufptr, ebufptr))){
       free(qdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -179,10 +179,10 @@ int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
          "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
    /* Decode the quantize wavelet subband data. */
-   if((ret = unquantize(&fdata, &dqt_table, q_tree, Q_TREELEN,
+   if((ret = biomeval_nbis_unquantize(&fdata, &biomeval_nbis_dqt_table, biomeval_nbis_q_tree, Q_TREELEN,
                          qdata, width, height))){
       free(qdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -192,10 +192,10 @@ int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
    /* Done with quantized wavelet subband data. */
    free(qdata);
 
-   if((ret = wsq_reconstruct(fdata, width, height, w_tree, W_TREELEN,
-                              &dtt_table))){
+   if((ret = biomeval_nbis_wsq_reconstruct(fdata, width, height, biomeval_nbis_w_tree, W_TREELEN,
+                              &biomeval_nbis_dtt_table))){
       free(fdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -205,20 +205,20 @@ int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
    cdata = (unsigned char *)malloc(num_pix * sizeof(unsigned char));
    if(cdata == (unsigned char *)NULL) {
       free(fdata);
-      free_wsq_decoder_resources();
-      fprintf(stderr,"ERROR: wsq_decode_mem : malloc : cdata\n");
+      biomeval_nbis_free_wsq_decoder_resources();
+      fprintf(stderr,"ERROR: biomeval_nbis_wsq_decode_mem : malloc : cdata\n");
       return(-21);
    }
 
    /* Convert floating point pixels to unsigned char pixels. */
-   conv_img_2_uchar(cdata, fdata, width, height,
-                      frm_header_wsq.m_shift, frm_header_wsq.r_scale);
+   biomeval_nbis_conv_img_2_uchar(cdata, fdata, width, height,
+                      biomeval_nbis_frm_header_wsq.m_shift, biomeval_nbis_frm_header_wsq.r_scale);
 
    /* Done with floating point pixels. */
    free(fdata);
 
    /* Added by MDG on 02-24-05 */
-   free_wsq_decoder_resources();
+   biomeval_nbis_free_wsq_decoder_resources();
 
    if(debug > 0)
       fprintf(stderr, "Doubleing point pixels converted to unsigned char\n\n");
@@ -239,7 +239,7 @@ int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
 /* WSQ File Decoder routine.  Takes an open WSQ compressed file and reads */
 /* in the WSQ encoded data, returning a decoded reconstructed pixmap.     */
 /**************************************************************************/
-int wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
+int biomeval_nbis_wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
                     int *lossyflag, FILE *infp)
 {
    int ret;
@@ -251,41 +251,41 @@ int wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
    short *qdata;                  /* image pointers */
 
    /* Added by MDG on 02-24-05 */
-   init_wsq_decoder_resources();
+   biomeval_nbis_init_wsq_decoder_resources();
 
    /* Read the SOI marker. */
-   if((ret = read_marker_wsq(&marker, SOI_WSQ, infp))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, SOI_WSQ, infp))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
    /* Read in supporting tables up to the SOF marker. */
-   if((ret = read_marker_wsq(&marker, TBLS_N_SOF, infp))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOF, infp))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
    while(marker != SOF_WSQ) {
-      if((ret = read_table_wsq(marker, &dtt_table, &dqt_table, dht_table, infp))){
-         free_wsq_decoder_resources();
+      if((ret = biomeval_nbis_read_table_wsq(marker, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table, biomeval_nbis_dht_table, infp))){
+         biomeval_nbis_free_wsq_decoder_resources();
          return(ret);
       }
-      if((ret = read_marker_wsq(&marker, TBLS_N_SOF, infp))){
-         free_wsq_decoder_resources();
+      if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOF, infp))){
+         biomeval_nbis_free_wsq_decoder_resources();
          return(ret);
       }
    }
 
    /* Read in the Frame Header. */
-   if((ret = read_frame_header_wsq(&frm_header_wsq, infp))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_read_frame_header_wsq(&biomeval_nbis_frm_header_wsq, infp))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
-   width = frm_header_wsq.width;
-   height = frm_header_wsq.height;
+   width = biomeval_nbis_frm_header_wsq.width;
+   height = biomeval_nbis_frm_header_wsq.height;
    num_pix = width * height;
 
-   if((ret = read_ppi_wsq(&ppi, infp))){
-      free_wsq_decoder_resources();
+   if((ret = biomeval_nbis_read_ppi_wsq(&ppi, infp))){
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -293,7 +293,7 @@ int wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
       fprintf(stderr, "SOI, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
-   build_wsq_trees(w_tree, W_TREELEN, q_tree, Q_TREELEN, width, height);
+   biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, width, height);
 
    if(debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
@@ -301,16 +301,16 @@ int wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
    /* Allocate working memory. */
    qdata = (short *) malloc(num_pix * sizeof(short));
    if(qdata == (short *)NULL) {
-      free_wsq_decoder_resources();
-      fprintf(stderr,"ERROR: wsq_decode_file : malloc : qdata1\n");
+      biomeval_nbis_free_wsq_decoder_resources();
+      fprintf(stderr,"ERROR: biomeval_nbis_wsq_decode_file : malloc : qdata1\n");
       return(-20);
    }
 
    /* Decode the Huffman encoded data blocks. */
-   if((ret = huffman_decode_data_file(qdata, &dtt_table, &dqt_table, dht_table,
+   if((ret = biomeval_nbis_huffman_decode_data_file(qdata, &biomeval_nbis_dtt_table, &biomeval_nbis_dqt_table, biomeval_nbis_dht_table,
                                      infp))){
       free(qdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -318,24 +318,24 @@ int wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
       fprintf(stderr,
          "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
-   /* Decode the quantize wavelet subband data. */
-   if((ret = unquantize(&fdata, &dqt_table, q_tree, Q_TREELEN,
+   /* Decode the biomeval_nbis_quantize wavelet subband data. */
+   if((ret = biomeval_nbis_unquantize(&fdata, &biomeval_nbis_dqt_table, biomeval_nbis_q_tree, Q_TREELEN,
                          qdata, width, height))){
       free(qdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
    if(debug > 0)
       fprintf(stderr, "WSQ subband data blocks unquantized\n\n");
 
-   /* Done with quantized wavelet subband data. */
+   /* Done with biomeval_nbis_quantized wavelet subband data. */
    free(qdata);
 
-   if((ret = wsq_reconstruct(fdata, width, height, w_tree, W_TREELEN,
-                              &dtt_table))){
+   if((ret = biomeval_nbis_wsq_reconstruct(fdata, width, height, biomeval_nbis_w_tree, W_TREELEN,
+                              &biomeval_nbis_dtt_table))){
       free(fdata);
-      free_wsq_decoder_resources();
+      biomeval_nbis_free_wsq_decoder_resources();
       return(ret);
    }
 
@@ -345,20 +345,20 @@ int wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
    cdata = (unsigned char *)malloc(num_pix * sizeof(unsigned char));
    if(cdata == (unsigned char *)NULL) {
       free(fdata);
-      free_wsq_decoder_resources();
-      fprintf(stderr,"ERROR: wsq_decode_file : malloc : cdata\n");
+      biomeval_nbis_free_wsq_decoder_resources();
+      fprintf(stderr,"ERROR: biomeval_nbis_wsq_decode_file : malloc : cdata\n");
       return(-21);
    }
 
    /* Convert floating point pixels to unsigned char pixels. */
-   conv_img_2_uchar(cdata, fdata, width, height,
-                      frm_header_wsq.m_shift, frm_header_wsq.r_scale);
+   biomeval_nbis_conv_img_2_uchar(cdata, fdata, width, height,
+                      biomeval_nbis_frm_header_wsq.m_shift, biomeval_nbis_frm_header_wsq.r_scale);
 
    /* Done with floating point pixels. */
    free(fdata);
 
    /* Added by MDG on 02-24-05 */
-   free_wsq_decoder_resources();
+   biomeval_nbis_free_wsq_decoder_resources();
 
    if(debug > 0)
       fprintf(stderr, "Doubleing point pixels converted to unsigned char\n\n");
@@ -379,7 +379,7 @@ int wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
 /***************************************************************************/
 /* Routine to decode an entire "block" of encoded data from memory buffer. */
 /***************************************************************************/
-int huffman_decode_data_mem(
+int biomeval_nbis_huffman_decode_data_mem(
    short *ip,               /* image pointer */
    DTT_TABLE *dtt_table,    /*transform table pointer */
    DQT_TABLE *dqt_table,    /* quantization table */
@@ -390,7 +390,7 @@ int huffman_decode_data_mem(
    int ret;
    int blk = 0;           /* block number */
    unsigned short marker; /* WSQ markers */
-   int bit_count;         /* bit count for getc_nextbits_wsq routine */
+   int bit_count;         /* bit count for biomeval_nbis_getc_nextbits_wsq routine */
    int n;                 /* zero run count */
    int nodeptr;           /* pointers for decoding */
    int last_size;         /* last huffvalue */
@@ -403,55 +403,55 @@ int huffman_decode_data_mem(
    int ipc, ipc_mx, ipc_q;   /* image byte count adjustment parameters */
 
 
-   if((ret = getc_marker_wsq(&marker, TBLS_N_SOB, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, TBLS_N_SOB, cbufptr, ebufptr)))
       return(ret);
 
    bit_count = 0;
    ipc = 0;
    ipc_q = 0;
-   ipc_mx = frm_header_wsq.width * frm_header_wsq.height;
+   ipc_mx = biomeval_nbis_frm_header_wsq.width * biomeval_nbis_frm_header_wsq.height;
 
    while(marker != EOI_WSQ) {
 
       if(marker != 0) {
          blk++;
          while(marker != SOB_WSQ) {
-            if((ret = getc_table_wsq(marker, dtt_table, dqt_table,
+            if((ret = biomeval_nbis_getc_table_wsq(marker, dtt_table, dqt_table,
                                 dht_table, cbufptr, ebufptr)))
                return(ret);
-            if((ret = getc_marker_wsq(&marker, TBLS_N_SOB, cbufptr, ebufptr)))
+            if((ret = biomeval_nbis_getc_marker_wsq(&marker, TBLS_N_SOB, cbufptr, ebufptr)))
                return(ret);
          }
          if(dqt_table->dqt_def && !ipc_q) {
             for(n = 0; n < 64; n++)
                if(dqt_table->q_bin[n] == 0.0)
-                  ipc_mx -= q_tree[n].lenx*q_tree[n].leny;
+                  ipc_mx -= biomeval_nbis_q_tree[n].lenx*biomeval_nbis_q_tree[n].leny;
 
             ipc_q = 1;
          }
-         if((ret = getc_block_header(&hufftable_id, cbufptr, ebufptr)))
+         if((ret = biomeval_nbis_getc_block_header(&hufftable_id, cbufptr, ebufptr)))
             return(ret);
 
          if((dht_table+hufftable_id)->tabdef != 1) {
-            fprintf(stderr, "ERROR : huffman_decode_data_mem : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_huffman_decode_data_mem : ");
             fprintf(stderr, "huffman table {%d} undefined.\n", hufftable_id);
             return(-51);
          }
 
          /* the next two routines reconstruct the huffman tables */
-         if((ret = build_huffsizes(&hufftable, &last_size,
+         if((ret = biomeval_nbis_build_huffsizes(&hufftable, &last_size,
                                   (dht_table+hufftable_id)->huffbits,
                                   MAX_HUFFCOUNTS_WSQ)))
             return(ret);
 
-         build_huffcodes(hufftable);
-         if((ret = check_huffcodes_wsq(hufftable, last_size)))
+         biomeval_nbis_build_huffcodes(hufftable);
+         if((ret = biomeval_nbis_check_huffcodes_wsq(hufftable, last_size)))
             if(debug > 0)
                fprintf(stderr, "         hufftable_id = %d\n", hufftable_id);
 
          /* this routine builds a set of three tables used in decoding */
          /* the compressed data*/
-         gen_decode_table(hufftable, maxcode, mincode, valptr,
+         biomeval_nbis_gen_decode_table(hufftable, maxcode, mincode, valptr,
                           (dht_table+hufftable_id)->huffbits);
          free(hufftable);
          bit_count = 0;
@@ -459,24 +459,24 @@ int huffman_decode_data_mem(
       }
 
       /* get next huffman category code from compressed input data stream */
-      if((ret = decode_data_mem(&nodeptr, mincode, maxcode, valptr,
+      if((ret = biomeval_nbis_decode_data_mem(&nodeptr, mincode, maxcode, valptr,
                             (dht_table+hufftable_id)->huffvalues,
                             cbufptr, ebufptr, &bit_count, &marker)))
          return(ret);
 
       if(nodeptr == -1) {
          while(marker == COM_WSQ && blk == 3) {
-            if((ret = getc_table_wsq(marker, dtt_table, dqt_table,
+            if((ret = biomeval_nbis_getc_table_wsq(marker, dtt_table, dqt_table,
                                 dht_table, cbufptr, ebufptr)))
                return(ret);
-            if((ret = getc_marker_wsq(&marker, ANY_WSQ, cbufptr, ebufptr)))
+            if((ret = biomeval_nbis_getc_marker_wsq(&marker, ANY_WSQ, cbufptr, ebufptr)))
                return(ret);
          }
          continue;
       }
 
       if(ipc > ipc_mx) {
-         fprintf(stderr, "ERROR : huffman_decode_data_mem [1]: ");
+         fprintf(stderr, "ERROR : biomeval_nbis_huffman_decode_data_mem [1]: ");
          fprintf(stderr, "Decoded data extends past image buffer. ");
          fprintf(stderr, "Encoded data appears corrupt or non-standard.\n");
          fflush(stderr);
@@ -486,7 +486,7 @@ int huffman_decode_data_mem(
       if(nodeptr > 0 && nodeptr <= 100) {
          ipc += nodeptr;
          if(ipc > ipc_mx) {
-            fprintf(stderr, "ERROR : huffman_decode_data_mem [2]: ");
+            fprintf(stderr, "ERROR : biomeval_nbis_huffman_decode_data_mem [2]: ");
             fprintf(stderr, "Decoded data extends past image buffer. ");
             fprintf(stderr, "Encoded data appears corrupt or non-standard.\n");
             fflush(stderr);
@@ -500,40 +500,40 @@ int huffman_decode_data_mem(
          ipc++;
       }
       else if(nodeptr == 101){
-         if((ret = getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
+         if((ret = biomeval_nbis_getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
                                 &bit_count, 8)))
             return(ret);
          *ip++ = tbits;
          ipc++;
       }
       else if(nodeptr == 102){
-         if((ret = getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
+         if((ret = biomeval_nbis_getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
                                 &bit_count, 8)))
             return(ret);
          *ip++ = -tbits;
          ipc++;
       }
       else if(nodeptr == 103){
-         if((ret = getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
+         if((ret = biomeval_nbis_getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
                                 &bit_count, 16)))
             return(ret);
          *ip++ = tbits;
          ipc++;
       }
       else if(nodeptr == 104){
-         if((ret = getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
+         if((ret = biomeval_nbis_getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
                                 &bit_count, 16)))
             return(ret);
          *ip++ = -tbits;
          ipc++;
       }
       else if(nodeptr == 105) {
-         if((ret = getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
+         if((ret = biomeval_nbis_getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
                                 &bit_count, 8)))
             return(ret);
          ipc += tbits;
          if(ipc > ipc_mx) {
-            fprintf(stderr, "ERROR : huffman_decode_data_mem [3]: ");
+            fprintf(stderr, "ERROR : biomeval_nbis_huffman_decode_data_mem [3]: ");
             fprintf(stderr, "Decoded data extends past image buffer. ");
             fprintf(stderr, "Encoded data appears corrupt or non-standard.\n");
             fflush(stderr);
@@ -544,12 +544,12 @@ int huffman_decode_data_mem(
             *ip++ = 0;
       }
       else if(nodeptr == 106) {
-         if((ret = getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
+         if((ret = biomeval_nbis_getc_nextbits_wsq(&tbits, &marker, cbufptr, ebufptr,
                                 &bit_count, 16)))
             return(ret);
          ipc += tbits;
          if(ipc > ipc_mx) {
-            fprintf(stderr, "ERROR : huffman_decode_data_mem [4]: ");
+            fprintf(stderr, "ERROR : biomeval_nbis_huffman_decode_data_mem [4]: ");
             fprintf(stderr, "Decoded data extends past image buffer. ");
             fprintf(stderr, "Encoded data appears corrupt or non-standard.\n");
             fflush(stderr);
@@ -561,7 +561,7 @@ int huffman_decode_data_mem(
       }
       else {
          fprintf(stderr, 
-                "ERROR: huffman_decode_data_mem : Invalid code %d (%x).\n",
+                "ERROR: biomeval_nbis_huffman_decode_data_mem : Invalid code %d (%x).\n",
                 nodeptr, nodeptr);
          return(-52);
       }
@@ -573,7 +573,7 @@ int huffman_decode_data_mem(
 /********************************************************************/
 /* Routine to decode an entire "block" of encoded data from a file. */
 /********************************************************************/
-int huffman_decode_data_file(
+int biomeval_nbis_huffman_decode_data_file(
    short *ip,             /* image pointer */
    DTT_TABLE *dtt_table,  /*transform table pointer */
    DQT_TABLE *dqt_table,  /* quantization table */
@@ -583,7 +583,7 @@ int huffman_decode_data_file(
    int ret;
    int blk = 0;           /* block number */
    unsigned short marker; /* WSQ markers */
-   int bit_count;         /* bit count for nextbits_wsq routine */
+   int bit_count;         /* bit count for biomeval_nbis_nextbits_wsq routine */
    int n;                 /* zero run count */
    int nodeptr;           /* pointers for decoding */
    int last_size;         /* last huffvalue */
@@ -595,7 +595,7 @@ int huffman_decode_data_file(
    unsigned short tbits;
 
 
-   if((ret = read_marker_wsq(&marker, TBLS_N_SOB, infp)))
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOB, infp)))
       return(ret);
 
    bit_count = 0;
@@ -605,33 +605,33 @@ int huffman_decode_data_file(
       if(marker != 0) {
          blk++;
          while(marker != SOB_WSQ) {
-            if((ret = read_table_wsq(marker, dtt_table, dqt_table,
+            if((ret = biomeval_nbis_read_table_wsq(marker, dtt_table, dqt_table,
                                 dht_table, infp)))
                return(ret);
-            if((ret = read_marker_wsq(&marker, TBLS_N_SOB, infp)))
+            if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOB, infp)))
                return(ret);
          }
-         if((ret = read_block_header(&hufftable_id, infp)))
+         if((ret = biomeval_nbis_read_block_header(&hufftable_id, infp)))
             return(ret);
 
          if((dht_table+hufftable_id)->tabdef != 1) {
-            fprintf(stderr, "ERROR : huffman_decode_data_file : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_huffman_decode_data_file : ");
             fprintf(stderr, "huffman table {%d} undefined.\n", hufftable_id);
             return(-53);
          }
 
          /* the next two routines reconstruct the huffman tables */
-         if((ret = build_huffsizes(&hufftable, &last_size,
+         if((ret = biomeval_nbis_build_huffsizes(&hufftable, &last_size,
                         (dht_table+hufftable_id)->huffbits, MAX_HUFFCOUNTS_WSQ)))
             return(ret);
-         build_huffcodes(hufftable);
-         if((ret = check_huffcodes_wsq(hufftable, last_size)))
+         biomeval_nbis_build_huffcodes(hufftable);
+         if((ret = biomeval_nbis_check_huffcodes_wsq(hufftable, last_size)))
             if(debug > 0)
                fprintf(stderr, "         hufftable_id = %d\n", hufftable_id);
 
          /* this routine builds a set of three tables used in decoding */
          /* the compressed data*/
-         gen_decode_table(hufftable, maxcode, mincode, valptr,
+         biomeval_nbis_gen_decode_table(hufftable, maxcode, mincode, valptr,
                           (dht_table+hufftable_id)->huffbits);
          free(hufftable);
          bit_count = 0;
@@ -639,17 +639,17 @@ int huffman_decode_data_file(
       }
 
       /* get next huffman category code from compressed input data stream */
-      if((ret = decode_data_file(&nodeptr, mincode, maxcode, valptr,
+      if((ret = biomeval_nbis_decode_data_file(&nodeptr, mincode, maxcode, valptr,
                             (dht_table+hufftable_id)->huffvalues,
                             infp, &bit_count, &marker)))
          return(ret);
 
       if(nodeptr == -1) {
          while(marker == COM_WSQ && blk == 3) {
-            if((ret = read_table_wsq(marker, dtt_table, dqt_table,
+            if((ret = biomeval_nbis_read_table_wsq(marker, dtt_table, dqt_table,
                                 dht_table, infp)))
                return(ret);
-            if((ret = read_marker_wsq(&marker, ANY_WSQ, infp)))
+            if((ret = biomeval_nbis_read_marker_wsq(&marker, ANY_WSQ, infp)))
                return(ret);
          }
          continue;
@@ -660,34 +660,34 @@ int huffman_decode_data_file(
             *ip++ = 0; /* z run */
          }
       else if(nodeptr == 101){
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
             return(ret);
          *ip++ = tbits;
       }
       else if(nodeptr == 102){
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
             return(ret);
          *ip++ = -tbits;
       }
       else if(nodeptr == 103){
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
             return(ret);
          *ip++ = tbits;
       }
       else if(nodeptr == 104){
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
             return(ret);
          *ip++ = -tbits;
       }
       else if(nodeptr == 105) {
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 8)))
             return(ret);
          n = tbits;
          while(n--)
             *ip++ = 0;
       }
       else if(nodeptr == 106) {
-         if((ret = nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
+         if((ret = biomeval_nbis_nextbits_wsq(&tbits, &marker, infp, &bit_count, 16)))
             return(ret);
          n = tbits;
          while(n--)
@@ -697,7 +697,7 @@ int huffman_decode_data_file(
          *ip++ = nodeptr - 180;
       else {
          fprintf(stderr, 
-                "ERROR: huffman_decode_data_file : Invalid code %d (%x).\n",
+                "ERROR: biomeval_nbis_huffman_decode_data_file : Invalid code %d (%x).\n",
                 nodeptr, nodeptr);
          return(-54);
       }
@@ -709,7 +709,7 @@ int huffman_decode_data_file(
 /**********************************************************/
 /* Routine to decode the encoded data from memory buffer. */
 /**********************************************************/
-int decode_data_mem(
+int biomeval_nbis_decode_data_mem(
    int *onodeptr,       /* returned huffman code category        */
    int *mincode,        /* points to minimum code value for      */
                         /*    a given code length                */
@@ -729,7 +729,7 @@ int decode_data_mem(
    unsigned short code, tbits;  /* becomes a huffman code word
                                    (one bit at a time)*/
 
-   if((ret = getc_nextbits_wsq(&code, marker, cbufptr, ebufptr, bit_count, 1)))
+   if((ret = biomeval_nbis_getc_nextbits_wsq(&code, marker, cbufptr, ebufptr, bit_count, 1)))
       return(ret);
 
    if(*marker != 0){
@@ -738,7 +738,7 @@ int decode_data_mem(
    }
 
    for(inx = 1; (int)code > maxcode[inx]; inx++) {
-      if((ret = getc_nextbits_wsq(&tbits, marker, cbufptr, ebufptr, bit_count, 1)))
+      if((ret = biomeval_nbis_getc_nextbits_wsq(&tbits, marker, cbufptr, ebufptr, bit_count, 1)))
          return(ret);
 
       code = (code << 1) + tbits;
@@ -757,7 +757,7 @@ int decode_data_mem(
 /*************************************************/
 /* Routine to decode the encoded data from file. */
 /*************************************************/
-int decode_data_file(
+int biomeval_nbis_decode_data_file(
    int *onodeptr,       /* returned huffman code category        */
    int *mincode,        /* points to minimum code value for      */
                         /*    a given code length                */
@@ -776,7 +776,7 @@ int decode_data_file(
    unsigned short code, tbits;  /*becomes a huffman code word
                                   (one bit at a time)*/
 
-   if((ret = nextbits_wsq(&code, marker, infp, bit_count, 1)))
+   if((ret = biomeval_nbis_nextbits_wsq(&code, marker, infp, bit_count, 1)))
       return(ret);
 
    if(*marker != 0){
@@ -785,7 +785,7 @@ int decode_data_file(
    }
 
    for(inx = 1; (int)code > maxcode[inx]; inx++) {
-      if((ret = nextbits_wsq(&tbits, marker, infp, bit_count, 1)))
+      if((ret = biomeval_nbis_nextbits_wsq(&tbits, marker, infp, bit_count, 1)))
          return(ret);
 
       code = (code << 1) + tbits;
@@ -804,7 +804,7 @@ int decode_data_file(
 /*********************************************/
 /* Routine to get nextbit(s) of data stream. */
 /*********************************************/
-int nextbits_wsq(
+int biomeval_nbis_nextbits_wsq(
    unsigned short *obits,  /* returned bits */
    unsigned short *marker, /* returned marker */
    FILE *file,          /* compressed input data file */
@@ -832,7 +832,7 @@ int nextbits_wsq(
             return(0);
          }
          if(code2 != 0x00) {
-            fprintf(stderr, "ERROR: nextbits_wsq : No stuffed zeros\n");
+            fprintf(stderr, "ERROR: biomeval_nbis_nextbits_wsq : No stuffed zeros\n");
             return(-38);
          }
       }
@@ -846,7 +846,7 @@ int nextbits_wsq(
       bits_needed = bits_req - *bit_count;
       bits = code << bits_needed;
       *bit_count = 0;
-      if((ret = nextbits_wsq(&tbits, (unsigned short *)NULL, file,
+      if((ret = biomeval_nbis_nextbits_wsq(&tbits, (unsigned short *)NULL, file,
                           bit_count, bits_needed)))
          return(ret);
       bits |= tbits;
@@ -859,7 +859,7 @@ int nextbits_wsq(
 /****************************************************************/
 /* Routine to get nextbit(s) of data stream from memory buffer. */
 /****************************************************************/
-int getc_nextbits_wsq(
+int biomeval_nbis_getc_nextbits_wsq(
    unsigned short *obits,       /* returned bits */
    unsigned short *marker,      /* returned marker */
    unsigned char **cbufptr,     /* points to current byte in input buffer */
@@ -878,12 +878,12 @@ int getc_nextbits_wsq(
    static unsigned char bit_mask[9] = {0x00,0x01,0x03,0x07,0x0f,
                                        0x1f,0x3f,0x7f,0xff};
    if(*bit_count == 0) {
-      if((ret = getc_byte(&code, cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&code, cbufptr, ebufptr))){
          return(ret);
       }
       *bit_count = 8;
       if(code == 0xFF) {
-         if((ret = getc_byte(&code2, cbufptr, ebufptr))){
+         if((ret = biomeval_nbis_getc_byte(&code2, cbufptr, ebufptr))){
             return(ret);
          }
          if(code2 != 0x00 && bits_req == 1) {
@@ -892,7 +892,7 @@ int getc_nextbits_wsq(
             return(0);
          }
          if(code2 != 0x00) {
-            fprintf(stderr, "ERROR: getc_nextbits_wsq : No stuffed zeros\n");
+            fprintf(stderr, "ERROR: biomeval_nbis_getc_nextbits_wsq : No stuffed zeros\n");
             return(-41);
          }
       }
@@ -906,7 +906,7 @@ int getc_nextbits_wsq(
       bits_needed = bits_req - *bit_count;
       bits = code << bits_needed;
       *bit_count = 0;
-      if((ret = getc_nextbits_wsq(&tbits, (unsigned short *)NULL, cbufptr,
+      if((ret = biomeval_nbis_getc_nextbits_wsq(&tbits, (unsigned short *)NULL, cbufptr,
                              ebufptr, bit_count, bits_needed)))
          return(ret);
       bits |= tbits;

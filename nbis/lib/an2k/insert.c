@@ -54,7 +54,7 @@ of the software.
          functionality into *-core functions and added more *_frmem
          functions to add fields and subfields from structures
          residing only in memory.  Added new_idc parameter to
-         adjust_insrec_CNT_IDCs().
+         biomeval_nbis_adjust_insrec_CNT_IDCs().
       UPDATE:  09/03/2008 by Kenneth Ko
       UPDATE:  01/26/2009 by jck - report more details when things go wrong
 
@@ -64,19 +64,19 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        do_insert()
-                        insert_ANSI_NIST_select()
-                        insert_ANSI_NIST_record()
-                        insert_ANSI_NIST_record_frmem()
-                        insert_ANSI_NIST_record_core()
-                        adjust_insrec_CNT_IDCs()
-                        insert_ANSI_NIST_field()
-                        insert_ANSI_NIST_field_frmem()
-                        insert_ANSI_NIST_field_core()
-                        insert_ANSI_NIST_subfield()
-                        insert_ANSI_NIST_subfield_frmem()
-                        insert_ANSI_NIST_subfield_core()
-                        insert_ANSI_NIST_item()
+                        biomeval_nbis_do_insert()
+                        biomeval_nbis_insert_ANSI_NIST_select()
+                        biomeval_nbis_insert_ANSI_NIST_record()
+                        biomeval_nbis_insert_ANSI_NIST_record_frmem()
+                        biomeval_nbis_insert_ANSI_NIST_record_core()
+                        biomeval_nbis_adjust_insrec_CNT_IDCs()
+                        biomeval_nbis_insert_ANSI_NIST_field()
+                        biomeval_nbis_insert_ANSI_NIST_field_frmem()
+                        biomeval_nbis_insert_ANSI_NIST_field_core()
+                        biomeval_nbis_insert_ANSI_NIST_subfield()
+                        biomeval_nbis_insert_ANSI_NIST_subfield_frmem()
+                        biomeval_nbis_insert_ANSI_NIST_subfield_core()
+                        biomeval_nbis_insert_ANSI_NIST_item()
 
 ***********************************************************************/
 
@@ -87,7 +87,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: do_insert - Master routine used to carry out a requested structure
+#cat: biomeval_nbis_do_insert - Master routine used to carry out a requested structure
 #cat:              insertion and write the results to file.  The structure
 #cat:              to be inserted is represented by a 4-tuple of indices.
 
@@ -104,7 +104,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int do_insert(const char *ofile,
+int biomeval_nbis_do_insert(const char *ofile,
               const int record_i, const int field_i,
               const int subfield_i, const int item_i,
               const char *newvalue, ANSI_NIST *ansi_nist)
@@ -113,7 +113,7 @@ int do_insert(const char *ofile,
    FILE *fpout;
 
    /* Conduct the item insertion. */
-   if((ret = insert_ANSI_NIST_select(record_i, field_i, subfield_i, item_i,
+   if((ret = biomeval_nbis_insert_ANSI_NIST_select(record_i, field_i, subfield_i, item_i,
                                     newvalue, ansi_nist))){
       return(ret);
    }
@@ -122,7 +122,7 @@ int do_insert(const char *ofile,
    if(ofile != NULL){
       fpout = fopen(ofile, "wb");
       if(fpout == NULL){
-         fprintf(stderr, "ERROR : do_insert : fopen '%s': %s\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_do_insert : fopen '%s': %s\n",
 		 ofile, strerror(errno));
          return(-2);
       }
@@ -131,13 +131,13 @@ int do_insert(const char *ofile,
    else
       fpout = DEFAULT_FPOUT;
 
-   if((ret = write_ANSI_NIST(fpout, ansi_nist)))
+   if((ret = biomeval_nbis_write_ANSI_NIST(fpout, ansi_nist)))
       return(ret);
 
    /* Close the file pointer if necessary. */
    if(ofile != NULL){
       if(fclose(fpout)){
-         fprintf(stderr, "ERROR : do_insert : fclose '%s': %s\n",
+         fprintf(stderr, "ERROR : biomeval_nbis_do_insert : fclose '%s': %s\n",
 		 ofile, strerror(errno));
          return(-3);
       }
@@ -149,7 +149,7 @@ int do_insert(const char *ofile,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_select - Routine used to carry out a requested
+#cat: biomeval_nbis_insert_ANSI_NIST_select - Routine used to carry out a requested
 #cat:              structure insertion based on a 4-tuple of structure
 #cat:              indices. These indices represent the physical order
 #cat:              of subsequent logical records, fields, subfields, and
@@ -173,7 +173,7 @@ int do_insert(const char *ofile,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_select(const int record_i, const int field_i,
+int biomeval_nbis_insert_ANSI_NIST_select(const int record_i, const int field_i,
                          const int subfield_i, const int item_i,
                          const char *newvalue, ANSI_NIST *ansi_nist)
 {
@@ -184,34 +184,34 @@ int insert_ANSI_NIST_select(const int record_i, const int field_i,
          if(subfield_i != UNDEFINED_INT){
             if(item_i != UNDEFINED_INT){
                /* Insert item's value. */
-               if((ret = insert_ANSI_NIST_item(record_i, field_i,
+               if((ret = biomeval_nbis_insert_ANSI_NIST_item(record_i, field_i,
                                     subfield_i, item_i, newvalue, ansi_nist)))
                   return(ret);
             }
             /* Otherwise, item index undefined, so insert subfield. */
             else{
-               if((ret = insert_ANSI_NIST_subfield(record_i, field_i,
+               if((ret = biomeval_nbis_insert_ANSI_NIST_subfield(record_i, field_i,
                                          subfield_i, newvalue, ansi_nist)))
                   return(ret);
             }
          }
          /* Otherwise, subfield index undefined, so insert field. */
          else{
-            if((ret = insert_ANSI_NIST_field(record_i, field_i,
+            if((ret = biomeval_nbis_insert_ANSI_NIST_field(record_i, field_i,
                                             newvalue, ansi_nist)))
                return(ret);
          }
       }
       /* Otherwise, field index undefined, so insert record. */
       else{
-         if((ret = insert_ANSI_NIST_record(record_i, newvalue, ansi_nist)))
+         if((ret = biomeval_nbis_insert_ANSI_NIST_record(record_i, newvalue, ansi_nist)))
             return(ret);
       }
    }
    /* Otherwise, record index undefined, so ERROR. */
    else{
       /* So ignore request. */
-      fprintf(stderr, "WARNING : insert_ANSI_NIST_select : "
+      fprintf(stderr, "WARNING : biomeval_nbis_insert_ANSI_NIST_select : "
 	      "record index not specified so request ignored\n");
       return(-2);
    }
@@ -222,12 +222,12 @@ int insert_ANSI_NIST_select(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_record - Routine used to insert the logical record
+#cat: biomeval_nbis_insert_ANSI_NIST_record - Routine used to insert the logical record
 #cat:              contained in a specified file into an ANSI/NIST file
 #cat:              structure.  This routine also updates the CNT field of
 #cat:              the Type-1 record to accurately reflect the insertion.
 #cat:              Note - This routine used different IDC assignment scheme
-#cat:              form insert_ANSI_NIST_record_frmem.  In this routine, an
+#cat:              form biomeval_nbis_insert_ANSI_NIST_record_frmem.  In this routine, an
 #cat:              IDC is assigned based on the record's position in the
 #cat:              ANSI/NIST structure.
 
@@ -241,29 +241,29 @@ int insert_ANSI_NIST_select(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_record(const int record_i, const char *insfile,
+int biomeval_nbis_insert_ANSI_NIST_record(const int record_i, const char *insfile,
                                 ANSI_NIST *ansi_nist)
 {
    int ret;
    ANSI_NIST *ins_ansi_nist;
 
-   if((ret = read_fmttext_file(insfile, &ins_ansi_nist)))
+   if((ret = biomeval_nbis_read_fmttext_file(insfile, &ins_ansi_nist)))
       return(ret);
 
    if(ins_ansi_nist->num_records != 1){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_record : "
 	      "number of records %d != 1 in fmttext file %s\n",
 	      ins_ansi_nist->num_records, insfile);
-      free_ANSI_NIST(ins_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
       return(-2);
    }
 
-   ret = insert_ANSI_NIST_record_core(record_i, ins_ansi_nist->records[0],
+   ret = biomeval_nbis_insert_ANSI_NIST_record_core(record_i, ins_ansi_nist->records[0],
 				      TRUE, ansi_nist);
   /* Free parent information structures, or everything if insertion failed. */
    if (ret == 0)
       ins_ansi_nist->num_records = 0;
-   free_ANSI_NIST(ins_ansi_nist);
+   biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
    if (ret < 0)
       return ret;
 
@@ -276,12 +276,12 @@ int insert_ANSI_NIST_record(const int record_i, const char *insfile,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_record_frmem - Routine used to insert the logical
+#cat: biomeval_nbis_insert_ANSI_NIST_record_frmem - Routine used to insert the logical
 #cat:              record from memory into an ANSI/NIST file
 #cat:              structure.  This routine also updates the CNT field of
 #cat:              the Type-1 record to accurately reflect the insertion.
 #cat:              Note - This routine used different IDC assignment scheme
-#cat:              form insert_ANSI_NIST_record.  In this routine, the
+#cat:              form biomeval_nbis_insert_ANSI_NIST_record.  In this routine, the
 #cat:              IDC in the record to be inserted is used directly to
 #cat:              update the Type-1 CNT field.
 
@@ -295,12 +295,12 @@ int insert_ANSI_NIST_record(const int record_i, const char *insfile,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_record_frmem(const int record_i, RECORD *record,
+int biomeval_nbis_insert_ANSI_NIST_record_frmem(const int record_i, RECORD *record,
                                   ANSI_NIST *ansi_nist)
 {
    int ret;
 
-   if ((ret = insert_ANSI_NIST_record_core(record_i, record,
+   if ((ret = biomeval_nbis_insert_ANSI_NIST_record_core(record_i, record,
 					   FALSE, ansi_nist)) < 0)
       return ret;
 
@@ -313,7 +313,7 @@ int insert_ANSI_NIST_record_frmem(const int record_i, RECORD *record,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_record_core - This routine incorporates the
+#cat: biomeval_nbis_insert_ANSI_NIST_record_core - This routine incorporates the
 #cat:              core functionality of the two preceeding routines
 #cat:              used to insert a logical record into an ANSI/NIST
 #cat:              file structure.  This routine also calls the next
@@ -336,21 +336,21 @@ int insert_ANSI_NIST_record_frmem(const int record_i, RECORD *record,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_record_core(const int record_i, RECORD *record,
+int biomeval_nbis_insert_ANSI_NIST_record_core(const int record_i, RECORD *record,
 				 int new_idc, ANSI_NIST *ansi_nist)
 {
    int j, k;
 
    /* Insertion of a Type-1 record is an ERROR. */
    if(record->type == TYPE_1_ID){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_record_core : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_record_core : "
 	      "inserting a Type-1 record not permitted\n");
       return(-3);
    }
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i > ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_record_core : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_record_core : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records+1);
       return(-4);
@@ -363,7 +363,7 @@ int insert_ANSI_NIST_record_core(const int record_i, RECORD *record,
       RECORD ** new_ptr = (RECORD **)realloc(ansi_nist->records, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : insert_ANSI_NIST_record_core : "
+         fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_record_core : "
 		 "realloc : record list (increase %lu bytes to %lu)\n",
 		 (unsigned long)(ansi_nist->alloc_records*sizeof(RECORD *)),
 		 (unsigned long)new_size);
@@ -391,12 +391,12 @@ int insert_ANSI_NIST_record_core(const int record_i, RECORD *record,
    /* By adding a record, the Type-1 CNT field must be updated to  */
    /* include a new subfield with the type and IDC of the inserted */
    /* record.                                                      */
-   return adjust_insrec_CNT_IDCs(record_i, new_idc, ansi_nist);
+   return biomeval_nbis_adjust_insrec_CNT_IDCs(record_i, new_idc, ansi_nist);
 }
 
 /***********************************************************************
 ************************************************************************
-#cat: adjust_insrec_CNT_IDCs - Routine used to update an ANSI/NIST
+#cat: biomeval_nbis_adjust_insrec_CNT_IDCs - Routine used to update an ANSI/NIST
 #cat:              file structure's Type-1 record, CNT 1.3 field, due
 #cat:              to a logical record's insertion.  This routine also
 #cat:              manages the preexisting records' IDC values in an
@@ -419,7 +419,7 @@ int insert_ANSI_NIST_record_core(const int record_i, RECORD *record,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc, 
+int biomeval_nbis_adjust_insrec_CNT_IDCs(const int record_i, const int new_idc, 
 			   ANSI_NIST *ansi_nist)
 {
    int ret; 
@@ -438,15 +438,15 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
    /* Type-1 record must be first in record list ... */
    if((ansi_nist->num_records <= 0) ||
       (ansi_nist->records[0]->type != TYPE_1_ID)){
-      fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 	      "Type-1 record not found\n");
       return(-2);
    }
    
    /* If CNT field within Type-1 record not found ... */
-   if(!lookup_ANSI_NIST_field(&cntfield, &cntfield_i, CNT_ID,
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&cntfield, &cntfield_i, CNT_ID,
 			      ansi_nist->records[0])){
-      fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 	      "CNT field not found in record index [1] [Type-1.%03d]\n",
 	      CNT_ID);
       return(-3);
@@ -454,7 +454,7 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
    
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i > cntfield->num_subfields)){
-      fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 	      "record index [%d] out of range [1..%d] of subfields "
 	      "in CNT field index [1.%d] [Type-1.%03d]\n",
 	      record_i+1, cntfield->num_subfields+1, cntfield_i+1, CNT_ID);
@@ -473,8 +473,8 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
       /* has special meaning) ... */
       for(j = 1; j < record_i; j++){
 	 /* Look up the IDC in the current subfield. */
-	 if(!lookup_ANSI_NIST_item(&item, 1, cntfield->subfields[j])){
-	    fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+	 if(!biomeval_nbis_lookup_ANSI_NIST_item(&item, 1, cntfield->subfields[j])){
+	    fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 		    "IDC item index [1.%d.%d.2] not found in "
 		    "CNT field [Type-1.%03d]\n", cntfield_i+1, j+1, CNT_ID);
 	    return(-5);
@@ -497,9 +497,9 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
       /* Keep the record's existing IDC. */
 
       /* If IDC field within inserted record not found ... */
-      if(!lookup_ANSI_NIST_field(&idcfield, &idcfield_i, IDC_ID,
+      if(!biomeval_nbis_lookup_ANSI_NIST_field(&idcfield, &idcfield_i, IDC_ID,
 				 ansi_nist->records[record_i])){
-	 fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+	 fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 		 "IDC field not found in inserted record [Type-%d.%03d]\n", 
 		 ansi_nist->records[record_i]->type, IDC_ID);
 	 return(-6);
@@ -515,7 +515,7 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
       SUBFIELD ** new_ptr = (SUBFIELD **)realloc(cntfield->subfields, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+         fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 		 "realloc : CNT subfield list (increase %lu bytes to %lu)\n",
 		 (unsigned long)(cntfield->alloc_subfields*sizeof(SUBFIELD *)),
 		 (unsigned long)new_size);
@@ -525,7 +525,7 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
       cntfield->alloc_subfields += ANSI_NIST_CHUNK;
    }
 
-   if((ret = alloc_ANSI_NIST_subfield(&subfield)))
+   if((ret = biomeval_nbis_alloc_ANSI_NIST_subfield(&subfield)))
       return(ret);
 
    /* Make room for new subfield in list. */
@@ -570,18 +570,18 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
 
    /* Add inserted record TYPE into first item of new CNT subfield. */
    sprintf(numstr, "%d", ansi_nist->records[record_i]->type);
-   if((ret = insert_ANSI_NIST_item(0, cntfield_i, record_i, 0,
+   if((ret = biomeval_nbis_insert_ANSI_NIST_item(0, cntfield_i, record_i, 0,
                                   numstr, ansi_nist)))
       return(ret);
 
    /* Add inserted record's IDC into second item of new CNT subfield. */
    sprintf(numstr, IDC_FMT, insidc);
-   if((ret = insert_ANSI_NIST_item(0, cntfield_i, record_i, 1,
+   if((ret = biomeval_nbis_insert_ANSI_NIST_item(0, cntfield_i, record_i, 1,
                                   numstr, ansi_nist)))
       return(ret);
 
    if(cntfield->subfields[0]->num_items != 2){
-      fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+      fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 	      "bad format of CNT subfield index [1.%d.1]"
 	      "in record [Type-1.%03d]\n", cntfield_i+1, CNT_ID);
 				/* Updated by MDG on 03-08-05 */
@@ -589,7 +589,7 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
    }
 
    /* Bump number of records in CNT field. */
-   if((ret = increment_numeric_item(0, cntfield_i, 0, 1, ansi_nist, NULL)))
+   if((ret = biomeval_nbis_increment_numeric_item(0, cntfield_i, 0, 1, ansi_nist, NULL)))
       return(ret);
 
    if (new_idc) {
@@ -598,16 +598,16 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
 	 incremented. */
       
       /* Lookup the IDC in inserted record. */
-      if(!lookup_ANSI_NIST_field(&idcfield, &idcfield_i, IDC_ID,
+      if(!biomeval_nbis_lookup_ANSI_NIST_field(&idcfield, &idcfield_i, IDC_ID,
 				 ansi_nist->records[record_i])){
-	 fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+	 fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 		 "IDC field not found in record index [%d] [Type-%d.%03d]\n",
 		 record_i+1, ansi_nist->records[record_i]->type, IDC_ID);
 	 return(-8);
       }
       
       /* Substitute item in IDC field in the inserted record. */
-      if((ret = substitute_ANSI_NIST_item(record_i, idcfield_i, 0, 0,
+      if((ret = biomeval_nbis_substitute_ANSI_NIST_item(record_i, idcfield_i, 0, 0,
 					  numstr, ansi_nist)))
 	 return(ret);
       
@@ -622,8 +622,8 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
       /* IDC ... So, for each record after the new record in the list ...     */
       for(j = record_i+1; j < cntfield->num_subfields; j++){
 	 /* Look up IDC of current record. */
-	 if(!lookup_ANSI_NIST_item(&item, 1, cntfield->subfields[j])){
-	    fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+	 if(!biomeval_nbis_lookup_ANSI_NIST_item(&item, 1, cntfield->subfields[j])){
+	    fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 		    "IDC item index [1.%d.2] not found in record "
 		    "[Type-1.%03d]\n", j+1, CNT_ID);
 	    return(-9);
@@ -633,16 +633,16 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
 	 /* If the current IDC is >= new record's IDC ... */
 	 if(itemint >= insidc){
 	    /* Increment the current IDC. */
-	    if((ret = increment_numeric_item(0, cntfield_i, j, 1,
+	    if((ret = biomeval_nbis_increment_numeric_item(0, cntfield_i, j, 1,
 					     ansi_nist, IDC_FMT)))
 	       return(ret);
 	    
 	    /* 'j' is the index of current record. */
 	    
 	    /* Lookup IDC field in corresponding record. */
-	    if(!lookup_ANSI_NIST_field(&idcfield, &idcfield_i, IDC_ID,
+	    if(!biomeval_nbis_lookup_ANSI_NIST_field(&idcfield, &idcfield_i, IDC_ID,
 				       ansi_nist->records[j])){
-	       fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+	       fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 		       "IDC field not found in record index [%d] "
 		       "[Type-%d.%03d]\n",
 		       j+1, ansi_nist->records[j]->type, IDC_ID);
@@ -651,14 +651,14 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
 	    
 	    if((idcfield->num_subfields != 1) ||
 	       (idcfield->subfields[0]->num_items != 1)){
-	       fprintf(stderr, "ERROR : adjust_insrec_CNT_IDCs : "
+	       fprintf(stderr, "ERROR : biomeval_nbis_adjust_insrec_CNT_IDCs : "
 		       "bad format of IDC field "
 		       "in record index [%d] [Type-%d.%03d]\n",
 		       j+1, ansi_nist->records[j]->type, IDC_ID);
 	       return(-11);
 	    }
 	    
-	    if((ret = increment_numeric_item(j, idcfield_i, 0, 0,
+	    if((ret = biomeval_nbis_increment_numeric_item(j, idcfield_i, 0, 0,
 					     ansi_nist, IDC_FMT)))
 	       return(ret);
 	 }
@@ -672,7 +672,7 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_field - Routine used to insert the field
+#cat: biomeval_nbis_insert_ANSI_NIST_field - Routine used to insert the field
 #cat:              contained in a specified file into an ANSI/NIST
 #cat:              file structure.
 
@@ -687,42 +687,42 @@ int adjust_insrec_CNT_IDCs(const int record_i, const int new_idc,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_field(const int record_i, const int field_i,
+int biomeval_nbis_insert_ANSI_NIST_field(const int record_i, const int field_i,
                            const char *insfile, ANSI_NIST *ansi_nist)
 {
    int ret;
    ANSI_NIST *ins_ansi_nist;
 
-   if((ret = read_fmttext_file(insfile, &ins_ansi_nist)) < 0)
+   if((ret = biomeval_nbis_read_fmttext_file(insfile, &ins_ansi_nist)) < 0)
       return(ret);
       
    if(ins_ansi_nist->num_records != 1){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_field : "
 	      "number of records %d != 1 in fmttext file %s\n",
               ins_ansi_nist->num_records, insfile);
-      free_ANSI_NIST(ins_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
       return(-2);
    }
 
    if(ins_ansi_nist->records[0]->num_fields != 1){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_field : "
 	      "number of fields %d != 1 in fmttext file %s\n",
               ins_ansi_nist->records[0]->num_fields, insfile);
-      free_ANSI_NIST(ins_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
       return(-3);
    }
 
-   ret = insert_ANSI_NIST_field_core(record_i, field_i,
+   ret = biomeval_nbis_insert_ANSI_NIST_field_core(record_i, field_i,
 				     ins_ansi_nist->records[0]->fields[0],
 				     ansi_nist);
   /* Free parent information structures, or everything if insertion failed. */
    if (ret == 0)
       ins_ansi_nist->records[0]->num_fields = 0;
-   free_ANSI_NIST(ins_ansi_nist);
+   biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
    if (ret < 0)
       return ret;
    
-   /* Above, insert_ANSI_NIST_field_core() has already verified that
+   /* Above, biomeval_nbis_insert_ANSI_NIST_field_core() has already verified that
       the specified record and field exist. */
    fprintf(stderr, "Inserted field index [%d.%d] [Type-%d.%03d] "
            "with contents of %s\n", record_i+1, field_i+1,
@@ -735,7 +735,7 @@ int insert_ANSI_NIST_field(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_field_frmem - Routine used to insert a field
+#cat: biomeval_nbis_insert_ANSI_NIST_field_frmem - Routine used to insert a field
 #cat:              contained in memory into an ANSI/NIST file
 #cat:              structure.
 
@@ -750,16 +750,16 @@ int insert_ANSI_NIST_field(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_field_frmem(const int record_i, const int field_i,
+int biomeval_nbis_insert_ANSI_NIST_field_frmem(const int record_i, const int field_i,
 				 FIELD *ins_field, ANSI_NIST *ansi_nist)
 {
    int ret;
 
-   if ((ret = insert_ANSI_NIST_field_core(record_i, field_i,
+   if ((ret = biomeval_nbis_insert_ANSI_NIST_field_core(record_i, field_i,
 					  ins_field, ansi_nist)) < 0)
       return ret;
 
-   /* Above, insert_ANSI_NIST_field_core() has already verified that
+   /* Above, biomeval_nbis_insert_ANSI_NIST_field_core() has already verified that
       the specified record and field exist. */
    fprintf(stderr, "Inserted field index [%d.%d] [Type-%d.%03d]\n",
 	   record_i+1, field_i+1, ansi_nist->records[record_i]->type,
@@ -771,7 +771,7 @@ int insert_ANSI_NIST_field_frmem(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_field_core - Routine that implements the core
+#cat: biomeval_nbis_insert_ANSI_NIST_field_core - Routine that implements the core
 #cat:              functionality of the preceeding two functions,
 #cat:              which insert a field into an ANSI/NIST file
 #cat:              structure.
@@ -787,7 +787,7 @@ int insert_ANSI_NIST_field_frmem(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
+int biomeval_nbis_insert_ANSI_NIST_field_core(const int record_i, const int field_i,
 				FIELD *ins_field, ANSI_NIST *ansi_nist)
 {
    int ret;
@@ -796,7 +796,7 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_field_core : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_field_core : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
       return(-5);
@@ -805,8 +805,8 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
 
    /* Do not permit the insertion of binary fields as binary */
    /* records are "fixed."                                   */
-   if(binary_record(record->type)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_field_core : "
+   if(biomeval_nbis_binary_record(record->type)){
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_field_core : "
 	      "insertion of binary field [Type-%d.%03d] not permitted\n",
               ins_field->record_type, ins_field->field_int);
       return(-4);
@@ -814,7 +814,7 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
 
    /* If record types do not match ... */
    if(ins_field->record_type != record->type){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_field_core : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_field_core : "
 	      "insertion record type [Type-%d] != [Type-%d]\n",
 	      ins_field->record_type, record->type);
       return(-6);
@@ -822,7 +822,7 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
 
    /* If field index is out of range ... */
    if((field_i < 0) || (field_i > record->num_fields)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_field_core : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_field_core : "
 	      "field index [%d] out of range [1..%d] in record [Type-%d]\n",
               field_i+1, record->num_fields+1, record->type);
       return(-7);
@@ -831,7 +831,7 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
    /* Test for duplicate field. */
    for(j = 0; j < record->num_fields; j++){
       if(record->fields[j]->field_int == ins_field->field_int){
-         fprintf(stderr, "ERROR : insert_ANSI_NIST_field_core : "
+         fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_field_core : "
 		 "duplicate field ID [Type-%d.%03d] at field index [%d.%d]\n",
                  record->type, record->fields[j]->field_int, record_i+1, j+1);
          return(-8);
@@ -845,7 +845,7 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
       FIELD ** new_ptr = (FIELD **)realloc(record->fields, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : insert_ANSI_NIST_field_core : "
+         fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_field_core : "
 		 "realloc : field list (increase %lu bytes to %lu)\n",
 		 (unsigned long)(record->alloc_fields*sizeof(FIELD *)),
 		 (unsigned long)new_size);
@@ -869,7 +869,7 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
 
    /* If tagged field record and record has more than 1 field ... */
    /* then need to handle GS separators.                          */
-   if(tagged_record(record->type) &&
+   if(biomeval_nbis_tagged_record(record->type) &&
       (record->num_fields > 1)){
       /*  If new field was added at end of list ... */
       if(field_i == (record->num_fields - 1)){
@@ -895,7 +895,7 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
    ansi_nist->num_bytes += byte_adjust;
 
    /* Update the record's length LEN field. */
-   if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
+   if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
       return(ret);
 
    /* Return normally. */
@@ -904,7 +904,7 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_subfield - Routine used to insert the subfield
+#cat: biomeval_nbis_insert_ANSI_NIST_subfield - Routine used to insert the subfield
 #cat:              contained in a specified file into an ANSI/NIST file
 #cat:              structure.
 
@@ -920,7 +920,7 @@ int insert_ANSI_NIST_field_core(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_subfield(const int record_i, const int field_i,
+int biomeval_nbis_insert_ANSI_NIST_subfield(const int record_i, const int field_i,
                               const int subfield_i, const char *insfile,
                               ANSI_NIST *ansi_nist)
 {
@@ -929,65 +929,65 @@ int insert_ANSI_NIST_subfield(const int record_i, const int field_i,
    RECORD *record;
    FIELD *field;
 
-   if((ret = read_fmttext_file(insfile, &ins_ansi_nist)))
+   if((ret = biomeval_nbis_read_fmttext_file(insfile, &ins_ansi_nist)))
       return(ret);
 
    if(ins_ansi_nist->num_records != 1){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	      "number of records %d != 1 in fmttext file %s\n",
               ins_ansi_nist->num_records, insfile);
-      free_ANSI_NIST(ins_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
       return(-2);
    }
 
    if(ins_ansi_nist->records[0]->num_fields != 1){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	      "number of fields %d != 1 in fmttext file %s\n",
               ins_ansi_nist->records[0]->num_fields, insfile);
-      free_ANSI_NIST(ins_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
       return(-4);
    }
 
    if(ins_ansi_nist->records[0]->fields[0]->num_subfields != 1){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	      "number of subfields %d != 1 in fmttext file %s\n",
               ins_ansi_nist->records[0]->fields[0]->num_subfields, insfile);
-      free_ANSI_NIST(ins_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
       return(-5);
    }
 
    /* If record index is out of range (since we need the record below) ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_field : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
-      free_ANSI_NIST(ins_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
       return(-6);
    }
    record = ansi_nist->records[record_i];
 
    /* If record types don't match ... */
    if(ins_ansi_nist->records[0]->type != record->type){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	      "insertion record [Type-%d] in fmttext file %s != [Type-%d]\n",
               ins_ansi_nist->records[0]->type, insfile, record->type);
-      free_ANSI_NIST(ins_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
       return(-7);
    }
 
    /* If field index is out of range (since we need the field below)... */
    if((field_i < 0) || (field_i >= record->num_fields)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	      "field index [%d] out of range [1..%d] in record [Type-%d]\n",
               field_i+1, record->num_fields, record->type);
-      free_ANSI_NIST(ins_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
       return(-8);
    }
    field = record->fields[field_i];
 
    /* If field ID's don't match ... */
    if(ins_ansi_nist->records[0]->fields[0]->field_int != field->field_int){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	      "insertion field ID [Type-%d.%03d] in fmttext file %s "
 	      "!= [Type-%d.%03d]\n",
 	      ins_ansi_nist->records[0]->type,
@@ -996,13 +996,13 @@ int insert_ANSI_NIST_subfield(const int record_i, const int field_i,
       return(-9);
    }
 
-   ret = insert_ANSI_NIST_subfield_core( record_i, field_i, subfield_i,
+   ret = biomeval_nbis_insert_ANSI_NIST_subfield_core( record_i, field_i, subfield_i,
 	ins_ansi_nist->records[0]->fields[0]->subfields[0], ansi_nist );
 
   /* Free parent information structures, or everything if insertion failed. */
    if (ret == 0)
       ins_ansi_nist->records[0]->fields[0]->num_subfields = 0;
-   free_ANSI_NIST(ins_ansi_nist);
+   biomeval_nbis_free_ANSI_NIST(ins_ansi_nist);
    if (ret < 0)
       return ret;
 
@@ -1016,7 +1016,7 @@ int insert_ANSI_NIST_subfield(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_subfield_frmem - Routine used to insert the
+#cat: biomeval_nbis_insert_ANSI_NIST_subfield_frmem - Routine used to insert the
 #cat:              subfield contained in memory into an ANSI/NIST file
 #cat:              structure.
 
@@ -1032,14 +1032,14 @@ int insert_ANSI_NIST_subfield(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_subfield_frmem(const int record_i, const int field_i,
+int biomeval_nbis_insert_ANSI_NIST_subfield_frmem(const int record_i, const int field_i,
 				    const int subfield_i,
 				    SUBFIELD *ins_subfield,
 				    ANSI_NIST *ansi_nist)
 {
    int ret;
    
-   if ((ret = insert_ANSI_NIST_subfield_core(record_i, field_i, subfield_i,
+   if ((ret = biomeval_nbis_insert_ANSI_NIST_subfield_core(record_i, field_i, subfield_i,
 					     ins_subfield, ansi_nist)) < 0)
       return ret;
    
@@ -1054,7 +1054,7 @@ int insert_ANSI_NIST_subfield_frmem(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_subfield_core - Routine used to insert the subfield
+#cat: biomeval_nbis_insert_ANSI_NIST_subfield_core - Routine used to insert the subfield
 #cat:              contained in a specified file into an ANSI/NIST file
 #cat:              structure.
 
@@ -1070,7 +1070,7 @@ int insert_ANSI_NIST_subfield_frmem(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
+int biomeval_nbis_insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
                               const int subfield_i, SUBFIELD *ins_subfield,
                               ANSI_NIST *ansi_nist)
 {
@@ -1081,7 +1081,7 @@ int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
       return(-6);
@@ -1090,8 +1090,8 @@ int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
 
    /* Do not permit subfield insertions in a binary record ... */
    /* (binary records are "fixed").                            */
-   if(binary_record(record->type)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+   if(biomeval_nbis_binary_record(record->type)){
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	     "insertion of subfield in binary record [Type-%d] not permitted\n",
               record->type);
       return(-3);
@@ -1099,7 +1099,7 @@ int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
 
    /* If field index is out of range ... */
    if((field_i < 0) || (field_i >= record->num_fields)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	      "field index [%d] out of range [1..%d] in record [Type-%d]\n",
               field_i+1, record->num_fields, record->type);
       return(-8);
@@ -1108,7 +1108,7 @@ int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
 
    /* If subfield index is out of range ... */
    if((subfield_i < 0) || (subfield_i > field->num_subfields)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 	      "subfield index [%d.%d.%d] out of range [1..%d] "
 	      "in record [Type-%d.%03d]\n", record_i+1, field_i+1,
 	      subfield_i+1, field->num_subfields+1, record->type,
@@ -1123,7 +1123,7 @@ int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
       SUBFIELD ** new_ptr = (SUBFIELD **)realloc(field->subfields, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : insert_ANSI_NIST_subfield : "
+         fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_subfield : "
 		 "realloc : subfield list (increase %lu bytes to %lu)\n",
 		 (unsigned long)(field->alloc_subfields*sizeof(SUBFIELD *)),
 		 (unsigned long)new_size);
@@ -1147,7 +1147,7 @@ int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
 
    /* If tagged field record and field has more than 1 subfield ... */
    /* then need to handle RS separators.                            */
-   if(tagged_record(record->type) &&
+   if(biomeval_nbis_tagged_record(record->type) &&
       (field->num_subfields > 1)){
       /*  If new subfield was added at end of list ... */
       if(subfield_i == (field->num_subfields - 1)){
@@ -1174,7 +1174,7 @@ int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
    ansi_nist->num_bytes += byte_adjust;
 
    /* Update the current record's length field. */
-   if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
+   if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
       return(ret);
 
    /* Return normally. */
@@ -1183,7 +1183,7 @@ int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: insert_ANSI_NIST_item - Routine used to insert the specified
+#cat: biomeval_nbis_insert_ANSI_NIST_item - Routine used to insert the specified
 #cat:              informaton item value into an ANSI/NIST file structure.
 
    Input:
@@ -1199,7 +1199,7 @@ int insert_ANSI_NIST_subfield_core(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int insert_ANSI_NIST_item(const int record_i, const int field_i,
+int biomeval_nbis_insert_ANSI_NIST_item(const int record_i, const int field_i,
                           const int subfield_i, const int item_i,
                           const char *itemvalue, ANSI_NIST *ansi_nist)
 {
@@ -1212,7 +1212,7 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_item : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
       return(-2);
@@ -1221,8 +1221,8 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* Do not permit item insertions in a binary record ... */
    /* (binary records are "fixed").                        */
-   if(binary_record(record->type)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_item : "
+   if(biomeval_nbis_binary_record(record->type)){
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_item : "
 	      "insertion of item in binary record [Type-%d] not permitted\n",
               record->type);
       return(-3);
@@ -1230,7 +1230,7 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If field index is out of range ... */
    if((field_i < 0) || (field_i >= record->num_fields)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_item : "
 	      "field index [%d] out of range [1..%d] in record [Type-%d]\n",
               field_i+1, record->num_fields, record->type);
       return(-4);
@@ -1239,8 +1239,8 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* Do not permit item insertions in tagged image fields ... */
    /* (tagged image fields have 1 and only one item)           */
-   if(image_field(field)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_item : "
+   if(biomeval_nbis_image_field(field)){
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_item : "
 	      "insertion of image item in field index [%d.%d] [Type-%d.%03d] "
 	      "not permitted\n", record_i+1, field_i+1,
 	      record->type, field->field_int);
@@ -1249,7 +1249,7 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If subfield index is out of range ... */
    if((subfield_i < 0) || (subfield_i >= field->num_subfields)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_item : "
 	      "subfield index [%d.%d.%d] out of range [1..%d] "
 	      "in record [Type-%d.%03d]\n", record_i+1, field_i+1,
 	      subfield_i+1, field->num_subfields,
@@ -1260,7 +1260,7 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If item index is not out of range for insertion ... */
    if((item_i < 0) || (item_i > subfield->num_items)){
-      fprintf(stderr, "ERROR : insert_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_item : "
 	      "item index [%d.%d.%d.%d] out of range [1..%d] "
               "in record [Type-%d.%03d]\n", record_i+1, field_i+1,
 	      subfield_i+1, item_i+1, subfield->num_items+1,
@@ -1275,7 +1275,7 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
       ITEM ** new_ptr = (ITEM **)realloc(subfield->items, new_size);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : insert_ANSI_NIST_item : "
+         fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_item : "
 		 "realloc : item list (increase %lu bytes to %lu)\n",
 		 (unsigned long)(subfield->alloc_items * sizeof(ITEM *)),
 		 (unsigned long)new_size);
@@ -1286,7 +1286,7 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
    }
 
    /* Allocate and initialize the new item. */
-   if((ret = alloc_ANSI_NIST_item(&item)))
+   if((ret = biomeval_nbis_alloc_ANSI_NIST_item(&item)))
       return(ret);
    /* Remeber 'alloc_chars' include NULL terminator. */
    alloc_chars = strlen(itemvalue)+1;
@@ -1295,7 +1295,7 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
 	 (unsigned char *)realloc(item->value, alloc_chars);
 
       if(new_ptr == NULL){
-         fprintf(stderr, "ERROR : insert_ANSI_NIST_item : "
+         fprintf(stderr, "ERROR : biomeval_nbis_insert_ANSI_NIST_item : "
 		 "realloc : item value (increase %d bytes to %d)\n",
 		 item->alloc_chars, alloc_chars);
          return(-9);
@@ -1350,7 +1350,7 @@ int insert_ANSI_NIST_item(const int record_i, const int field_i,
    ansi_nist->num_bytes += byte_adjust;
 
    /* Update the current record's length field. */
-   if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
+   if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
       return(ret);
 
    fprintf(stderr, "Inserted item index [%d.%d.%d.%d] [Type-%d.%03d] = %s\n",

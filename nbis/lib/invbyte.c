@@ -60,7 +60,7 @@ of the software.
 
 /* see the include file /usr/local/image/include/invbyte.h	*/
 
-unsigned char Inv_Byte[256] = {
+unsigned char biomeval_nbis_Inv_Byte[256] = {
   0,128, 64,192, 32,160, 96,224,
  16,144, 80,208, 48,176,112,240,
   8,136, 72,200, 40,168,104,232,

@@ -57,39 +57,39 @@ of the software.
       classification.
 
       ROUTINES:
-#cat: combine_nistcom - takes an initialized FET NISTCOM structure
+#cat: biomeval_nbis_combine_nistcom - takes an initialized FET NISTCOM structure
 #cat:             or allocates one if necessary, and updates the
 #cat:             structure with general image attributes.
-#cat: combine_jpegl_nistcom - takes an initialized FET NISTCOM structure
+#cat: biomeval_nbis_combine_jpegl_nistcom - takes an initialized FET NISTCOM structure
 #cat:             or allocates one if necessary, and updates the
 #cat:             structure with JPEGL-specific image attributes.
-#cat: combine_wsq_nistcom - takes an initialized FET NISTCOM structure
+#cat: biomeval_nbis_combine_wsq_nistcom - takes an initialized FET NISTCOM structure
 #cat:             or allocates one if necessary, and updates the
 #cat:             structure with WSQ-specific image attributes.
-#cat: combine_jpegb_nistcom - takes an initialized FET NISTCOM structure
+#cat: biomeval_nbis_combine_jpegb_nistcom - takes an initialized FET NISTCOM structure
 #cat:             or allocates one if necessary, and updates the
 #cat:             structure with JPEGB-specific image attributes.
-#cat: del_jpegl_nistcom - takes an initialized FET NISTCOM structure
+#cat: biomeval_nbis_del_jpegl_nistcom - takes an initialized FET NISTCOM structure
 #cat:             and removes JPEGL compression attributes.
-#cat: del_wsq_nistcom - takes an initialized FET NISTCOM structure
+#cat: biomeval_nbis_del_wsq_nistcom - takes an initialized FET NISTCOM structure
 #cat:             and removes WSQ compression attributes.
-#cat: del_jpegb_nistcom - takes an initialized FET NISTCOM structure
+#cat: biomeval_nbis_del_jpegb_nistcom - takes an initialized FET NISTCOM structure
 #cat:             and removes JPEGB compression attributes.
-#cat: sd_ihead_to_nistcom - takes an IHead header from a specified NIST
+#cat: biomeval_nbis_sd_ihead_to_nistcom - takes an IHead header from a specified NIST
 #cat:             Special Database file, and parses specific attribute data
 #cat:             from the header into an FET NISTCOM structure.
-#cat: sd4_ihead_to_nistcom - takes an IHead header from a NIST Special
+#cat: biomeval_nbis_sd4_ihead_to_nistcom - takes an IHead header from a NIST Special
 #cat:             Database 4 file, and parses specific attribute data
 #cat:             from the header into an FET NISTCOM structure.
-#cat: sd9_10_14_ihead_to_nistcom - takes an IHead header from a NIST Special
+#cat: biomeval_nbis_sd9_10_14_ihead_to_nistcom - takes an IHead header from a NIST Special
 #cat:             Database 9,10,14 file, and parses specific attribute data
 #cat:             from the header into an FET NISTCOM structure.
-#cat: sd18_ihead_to_nistcom - takes an IHead header from a NIST Special
+#cat: biomeval_nbis_sd18_ihead_to_nistcom - takes an IHead header from a NIST Special
 #cat:             Database 18 file, and parses specific attribute data
 #cat:             from the header into an FET NISTCOM structure.
-#cat: get_sd_class - gets the class from a special database id field
+#cat: biomeval_nbis_get_sd_class - gets the class from a special database id field
 #cat:
-#cat: get_class_from_ncic_class_string - gets the class from a special
+#cat: biomeval_nbis_get_class_from_ncic_class_string - gets the class from a special
 #cat:             database ncic class string
 
 ***********************************************************************/
@@ -100,7 +100,7 @@ of the software.
 #include <nistcom.h>
 
 /*****************************************************************/
-int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
+int biomeval_nbis_combine_nistcom(NISTCOM **onistcom, const int w, const int h,
                      const int d, const int ppi, const int lossyflag)
 {
    int ret, allocflag;
@@ -111,13 +111,13 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
 
    /* ALLOCATION ? */
    if((*onistcom) == (NISTCOM *)NULL){
-      if((ret = allocfet_ret(&nistcom, 6)))
+      if((ret = biomeval_nbis_allocfet_ret(&nistcom, 6)))
          return(ret);
       allocflag = 1;
       /* HEADER */
-      if((ret = updatefet_ret(NCM_HEADER, "6", nistcom))){
+      if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, "6", nistcom))){
          if(allocflag){
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
             *onistcom = (NISTCOM *)NULL;
          }
          return(ret);
@@ -130,9 +130,9 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
 
    /* WIDTH */
    sprintf(cbuff, "%d", w);
-   if((ret = updatefet_ret(NCM_PIX_WIDTH, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_PIX_WIDTH, cbuff, nistcom))){
       if(allocflag){
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
          *onistcom = (NISTCOM *)NULL;
       }
       return(ret);
@@ -140,9 +140,9 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
 
    /* HEIGHT */
    sprintf(cbuff, "%d", h);
-   if((ret = updatefet_ret(NCM_PIX_HEIGHT, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_PIX_HEIGHT, cbuff, nistcom))){
       if(allocflag){
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
          *onistcom = (NISTCOM *)NULL;
       }
       return(ret);
@@ -150,9 +150,9 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
 
    /* DEPTH */
    sprintf(cbuff, "%d", d);
-   if((ret = updatefet_ret(NCM_PIX_DEPTH, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_PIX_DEPTH, cbuff, nistcom))){
       if(allocflag){
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
          *onistcom = (NISTCOM *)NULL;
       }
       return(ret);
@@ -160,9 +160,9 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
 
    /* PPI */
    sprintf(cbuff, "%d", ppi);
-   if((ret = updatefet_ret(NCM_PPI, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_PPI, cbuff, nistcom))){
       if(allocflag){
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
          *onistcom = (NISTCOM *)NULL;
       }
       return(ret);
@@ -170,11 +170,11 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
 
    /* LOSSY */
    /* If exists, lookup current LOSSY value. */
-   ret = lookupfet(&lossyval, NCM_LOSSY, nistcom);
+   ret = biomeval_nbis_lookupfet(&lossyval, NCM_LOSSY, nistcom);
    /* If error ... */
    if(ret < 0){
       if(allocflag){
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
          *onistcom = (NISTCOM *)NULL;
       }
       return(ret);
@@ -183,14 +183,14 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
    if(ret &&
      (strcmp(lossyval,"0") != 0) &&
      (lossyflag == 0)){
-      fprintf(stderr, "WARNING : combine_nistcom : ");
+      fprintf(stderr, "WARNING : biomeval_nbis_combine_nistcom : ");
       fprintf(stderr, "request to unset lossy flag ignored\n");
    }
    else{
       sprintf(cbuff, "%d", lossyflag);
-      if((ret = updatefet_ret(NCM_LOSSY, cbuff, nistcom))){
+      if((ret = biomeval_nbis_updatefet_ret(NCM_LOSSY, cbuff, nistcom))){
          if(allocflag){
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
             *onistcom = (NISTCOM *)NULL;
          }
          return(ret);
@@ -199,9 +199,9 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
 
    /* UPDATE HEADER */
    sprintf(cbuff, "%d", nistcom->num);
-   if((ret = updatefet_ret(NCM_HEADER, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, cbuff, nistcom))){
       if(allocflag){
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
          *onistcom = (NISTCOM *)NULL;
       }
       return(ret);
@@ -213,7 +213,7 @@ int combine_nistcom(NISTCOM **onistcom, const int w, const int h,
 }
 
 /*****************************************************************/
-int combine_jpegl_nistcom(NISTCOM **onistcom, const int w, const int h,
+int biomeval_nbis_combine_jpegl_nistcom(NISTCOM **onistcom, const int w, const int h,
                   const int d, const int ppi, const int lossyflag,
                   const int n_cmpnts, int *hor_sampfctr, int *vrt_sampfctr,
                   const int intrlvflag, const int predict)
@@ -228,16 +228,16 @@ int combine_jpegl_nistcom(NISTCOM **onistcom, const int w, const int h,
       allocflag = 0;
 
    /* Combine image attributes to NISTCOM. */
-   if((ret = combine_nistcom(onistcom, w, h, d, ppi, lossyflag)))
+   if((ret = biomeval_nbis_combine_nistcom(onistcom, w, h, d, ppi, lossyflag)))
       return(ret);
 
    nistcom = *onistcom;
 
    /* COLORSPACE - only sure of GRAY */
    if(n_cmpnts == 1){
-      if((ret = updatefet_ret(NCM_COLORSPACE, "GRAY", nistcom))){
+      if((ret = biomeval_nbis_updatefet_ret(NCM_COLORSPACE, "GRAY", nistcom))){
          if(allocflag)
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
          return(ret);
       }
    }
@@ -245,9 +245,9 @@ int combine_jpegl_nistcom(NISTCOM **onistcom, const int w, const int h,
    if(n_cmpnts > 1){
       /* NUM_COMPONENTS */
       sprintf(cbuff, "%d", n_cmpnts);
-      if((ret = updatefet_ret(NCM_N_CMPNTS, cbuff, nistcom))){
+      if((ret = biomeval_nbis_updatefet_ret(NCM_N_CMPNTS, cbuff, nistcom))){
          if(allocflag)
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
          return(ret);
       }
 
@@ -260,41 +260,41 @@ int combine_jpegl_nistcom(NISTCOM **onistcom, const int w, const int h,
          cptr = cbuff + strlen(cbuff);
       }
 
-      if((ret = updatefet_ret(NCM_HV_FCTRS, cbuff, nistcom))){
+      if((ret = biomeval_nbis_updatefet_ret(NCM_HV_FCTRS, cbuff, nistcom))){
          if(allocflag)
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
          return(ret);
       }
 
       /* INTERLEAVE */
       sprintf(cbuff, "%d", intrlvflag);
-      if((ret = updatefet_ret(NCM_INTRLV, cbuff, nistcom))){
+      if((ret = biomeval_nbis_updatefet_ret(NCM_INTRLV, cbuff, nistcom))){
          if(allocflag)
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
          return(ret);
       }
    }
 
    /* COMPRESSION */
-   if((ret = updatefet_ret(NCM_COMPRESSION, "JPEGL", nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_COMPRESSION, "JPEGL", nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* PREDICT */
    sprintf(cbuff, "%d", predict);
-   if((ret = updatefet_ret(NCM_JPEGL_PREDICT, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_JPEGL_PREDICT, cbuff, nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* UPDATE HEADER */
    sprintf(cbuff, "%d", nistcom->num);
-   if((ret = updatefet_ret(NCM_HEADER, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, cbuff, nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
@@ -302,7 +302,7 @@ int combine_jpegl_nistcom(NISTCOM **onistcom, const int w, const int h,
 }
 
 /*****************************************************************/
-int combine_wsq_nistcom(NISTCOM **onistcom, const int w, const int h,
+int biomeval_nbis_combine_wsq_nistcom(NISTCOM **onistcom, const int w, const int h,
                   const int d, const int ppi, const int lossyflag,
                   const float r_bitrate)
 {
@@ -316,38 +316,38 @@ int combine_wsq_nistcom(NISTCOM **onistcom, const int w, const int h,
       allocflag = 0;
 
    /* Combine image attributes to NISTCOM. */
-   if((ret = combine_nistcom(onistcom, w, h, d, ppi, lossyflag)))
+   if((ret = biomeval_nbis_combine_nistcom(onistcom, w, h, d, ppi, lossyflag)))
       return(ret);
 
    nistcom = *onistcom;
 
    /* COLORSPACE */
-   if((ret = updatefet_ret(NCM_COLORSPACE, "GRAY", nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_COLORSPACE, "GRAY", nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* COMPRESSION */
-   if((ret = updatefet_ret(NCM_COMPRESSION, "WSQ", nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_COMPRESSION, "WSQ", nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* BITRATE */
    sprintf(cbuff, "%f", r_bitrate);
-   if((ret = updatefet_ret(NCM_WSQ_RATE, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_WSQ_RATE, cbuff, nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* UPDATE HEADER */
    sprintf(cbuff, "%d", nistcom->num);
-   if((ret = updatefet_ret(NCM_HEADER, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, cbuff, nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
@@ -355,7 +355,7 @@ int combine_wsq_nistcom(NISTCOM **onistcom, const int w, const int h,
 }
 
 /*****************************************************************/
-int combine_jpegb_nistcom(NISTCOM **onistcom, const int w, const int h,
+int biomeval_nbis_combine_jpegb_nistcom(NISTCOM **onistcom, const int w, const int h,
                   const int d, const int ppi, const int lossyflag,
                   char *colorspace, const int n_cmpnts, const int intrlvflag,
                   const int quality)
@@ -370,24 +370,24 @@ int combine_jpegb_nistcom(NISTCOM **onistcom, const int w, const int h,
       allocflag = 0;
 
    /* Combine image attributes to NISTCOM. */
-   if((ret = combine_nistcom(onistcom, w, h, d, ppi, lossyflag)))
+   if((ret = biomeval_nbis_combine_nistcom(onistcom, w, h, d, ppi, lossyflag)))
       return(ret);
 
    nistcom = *onistcom;
 
    /* COLORSPACE */
-   if((ret = updatefet_ret(NCM_COLORSPACE, colorspace, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_COLORSPACE, colorspace, nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    if(n_cmpnts > 1){
       /* NUM_COMPONENTS */
       sprintf(cbuff, "%d", n_cmpnts);
-      if((ret = updatefet_ret(NCM_N_CMPNTS, cbuff, nistcom))){
+      if((ret = biomeval_nbis_updatefet_ret(NCM_N_CMPNTS, cbuff, nistcom))){
          if(allocflag)
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
          return(ret);
       }
 
@@ -397,48 +397,48 @@ int combine_jpegb_nistcom(NISTCOM **onistcom, const int w, const int h,
       else if(strcmp(colorspace, "YCbCr") == 0)
          cptr = "2,2:1,1:1,1";
       else{
-         fprintf(stderr, "ERROR : combine_jpegb_nistcom : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_combine_jpegb_nistcom : ");
          fprintf(stderr, "unknown/unsupported colorspace = %s\n",
                          colorspace);
          if(allocflag)
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
          return(-2);
       }
-      if((ret = updatefet_ret(NCM_HV_FCTRS, cptr, nistcom))){
+      if((ret = biomeval_nbis_updatefet_ret(NCM_HV_FCTRS, cptr, nistcom))){
          if(allocflag)
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
          return(ret);
       }
 
       /* INTERLEAVE */
       sprintf(cbuff, "%d", intrlvflag);
-      if((ret = updatefet_ret(NCM_INTRLV, cbuff, nistcom))){
+      if((ret = biomeval_nbis_updatefet_ret(NCM_INTRLV, cbuff, nistcom))){
          if(allocflag)
-            freefet(nistcom);
+            biomeval_nbis_freefet(nistcom);
          return(ret);
       }
    }
 
    /* COMPRESSION */
-   if((ret = updatefet_ret(NCM_COMPRESSION, "JPEGB", nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_COMPRESSION, "JPEGB", nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* QUALITY */
    sprintf(cbuff, "%d", quality);
-   if((ret = updatefet_ret(NCM_JPEGB_QUAL, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_JPEGB_QUAL, cbuff, nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* UPDATE HEADER */
    sprintf(cbuff, "%d", nistcom->num);
-   if((ret = updatefet_ret(NCM_HEADER, cbuff, nistcom))){
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, cbuff, nistcom))){
       if(allocflag)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
@@ -446,66 +446,66 @@ int combine_jpegb_nistcom(NISTCOM **onistcom, const int w, const int h,
 }
 
 /*****************************************************************/
-int del_jpegl_nistcom(NISTCOM *nistcom)
+int biomeval_nbis_del_jpegl_nistcom(NISTCOM *nistcom)
 {
    int ret;
    char cbuff[MAXFETLENGTH];
 
    /* COMPRESSION */
-   if((ret = deletefet_ret(NCM_COMPRESSION, nistcom)))
+   if((ret = biomeval_nbis_deletefet_ret(NCM_COMPRESSION, nistcom)))
       return(ret);
 
    /* PREDICT */
-   if((ret = deletefet_ret(NCM_JPEGL_PREDICT, nistcom)))
+   if((ret = biomeval_nbis_deletefet_ret(NCM_JPEGL_PREDICT, nistcom)))
       return(ret);
 
    /* UPDATE HEADER */
    sprintf(cbuff, "%d", nistcom->num);
-   if((ret = updatefet_ret(NCM_HEADER, cbuff, nistcom)))
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, cbuff, nistcom)))
       return(ret);
 
    return(0);
 }
 
 /*****************************************************************/
-int del_wsq_nistcom(NISTCOM *nistcom)
+int biomeval_nbis_del_wsq_nistcom(NISTCOM *nistcom)
 {
    int ret;
    char cbuff[MAXFETLENGTH];
 
    /* COMPRESSION */
-   if((ret = deletefet_ret(NCM_COMPRESSION, nistcom)))
+   if((ret = biomeval_nbis_deletefet_ret(NCM_COMPRESSION, nistcom)))
       return(ret);
 
    /* BITRATE */
-   if((ret = deletefet_ret(NCM_WSQ_RATE, nistcom)))
+   if((ret = biomeval_nbis_deletefet_ret(NCM_WSQ_RATE, nistcom)))
       return(ret);
 
    /* UPDATE HEADER */
    sprintf(cbuff, "%d", nistcom->num);
-   if((ret = updatefet_ret(NCM_HEADER, cbuff, nistcom)))
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, cbuff, nistcom)))
       return(ret);
 
    return(0);
 }
 
 /*****************************************************************/
-int del_jpegb_nistcom(NISTCOM *nistcom)
+int biomeval_nbis_del_jpegb_nistcom(NISTCOM *nistcom)
 {
    int ret;
    char cbuff[MAXFETLENGTH];
 
    /* COMPRESSION */
-   if((ret = deletefet_ret(NCM_COMPRESSION, nistcom)))
+   if((ret = biomeval_nbis_deletefet_ret(NCM_COMPRESSION, nistcom)))
       return(ret);
 
    /* QUALITY */
-   if((ret = deletefet_ret(NCM_JPEGB_QUAL, nistcom)))
+   if((ret = biomeval_nbis_deletefet_ret(NCM_JPEGB_QUAL, nistcom)))
       return(ret);
 
    /* UPDATE HEADER */
    sprintf(cbuff, "%d", nistcom->num);
-   if((ret = updatefet_ret(NCM_HEADER, cbuff, nistcom)))
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, cbuff, nistcom)))
       return(ret);
 
    return(0);
@@ -514,27 +514,27 @@ int del_jpegb_nistcom(NISTCOM *nistcom)
 /************************************/
 /* Puts database Ihead into NISTCOM */
 /************************************/
-int sd_ihead_to_nistcom(NISTCOM **nistcom, IHEAD *ihead, int sd_id)
+int biomeval_nbis_sd_ihead_to_nistcom(NISTCOM **nistcom, IHEAD *ihead, int sd_id)
 {
    switch(sd_id) {
       case 4:
-         return(sd4_ihead_to_nistcom(nistcom, ihead));
+         return(biomeval_nbis_sd4_ihead_to_nistcom(nistcom, ihead));
          break;
       case 9:
-         return(sd9_10_14_ihead_to_nistcom(nistcom, ihead, sd_id));
+         return(biomeval_nbis_sd9_10_14_ihead_to_nistcom(nistcom, ihead, sd_id));
          break;
       case 10:
-         return(sd9_10_14_ihead_to_nistcom(nistcom, ihead, sd_id));
+         return(biomeval_nbis_sd9_10_14_ihead_to_nistcom(nistcom, ihead, sd_id));
          break;
       case 14:
-         return(sd9_10_14_ihead_to_nistcom(nistcom, ihead, sd_id));
+         return(biomeval_nbis_sd9_10_14_ihead_to_nistcom(nistcom, ihead, sd_id));
          break;
       case 18:
-         return(sd18_ihead_to_nistcom(nistcom, ihead));
+         return(biomeval_nbis_sd18_ihead_to_nistcom(nistcom, ihead));
          break;
       default:
          fprintf(stderr,
-                 "ERROR : sd_ihead_to_nistcom : invalid database id = %d\n",
+                 "ERROR : biomeval_nbis_sd_ihead_to_nistcom : invalid database id = %d\n",
                  sd_id);
          fprintf(stderr, "        expecting SD 4,9,10,14, or 18\n");
          *nistcom = NULL;
@@ -545,7 +545,7 @@ int sd_ihead_to_nistcom(NISTCOM **nistcom, IHEAD *ihead, int sd_id)
 /*******************************/
 /* Puts SD4 Ihead into NISTCOM */
 /*******************************/
-int sd4_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead)
+int biomeval_nbis_sd4_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead)
 {
    char *hst, *fname, *class_str, class, *sex, *pname;
    int ret, hst_sz;
@@ -571,50 +571,50 @@ int sd4_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead)
    hst_sz = 2 + strlen(fname) + strlen(class_str) + strlen(pname);
 
    if((hst = (char *)malloc(hst_sz)) == (char *)NULL){
-      fprintf(stderr, "ERROR : sd4_ihead_to_nistcom : malloc : hst\n");
-      freefet(nistcom);
+      fprintf(stderr, "ERROR : biomeval_nbis_sd4_ihead_to_nistcom : malloc : hst\n");
+      biomeval_nbis_freefet(nistcom);
       return(-2);
    }
    sprintf(hst, "%s %s %s", fname, class_str, pname);
 
    /* Build the NISTCOM */
-   if((ret = allocfet_ret(&nistcom, 5))) {
+   if((ret = biomeval_nbis_allocfet_ret(&nistcom, 5))) {
       return(ret);
       free(hst);
    }
 
-   if((ret = updatefet_ret(NCM_HEADER, "5", nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, "5", nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       free(hst);
       return(ret);
    }
 
 
-   if((ret = updatefet_ret(NCM_SD_ID, "4", nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_SD_ID, "4", nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       free(hst);
       return(ret);
    }
 
-   if((ret = updatefet_ret(NCM_HISTORY, hst, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HISTORY, hst, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       free(hst);
       return(ret);
    }
    free(hst);
 
-   if((ret = get_sd_class(ihead->id, 4, &class))){
-      freefet(nistcom);
+   if((ret = biomeval_nbis_get_sd_class(ihead->id, 4, &class))){
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
    sprintf(cbuff, "%c", class);
-   if((ret = updatefet_ret(NCM_FING_CLASS, cbuff, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_FING_CLASS, cbuff, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
-   if((ret = updatefet_ret(NCM_SEX, sex, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_SEX, sex, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
@@ -625,7 +625,7 @@ int sd4_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead)
 /*****************************************/
 /* Puts SD9 SD10 SD14 Ihead into NISTCOM */
 /*****************************************/
-int sd9_10_14_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead,
+int biomeval_nbis_sd9_10_14_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead,
                                const int sd_id)
 {
    char *hst, *fname, *ncic, class, *sex, *pname, *ink_liv;
@@ -660,8 +660,8 @@ int sd9_10_14_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead,
    hst_sz = 3 + strlen(fname) + strlen(ncic) + strlen(pname);
 
    if((hst = (char *)malloc(hst_sz)) == (char *)NULL){
-      fprintf(stderr, "ERROR : sd4_ihead_to_nistcom : malloc : hst\n");
-      freefet(nistcom);
+      fprintf(stderr, "ERROR : biomeval_nbis_sd4_ihead_to_nistcom : malloc : hst\n");
+      biomeval_nbis_freefet(nistcom);
       return(-2);
    }
 /*
@@ -671,62 +671,62 @@ int sd9_10_14_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead,
 
 
    /* Build the NISTCOM */
-   if((ret = allocfet_ret(&nistcom, 7))) {
+   if((ret = biomeval_nbis_allocfet_ret(&nistcom, 7))) {
       free(hst);
       return(ret);
    }
 
    if(sd_id == 14){
-      if((ret = updatefet_ret(NCM_HEADER, "7", nistcom))) {
-         freefet(nistcom);
+      if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, "7", nistcom))) {
+         biomeval_nbis_freefet(nistcom);
          free(hst);
          return(ret);
       }
-      if((ret = updatefet_ret(NCM_PPI, ihead->density, nistcom))) {
-         freefet(nistcom);
+      if((ret = biomeval_nbis_updatefet_ret(NCM_PPI, ihead->density, nistcom))) {
+         biomeval_nbis_freefet(nistcom);
          free(hst);
          return(ret);
       }
    }
    else{
-      if((ret = updatefet_ret(NCM_HEADER, "6", nistcom))) {
-         freefet(nistcom);
+      if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, "6", nistcom))) {
+         biomeval_nbis_freefet(nistcom);
          free(hst);
          return(ret);
       }
    }
 
    sprintf(cbuff, "%d", sd_id);
-   if((ret = updatefet_ret(NCM_SD_ID, cbuff, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_SD_ID, cbuff, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       free(hst);
       return(ret);
    }
 
-   if((ret = updatefet_ret(NCM_HISTORY, hst, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HISTORY, hst, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       free(hst);
       return(ret);
    }
    free(hst);
 
-   if((ret = get_sd_class(ihead->id, sd_id, &class))){
-      freefet(nistcom);
+   if((ret = biomeval_nbis_get_sd_class(ihead->id, sd_id, &class))){
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
    sprintf(cbuff, "%c", class);
-   if((ret = updatefet_ret(NCM_FING_CLASS, cbuff, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_FING_CLASS, cbuff, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
-   if((ret = updatefet_ret(NCM_SEX, sex, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_SEX, sex, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
-   if((ret = updatefet_ret(NCM_SCAN_TYPE, ink_liv, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_SCAN_TYPE, ink_liv, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
@@ -737,7 +737,7 @@ int sd9_10_14_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead,
 /********************************/
 /* Puts SD18 Ihead into NISTCOM */
 /********************************/
-int sd18_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead)
+int biomeval_nbis_sd18_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead)
 {
    char *fname, *sex, *age;
    int ret;
@@ -755,37 +755,37 @@ int sd18_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead)
    age = &(id_str[15]);
 
    /* Build the NISTCOM */
-   if((ret = allocfet_ret(&nistcom, 6)))
+   if((ret = biomeval_nbis_allocfet_ret(&nistcom, 6)))
       return(ret);
 
-   if((ret = updatefet_ret(NCM_HEADER, "6", nistcom))) {
-      freefet(nistcom);
-      return(ret);
-   }
-
-   if((ret = updatefet_ret(NCM_SD_ID, "18", nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HEADER, "6", nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
-   if((ret = updatefet_ret(NCM_HISTORY, fname, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_SD_ID, "18", nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
-   if((ret = updatefet_ret(NCM_SEX, sex, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_HISTORY, fname, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
-   if((ret = updatefet_ret(NCM_AGE, age, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_SEX, sex, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
+      return(ret);
+   }
+
+   if((ret = biomeval_nbis_updatefet_ret(NCM_AGE, age, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    fname[1] = '\0';
-   if((ret = updatefet_ret(NCM_FACE_POS, fname, nistcom))) {
-      freefet(nistcom);
+   if((ret = biomeval_nbis_updatefet_ret(NCM_FACE_POS, fname, nistcom))) {
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
@@ -794,40 +794,40 @@ int sd18_ihead_to_nistcom(NISTCOM **onistcom, IHEAD *ihead)
 }
 
 /*******************************************************************/
-int get_sd_class(char *id_str, const int sd_id, char *oclass)
+int biomeval_nbis_get_sd_class(char *id_str, const int sd_id, char *oclass)
 {
    int ret, n, seqnum;
    char class, ncic_str[BUFSIZE];
 
    if(sd_id == 4){
       if((n = sscanf(id_str, "%*s %c", &class)) <= 0){
-         fprintf(stderr, "ERROR : get_sd_class : getting class");
+         fprintf(stderr, "ERROR : biomeval_nbis_get_sd_class : getting class");
          fprintf(stderr, "letter for Special Database 4\n");
          return(-2);
       }
    }
    else if(sd_id == 10){
       if((n = sscanf(id_str, "%*c%*c%d.%*s %*s %*s %s", &seqnum, ncic_str)) <= 0){
-         fprintf(stderr, "ERROR : get_sd_class : getting seqnum and ");
+         fprintf(stderr, "ERROR : biomeval_nbis_get_sd_class : getting seqnum and ");
          fprintf(stderr, "ncic classes for Special Database 10\n");
          return(-3);
       }
 
-      if((ret = get_class_from_ncic_class_string(ncic_str, seqnum, &class)))
+      if((ret = biomeval_nbis_get_class_from_ncic_class_string(ncic_str, seqnum, &class)))
          return(ret);
    }
    else if(sd_id == 9 || sd_id == 14){
       if((n = sscanf(id_str, "%*c%d.%*s %*s %*s %s", &seqnum, ncic_str)) <= 0){
-         fprintf(stderr, "ERROR : get_sd_class : getting seqnum and ");
+         fprintf(stderr, "ERROR : biomeval_nbis_get_sd_class : getting seqnum and ");
          fprintf(stderr, "ncic classes for Special Database 9 or 14\n");
          return(-4);
       }
 
-      if((ret = get_class_from_ncic_class_string(ncic_str, seqnum, &class)))
+      if((ret = biomeval_nbis_get_class_from_ncic_class_string(ncic_str, seqnum, &class)))
          return(ret);
    }
    else{
-      fprintf(stderr, "ERROR : get_sd_class : Invalid");
+      fprintf(stderr, "ERROR : biomeval_nbis_get_sd_class : Invalid");
       fprintf(stderr, "database id number (%d)\n", sd_id);
       return(-5);
    }
@@ -837,7 +837,7 @@ int get_sd_class(char *id_str, const int sd_id, char *oclass)
 }
 
 /*******************************************************************/
-int get_class_from_ncic_class_string(char *ncic_str, const int seqnum, char *oclass)
+int biomeval_nbis_get_class_from_ncic_class_string(char *ncic_str, const int seqnum, char *oclass)
 {
    char class, *cptr;
    int fing_num, ridge_cnt;
@@ -864,7 +864,7 @@ int get_class_from_ncic_class_string(char *ncic_str, const int seqnum, char *ocl
    else {
       ridge_cnt = atoi(cptr);
       if(ridge_cnt < 1 || ridge_cnt > 99){
-         fprintf(stderr, "ERROR : get_class_from_ncic_class_string : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_get_class_from_ncic_class_string : ");
          fprintf(stderr, "invalid ridge count (%d) from ncic string\n", ridge_cnt);
          return(-2);
       }

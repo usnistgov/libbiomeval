@@ -56,13 +56,13 @@ of the software.
       pixel data.
 
       ROUTINES:
-#cat: wsq_encode_mem - WSQ encodes image data storing the compressed
+#cat: biomeval_nbis_wsq_encode_mem - WSQ encodes image data storing the compressed
 #cat:                   bytes to a memory buffer.
-#cat: gen_hufftable_wsq - Generates a huffman table for a quantized
+#cat: biomeval_nbis_gen_hufftable_wsq - Generates a huffman table for a quantized
 #cat:                   data block.
-#cat: compress_block - Codes a quantized image using huffman tables.
+#cat: biomeval_nbis_compress_block - Codes a quantized image using huffman tables.
 #cat:
-#cat: count_block - Counts the number of occurrences of each category
+#cat: biomeval_nbis_count_block - Counts the number of occurrences of each category
 #cat:                   in a huffman table.
 
 ***********************************************************************/
@@ -79,7 +79,7 @@ of the software.
 /************************************************************************/
 /* WSQ encodes/compresses an image pixmap.                              */
 /************************************************************************/
-int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
+int biomeval_nbis_wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
                    unsigned char *idata, const int w, const int h,
                    const int d, const int ppi, char *comment_text)
 {
@@ -106,7 +106,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    }
 
    /* Convert image pixels to floating point. */
-   if((ret = conv_img_2_flt_ret(fdata, &m_shift, &r_scale, idata, num_pix))) {
+   if((ret = biomeval_nbis_conv_img_2_flt_ret(fdata, &m_shift, &r_scale, idata, num_pix))) {
       free(fdata);
       return(ret);
    }
@@ -115,14 +115,14 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
       fprintf(stderr, "Input image pixels converted to floating point\n\n");
 
    /* Build WSQ decomposition trees */
-   build_wsq_trees(w_tree, W_TREELEN, q_tree, Q_TREELEN, w, h);
+   biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, w, h);
 
    if(debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
 
    /* WSQ decompose the image */
-   if((ret = wsq_decompose(fdata, w, h, w_tree, W_TREELEN,
-                            hifilt, MAX_HIFILT, lofilt, MAX_LOFILT))){
+   if((ret = biomeval_nbis_wsq_decompose(fdata, w, h, biomeval_nbis_w_tree, W_TREELEN,
+                            biomeval_nbis_hifilt, MAX_HIFILT, biomeval_nbis_lofilt, MAX_LOFILT))){
       free(fdata);
       return(ret);
    }
@@ -131,18 +131,18 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
       fprintf(stderr, "WSQ decomposition of image finished\n\n");
 
    /* Set compression ratio and 'q' to zero. */
-   quant_vals.cr = 0;
-   quant_vals.q = 0.0;
+   biomeval_nbis_quant_vals.cr = 0;
+   biomeval_nbis_quant_vals.q = 0.0;
    /* Assign specified r-bitrate into quantization structure. */
-   quant_vals.r = r_bitrate;
+   biomeval_nbis_quant_vals.r = r_bitrate;
    /* Compute subband variances. */
-   variance(&quant_vals, q_tree, Q_TREELEN, fdata, w, h);
+   biomeval_nbis_variance(&biomeval_nbis_quant_vals, biomeval_nbis_q_tree, Q_TREELEN, fdata, w, h);
 
    if(debug > 0)
       fprintf(stderr, "Subband variances computed\n\n");
 
    /* Quantize the floating point pixmap. */
-   if((ret = quantize(&qdata, &qsize, &quant_vals, q_tree, Q_TREELEN,
+   if((ret = biomeval_nbis_quantize(&qdata, &qsize, &biomeval_nbis_quant_vals, biomeval_nbis_q_tree, Q_TREELEN,
                       fdata, w, h))){
       free(fdata);
       return(ret);
@@ -155,8 +155,8 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
       fprintf(stderr, "WSQ subband decomposition data quantized\n\n");
 
    /* Compute quantized WSQ subband block sizes */
-   quant_block_sizes(&qsize1, &qsize2, &qsize3, &quant_vals,
-                           w_tree, W_TREELEN, q_tree, Q_TREELEN);
+   biomeval_nbis_quant_block_sizes(&qsize1, &qsize2, &qsize3, &biomeval_nbis_quant_vals,
+                           biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN);
 
    if(qsize != qsize1+qsize2+qsize3){
       fprintf(stderr,
@@ -179,13 +179,13 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    wsq_len = 0;
 
    /* Add a Start Of Image (SOI) marker to the WSQ buffer. */
-   if((ret = putc_ushort(SOI_WSQ, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_ushort(SOI_WSQ, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       return(ret);
    }
 
-   if((ret = putc_nistcom_wsq(comment_text, w, h, d, ppi, 1 /* lossy */,
+   if((ret = biomeval_nbis_putc_nistcom_wsq(comment_text, w, h, d, ppi, 1 /* lossy */,
                              r_bitrate, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -193,8 +193,8 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    }
 
    /* Store the Wavelet filter taps to the WSQ buffer. */
-   if((ret = putc_transform_table(lofilt, MAX_LOFILT,
-                                 hifilt, MAX_HIFILT,
+   if((ret = biomeval_nbis_putc_transform_table(biomeval_nbis_lofilt, MAX_LOFILT,
+                                 biomeval_nbis_hifilt, MAX_HIFILT,
                                  wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -202,7 +202,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    }
 
    /* Store the quantization parameters to the WSQ buffer. */
-   if((ret = putc_quantization_table(&quant_vals,
+   if((ret = biomeval_nbis_putc_quantization_table(&biomeval_nbis_quant_vals,
                                     wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -210,7 +210,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    }
 
    /* Store a frame header to the WSQ buffer. */
-   if((ret = putc_frame_header_wsq(w, h, m_shift, r_scale,
+   if((ret = biomeval_nbis_putc_frame_header_wsq(w, h, m_shift, r_scale,
                               wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -236,7 +236,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    /* ENCODE Block 1 */
    /******************/
    /* Compute Huffman table for Block 1. */
-   if((ret = gen_hufftable_wsq(&hufftable, &huffbits, &huffvalues,
+   if((ret = biomeval_nbis_gen_hufftable_wsq(&hufftable, &huffbits, &huffvalues,
                               qdata, &qsize1, 1))){
       free(qdata);
       free(wsq_data);
@@ -245,7 +245,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    }
 
    /* Store Huffman table for Block 1 to WSQ buffer. */
-   if((ret = putc_huffman_table(DHT_WSQ, 0, huffbits, huffvalues,
+   if((ret = biomeval_nbis_putc_huffman_table(DHT_WSQ, 0, huffbits, huffvalues,
                                wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -262,7 +262,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
       fprintf(stderr, "Huffman code Table 1 generated and written\n\n");
 
    /* Compress Block 1 data. */
-   if((ret = compress_block(huff_buf, &hsize1, qdata, qsize1,
+   if((ret = biomeval_nbis_compress_block(huff_buf, &hsize1, qdata, qsize1,
                            MAX_HUFFCOEFF, MAX_HUFFZRUN, hufftable))){
       free(qdata);
       free(wsq_data);
@@ -277,7 +277,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    hsize = hsize1;
 
    /* Store Block 1's header to WSQ buffer. */
-   if((ret = putc_block_header(0, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_block_header(0, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       free(huff_buf);
@@ -285,7 +285,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    }
 
    /* Store Block 1's compressed data to WSQ buffer. */
-   if((ret = putc_bytes(huff_buf, hsize1, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_bytes(huff_buf, hsize1, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       free(huff_buf);
@@ -301,7 +301,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    /* Compute  Huffman table for Blocks 2 & 3. */
    block_sizes[0] = qsize2;
    block_sizes[1] = qsize3;
-   if((ret = gen_hufftable_wsq(&hufftable, &huffbits, &huffvalues,
+   if((ret = biomeval_nbis_gen_hufftable_wsq(&hufftable, &huffbits, &huffvalues,
                           qdata+qsize1, block_sizes, 2))){
       free(qdata);
       free(wsq_data);
@@ -310,7 +310,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    }
 
    /* Store Huffman table for Blocks 2 & 3 to WSQ buffer. */
-   if((ret = putc_huffman_table(DHT_WSQ, 1, huffbits, huffvalues,
+   if((ret = biomeval_nbis_putc_huffman_table(DHT_WSQ, 1, huffbits, huffvalues,
                                wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
@@ -327,7 +327,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
       fprintf(stderr, "Huffman code Table 2 generated and written\n\n");
 
    /* Compress Block 2 data. */
-   if((ret = compress_block(huff_buf, &hsize2, qdata+qsize1, qsize2,
+   if((ret = biomeval_nbis_compress_block(huff_buf, &hsize2, qdata+qsize1, qsize2,
                            MAX_HUFFCOEFF, MAX_HUFFZRUN, hufftable))){
       free(qdata);
       free(wsq_data);
@@ -340,7 +340,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    hsize += hsize2;
 
    /* Store Block 2's header to WSQ buffer. */
-   if((ret = putc_block_header(1, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_block_header(1, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       free(huff_buf);
@@ -349,7 +349,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    }
 
    /* Store Block 2's compressed data to WSQ buffer. */
-   if((ret = putc_bytes(huff_buf, hsize2, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_bytes(huff_buf, hsize2, wsq_data, wsq_alloc, &wsq_len))){
       free(qdata);
       free(wsq_data);
       free(huff_buf);
@@ -364,7 +364,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    /* ENCODE Block 3 */
    /******************/
    /* Compress Block 3 data. */
-   if((ret = compress_block(huff_buf, &hsize3, qdata+qsize1+qsize2, qsize3,
+   if((ret = biomeval_nbis_compress_block(huff_buf, &hsize3, qdata+qsize1+qsize2, qsize3,
                            MAX_HUFFCOEFF, MAX_HUFFZRUN, hufftable))){
       free(qdata);
       free(wsq_data);
@@ -382,14 +382,14 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    hsize += hsize3;
 
    /* Store Block 3's header to WSQ buffer. */
-   if((ret = putc_block_header(1, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_block_header(1, wsq_data, wsq_alloc, &wsq_len))){
       free(wsq_data);
       free(huff_buf);
       return(ret);
    }
 
    /* Store Block 3's compressed data to WSQ buffer. */
-   if((ret = putc_bytes(huff_buf, hsize3, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_bytes(huff_buf, hsize3, wsq_data, wsq_alloc, &wsq_len))){
       free(wsq_data);
       free(huff_buf);
       return(ret);
@@ -402,7 +402,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
    free(huff_buf);
 
    /* Add a End Of Image (EOI) marker to the WSQ buffer. */
-   if((ret = putc_ushort(EOI_WSQ, wsq_data, wsq_alloc, &wsq_len))){
+   if((ret = biomeval_nbis_putc_ushort(EOI_WSQ, wsq_data, wsq_alloc, &wsq_len))){
       free(wsq_data);
       return(ret);
    }
@@ -424,7 +424,7 @@ int wsq_encode_mem(unsigned char **odata, int *olen, const float r_bitrate,
 /*************************************************************/
 /* Generate a Huffman code table for a quantized data block. */
 /*************************************************************/
-int gen_hufftable_wsq(HUFFCODE **ohufftable, unsigned char **ohuffbits,
+int biomeval_nbis_gen_hufftable_wsq(HUFFCODE **ohufftable, unsigned char **ohuffbits,
                unsigned char **ohuffvalues, short *sip, const int *block_sizes,
                const int num_sizes)
 {
@@ -439,12 +439,12 @@ int gen_hufftable_wsq(HUFFCODE **ohufftable, unsigned char **ohuffbits,
    int *huffcounts2;    /* counts for each huffman category */
    HUFFCODE *hufftable1, *hufftable2;  /* hufftables */
 
-   if((ret = count_block(&huffcounts, MAX_HUFFCOUNTS_WSQ,
+   if((ret = biomeval_nbis_count_block(&huffcounts, MAX_HUFFCOUNTS_WSQ,
 			 sip, block_sizes[0], MAX_HUFFCOEFF, MAX_HUFFZRUN)))
       return(ret);
 
    for(i = 1; i < num_sizes; i++) {
-      if((ret = count_block(&huffcounts2, MAX_HUFFCOUNTS_WSQ,
+      if((ret = biomeval_nbis_count_block(&huffcounts2, MAX_HUFFCOUNTS_WSQ,
                            sip+block_sizes[i-1], block_sizes[i],
                            MAX_HUFFCOEFF, MAX_HUFFZRUN)))
          return(ret);
@@ -455,42 +455,42 @@ int gen_hufftable_wsq(HUFFCODE **ohufftable, unsigned char **ohuffbits,
       free(huffcounts2);
    }
 
-   if((ret = find_huff_sizes(&codesize, huffcounts, MAX_HUFFCOUNTS_WSQ))){
+   if((ret = biomeval_nbis_find_huff_sizes(&codesize, huffcounts, MAX_HUFFCOUNTS_WSQ))){
       free(huffcounts);
       return(ret);
    }
    free(huffcounts);
 
-   if((ret = find_num_huff_sizes(&huffbits, &adjust, codesize,
+   if((ret = biomeval_nbis_find_num_huff_sizes(&huffbits, &adjust, codesize,
                                 MAX_HUFFCOUNTS_WSQ))){
       free(codesize);
       return(ret);
    }
 
    if(adjust){
-      if((ret = sort_huffbits(huffbits))){
+      if((ret = biomeval_nbis_sort_huffbits(huffbits))){
          free(codesize);
          free(huffbits);
          return(ret);
       }
    }
 
-   if((ret = sort_code_sizes(&huffvalues, codesize, MAX_HUFFCOUNTS_WSQ))){
+   if((ret = biomeval_nbis_sort_code_sizes(&huffvalues, codesize, MAX_HUFFCOUNTS_WSQ))){
       free(codesize);
       free(huffbits);
       return(ret);
    }
    free(codesize);
 
-   if((ret = build_huffsizes(&hufftable1, &last_size,
+   if((ret = biomeval_nbis_build_huffsizes(&hufftable1, &last_size,
                               huffbits, MAX_HUFFCOUNTS_WSQ))){
       free(huffbits);
       free(huffvalues);
       return(ret);
    }
 
-   build_huffcodes(hufftable1);
-   if((ret = check_huffcodes_wsq(hufftable1, last_size))){
+   biomeval_nbis_build_huffcodes(hufftable1);
+   if((ret = biomeval_nbis_check_huffcodes_wsq(hufftable1, last_size))){
       fprintf(stderr, "ERROR: This huffcode warning is an error ");
       fprintf(stderr, "for the encoder.\n");
       free(huffbits);
@@ -499,7 +499,7 @@ int gen_hufftable_wsq(HUFFCODE **ohufftable, unsigned char **ohuffbits,
       return(ret);
    }
 
-   if((ret = build_huffcode_table(&hufftable2, hufftable1, last_size,
+   if((ret = biomeval_nbis_build_huffcode_table(&hufftable2, hufftable1, last_size,
                                  huffvalues, MAX_HUFFCOUNTS_WSQ))){
       free(huffbits);
       free(huffvalues);
@@ -519,7 +519,7 @@ int gen_hufftable_wsq(HUFFCODE **ohufftable, unsigned char **ohuffbits,
 /*****************************************************************/
 /* Routine "codes" the quantized image using the huffman tables. */
 /*****************************************************************/
-int compress_block(
+int biomeval_nbis_compress_block(
    unsigned char *outbuf,       /* compressed output buffer            */
    int   *obytes,       /* number of compressed bytes          */
    short *sip,          /* quantized image                     */
@@ -534,7 +534,7 @@ int compress_block(
    unsigned int rcnt = 0, state;  /* zero run count and if current pixel
                              is in a zero run or just a coefficient */
    int cnt;               /* pixel counter */
-   int outbit, bytes;     /* parameters used by write_bits to */
+   int outbit, bytes;     /* parameters used by biomeval_nbis_write_bits to */
    unsigned char bits;            /* output the "coded" image to the  */
                           /* output buffer                    */
 
@@ -558,38 +558,38 @@ int compress_block(
             if (pix > MaxCoeff) { 
                if (pix > 255) {
                   /* 16bit pos esc */
-                  write_bits( &optr, (unsigned short) codes[103].code,
+                  biomeval_nbis_write_bits( &optr, (unsigned short) codes[103].code,
                               codes[103].size, &outbit, &bits, &bytes );
-                  write_bits( &optr, (unsigned short) pix, 16,
+                  biomeval_nbis_write_bits( &optr, (unsigned short) pix, 16,
                               &outbit, &bits, &bytes);
                }
                else {
                   /* 8bit pos esc */
-                  write_bits( &optr, (unsigned short) codes[101].code,
+                  biomeval_nbis_write_bits( &optr, (unsigned short) codes[101].code,
                               codes[101].size, &outbit, &bits, &bytes );
-                  write_bits( &optr, (unsigned short) pix, 8,
+                  biomeval_nbis_write_bits( &optr, (unsigned short) pix, 8,
                               &outbit, &bits, &bytes);
                }
             }
             else if (pix < LoMaxCoeff) {
                if (pix < -255) {
                   /* 16bit neg esc */
-                  write_bits( &optr, (unsigned short) codes[104].code,
+                  biomeval_nbis_write_bits( &optr, (unsigned short) codes[104].code,
                               codes[104].size, &outbit, &bits, &bytes );
-                  write_bits( &optr, (unsigned short) -pix, 16,
+                  biomeval_nbis_write_bits( &optr, (unsigned short) -pix, 16,
                               &outbit, &bits, &bytes);
                }
                else {
                   /* 8bit neg esc */
-                  write_bits( &optr, (unsigned short) codes[102].code,
+                  biomeval_nbis_write_bits( &optr, (unsigned short) codes[102].code,
                               codes[102].size, &outbit, &bits, &bytes );
-                  write_bits( &optr, (unsigned short) -pix, 8,
+                  biomeval_nbis_write_bits( &optr, (unsigned short) -pix, 8,
                               &outbit, &bits, &bytes);
                }
             }
             else {
                /* within table */
-               write_bits( &optr, (unsigned short) codes[pix+180].code,
+               biomeval_nbis_write_bits( &optr, (unsigned short) codes[pix+180].code,
                            codes[pix+180].size, &outbit, &bits, &bytes);
             }
             break;
@@ -601,26 +601,26 @@ int compress_block(
             }
             if (rcnt <= MaxZRun) {
                /* log zero run length */
-               write_bits( &optr, (unsigned short) codes[rcnt].code,
+               biomeval_nbis_write_bits( &optr, (unsigned short) codes[rcnt].code,
                            codes[rcnt].size, &outbit, &bits, &bytes );
             }
             else if (rcnt <= 0xFF) {
                /* 8bit zrun esc */
-               write_bits( &optr, (unsigned short) codes[105].code,
+               biomeval_nbis_write_bits( &optr, (unsigned short) codes[105].code,
                            codes[105].size, &outbit, &bits, &bytes );
-               write_bits( &optr, (unsigned short) rcnt, 8,
+               biomeval_nbis_write_bits( &optr, (unsigned short) rcnt, 8,
                            &outbit, &bits, &bytes);
             }
             else if (rcnt <= 0xFFFF) {
                /* 16bit zrun esc */
-               write_bits( &optr, (unsigned short) codes[106].code,
+               biomeval_nbis_write_bits( &optr, (unsigned short) codes[106].code,
                            codes[106].size, &outbit, &bits, &bytes );
-               write_bits( &optr, (unsigned short) rcnt, 16,
+               biomeval_nbis_write_bits( &optr, (unsigned short) rcnt, 16,
                            &outbit, &bits, &bytes);
             }
             else {
                fprintf(stderr,
-                      "ERROR : compress_block : zrun too large.\n");
+                      "ERROR : biomeval_nbis_compress_block : zrun too large.\n");
                return(-47);
             }
 
@@ -629,38 +629,38 @@ int compress_block(
                   /** log current pix **/
                   if (pix > 255) {
                      /* 16bit pos esc */
-                     write_bits( &optr, (unsigned short) codes[103].code,
+                     biomeval_nbis_write_bits( &optr, (unsigned short) codes[103].code,
                                  codes[103].size, &outbit, &bits, &bytes );
-                     write_bits( &optr, (unsigned short) pix, 16,
+                     biomeval_nbis_write_bits( &optr, (unsigned short) pix, 16,
                                  &outbit, &bits, &bytes);
                   }
                   else {
                      /* 8bit pos esc */
-                     write_bits( &optr, (unsigned short) codes[101].code,
+                     biomeval_nbis_write_bits( &optr, (unsigned short) codes[101].code,
                                  codes[101].size, &outbit, &bits, &bytes );
-                     write_bits( &optr, (unsigned short) pix, 8,
+                     biomeval_nbis_write_bits( &optr, (unsigned short) pix, 8,
                                  &outbit, &bits, &bytes);
                   }
                }
                else if (pix < LoMaxCoeff) {
                   if (pix < -255) {
                      /* 16bit neg esc */
-                     write_bits( &optr, (unsigned short) codes[104].code,
+                     biomeval_nbis_write_bits( &optr, (unsigned short) codes[104].code,
                                  codes[104].size, &outbit, &bits, &bytes );
-                     write_bits( &optr, (unsigned short) -pix, 16,
+                     biomeval_nbis_write_bits( &optr, (unsigned short) -pix, 16,
                                  &outbit, &bits, &bytes);
                   }
                   else {
                      /* 8bit neg esc */
-                     write_bits( &optr, (unsigned short) codes[102].code,
+                     biomeval_nbis_write_bits( &optr, (unsigned short) codes[102].code,
                                  codes[102].size, &outbit, &bits, &bytes );
-                     write_bits( &optr, (unsigned short) -pix, 8,
+                     biomeval_nbis_write_bits( &optr, (unsigned short) -pix, 8,
                                  &outbit, &bits, &bytes);
                   }
                }
                else {
                   /* within table */
-                  write_bits( &optr, (unsigned short) codes[pix+180].code,
+                  biomeval_nbis_write_bits( &optr, (unsigned short) codes[pix+180].code,
                               codes[pix+180].size, &outbit, &bits, &bytes);
                }
                state = COEFF_CODE;
@@ -674,28 +674,28 @@ int compress_block(
    }
    if (state == RUN_CODE) {
       if (rcnt <= MaxZRun) {
-         write_bits( &optr, (unsigned short) codes[rcnt].code,
+         biomeval_nbis_write_bits( &optr, (unsigned short) codes[rcnt].code,
                      codes[rcnt].size, &outbit, &bits, &bytes );
       }
       else if (rcnt <= 0xFF) {
-         write_bits( &optr, (unsigned short) codes[105].code,
+         biomeval_nbis_write_bits( &optr, (unsigned short) codes[105].code,
                      codes[105].size, &outbit, &bits, &bytes );
-         write_bits( &optr, (unsigned short) rcnt, 8,
+         biomeval_nbis_write_bits( &optr, (unsigned short) rcnt, 8,
                      &outbit, &bits, &bytes);
       }
       else if (rcnt <= 0xFFFF) {
-         write_bits( &optr, (unsigned short) codes[106].code,
+         biomeval_nbis_write_bits( &optr, (unsigned short) codes[106].code,
                      codes[106].size, &outbit, &bits, &bytes );
-         write_bits( &optr, (unsigned short) rcnt, 16,
+         biomeval_nbis_write_bits( &optr, (unsigned short) rcnt, 16,
                      &outbit, &bits, &bytes);
       }
       else {
-         fprintf(stderr, "ERROR : compress_block : zrun2 too large.\n");
+         fprintf(stderr, "ERROR : biomeval_nbis_compress_block : zrun2 too large.\n");
          return(-48);
       }
    }
 
-   flush_bits( &optr, &outbit, &bits, &bytes);
+   biomeval_nbis_flush_bits( &optr, &outbit, &bits, &bytes);
 
    *obytes = bytes;
    return(0);
@@ -705,7 +705,7 @@ int compress_block(
 /* This routine counts the number of occurences of each category */
 /* in the huffman coding tables.                                 */
 /*****************************************************************/
-int count_block(
+int biomeval_nbis_count_block(
    int **ocounts,     /* output count for each huffman catetory */
    const int max_huffcounts, /* maximum number of counts */
    short *sip,          /* quantized data */
@@ -724,7 +724,7 @@ int count_block(
    counts = (int *)calloc(max_huffcounts+1, sizeof(int));
    if(counts == (int *)NULL){
       fprintf(stderr,
-      "ERROR : count_block : calloc : counts\n");
+      "ERROR : biomeval_nbis_count_block : calloc : counts\n");
       return(-48);
    }
    /* Set last count to 1. */
@@ -772,7 +772,7 @@ int count_block(
                counts[106]++; /* 16bit zrun esc */
             else {
                fprintf(stderr,
-               "ERROR: count_block : Zrun to long in count block.\n");
+               "ERROR: biomeval_nbis_count_block : Zrun to long in count block.\n");
                return(-49);
             }
 
@@ -809,7 +809,7 @@ int count_block(
          counts[106]++; /* 16bit zrun esc */
       else {
          fprintf(stderr,
-         "ERROR: count_block : Zrun to long in count block.\n");
+         "ERROR: biomeval_nbis_count_block : Zrun to long in count block.\n");
          return(-50);
       }
    }

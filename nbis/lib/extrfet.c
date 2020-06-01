@@ -56,9 +56,9 @@ of the software.
       paired list.
 
       ROUTINES:
-#cat: extractfet - returns the specified feature entry from an fet structure.
+#cat: biomeval_nbis_extractfet - returns the specified feature entry from an fet structure.
 #cat:              Exits on error.
-#cat: extractfet_ret - returns the specified feature entry from an fet
+#cat: biomeval_nbis_extractfet_ret - returns the specified feature entry from an fet
 #cat:              structure.  Returns on error.
 
 ***********************************************************************/
@@ -71,7 +71,7 @@ of the software.
 
 
 /*******************************************************************/
-char *extractfet(char *feature, FET *fet)
+char *biomeval_nbis_extractfet(char *feature, FET *fet)
 {
   int item;
   char *value;
@@ -81,12 +81,12 @@ char *extractfet(char *feature, FET *fet)
        (item < fet->num) && (strcmp(fet->names[item],feature) != 0);
        item++);
   if (item>=fet->num)
-     fatalerr("extractfet",feature,"not found");
+     biomeval_nbis_fatalerr("biomeval_nbis_extractfet",feature,"not found");
   if(fet->values[item] != (char *)NULL){
       len = strlen(fet->values[item]) + 1;
       value = malloc(len);
       if (value == (char *)NULL)
-         syserr("extractfet","malloc","value");
+         biomeval_nbis_syserr("biomeval_nbis_extractfet","malloc","value");
       strncpy(value, fet->values[item], len);
   }
   else
@@ -95,7 +95,7 @@ char *extractfet(char *feature, FET *fet)
 }
 
 /*******************************************************************/
-int extractfet_ret(char **ovalue, char *feature, FET *fet)
+int biomeval_nbis_extractfet_ret(char **ovalue, char *feature, FET *fet)
 {
   int item;
   char *value;
@@ -105,7 +105,7 @@ int extractfet_ret(char **ovalue, char *feature, FET *fet)
        (item < fet->num) && (strcmp(fet->names[item],feature) != 0);
        item++);
   if (item>=fet->num){
-     fprintf(stderr, "ERROR : extractfet_ret : feature %s not found\n",
+     fprintf(stderr, "ERROR : biomeval_nbis_extractfet_ret : feature %s not found\n",
              feature);
      return(-2);
   }
@@ -113,7 +113,7 @@ int extractfet_ret(char **ovalue, char *feature, FET *fet)
       len = strlen(fet->values[item]) + 1;
       value = malloc(len);
       if (value == (char *)NULL){
-         fprintf(stderr, "ERROR : extractfet_ret : malloc : value\n");
+         fprintf(stderr, "ERROR : biomeval_nbis_extractfet_ret : malloc : value\n");
          return(-3);
      }
      strncpy(value, fet->values[item], len);

@@ -55,9 +55,9 @@ of the software.
       compression algorithm markers in a compressed datastream.
 
       ROUTINES:
-#cat: read_skip_marker_segment - skips the segment data following a
+#cat: biomeval_nbis_read_skip_marker_segment - skips the segment data following a
 #cat:           JPEGB, JPEGL, or WSQ marker in the open filestream.
-#cat: getc_skip_marker_segment - skips the segment data following a
+#cat: biomeval_nbis_getc_skip_marker_segment - skips the segment data following a
 #cat:           JPEGB, JPEGL, or WSQ marker in the given memory buffer.
 
 ***********************************************************************/
@@ -69,20 +69,20 @@ of the software.
 /* Skips the segment data following a JPEGB, JPEGL, or WSQ       */
 /* marker in the open filestream.                                */
 /*****************************************************************/
-int read_skip_marker_segment(const unsigned short marker, FILE *infp)
+int biomeval_nbis_read_skip_marker_segment(const unsigned short marker, FILE *infp)
 {
    int ret;
    unsigned short length;
 
    /* Get ushort Length. */
-   if((ret = read_ushort(&length, infp)))
+   if((ret = biomeval_nbis_read_ushort(&length, infp)))
       return(ret);
 
    length -= 2;
 
    /* Bump file pointer forward. */
    if(fseek(infp, length, SEEK_CUR) < 0){
-      fprintf(stderr, "ERROR : read_skip_marker_segment : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_skip_marker_segment : ");
       fprintf(stderr, "unable to advance file pointer to skip ");
       fprintf(stderr, "marker %d segment of length %d\n", marker, length);
       return(-2);
@@ -95,21 +95,21 @@ int read_skip_marker_segment(const unsigned short marker, FILE *infp)
 /* Skips the segment data following a JPEGB, JPEGL, or WSQ       */
 /* marker in the given memory buffer.                            */
 /*****************************************************************/
-int getc_skip_marker_segment(const unsigned short marker,
+int biomeval_nbis_getc_skip_marker_segment(const unsigned short marker,
                      unsigned char **cbufptr, unsigned char *ebufptr)
 {
    int ret;
    unsigned short length;
 
    /* Get ushort Length. */
-   if((ret = getc_ushort(&length, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&length, cbufptr, ebufptr)))
       return(ret);
 
    length -= 2;
 
    /* Check for EOB ... */
    if(((*cbufptr)+length) >= ebufptr){
-      fprintf(stderr, "ERROR : getc_skip_marker_segment : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_getc_skip_marker_segment : ");
       fprintf(stderr, "unexpected end of buffer when parsing ");
       fprintf(stderr, "marker %d segment of length %d\n", marker, length);
       return(-2);

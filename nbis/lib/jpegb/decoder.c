@@ -16,10 +16,10 @@
       modified to fit our needs.
 
       ROUTINES:
-#cat: jpegb_decode_mem - Decodes a datastream of JPEGB compressed bytes
+#cat: biomeval_nbis_jpegb_decode_mem - Decodes a datastream of JPEGB compressed bytes
 #cat:                    from a memory buffer, returning a lossy
 #cat:                    reconstructed pixmap.
-#cat: jpegb_decode_file - Decodes a datastream of JPEGB compressed bytes
+#cat: biomeval_nbis_jpegb_decode_file - Decodes a datastream of JPEGB compressed bytes
 #cat:                    from an open file, returning a lossy
 #cat:                    reconstructed pixmap.
 
@@ -36,7 +36,7 @@
 /* JPEGB Decoder routine.  Takes a Baseline JPEG compressed          */
 /* memory buffer and decodes it, returning the reconstructed pixmap. */
 /*********************************************************************/
-int jpegb_decode_mem(unsigned char **oout_buffer,
+int biomeval_nbis_jpegb_decode_mem(unsigned char **oout_buffer,
                      int *ow, int *oh, int *od, int *oppi, int *lossy_flag,
                      unsigned char *in_buffer, const int in_buffer_size)
 {
@@ -56,7 +56,7 @@ int jpegb_decode_mem(unsigned char **oout_buffer,
   /* Now we can initialize the JPEG decompression object. */
   jpeg_create_decompress(&cinfo);
 
-  jpeg_membuf_src(&cinfo, (JOCTET *)in_buffer, (size_t)in_buffer_size);
+  biomeval_nbis_jpeg_membuf_src(&cinfo, (JOCTET *)in_buffer, (size_t)in_buffer_size);
 
   /* Step 3: read file parameters with jpeg_read_header() */
 
@@ -126,7 +126,7 @@ int jpegb_decode_mem(unsigned char **oout_buffer,
   *ow = cinfo.output_width;
   *oh = cinfo.output_height;
   *od = cinfo.output_components<<3;
-  if((ret = get_ppi_jpegb(oppi, &cinfo))){
+  if((ret = biomeval_nbis_get_ppi_jpegb(oppi, &cinfo))){
       free(out_buffer);
       return(ret);
   }
@@ -154,7 +154,7 @@ int jpegb_decode_mem(unsigned char **oout_buffer,
 }
 
 /*********************************************************************/
-int jpegb_decode_file(unsigned char **oout_buffer,
+int biomeval_nbis_jpegb_decode_file(unsigned char **oout_buffer,
                       int *ow, int *oh, int *od, int *oppi, int *lossy_flag,
                       FILE *infp)
 {
@@ -216,7 +216,7 @@ int jpegb_decode_file(unsigned char **oout_buffer,
                          cinfo.output_height * cinfo.output_components *
                          sizeof(unsigned char));
   if(out_buffer == (unsigned char *)NULL){
-    fprintf(stderr, "ERROR : jpegb_decode_file : malloc : out_buffer\n");
+    fprintf(stderr, "ERROR : biomeval_nbis_jpegb_decode_file : malloc : out_buffer\n");
     return(-2);
   }
 
@@ -244,7 +244,7 @@ int jpegb_decode_file(unsigned char **oout_buffer,
   *ow = cinfo.output_width;
   *oh = cinfo.output_height;
   *od = cinfo.output_components<<3;
-  if((ret = get_ppi_jpegb(oppi, &cinfo))){
+  if((ret = biomeval_nbis_get_ppi_jpegb(oppi, &cinfo))){
       free(out_buffer);
       return(ret);
   }

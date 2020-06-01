@@ -54,9 +54,9 @@ of the software.
       memory buffer.
 
       ROUTINES:
-#cat: jpeg_membuf_dest - JPEGB destination manager designed to write
+#cat: biomeval_nbis_jpeg_membuf_dest - JPEGB destination manager designed to write
 #cat:                    compression results to a memory buffer.
-#cat: jpeg_membuf_src - JPEGB source manager designed to read compressed
+#cat: biomeval_nbis_jpeg_membuf_src - JPEGB source manager designed to read compressed
 #cat:                    data from a memory buffer.
 
 ***********************************************************************/
@@ -118,12 +118,12 @@ typedef my_source_mgr * my_src_ptr;
  */
 
 METHODDEF(void)
-init_destination (j_compress_ptr cinfo)
+biomeval_nbis_init_destination (j_compress_ptr cinfo)
 {
   my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
 
   /* The output buffer must already be allocated and then set, */
-  /* for example, by jpeg_membuf_dest(). */
+  /* for example, by biomeval_nbis_jpeg_membuf_dest(). */
 
   /* Set next_output_byte to beginning of output buffer. */
   dest->pub.next_output_byte = dest->out_buffer;
@@ -143,7 +143,7 @@ init_destination (j_compress_ptr cinfo)
  */
 
 METHODDEF(boolean)
-empty_output_buffer (j_compress_ptr cinfo)
+biomeval_nbis_empty_output_buffer (j_compress_ptr cinfo)
 {
   ERREXIT(cinfo, JERR_BUFFER_SIZE);
 
@@ -158,7 +158,7 @@ empty_output_buffer (j_compress_ptr cinfo)
  */
 
 METHODDEF(void)
-term_destination (j_compress_ptr cinfo)
+biomeval_nbis_term_destination (j_compress_ptr cinfo)
 {
   /* no work necessary here */
 }
@@ -170,7 +170,7 @@ term_destination (j_compress_ptr cinfo)
  */
 
 GLOBAL(void)
-jpeg_membuf_dest (j_compress_ptr cinfo,
+biomeval_nbis_jpeg_membuf_dest (j_compress_ptr cinfo,
                  JOCTET *out_buffer, size_t out_buffer_size)
 {
   my_dest_ptr dest;
@@ -186,9 +186,9 @@ jpeg_membuf_dest (j_compress_ptr cinfo,
   }
 
   dest = (my_dest_ptr) cinfo->dest;
-  dest->pub.init_destination = init_destination;
-  dest->pub.empty_output_buffer = empty_output_buffer;
-  dest->pub.term_destination = term_destination;
+  dest->pub.init_destination = biomeval_nbis_init_destination;
+  dest->pub.empty_output_buffer = biomeval_nbis_empty_output_buffer;
+  dest->pub.term_destination = biomeval_nbis_term_destination;
   dest->out_buffer = out_buffer;
   dest->out_buffer_size = out_buffer_size;
 }
@@ -203,12 +203,12 @@ jpeg_membuf_dest (j_compress_ptr cinfo,
  */
 
 METHODDEF(void)
-init_source (j_decompress_ptr cinfo)
+biomeval_nbis_init_source (j_decompress_ptr cinfo)
 {
   my_src_ptr src = (my_src_ptr) cinfo->src;
 
   /* The input buffer must already be allocated, filled, and then set, */
-  /* for example, by jpeg_membuf_src(). */
+  /* for example, by biomeval_nbis_jpeg_membuf_src(). */
 
   /* Set next_input_byte to beginning of input buffer. */
   src->pub.next_input_byte = src->in_buffer;
@@ -226,7 +226,7 @@ init_source (j_decompress_ptr cinfo)
  */
 
 METHODDEF(boolean)
-fill_input_buffer (j_decompress_ptr cinfo)
+biomeval_nbis_fill_input_buffer (j_decompress_ptr cinfo)
 {
   ERREXIT(cinfo, JERR_TOO_LITTLE_DATA);
   return TRUE;
@@ -239,7 +239,7 @@ fill_input_buffer (j_decompress_ptr cinfo)
  */
 
 METHODDEF(void)
-skip_input_data (j_decompress_ptr cinfo, long num_bytes)
+biomeval_nbis_skip_input_data (j_decompress_ptr cinfo, long num_bytes)
 {
   my_src_ptr src = (my_src_ptr) cinfo->src;
 
@@ -270,7 +270,7 @@ skip_input_data (j_decompress_ptr cinfo, long num_bytes)
  */
 
 METHODDEF(void)
-term_source (j_decompress_ptr cinfo)
+biomeval_nbis_term_source (j_decompress_ptr cinfo)
 {
   /* no work necessary here */
 }
@@ -283,7 +283,7 @@ term_source (j_decompress_ptr cinfo)
  */
 
 GLOBAL(void)
-jpeg_membuf_src (j_decompress_ptr cinfo,
+biomeval_nbis_jpeg_membuf_src (j_decompress_ptr cinfo,
                  JOCTET *in_buffer, size_t in_buffer_size)
 {
   my_src_ptr src;
@@ -299,11 +299,11 @@ jpeg_membuf_src (j_decompress_ptr cinfo,
   }
 
   src = (my_src_ptr) cinfo->src;
-  src->pub.init_source = init_source;
-  src->pub.fill_input_buffer = fill_input_buffer;
-  src->pub.skip_input_data = skip_input_data;
+  src->pub.init_source = biomeval_nbis_init_source;
+  src->pub.fill_input_buffer = biomeval_nbis_fill_input_buffer;
+  src->pub.skip_input_data = biomeval_nbis_skip_input_data;
   src->pub.resync_to_restart = jpeg_resync_to_restart; /* use default method */
-  src->pub.term_source = term_source;
+  src->pub.term_source = biomeval_nbis_term_source;
   src->in_buffer = in_buffer;
   src->in_buffer_size = in_buffer_size;
 }

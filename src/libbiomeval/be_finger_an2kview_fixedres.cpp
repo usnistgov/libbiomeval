@@ -66,7 +66,7 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
 	FIELD *field;
 	int idx;
 	Memory::AutoBuffer<ANSI_NIST> an2k = AN2KView::getAN2K();
-	if (lookup_ANSI_NIST_field(&field, &idx, NSR_ID, an2k->records[0])
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, NSR_ID, an2k->records[0])
 	    != TRUE)
 		throw Error::DataError("Field NSR not found");
 	double nsr =
@@ -79,7 +79,7 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
 	 * native resolution read from the Type-1 record, or the minimum
 	 * resolution from AN2K.
 	 */
-	if (lookup_ANSI_NIST_field(&field, &idx, ISR_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, ISR_ID, record) != TRUE)
 		throw Error::DataError("Field ISR not found");
 	int isr = atoi((char *)field->subfields[0]->items[0]->value);
 
@@ -113,14 +113,14 @@ BiometricEvaluation::Finger::AN2KViewFixedResolution::readImageRecord(
 	AN2KView::setScanResolution(ir);
 	AN2KView::setImageColorDepth(FixedResolutionBitDepth);
 		
-	if (lookup_ANSI_NIST_field(&field, &idx, BIN_CA_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, BIN_CA_ID, record) != TRUE)
 		throw Error::DataError("Field BIN_CA not found");
 	AN2KView::setCompressionAlgorithm(
 	    AN2KView::convertCompressionAlgorithm((*record).type,
 	    field->subfields[0]->items[0]->value));
 
 	/* Retrieve the image data */
-	if (lookup_ANSI_NIST_field(&field, &idx, BIN_IMAGE_ID, record) != TRUE)
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, BIN_IMAGE_ID, record) != TRUE)
 		throw Error::DataError("Field BIN_IMAGE not found");
 	Memory::AutoArray<uint8_t> data = Memory::AutoArray<uint8_t>(
 		    field->subfields[0]->items[0]->num_bytes);

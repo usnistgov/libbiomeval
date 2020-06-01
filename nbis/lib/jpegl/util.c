@@ -54,9 +54,9 @@ of the software.
       (lossless) image compression.
 
       ROUTINES:
-#cat: predict - Used to predict the pixel values in an image.
+#cat: biomeval_nbis_predict - Used to predict the pixel values in an image.
 #cat:
-#cat: categorize - Determines the category for a given difference value.
+#cat: biomeval_nbis_categorize - Determines the category for a given difference value.
 #cat:
 
 ***********************************************************************/
@@ -67,7 +67,7 @@ of the software.
 /**************************************************************/
 /*This routine is used to predict the pixel values in an image*/
 /**************************************************************/
-int predict(short *odata_pred, unsigned char *indata, const int width,
+int biomeval_nbis_predict(short *odata_pred, unsigned char *indata, const int width,
             const int pixel_num, const int cmpnt_depth, const int pred_type,
             const int Pt)
 {
@@ -124,7 +124,7 @@ int predict(short *odata_pred, unsigned char *indata, const int width,
                data_pred = (*(indata -1) + *(indata - width)) / 2;
                break;
             default:
-               fprintf(stderr, "ERORR : predict : invalid prediction type ");
+               fprintf(stderr, "ERORR : biomeval_nbis_predict : invalid prediction type ");
                fprintf(stderr, "%d not in range [%d..%d]\n",
                                 pred_type, PRED1, PRED7);
                return(-2);
@@ -139,7 +139,7 @@ int predict(short *odata_pred, unsigned char *indata, const int width,
 /********************************************************************/
 /*This function determines the category for a given difference value*/
 /********************************************************************/
-short categorize(const short idiff)
+short biomeval_nbis_categorize(const short idiff)
 {
    int bit;                     /*bit pointer to difference value*/
    short diff;

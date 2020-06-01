@@ -60,22 +60,22 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        lookup_ANSI_NIST_field()
-                        lookup_ANSI_NIST_subfield()
-                        lookup_ANSI_NIST_item()
-                        lookup_ANSI_NIST_image()
-                        lookup_ANSI_NIST_image_ppmm()
-                        lookup_binary_field_image_ppmm()
-                        lookup_tagged_field_image_ppmm()
-                        lookup_ANSI_NIST_fingerprint()
-                        lookup_ANSI_NIST_grayprint()
-                        lookup_binary_field_fingerprint()
-                        lookup_tagged_field_fingerprint()
-                        lookup_fingerprint_with_IDC()
-                        lookup_FGP_field()
-                        lookup_IMP_field()
-                        lookup_minutiae_format()
-                        lookup_ANSI_NIST_record()
+                        biomeval_nbis_lookup_ANSI_NIST_field()
+                        biomeval_nbis_lookup_ANSI_NIST_subfield()
+                        biomeval_nbis_lookup_ANSI_NIST_item()
+                        biomeval_nbis_lookup_ANSI_NIST_image()
+                        biomeval_nbis_lookup_ANSI_NIST_image_ppmm()
+                        biomeval_nbis_lookup_binary_field_image_ppmm()
+                        biomeval_nbis_lookup_tagged_field_image_ppmm()
+                        biomeval_nbis_lookup_ANSI_NIST_fingerprint()
+                        biomeval_nbis_lookup_ANSI_NIST_grayprint()
+                        biomeval_nbis_lookup_binary_field_fingerprint()
+                        biomeval_nbis_lookup_tagged_field_fingerprint()
+                        biomeval_nbis_lookup_fingerprint_with_IDC()
+                        biomeval_nbis_lookup_FGP_field()
+                        biomeval_nbis_lookup_IMP_field()
+                        biomeval_nbis_lookup_minutiae_format()
+                        biomeval_nbis_lookup_ANSI_NIST_record()
 
 ***********************************************************************/
 
@@ -84,7 +84,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_ANSI_NIST_field - Routine takes a field ID and searches
+#cat: biomeval_nbis_lookup_ANSI_NIST_field - Routine takes a field ID and searches
 #cat:              the given record structure in order to locate the
 #cat:              matching field.
 
@@ -98,7 +98,7 @@ of the software.
       TRUE       - matching field located
       FALSE      - matching field NOT located
 ************************************************************************/
-int lookup_ANSI_NIST_field(FIELD **ofield, int *const ofield_i,
+int biomeval_nbis_lookup_ANSI_NIST_field(FIELD **ofield, int *const ofield_i,
 			   const unsigned int field_int,
 			   const RECORD *const record)
 {
@@ -119,7 +119,7 @@ int lookup_ANSI_NIST_field(FIELD **ofield, int *const ofield_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_ANSI_NIST_subfield - Routine takes a subfield index and tests
+#cat: biomeval_nbis_lookup_ANSI_NIST_subfield - Routine takes a subfield index and tests
 #cat:              if the subfield structure exists in the given field.
 
    Input:
@@ -131,7 +131,7 @@ int lookup_ANSI_NIST_field(FIELD **ofield, int *const ofield_i,
       TRUE       - matching subfield located
       FALSE      - matching subfield NOT located
 ************************************************************************/
-int lookup_ANSI_NIST_subfield(SUBFIELD **osubfield,
+int biomeval_nbis_lookup_ANSI_NIST_subfield(SUBFIELD **osubfield,
 			      const unsigned int subfield_index,
 			      const FIELD *const field)
 {
@@ -145,7 +145,7 @@ int lookup_ANSI_NIST_subfield(SUBFIELD **osubfield,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_ANSI_NIST_item - Routine takes an information item index and
+#cat: biomeval_nbis_lookup_ANSI_NIST_item - Routine takes an information item index and
 #cat:              tests if the item structure exists in the given subfield.
 
    Input:
@@ -157,7 +157,7 @@ int lookup_ANSI_NIST_subfield(SUBFIELD **osubfield,
       TRUE       - matching item located
       FALSE      - matching item NOT located
 ************************************************************************/
-int lookup_ANSI_NIST_item(ITEM **oitem, const unsigned int item_index,
+int biomeval_nbis_lookup_ANSI_NIST_item(ITEM **oitem, const unsigned int item_index,
 			  const SUBFIELD *const subfield)
 {
    if(item_index < subfield->num_items){
@@ -170,7 +170,7 @@ int lookup_ANSI_NIST_item(ITEM **oitem, const unsigned int item_index,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_ANSI_NIST_image - Routine takes an starting record index
+#cat: biomeval_nbis_lookup_ANSI_NIST_image - Routine takes an starting record index
 #cat:              into an ANSI/NIST structure and proceeds to search
 #cat:              for the next occurrence of an image record
 #cat:              (Type-3,4,5,6,10,13,14,15,&16).  When found, it
@@ -187,7 +187,7 @@ int lookup_ANSI_NIST_item(ITEM **oitem, const unsigned int item_index,
       FALSE      - image record NOT found
       Negative   - system error
 ************************************************************************/
-int lookup_ANSI_NIST_image(RECORD **oimgrecord, int *const oimgrecord_i,
+int biomeval_nbis_lookup_ANSI_NIST_image(RECORD **oimgrecord, int *const oimgrecord_i,
                            const int strt_record,
 			   const ANSI_NIST *const ansi_nist)
 {
@@ -203,7 +203,7 @@ int lookup_ANSI_NIST_image(RECORD **oimgrecord, int *const oimgrecord_i,
       /* Set temporary record pointer. */
       record = ansi_nist->records[i];
       /* If Type-3,4,5,6 ... */
-      if(binary_image_record(record->type)){
+      if(biomeval_nbis_binary_image_record(record->type)){
          /* Binary field image record found ... */
          found = TRUE;
          break;
@@ -216,7 +216,7 @@ int lookup_ANSI_NIST_image(RECORD **oimgrecord, int *const oimgrecord_i,
       }
       else if(record->type == TYPE_8_ID){
          /* Otherwise post warning and ignore record. */
-         fprintf(stderr, "WARNING : lookup_ANSI_NIST_image : "
+         fprintf(stderr, "WARNING : biomeval_nbis_lookup_ANSI_NIST_image : "
 		 "Type-8 record [%d] not supported\n"
 		 "Image record ignored.\n", i+1);
          /* Skip to next record ... */
@@ -237,7 +237,7 @@ int lookup_ANSI_NIST_image(RECORD **oimgrecord, int *const oimgrecord_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_ANSI_NIST_image_ppmm - Routine takes an ANSI/NIST file
+#cat: biomeval_nbis_lookup_ANSI_NIST_image_ppmm - Routine takes an ANSI/NIST file
 #cat:              structure and derives the scan resolution in units of
 #cat:              pixels/mm for the specified image record.
 
@@ -250,7 +250,7 @@ int lookup_ANSI_NIST_image(RECORD **oimgrecord, int *const oimgrecord_i,
       Zero       - scan resolution sucessfully derived and returned
       Negative   - system error
 ************************************************************************/
-int lookup_ANSI_NIST_image_ppmm(double *const oppmm,
+int biomeval_nbis_lookup_ANSI_NIST_image_ppmm(double *const oppmm,
 				const ANSI_NIST *const ansi_nist,
                                 const int imgrecord_i)
 {
@@ -260,7 +260,7 @@ int lookup_ANSI_NIST_image_ppmm(double *const oppmm,
 
    /* If image record index is out of range ... */
    if((imgrecord_i < 1) || (imgrecord_i > ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : lookup_ANSI_NIST_image_ppmm : "
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_ANSI_NIST_image_ppmm : "
 	      "record index [%d] out of range [1..%d]\n",
               imgrecord_i+1, ansi_nist->num_records+1);
       return(-2);
@@ -270,22 +270,22 @@ int lookup_ANSI_NIST_image_ppmm(double *const oppmm,
    imgrecord = ansi_nist->records[imgrecord_i];
 
    /* If binary field image record ... */
-   if(binary_image_record(imgrecord->type)){
+   if(biomeval_nbis_binary_image_record(imgrecord->type)){
       /* Lookup image record's pixel/mm scan resolution. */
-      if((ret = lookup_binary_field_image_ppmm(&ppmm, ansi_nist, imgrecord_i)))
+      if((ret = biomeval_nbis_lookup_binary_field_image_ppmm(&ppmm, ansi_nist, imgrecord_i)))
          return(ret);
    }
    /* If tagged field image record ... */
    else if(tagged_image_record(imgrecord->type)){
       /* Lookup image record's pixel/mm scan resolution. */
-      ret = lookup_tagged_field_image_ppmm(&ppmm, imgrecord);
+      ret = biomeval_nbis_lookup_tagged_field_image_ppmm(&ppmm, imgrecord);
       /* If ERROR ... */
       if(ret < 0)
          return(ret);
       /* If IGNORE ... then ERROR. */
       else if(ret == FALSE){
-         fprintf(stderr, "ERROR : lookup_ANSI_NIST_image_ppmm : "
-		 "lookup_tagged_field_image_ppmm returned IGNORE : "
+         fprintf(stderr, "ERROR : biomeval_nbis_lookup_ANSI_NIST_image_ppmm : "
+		 "biomeval_nbis_lookup_tagged_field_image_ppmm returned IGNORE : "
 		 "treated by the caller as an ERROR\n");
          return(-3);
       }
@@ -293,7 +293,7 @@ int lookup_ANSI_NIST_image_ppmm(double *const oppmm,
    }
    /* Otherwise, not an image record, so ERROR. */
    else{
-      fprintf(stderr, "ERROR : lookup_ANSI_NIST_image_ppmm : "
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_ANSI_NIST_image_ppmm : "
 	      "Record index [%d] [Type-%d] not an image record\n",
               imgrecord_i+1, imgrecord->type);
       return(-4);
@@ -308,7 +308,7 @@ int lookup_ANSI_NIST_image_ppmm(double *const oppmm,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_binary_field_image_ppmm - Routine takes an ANSI/NIST file
+#cat: biomeval_nbis_lookup_binary_field_image_ppmm - Routine takes an ANSI/NIST file
 #cat:              structure and derives the scan resolution in units of
 #cat:              pixels/mm for the specified binary field image record.
 
@@ -321,7 +321,7 @@ int lookup_ANSI_NIST_image_ppmm(double *const oppmm,
       Zero       - scan resolution sucessfully derived and returned
       Negative   - system error
 ************************************************************************/
-int lookup_binary_field_image_ppmm(double *const oppmm,
+int biomeval_nbis_lookup_binary_field_image_ppmm(double *const oppmm,
 				   const ANSI_NIST *const ansi_nist,
                                    const int imgrecord_i)
 {
@@ -333,7 +333,7 @@ int lookup_binary_field_image_ppmm(double *const oppmm,
 
    /* If image record index is out of range ... */
    if((imgrecord_i < 1) || (imgrecord_i > ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : lookup_binary_field_image_ppmm : "
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_binary_field_image_ppmm : "
 	      "record index [%d] out of range [1..%d]\n",
               imgrecord_i+1, ansi_nist->num_records+1);
       return(-2);
@@ -342,8 +342,8 @@ int lookup_binary_field_image_ppmm(double *const oppmm,
    /* Set image record pointer. */
    imgrecord = ansi_nist->records[imgrecord_i];
 
-   if(!binary_image_record(imgrecord->type)){
-      fprintf(stderr, "ERROR : lookup_binary_field_image_ppmm : "
+   if(!biomeval_nbis_binary_image_record(imgrecord->type)){
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_binary_field_image_ppmm : "
 	      "record index [%d] [Type-%d] \n"
 	      "not a binary field image record\n",
 	      imgrecord_i+1, imgrecord->type);
@@ -351,9 +351,9 @@ int lookup_binary_field_image_ppmm(double *const oppmm,
    }
 
    /* Lookup NTR (Field 1.012). */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, NTR_ID,
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, NTR_ID,
                               ansi_nist->records[0])){
-      fprintf(stderr, "ERROR : lookup_binary_field_image_ppmm : "
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_binary_field_image_ppmm : "
 	      "NTR field not found in record index [1] [Type-%d.%03d]\n",
               imgrecord->type, NTR_ID);
       return(-4);
@@ -378,7 +378,7 @@ int lookup_binary_field_image_ppmm(double *const oppmm,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_tagged_field_image_ppmm - Routine takes a tagged field
+#cat: biomeval_nbis_lookup_tagged_field_image_ppmm - Routine takes a tagged field
 #cat:              image record and derives the scan resolution of the
 #cat:              image in units of pixels/mm.
 
@@ -391,7 +391,7 @@ int lookup_binary_field_image_ppmm(double *const oppmm,
       FALSE      - image record ignored
       Negative   - system error
 ************************************************************************/
-int lookup_tagged_field_image_ppmm(double *const oppmm,
+int biomeval_nbis_lookup_tagged_field_image_ppmm(double *const oppmm,
 				   const RECORD *const record)
 {
    FIELD *field;
@@ -403,16 +403,16 @@ int lookup_tagged_field_image_ppmm(double *const oppmm,
    *oppmm = (double)UNSET;
 
    /* Lookup HPS & VPS. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, HPS_ID, record)){
-      fprintf(stderr, "ERROR : lookup_tagged_field_image_ppmm : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, HPS_ID, record)){
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_tagged_field_image_ppmm : "
 	      "HPS field not found in image record [Type-%d.%03d]\n",
 	      record->type, HPS_ID);
       return(-2);
    }
    hps = atoi((char *)field->subfields[0]->items[0]->value);
 
-   if(!lookup_ANSI_NIST_field(&field, &field_i, VPS_ID, record)){
-      fprintf(stderr, "ERROR : lookup_tagged_field_image_ppmm : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, VPS_ID, record)){
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_tagged_field_image_ppmm : "
 	      "VPS field not found in imagerecord [Type-%d.%03d]\n",
 	      record->type, VPS_ID);
       return(-3);
@@ -426,7 +426,7 @@ int lookup_tagged_field_image_ppmm(double *const oppmm,
    if(hps != vps){
       /* Unsupported pixel aspect ratio, */
       /* so post warning, but continue with ratio = 1 assumption. */
-      fprintf(stderr, "WARNING : lookup_tagged_field_image_ppmm : "
+      fprintf(stderr, "WARNING : biomeval_nbis_lookup_tagged_field_image_ppmm : "
 	      "pixel aspect ratio != 1 not directly supported "
 	      "in image record [Type-%d]\n"
 	      "Will continue with operating assumpiton that "
@@ -434,8 +434,8 @@ int lookup_tagged_field_image_ppmm(double *const oppmm,
    }
 
    /* Lookup SLC. */
-   if(!lookup_ANSI_NIST_field(&field, &field_i, SLC_ID, record)){
-      fprintf(stderr, "ERROR : lookup_tagged_field_image_ppmm : "
+   if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, SLC_ID, record)){
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_tagged_field_image_ppmm : "
 	      "SLC field not found in image record [Type-%d.%03d]\n",
 	      record->type, SLC_ID);
       return(-4);
@@ -457,7 +457,7 @@ int lookup_tagged_field_image_ppmm(double *const oppmm,
          ppmm = vps / (double)10.0;
          break;
       default:
-         fprintf(stderr, "ERROR : lookup_tagged_field_image_ppmm : "
+         fprintf(stderr, "ERROR : biomeval_nbis_lookup_tagged_field_image_ppmm : "
 		 "illegal SLC code = %d in image record [Type-%d.%03d]\n",
 		 slc, record->type, SLC_ID);
          return(-5);
@@ -473,7 +473,7 @@ int lookup_tagged_field_image_ppmm(double *const oppmm,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_ANSI_NIST_fingerprint - Routine takes an starting record index
+#cat: biomeval_nbis_lookup_ANSI_NIST_fingerprint - Routine takes an starting record index
 #cat:              into an ANSI/NIST structure and proceeds to search
 #cat:              for the next occurrence of a fingerprint image record
 #cat:              (Type-3,4,5,6,13,&14).  When found, it returns the
@@ -490,7 +490,7 @@ int lookup_tagged_field_image_ppmm(double *const oppmm,
       FALSE      - image record NOT found
       Negative   - system error
 ************************************************************************/
-int lookup_ANSI_NIST_fingerprint(RECORD **oimgrecord, int *const oimgrecord_i,
+int biomeval_nbis_lookup_ANSI_NIST_fingerprint(RECORD **oimgrecord, int *const oimgrecord_i,
                      const int strt_record, const ANSI_NIST *const ansi_nist)
 {
    int i, ret;
@@ -500,7 +500,7 @@ int lookup_ANSI_NIST_fingerprint(RECORD **oimgrecord, int *const oimgrecord_i,
    i = strt_record;
    while(i < ansi_nist->num_records){
       /* Look up next image record in ANSI/NIST file. */
-      ret = lookup_ANSI_NIST_image(&imgrecord, &imgrecord_i, i, ansi_nist);
+      ret = biomeval_nbis_lookup_ANSI_NIST_image(&imgrecord, &imgrecord_i, i, ansi_nist);
       /* If error ... */
       if(ret < 0)
          return(ret);
@@ -536,7 +536,7 @@ int lookup_ANSI_NIST_fingerprint(RECORD **oimgrecord, int *const oimgrecord_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_ANSI_NIST_grayprint - Routine takes an starting record index
+#cat: biomeval_nbis_lookup_ANSI_NIST_grayprint - Routine takes an starting record index
 #cat:              into an ANSI/NIST structure and proceeds to search
 #cat:              for the next occurrence of an 8-bit grayscale fingerprint
 #cat:              image record (Type-4,13,&14).  When found, it returns
@@ -553,7 +553,7 @@ int lookup_ANSI_NIST_fingerprint(RECORD **oimgrecord, int *const oimgrecord_i,
       FALSE      - image record NOT found
       Negative   - system error
 ************************************************************************/
-int lookup_ANSI_NIST_grayprint(RECORD **oimgrecord, int *const oimgrecord_i,
+int biomeval_nbis_lookup_ANSI_NIST_grayprint(RECORD **oimgrecord, int *const oimgrecord_i,
                      const int strt_record, const ANSI_NIST *const ansi_nist)
 {
    int i, id, ret;
@@ -565,7 +565,7 @@ int lookup_ANSI_NIST_grayprint(RECORD **oimgrecord, int *const oimgrecord_i,
    i = strt_record;
    while(i < ansi_nist->num_records){
       /* Look up next image record in ANSI/NIST file. */
-      ret = lookup_ANSI_NIST_image(&imgrecord, &imgrecord_i, i, ansi_nist);
+      ret = biomeval_nbis_lookup_ANSI_NIST_image(&imgrecord, &imgrecord_i, i, ansi_nist);
       /* If error ... */
       if(ret < 0)
          return(ret);
@@ -589,8 +589,8 @@ int lookup_ANSI_NIST_grayprint(RECORD **oimgrecord, int *const oimgrecord_i,
       case TYPE_13_ID:
       case TYPE_14_ID:
          /* Lookup bits per pixel. */
-         if(!lookup_ANSI_NIST_field(&field, &field_i, BPX_ID, imgrecord)){
-            fprintf(stderr, "ERROR : lookup_ANSI_NIST_grayprint : "
+         if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, BPX_ID, imgrecord)){
+            fprintf(stderr, "ERROR : biomeval_nbis_lookup_ANSI_NIST_grayprint : "
 		    "BPX field not found in record index [%d] [Type-%d.%03d]\n",
                     imgrecord_i+1, imgrecord->type, BPX_ID);
             return(-2);
@@ -619,7 +619,7 @@ int lookup_ANSI_NIST_grayprint(RECORD **oimgrecord, int *const oimgrecord_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_binary_field_fingerprint - Routine takes a starting record 
+#cat: biomeval_nbis_lookup_binary_field_fingerprint - Routine takes a starting record 
 #cat:              index into an ANSI/NIST structure and proceeds to search
 #cat:              for the next occurrence of a binary field fingerprint
 #cat:              image record (Type-3,4,5,6).  When found, it returns
@@ -636,7 +636,7 @@ int lookup_ANSI_NIST_grayprint(RECORD **oimgrecord, int *const oimgrecord_i,
       FALSE      - image record NOT found
       Negative   - system error
 ************************************************************************/
-int lookup_binary_field_fingerprint(RECORD **oimgrecord,
+int biomeval_nbis_lookup_binary_field_fingerprint(RECORD **oimgrecord,
 				    int *const oimgrecord_i,
 				    const int strt_record,
 				    const ANSI_NIST *const ansi_nist)
@@ -648,7 +648,7 @@ int lookup_binary_field_fingerprint(RECORD **oimgrecord,
    i = strt_record;
    while(i < ansi_nist->num_records){
       /* Look up next image record in ANSI/NIST file. */
-      ret = lookup_ANSI_NIST_image(&imgrecord, &imgrecord_i, i, ansi_nist);
+      ret = biomeval_nbis_lookup_ANSI_NIST_image(&imgrecord, &imgrecord_i, i, ansi_nist);
       /* If error ... */
       if(ret < 0)
          return(ret);
@@ -669,7 +669,7 @@ int lookup_binary_field_fingerprint(RECORD **oimgrecord,
          return(TRUE);
       case TYPE_3_ID:
       case TYPE_5_ID:
-         fprintf(stderr, "WARNING : lookup_binary_field_fingerprint : "
+         fprintf(stderr, "WARNING : biomeval_nbis_lookup_binary_field_fingerprint : "
 		 "low resolution image record [%d] [Type-%d] not supported\n"
 		 "Image record ignored.\n", imgrecord_i+1, imgrecord->type);
          break;
@@ -687,7 +687,7 @@ int lookup_binary_field_fingerprint(RECORD **oimgrecord,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_tagged_field_fingerprint - Routine takes a starting record 
+#cat: biomeval_nbis_lookup_tagged_field_fingerprint - Routine takes a starting record 
 #cat:              index into an ANSI/NIST structure and proceeds to search
 #cat:              for the next occurrence of a tagged field fingerprint
 #cat:              image record (Type-13&14).  When found, it returns
@@ -704,7 +704,7 @@ int lookup_binary_field_fingerprint(RECORD **oimgrecord,
       FALSE      - image record NOT found
       Negative   - system error
 ************************************************************************/
-int lookup_tagged_field_fingerprint(RECORD **oimgrecord,
+int biomeval_nbis_lookup_tagged_field_fingerprint(RECORD **oimgrecord,
 				    int *const oimgrecord_i,
 				    const int strt_record,
 				    const ANSI_NIST *const ansi_nist)
@@ -717,7 +717,7 @@ int lookup_tagged_field_fingerprint(RECORD **oimgrecord,
    i = strt_record;
    while(i < ansi_nist->num_records){
       /* Look up next image record in ANSI/NIST file. */
-      ret = lookup_ANSI_NIST_image(&imgrecord, &imgrecord_i, i, ansi_nist);
+      ret = biomeval_nbis_lookup_ANSI_NIST_image(&imgrecord, &imgrecord_i, i, ansi_nist);
       /* If error ... */
       if(ret < 0)
          return(ret);
@@ -737,7 +737,7 @@ int lookup_tagged_field_fingerprint(RECORD **oimgrecord,
          *oimgrecord_i = imgrecord_i;
          return(TRUE);
       case TYPE_16_ID:
-         fprintf(stderr, "WARNING : lookup_tagged_field_fingerprint : "
+         fprintf(stderr, "WARNING : biomeval_nbis_lookup_tagged_field_fingerprint : "
 		 "Type-16 record found but currently unsupported\n"
 		 "Image record ignored.\n");
          break;
@@ -755,7 +755,7 @@ int lookup_tagged_field_fingerprint(RECORD **oimgrecord,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_fingerprint_with_IDC - Routine takes an starting record index
+#cat: biomeval_nbis_lookup_fingerprint_with_IDC - Routine takes an starting record index
 #cat:              into an ANSI/NIST structure and proceeds to search
 #cat:              for the next occurrence of a fingerprint image record
 #cat:              with specified IDC value.  (Type-3,4,5,6,13,&14).
@@ -773,7 +773,7 @@ int lookup_tagged_field_fingerprint(RECORD **oimgrecord,
       FALSE      - image record NOT found
       Negative   - system error
 ************************************************************************/
-int lookup_fingerprint_with_IDC(RECORD **orecord, int *const orecord_i, 
+int biomeval_nbis_lookup_fingerprint_with_IDC(RECORD **orecord, int *const orecord_i, 
 				const int idc, const int strt_record, 
 				const ANSI_NIST *const ansi_nist)
 {
@@ -786,7 +786,7 @@ int lookup_fingerprint_with_IDC(RECORD **orecord, int *const orecord_i,
 
    i = strt_record;
    while(i < ansi_nist->num_records){
-      ret = lookup_ANSI_NIST_fingerprint(&imgrecord, &imgrecord_i,
+      ret = biomeval_nbis_lookup_ANSI_NIST_fingerprint(&imgrecord, &imgrecord_i,
                                          i, ansi_nist);
       /* If error ... */
       if(ret < 0)
@@ -796,8 +796,8 @@ int lookup_fingerprint_with_IDC(RECORD **orecord, int *const orecord_i,
          return(FALSE);
 
       /* Otherwise, fingerprint image found, so lookup IDC field. */
-      if(!lookup_ANSI_NIST_field(&field, &field_i, IDC_ID, imgrecord)){
-         fprintf(stderr, "ERROR : lookup_fingerprint_with_IDC : "
+      if(!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, IDC_ID, imgrecord)){
+         fprintf(stderr, "ERROR : biomeval_nbis_lookup_fingerprint_with_IDC : "
 		 "No IDC found in image record [Type-%d.%03d]\n",
 		 imgrecord->type, IDC_ID);
          return(-2);
@@ -820,7 +820,7 @@ int lookup_fingerprint_with_IDC(RECORD **orecord, int *const orecord_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_FGP_field - Examines the record type in order to
+#cat: biomeval_nbis_lookup_FGP_field - Examines the record type in order to
 #cat:              determine whether it contains a FGP (Finger
 #cat:              Position) or PMP (Palmprint Position) field, and
 #cat:              where that field is located.
@@ -834,7 +834,7 @@ int lookup_fingerprint_with_IDC(RECORD **orecord, int *const orecord_i,
       TRUE       - matching field located
       FALSE      - matching field NOT located
 ************************************************************************/
-int lookup_FGP_field(FIELD **ofield, int *const ofield_i,
+int biomeval_nbis_lookup_FGP_field(FIELD **ofield, int *const ofield_i,
 		     const RECORD *const record)
 {
    int fgp_field_id;
@@ -865,11 +865,11 @@ int lookup_FGP_field(FIELD **ofield, int *const ofield_i,
       break;
       
    case TYPE_9_ID:		/* minutiae */
-      if (!lookup_minutiae_format(&minfmt, record)) {
+      if (!biomeval_nbis_lookup_minutiae_format(&minfmt, record)) {
 	 return FALSE;
       }
       if (minfmt != 'S') {
-	 fprintf(stderr, "WARNING : lookup_FGP_field : "
+	 fprintf(stderr, "WARNING : biomeval_nbis_lookup_FGP_field : "
 		 "minutiae type %c found but currently unsupported\n",
 		 minfmt);
 	 return FALSE;
@@ -887,13 +887,13 @@ int lookup_FGP_field(FIELD **ofield, int *const ofield_i,
 		 break;
       
 	 default:
-      fprintf(stderr, "ERROR : lookup_FGP_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_FGP_field : "
 	      "unsuported record type id : %d\n", record->type);
       return FALSE;
    }
    
-   if (!lookup_ANSI_NIST_field(&tfield, &tfield_i, fgp_field_id, record)) {
-      fprintf(stderr, "ERROR : lookup_FGP_field : "
+   if (!biomeval_nbis_lookup_ANSI_NIST_field(&tfield, &tfield_i, fgp_field_id, record)) {
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_FGP_field : "
 	      "cannot retrieve field %d\n", fgp_field_id);
       return FALSE;
    }
@@ -904,7 +904,7 @@ int lookup_FGP_field(FIELD **ofield, int *const ofield_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: int lookup_IMP_field - Routine examines the record type in order
+#cat: int biomeval_nbis_lookup_IMP_field - Routine examines the record type in order
 #cat:              to determine whether it contains an IMP (Impression
 #cat:              Type) field.
 
@@ -917,7 +917,7 @@ int lookup_FGP_field(FIELD **ofield, int *const ofield_i,
       TRUE       - matching field located
       FALSE      - matching field NOT located
 ************************************************************************/
-int lookup_IMP_field(FIELD **ofield, int *const ofield_i,
+int biomeval_nbis_lookup_IMP_field(FIELD **ofield, int *const ofield_i,
 		     const RECORD *const record)
 {
    FIELD *tfield;
@@ -951,13 +951,13 @@ int lookup_IMP_field(FIELD **ofield, int *const ofield_i,
       break;
 
    default:
-      fprintf(stderr, "ERROR : lookup_IMP_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_IMP_field : "
 	      "unknown record type id : %d\n", record->type);
       return FALSE;
    }
    
-   if (!lookup_ANSI_NIST_field(&tfield, &tfield_i, IMP_ID, record)) {
-      fprintf(stderr, "ERROR : lookup_IMP_field : "
+   if (!biomeval_nbis_lookup_ANSI_NIST_field(&tfield, &tfield_i, IMP_ID, record)) {
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_IMP_field : "
 	      "cannot retrieve field %d\n", IMP_ID);
       return FALSE;
    }
@@ -968,7 +968,7 @@ int lookup_IMP_field(FIELD **ofield, int *const ofield_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_minutiae_format - Routine takes a pointer to a record and
+#cat: biomeval_nbis_lookup_minutiae_format - Routine takes a pointer to a record and
 #cat:              finds the minutia format, if it exists.
 
    Input:
@@ -979,18 +979,18 @@ int lookup_IMP_field(FIELD **ofield, int *const ofield_i,
       TRUE       - minutiae type found
       FALSE      - no minutiae type found, see error message for details
 ************************************************************************/
-int lookup_minutiae_format(char *const ofmt, const RECORD *const irecord) {
+int biomeval_nbis_lookup_minutiae_format(char *const ofmt, const RECORD *const irecord) {
    FIELD *field;
    int field_i;
 
    if (irecord->type != TYPE_9_ID) {
-      fprintf(stderr, "ERROR : lookup_minutiae_format"
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_minutiae_format"
 	      " : type-%d records do not contain minutiae",
 	      irecord->type);
       return FALSE;
    }
-   if (!lookup_ANSI_NIST_field(&field, &field_i, FMT_ID, irecord)) {
-      fprintf(stderr, "ERROR : lookup_minutiae_format"
+   if (!biomeval_nbis_lookup_ANSI_NIST_field(&field, &field_i, FMT_ID, irecord)) {
+      fprintf(stderr, "ERROR : biomeval_nbis_lookup_minutiae_format"
 	      " : cannot find FMT field");
       return FALSE;
    } 
@@ -1000,7 +1000,7 @@ int lookup_minutiae_format(char *const ofmt, const RECORD *const irecord) {
 
 /***********************************************************************
 ************************************************************************
-#cat: lookup_ANSI_NIST_record - Routine takes an starting record index
+#cat: biomeval_nbis_lookup_ANSI_NIST_record - Routine takes an starting record index
 #cat:              into an ANSI/NIST structure and proceeds to search
 #cat:              for the next occurrence of a record that satisfies
 #cat:              the selection function.  When found, it returns the
@@ -1019,14 +1019,14 @@ int lookup_minutiae_format(char *const ofmt, const RECORD *const irecord) {
       FALSE      - image record NOT found
       Negative   - system error
 ************************************************************************/
-int lookup_ANSI_NIST_record(RECORD **oimgrecord, int *const oimgrecord_i,
+int biomeval_nbis_lookup_ANSI_NIST_record(RECORD **oimgrecord, int *const oimgrecord_i,
 			    const int strt_record, 
 			    const ANSI_NIST *const ansi_nist,
 			    const REC_SEL *const sel_parm) {
    int rec_i;
    
    for (rec_i = strt_record; rec_i < ansi_nist->num_records; ++rec_i) {
-      if (select_ANSI_NIST_record(ansi_nist->records[rec_i], sel_parm)) {
+      if (biomeval_nbis_select_ANSI_NIST_record(ansi_nist->records[rec_i], sel_parm)) {
 	 /* return first match found */
 	 *oimgrecord = ansi_nist->records[rec_i];
 	 *oimgrecord_i = rec_i;

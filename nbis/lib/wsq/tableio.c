@@ -56,59 +56,59 @@ of the software.
       tables and blocks used by the WSQ encoder/decoder.
 
       ROUTINES:
-#cat: read_marker_wsq - Reads a specified WSQ marker from an open file.
+#cat: biomeval_nbis_read_marker_wsq - Reads a specified WSQ marker from an open file.
 #cat:
-#cat: getc_marker_wsq - Reads a specified WSQ marker from a memory buffer.
+#cat: biomeval_nbis_getc_marker_wsq - Reads a specified WSQ marker from a memory buffer.
 #cat:
-#cat: read_table_wsq - Reads a specified WSQ table from an open file.
+#cat: biomeval_nbis_read_table_wsq - Reads a specified WSQ table from an open file.
 #cat:
-#cat: getc_table_wsq - Reads a specified WSQ table from a memory buffer.
+#cat: biomeval_nbis_getc_table_wsq - Reads a specified WSQ table from a memory buffer.
 #cat:
-#cat: read_transform_table - Reads in a WSQ transform table from an
+#cat: biomeval_nbis_read_transform_table - Reads in a WSQ transform table from an
 #cat:                   open file.
-#cat: getc_transform_table - Reads in a WSQ transform table from a
+#cat: biomeval_nbis_getc_transform_table - Reads in a WSQ transform table from a
 #cat:                   memory buffer.
-#cat: write_transform_table - Writes a WSQ transform table to an
+#cat: biomeval_nbis_write_transform_table - Writes a WSQ transform table to an
 #cat:                   open file.
-#cat: putc_transform_table - Writes a WSQ transform table to a
+#cat: biomeval_nbis_putc_transform_table - Writes a WSQ transform table to a
 #cat:                   memory buffer.
-#cat: read_quantization_table - Reads a WSQ quantization table from an
+#cat: biomeval_nbis_read_quantization_table - Reads a WSQ quantization table from an
 #cat:                   open file.
-#cat: getc_quantization_table - Reads a WSQ quantization table from a
+#cat: biomeval_nbis_getc_quantization_table - Reads a WSQ quantization table from a
 #cat:                   memory buffer.
-#cat: write_quantization_table - Writes a WSQ quantization table to an
+#cat: biomeval_nbis_write_quantization_table - Writes a WSQ quantization table to an
 #cat:                   open file.
-#cat: putc_quantization_table - Writes a WSQ quantization table to a
+#cat: biomeval_nbis_putc_quantization_table - Writes a WSQ quantization table to a
 #cat:                   memory buffer.
-#cat: read_huffman_table_wsq - Reads a WSQ huffman table from an
+#cat: biomeval_nbis_read_huffman_table_wsq - Reads a WSQ huffman table from an
 #cat:                   open file.
-#cat: getc_huffman_table_wsq - Reads a WSQ huffman table from a
+#cat: biomeval_nbis_getc_huffman_table_wsq - Reads a WSQ huffman table from a
 #cat:                   memory buffer.
-#cat: read_frame_header_wsq - Reads a WSQ Frame header from an open file.
+#cat: biomeval_nbis_read_frame_header_wsq - Reads a WSQ Frame header from an open file.
 #cat:
-#cat: getc_frame_header_wsq - Reads a WSQ Frame header from a memory buffer.
+#cat: biomeval_nbis_getc_frame_header_wsq - Reads a WSQ Frame header from a memory buffer.
 #cat:
-#cat: write_frame_header_wsq - Writes a WSQ Frame header to an open file.
+#cat: biomeval_nbis_write_frame_header_wsq - Writes a WSQ Frame header to an open file.
 #cat:
-#cat: putc_frame_header_wsq - Writes a WSQ Frame header to a memory buffer.
+#cat: biomeval_nbis_putc_frame_header_wsq - Writes a WSQ Frame header to a memory buffer.
 #cat:
-#cat: read_block_header - Reads a WSQ Block header from an open file.
+#cat: biomeval_nbis_read_block_header - Reads a WSQ Block header from an open file.
 #cat:
-#cat: getc_block_header - Reads a WSQ Block header from a memory buffer.
+#cat: biomeval_nbis_getc_block_header - Reads a WSQ Block header from a memory buffer.
 #cat:
-#cat: write_block_header - Writes a WSQ Block header to an open file.
+#cat: biomeval_nbis_write_block_header - Writes a WSQ Block header to an open file.
 #cat:
-#cat: putc_block_header - Writes a WSQ Block header to a memory buffer.
+#cat: biomeval_nbis_putc_block_header - Writes a WSQ Block header to a memory buffer.
 #cat:
-#cat: add_comment_wsq - Inserts a NISTCOM comment block into a
+#cat: biomeval_nbis_add_comment_wsq - Inserts a NISTCOM comment block into a
 #cat:                   WSQ compressed datastream through an open file.
-#cat: putc_nistcom_wsq - Inserts a NISTCOM comment block into a
+#cat: biomeval_nbis_putc_nistcom_wsq - Inserts a NISTCOM comment block into a
 #cat:                   WSQ compressed datastream through a memory buffer.
-#cat: read_nistcom_wsq - Gets and returns the first NISTCOM comment block
+#cat: biomeval_nbis_read_nistcom_wsq - Gets and returns the first NISTCOM comment block
 #cat:                   in an open file.
-#cat: getc_nistcom_wsq - Gets and returns the first NISTCOM comment block
+#cat: biomeval_nbis_getc_nistcom_wsq - Gets and returns the first NISTCOM comment block
 #cat:                   in a memory buffer.
-#cat: print_comments_wsq - Gets and prints the first NISTOCM comment block
+#cat: biomeval_nbis_print_comments_wsq - Gets and prints the first NISTOCM comment block
 #cat:                   in a WSQ compressed memory buffer to a specified
 #cat:                   file pointer.
 
@@ -126,7 +126,7 @@ of the software.
 /***********************************/
 /* Routine to read in WSQ markers. */
 /***********************************/
-int read_marker_wsq(
+int biomeval_nbis_read_marker_wsq(
    unsigned short *omarker,  /* marker read */
    const int type,   /* type of markers that could be found */
    FILE *infp)       /* input file */
@@ -134,14 +134,14 @@ int read_marker_wsq(
    int ret;
    unsigned short marker;    /* WSQ marker */
 
-   if((ret = read_ushort(&marker, infp)))
+   if((ret = biomeval_nbis_read_ushort(&marker, infp)))
       return(ret);
 
    switch(type){
    case SOI_WSQ:
       if(marker != SOI_WSQ) {
          fprintf(stderr,
-         "ERROR : read_marker_wsq : No SOI marker. {%u}\n", marker);
+         "ERROR : biomeval_nbis_read_marker_wsq : No SOI marker. {%u}\n", marker);
          return(-70);
       }
       break;
@@ -149,7 +149,7 @@ int read_marker_wsq(
       if(marker != DTT_WSQ && marker != DQT_WSQ && marker != DHT_WSQ
          && marker != SOF_WSQ && marker != COM_WSQ) {
          fprintf(stderr,
-         "ERROR : read_marker_wsq : No SOF, Table, or comment markers.\n");
+         "ERROR : biomeval_nbis_read_marker_wsq : No SOF, Table, or comment markers.\n");
          return(-71);
       }
       break;
@@ -157,26 +157,26 @@ int read_marker_wsq(
       if(marker != DTT_WSQ && marker != DQT_WSQ && marker != DHT_WSQ
          && marker != SOB_WSQ && marker != COM_WSQ) {
          fprintf(stderr,
-         "ERROR : read_marker_wsq : No SOB, Table, or comment markers.\n");
+         "ERROR : biomeval_nbis_read_marker_wsq : No SOB, Table, or comment markers.\n");
          return(-72);
       }
       break;
    case ANY_WSQ:
       if((marker & 0xff00) != 0xff00){
-	fprintf(stderr,"ERROR : read_marker_wsq : no marker found {%04X}\n",
+	fprintf(stderr,"ERROR : biomeval_nbis_read_marker_wsq : no marker found {%04X}\n",
                 marker);
          return(-73);
       }
       /* Added by MDG on 03-07-05 */
       if((marker < SOI_WSQ) || (marker > COM_WSQ)){
-	fprintf(stderr,"ERROR : read_marker_wsq : {%04X} not a valid marker\n",
+	fprintf(stderr,"ERROR : biomeval_nbis_read_marker_wsq : {%04X} not a valid marker\n",
                 marker);
          return(-74);
       }
       break;
    default:
       fprintf(stderr,
-      "ERROR : read_marker_wsq : Invalid marker -> {%4X}\n", marker);
+      "ERROR : biomeval_nbis_read_marker_wsq : Invalid marker -> {%4X}\n", marker);
       return(-75);
    }
 
@@ -187,7 +187,7 @@ int read_marker_wsq(
 /******************************************************/
 /* Routine to read in WSQ markers from memory buffer. */
 /******************************************************/
-int getc_marker_wsq(
+int biomeval_nbis_getc_marker_wsq(
    unsigned short *omarker,  /* marker read */
    const int type,   /* type of markers that could be found */
    unsigned char **cbufptr,  /* current byte in input buffer */
@@ -196,14 +196,14 @@ int getc_marker_wsq(
    int ret;
    unsigned short marker;    /* WSQ marker */
 
-   if((ret = getc_ushort(&marker, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&marker, cbufptr, ebufptr)))
       return(ret);
 
    switch(type){
    case SOI_WSQ:
       if(marker != SOI_WSQ) {
          fprintf(stderr,
-         "ERROR : getc_marker_wsq : No SOI marker. {%04X}\n", marker);
+         "ERROR : biomeval_nbis_getc_marker_wsq : No SOI marker. {%04X}\n", marker);
          return(-88);
       }
       break;
@@ -211,7 +211,7 @@ int getc_marker_wsq(
       if(marker != DTT_WSQ && marker != DQT_WSQ && marker != DHT_WSQ
          && marker != SOF_WSQ && marker != COM_WSQ) {
          fprintf(stderr,
-         "ERROR : getc_marker_wsq : No SOF, Table, or comment markers.\n");
+         "ERROR : biomeval_nbis_getc_marker_wsq : No SOF, Table, or comment markers.\n");
          return(-89);
       }
       break;
@@ -219,27 +219,27 @@ int getc_marker_wsq(
       if(marker != DTT_WSQ && marker != DQT_WSQ && marker != DHT_WSQ
          && marker != SOB_WSQ && marker != COM_WSQ) {
          fprintf(stderr,
-         "ERROR : getc_marker_wsq : No SOB, Table, or comment markers.{%04X}\n",
+         "ERROR : biomeval_nbis_getc_marker_wsq : No SOB, Table, or comment markers.{%04X}\n",
                  marker);
          return(-90);
       }
       break;
    case ANY_WSQ:
       if((marker & 0xff00) != 0xff00){
-	fprintf(stderr,"ERROR : getc_marker_wsq : no marker found {%04X}\n",
+	fprintf(stderr,"ERROR : biomeval_nbis_getc_marker_wsq : no marker found {%04X}\n",
                 marker);
          return(-91);
       }
       /* Added by MDG on 03-07-05 */
       if((marker < SOI_WSQ) || (marker > COM_WSQ)){
-	fprintf(stderr,"ERROR : getc_marker_wsq : {%04X} not a valid marker\n",
+	fprintf(stderr,"ERROR : biomeval_nbis_getc_marker_wsq : {%04X} not a valid marker\n",
                 marker);
          return(-92);
       }
       break;
    default:
       fprintf(stderr,
-      "ERROR : getc_marker_wsq : Invalid marker -> {%4X}\n", marker);
+      "ERROR : biomeval_nbis_getc_marker_wsq : Invalid marker -> {%4X}\n", marker);
       return(-93);
    }
 
@@ -250,7 +250,7 @@ int getc_marker_wsq(
 /************************************/
 /* Routine to read specified table. */
 /************************************/
-int read_table_wsq(
+int biomeval_nbis_read_table_wsq(
    unsigned short marker,         /* WSQ marker */
    DTT_TABLE *dtt_table,  /* transform table structure */
    DQT_TABLE *dqt_table,  /* quantization table structure */
@@ -262,19 +262,19 @@ int read_table_wsq(
 
    switch(marker){
    case DTT_WSQ:
-      if((ret = read_transform_table(dtt_table, infp)))
+      if((ret = biomeval_nbis_read_transform_table(dtt_table, infp)))
          return(ret);
       break;
    case DQT_WSQ:
-      if((ret = read_quantization_table(dqt_table, infp)))
+      if((ret = biomeval_nbis_read_quantization_table(dqt_table, infp)))
          return(ret);
       break;
    case DHT_WSQ:
-      if((ret = read_huffman_table_wsq(dht_table, infp)))
+      if((ret = biomeval_nbis_read_huffman_table_wsq(dht_table, infp)))
          return(ret);
       break;
    case COM_WSQ:
-      if((ret = read_comment(&comment, infp)))
+      if((ret = biomeval_nbis_read_comment(&comment, infp)))
          return(ret);
 #ifdef PRINT_COMMENT
       fprintf(stderr, "COMMENT:\n%s\n\n", comment);
@@ -282,7 +282,7 @@ int read_table_wsq(
       free(comment);
       break;
    default:
-      fprintf(stderr,"ERROR: read_table_wsq : Invalid table defined -> {%u}\n",
+      fprintf(stderr,"ERROR: biomeval_nbis_read_table_wsq : Invalid table defined -> {%u}\n",
               marker);
       return(-75);
    }
@@ -293,7 +293,7 @@ int read_table_wsq(
 /*******************************************************/
 /* Routine to read specified table from memory buffer. */
 /*******************************************************/
-int getc_table_wsq(
+int biomeval_nbis_getc_table_wsq(
    unsigned short marker,         /* WSQ marker */
    DTT_TABLE *dtt_table,  /* transform table structure */
    DQT_TABLE *dqt_table,  /* quantization table structure */
@@ -306,19 +306,19 @@ int getc_table_wsq(
 
    switch(marker){
    case DTT_WSQ:
-      if((ret = getc_transform_table(dtt_table, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_transform_table(dtt_table, cbufptr, ebufptr)))
          return(ret);
       break;
    case DQT_WSQ:
-      if((ret = getc_quantization_table(dqt_table, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_quantization_table(dqt_table, cbufptr, ebufptr)))
          return(ret);
       break;
    case DHT_WSQ:
-      if((ret = getc_huffman_table_wsq(dht_table, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_huffman_table_wsq(dht_table, cbufptr, ebufptr)))
          return(ret);
       break;
    case COM_WSQ:
-      if((ret = getc_comment(&comment, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_comment(&comment, cbufptr, ebufptr)))
          return(ret);
 #ifdef PRINT_COMMENT
       fprintf(stderr, "COMMENT:\n%s\n\n", comment);
@@ -326,7 +326,7 @@ int getc_table_wsq(
       free(comment);
       break;
    default:
-      fprintf(stderr,"ERROR: getc_table_wsq : Invalid table defined -> {%u}\n",
+      fprintf(stderr,"ERROR: biomeval_nbis_getc_table_wsq : Invalid table defined -> {%u}\n",
               marker);
       return(-93);
    }
@@ -337,7 +337,7 @@ int getc_table_wsq(
 /**************************************************/
 /* Routine to read in transform table parameters. */
 /**************************************************/
-int read_transform_table(
+int biomeval_nbis_read_transform_table(
    DTT_TABLE *dtt_table,  /* transform table structure */
    FILE *infp)            /* input file */
 {
@@ -351,11 +351,11 @@ int read_transform_table(
    if(debug > 0)
       fprintf(stderr, "Reading transform table.\n");
 
-   if((ret = read_ushort(&hdr_size, infp)))
+   if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
       return(ret);
-   if((ret = read_byte(&(dtt_table->hisz), infp)))
+   if((ret = biomeval_nbis_read_byte(&(dtt_table->hisz), infp)))
       return(ret);
-   if((ret = read_byte(&(dtt_table->losz), infp)))
+   if((ret = biomeval_nbis_read_byte(&(dtt_table->losz), infp)))
       return(ret);
 
 
@@ -375,7 +375,7 @@ int read_transform_table(
    dtt_table->lofilt = (float *)calloc(dtt_table->losz,sizeof(float));
    if(dtt_table->lofilt == (float *)NULL) {
       fprintf(stderr,
-      "ERROR : read_transform_table : calloc : lofilt\n");
+      "ERROR : biomeval_nbis_read_transform_table : calloc : lofilt\n");
       return(-76);
    }
 
@@ -391,7 +391,7 @@ int read_transform_table(
    if(dtt_table->hifilt == (float *)NULL) {
       free(dtt_table->lofilt);
       fprintf(stderr,
-      "ERROR : read_transform_table : calloc : hifilt\n");
+      "ERROR : biomeval_nbis_read_transform_table : calloc : hifilt\n");
       return(-77);
    }
 
@@ -405,25 +405,25 @@ int read_transform_table(
       free(dtt_table->lofilt);
       free(dtt_table->hifilt);
       fprintf(stderr,
-      "ERROR : read_transform_table : calloc : a_lofilt\n");
+      "ERROR : biomeval_nbis_read_transform_table : calloc : a_lofilt\n");
       return(-78);
    }
 
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
-      if((ret = read_byte(&sign, infp))){
+      if((ret = biomeval_nbis_read_byte(&sign, infp))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
-      if((ret = read_byte(&scale, infp))){
+      if((ret = biomeval_nbis_read_byte(&scale, infp))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
-      if((ret = read_uint(&shrt_dat, infp))){
+      if((ret = biomeval_nbis_read_uint(&shrt_dat, infp))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_lofilt);
@@ -438,16 +438,16 @@ int read_transform_table(
          a_lofilt[cnt] *= -1.0;
 
       if(debug > 3)
-         fprintf(stderr, "lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
+         fprintf(stderr, "biomeval_nbis_lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
 
       if(dtt_table->hisz % 2) {
-         dtt_table->hifilt[cnt + a_size] = (float)((float)int_sign(cnt)
+         dtt_table->hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_lofilt[cnt]);
          if(cnt > 0)
             dtt_table->hifilt[a_size - cnt] = dtt_table->hifilt[cnt + a_size];
       }
       else {
-         dtt_table->hifilt[cnt + a_size + 1] = (float)((float)int_sign(cnt)
+         dtt_table->hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
                                              * a_lofilt[cnt]);
          dtt_table->hifilt[a_size - cnt] = -1.0 *
                                     dtt_table->hifilt[cnt + a_size + 1];
@@ -466,25 +466,25 @@ int read_transform_table(
       free(dtt_table->lofilt);
       free(dtt_table->hifilt);
       fprintf(stderr,
-      "ERROR : read_transform_table : calloc : a_hifilt\n");
+      "ERROR : biomeval_nbis_read_transform_table : calloc : a_hifilt\n");
       return(-79);
    }
 
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
-      if((ret = read_byte(&sign, infp))){
+      if((ret = biomeval_nbis_read_byte(&sign, infp))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
-      if((ret = read_byte(&scale, infp))){
+      if((ret = biomeval_nbis_read_byte(&scale, infp))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
-      if((ret = read_uint(&shrt_dat, infp))){
+      if((ret = biomeval_nbis_read_uint(&shrt_dat, infp))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_hifilt);
@@ -499,16 +499,16 @@ int read_transform_table(
          a_hifilt[cnt] *= -1.0;
 
       if(debug > 2)
-         fprintf(stderr, "hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
+         fprintf(stderr, "biomeval_nbis_hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
 
       if(dtt_table->losz % 2) {
-         dtt_table->lofilt[cnt + a_size] = (float)((float)int_sign(cnt)
+         dtt_table->lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_hifilt[cnt]);
          if(cnt > 0)
             dtt_table->lofilt[a_size - cnt] = dtt_table->lofilt[cnt + a_size];
       }
       else {
-         dtt_table->lofilt[cnt + a_size + 1] = (float)((float)int_sign(cnt+1)
+         dtt_table->lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
                                              * a_hifilt[cnt]);
          dtt_table->lofilt[a_size - cnt] = dtt_table->lofilt[cnt + a_size + 1];
       }
@@ -529,7 +529,7 @@ int read_transform_table(
 /*********************************************************************/
 /* Routine to read in transform table parameters from memory buffer. */
 /*********************************************************************/
-int getc_transform_table(
+int biomeval_nbis_getc_transform_table(
    DTT_TABLE *dtt_table,  /* transform table structure */
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
@@ -544,11 +544,11 @@ int getc_transform_table(
    if(debug > 0)
       fprintf(stderr, "Reading transform table.\n");
 
-   if((ret = getc_ushort(&hdr_size, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_byte(&(dtt_table->hisz), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&(dtt_table->hisz), cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_byte(&(dtt_table->losz), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&(dtt_table->losz), cbufptr, ebufptr)))
       return(ret);
 
 
@@ -568,7 +568,7 @@ int getc_transform_table(
    dtt_table->lofilt = (float *)calloc(dtt_table->losz,sizeof(float));
    if(dtt_table->lofilt == (float *)NULL) {
       fprintf(stderr,
-      "ERROR : getc_transform_table : calloc : lofilt\n");
+      "ERROR : biomeval_nbis_getc_transform_table : calloc : lofilt\n");
       return(-94);
    }
 
@@ -584,7 +584,7 @@ int getc_transform_table(
    if(dtt_table->hifilt == (float *)NULL) {
       free(dtt_table->lofilt);
       fprintf(stderr,
-      "ERROR : getc_transform_table : calloc : hifilt\n");
+      "ERROR : biomeval_nbis_getc_transform_table : calloc : hifilt\n");
       return(-95);
    }
 
@@ -598,25 +598,25 @@ int getc_transform_table(
       free(dtt_table->lofilt);
       free(dtt_table->hifilt);
       fprintf(stderr,
-      "ERROR : getc_transform_table : calloc : a_lofilt\n");
+      "ERROR : biomeval_nbis_getc_transform_table : calloc : a_lofilt\n");
       return(-96);
    }
 
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
-      if((ret = getc_byte(&sign, cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&sign, cbufptr, ebufptr))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
-      if((ret = getc_byte(&scale, cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
-      if((ret = getc_uint(&shrt_dat, cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_uint(&shrt_dat, cbufptr, ebufptr))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_lofilt);
@@ -631,16 +631,16 @@ int getc_transform_table(
          a_lofilt[cnt] *= -1.0;
 
       if(debug > 3)
-         fprintf(stderr, "lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
+         fprintf(stderr, "biomeval_nbis_lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
 
       if(dtt_table->hisz % 2) {
-         dtt_table->hifilt[cnt + a_size] = (float)((float)int_sign(cnt)
+         dtt_table->hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_lofilt[cnt]);
          if(cnt > 0)
             dtt_table->hifilt[a_size - cnt] = dtt_table->hifilt[cnt + a_size];
       }
       else {
-         dtt_table->hifilt[cnt + a_size + 1] = (float)((float)int_sign(cnt)
+         dtt_table->hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
                                              * a_lofilt[cnt]);
          dtt_table->hifilt[a_size - cnt] = -1.0 *
                                     dtt_table->hifilt[cnt + a_size + 1];
@@ -659,25 +659,25 @@ int getc_transform_table(
       free(dtt_table->lofilt);
       free(dtt_table->hifilt);
       fprintf(stderr,
-      "ERROR : getc_transform_table : calloc : a_hifilt\n");
+      "ERROR : biomeval_nbis_getc_transform_table : calloc : a_hifilt\n");
       return(-97);
    }
 
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
-      if((ret = getc_byte(&sign, cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&sign, cbufptr, ebufptr))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
-      if((ret = getc_byte(&scale, cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
-      if((ret = getc_uint(&shrt_dat, cbufptr, ebufptr))){
+      if((ret = biomeval_nbis_getc_uint(&shrt_dat, cbufptr, ebufptr))){
          free(dtt_table->lofilt);
          free(dtt_table->hifilt);
          free(a_hifilt);
@@ -692,16 +692,16 @@ int getc_transform_table(
          a_hifilt[cnt] *= -1.0;
 
       if(debug > 2)
-         fprintf(stderr, "hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
+         fprintf(stderr, "biomeval_nbis_hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
 
       if(dtt_table->losz % 2) {
-         dtt_table->lofilt[cnt + a_size] = (float)((float)int_sign(cnt)
+         dtt_table->lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_hifilt[cnt]);
          if(cnt > 0)
             dtt_table->lofilt[a_size - cnt] = dtt_table->lofilt[cnt + a_size];
       }
       else {
-         dtt_table->lofilt[cnt + a_size + 1] = (float)((float)int_sign(cnt+1)
+         dtt_table->lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
                                              * a_hifilt[cnt]);
          dtt_table->lofilt[a_size - cnt] = dtt_table->lofilt[cnt + a_size + 1];
       }
@@ -722,7 +722,7 @@ int getc_transform_table(
 /********************************************/
 /* Writes transform table to the open file. */
 /********************************************/
-int write_transform_table(
+int biomeval_nbis_write_transform_table(
    float *lofilt,   /* filter coefficients */
    const int losz,
    float *hifilt,
@@ -738,15 +738,15 @@ int write_transform_table(
    if(debug > 0)
       fprintf(stderr, "Writing transform table.\n");
 
-   if((ret = write_ushort(DTT_WSQ, outfp)))
+   if((ret = biomeval_nbis_write_ushort(DTT_WSQ, outfp)))
       return(ret);
-   if((ret = write_ushort(58, outfp))) /* table size */
+   if((ret = biomeval_nbis_write_ushort(58, outfp))) /* table size */
       return(ret);
    /* number analysis lowpass coefficients */
-   if((ret = write_byte(losz, outfp)))
+   if((ret = biomeval_nbis_write_byte(losz, outfp)))
       return(ret);
    /* number analysis highpass coefficients */
-   if((ret = write_byte(hisz, outfp)))
+   if((ret = biomeval_nbis_write_byte(hisz, outfp)))
       return(ret);
 
    for(coef = (losz>>1); coef < losz; coef++) {
@@ -772,7 +772,7 @@ int write_transform_table(
       else {
          dbl_tmp = lofilt[coef];
          fprintf(stderr,
-         "ERROR: write_transform_table : lofilt[%d] to high at %f\n",
+         "ERROR: biomeval_nbis_write_transform_table : lofilt[%d] to high at %f\n",
          coef, dbl_tmp);
          return(-80);
       }
@@ -782,11 +782,11 @@ int write_transform_table(
          fprintf(stderr, "lof[%d] = %0.15f\n", coef, lofilt[coef]);
       }
 
-      if((ret = write_byte(sign, outfp)))
+      if((ret = biomeval_nbis_write_byte(sign, outfp)))
          return(ret);
-      if((ret = write_byte(scale_ex, outfp)))
+      if((ret = biomeval_nbis_write_byte(scale_ex, outfp)))
          return(ret);
-      if((ret = write_uint(int_dat, outfp)))
+      if((ret = biomeval_nbis_write_uint(int_dat, outfp)))
          return(ret);
    }
 
@@ -813,7 +813,7 @@ int write_transform_table(
       else {
          dbl_tmp = hifilt[coef];
          fprintf(stderr,
-         "ERROR: write_transform_table : hifilt[%d] to high at %f\n",
+         "ERROR: biomeval_nbis_write_transform_table : hifilt[%d] to high at %f\n",
          coef, dbl_tmp);
          return(-81);
       }
@@ -823,11 +823,11 @@ int write_transform_table(
          fprintf(stderr, "hif[%d] = %0.15f\n", coef, hifilt[coef]);
       }
 
-      if((ret = write_byte(sign, outfp)))
+      if((ret = biomeval_nbis_write_byte(sign, outfp)))
          return(ret);
-      if((ret = write_byte(scale_ex, outfp)))
+      if((ret = biomeval_nbis_write_byte(scale_ex, outfp)))
          return(ret);
-      if((ret = write_uint(int_dat, outfp)))
+      if((ret = biomeval_nbis_write_uint(int_dat, outfp)))
          return(ret);
    }
 
@@ -840,7 +840,7 @@ int write_transform_table(
 /************************************************/
 /* Stores transform table to the output buffer. */
 /************************************************/
-int putc_transform_table(
+int biomeval_nbis_putc_transform_table(
    float *lofilt,     /* filter coefficients      */
    const int losz,
    float *hifilt,
@@ -858,16 +858,16 @@ int putc_transform_table(
    if(debug > 0)
       fprintf(stderr, "Writing transform table.\n");
 
-   if((ret = putc_ushort(DTT_WSQ, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(DTT_WSQ, odata, oalloc, olen)))
       return(ret);
    /* table size */
-   if((ret = putc_ushort(58, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(58, odata, oalloc, olen)))
       return(ret);
    /* number analysis lowpass coefficients */
-   if((ret = putc_byte(losz, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_byte(losz, odata, oalloc, olen)))
       return(ret);
    /* number analysis highpass coefficients */
-   if((ret = putc_byte(hisz, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_byte(hisz, odata, oalloc, olen)))
       return(ret);
 
    for(coef = (losz>>1); coef < losz; coef++) {
@@ -893,7 +893,7 @@ int putc_transform_table(
       else {
          dbl_tmp = lofilt[coef];
          fprintf(stderr,
-         "ERROR: putc_transform_table : lofilt[%d] to high at %f\n",
+         "ERROR: biomeval_nbis_putc_transform_table : lofilt[%d] to high at %f\n",
          coef, dbl_tmp);
          return(-82);
       }
@@ -903,11 +903,11 @@ int putc_transform_table(
          fprintf(stderr, "lof[%d] = %0.15f\n", coef, lofilt[coef]);
       }
 
-      if((ret = putc_byte(sign, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_byte(sign, odata, oalloc, olen)))
          return(ret);
-      if((ret = putc_byte(scale_ex, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_byte(scale_ex, odata, oalloc, olen)))
          return(ret);
-      if((ret = putc_uint(int_dat, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_uint(int_dat, odata, oalloc, olen)))
          return(ret);
    }
 
@@ -934,7 +934,7 @@ int putc_transform_table(
       else {
          dbl_tmp = hifilt[coef];
          fprintf(stderr,
-         "ERROR: putc_transform_table : hifilt[%d] to high at %f\n",
+         "ERROR: biomeval_nbis_putc_transform_table : hifilt[%d] to high at %f\n",
          coef, dbl_tmp);
          return(-83);
       }
@@ -944,11 +944,11 @@ int putc_transform_table(
          fprintf(stderr, "hif[%d] = %0.15f\n", coef, hifilt[coef]);
       }
 
-      if((ret = putc_byte(sign, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_byte(sign, odata, oalloc, olen)))
          return(ret);
-      if((ret = putc_byte(scale_ex, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_byte(scale_ex, odata, oalloc, olen)))
          return(ret);
-      if((ret = putc_uint(int_dat, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_uint(int_dat, odata, oalloc, olen)))
          return(ret);
    }
 
@@ -961,7 +961,7 @@ int putc_transform_table(
 /*****************************************************/
 /* Routine to read in quantization table parameters. */
 /*****************************************************/
-int read_quantization_table(
+int biomeval_nbis_read_quantization_table(
    DQT_TABLE *dqt_table,  /* quatization table structure */
    FILE *infp)            /* input file */
 {
@@ -973,11 +973,11 @@ int read_quantization_table(
    if(debug > 0)
       fprintf(stderr, "Reading quantization table.\n");
 
-   if((ret = read_ushort(&hdr_size, infp)))
+   if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
       return(ret);
-   if((ret = read_byte(&scale, infp)))
+   if((ret = biomeval_nbis_read_byte(&scale, infp)))
       return(ret);
-   if((ret = read_ushort(&shrt_dat, infp)))
+   if((ret = biomeval_nbis_read_ushort(&shrt_dat, infp)))
       return(ret);
    dqt_table->bin_center = (float)shrt_dat;
    while(scale > 0) {
@@ -986,18 +986,18 @@ int read_quantization_table(
    }
 
    for(cnt = 0; cnt < 64; cnt++) {
-      if((ret = read_byte(&scale, infp)))
+      if((ret = biomeval_nbis_read_byte(&scale, infp)))
          return(ret);
-      if((ret = read_ushort(&shrt_dat, infp)))
+      if((ret = biomeval_nbis_read_ushort(&shrt_dat, infp)))
          return(ret);
       dqt_table->q_bin[cnt] = (float)shrt_dat;
       while(scale > 0) {
          dqt_table->q_bin[cnt] /= 10.0;
          scale--;
       }
-      if((ret = read_byte(&scale, infp)))
+      if((ret = biomeval_nbis_read_byte(&scale, infp)))
          return(ret);
-      if((ret = read_ushort(&shrt_dat, infp)))
+      if((ret = biomeval_nbis_read_ushort(&shrt_dat, infp)))
          return(ret);
       dqt_table->z_bin[cnt] = (float)shrt_dat;
       while(scale > 0) {
@@ -1022,7 +1022,7 @@ int read_quantization_table(
 /************************************************************************/
 /* Routine to read in quantization table parameters from memory buffer. */
 /************************************************************************/
-int getc_quantization_table(
+int biomeval_nbis_getc_quantization_table(
    DQT_TABLE *dqt_table,  /* quatization table structure */
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
@@ -1035,11 +1035,11 @@ int getc_quantization_table(
    if(debug > 0)
       fprintf(stderr, "Reading quantization table.\n");
 
-   if((ret = getc_ushort(&hdr_size, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_byte(&scale, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_ushort(&shrt_dat, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&shrt_dat, cbufptr, ebufptr)))
       return(ret);
    dqt_table->bin_center = (float)shrt_dat;
    while(scale > 0) {
@@ -1048,18 +1048,18 @@ int getc_quantization_table(
    }
 
    for(cnt = 0; cnt < 64; cnt++) {
-      if((ret = getc_byte(&scale, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr)))
          return(ret);
-      if((ret = getc_ushort(&shrt_dat, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_ushort(&shrt_dat, cbufptr, ebufptr)))
          return(ret);
       dqt_table->q_bin[cnt] = (float)shrt_dat;
       while(scale > 0) {
          dqt_table->q_bin[cnt] /= 10.0;
          scale--;
       }
-      if((ret = getc_byte(&scale, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr)))
          return(ret);
-      if((ret = getc_ushort(&shrt_dat, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_ushort(&shrt_dat, cbufptr, ebufptr)))
          return(ret);
       dqt_table->z_bin[cnt] = (float)shrt_dat;
       while(scale > 0) {
@@ -1084,7 +1084,7 @@ int getc_quantization_table(
 /***********************************************/
 /* Writes quantization table to the open file. */
 /***********************************************/
-int write_quantization_table(
+int biomeval_nbis_write_quantization_table(
    QUANT_VALS *quant_vals,   /* quantization parameters */
    FILE *outfp)               /* compressed file */
 {
@@ -1097,16 +1097,16 @@ int write_quantization_table(
    if(debug > 0)
       fprintf(stderr, "Writing quantization table.\n");
 
-   if((ret = write_ushort(DQT_WSQ, outfp)))
+   if((ret = biomeval_nbis_write_ushort(DQT_WSQ, outfp)))
       return(ret);
    /* table size */
-   if((ret = write_ushort(389, outfp)))
+   if((ret = biomeval_nbis_write_ushort(389, outfp)))
       return(ret);
    /* exponent scaling value */
-   if((ret = write_byte(2, outfp)))
+   if((ret = biomeval_nbis_write_byte(2, outfp)))
       return(ret);
    /* quantizer bin center parameter */
-   if((ret = write_ushort(44, outfp)))
+   if((ret = biomeval_nbis_write_ushort(44, outfp)))
       return(ret);
 
    for(sub = 0; sub < 64; sub ++) {
@@ -1125,7 +1125,7 @@ int write_quantization_table(
             else {
                flt_tmp = quant_vals->qbss[sub];
                fprintf(stderr,
-               "ERROR : write_quantization_table : Q[%d] to high at %f\n",
+               "ERROR : biomeval_nbis_write_quantization_table : Q[%d] to high at %f\n",
                sub, flt_tmp);
                return(-84);
             }
@@ -1143,7 +1143,7 @@ int write_quantization_table(
             else {
                flt_tmp = quant_vals->qzbs[sub];
                fprintf(stderr,
-               "ERROR : write_quantization_table : Z[%d] to high at %f\n",
+               "ERROR : biomeval_nbis_write_quantization_table : Z[%d] to high at %f\n",
                sub, flt_tmp);
                return(-85);
             }
@@ -1170,13 +1170,13 @@ int write_quantization_table(
           sub, quant_vals->qzbs[sub]);
       }
 
-      if((ret = write_byte(scale_ex, outfp)))
+      if((ret = biomeval_nbis_write_byte(scale_ex, outfp)))
          return(ret);
-      if((ret = write_ushort(shrt_dat, outfp)))
+      if((ret = biomeval_nbis_write_ushort(shrt_dat, outfp)))
          return(ret);
-      if((ret = write_byte(scale_ex2, outfp)))
+      if((ret = biomeval_nbis_write_byte(scale_ex2, outfp)))
          return(ret);
-      if((ret = write_ushort(shrt_dat2, outfp)))
+      if((ret = biomeval_nbis_write_ushort(shrt_dat2, outfp)))
          return(ret);
    }
 
@@ -1189,7 +1189,7 @@ int write_quantization_table(
 /***************************************************/
 /* Stores quantization table in the output buffer. */
 /***************************************************/
-int putc_quantization_table(
+int biomeval_nbis_putc_quantization_table(
    QUANT_VALS *quant_vals,   /* quantization parameters  */
    unsigned char *odata,             /* output byte buffer       */
    const int oalloc,         /* allocated size of buffer */
@@ -1204,16 +1204,16 @@ int putc_quantization_table(
    if(debug > 0)
       fprintf(stderr, "Writing quantization table.\n");
 
-   if((ret = putc_ushort(DQT_WSQ, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(DQT_WSQ, odata, oalloc, olen)))
       return(ret);
    /* table size */
-   if((ret = putc_ushort(389, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(389, odata, oalloc, olen)))
       return(ret);
    /* exponent scaling value */
-   if((ret = putc_byte(2, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_byte(2, odata, oalloc, olen)))
       return(ret);
    /* quantizer bin center parameter */
-   if((ret = putc_ushort(44, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(44, odata, oalloc, olen)))
       return(ret);
 
    for(sub = 0; sub < 64; sub ++) {
@@ -1232,7 +1232,7 @@ int putc_quantization_table(
             else {
                flt_tmp = quant_vals->qbss[sub];
                fprintf(stderr,
-               "ERROR : putc_quantization_table : Q[%d] to high at %f\n",
+               "ERROR : biomeval_nbis_putc_quantization_table : Q[%d] to high at %f\n",
                sub, flt_tmp);
                return(-86);
             }
@@ -1250,7 +1250,7 @@ int putc_quantization_table(
             else {
                flt_tmp = quant_vals->qzbs[sub];
                fprintf(stderr,
-               "ERROR : putc_quantization_table : Z[%d] to high at %f\n",
+               "ERROR : biomeval_nbis_putc_quantization_table : Z[%d] to high at %f\n",
                sub, flt_tmp);
                return(-87);
             }
@@ -1277,13 +1277,13 @@ int putc_quantization_table(
           sub, quant_vals->qzbs[sub]);
       }
 
-      if((ret = putc_byte(scale_ex, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_byte(scale_ex, odata, oalloc, olen)))
          return(ret);
-      if((ret = putc_ushort(shrt_dat, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_ushort(shrt_dat, odata, oalloc, olen)))
          return(ret);
-      if((ret = putc_byte(scale_ex2, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_byte(scale_ex2, odata, oalloc, olen)))
          return(ret);
-      if((ret = putc_ushort(shrt_dat2, odata, oalloc, olen)))
+      if((ret = biomeval_nbis_putc_ushort(shrt_dat2, odata, oalloc, olen)))
          return(ret);
    }
 
@@ -1296,7 +1296,7 @@ int putc_quantization_table(
 /************************************************/
 /* Routine to read in huffman table parameters. */
 /************************************************/
-int read_huffman_table_wsq(
+int biomeval_nbis_read_huffman_table_wsq(
    DHT_TABLE *dht_table,  /* huffman table structure */
    FILE *infp)            /* input file */
 {
@@ -1307,7 +1307,7 @@ int read_huffman_table_wsq(
    int bytes_left;
 
    /* First time, read table len. */
-   if((ret = read_huffman_table(&table_id, &huffbits, &huffvalues,
+   if((ret = biomeval_nbis_read_huffman_table(&table_id, &huffbits, &huffvalues,
                                MAX_HUFFCOUNTS_WSQ, infp,
                                READ_TABLE_LEN, &bytes_left)))
       return(ret);
@@ -1321,7 +1321,7 @@ int read_huffman_table_wsq(
 
    while(bytes_left){
       /* Read next table without rading table len. */
-      if((ret = read_huffman_table(&table_id, &huffbits, &huffvalues,
+      if((ret = biomeval_nbis_read_huffman_table(&table_id, &huffbits, &huffvalues,
                                   MAX_HUFFCOUNTS_WSQ, infp,
                                   NO_READ_TABLE_LEN, &bytes_left)))
          return(ret);
@@ -1330,7 +1330,7 @@ int read_huffman_table_wsq(
       if((dht_table+table_id)->tabdef){
          free(huffbits);
          free(huffvalues);
-         fprintf(stderr, "ERROR : read_huffman_table_wsq : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table_wsq : ");
          fprintf(stderr, "huffman table ID = %d already defined\n", table_id);
          return(-2);
       }
@@ -1349,7 +1349,7 @@ int read_huffman_table_wsq(
 /*******************************************************************/
 /* Routine to read in huffman table parameters from memory buffer. */
 /*******************************************************************/
-int getc_huffman_table_wsq(
+int biomeval_nbis_getc_huffman_table_wsq(
    DHT_TABLE *dht_table,  /* huffman table structure */
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
@@ -1361,7 +1361,7 @@ int getc_huffman_table_wsq(
    int bytes_left;
 
    /* First time, read table len. */
-   if((ret = getc_huffman_table(&table_id, &huffbits, &huffvalues,
+   if((ret = biomeval_nbis_getc_huffman_table(&table_id, &huffbits, &huffvalues,
                                MAX_HUFFCOUNTS_WSQ, cbufptr, ebufptr,
                                READ_TABLE_LEN, &bytes_left)))
       return(ret);
@@ -1376,7 +1376,7 @@ int getc_huffman_table_wsq(
 
    while(bytes_left){
       /* Read next table without rading table len. */
-      if((ret = getc_huffman_table(&table_id, &huffbits, &huffvalues,
+      if((ret = biomeval_nbis_getc_huffman_table(&table_id, &huffbits, &huffvalues,
                                   MAX_HUFFCOUNTS_WSQ, cbufptr, ebufptr,
                                   NO_READ_TABLE_LEN, &bytes_left)))
          return(ret);
@@ -1385,7 +1385,7 @@ int getc_huffman_table_wsq(
       if((dht_table+table_id)->tabdef){
          free(huffbits);
          free(huffvalues);
-         fprintf(stderr, "ERROR : getc_huffman_table_wsq : ");
+         fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_wsq : ");
          fprintf(stderr, "huffman table ID = %d already defined\n", table_id);
          return(-2);
       }
@@ -1405,7 +1405,7 @@ int getc_huffman_table_wsq(
 /***********************************************/
 /* Routine to read in frame header parameters. */
 /***********************************************/
-int read_frame_header_wsq(
+int biomeval_nbis_read_frame_header_wsq(
    FRM_HEADER_WSQ *frm_header,  /* frame header structure */
    FILE *infp)              /* input file */
 {
@@ -1416,28 +1416,28 @@ int read_frame_header_wsq(
    if(debug > 0)
       fprintf(stderr, "Reading frame header.\n");
 
-   if((ret = read_ushort(&hdr_size, infp)))
+   if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
       return(ret);
-   if((ret = read_byte(&(frm_header->black), infp)))
+   if((ret = biomeval_nbis_read_byte(&(frm_header->black), infp)))
       return(ret);
-   if((ret = read_byte(&(frm_header->white), infp)))
+   if((ret = biomeval_nbis_read_byte(&(frm_header->white), infp)))
       return(ret);
-   if((ret = read_ushort(&(frm_header->height), infp)))
+   if((ret = biomeval_nbis_read_ushort(&(frm_header->height), infp)))
       return(ret);
-   if((ret = read_ushort(&(frm_header->width), infp)))
+   if((ret = biomeval_nbis_read_ushort(&(frm_header->width), infp)))
       return(ret);
-   if((ret = read_byte(&scale, infp)))
+   if((ret = biomeval_nbis_read_byte(&scale, infp)))
       return(ret);
-   if((ret = read_ushort(&shrt_dat, infp)))
+   if((ret = biomeval_nbis_read_ushort(&shrt_dat, infp)))
       return(ret);
    frm_header->m_shift = (float) shrt_dat;
    while(scale > 0) {
       frm_header->m_shift /= 10.0;
       scale--;
    }
-   if((ret = read_byte(&scale, infp)))
+   if((ret = biomeval_nbis_read_byte(&scale, infp)))
       return(ret);
-   if((ret = read_ushort(&shrt_dat, infp)))
+   if((ret = biomeval_nbis_read_ushort(&shrt_dat, infp)))
       return(ret);
    frm_header->r_scale = (float) shrt_dat;
    while(scale > 0) {
@@ -1445,9 +1445,9 @@ int read_frame_header_wsq(
       scale--;
    }
 
-   if((ret = read_byte(&(frm_header->wsq_encoder), infp)))
+   if((ret = biomeval_nbis_read_byte(&(frm_header->wsq_encoder), infp)))
       return(ret);
-   if((ret = read_ushort(&(frm_header->software), infp)))
+   if((ret = biomeval_nbis_read_ushort(&(frm_header->software), infp)))
       return(ret);
 
    if(debug > 2) {
@@ -1470,7 +1470,7 @@ int read_frame_header_wsq(
 /******************************************************************/
 /* Routine to read in frame header parameters from memory buffer. */
 /******************************************************************/
-int getc_frame_header_wsq(
+int biomeval_nbis_getc_frame_header_wsq(
    FRM_HEADER_WSQ *frm_header,  /* frame header structure */
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
@@ -1482,28 +1482,28 @@ int getc_frame_header_wsq(
    if(debug > 0)
       fprintf(stderr, "Reading frame header.\n");
 
-   if((ret = getc_ushort(&hdr_size, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_byte(&(frm_header->black), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&(frm_header->black), cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_byte(&(frm_header->white), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&(frm_header->white), cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_ushort(&(frm_header->height), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&(frm_header->height), cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_ushort(&(frm_header->width), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&(frm_header->width), cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_byte(&scale, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_ushort(&shrt_dat, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&shrt_dat, cbufptr, ebufptr)))
       return(ret);
    frm_header->m_shift = (float) shrt_dat;
    while(scale > 0) {
       frm_header->m_shift /= 10.0;
       scale--;
    }
-   if((ret = getc_byte(&scale, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_ushort(&shrt_dat, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&shrt_dat, cbufptr, ebufptr)))
       return(ret);
    frm_header->r_scale = (float) shrt_dat;
    while(scale > 0) {
@@ -1511,9 +1511,9 @@ int getc_frame_header_wsq(
       scale--;
    }
 
-   if((ret = getc_byte(&(frm_header->wsq_encoder), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&(frm_header->wsq_encoder), cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_ushort(&(frm_header->software), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&(frm_header->software), cbufptr, ebufptr)))
       return(ret);
 
    if(debug > 2) {
@@ -1536,7 +1536,7 @@ int getc_frame_header_wsq(
 /*****************************************/
 /* Writes frame header to the open file. */
 /*****************************************/
-int write_frame_header_wsq(
+int biomeval_nbis_write_frame_header_wsq(
    const int width,      /* image width              */
    const int height,     /* image height             */
    const float m_shift,  /* image shifting parameter */
@@ -1551,20 +1551,20 @@ int write_frame_header_wsq(
    if(debug > 0)
       fprintf(stderr, "Writing frame header.\n");
 
-   if((ret = write_ushort(SOF_WSQ, outfp)))
+   if((ret = biomeval_nbis_write_ushort(SOF_WSQ, outfp)))
       return(ret);
    /* size of frame header */
-   if((ret = write_ushort(17, outfp)))
+   if((ret = biomeval_nbis_write_ushort(17, outfp)))
       return(ret);
    /* black pixel */
-   if((ret = write_byte(0, outfp)))
+   if((ret = biomeval_nbis_write_byte(0, outfp)))
       return(ret);
    /* white pixel */
-   if((ret = write_byte(255, outfp)))
+   if((ret = biomeval_nbis_write_byte(255, outfp)))
       return(ret);
-   if((ret = write_ushort(height, outfp)))
+   if((ret = biomeval_nbis_write_ushort(height, outfp)))
       return(ret);
-   if((ret = write_ushort(width, outfp)))
+   if((ret = biomeval_nbis_write_ushort(width, outfp)))
       return(ret);
 
    if(debug > 2)
@@ -1583,9 +1583,9 @@ int write_frame_header_wsq(
    }
    else
       shrt_dat = 0;
-   if((ret = write_byte(scale_ex, outfp)))
+   if((ret = biomeval_nbis_write_byte(scale_ex, outfp)))
       return(ret);
-   if((ret = write_ushort(shrt_dat, outfp)))
+   if((ret = biomeval_nbis_write_ushort(shrt_dat, outfp)))
       return(ret);
 
    flt_tmp = r_scale;
@@ -1600,13 +1600,13 @@ int write_frame_header_wsq(
    }
    else
       shrt_dat = 0;
-   if((ret = write_byte(scale_ex, outfp)))
+   if((ret = biomeval_nbis_write_byte(scale_ex, outfp)))
       return(ret);
-   if((ret = write_ushort(shrt_dat, outfp)))
+   if((ret = biomeval_nbis_write_ushort(shrt_dat, outfp)))
       return(ret);
-   if((ret = write_byte(2, outfp)))
+   if((ret = biomeval_nbis_write_byte(2, outfp)))
       return(ret);
-   if((ret = write_ushort(0, outfp)))
+   if((ret = biomeval_nbis_write_ushort(0, outfp)))
       return(ret);
 
    if(debug > 0)
@@ -1618,7 +1618,7 @@ int write_frame_header_wsq(
 /*********************************************/
 /* Stores frame header to the output buffer. */
 /*********************************************/
-int putc_frame_header_wsq(
+int biomeval_nbis_putc_frame_header_wsq(
    const int width,       /* image width              */
    const int height,      /* image height             */
    const float m_shift,   /* image shifting parameter */
@@ -1635,20 +1635,20 @@ int putc_frame_header_wsq(
    if(debug > 0)
       fprintf(stderr, "Writing frame header.\n");
 
-   if((ret = putc_ushort(SOF_WSQ, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(SOF_WSQ, odata, oalloc, olen)))
       return(ret);
    /* size of frame header */
-   if((ret = putc_ushort(17, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(17, odata, oalloc, olen)))
       return(ret);
    /* black pixel */
-   if((ret = putc_byte(0, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_byte(0, odata, oalloc, olen)))
       return(ret);
    /* white pixel */
-   if((ret = putc_byte(255, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_byte(255, odata, oalloc, olen)))
       return(ret);
-   if((ret = putc_ushort(height, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(height, odata, oalloc, olen)))
       return(ret);
-   if((ret = putc_ushort(width, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(width, odata, oalloc, olen)))
       return(ret);
 
    if(debug > 2)
@@ -1667,9 +1667,9 @@ int putc_frame_header_wsq(
    }
    else
       shrt_dat = 0;
-   if((ret = putc_byte(scale_ex, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_byte(scale_ex, odata, oalloc, olen)))
       return(ret);
-   if((ret = putc_ushort(shrt_dat, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(shrt_dat, odata, oalloc, olen)))
       return(ret);
 
    flt_tmp = r_scale;
@@ -1684,13 +1684,13 @@ int putc_frame_header_wsq(
    }
    else
       shrt_dat = 0;
-   if((ret = putc_byte(scale_ex, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_byte(scale_ex, odata, oalloc, olen)))
       return(ret);
-   if((ret = putc_ushort(shrt_dat, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(shrt_dat, odata, oalloc, olen)))
       return(ret);
-   if((ret = putc_byte(2, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_byte(2, odata, oalloc, olen)))
       return(ret);
-   if((ret = putc_ushort(0, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(0, odata, oalloc, olen)))
       return(ret);
 
    if(debug > 0)
@@ -1702,7 +1702,7 @@ int putc_frame_header_wsq(
 /***********************************************/
 /* Routine to read in block header parameters. */
 /***********************************************/
-int read_block_header(
+int biomeval_nbis_read_block_header(
    unsigned char *huff_table,   /* huffman table indicator */
    FILE *infp)          /* input file */
 {
@@ -1712,9 +1712,9 @@ int read_block_header(
    if(debug > 0)
       fprintf(stderr, "Reading block header.\n");
 
-   if((ret = read_ushort(&hdr_size, infp)))
+   if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
       return(ret);
-   if((ret = read_byte(huff_table, infp)))
+   if((ret = biomeval_nbis_read_byte(huff_table, infp)))
       return(ret);
 
    if(debug > 2)
@@ -1728,7 +1728,7 @@ int read_block_header(
 /******************************************************************/
 /* Routine to read in block header parameters from memory buffer. */
 /******************************************************************/
-int getc_block_header(
+int biomeval_nbis_getc_block_header(
    unsigned char *huff_table,   /* huffman table indicator */
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
@@ -1739,9 +1739,9 @@ int getc_block_header(
    if(debug > 0)
       fprintf(stderr, "Reading block header.\n");
 
-   if((ret = getc_ushort(&hdr_size, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
       return(ret);
-   if((ret = getc_byte(huff_table, cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(huff_table, cbufptr, ebufptr)))
       return(ret);
 
    if(debug > 2)
@@ -1755,7 +1755,7 @@ int getc_block_header(
 /*****************************************/
 /* Writes block header to the open file. */
 /*****************************************/
-int write_block_header(
+int biomeval_nbis_write_block_header(
    const int table,  /* huffman table indicator */
    FILE *outfp)       /* compressed file */
 {
@@ -1764,12 +1764,12 @@ int write_block_header(
    if(debug > 0)
       fprintf(stderr, "Writing block header.\n");
 
-   if((ret = write_ushort(SOB_WSQ, outfp)))
+   if((ret = biomeval_nbis_write_ushort(SOB_WSQ, outfp)))
       return(ret);
    /* block header size */
-   if((ret = write_ushort(3, outfp)))
+   if((ret = biomeval_nbis_write_ushort(3, outfp)))
       return(ret);
-   if((ret = write_byte(table, outfp)))
+   if((ret = biomeval_nbis_write_byte(table, outfp)))
       return(ret);
 
    if(debug > 0)
@@ -1781,7 +1781,7 @@ int write_block_header(
 /*********************************************/
 /* Stores block header to the output buffer. */
 /*********************************************/
-int putc_block_header(
+int biomeval_nbis_putc_block_header(
    const int table,   /* huffman table indicator  */
    unsigned char *odata,      /* output byte buffer       */
    const int oalloc,  /* allocated size of buffer */
@@ -1792,12 +1792,12 @@ int putc_block_header(
    if(debug > 0)
       fprintf(stderr, "Writing block header.\n");
 
-   if((ret = putc_ushort(SOB_WSQ, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(SOB_WSQ, odata, oalloc, olen)))
       return(ret);
    /* block header size */
-   if((ret = putc_ushort(3, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_ushort(3, odata, oalloc, olen)))
       return(ret);
-   if((ret = putc_byte((unsigned char)table, odata, oalloc, olen)))
+   if((ret = biomeval_nbis_putc_byte((unsigned char)table, odata, oalloc, olen)))
       return(ret);
 
    if(debug > 0)
@@ -1807,7 +1807,7 @@ int putc_block_header(
 }
 
 /*******************************************/
-int add_comment_wsq(unsigned char **ocdata, int *oclen, unsigned char *idata,
+int biomeval_nbis_add_comment_wsq(unsigned char **ocdata, int *oclen, unsigned char *idata,
                     const int ilen, unsigned char *comment)
 {
    int ret, nlen, nalloc;
@@ -1818,7 +1818,7 @@ int add_comment_wsq(unsigned char **ocdata, int *oclen, unsigned char *idata,
    if((comment == (unsigned char *)NULL) ||
       (strlen((char *)comment) == 0)){
       fprintf(stderr,
-             "ERROR : add_comment_wsq : empty comment passed\n");
+             "ERROR : biomeval_nbis_add_comment_wsq : empty comment passed\n");
       return(-2);
    }
 
@@ -1831,7 +1831,7 @@ int add_comment_wsq(unsigned char **ocdata, int *oclen, unsigned char *idata,
    /* Allocate new compressed byte stream. */
    if((ndata = (unsigned char *)malloc(nalloc * sizeof(unsigned char)))
              == (unsigned char *)NULL){
-      fprintf(stderr, "ERROR : add_comment_wsq : malloc : ndata\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_add_comment_wsq : malloc : ndata\n");
       return(-3);
    }
    cbufptr = idata;
@@ -1840,19 +1840,19 @@ int add_comment_wsq(unsigned char **ocdata, int *oclen, unsigned char *idata,
    /* Parse idata and determine comment destination in byte stream. */
    
    /* Parse SOI */
-   if((ret = getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr))){
       free(ndata);
       return(ret);
    }
 
    /* Copy SOI */
-   if((ret = putc_ushort(marker, ndata, nalloc, &nlen))){
+   if((ret = biomeval_nbis_putc_ushort(marker, ndata, nalloc, &nlen))){
       free(ndata);
       return(ret);
    }
 
    /* Read next marker. */
-   if((ret = getc_ushort(&marker, &cbufptr, ebufptr))){
+   if((ret = biomeval_nbis_getc_ushort(&marker, &cbufptr, ebufptr))){
       free(ndata);
       return(ret);
    }
@@ -1862,12 +1862,12 @@ int add_comment_wsq(unsigned char **ocdata, int *oclen, unsigned char *idata,
       /* Do ... while COM segments exist in input byte stream ... */
       do{
          /* Read COM_WSQ segment. */
-         if((ret = getc_comment(&ocomment, &cbufptr, ebufptr))){
+         if((ret = biomeval_nbis_getc_comment(&ocomment, &cbufptr, ebufptr))){
             free(ndata);
             return(ret);
          }
          /* Copy COM segment. */
-         if((ret = putc_comment(COM_WSQ, ocomment, strlen((char *)ocomment),
+         if((ret = biomeval_nbis_putc_comment(COM_WSQ, ocomment, strlen((char *)ocomment),
                                 ndata, nalloc, &nlen))){
             free(ndata);
             free(ocomment);
@@ -1875,7 +1875,7 @@ int add_comment_wsq(unsigned char **ocdata, int *oclen, unsigned char *idata,
          }
          free(ocomment);
          /* Read next marker. */
-         if((ret = getc_ushort(&marker, &cbufptr, ebufptr))){
+         if((ret = biomeval_nbis_getc_ushort(&marker, &cbufptr, ebufptr))){
             free(ndata);
             return(ret);
          }
@@ -1886,14 +1886,14 @@ int add_comment_wsq(unsigned char **ocdata, int *oclen, unsigned char *idata,
    cbufptr -= sizeof(unsigned short);
 
    /* Insert Comment Segment */
-   if((ret = putc_comment(COM_WSQ, comment, strlen((char *)comment),
+   if((ret = biomeval_nbis_putc_comment(COM_WSQ, comment, strlen((char *)comment),
                          ndata, nalloc, &nlen))){
       free(ndata);
       return(ret);
    }
 
    /* Append remaining byte stream */
-   if((ret = putc_bytes(cbufptr, ebufptr - cbufptr, ndata, nalloc, &nlen))){
+   if((ret = biomeval_nbis_putc_bytes(cbufptr, ebufptr - cbufptr, ndata, nalloc, &nlen))){
       free(ndata);
       return(ret);
    }
@@ -1905,7 +1905,7 @@ int add_comment_wsq(unsigned char **ocdata, int *oclen, unsigned char *idata,
 }
 
 /*******************************************/
-int putc_nistcom_wsq(char *comment_text, const int w, const int h,
+int biomeval_nbis_putc_nistcom_wsq(char *comment_text, const int w, const int h,
                      const int d, const int ppi, const int lossyflag,
                      const float r_bitrate,
                      unsigned char *odata, const int oalloc, int *olen)
@@ -1920,7 +1920,7 @@ int putc_nistcom_wsq(char *comment_text, const int w, const int h,
    if(comment_text != (char *)NULL){
       /* if NISTCOM ... */
       if(strncmp(comment_text, NCM_HEADER, strlen(NCM_HEADER)) == 0){
-         if((ret = string2fet(&nistcom, comment_text))){
+         if((ret = biomeval_nbis_string2fet(&nistcom, comment_text))){
             return(ret);
          }
       }
@@ -1932,32 +1932,32 @@ int putc_nistcom_wsq(char *comment_text, const int w, const int h,
    /* Otherwise, no comment passed ... */
 
    /* Combine image attributes to NISTCOM. */
-   if((ret = combine_wsq_nistcom(&nistcom, w, h, d, ppi, lossyflag, r_bitrate))){
+   if((ret = biomeval_nbis_combine_wsq_nistcom(&nistcom, w, h, d, ppi, lossyflag, r_bitrate))){
       if(nistcom != (NISTCOM *)NULL)
-         freefet(nistcom);
+         biomeval_nbis_freefet(nistcom);
       return(ret);
    }
 
    /* Put NISTCOM ... */
    /* NISTCOM to string. */
-   if((ret = fet2string(&comstr, nistcom))){
-      freefet(nistcom);
+   if((ret = biomeval_nbis_fet2string(&comstr, nistcom))){
+      biomeval_nbis_freefet(nistcom);
       return(ret);
    }
    /* Put NISTCOM comment string. */
-   if((ret = putc_comment(COM_WSQ, (unsigned char *)comstr, strlen(comstr),
+   if((ret = biomeval_nbis_putc_comment(COM_WSQ, (unsigned char *)comstr, strlen(comstr),
                         odata, oalloc, olen))){
-      freefet(nistcom);
+      biomeval_nbis_freefet(nistcom);
       free(comstr);
       return(ret);
    }
-   freefet(nistcom);
+   biomeval_nbis_freefet(nistcom);
    free(comstr);
 
    /* If general comment exists ... */
    if(gencomflag){
       /* Put general comment to its own segment. */
-      if((ret = putc_comment(COM_WSQ, (unsigned char *)comment_text,
+      if((ret = biomeval_nbis_putc_comment(COM_WSQ, (unsigned char *)comment_text,
                              strlen(comment_text), odata, oalloc, olen)))
          return(ret);
    }
@@ -1968,7 +1968,7 @@ int putc_nistcom_wsq(char *comment_text, const int w, const int h,
 /************************************************/
 /* Get and return first NISTCOM from open file.**/
 /************************************************/
-int read_nistcom_wsq(NISTCOM **onistcom, FILE *infp)
+int biomeval_nbis_read_nistcom_wsq(NISTCOM **onistcom, FILE *infp)
 {
    int ret;
    long savepos;
@@ -1979,18 +1979,18 @@ int read_nistcom_wsq(NISTCOM **onistcom, FILE *infp)
    int id_len;
 
    /* Get SOI */
-   if((ret = read_marker_wsq(&marker, SOI_WSQ, infp)))
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, SOI_WSQ, infp)))
       return(ret);
 
    /* Get next marker. */
-   if((ret = read_marker_wsq(&marker, ANY_WSQ, infp)))
+   if((ret = biomeval_nbis_read_marker_wsq(&marker, ANY_WSQ, infp)))
       return(ret);
 
    /* Allocate temporary buffer the size of the NIST_COM Header ID. */
    id_len = strlen(NCM_HEADER);
    value = (char *)calloc(id_len, sizeof(char));
    if(value == (char *)NULL){
-      fprintf(stderr, "ERROR : read_nistcom_wsq : calloc : value\n");
+      fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_wsq : calloc : value\n");
       return(-2);
    }
 
@@ -1999,14 +1999,14 @@ int read_nistcom_wsq(NISTCOM **onistcom, FILE *infp)
    while(marker != SOB_WSQ){
       if(marker == COM_WSQ){
          if((savepos = ftell(infp)) < 0){
-            fprintf(stderr, "ERROR : read_nistcom_wsq : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_wsq : ");
             fprintf(stderr, "ftell : unable to determine current position\n");
             free(value);
             return(-3);
          }
          /* Skip Length (short) Bytes */
          if(fseek(infp, 2L, SEEK_CUR) < 0){
-            fprintf(stderr, "ERROR : read_nistcom_wsq : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_wsq : ");
             fprintf(stderr, "fseek : unable to skip length bytes\n");
             free(value);
             return(-4);
@@ -2016,7 +2016,7 @@ int read_nistcom_wsq(NISTCOM **onistcom, FILE *infp)
          /* read all id_len bytes, then flag error.           */
          ret = fread(value, sizeof(char), id_len, infp);
          if(ret != id_len){
-            fprintf(stderr, "ERROR : read_nistcom_wsq : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_wsq : ");
             fprintf(stderr, "fread : only %d of %d bytes read\n",
                     ret, id_len);
             free(value);
@@ -2024,18 +2024,18 @@ int read_nistcom_wsq(NISTCOM **onistcom, FILE *infp)
          }
          /* Reset file pointer to original position. */
          if(fseek(infp, savepos, SEEK_SET) < 0){
-            fprintf(stderr, "ERROR : read_nistcom_wsq : ");
+            fprintf(stderr, "ERROR : biomeval_nbis_read_nistcom_wsq : ");
             fprintf(stderr, "fseek : unable to reset file position\n");
             free(value);
             return(-6);
          }
          if(strncmp(value, NCM_HEADER, id_len) == 0){
-            if((ret = read_comment(&ucharptr, infp))){
+            if((ret = biomeval_nbis_read_comment(&ucharptr, infp))){
                free(value);
                return(ret);
             }
             comment_text = (char *)ucharptr;
-            if((ret = string2fet(&nistcom, comment_text))){
+            if((ret = biomeval_nbis_string2fet(&nistcom, comment_text))){
                free(value);
                return(ret);
             }
@@ -2045,12 +2045,12 @@ int read_nistcom_wsq(NISTCOM **onistcom, FILE *infp)
          }
       }
       /* Skip marker segment. */
-      if((ret = read_skip_marker_segment(marker, infp))){
+      if((ret = biomeval_nbis_read_skip_marker_segment(marker, infp))){
          free(value);
          return(ret);
       }
       /* Get next marker. */
-      if((ret = read_marker_wsq(&marker, ANY_WSQ, infp))){
+      if((ret = biomeval_nbis_read_marker_wsq(&marker, ANY_WSQ, infp))){
          free(value);
          return(ret);
       }
@@ -2066,7 +2066,7 @@ int read_nistcom_wsq(NISTCOM **onistcom, FILE *infp)
 /*****************************************************************/
 /* Get and return first NISTCOM from encoded data stream.        */
 /*****************************************************************/
-int getc_nistcom_wsq(NISTCOM **onistcom, unsigned char *idata,
+int biomeval_nbis_getc_nistcom_wsq(NISTCOM **onistcom, unsigned char *idata,
                         const int ilen)
 {
    int ret;
@@ -2080,11 +2080,11 @@ int getc_nistcom_wsq(NISTCOM **onistcom, unsigned char *idata,
    ebufptr = idata + ilen;
 
    /* Get SOI */
-   if((ret = getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr)))
       return(ret);
 
    /* Get next marker. */
-   if((ret = getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr)))
       return(ret);
 
    /* While not at Start of Block (SOB) -     */
@@ -2093,11 +2093,11 @@ int getc_nistcom_wsq(NISTCOM **onistcom, unsigned char *idata,
       if(marker == COM_WSQ){
          if(strncmp((char *)cbufptr+2 /* skip Length */,
                     NCM_HEADER, strlen(NCM_HEADER)) == 0){
-            if((ret = getc_comment(&ucharptr, &cbufptr,
+            if((ret = biomeval_nbis_getc_comment(&ucharptr, &cbufptr,
                                    ebufptr)))
                return(ret);
             comment_text = (char *)ucharptr;
-            if((ret = string2fet(&nistcom, comment_text))){
+            if((ret = biomeval_nbis_string2fet(&nistcom, comment_text))){
 			   free(comment_text);
                return(ret);
 			}
@@ -2107,10 +2107,10 @@ int getc_nistcom_wsq(NISTCOM **onistcom, unsigned char *idata,
          }
       }
       /* Skip marker segment. */
-      if((ret = getc_skip_marker_segment(marker, &cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_skip_marker_segment(marker, &cbufptr, ebufptr)))
          return(ret);
       /* Get next marker. */
-      if((ret = getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr)))
          return(ret);
    }
 
@@ -2123,7 +2123,7 @@ int getc_nistcom_wsq(NISTCOM **onistcom, unsigned char *idata,
 /* Prints the first NISTCOM from encoded data stream to a        */
 /* specified file pointer.                                       */
 /*****************************************************************/
-int print_comments_wsq(FILE *ofp, unsigned char *idata, const int ilen)
+int biomeval_nbis_print_comments_wsq(FILE *ofp, unsigned char *idata, const int ilen)
 {
    int ret;
    unsigned short marker;
@@ -2134,28 +2134,28 @@ int print_comments_wsq(FILE *ofp, unsigned char *idata, const int ilen)
    ebufptr = idata + ilen;
 
    /* Get SOI */
-   if((ret = getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, SOI_WSQ, &cbufptr, ebufptr)))
       return(ret);
 
    /* Get next marker. */
-   if((ret = getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr)))
       return(ret);
 
    /* While not at Start of Block (SOB) -     */
    /*    the start of encoded image data ... */
    while(marker != SOB_WSQ){
       if(marker == COM_WSQ){
-         if((ret = getc_comment(&comment_text, &cbufptr, ebufptr)))
+         if((ret = biomeval_nbis_getc_comment(&comment_text, &cbufptr, ebufptr)))
             return(ret);
          fprintf(ofp, "%s\n", comment_text);
          free(comment_text);
       }
       else
          /* Skip marker segment. */
-         if((ret = getc_skip_marker_segment(marker, &cbufptr, ebufptr)))
+         if((ret = biomeval_nbis_getc_skip_marker_segment(marker, &cbufptr, ebufptr)))
             return(ret);
       /* Get next marker. */
-      if((ret = getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_marker_wsq(&marker, ANY_WSQ, &cbufptr, ebufptr)))
          return(ret);
    }
    return(0);

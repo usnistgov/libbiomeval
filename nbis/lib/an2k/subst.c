@@ -58,12 +58,12 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        do_substitute()
-                        substitute_ANSI_NIST_select()
-                        substitute_ANSI_NIST_record()
-                        substitute_ANSI_NIST_field()
-                        substitute_ANSI_NIST_subfield()
-                        substitute_ANSI_NIST_item()
+                        biomeval_nbis_do_substitute()
+                        biomeval_nbis_substitute_ANSI_NIST_select()
+                        biomeval_nbis_substitute_ANSI_NIST_record()
+                        biomeval_nbis_substitute_ANSI_NIST_field()
+                        biomeval_nbis_substitute_ANSI_NIST_subfield()
+                        biomeval_nbis_substitute_ANSI_NIST_item()
 
 ***********************************************************************/
 
@@ -72,7 +72,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: do_substitute - Master routine used to carry out a requested structure
+#cat: biomeval_nbis_do_substitute - Master routine used to carry out a requested structure
 #cat:              substitution and write the results to file.  The structure
 #cat:              to be substituted is represented by a 4-tuple of indices.
 
@@ -90,7 +90,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int do_substitute(const char *ofile,
+int biomeval_nbis_do_substitute(const char *ofile,
                   const int record_i, const int field_i,
                   const int subfield_i, const int item_i,
                   const char *newvalue, ANSI_NIST *ansi_nist)
@@ -99,7 +99,7 @@ int do_substitute(const char *ofile,
    FILE *fpout;
 
    /* Conduct the item substitution. */
-   if((ret = substitute_ANSI_NIST_select(record_i, field_i, subfield_i, item_i,
+   if((ret = biomeval_nbis_substitute_ANSI_NIST_select(record_i, field_i, subfield_i, item_i,
                                         newvalue, ansi_nist))){
       return(ret);
    }
@@ -108,7 +108,7 @@ int do_substitute(const char *ofile,
    if(ofile != NULL){
       fpout = fopen(ofile, "wb");
       if(fpout == NULL){
-         fprintf(stderr, "ERROR : do_substitute : fopen : %s\n", ofile);
+         fprintf(stderr, "ERROR : biomeval_nbis_do_substitute : fopen : %s\n", ofile);
          return(-2);
       }
    }
@@ -116,9 +116,9 @@ int do_substitute(const char *ofile,
    else
       fpout = DEFAULT_FPOUT;
 
-   if((ret = write_ANSI_NIST(fpout, ansi_nist))){
+   if((ret = biomeval_nbis_write_ANSI_NIST(fpout, ansi_nist))){
       if(fclose(fpout)){
-         fprintf(stderr, "ERROR : do_substitute : fclose : %s\n", ofile);
+         fprintf(stderr, "ERROR : biomeval_nbis_do_substitute : fclose : %s\n", ofile);
          return(-3);
       }
       return(ret);
@@ -127,7 +127,7 @@ int do_substitute(const char *ofile,
    /* Close the file pointer if necessary. */
    if(ofile != NULL){
       if(fclose(fpout)){
-         fprintf(stderr, "ERROR : do_substitute : fclose : %s\n", ofile);
+         fprintf(stderr, "ERROR : biomeval_nbis_do_substitute : fclose : %s\n", ofile);
          return(-4);
       }
    }
@@ -138,7 +138,7 @@ int do_substitute(const char *ofile,
 
 /***********************************************************************
 ************************************************************************
-#cat: substitute_ANSI_NIST_select - Routine used to carry out a requested
+#cat: biomeval_nbis_substitute_ANSI_NIST_select - Routine used to carry out a requested
 #cat:              structure substitution based on a 4-tuple of structure
 #cat:              indices. These indices represent the physical order
 #cat:              of subsequent logical records, fields, subfields, and
@@ -163,7 +163,7 @@ int do_substitute(const char *ofile,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int substitute_ANSI_NIST_select(const int record_i, const int field_i,
+int biomeval_nbis_substitute_ANSI_NIST_select(const int record_i, const int field_i,
                          const int subfield_i, const int item_i,
                          const char *newvalue, ANSI_NIST *ansi_nist)
 {
@@ -174,34 +174,34 @@ int substitute_ANSI_NIST_select(const int record_i, const int field_i,
          if(subfield_i != UNDEFINED_INT){
             if(item_i != UNDEFINED_INT){
                /* Substitute item's value. */
-               if((ret = substitute_ANSI_NIST_item(record_i, field_i,
+               if((ret = biomeval_nbis_substitute_ANSI_NIST_item(record_i, field_i,
                                    subfield_i, item_i, newvalue, ansi_nist)))
                   return(ret);
             }
             /* Otherwise, item index undefined, so substitute subfield. */
             else{
-               if((ret = substitute_ANSI_NIST_subfield(record_i, field_i,
+               if((ret = biomeval_nbis_substitute_ANSI_NIST_subfield(record_i, field_i,
                                         subfield_i, newvalue, ansi_nist)))
                   return(ret);
             }
          }
          /* Otherwise, subfield index undefined, so substitute field. */
          else{
-            if((ret = substitute_ANSI_NIST_field(record_i, field_i,
+            if((ret = biomeval_nbis_substitute_ANSI_NIST_field(record_i, field_i,
                                                 newvalue, ansi_nist)))
                return(ret);
          }
       }
       /* Otherwise, field index undefined, so substitute record. */
       else{
-         if((ret = substitute_ANSI_NIST_record(record_i, newvalue, ansi_nist)))
+         if((ret = biomeval_nbis_substitute_ANSI_NIST_record(record_i, newvalue, ansi_nist)))
             return(ret);
       }
    }
    /* Otherwise, record index undefined, so ERROR. */
    else{
       /* So ignore request. */
-      fprintf(stderr, "WARNING : substitute_ANSI_NIST_select : "
+      fprintf(stderr, "WARNING : biomeval_nbis_substitute_ANSI_NIST_select : "
 	      "record index not specified so request ignored\n");
       return(-2);
    }
@@ -212,7 +212,7 @@ int substitute_ANSI_NIST_select(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: substitute_ANSI_NIST_record - Routine used to substitute the logical
+#cat: biomeval_nbis_substitute_ANSI_NIST_record - Routine used to substitute the logical
 #cat:              record contained in a specified file into an ANSI/NIST
 #cat:              file structure.  This routine also updates the CNT field
 #cat:              of the Type-1 record to accurately reflect the substitution.
@@ -227,7 +227,7 @@ int substitute_ANSI_NIST_select(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int substitute_ANSI_NIST_record(const int record_i, const char *subfile,
+int biomeval_nbis_substitute_ANSI_NIST_record(const int record_i, const char *subfile,
                                 ANSI_NIST *ansi_nist)
 {
    int ret;
@@ -235,42 +235,42 @@ int substitute_ANSI_NIST_record(const int record_i, const char *subfile,
    RECORD *record, *sub_record;
    int byte_adjust;
 
-   if((ret = read_fmttext_file(subfile, &sub_ansi_nist)))
+   if((ret = biomeval_nbis_read_fmttext_file(subfile, &sub_ansi_nist)))
       return(ret);
 
    if(sub_ansi_nist->num_records != 1){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_record : "
 	      "number of records %d != 1 in fmttext file %s\n",
 	      sub_ansi_nist->num_records, subfile);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-2);
    }
    sub_record = sub_ansi_nist->records[0];
 
    /* Substitution of a Type-1 record is an ERROR. */
    if(sub_record->type == TYPE_1_ID){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_record : "
 	      "substituting a Type-1 record not permitted\n");
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-3);
    }
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_record : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-4);
    }
    record = ansi_nist->records[record_i];
 
    /* If record types don't match ... */
    if(sub_record->type != record->type){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_record : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_record : "
 	      "substitution record [Type-%d] in fmttext file %s != [Type-%d]\n",
 	      sub_record->type, subfile, record->type);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-5);
    }
 
@@ -278,7 +278,7 @@ int substitute_ANSI_NIST_record(const int record_i, const char *subfile,
    byte_adjust = record->num_bytes;
 
    /* Deallocate old record. */
-   free_ANSI_NIST_record(record);
+   biomeval_nbis_free_ANSI_NIST_record(record);
    /* Subtract old record's size from parent structures. */
    ansi_nist->num_bytes -= byte_adjust;
    /* Assign new record to list. */
@@ -296,7 +296,7 @@ int substitute_ANSI_NIST_record(const int record_i, const char *subfile,
 
    /* Free parent substitution structures. */
    sub_ansi_nist->num_records = 0;
-   free_ANSI_NIST(sub_ansi_nist);
+   biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
 
    fprintf(stderr, "Substituted record index [%d] [Type-%d] "
 	   "with contents of %s\n",
@@ -308,7 +308,7 @@ int substitute_ANSI_NIST_record(const int record_i, const char *subfile,
 
 /***********************************************************************
 ************************************************************************
-#cat: substitute_ANSI_NIST_field - Routine used to substitute the field
+#cat: biomeval_nbis_substitute_ANSI_NIST_field - Routine used to substitute the field
 #cat:              contained in a specified file into an ANSI/NIST file
 #cat:              structure.
 
@@ -323,7 +323,7 @@ int substitute_ANSI_NIST_record(const int record_i, const char *subfile,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int substitute_ANSI_NIST_field(const int record_i, const int field_i,
+int biomeval_nbis_substitute_ANSI_NIST_field(const int record_i, const int field_i,
                                const char *subfile, ANSI_NIST *ansi_nist)
 {
    int ret;
@@ -332,64 +332,64 @@ int substitute_ANSI_NIST_field(const int record_i, const int field_i,
    FIELD *field, *sub_field;
    int byte_adjust;
 
-   if((ret = read_fmttext_file(subfile, &sub_ansi_nist)))
+   if((ret = biomeval_nbis_read_fmttext_file(subfile, &sub_ansi_nist)))
       return(ret);
 
    if(sub_ansi_nist->num_records != 1){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_field : "
 	      "number of records %d != 1 in fmttext file %s\n",
               sub_ansi_nist->num_records, subfile);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-2);
    }
 
    if(sub_ansi_nist->records[0]->num_fields != 1){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_field : "
 	      "number of fields %d != 1 in fmttext file %s\n",
               sub_ansi_nist->records[0]->num_fields, subfile);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-3);
    }
    sub_field = sub_ansi_nist->records[0]->fields[0];
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_field : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-4);
    }
    record = ansi_nist->records[record_i];
 
    /* If record types don't match ... */
    if(sub_ansi_nist->records[0]->type != record->type){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_field : "
 	      "substitution record [Type-%d] in fmttext file %s != [Type-%d]\n",
               sub_ansi_nist->records[0]->type, subfile, record->type);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-5);
    }
 
    /* If field index is out of range ... */
    if((field_i < 0) || (field_i >= record->num_fields)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_field : "
 	      "field index [%d] out of range [1..%d] in record [Type-%d]\n",
               field_i+1, record->num_fields, record->type);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-6);
    }
    field = record->fields[field_i];
 
    /* If field IDs don't match ... */
    if(sub_ansi_nist->records[0]->fields[0]->field_int != field->field_int){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_field : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_field : "
 	      "substitution field ID [Type-%d.%03d] in fmttext file %s "
 	      "!= [Type-%d.%03d]\n",
               sub_ansi_nist->records[0]->type,
               sub_ansi_nist->records[0]->fields[0]->field_int,
 	      subfile, record->type, field->field_int);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-7);
    }
 
@@ -397,7 +397,7 @@ int substitute_ANSI_NIST_field(const int record_i, const int field_i,
    byte_adjust = field->num_bytes;
 
    /* Deallocate old field. */
-   free_ANSI_NIST_field(field);
+   biomeval_nbis_free_ANSI_NIST_field(field);
    /* Subtract old field's size from parent structures. */
    record->num_bytes -= byte_adjust;
    ansi_nist->num_bytes -= byte_adjust;
@@ -405,7 +405,7 @@ int substitute_ANSI_NIST_field(const int record_i, const int field_i,
    record->fields[field_i] = sub_field;
    /* If field in a tagged field and field is NOT last in list ... */
    /* (Binary record fields do not use separator characters.) */
-   if(tagged_record(record->type) &&
+   if(biomeval_nbis_tagged_record(record->type) &&
       (field_i != record->num_fields-1)){
       /* Then set GS separtor. */
       /* (New field is only one, so GS separator should be FALSE.) */
@@ -421,12 +421,12 @@ int substitute_ANSI_NIST_field(const int record_i, const int field_i,
    ansi_nist->num_bytes += byte_adjust;
 
    /* Update the record's length LEN field. */
-   if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
+   if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
       return(ret);
 
    /* Free parent substitution structures. */
    sub_ansi_nist->records[0]->num_fields = 0;
-   free_ANSI_NIST(sub_ansi_nist);
+   biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
 
    fprintf(stderr, "Substituted field index %d.%d [Type-%d.%03d] "
 	   "with contents of %s\n",
@@ -438,7 +438,7 @@ int substitute_ANSI_NIST_field(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: substitute_ANSI_NIST_subfield - Routine used to substitute the subfield
+#cat: biomeval_nbis_substitute_ANSI_NIST_subfield - Routine used to substitute the subfield
 #cat:              contained in a specified file into an ANSI/NIST file
 #cat:              structure.
 
@@ -454,7 +454,7 @@ int substitute_ANSI_NIST_field(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int substitute_ANSI_NIST_subfield(const int record_i, const int field_i,
+int biomeval_nbis_substitute_ANSI_NIST_subfield(const int record_i, const int field_i,
                                   const int subfield_i, const char *subfile,
                                   ANSI_NIST *ansi_nist)
 {
@@ -465,83 +465,83 @@ int substitute_ANSI_NIST_subfield(const int record_i, const int field_i,
    SUBFIELD *subfield, *sub_subfield;
    int byte_adjust;
 
-   if((ret = read_fmttext_file(subfile, &sub_ansi_nist)))
+   if((ret = biomeval_nbis_read_fmttext_file(subfile, &sub_ansi_nist)))
       return(ret);
 
    if(sub_ansi_nist->num_records != 1){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_subfield : "
 	      "number of records %d != 1 in fmttext file %s\n",
               sub_ansi_nist->num_records, subfile);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-2);
    }
 
    if(sub_ansi_nist->records[0]->num_fields != 1){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_subfield : "
 	      "number of fields %d != 1 in fmttext file %s\n",
               sub_ansi_nist->records[0]->num_fields, subfile);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-3);
    }
    if(sub_ansi_nist->records[0]->fields[0]->num_subfields != 1){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_subfield : "
 	      "number of subfields %d != 1 in fmttext file %s\n",
               sub_ansi_nist->records[0]->fields[0]->num_subfields, subfile);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-4);
    }
    sub_subfield = sub_ansi_nist->records[0]->fields[0]->subfields[0];
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_subfield : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-5);
    }
    record = ansi_nist->records[record_i];
 
    /* If record types don't match ... */
    if(sub_ansi_nist->records[0]->type != record->type){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_subfield : ");
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_subfield : ");
       fprintf(stderr, "substitution record [Type-%d] in fmttext file %s "
 	      "!= [Type-%d]\n",
               sub_ansi_nist->records[0]->type, subfile, record->type);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-6);
    }
 
    /* If field index is out of range ... */
    if((field_i < 0) || (field_i >= record->num_fields)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_subfield : "
 	      "field index [%d] out of range [1..%d] in record [Type-%d]\n",
               field_i+1, record->num_fields, record->type);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-7);
    }
    field = record->fields[field_i];
 
    /* If field IDs don't match ... */
    if(sub_ansi_nist->records[0]->fields[0]->field_int != field->field_int){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_subfield : "
 	      "substitution field ID [Type-%d.%03d] in fmttext file %s "
 	      "!= [Type-%d.%03d]\n",
               sub_ansi_nist->records[0]->type,
               sub_ansi_nist->records[0]->fields[0]->field_int,
 	      subfile, record->type, field->field_int);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-8);
    }
 
    /* If subfield index is out of range ... */
    if((subfield_i < 0) || (subfield_i >= field->num_subfields)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_subfield : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_subfield : "
 	      "subfield index [%d.%d.%d] out of range [1..%d] "
 	      "in record [Type-%d.%03d]\n",
               record_i+1, field_i+1, subfield_i+1, field->num_subfields,
               record->type, field->field_int);
-      free_ANSI_NIST(sub_ansi_nist);
+      biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
       return(-9);
    }
    subfield = field->subfields[subfield_i];
@@ -550,7 +550,7 @@ int substitute_ANSI_NIST_subfield(const int record_i, const int field_i,
    byte_adjust = subfield->num_bytes;
 
    /* Deallocate old subfield. */
-   free_ANSI_NIST_subfield(subfield);
+   biomeval_nbis_free_ANSI_NIST_subfield(subfield);
    /* Subtract old subfield's size from parent structures. */
    field->num_bytes -= byte_adjust;
    record->num_bytes -= byte_adjust;
@@ -559,7 +559,7 @@ int substitute_ANSI_NIST_subfield(const int record_i, const int field_i,
    field->subfields[subfield_i] = sub_subfield;
    /* If subfield in a tagged field and subfield is NOT last in list ... */
    /* (Binary record fields do not use separator characters.) */
-   if(tagged_record(record->type) &&
+   if(biomeval_nbis_tagged_record(record->type) &&
       (subfield_i != field->num_subfields-1)){
       /* Then set RS separtor. */
       /* (New subfield is only one, so RS separator should be FALSE.) */
@@ -576,12 +576,12 @@ int substitute_ANSI_NIST_subfield(const int record_i, const int field_i,
    ansi_nist->num_bytes += byte_adjust;
 
    /* Update the record's length LEN field. */
-   if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
+   if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
       return(ret);
 
    /* Free parent substitution structures. */
    sub_ansi_nist->records[0]->fields[0]->num_subfields = 0;
-   free_ANSI_NIST(sub_ansi_nist);
+   biomeval_nbis_free_ANSI_NIST(sub_ansi_nist);
 
    fprintf(stderr, "Substituted subfield index [%d.%d.%d] [Type-%d.%03d] "
 	   "with contents of %s\n",
@@ -594,7 +594,7 @@ int substitute_ANSI_NIST_subfield(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: substitute_ANSI_NIST_item - Routine used to substitute the specified
+#cat: biomeval_nbis_substitute_ANSI_NIST_item - Routine used to substitute the specified
 #cat:              informaton item value into an ANSI/NIST file structure.
 
    Input:
@@ -610,7 +610,7 @@ int substitute_ANSI_NIST_subfield(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int substitute_ANSI_NIST_item(const int record_i, const int field_i,
+int biomeval_nbis_substitute_ANSI_NIST_item(const int record_i, const int field_i,
                            const int subfield_i, const int item_i,
                            const char *newvalue, ANSI_NIST *ansi_nist)
 {
@@ -625,7 +625,7 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If record index is out of range ... */
    if((record_i < 0) || (record_i >= ansi_nist->num_records)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_item : "
 	      "record index [%d] out of range [1..%d]\n",
               record_i+1, ansi_nist->num_records);
       return(-2);
@@ -634,7 +634,7 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If field index is out of range ... */
    if((field_i < 0) || (field_i >= record->num_fields)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_item : "
 	      "field index [%d] out of range [1..%d] in record [Type-%d]\n",
               field_i+1, record->num_fields, record->type);
       return(-3);
@@ -643,7 +643,7 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If subfield index is out of range ... */
    if((subfield_i < 0) || (subfield_i >= field->num_subfields)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_item : "
 	      "subfield index [%d.%d.%d] out of range [1..%d] "
 	      "in record [Type-%d.%03d]\n",
               record_i+1, field_i+1, subfield_i+1, field->num_subfields,
@@ -654,7 +654,7 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If item index is out of range ... */
    if((item_i < 0) || (item_i >= subfield->num_items)){
-      fprintf(stderr, "ERROR : substitute_ANSI_NIST_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_item : "
 	      "item index [%d.%d.%d.%d] out of range [1..%d] "
 	      "in record [Type-%d.%03d]\n",
               record_i+1, field_i+1, subfield_i+1, item_i+1,
@@ -665,8 +665,8 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
 
    /* If binary image field ...               */
    /* then item value must be read from file. */
-   if(image_field(field)){
-      read_binary_image_data(newvalue, &image_value, &newalloc);
+   if(biomeval_nbis_image_field(field)){
+      biomeval_nbis_read_binary_image_data(newvalue, &image_value, &newalloc);
       oldlen = item->num_bytes;
       newlen = newalloc;
 
@@ -687,7 +687,7 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
       ansi_nist->num_bytes += byte_adjust;
 
       /* Update the record's length LEN field. */
-      if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
+      if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
          return(ret);
 
       fprintf(stderr, "Substituted binary image item index [%d.%d.%d.%d] "
@@ -711,7 +711,7 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
 	    (unsigned char *)realloc(item->value, newalloc);
 
          if(new_ptr == NULL){
-            fprintf(stderr, "ERROR : substitute_ANSI_NIST_item : "
+            fprintf(stderr, "ERROR : biomeval_nbis_substitute_ANSI_NIST_item : "
 		    "realloc : item value (increase %d bytes to %d)\n",
 		    item->alloc_chars, newalloc);
             return(-8);
@@ -729,7 +729,7 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
       strcpy((char *)item->value, newvalue);
       item->num_chars = strlen((char *)item->value);
       /* Binary fields should not have their num_bytes reset. */
-      if(tagged_record(record->type))
+      if(biomeval_nbis_tagged_record(record->type))
          item->num_bytes = item->num_chars;
 
       /* If item has a trailing US separator ... */
@@ -744,7 +744,7 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
       /* Binary fields (other than the bnary image/data field handled above) */
       /* are fixed length and will not change size even if the number of     */
       /* charaters stored in their "string" value changes.                   */
-      if(tagged_record(record->type) && (oldlen != newlen)){
+      if(biomeval_nbis_tagged_record(record->type) && (oldlen != newlen)){
          /* Set byte adjustment to difference in characters between */
          /* old and new values.                                     */
          byte_adjust = newlen - oldlen;
@@ -755,7 +755,7 @@ int substitute_ANSI_NIST_item(const int record_i, const int field_i,
          ansi_nist->num_bytes += byte_adjust;
 
          /* Update the record's length LEN field. */
-         if((ret = update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
+         if((ret = biomeval_nbis_update_ANSI_NIST_record_LEN(ansi_nist, record_i)))
             return(ret);
       }
    }

@@ -54,23 +54,23 @@ of the software.
 #define EOL	EOF
 
 /* fileexst.c */
-extern int file_exists(char *);
+extern int biomeval_nbis_file_exists(char *);
 /* filehead.c */
-extern void filehead(char *);
+extern void biomeval_nbis_filehead(char *);
 /* fileroot.c */
-extern void fileroot(char *);
+extern void biomeval_nbis_fileroot(char *);
 /* filesize.c */
-extern int filesize(char *);
+extern int biomeval_nbis_filesize(char *);
 /* filetail.c */
-extern void filetail(char *);
+extern void biomeval_nbis_filetail(char *);
 /* findfile.c */
-extern int find_file(char *, char *);
+extern int biomeval_nbis_find_file(char *, char *);
 /* newext.c */
-extern void newext(char *, const int, char *);
-extern int newext_ret(char *, int, char *);
-extern void newextlong(char **, char *);
+extern void biomeval_nbis_newext(char *, const int, char *);
+extern int biomeval_nbis_newext_ret(char *, int, char *);
+extern void biomeval_nbis_newextlong(char **, char *);
 /* readutil.c */
-extern int read_strstr_file(char *, char ***, char ***, int *, const int);
-extern int read_fltflt_file(char *, float **, float **, int *, const int);
+extern int biomeval_nbis_read_strstr_file(char *, char ***, char ***, int *, const int);
+extern int biomeval_nbis_read_fltflt_file(char *, float **, float **, int *, const int);
 
 #endif /* !_IOUTIL_H */

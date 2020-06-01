@@ -47,42 +47,42 @@ of the software.
 
 /* UPDATED: 03/15/2005 by MDG */
 
-extern int malloc_char_ret(char **, const int, char *);
-extern int malloc_uchar_ret(unsigned char **, const int, char *);
-extern int malloc_int_ret(int **, const int, char *);
-extern int calloc_int_ret(int **, const int, char *);
-extern int realloc_int_ret(int **, const int, char *);
+extern int biomeval_nbis_malloc_char_ret(char **, const int, char *);
+extern int biomeval_nbis_malloc_uchar_ret(unsigned char **, const int, char *);
+extern int biomeval_nbis_malloc_int_ret(int **, const int, char *);
+extern int biomeval_nbis_calloc_int_ret(int **, const int, char *);
+extern int biomeval_nbis_realloc_int_ret(int **, const int, char *);
 
-extern void *datadup(void *, int, char *);
-extern void malloc_char(char **, int, char *);
-extern void malloc_uchar(unsigned char **, int, char *);
-extern void malloc_shrt(short **, int, char *);
-extern void malloc_int(int **, int, char *);
-extern void malloc_flt(float **, int, char *);
-extern void calloc_char(char **, int, char *);
-extern void calloc_uchar(unsigned char **, int, char *);
-extern void calloc_shrt(short **, int, char *);
-extern void calloc_int(int **, int, char *);
-extern void calloc_flt(float **, int, char *);
-extern void malloc_dbl_char_l1(char ***, int, char *);
-extern void malloc_dbl_uchar_l1(unsigned char ***, int, char *);
-extern void malloc_dbl_shrt_l1(short ***, int, char *);
-extern void malloc_dbl_int_l1(int ***, int, char *);
-extern void malloc_dbl_flt_l1(float ***, int, char *);
-extern void realloc_char(char **, int, char *);
-extern void realloc_uchar(unsigned char **, int, char *);
-extern void realloc_shrt(short **, int, char *);
-extern void realloc_int(int **, int, char *);
-extern void realloc_flt(float **, int, char *);
-extern void realloc_dbl_int_l1(int ***, int, char *);
-extern void realloc_dbl_char_l1(char ***, int, char *);
-extern void realloc_dbl_uchar_l1(unsigned char ***, int, char *);
-extern void realloc_dbl_flt_l1(float ***, int, char *);
-extern void free_dbl_char(char **, const int);
-extern void free_dbl_uchar(unsigned char **, const int);
-extern void free_dbl_flt(float **, const int);
-extern void malloc_dbl_char(char ***, const int, const int, char *);
-extern void malloc_dbl_uchar(unsigned char ***, const int, const int, char *);
-extern void malloc_dbl_flt(float ***, const int, const int, char *);
+extern void *biomeval_nbis_datadup(void *, int, char *);
+extern void biomeval_nbis_malloc_char(char **, int, char *);
+extern void biomeval_nbis_malloc_uchar(unsigned char **, int, char *);
+extern void biomeval_nbis_malloc_shrt(short **, int, char *);
+extern void biomeval_nbis_malloc_int(int **, int, char *);
+extern void biomeval_nbis_malloc_flt(float **, int, char *);
+extern void biomeval_nbis_calloc_char(char **, int, char *);
+extern void biomeval_nbis_calloc_uchar(unsigned char **, int, char *);
+extern void biomeval_nbis_calloc_shrt(short **, int, char *);
+extern void biomeval_nbis_calloc_int(int **, int, char *);
+extern void biomeval_nbis_calloc_flt(float **, int, char *);
+extern void biomeval_nbis_malloc_dbl_char_l1(char ***, int, char *);
+extern void biomeval_nbis_malloc_dbl_uchar_l1(unsigned char ***, int, char *);
+extern void biomeval_nbis_malloc_dbl_shrt_l1(short ***, int, char *);
+extern void biomeval_nbis_malloc_dbl_int_l1(int ***, int, char *);
+extern void biomeval_nbis_malloc_dbl_flt_l1(float ***, int, char *);
+extern void biomeval_nbis_realloc_char(char **, int, char *);
+extern void biomeval_nbis_realloc_uchar(unsigned char **, int, char *);
+extern void biomeval_nbis_realloc_shrt(short **, int, char *);
+extern void biomeval_nbis_realloc_int(int **, int, char *);
+extern void biomeval_nbis_realloc_flt(float **, int, char *);
+extern void biomeval_nbis_realloc_dbl_int_l1(int ***, int, char *);
+extern void biomeval_nbis_realloc_dbl_char_l1(char ***, int, char *);
+extern void biomeval_nbis_realloc_dbl_uchar_l1(unsigned char ***, int, char *);
+extern void biomeval_nbis_realloc_dbl_flt_l1(float ***, int, char *);
+extern void biomeval_nbis_free_dbl_char(char **, const int);
+extern void biomeval_nbis_free_dbl_uchar(unsigned char **, const int);
+extern void biomeval_nbis_free_dbl_flt(float **, const int);
+extern void biomeval_nbis_malloc_dbl_char(char ***, const int, const int, char *);
+extern void biomeval_nbis_malloc_dbl_uchar(unsigned char ***, const int, const int, char *);
+extern void biomeval_nbis_malloc_dbl_flt(float ***, const int, const int, char *);
 
 #endif /* !_MEMALLOC_H */

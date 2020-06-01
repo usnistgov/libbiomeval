@@ -59,7 +59,7 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        get_ANSI_NIST_date()
+                        biomeval_nbis_get_ANSI_NIST_date()
 
 ***********************************************************************/
 
@@ -70,7 +70,7 @@ of the software.
 
 /*************************************************************************
 **************************************************************************
-#cat:   get_ANSI_NIST_date - Gets the formatted system date string and
+#cat:   biomeval_nbis_get_ANSI_NIST_date - Gets the formatted system date string and
 #cat:                converts and returns a new date string in CCYYMMDD
 #cat:                format.
 
@@ -80,7 +80,7 @@ of the software.
       Zero     - successful completion
       Negative - system error
 **************************************************************************/
-int get_ANSI_NIST_date(char **odate_str)
+int biomeval_nbis_get_ANSI_NIST_date(char **odate_str)
 {
    char *tdate_str, *date_str;
    char *dayptr, *monthptr, *yearptr, *cptr;
@@ -95,7 +95,7 @@ int get_ANSI_NIST_date(char **odate_str)
 
    /* Skip Day of the week. */
    if((cptr = strchr(tdate_str, ' ')) == NULL){
-      fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_ANSI_NIST_date : "
 	      "day of week not found in date string '%s'\n", tdate_str);
       return(-2);
    }
@@ -106,7 +106,7 @@ int get_ANSI_NIST_date(char **odate_str)
    monthptr = cptr;
    /* Skip Month. */
    if((cptr = strchr(cptr, ' ')) == NULL){
-      fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_ANSI_NIST_date : "
 	      "month not found in date string '%s'\n", tdate_str);
       return(-3);
    }
@@ -120,7 +120,7 @@ int get_ANSI_NIST_date(char **odate_str)
    dayptr = cptr;
    /* Skip Numeric Day. */
    if((cptr = strchr(cptr, ' ')) == NULL){
-      fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_ANSI_NIST_date : "
 	      "numeric day not found in date string '%s'\n", tdate_str);
       return(-4);
    }
@@ -132,7 +132,7 @@ int get_ANSI_NIST_date(char **odate_str)
 
    /* Skip Time of Day. */
    if((cptr = strchr(cptr, ' ')) == NULL){
-      fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_ANSI_NIST_date : "
 	      "time of day not found in date string '%s'\n", tdate_str);
       return(-5);
    }
@@ -146,7 +146,7 @@ int get_ANSI_NIST_date(char **odate_str)
    yearptr = cptr;
    /* Skip Year. */
    if((cptr = strchr(cptr, '\n')) == NULL){
-      fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_ANSI_NIST_date : "
 	      "year not found in date string '%s'\n", tdate_str);
       return(-6);
    }
@@ -155,7 +155,7 @@ int get_ANSI_NIST_date(char **odate_str)
 
    /* Allocate ANSI/NIST date string "CCYYMMDD". */
    if((date_str = (char *)calloc(9, sizeof(char))) == NULL){
-      fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_ANSI_NIST_date : "
 	      "calloc : date_str (%lu bytes)\n",
 	      (unsigned long)(9 * sizeof(char)));
       return(-7);
@@ -163,7 +163,7 @@ int get_ANSI_NIST_date(char **odate_str)
 
    /* Set CCYY. */
    if(strlen(yearptr) != 4){
-      fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_ANSI_NIST_date : "
 	      "year string %s not 4 chars long\n", yearptr);
       free(date_str);
       return(-8);
@@ -208,7 +208,7 @@ int get_ANSI_NIST_date(char **odate_str)
       strcat(date_str, "12");
    }
    else{
-      fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_ANSI_NIST_date : "
 	      "illegal month string = %s\n", monthptr);
       free(date_str);
       return(-9);
@@ -217,7 +217,7 @@ int get_ANSI_NIST_date(char **odate_str)
    /* Set DD. */
    day_i = atoi(dayptr);
    if(sprintf(uint_str, "%02d", day_i) != 2){
-      fprintf(stderr, "ERROR : get_ANSI_NIST_date : "
+      fprintf(stderr, "ERROR : biomeval_nbis_get_ANSI_NIST_date : "
 	      "numeric day string %s not 2 chars long\n", uint_str);
       free(date_str);
       return(-10);

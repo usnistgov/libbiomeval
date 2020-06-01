@@ -57,8 +57,8 @@ of the software.
 
 ***********************************************************************
                ROUTINES:
-                        increment_numeric_item()
-                        decrement_numeric_item()
+                        biomeval_nbis_increment_numeric_item()
+                        biomeval_nbis_decrement_numeric_item()
 
 ***********************************************************************/
 
@@ -67,7 +67,7 @@ of the software.
 
 /***********************************************************************
 ************************************************************************
-#cat: increment_numeric_item - Takes a specified information item and
+#cat: biomeval_nbis_increment_numeric_item - Takes a specified information item and
 #cat:              replaces its value with its increment.  The length
 #cat:              of the item's record is updated appropriately.  This
 #cat:              routines assumes all structure indices are value.
@@ -84,7 +84,7 @@ of the software.
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int increment_numeric_item(const int record_i, const int field_i,
+int biomeval_nbis_increment_numeric_item(const int record_i, const int field_i,
                            const int subfield_i, const int item_i,
                            ANSI_NIST *ansi_nist, char *format)
 {
@@ -106,7 +106,7 @@ int increment_numeric_item(const int record_i, const int field_i,
    /*  terminator. */
    itemvalue = (char *)malloc(item->num_chars + 2);
    if(itemvalue == NULL){
-      fprintf(stderr, "ERROR : increment_numeric_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_increment_numeric_item : "
 	      "malloc : itemvalue (%d bytes)\n", item->num_chars + 2);
       return(-2);
    }
@@ -119,7 +119,7 @@ int increment_numeric_item(const int record_i, const int field_i,
       sprintf(itemvalue, "%d", itemint);
 
    /* Replace item's value with incremented value. */
-   if((ret = substitute_ANSI_NIST_item(record_i, field_i, subfield_i, item_i,
+   if((ret = biomeval_nbis_substitute_ANSI_NIST_item(record_i, field_i, subfield_i, item_i,
                                       itemvalue, ansi_nist))){
       free(itemvalue);
       return(ret);
@@ -134,7 +134,7 @@ int increment_numeric_item(const int record_i, const int field_i,
 
 /***********************************************************************
 ************************************************************************
-#cat: decrement_numeric_item - Takes a specified information item and
+#cat: biomeval_nbis_decrement_numeric_item - Takes a specified information item and
 #cat:              replaces its value with its decrement.  The length
 #cat:              of the item's record is updated appropriately.  This
 #cat:              routines assumes all structure indices are value.
@@ -151,7 +151,7 @@ int increment_numeric_item(const int record_i, const int field_i,
       Zero       - successful completion
       Negative   - system error
 ************************************************************************/
-int decrement_numeric_item(const int record_i, const int field_i,
+int biomeval_nbis_decrement_numeric_item(const int record_i, const int field_i,
                            const int subfield_i, const int item_i,
                            ANSI_NIST *ansi_nist, char *format)
 {
@@ -175,7 +175,7 @@ int decrement_numeric_item(const int record_i, const int field_i,
    /* terminator.*/
    itemvalue = (char *)malloc(item->num_chars + 2);
    if(itemvalue == NULL){
-      fprintf(stderr, "ERROR : decrement_numeric_item : "
+      fprintf(stderr, "ERROR : biomeval_nbis_decrement_numeric_item : "
 	      "malloc : itemvalue (%d bytes)\n", item->num_chars + 2);
       return(-2);
    }
@@ -188,7 +188,7 @@ int decrement_numeric_item(const int record_i, const int field_i,
       sprintf(itemvalue, "%d", itemint);
 
    /* Replace item's value with decremented value. */
-   if((ret = substitute_ANSI_NIST_item(record_i, field_i, subfield_i, item_i,
+   if((ret = biomeval_nbis_substitute_ANSI_NIST_item(record_i, field_i, subfield_i, item_i,
                                       itemvalue, ansi_nist))){
       free(itemvalue);
       return(ret);

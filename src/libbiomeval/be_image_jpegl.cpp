@@ -35,14 +35,14 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 	    this->getDataSize();
 
 	uint16_t marker;
-	if (getc_marker_jpegl(&marker, SOI, &markerBuf, endPtr))
+	if (biomeval_nbis_getc_marker_jpegl(&marker, SOI, &markerBuf, endPtr))
 		throw Error::DataError("No SOI marker");
-	if (getc_marker_jpegl(&marker, APP0, &markerBuf, endPtr))
+	if (biomeval_nbis_getc_marker_jpegl(&marker, APP0, &markerBuf, endPtr))
 		throw Error::DataError("No APP0 marker");
 
 	/* Parse JFIF header for resolution information */
 	JFIF_HEADER *JFIFHeader;
-	if (getc_jfif_header(&JFIFHeader, &markerBuf, endPtr))
+	if (biomeval_nbis_getc_jfif_header(&JFIFHeader, &markerBuf, endPtr))
 		throw Error::DataError("Could not read JFIF header");
 
 	switch (JFIFHeader->units) {
@@ -65,13 +65,13 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 	/* Step through any tables up to the "start of frame" marker */
 	uint16_t tableSize;
 	for (;;) {
-		if (getc_marker_jpegl(&marker, TBLS_N_SOF, &markerBuf, endPtr))
+		if (biomeval_nbis_getc_marker_jpegl(&marker, TBLS_N_SOF, &markerBuf, endPtr))
 			throw Error::DataError("Could not read to TBLS_N_SOF");
 
 		if (marker == SOF3)
 			break;
 
-		if (getc_ushort(&tableSize, &markerBuf, endPtr))
+		if (biomeval_nbis_getc_ushort(&tableSize, &markerBuf, endPtr))
 			throw Error::DataError("Could not read size of table");
 		/* Table size includes size of field but not the marker */
 		markerBuf += tableSize - sizeof(tableSize);
@@ -79,7 +79,7 @@ BiometricEvaluation::Image::JPEGL::JPEGL(
 
 	/* Parse frame header for depth and dimension information */
 	FRM_HEADER_JPEGL *frameHeader;
-	if (getc_frame_header_jpegl(&frameHeader, &markerBuf, endPtr))
+	if (biomeval_nbis_getc_frame_header_jpegl(&frameHeader, &markerBuf, endPtr))
 		throw Error::DataError("Could not read frame header");
 	setColorDepth((uint16_t)frameHeader->Nf * 8);
 	this->setBitDepth(8);
@@ -108,21 +108,21 @@ BiometricEvaluation::Image::JPEGL::getRawData()
 	/* TODO: Extract the raw data without using the IMG_DAT struct */
 	IMG_DAT *imgDat = nullptr;
 	int32_t lossy;
-	if (jpegl_decode_mem(&imgDat, &lossy,
+	if (biomeval_nbis_jpegl_decode_mem(&imgDat, &lossy,
 	    (unsigned char *)this->getDataPointer(), this->getDataSize()))
 		throw Error::DataError("Could not decode Lossless JPEG data");
 
 	uint8_t *rawDataPtr = nullptr;
 	int32_t width, height, depth, ppi, rawSize;
-	if (get_IMG_DAT_image(&rawDataPtr, &rawSize, &width, &height, &depth,
+	if (biomeval_nbis_get_IMG_DAT_image(&rawDataPtr, &rawSize, &width, &height, &depth,
 	    &ppi, imgDat)) {
-		free_IMG_DAT(imgDat, NO_FREE_IMAGE);
+		biomeval_nbis_free_IMG_DAT(imgDat, NO_FREE_IMAGE);
 		throw Error::DataError("Could not extract raw data");
 	}
 	Memory::uint8Array rawData(rawSize);
 	rawData.copy(rawDataPtr);
 
-	free_IMG_DAT(imgDat, FREE_IMAGE);
+	biomeval_nbis_free_IMG_DAT(imgDat, FREE_IMAGE);
 
 	return (rawData);
 }
@@ -169,7 +169,7 @@ BiometricEvaluation::Image::JPEGL::isJPEGL(
 
 	/* First marker should be start of image */
 	uint16_t marker;
-	if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
+	if (biomeval_nbis_getc_ushort(&marker, &markerBuf, endPtr) != 0)
 		return (false);
 	if (marker != startOfImage)
 		return (false);
@@ -177,13 +177,13 @@ BiometricEvaluation::Image::JPEGL::isJPEGL(
 	/* Read markers until end of buffer or an identifying marker is found */
 	for (;;) {
 		/* Get next 16 bits */
-		if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
+		if (biomeval_nbis_getc_ushort(&marker, &markerBuf, endPtr) != 0)
 			return (false);
 
 		/* 16-bit markers start with 0xFF but aren't 0xFF00 or 0xFFFF */
 		while (((marker >> 8) != 0xFF) &&
 		    ((marker == 0xFF00) || (marker == 0xFFFF)))
-			if (getc_ushort(&marker, &markerBuf, endPtr) != 0)
+			if (biomeval_nbis_getc_ushort(&marker, &markerBuf, endPtr) != 0)
 				return (false);
 
 		switch (marker) {

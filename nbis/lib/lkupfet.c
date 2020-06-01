@@ -54,7 +54,7 @@ of the software.
       a specified attribute in and attribute-value paired list.
 
       ROUTINES:
-#cat: lookupfet - returns the specified feature entry from an fet
+#cat: biomeval_nbis_lookupfet - returns the specified feature entry from an fet
 #cat:             structure.  Returns TRUE if found, FALSE if not.
 
 ***********************************************************************/
@@ -66,7 +66,7 @@ of the software.
 #include <defs.h>
 
 /*******************************************************************/
-int lookupfet(char **ovalue, char *feature, FET *fet)
+int biomeval_nbis_lookupfet(char **ovalue, char *feature, FET *fet)
 {
   int item;
   char *value;
@@ -82,7 +82,7 @@ int lookupfet(char **ovalue, char *feature, FET *fet)
       len = strlen(fet->values[item]) + 1;
       value = malloc(len);
       if (value == (char *)NULL){
-         fprintf(stderr, "ERROR : lookupfet : malloc : value\n");
+         fprintf(stderr, "ERROR : biomeval_nbis_lookupfet : malloc : value\n");
          return(-2);
      }
      strncpy(value, fet->values[item], len);

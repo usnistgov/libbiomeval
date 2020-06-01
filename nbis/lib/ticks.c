@@ -53,9 +53,9 @@ of the software.
       cycles (ticks) used by a process.
 
       ROUTINES:
-#cat: ticks - returns the number of clock cycles (ticks) used by a process.
+#cat: biomeval_nbis_ticks - returns the number of clock cycles (ticks) used by a process.
 #cat:
-#cat: ticksPerSec - returns the system definition for HZ, where 1/HZ seconds
+#cat: biomeval_nbis_ticksPerSec - returns the system definition for HZ, where 1/HZ seconds
 #cat:               is a tick (HZ = 60).
 
 ***********************************************************************/
@@ -65,11 +65,11 @@ of the software.
 #include <time.h>
 #include <unistd.h>
 
-/* ticks 13-Nov-90 15:41
+/* biomeval_nbis_ticks 13-Nov-90 15:41
  *		Get number of ticks used by process.
  */
 clock_t 
-ticks(void)
+biomeval_nbis_ticks(void)
 {
 	struct tms buff;
 	
@@ -78,11 +78,11 @@ ticks(void)
 }
 
 
-/* ticksPerSec 13-Nov-90 15:41
- *		Get number of ticks per second reported by times().
+/* biomeval_nbis_ticksPerSec 13-Nov-90 15:41
+ *		Get number of biomeval_nbis_ticks per second reported by times().
  */
 int
-ticksPerSec(void)
+biomeval_nbis_ticksPerSec(void)
 {
 	return (int)sysconf(_SC_CLK_TCK);
 }
