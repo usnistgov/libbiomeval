@@ -43,18 +43,18 @@ fingerprint-recompression-after-segmentation
 #cat:                library, but passing a precomputed DQT_TABLE 
 #cat:                pointer rather than QUANT_VALS.
 #cat:                I.e. no rate control is performed in this version.
-#cat: biomeval_nbis_wsq_crop_qdata - Crop biomeval_nbis_quantized coeff structures.
+#cat: biomeval_nbis_wsq_crop_qdata - Crop quantized coeff structures.
 #cat: biomeval_nbis_wsq_cropcoeff_mem - Crops input buffer of WSQ compressed bytes
 #cat:                into output WSQ buffer, by eliminating unneeded 
 #cat:                wavelet coefficients. First call (NULL output,
 #cat:                and NULL qdata) will decode original data. 
 #cat:                Subsequent calls reuse data, and do not repeat 
 #cat:                the decode.
-#cat: biomeval_nbis_wsq_huffcode_mem - WSQ Huffman codes biomeval_nbis_quantized coefficient array,
+#cat: biomeval_nbis_wsq_huffcode_mem - WSQ Huffman codes quantized coefficient array,
 #cat:                returning a changed memory buffer. Can be called
 #cat:                repeatedly with the same codestream header buffer.  
 #cat:                and won't reread the data.
-#cat: biomeval_nbis_wsq_dehuff_mem - Decodes WSQ to a biomeval_nbis_quantized coefficient array,
+#cat: biomeval_nbis_wsq_dehuff_mem - Decodes WSQ to a quantized coefficient array,
 #cat:                and stops. Internal decode info (biomeval_nbis_dtt_table,biomeval_nbis_dqt_table)
 #cat:                is retained. Call once, followed by multiple calls
 #cat:                to biomeval_nbis_wsq_crop_qdata and biomeval_nbis_wsq_huffcode_mem. 
@@ -83,7 +83,7 @@ Q_TREE biomeval_nbis_q_tree3[Q_TREELEN];
 void biomeval_nbis_quant_block_sizes2(int *oqsize1, int *oqsize2, int *oqsize3,
    const DQT_TABLE *dqt_table, /* quantization table structure   */
                  W_TREE *w_tree, const int w_treelen,
-                 Q_TREE *biomeval_nbis_q_tree, const int biomeval_nbis_q_treelen)
+                 Q_TREE *q_tree, const int q_treelen)
 {
    int qsize1, qsize2, qsize3;
    int node;
@@ -95,18 +95,18 @@ void biomeval_nbis_quant_block_sizes2(int *oqsize1, int *oqsize2, int *oqsize3,
    qsize3 = (w_tree[2].lenx * w_tree[2].leny) +
             (w_tree[3].lenx * w_tree[3].leny);
 
-   /* Adjust size of biomeval_nbis_quantized WSQ subband blocks. */
+   /* Adjust size of quantized WSQ subband blocks. */
    for (node = 0; node < STRT_SUBBAND_2; node++)
       if(dqt_table->q_bin[node] == 0.0)
-         qsize1 -= (biomeval_nbis_q_tree[node].lenx * biomeval_nbis_q_tree[node].leny);
+         qsize1 -= (q_tree[node].lenx * q_tree[node].leny);
 
    for (node = STRT_SUBBAND_2; node < STRT_SUBBAND_3; node++)
       if(dqt_table->q_bin[node] == 0.0)
-          qsize2 -= (biomeval_nbis_q_tree[node].lenx * biomeval_nbis_q_tree[node].leny);
+          qsize2 -= (q_tree[node].lenx * q_tree[node].leny);
 
    for (node = STRT_SUBBAND_3; node < STRT_SUBBAND_DEL; node++)
       if(dqt_table->q_bin[node] == 0.0)
-         qsize3 -= (biomeval_nbis_q_tree[node].lenx * biomeval_nbis_q_tree[node].leny);
+         qsize3 -= (q_tree[node].lenx * q_tree[node].leny);
 
    *oqsize1 = qsize1;
    *oqsize2 = qsize2;
@@ -114,7 +114,7 @@ void biomeval_nbis_quant_block_sizes2(int *oqsize1, int *oqsize2, int *oqsize3,
 }
 
 /*****************************************************************/
-/* Routine to crop biomeval_nbis_quantized coefficients.                       */
+/* Routine to crop quantized coefficients.                       */
 /* This figures out what coefficients to keep and copies them    */
 /* into pre-allocated memory (scp).                              */
 /* scp must point to at least width*height*sizeof(short) memory  */
@@ -128,12 +128,12 @@ int biomeval_nbis_wsq_crop_qdata(
    Q_TREE q_tree[], 
    Q_TREE q_tree2[],
    Q_TREE q_tree3[],
-   short *sip,           /* Original biomeval_nbis_quantized data pointer      */
+   short *sip,           /* Original quantized data pointer      */
    int ulx,              /* UL corner col */
    int uly,              /* UL corner row */
    int width,            /* Crop region width */
    int height,           /* Crop region height */
-   short *scp)           /* Cropped biomeval_nbis_quantized data pointer       */
+   short *scp)           /* Cropped quantized data pointer       */
 {
    int row;  /* row counter */
    short *cptr;   /* image pointers */
@@ -315,7 +315,7 @@ int biomeval_nbis_wsq_cropcoeff_mem(
    return(0);
 }
 /*************************************************************
-   This function Huffman encodes a biomeval_nbis_quantized coefficient 
+   This function Huffman encodes a quantized coefficient 
    subband array (qdata2) for a widthxheight image. It can 
    only be called after biomeval_nbis_wsq_crop_qdata, which sets up biomeval_nbis_q_tree2.
 
@@ -365,7 +365,7 @@ int biomeval_nbis_wsq_huffcode_mem(
    if(debug > 0)
       fprintf(stderr, "SOI, tables, and frame header written\n\n");
 
-   /* Compute biomeval_nbis_quantized WSQ subband block sizes */
+   /* Compute quantized WSQ subband block sizes */
    biomeval_nbis_quant_block_sizes2(&qsize1, &qsize2, &qsize3, &biomeval_nbis_dqt_table,
                            biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree2, Q_TREELEN);
 

@@ -178,7 +178,7 @@ int biomeval_nbis_wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *o
       fprintf(stderr,
          "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
-   /* Decode the biomeval_nbis_quantize wavelet subband data. */
+   /* Decode the quantize wavelet subband data. */
    if((ret = biomeval_nbis_unquantize(&fdata, &biomeval_nbis_dqt_table, biomeval_nbis_q_tree, Q_TREELEN,
                          qdata, width, height))){
       free(qdata);
@@ -189,7 +189,7 @@ int biomeval_nbis_wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *o
    if(debug > 0)
       fprintf(stderr, "WSQ subband data blocks unquantized\n\n");
 
-   /* Done with biomeval_nbis_quantized wavelet subband data. */
+   /* Done with quantized wavelet subband data. */
    free(qdata);
 
    if((ret = biomeval_nbis_wsq_reconstruct(fdata, width, height, biomeval_nbis_w_tree, W_TREELEN,

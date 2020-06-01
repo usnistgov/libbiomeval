@@ -55,7 +55,7 @@ of the software.
 
 ***********************************************************************/
 
-/* this from octal dump of /usr/local/image/lut/biomeval_nbis_inv_bytes.lut	*/
+/* this from octal dump of /usr/local/image/lut/inv_bytes.lut	*/
 /* itself from /usr/local/image/src/bin/inv_byte/makelut.c	*/
 
 /* see the include file /usr/local/image/include/invbyte.h	*/

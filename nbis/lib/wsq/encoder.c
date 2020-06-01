@@ -135,11 +135,11 @@ int biomeval_nbis_wsq_encode_mem(unsigned char **odata, int *olen, const float r
    biomeval_nbis_quant_vals.q = 0.0;
    /* Assign specified r-bitrate into quantization structure. */
    biomeval_nbis_quant_vals.r = r_bitrate;
-   /* Compute subband biomeval_nbis_variances. */
+   /* Compute subband variances. */
    biomeval_nbis_variance(&biomeval_nbis_quant_vals, biomeval_nbis_q_tree, Q_TREELEN, fdata, w, h);
 
    if(debug > 0)
-      fprintf(stderr, "Subband biomeval_nbis_variances computed\n\n");
+      fprintf(stderr, "Subband variances computed\n\n");
 
    /* Quantize the floating point pixmap. */
    if((ret = biomeval_nbis_quantize(&qdata, &qsize, &biomeval_nbis_quant_vals, biomeval_nbis_q_tree, Q_TREELEN,

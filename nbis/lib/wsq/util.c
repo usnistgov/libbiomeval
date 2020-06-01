@@ -62,7 +62,7 @@ of the software.
 #cat:                  to floating point values in the range +/- 128.0.
 #cat: biomeval_nbis_conv_img_2_uchar - Converts an image's floating point pixels
 #cat:                  unsigned character pixels.
-#cat: biomeval_nbis_variance - Calculates the biomeval_nbis_variances within image subbands.
+#cat: biomeval_nbis_variance - Calculates the variances within image subbands.
 #cat:
 #cat: biomeval_nbis_quantize - Quantizes the image's wavelet subbands.
 #cat:

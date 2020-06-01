@@ -49,15 +49,15 @@ of the software.
       AUTHOR:  Darrin Dimmick
       DATE:    04/25/90
 
-      Contains general purpose routines for computing biomeval_nbis_variance
+      Contains general purpose routines for computing variance
       based statistics using simple numerical methods.
 
       ROUTINES:
 #cat: biomeval_nbis_ssx_stddev - computes standard deviation based on sum of samples
 #cat:              and sum of the square of samples
-#cat: biomeval_nbis_ssx_variance - comptues biomeval_nbis_variance based on sum of samples
+#cat: biomeval_nbis_ssx_variance - comptues variance based on sum of samples
 #cat:              and sum of the square of samples
-#cat: biomeval_nbis_ssx - fundamental computation to support biomeval_nbis_variance and stddev
+#cat: biomeval_nbis_ssx - fundamental computation to support variance and stddev
 #cat:
 
 ***********************************************************************/
@@ -103,7 +103,7 @@ double biomeval_nbis_ssx_stddev(const double sum_x, const double sum_x2,
    biomeval_nbis_ssx_variance() accepts the sum of the values, the sum
    of the squares of the values, and the number of
    values contained in the sum and returns the
-   biomeval_nbis_variance of the data.
+   variance of the data.
 
    double sum_x;   # sum of the x values
    double sum_x2;  # sum of the squares of the values x
@@ -111,17 +111,17 @@ double biomeval_nbis_ssx_stddev(const double sum_x, const double sum_x2,
 ******************************************************/
 double biomeval_nbis_ssx_variance(const double sum_x, const double sum_x2, const int count)
 {
-  double biomeval_nbis_ssxval;   /* holds value from SSx() */
-  double biomeval_nbis_variance; 
+  double ssxval;   /* holds value from SSx() */
+  double variance; 
 
   if (count < 2){  
      fprintf(stderr,"ERROR : biomeval_nbis_ssx_variance : invalid count : %d < 2\n", count);
      return(-2.0);
   }
-  biomeval_nbis_ssxval = biomeval_nbis_ssx(sum_x,sum_x2,count);
-  biomeval_nbis_variance = biomeval_nbis_ssxval/(count-1);
+  ssxval = biomeval_nbis_ssx(sum_x,sum_x2,count);
+  variance = ssxval/(count-1);
 
-  return(biomeval_nbis_variance);
+  return(variance);
 }
 
 /*****************************************************/
@@ -143,12 +143,12 @@ double biomeval_nbis_ssx_variance(const double sum_x, const double sum_x2, const
 double biomeval_nbis_ssx(const double sum_x, const double sum_x2, const int count)
 { /* SS(x) SS(y) */
   /* SS(x) = (sum_x2 - ((sum_x * sum_x)/count)) */
-  double biomeval_nbis_ssx;
+  double ssx;
 
-  biomeval_nbis_ssx = sum_x * sum_x;
-  biomeval_nbis_ssx = biomeval_nbis_ssx/count;
-  biomeval_nbis_ssx = sum_x2 - biomeval_nbis_ssx;
+  ssx = sum_x * sum_x;
+  ssx = ssx/count;
+  ssx = sum_x2 - ssx;
 
-  return (biomeval_nbis_ssx);
+  return (ssx);
 }
 

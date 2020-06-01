@@ -50,10 +50,10 @@ of the software.
       DATE:    11/13/1990
 
       Contains routines responsible for accumulating the number of clock
-      cycles (biomeval_nbis_ticks) used by a process.
+      cycles (ticks) used by a process.
 
       ROUTINES:
-#cat: biomeval_nbis_ticks - returns the number of clock cycles (biomeval_nbis_ticks) used by a process.
+#cat: biomeval_nbis_ticks - returns the number of clock cycles (ticks) used by a process.
 #cat:
 #cat: biomeval_nbis_ticksPerSec - returns the system definition for HZ, where 1/HZ seconds
 #cat:               is a tick (HZ = 60).
@@ -66,7 +66,7 @@ of the software.
 #include <unistd.h>
 
 /* biomeval_nbis_ticks 13-Nov-90 15:41
- *		Get number of biomeval_nbis_ticks used by process.
+ *		Get number of ticks used by process.
  */
 clock_t 
 biomeval_nbis_ticks(void)

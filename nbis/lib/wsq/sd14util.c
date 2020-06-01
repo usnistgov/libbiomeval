@@ -197,7 +197,7 @@ int biomeval_nbis_wsq14_decode_file(unsigned char **odata, int *owidth, int *ohe
       fprintf(stderr,
          "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
-   /* Decode the biomeval_nbis_quantize wavelet subband data. */
+   /* Decode the quantize wavelet subband data. */
    if((ret = biomeval_nbis_unquantize(&fdata, &biomeval_nbis_dqt_table, biomeval_nbis_q_tree, Q_TREELEN,
                          qdata, width, height))){
       free(qdata);
@@ -208,7 +208,7 @@ int biomeval_nbis_wsq14_decode_file(unsigned char **odata, int *owidth, int *ohe
    if(debug > 0)
       fprintf(stderr, "WSQ subband data blocks unquantized\n\n");
 
-   /* Done with biomeval_nbis_quantized wavelet subband data. */
+   /* Done with quantized wavelet subband data. */
    free(qdata);
 
    if((ret = biomeval_nbis_wsq_reconstruct(fdata, width, height, biomeval_nbis_w_tree, W_TREELEN,
@@ -277,7 +277,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    unsigned char *huffbits, *huffvalues; /* huffman code parameters     */
    HUFFCODE *hufftable;          /* huffcode table              */
    int hsize, hsize1, hsize2, hsize3; /* Huffman coded blocks sizes */
-   int qsize, qsize1, qsize2, qsize3; /* biomeval_nbis_quantized block sizes */
+   int qsize, qsize1, qsize2, qsize3; /* quantized block sizes */
 
 
 /**********************************/
@@ -368,7 +368,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
       biomeval_nbis_quant_vals.qzbs[i] = biomeval_nbis_dqt_table.z_bin[i];
    }
 
-   /* Compute biomeval_nbis_quantized WSQ subband block sizes */
+   /* Compute quantized WSQ subband block sizes */
    biomeval_nbis_quant_block_sizes(&qsize1, &qsize2, &qsize3, &biomeval_nbis_quant_vals,
                            biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN);
 
@@ -582,7 +582,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    /* Done with current Huffman table. */
    free(hufftable);
 
-   /* Done with biomeval_nbis_quantized image buffer. */
+   /* Done with quantized image buffer. */
    free(qdata);
 
    /* Accumulate number of bytes compressed. */
