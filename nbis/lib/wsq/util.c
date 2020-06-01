@@ -68,7 +68,7 @@ of the software.
 #cat:
 #cat: biomeval_nbis_quant_block_sizes - Quantizes an image's subband block.
 #cat:
-#cat: biomeval_nbis_unquantize - unquantizes an image's wavelet subbands.
+#cat: biomeval_nbis_unquantize - Unquantizes an image's wavelet subbands.
 #cat:
 #cat: biomeval_nbis_wsq_decompose - Computes the wavelet decomposition of an input image.
 #cat:
@@ -247,7 +247,7 @@ void biomeval_nbis_conv_img_2_uchar(
 }
 
 /**********************************************************/
-/* This routine calculates the biomeval_nbis_variances of the subbands. */
+/* This routine calculates the variances of the subbands. */
 /**********************************************************/
 void biomeval_nbis_variance(
    QUANT_VALS *quant_vals, /* quantization parameters */

@@ -634,9 +634,9 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
 /************************************/
 static int biomeval_nbis_read_table_wsq14(
    unsigned short marker,         /* WSQ marker */
-   DTT_TABLE *biomeval_nbis_dtt_table,  /* transform table structure */
-   DQT_TABLE *biomeval_nbis_dqt_table,  /* quantization table structure */
-   DHT_TABLE *biomeval_nbis_dht_table,  /* huffman table structure */
+   DTT_TABLE *dtt_table,  /* transform table structure */
+   DQT_TABLE *dqt_table,  /* quantization table structure */
+   DHT_TABLE *dht_table,  /* huffman table structure */
    FILE *infp)            /* input file */
 {
    int ret;
@@ -644,15 +644,15 @@ static int biomeval_nbis_read_table_wsq14(
 
    switch(marker){
    case DTT_WSQ:
-      if((ret = biomeval_nbis_read_transform_table(biomeval_nbis_dtt_table, infp)))
+      if((ret = biomeval_nbis_read_transform_table(dtt_table, infp)))
          return(ret);
       break;
    case DQT_WSQ:
-      if((ret = biomeval_nbis_read_quantization_table(biomeval_nbis_dqt_table, infp)))
+      if((ret = biomeval_nbis_read_quantization_table(dqt_table, infp)))
          return(ret);
       break;
    case DHT_WSQ:
-      if((ret = biomeval_nbis_read_huff_table_wsq14(biomeval_nbis_dht_table, infp)))
+      if((ret = biomeval_nbis_read_huff_table_wsq14(dht_table, infp)))
          return(ret);
       break;
    case COM_WSQ:
@@ -677,7 +677,7 @@ static int biomeval_nbis_read_table_wsq14(
 /* Routine to read in huffman table parameters. */
 /************************************************/
 static int biomeval_nbis_read_huff_table_wsq14(
-   DHT_TABLE *biomeval_nbis_dht_table,  /* huffman table structure */
+   DHT_TABLE *dht_table,  /* huffman table structure */
    FILE *infp)            /* input file */
 {
    int ret;
@@ -710,14 +710,14 @@ static int biomeval_nbis_read_huff_table_wsq14(
             return(ret);
          if((ret = biomeval_nbis_read_byte(&char_dat, infp)))
             return(ret);
-         (biomeval_nbis_dht_table+table)->huffbits[cnt] = char_dat;
+         (dht_table+table)->huffbits[cnt] = char_dat;
 
          if(debug > 2)
             fprintf(stderr,
                     "huffbits[%d] = %d\n",
-                    cnt, (biomeval_nbis_dht_table+table)->huffbits[cnt]);
+                    cnt, (dht_table+table)->huffbits[cnt]);
 
-         num_hufvals += (biomeval_nbis_dht_table+table)->huffbits[cnt];
+         num_hufvals += (dht_table+table)->huffbits[cnt];
       }
 
       if(num_hufvals > MAX_HUFFCOUNTS_WSQ+1){
@@ -734,16 +734,16 @@ static int biomeval_nbis_read_huff_table_wsq14(
             return(ret);
          if((ret = biomeval_nbis_read_byte(&char_dat, infp)))
             return(ret);
-         (biomeval_nbis_dht_table+table)->huffvalues[cnt] = char_dat;
+         (dht_table+table)->huffvalues[cnt] = char_dat;
 
          if(debug > 2)
             fprintf(stderr,
                     "huffvalues[%d] = %d\n",
-                    cnt, (biomeval_nbis_dht_table+table)->huffvalues[cnt]);
+                    cnt, (dht_table+table)->huffvalues[cnt]);
 
       }
 
-      (biomeval_nbis_dht_table+table)->tabdef = 1;
+      (dht_table+table)->tabdef = 1;
    }
 
    if(debug > 0)
@@ -1079,9 +1079,9 @@ static void biomeval_nbis_build_shuffle_trees_wsq14(W_TREE w_tree[], const int w
 /********************************************************************/
 static int biomeval_nbis_huffman_decode_data_file_wsq14(
    short *ip,             /* image pointer */
-   DTT_TABLE *biomeval_nbis_dtt_table,  /*transform table pointer */
-   DQT_TABLE *biomeval_nbis_dqt_table,  /* quantization table */
-   DHT_TABLE *biomeval_nbis_dht_table,  /* huffman table */
+   DTT_TABLE *dtt_table,  /*transform table pointer */
+   DQT_TABLE *dqt_table,  /* quantization table */
+   DHT_TABLE *dht_table,  /* huffman table */
    FILE *infp)            /* input file */
 {
    int ret;
@@ -1109,8 +1109,8 @@ static int biomeval_nbis_huffman_decode_data_file_wsq14(
       if(marker != 0) {
          blk++;
          while(marker != SOB_WSQ) {
-            if((ret = biomeval_nbis_read_table_wsq14(marker, biomeval_nbis_dtt_table, biomeval_nbis_dqt_table,
-                                biomeval_nbis_dht_table, infp)))
+            if((ret = biomeval_nbis_read_table_wsq14(marker, dtt_table, dqt_table,
+                                dht_table, infp)))
                return(ret);
             if((ret = biomeval_nbis_read_marker_wsq(&marker, TBLS_N_SOB, infp)))
                return(ret);
@@ -1118,7 +1118,7 @@ static int biomeval_nbis_huffman_decode_data_file_wsq14(
          if((ret = biomeval_nbis_read_block_header(&hufftable_id, infp)))
             return(ret);
 
-         if((biomeval_nbis_dht_table+hufftable_id)->tabdef != 1) {
+         if((dht_table+hufftable_id)->tabdef != 1) {
             fprintf(stderr, "ERROR : huffman_decode_data_file : ");
             fprintf(stderr, "huffman table {%d} undefined.\n", hufftable_id);
             return(-53);
@@ -1126,7 +1126,7 @@ static int biomeval_nbis_huffman_decode_data_file_wsq14(
 
          /* the next two routines reconstruct the huffman tables */
          if((ret = biomeval_nbis_build_huffsizes(&hufftable, &last_size,
-                       (biomeval_nbis_dht_table+hufftable_id)->huffbits, MAX_HUFFCOUNTS_WSQ)))
+                       (dht_table+hufftable_id)->huffbits, MAX_HUFFCOUNTS_WSQ)))
             return(ret);
          biomeval_nbis_build_huffcodes(hufftable);
          ret = biomeval_nbis_check_huffcodes_wsq(hufftable, last_size);
@@ -1134,7 +1134,7 @@ static int biomeval_nbis_huffman_decode_data_file_wsq14(
          /* this routine builds a set of three tables used in decoding */
          /* the compressed data*/
          biomeval_nbis_gen_decode_table(hufftable, maxcode, mincode, valptr,
-                          (biomeval_nbis_dht_table+hufftable_id)->huffbits);
+                          (dht_table+hufftable_id)->huffbits);
          free(hufftable);
          bit_count = 0;
          marker = 0;
@@ -1142,7 +1142,7 @@ static int biomeval_nbis_huffman_decode_data_file_wsq14(
 
       /* get next huffman category code from compressed input data stream */
       if((ret = biomeval_nbis_decode_data_file(&nodeptr, mincode, maxcode, valptr,
-                            (biomeval_nbis_dht_table+hufftable_id)->huffvalues,
+                            (dht_table+hufftable_id)->huffvalues,
                             infp, &bit_count, &marker)))
          return(ret);
 
@@ -1206,10 +1206,10 @@ static int biomeval_nbis_huffman_decode_data_file_wsq14(
 /****************************************************/
 static int biomeval_nbis_unshuffle_wsq14(
    short **ofip,         /* floating point image pointer         */
-   const DQT_TABLE *biomeval_nbis_dqt_table, /* quantization table structure   */
-   Q_TREE biomeval_nbis_q_tree[],      /* quantization table structure         */
-   const int biomeval_nbis_q_treelen,  /* size of biomeval_nbis_q_tree                       */
-   short *sip,           /* biomeval_nbis_quantized image pointer              */
+   const DQT_TABLE *dqt_table, /* quantization table structure   */
+   Q_TREE q_tree[],      /* quantization table structure         */
+   const int q_treelen,  /* size of q_tree                       */
+   short *sip,           /* quantized image pointer              */
    const int width,      /* image width                          */
    const int height)     /* image height                         */
 {
@@ -1223,7 +1223,7 @@ static int biomeval_nbis_unshuffle_wsq14(
       fprintf(stderr,"ERROR : biomeval_nbis_unquantize : calloc : fip\n");
       return(-2);
    }
-   if(biomeval_nbis_dqt_table->dqt_def != 1) {
+   if(dqt_table->dqt_def != 1) {
       fprintf(stderr,
       "ERROR: biomeval_nbis_unshuffle_wsq14 : quantization table parameters not defined!\n");
       return(-3);
@@ -1231,11 +1231,11 @@ static int biomeval_nbis_unshuffle_wsq14(
 
    sptr = sip;
    for(cnt = 0; cnt < NUM_SUBBANDS; cnt++)
-      if(biomeval_nbis_dqt_table->q_bin[cnt] != 0.0) {
-         fptr = fip + (biomeval_nbis_q_tree[cnt].y * width) + biomeval_nbis_q_tree[cnt].x;
+      if(dqt_table->q_bin[cnt] != 0.0) {
+         fptr = fip + (q_tree[cnt].y * width) + q_tree[cnt].x;
 
-         for(row = 0; row < biomeval_nbis_q_tree[cnt].leny; row++, fptr += width - biomeval_nbis_q_tree[cnt].lenx)
-            for(col = 0; col < biomeval_nbis_q_tree[cnt].lenx; col++)
+         for(row = 0; row < q_tree[cnt].leny; row++, fptr += width - q_tree[cnt].lenx)
+            for(col = 0; col < q_tree[cnt].lenx; col++)
                *fptr++ = *sptr++;
       }
 
@@ -1245,24 +1245,24 @@ static int biomeval_nbis_unshuffle_wsq14(
 
 
 /***************************************************************/
-/* Routine shuffles biomeval_nbis_quantized subbands from old to new format. */
+/* Routine shuffles quantized subbands from old to new format. */
 /***************************************************************/
 static int biomeval_nbis_shuffle_wsq14(
-   short **osip,           /* biomeval_nbis_quantized output             */
-   int *ocmp_siz,          /* size of biomeval_nbis_quantized output     */
-   const DQT_TABLE biomeval_nbis_dqt_table, /* quantization table structure   */
-   Q_TREE biomeval_nbis_q_tree_wsq14[],   /* quantization "tree"          */
-   const int biomeval_nbis_q_treelen,    /* size of biomeval_nbis_q_tree               */
+   short **osip,           /* quantized output             */
+   int *ocmp_siz,          /* size of quantized output     */
+   const DQT_TABLE dqt_table, /* quantization table structure   */
+   Q_TREE q_tree_wsq14[],   /* quantization "tree"          */
+   const int q_treelen,    /* size of q_tree               */
    short *fip,             /* floating point image pointer */
    const int width,        /* image width                  */
    const int height)       /* image height                 */
 {
    short *fptr;           /* temp image pointer */
-   short *sip, *sptr;     /* pointers to biomeval_nbis_quantized image */
+   short *sip, *sptr;     /* pointers to quantized image */
    int row, col;          /* temp image characteristic parameters */
    int cnt;               /* subband counter */
 
-   if(biomeval_nbis_dqt_table.dqt_def != 1) {
+   if(dqt_table.dqt_def != 1) {
       fprintf(stderr,
       "ERROR: biomeval_nbis_shuffle_wsq14 : quantization table parameters not defined!\n");
       return(-92);
@@ -1270,18 +1270,18 @@ static int biomeval_nbis_shuffle_wsq14(
 
    /* Set up output buffer. */
    if((sip = (short *) calloc(width*height, sizeof(short))) == NULL) {
-      fprintf(stderr,"ERROR : biomeval_nbis_quantize : calloc : sip\n");
+      fprintf(stderr,"ERROR : biomeval_nbis_shuffle_wsq14 : calloc : sip\n");
       return(-90);
    }
    sptr = sip;
 
    for(cnt = 0; cnt < NUM_SUBBANDS; cnt++)
 
-      if(biomeval_nbis_dqt_table.q_bin[cnt] != 0.0) {
-         fptr = fip + (biomeval_nbis_q_tree_wsq14[cnt].y * width) + biomeval_nbis_q_tree_wsq14[cnt].x;
+      if(dqt_table.q_bin[cnt] != 0.0) {
+         fptr = fip + (q_tree_wsq14[cnt].y * width) + q_tree_wsq14[cnt].x;
 
-         for(row = 0; row < biomeval_nbis_q_tree_wsq14[cnt].leny; row++, fptr += width - biomeval_nbis_q_tree_wsq14[cnt].lenx)
-            for(col = 0; col < biomeval_nbis_q_tree_wsq14[cnt].lenx; col++)
+         for(row = 0; row < q_tree_wsq14[cnt].leny; row++, fptr += width - q_tree_wsq14[cnt].lenx)
+            for(col = 0; col < q_tree_wsq14[cnt].lenx; col++)
                *sptr++ = *fptr++;
       }
 
@@ -1294,135 +1294,135 @@ static int biomeval_nbis_shuffle_wsq14(
 /**************************************************************/
 /* Routine shuffles quantization tree from old to new format. */
 /**************************************************************/
-static int biomeval_nbis_shuffle_dqt_wsq14(DQT_TABLE *biomeval_nbis_dqt_table)
+static int biomeval_nbis_shuffle_dqt_wsq14(DQT_TABLE *dqt_table)
 {
    int i;
    float tq[MAX_SUBBANDS], tz[MAX_SUBBANDS];
 
    for(i = 0; i < 7; i++) {
-      tq[i] = biomeval_nbis_dqt_table->q_bin[i];
-      tz[i] = biomeval_nbis_dqt_table->z_bin[i];
+      tq[i] = dqt_table->q_bin[i];
+      tz[i] = dqt_table->z_bin[i];
    }
 
-   tq[7] = biomeval_nbis_dqt_table->q_bin[8];
-   tq[8] = biomeval_nbis_dqt_table->q_bin[7];
-   tq[9] = biomeval_nbis_dqt_table->q_bin[10];
-   tq[10] = biomeval_nbis_dqt_table->q_bin[9];
-   tq[11] = biomeval_nbis_dqt_table->q_bin[13];
-   tq[12] = biomeval_nbis_dqt_table->q_bin[14];
-   tq[13] = biomeval_nbis_dqt_table->q_bin[11];
-   tq[14] = biomeval_nbis_dqt_table->q_bin[12];
-   tq[15] = biomeval_nbis_dqt_table->q_bin[18];
-   tq[16] = biomeval_nbis_dqt_table->q_bin[17];
-   tq[17] = biomeval_nbis_dqt_table->q_bin[16];
-   tq[18] = biomeval_nbis_dqt_table->q_bin[15];
-   tq[19] = biomeval_nbis_dqt_table->q_bin[23];
-   tq[20] = biomeval_nbis_dqt_table->q_bin[24];
-   tq[21] = biomeval_nbis_dqt_table->q_bin[25];
-   tq[22] = biomeval_nbis_dqt_table->q_bin[26];
-   tq[23] = biomeval_nbis_dqt_table->q_bin[20];
-   tq[24] = biomeval_nbis_dqt_table->q_bin[19];
-   tq[25] = biomeval_nbis_dqt_table->q_bin[22];
-   tq[26] = biomeval_nbis_dqt_table->q_bin[21];
-   tq[27] = biomeval_nbis_dqt_table->q_bin[33];
-   tq[28] = biomeval_nbis_dqt_table->q_bin[34];
-   tq[29] = biomeval_nbis_dqt_table->q_bin[31];
-   tq[30] = biomeval_nbis_dqt_table->q_bin[32];
-   tq[31] = biomeval_nbis_dqt_table->q_bin[30];
-   tq[32] = biomeval_nbis_dqt_table->q_bin[29];
-   tq[33] = biomeval_nbis_dqt_table->q_bin[28];
-   tq[34] = biomeval_nbis_dqt_table->q_bin[27];
-   tq[35] = biomeval_nbis_dqt_table->q_bin[43];
-   tq[36] = biomeval_nbis_dqt_table->q_bin[44];
-   tq[37] = biomeval_nbis_dqt_table->q_bin[45];
-   tq[38] = biomeval_nbis_dqt_table->q_bin[46];
-   tq[39] = biomeval_nbis_dqt_table->q_bin[48];
-   tq[40] = biomeval_nbis_dqt_table->q_bin[47];
-   tq[41] = biomeval_nbis_dqt_table->q_bin[50];
-   tq[42] = biomeval_nbis_dqt_table->q_bin[49];
-   tq[43] = biomeval_nbis_dqt_table->q_bin[37];
-   tq[44] = biomeval_nbis_dqt_table->q_bin[38];
-   tq[45] = biomeval_nbis_dqt_table->q_bin[35];
-   tq[46] = biomeval_nbis_dqt_table->q_bin[36];
-   tq[47] = biomeval_nbis_dqt_table->q_bin[42];
-   tq[48] = biomeval_nbis_dqt_table->q_bin[41];
-   tq[49] = biomeval_nbis_dqt_table->q_bin[40];
-   tq[50] = biomeval_nbis_dqt_table->q_bin[39];
-   tq[51] = biomeval_nbis_dqt_table->q_bin[51];
-   tq[52] = biomeval_nbis_dqt_table->q_bin[53];
-   tq[53] = biomeval_nbis_dqt_table->q_bin[52];
-   tq[54] = biomeval_nbis_dqt_table->q_bin[55];
-   tq[55] = biomeval_nbis_dqt_table->q_bin[54];
-   tq[56] = biomeval_nbis_dqt_table->q_bin[58];
-   tq[57] = biomeval_nbis_dqt_table->q_bin[59];
-   tq[58] = biomeval_nbis_dqt_table->q_bin[56];
-   tq[59] = biomeval_nbis_dqt_table->q_bin[57];
-   tq[60] = biomeval_nbis_dqt_table->q_bin[63];
-   tq[61] = biomeval_nbis_dqt_table->q_bin[62];
-   tq[62] = biomeval_nbis_dqt_table->q_bin[61];
-   tq[63] = biomeval_nbis_dqt_table->q_bin[60];
+   tq[7] = dqt_table->q_bin[8];
+   tq[8] = dqt_table->q_bin[7];
+   tq[9] = dqt_table->q_bin[10];
+   tq[10] = dqt_table->q_bin[9];
+   tq[11] = dqt_table->q_bin[13];
+   tq[12] = dqt_table->q_bin[14];
+   tq[13] = dqt_table->q_bin[11];
+   tq[14] = dqt_table->q_bin[12];
+   tq[15] = dqt_table->q_bin[18];
+   tq[16] = dqt_table->q_bin[17];
+   tq[17] = dqt_table->q_bin[16];
+   tq[18] = dqt_table->q_bin[15];
+   tq[19] = dqt_table->q_bin[23];
+   tq[20] = dqt_table->q_bin[24];
+   tq[21] = dqt_table->q_bin[25];
+   tq[22] = dqt_table->q_bin[26];
+   tq[23] = dqt_table->q_bin[20];
+   tq[24] = dqt_table->q_bin[19];
+   tq[25] = dqt_table->q_bin[22];
+   tq[26] = dqt_table->q_bin[21];
+   tq[27] = dqt_table->q_bin[33];
+   tq[28] = dqt_table->q_bin[34];
+   tq[29] = dqt_table->q_bin[31];
+   tq[30] = dqt_table->q_bin[32];
+   tq[31] = dqt_table->q_bin[30];
+   tq[32] = dqt_table->q_bin[29];
+   tq[33] = dqt_table->q_bin[28];
+   tq[34] = dqt_table->q_bin[27];
+   tq[35] = dqt_table->q_bin[43];
+   tq[36] = dqt_table->q_bin[44];
+   tq[37] = dqt_table->q_bin[45];
+   tq[38] = dqt_table->q_bin[46];
+   tq[39] = dqt_table->q_bin[48];
+   tq[40] = dqt_table->q_bin[47];
+   tq[41] = dqt_table->q_bin[50];
+   tq[42] = dqt_table->q_bin[49];
+   tq[43] = dqt_table->q_bin[37];
+   tq[44] = dqt_table->q_bin[38];
+   tq[45] = dqt_table->q_bin[35];
+   tq[46] = dqt_table->q_bin[36];
+   tq[47] = dqt_table->q_bin[42];
+   tq[48] = dqt_table->q_bin[41];
+   tq[49] = dqt_table->q_bin[40];
+   tq[50] = dqt_table->q_bin[39];
+   tq[51] = dqt_table->q_bin[51];
+   tq[52] = dqt_table->q_bin[53];
+   tq[53] = dqt_table->q_bin[52];
+   tq[54] = dqt_table->q_bin[55];
+   tq[55] = dqt_table->q_bin[54];
+   tq[56] = dqt_table->q_bin[58];
+   tq[57] = dqt_table->q_bin[59];
+   tq[58] = dqt_table->q_bin[56];
+   tq[59] = dqt_table->q_bin[57];
+   tq[60] = dqt_table->q_bin[63];
+   tq[61] = dqt_table->q_bin[62];
+   tq[62] = dqt_table->q_bin[61];
+   tq[63] = dqt_table->q_bin[60];
 
-   tz[7] = biomeval_nbis_dqt_table->z_bin[8];
-   tz[8] = biomeval_nbis_dqt_table->z_bin[7];
-   tz[9] = biomeval_nbis_dqt_table->z_bin[10];
-   tz[10] = biomeval_nbis_dqt_table->z_bin[9];
-   tz[11] = biomeval_nbis_dqt_table->z_bin[13];
-   tz[12] = biomeval_nbis_dqt_table->z_bin[14];
-   tz[13] = biomeval_nbis_dqt_table->z_bin[11];
-   tz[14] = biomeval_nbis_dqt_table->z_bin[12];
-   tz[15] = biomeval_nbis_dqt_table->z_bin[18];
-   tz[16] = biomeval_nbis_dqt_table->z_bin[17];
-   tz[17] = biomeval_nbis_dqt_table->z_bin[16];
-   tz[18] = biomeval_nbis_dqt_table->z_bin[15];
-   tz[19] = biomeval_nbis_dqt_table->z_bin[23];
-   tz[20] = biomeval_nbis_dqt_table->z_bin[24];
-   tz[21] = biomeval_nbis_dqt_table->z_bin[25];
-   tz[22] = biomeval_nbis_dqt_table->z_bin[26];
-   tz[23] = biomeval_nbis_dqt_table->z_bin[20];
-   tz[24] = biomeval_nbis_dqt_table->z_bin[19];
-   tz[25] = biomeval_nbis_dqt_table->z_bin[22];
-   tz[26] = biomeval_nbis_dqt_table->z_bin[21];
-   tz[27] = biomeval_nbis_dqt_table->z_bin[33];
-   tz[28] = biomeval_nbis_dqt_table->z_bin[34];
-   tz[29] = biomeval_nbis_dqt_table->z_bin[31];
-   tz[30] = biomeval_nbis_dqt_table->z_bin[32];
-   tz[31] = biomeval_nbis_dqt_table->z_bin[30];
-   tz[32] = biomeval_nbis_dqt_table->z_bin[29];
-   tz[33] = biomeval_nbis_dqt_table->z_bin[28];
-   tz[34] = biomeval_nbis_dqt_table->z_bin[27];
-   tz[35] = biomeval_nbis_dqt_table->z_bin[43];
-   tz[36] = biomeval_nbis_dqt_table->z_bin[44];
-   tz[37] = biomeval_nbis_dqt_table->z_bin[45];
-   tz[38] = biomeval_nbis_dqt_table->z_bin[46];
-   tz[39] = biomeval_nbis_dqt_table->z_bin[48];
-   tz[40] = biomeval_nbis_dqt_table->z_bin[47];
-   tz[41] = biomeval_nbis_dqt_table->z_bin[50];
-   tz[42] = biomeval_nbis_dqt_table->z_bin[49];
-   tz[43] = biomeval_nbis_dqt_table->z_bin[37];
-   tz[44] = biomeval_nbis_dqt_table->z_bin[38];
-   tz[45] = biomeval_nbis_dqt_table->z_bin[35];
-   tz[46] = biomeval_nbis_dqt_table->z_bin[36];
-   tz[47] = biomeval_nbis_dqt_table->z_bin[42];
-   tz[48] = biomeval_nbis_dqt_table->z_bin[41];
-   tz[49] = biomeval_nbis_dqt_table->z_bin[40];
-   tz[50] = biomeval_nbis_dqt_table->z_bin[39];
-   tz[51] = biomeval_nbis_dqt_table->z_bin[51];
-   tz[52] = biomeval_nbis_dqt_table->z_bin[53];
-   tz[53] = biomeval_nbis_dqt_table->z_bin[52];
-   tz[54] = biomeval_nbis_dqt_table->z_bin[55];
-   tz[55] = biomeval_nbis_dqt_table->z_bin[54];
-   tz[56] = biomeval_nbis_dqt_table->z_bin[58];
-   tz[57] = biomeval_nbis_dqt_table->z_bin[59];
-   tz[58] = biomeval_nbis_dqt_table->z_bin[56];
-   tz[59] = biomeval_nbis_dqt_table->z_bin[57];
-   tz[60] = biomeval_nbis_dqt_table->z_bin[63];
-   tz[61] = biomeval_nbis_dqt_table->z_bin[62];
-   tz[62] = biomeval_nbis_dqt_table->z_bin[61];
-   tz[63] = biomeval_nbis_dqt_table->z_bin[60];
+   tz[7] = dqt_table->z_bin[8];
+   tz[8] = dqt_table->z_bin[7];
+   tz[9] = dqt_table->z_bin[10];
+   tz[10] = dqt_table->z_bin[9];
+   tz[11] = dqt_table->z_bin[13];
+   tz[12] = dqt_table->z_bin[14];
+   tz[13] = dqt_table->z_bin[11];
+   tz[14] = dqt_table->z_bin[12];
+   tz[15] = dqt_table->z_bin[18];
+   tz[16] = dqt_table->z_bin[17];
+   tz[17] = dqt_table->z_bin[16];
+   tz[18] = dqt_table->z_bin[15];
+   tz[19] = dqt_table->z_bin[23];
+   tz[20] = dqt_table->z_bin[24];
+   tz[21] = dqt_table->z_bin[25];
+   tz[22] = dqt_table->z_bin[26];
+   tz[23] = dqt_table->z_bin[20];
+   tz[24] = dqt_table->z_bin[19];
+   tz[25] = dqt_table->z_bin[22];
+   tz[26] = dqt_table->z_bin[21];
+   tz[27] = dqt_table->z_bin[33];
+   tz[28] = dqt_table->z_bin[34];
+   tz[29] = dqt_table->z_bin[31];
+   tz[30] = dqt_table->z_bin[32];
+   tz[31] = dqt_table->z_bin[30];
+   tz[32] = dqt_table->z_bin[29];
+   tz[33] = dqt_table->z_bin[28];
+   tz[34] = dqt_table->z_bin[27];
+   tz[35] = dqt_table->z_bin[43];
+   tz[36] = dqt_table->z_bin[44];
+   tz[37] = dqt_table->z_bin[45];
+   tz[38] = dqt_table->z_bin[46];
+   tz[39] = dqt_table->z_bin[48];
+   tz[40] = dqt_table->z_bin[47];
+   tz[41] = dqt_table->z_bin[50];
+   tz[42] = dqt_table->z_bin[49];
+   tz[43] = dqt_table->z_bin[37];
+   tz[44] = dqt_table->z_bin[38];
+   tz[45] = dqt_table->z_bin[35];
+   tz[46] = dqt_table->z_bin[36];
+   tz[47] = dqt_table->z_bin[42];
+   tz[48] = dqt_table->z_bin[41];
+   tz[49] = dqt_table->z_bin[40];
+   tz[50] = dqt_table->z_bin[39];
+   tz[51] = dqt_table->z_bin[51];
+   tz[52] = dqt_table->z_bin[53];
+   tz[53] = dqt_table->z_bin[52];
+   tz[54] = dqt_table->z_bin[55];
+   tz[55] = dqt_table->z_bin[54];
+   tz[56] = dqt_table->z_bin[58];
+   tz[57] = dqt_table->z_bin[59];
+   tz[58] = dqt_table->z_bin[56];
+   tz[59] = dqt_table->z_bin[57];
+   tz[60] = dqt_table->z_bin[63];
+   tz[61] = dqt_table->z_bin[62];
+   tz[62] = dqt_table->z_bin[61];
+   tz[63] = dqt_table->z_bin[60];
 
    for(i = 0; i < MAX_SUBBANDS; i++) {
-      biomeval_nbis_dqt_table->q_bin[i] = tq[i];
-      biomeval_nbis_dqt_table->z_bin[i] = tz[i];
+      dqt_table->q_bin[i] = tq[i];
+      dqt_table->z_bin[i] = tz[i];
    }
    return(0);
 }

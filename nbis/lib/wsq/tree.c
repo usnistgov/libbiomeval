@@ -81,14 +81,14 @@ of the software.
 /************************************************************************/
 /* Build WSQ decomposition trees.                                       */
 /************************************************************************/
-void biomeval_nbis_build_wsq_trees(W_TREE biomeval_nbis_w_tree[], const int biomeval_nbis_w_treelen,
-                     Q_TREE biomeval_nbis_q_tree[], const int biomeval_nbis_q_treelen,
+void biomeval_nbis_build_wsq_trees(W_TREE w_tree[], const int w_treelen,
+                     Q_TREE q_tree[], const int q_treelen,
                      const int width, const int height)
 {
    /* Build a W-TREE structure for the image. */
-   biomeval_nbis_build_w_tree(biomeval_nbis_w_tree, width, height);
+   biomeval_nbis_build_w_tree(w_tree, width, height);
    /* Build a Q-TREE structure for the image. */
-   biomeval_nbis_build_q_tree(biomeval_nbis_w_tree, biomeval_nbis_q_tree);
+   biomeval_nbis_build_q_tree(w_tree, q_tree);
 }
 
 /********************************************************************/

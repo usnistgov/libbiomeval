@@ -381,9 +381,9 @@ int biomeval_nbis_wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *
 /***************************************************************************/
 int biomeval_nbis_huffman_decode_data_mem(
    short *ip,               /* image pointer */
-   DTT_TABLE *biomeval_nbis_dtt_table,    /*transform table pointer */
-   DQT_TABLE *biomeval_nbis_dqt_table,    /* quantization table */
-   DHT_TABLE *biomeval_nbis_dht_table,    /* huffman table */
+   DTT_TABLE *dtt_table,    /*transform table pointer */
+   DQT_TABLE *dqt_table,    /* quantization table */
+   DHT_TABLE *dht_table,    /* huffman table */
    unsigned char **cbufptr, /* points to current byte in input buffer */
    unsigned char *ebufptr)  /* points to end of input buffer */
 {
@@ -416,15 +416,15 @@ int biomeval_nbis_huffman_decode_data_mem(
       if(marker != 0) {
          blk++;
          while(marker != SOB_WSQ) {
-            if((ret = biomeval_nbis_getc_table_wsq(marker, biomeval_nbis_dtt_table, biomeval_nbis_dqt_table,
-                                biomeval_nbis_dht_table, cbufptr, ebufptr)))
+            if((ret = biomeval_nbis_getc_table_wsq(marker, dtt_table, dqt_table,
+                                dht_table, cbufptr, ebufptr)))
                return(ret);
             if((ret = biomeval_nbis_getc_marker_wsq(&marker, TBLS_N_SOB, cbufptr, ebufptr)))
                return(ret);
          }
-         if(biomeval_nbis_dqt_table->dqt_def && !ipc_q) {
+         if(dqt_table->dqt_def && !ipc_q) {
             for(n = 0; n < 64; n++)
-               if(biomeval_nbis_dqt_table->q_bin[n] == 0.0)
+               if(dqt_table->q_bin[n] == 0.0)
                   ipc_mx -= biomeval_nbis_q_tree[n].lenx*biomeval_nbis_q_tree[n].leny;
 
             ipc_q = 1;
@@ -432,7 +432,7 @@ int biomeval_nbis_huffman_decode_data_mem(
          if((ret = biomeval_nbis_getc_block_header(&hufftable_id, cbufptr, ebufptr)))
             return(ret);
 
-         if((biomeval_nbis_dht_table+hufftable_id)->tabdef != 1) {
+         if((dht_table+hufftable_id)->tabdef != 1) {
             fprintf(stderr, "ERROR : biomeval_nbis_huffman_decode_data_mem : ");
             fprintf(stderr, "huffman table {%d} undefined.\n", hufftable_id);
             return(-51);
@@ -440,7 +440,7 @@ int biomeval_nbis_huffman_decode_data_mem(
 
          /* the next two routines reconstruct the huffman tables */
          if((ret = biomeval_nbis_build_huffsizes(&hufftable, &last_size,
-                                  (biomeval_nbis_dht_table+hufftable_id)->huffbits,
+                                  (dht_table+hufftable_id)->huffbits,
                                   MAX_HUFFCOUNTS_WSQ)))
             return(ret);
 
@@ -452,7 +452,7 @@ int biomeval_nbis_huffman_decode_data_mem(
          /* this routine builds a set of three tables used in decoding */
          /* the compressed data*/
          biomeval_nbis_gen_decode_table(hufftable, maxcode, mincode, valptr,
-                          (biomeval_nbis_dht_table+hufftable_id)->huffbits);
+                          (dht_table+hufftable_id)->huffbits);
          free(hufftable);
          bit_count = 0;
          marker = 0;
@@ -460,14 +460,14 @@ int biomeval_nbis_huffman_decode_data_mem(
 
       /* get next huffman category code from compressed input data stream */
       if((ret = biomeval_nbis_decode_data_mem(&nodeptr, mincode, maxcode, valptr,
-                            (biomeval_nbis_dht_table+hufftable_id)->huffvalues,
+                            (dht_table+hufftable_id)->huffvalues,
                             cbufptr, ebufptr, &bit_count, &marker)))
          return(ret);
 
       if(nodeptr == -1) {
          while(marker == COM_WSQ && blk == 3) {
-            if((ret = biomeval_nbis_getc_table_wsq(marker, biomeval_nbis_dtt_table, biomeval_nbis_dqt_table,
-                                biomeval_nbis_dht_table, cbufptr, ebufptr)))
+            if((ret = biomeval_nbis_getc_table_wsq(marker, dtt_table, dqt_table,
+                                dht_table, cbufptr, ebufptr)))
                return(ret);
             if((ret = biomeval_nbis_getc_marker_wsq(&marker, ANY_WSQ, cbufptr, ebufptr)))
                return(ret);

@@ -81,7 +81,7 @@ Q_TREE biomeval_nbis_q_tree3[Q_TREELEN];
 /* I.e. no rate control is performed in this version.                   */
 /************************************************************************/
 void biomeval_nbis_quant_block_sizes2(int *oqsize1, int *oqsize2, int *oqsize3,
-   const DQT_TABLE *biomeval_nbis_dqt_table, /* quantization table structure   */
+   const DQT_TABLE *dqt_table, /* quantization table structure   */
                  W_TREE *w_tree, const int w_treelen,
                  Q_TREE *biomeval_nbis_q_tree, const int biomeval_nbis_q_treelen)
 {
@@ -97,15 +97,15 @@ void biomeval_nbis_quant_block_sizes2(int *oqsize1, int *oqsize2, int *oqsize3,
 
    /* Adjust size of biomeval_nbis_quantized WSQ subband blocks. */
    for (node = 0; node < STRT_SUBBAND_2; node++)
-      if(biomeval_nbis_dqt_table->q_bin[node] == 0.0)
+      if(dqt_table->q_bin[node] == 0.0)
          qsize1 -= (biomeval_nbis_q_tree[node].lenx * biomeval_nbis_q_tree[node].leny);
 
    for (node = STRT_SUBBAND_2; node < STRT_SUBBAND_3; node++)
-      if(biomeval_nbis_dqt_table->q_bin[node] == 0.0)
+      if(dqt_table->q_bin[node] == 0.0)
           qsize2 -= (biomeval_nbis_q_tree[node].lenx * biomeval_nbis_q_tree[node].leny);
 
    for (node = STRT_SUBBAND_3; node < STRT_SUBBAND_DEL; node++)
-      if(biomeval_nbis_dqt_table->q_bin[node] == 0.0)
+      if(dqt_table->q_bin[node] == 0.0)
          qsize3 -= (biomeval_nbis_q_tree[node].lenx * biomeval_nbis_q_tree[node].leny);
 
    *oqsize1 = qsize1;
@@ -124,7 +124,7 @@ void biomeval_nbis_quant_block_sizes2(int *oqsize1, int *oqsize2, int *oqsize3,
 /* of scanning the entire array and copying one element at a time*/
 /*****************************************************************/
 int biomeval_nbis_wsq_crop_qdata(
-   const DQT_TABLE *biomeval_nbis_dqt_table, /* quantization table structure   */
+   const DQT_TABLE *dqt_table, /* quantization table structure   */
    Q_TREE q_tree[], 
    Q_TREE q_tree2[],
    Q_TREE q_tree3[],
@@ -157,7 +157,7 @@ int biomeval_nbis_wsq_crop_qdata(
    biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, q_tree3, Q_TREELEN, ulx, uly);
    biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, q_tree2, Q_TREELEN, width, height);
 
-   if(biomeval_nbis_dqt_table->dqt_def != 1) {
+   if(dqt_table->dqt_def != 1) {
       fprintf(stderr,
       "ERROR: biomeval_nbis_unquantize : quantization table parameters not defined!\n");
       return(-92);
@@ -166,7 +166,7 @@ int biomeval_nbis_wsq_crop_qdata(
    bptr = sip;
    cptr = scp;
    for(cnt = 0; cnt < NUM_SUBBANDS; cnt++) {
-      if(biomeval_nbis_dqt_table->q_bin[cnt] == 0.0)
+      if(dqt_table->q_bin[cnt] == 0.0)
          continue;
       /* Length of each new subband row in bytes */
       numbytes = q_tree2[cnt].lenx*sizeof(short);
@@ -558,7 +558,7 @@ int biomeval_nbis_wsq_huffcode_mem(
 }
 
 /*************************************************************
-   This function Huffman decodes WSQ memory into a biomeval_nbis_quantized
+   This function Huffman decodes WSQ memory into a quantized
    coefficient subband array (pqdata). Several other values
    are returned as well:
       iw, ih     :  Image (and pqdata) dimensions

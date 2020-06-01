@@ -252,9 +252,9 @@ int biomeval_nbis_getc_marker_wsq(
 /************************************/
 int biomeval_nbis_read_table_wsq(
    unsigned short marker,         /* WSQ marker */
-   DTT_TABLE *biomeval_nbis_dtt_table,  /* transform table structure */
-   DQT_TABLE *biomeval_nbis_dqt_table,  /* quantization table structure */
-   DHT_TABLE *biomeval_nbis_dht_table,  /* huffman table structure */
+   DTT_TABLE *dtt_table,  /* transform table structure */
+   DQT_TABLE *dqt_table,  /* quantization table structure */
+   DHT_TABLE *dht_table,  /* huffman table structure */
    FILE *infp)            /* input file */
 {
    int ret;
@@ -262,15 +262,15 @@ int biomeval_nbis_read_table_wsq(
 
    switch(marker){
    case DTT_WSQ:
-      if((ret = biomeval_nbis_read_transform_table(biomeval_nbis_dtt_table, infp)))
+      if((ret = biomeval_nbis_read_transform_table(dtt_table, infp)))
          return(ret);
       break;
    case DQT_WSQ:
-      if((ret = biomeval_nbis_read_quantization_table(biomeval_nbis_dqt_table, infp)))
+      if((ret = biomeval_nbis_read_quantization_table(dqt_table, infp)))
          return(ret);
       break;
    case DHT_WSQ:
-      if((ret = biomeval_nbis_read_huffman_table_wsq(biomeval_nbis_dht_table, infp)))
+      if((ret = biomeval_nbis_read_huffman_table_wsq(dht_table, infp)))
          return(ret);
       break;
    case COM_WSQ:
@@ -295,9 +295,9 @@ int biomeval_nbis_read_table_wsq(
 /*******************************************************/
 int biomeval_nbis_getc_table_wsq(
    unsigned short marker,         /* WSQ marker */
-   DTT_TABLE *biomeval_nbis_dtt_table,  /* transform table structure */
-   DQT_TABLE *biomeval_nbis_dqt_table,  /* quantization table structure */
-   DHT_TABLE *biomeval_nbis_dht_table,  /* huffman table structure */
+   DTT_TABLE *dtt_table,  /* transform table structure */
+   DQT_TABLE *dqt_table,  /* quantization table structure */
+   DHT_TABLE *dht_table,  /* huffman table structure */
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
 {
@@ -306,15 +306,15 @@ int biomeval_nbis_getc_table_wsq(
 
    switch(marker){
    case DTT_WSQ:
-      if((ret = biomeval_nbis_getc_transform_table(biomeval_nbis_dtt_table, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_transform_table(dtt_table, cbufptr, ebufptr)))
          return(ret);
       break;
    case DQT_WSQ:
-      if((ret = biomeval_nbis_getc_quantization_table(biomeval_nbis_dqt_table, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_quantization_table(dqt_table, cbufptr, ebufptr)))
          return(ret);
       break;
    case DHT_WSQ:
-      if((ret = biomeval_nbis_getc_huffman_table_wsq(biomeval_nbis_dht_table, cbufptr, ebufptr)))
+      if((ret = biomeval_nbis_getc_huffman_table_wsq(dht_table, cbufptr, ebufptr)))
          return(ret);
       break;
    case COM_WSQ:
@@ -338,7 +338,7 @@ int biomeval_nbis_getc_table_wsq(
 /* Routine to read in transform table parameters. */
 /**************************************************/
 int biomeval_nbis_read_transform_table(
-   DTT_TABLE *biomeval_nbis_dtt_table,  /* transform table structure */
+   DTT_TABLE *dtt_table,  /* transform table structure */
    FILE *infp)            /* input file */
 {
    int ret;
@@ -353,57 +353,57 @@ int biomeval_nbis_read_transform_table(
 
    if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
       return(ret);
-   if((ret = biomeval_nbis_read_byte(&(biomeval_nbis_dtt_table->hisz), infp)))
+   if((ret = biomeval_nbis_read_byte(&(dtt_table->hisz), infp)))
       return(ret);
-   if((ret = biomeval_nbis_read_byte(&(biomeval_nbis_dtt_table->losz), infp)))
+   if((ret = biomeval_nbis_read_byte(&(dtt_table->losz), infp)))
       return(ret);
 
 
    if(debug > 2) {
-      fprintf(stderr, "losize = %d\n", biomeval_nbis_dtt_table->losz);
-      fprintf(stderr, "hisize = %d\n", biomeval_nbis_dtt_table->hisz);
+      fprintf(stderr, "losize = %d\n", dtt_table->losz);
+      fprintf(stderr, "hisize = %d\n", dtt_table->hisz);
    }
 
    /* Added 02-24-05 by MDG */
-   /* If biomeval_nbis_lofilt member previously allocated ... */
-   if(biomeval_nbis_dtt_table->lofilt != (float *)NULL){
+   /* If lofilt member previously allocated ... */
+   if(dtt_table->lofilt != (float *)NULL){
       /* Deallocate the member prior to new allocation */
-      free(biomeval_nbis_dtt_table->lofilt);
-      biomeval_nbis_dtt_table->lofilt = (float *)NULL;
+      free(dtt_table->lofilt);
+      dtt_table->lofilt = (float *)NULL;
    }
 
-   biomeval_nbis_dtt_table->lofilt = (float *)calloc(biomeval_nbis_dtt_table->losz,sizeof(float));
-   if(biomeval_nbis_dtt_table->lofilt == (float *)NULL) {
+   dtt_table->lofilt = (float *)calloc(dtt_table->losz,sizeof(float));
+   if(dtt_table->lofilt == (float *)NULL) {
       fprintf(stderr,
-      "ERROR : biomeval_nbis_read_transform_table : calloc : biomeval_nbis_lofilt\n");
+      "ERROR : biomeval_nbis_read_transform_table : calloc : lofilt\n");
       return(-76);
    }
 
    /* Added 02-24-05 by MDG */
-   /* If biomeval_nbis_hifilt member previously allocated ... */
-   if(biomeval_nbis_dtt_table->hifilt != (float *)NULL){
+   /* If hifilt member previously allocated ... */
+   if(dtt_table->hifilt != (float *)NULL){
       /* Deallocate the member prior to new allocation */
-      free(biomeval_nbis_dtt_table->hifilt);
-      biomeval_nbis_dtt_table->hifilt = (float *)NULL;
+      free(dtt_table->hifilt);
+      dtt_table->hifilt = (float *)NULL;
    }
 
-   biomeval_nbis_dtt_table->hifilt = (float *)calloc(biomeval_nbis_dtt_table->hisz,sizeof(float));
-   if(biomeval_nbis_dtt_table->hifilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->lofilt);
+   dtt_table->hifilt = (float *)calloc(dtt_table->hisz,sizeof(float));
+   if(dtt_table->hifilt == (float *)NULL) {
+      free(dtt_table->lofilt);
       fprintf(stderr,
-      "ERROR : biomeval_nbis_read_transform_table : calloc : biomeval_nbis_hifilt\n");
+      "ERROR : biomeval_nbis_read_transform_table : calloc : hifilt\n");
       return(-77);
    }
 
-   if(biomeval_nbis_dtt_table->hisz % 2)
-      a_size = (biomeval_nbis_dtt_table->hisz + 1) / 2;
+   if(dtt_table->hisz % 2)
+      a_size = (dtt_table->hisz + 1) / 2;
    else
-      a_size = biomeval_nbis_dtt_table->hisz / 2;
+      a_size = dtt_table->hisz / 2;
 
    a_lofilt = (float *) calloc(a_size, sizeof(float));
    if(a_lofilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->lofilt);
-      free(biomeval_nbis_dtt_table->hifilt);
+      free(dtt_table->lofilt);
+      free(dtt_table->hifilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_read_transform_table : calloc : a_lofilt\n");
       return(-78);
@@ -412,20 +412,20 @@ int biomeval_nbis_read_transform_table(
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
       if((ret = biomeval_nbis_read_byte(&sign, infp))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
       if((ret = biomeval_nbis_read_byte(&scale, infp))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
       if((ret = biomeval_nbis_read_uint(&shrt_dat, infp))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
@@ -440,31 +440,31 @@ int biomeval_nbis_read_transform_table(
       if(debug > 3)
          fprintf(stderr, "biomeval_nbis_lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
 
-      if(biomeval_nbis_dtt_table->hisz % 2) {
-         biomeval_nbis_dtt_table->hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
+      if(dtt_table->hisz % 2) {
+         dtt_table->hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_lofilt[cnt]);
          if(cnt > 0)
-            biomeval_nbis_dtt_table->hifilt[a_size - cnt] = biomeval_nbis_dtt_table->hifilt[cnt + a_size];
+            dtt_table->hifilt[a_size - cnt] = dtt_table->hifilt[cnt + a_size];
       }
       else {
-         biomeval_nbis_dtt_table->hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
+         dtt_table->hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
                                              * a_lofilt[cnt]);
-         biomeval_nbis_dtt_table->hifilt[a_size - cnt] = -1.0 *
-                                    biomeval_nbis_dtt_table->hifilt[cnt + a_size + 1];
+         dtt_table->hifilt[a_size - cnt] = -1.0 *
+                                    dtt_table->hifilt[cnt + a_size + 1];
       }
 
    }
    free(a_lofilt);
 
-   if(biomeval_nbis_dtt_table->losz % 2)
-      a_size = (biomeval_nbis_dtt_table->losz + 1) / 2;
+   if(dtt_table->losz % 2)
+      a_size = (dtt_table->losz + 1) / 2;
    else
-      a_size = biomeval_nbis_dtt_table->losz / 2;
+      a_size = dtt_table->losz / 2;
 
    a_hifilt = (float *) calloc(a_size, sizeof(float));
    if(a_hifilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->lofilt);
-      free(biomeval_nbis_dtt_table->hifilt);
+      free(dtt_table->lofilt);
+      free(dtt_table->hifilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_read_transform_table : calloc : a_hifilt\n");
       return(-79);
@@ -473,20 +473,20 @@ int biomeval_nbis_read_transform_table(
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
       if((ret = biomeval_nbis_read_byte(&sign, infp))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
       if((ret = biomeval_nbis_read_byte(&scale, infp))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
       if((ret = biomeval_nbis_read_uint(&shrt_dat, infp))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
@@ -501,24 +501,24 @@ int biomeval_nbis_read_transform_table(
       if(debug > 2)
          fprintf(stderr, "biomeval_nbis_hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
 
-      if(biomeval_nbis_dtt_table->losz % 2) {
-         biomeval_nbis_dtt_table->lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
+      if(dtt_table->losz % 2) {
+         dtt_table->lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_hifilt[cnt]);
          if(cnt > 0)
-            biomeval_nbis_dtt_table->lofilt[a_size - cnt] = biomeval_nbis_dtt_table->lofilt[cnt + a_size];
+            dtt_table->lofilt[a_size - cnt] = dtt_table->lofilt[cnt + a_size];
       }
       else {
-         biomeval_nbis_dtt_table->lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
+         dtt_table->lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
                                              * a_hifilt[cnt]);
-         biomeval_nbis_dtt_table->lofilt[a_size - cnt] = biomeval_nbis_dtt_table->lofilt[cnt + a_size + 1];
+         dtt_table->lofilt[a_size - cnt] = dtt_table->lofilt[cnt + a_size + 1];
       }
 
 
    }
    free(a_hifilt);
 
-   biomeval_nbis_dtt_table->lodef = 1;
-   biomeval_nbis_dtt_table->hidef = 1;
+   dtt_table->lodef = 1;
+   dtt_table->hidef = 1;
 
    if(debug > 0)
       fprintf(stderr, "Finished reading transform table.\n\n");
@@ -530,7 +530,7 @@ int biomeval_nbis_read_transform_table(
 /* Routine to read in transform table parameters from memory buffer. */
 /*********************************************************************/
 int biomeval_nbis_getc_transform_table(
-   DTT_TABLE *biomeval_nbis_dtt_table,  /* transform table structure */
+   DTT_TABLE *dtt_table,  /* transform table structure */
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
 {
@@ -546,57 +546,57 @@ int biomeval_nbis_getc_transform_table(
 
    if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
       return(ret);
-   if((ret = biomeval_nbis_getc_byte(&(biomeval_nbis_dtt_table->hisz), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&(dtt_table->hisz), cbufptr, ebufptr)))
       return(ret);
-   if((ret = biomeval_nbis_getc_byte(&(biomeval_nbis_dtt_table->losz), cbufptr, ebufptr)))
+   if((ret = biomeval_nbis_getc_byte(&(dtt_table->losz), cbufptr, ebufptr)))
       return(ret);
 
 
    if(debug > 2) {
-      fprintf(stderr, "losize = %d\n", biomeval_nbis_dtt_table->losz);
-      fprintf(stderr, "hisize = %d\n", biomeval_nbis_dtt_table->hisz);
+      fprintf(stderr, "losize = %d\n", dtt_table->losz);
+      fprintf(stderr, "hisize = %d\n", dtt_table->hisz);
    }
 
    /* Added 02-24-05 by MDG */
-   /* If biomeval_nbis_lofilt member previously allocated ... */
-   if(biomeval_nbis_dtt_table->lofilt != (float *)NULL){
+   /* If lofilt member previously allocated ... */
+   if(dtt_table->lofilt != (float *)NULL){
       /* Deallocate the member prior to new allocation */
-      free(biomeval_nbis_dtt_table->lofilt);
-      biomeval_nbis_dtt_table->lofilt = (float *)NULL;
+      free(dtt_table->lofilt);
+      dtt_table->lofilt = (float *)NULL;
    }
 
-   biomeval_nbis_dtt_table->lofilt = (float *)calloc(biomeval_nbis_dtt_table->losz,sizeof(float));
-   if(biomeval_nbis_dtt_table->lofilt == (float *)NULL) {
+   dtt_table->lofilt = (float *)calloc(dtt_table->losz,sizeof(float));
+   if(dtt_table->lofilt == (float *)NULL) {
       fprintf(stderr,
-      "ERROR : biomeval_nbis_getc_transform_table : calloc : biomeval_nbis_lofilt\n");
+      "ERROR : biomeval_nbis_getc_transform_table : calloc : lofilt\n");
       return(-94);
    }
 
    /* Added 02-24-05 by MDG */
-   /* If biomeval_nbis_hifilt member previously allocated ... */
-   if(biomeval_nbis_dtt_table->hifilt != (float *)NULL){
+   /* If hifilt member previously allocated ... */
+   if(dtt_table->hifilt != (float *)NULL){
       /* Deallocate the member prior to new allocation */
-      free(biomeval_nbis_dtt_table->hifilt);
-      biomeval_nbis_dtt_table->hifilt = (float *)NULL;
+      free(dtt_table->hifilt);
+      dtt_table->hifilt = (float *)NULL;
    }
 
-   biomeval_nbis_dtt_table->hifilt = (float *)calloc(biomeval_nbis_dtt_table->hisz,sizeof(float));
-   if(biomeval_nbis_dtt_table->hifilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->lofilt);
+   dtt_table->hifilt = (float *)calloc(dtt_table->hisz,sizeof(float));
+   if(dtt_table->hifilt == (float *)NULL) {
+      free(dtt_table->lofilt);
       fprintf(stderr,
-      "ERROR : biomeval_nbis_getc_transform_table : calloc : biomeval_nbis_hifilt\n");
+      "ERROR : biomeval_nbis_getc_transform_table : calloc : hifilt\n");
       return(-95);
    }
 
-   if(biomeval_nbis_dtt_table->hisz % 2)
-      a_size = (biomeval_nbis_dtt_table->hisz + 1) / 2;
+   if(dtt_table->hisz % 2)
+      a_size = (dtt_table->hisz + 1) / 2;
    else
-      a_size = biomeval_nbis_dtt_table->hisz / 2;
+      a_size = dtt_table->hisz / 2;
 
    a_lofilt = (float *) calloc(a_size, sizeof(float));
    if(a_lofilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->lofilt);
-      free(biomeval_nbis_dtt_table->hifilt);
+      free(dtt_table->lofilt);
+      free(dtt_table->hifilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_getc_transform_table : calloc : a_lofilt\n");
       return(-96);
@@ -605,20 +605,20 @@ int biomeval_nbis_getc_transform_table(
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
       if((ret = biomeval_nbis_getc_byte(&sign, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
       if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
       if((ret = biomeval_nbis_getc_uint(&shrt_dat, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_lofilt);
          return(ret);
       }
@@ -633,31 +633,31 @@ int biomeval_nbis_getc_transform_table(
       if(debug > 3)
          fprintf(stderr, "biomeval_nbis_lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
 
-      if(biomeval_nbis_dtt_table->hisz % 2) {
-         biomeval_nbis_dtt_table->hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
+      if(dtt_table->hisz % 2) {
+         dtt_table->hifilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_lofilt[cnt]);
          if(cnt > 0)
-            biomeval_nbis_dtt_table->hifilt[a_size - cnt] = biomeval_nbis_dtt_table->hifilt[cnt + a_size];
+            dtt_table->hifilt[a_size - cnt] = dtt_table->hifilt[cnt + a_size];
       }
       else {
-         biomeval_nbis_dtt_table->hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
+         dtt_table->hifilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt)
                                              * a_lofilt[cnt]);
-         biomeval_nbis_dtt_table->hifilt[a_size - cnt] = -1.0 *
-                                    biomeval_nbis_dtt_table->hifilt[cnt + a_size + 1];
+         dtt_table->hifilt[a_size - cnt] = -1.0 *
+                                    dtt_table->hifilt[cnt + a_size + 1];
       }
 
    }
    free(a_lofilt);
 
-   if(biomeval_nbis_dtt_table->losz % 2)
-      a_size = (biomeval_nbis_dtt_table->losz + 1) / 2;
+   if(dtt_table->losz % 2)
+      a_size = (dtt_table->losz + 1) / 2;
    else
-      a_size = biomeval_nbis_dtt_table->losz / 2;
+      a_size = dtt_table->losz / 2;
 
    a_hifilt = (float *) calloc(a_size, sizeof(float));
    if(a_hifilt == (float *)NULL) {
-      free(biomeval_nbis_dtt_table->lofilt);
-      free(biomeval_nbis_dtt_table->hifilt);
+      free(dtt_table->lofilt);
+      free(dtt_table->hifilt);
       fprintf(stderr,
       "ERROR : biomeval_nbis_getc_transform_table : calloc : a_hifilt\n");
       return(-97);
@@ -666,20 +666,20 @@ int biomeval_nbis_getc_transform_table(
    a_size--;
    for(cnt = 0; cnt <= a_size; cnt++) {
       if((ret = biomeval_nbis_getc_byte(&sign, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
       if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
       if((ret = biomeval_nbis_getc_uint(&shrt_dat, cbufptr, ebufptr))){
-         free(biomeval_nbis_dtt_table->lofilt);
-         free(biomeval_nbis_dtt_table->hifilt);
+         free(dtt_table->lofilt);
+         free(dtt_table->hifilt);
          free(a_hifilt);
          return(ret);
       }
@@ -694,24 +694,24 @@ int biomeval_nbis_getc_transform_table(
       if(debug > 2)
          fprintf(stderr, "biomeval_nbis_hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
 
-      if(biomeval_nbis_dtt_table->losz % 2) {
-         biomeval_nbis_dtt_table->lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
+      if(dtt_table->losz % 2) {
+         dtt_table->lofilt[cnt + a_size] = (float)((float)biomeval_nbis_int_sign(cnt)
                                          * a_hifilt[cnt]);
          if(cnt > 0)
-            biomeval_nbis_dtt_table->lofilt[a_size - cnt] = biomeval_nbis_dtt_table->lofilt[cnt + a_size];
+            dtt_table->lofilt[a_size - cnt] = dtt_table->lofilt[cnt + a_size];
       }
       else {
-         biomeval_nbis_dtt_table->lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
+         dtt_table->lofilt[cnt + a_size + 1] = (float)((float)biomeval_nbis_int_sign(cnt+1)
                                              * a_hifilt[cnt]);
-         biomeval_nbis_dtt_table->lofilt[a_size - cnt] = biomeval_nbis_dtt_table->lofilt[cnt + a_size + 1];
+         dtt_table->lofilt[a_size - cnt] = dtt_table->lofilt[cnt + a_size + 1];
       }
 
 
    }
    free(a_hifilt);
 
-   biomeval_nbis_dtt_table->lodef = 1;
-   biomeval_nbis_dtt_table->hidef = 1;
+   dtt_table->lodef = 1;
+   dtt_table->hidef = 1;
 
    if(debug > 0)
       fprintf(stderr, "Finished reading transform table.\n\n");
@@ -723,9 +723,9 @@ int biomeval_nbis_getc_transform_table(
 /* Writes transform table to the open file. */
 /********************************************/
 int biomeval_nbis_write_transform_table(
-   float *biomeval_nbis_lofilt,   /* filter coefficients */
+   float *lofilt,   /* filter coefficients */
    const int losz,
-   float *biomeval_nbis_hifilt,
+   float *hifilt,
    const int hisz,
    FILE *outfp)      /* compressed file */
 {
@@ -750,7 +750,7 @@ int biomeval_nbis_write_transform_table(
       return(ret);
 
    for(coef = (losz>>1); coef < losz; coef++) {
-      dbl_tmp = biomeval_nbis_lofilt[coef];
+      dbl_tmp = lofilt[coef];
       if(dbl_tmp >= 0.0) {
          sign = 0;
       }
@@ -770,16 +770,16 @@ int biomeval_nbis_write_transform_table(
          int_dat = (unsigned int)sround_uint(dbl_tmp / 10.0);
       }
       else {
-         dbl_tmp = biomeval_nbis_lofilt[coef];
+         dbl_tmp = lofilt[coef];
          fprintf(stderr,
-         "ERROR: biomeval_nbis_write_transform_table : biomeval_nbis_lofilt[%d] to high at %f\n",
+         "ERROR: biomeval_nbis_write_transform_table : lofilt[%d] to high at %f\n",
          coef, dbl_tmp);
          return(-80);
       }
 
       if(debug > 2) {
          fprintf(stderr, "lo[%d] = %u\n", coef, int_dat);
-         fprintf(stderr, "lof[%d] = %0.15f\n", coef, biomeval_nbis_lofilt[coef]);
+         fprintf(stderr, "lof[%d] = %0.15f\n", coef, lofilt[coef]);
       }
 
       if((ret = biomeval_nbis_write_byte(sign, outfp)))
@@ -791,7 +791,7 @@ int biomeval_nbis_write_transform_table(
    }
 
    for(coef = (hisz>>1); coef < hisz; coef++) {
-      dbl_tmp = biomeval_nbis_hifilt[coef];
+      dbl_tmp = hifilt[coef];
       if(dbl_tmp >= 0.0) {
          sign = 0;
       }
@@ -811,16 +811,16 @@ int biomeval_nbis_write_transform_table(
          int_dat = (unsigned int)sround_uint(dbl_tmp / 10.0);
       }
       else {
-         dbl_tmp = biomeval_nbis_hifilt[coef];
+         dbl_tmp = hifilt[coef];
          fprintf(stderr,
-         "ERROR: biomeval_nbis_write_transform_table : biomeval_nbis_hifilt[%d] to high at %f\n",
+         "ERROR: biomeval_nbis_write_transform_table : hifilt[%d] to high at %f\n",
          coef, dbl_tmp);
          return(-81);
       }
 
       if(debug > 2) {
          fprintf(stderr, "hi[%d] = %u\n", coef, int_dat);
-         fprintf(stderr, "hif[%d] = %0.15f\n", coef, biomeval_nbis_hifilt[coef]);
+         fprintf(stderr, "hif[%d] = %0.15f\n", coef, hifilt[coef]);
       }
 
       if((ret = biomeval_nbis_write_byte(sign, outfp)))
@@ -841,9 +841,9 @@ int biomeval_nbis_write_transform_table(
 /* Stores transform table to the output buffer. */
 /************************************************/
 int biomeval_nbis_putc_transform_table(
-   float *biomeval_nbis_lofilt,     /* filter coefficients      */
+   float *lofilt,     /* filter coefficients      */
    const int losz,
-   float *biomeval_nbis_hifilt,
+   float *hifilt,
    const int hisz,
    unsigned char *odata,      /* output byte buffer       */
    const int oalloc,  /* allocated size of buffer */
@@ -871,7 +871,7 @@ int biomeval_nbis_putc_transform_table(
       return(ret);
 
    for(coef = (losz>>1); coef < losz; coef++) {
-      dbl_tmp = biomeval_nbis_lofilt[coef];
+      dbl_tmp = lofilt[coef];
       if(dbl_tmp >= 0.0) {
          sign = 0;
       }
@@ -891,16 +891,16 @@ int biomeval_nbis_putc_transform_table(
          int_dat = (unsigned int)sround_uint(dbl_tmp / 10.0);
       }
       else {
-         dbl_tmp = biomeval_nbis_lofilt[coef];
+         dbl_tmp = lofilt[coef];
          fprintf(stderr,
-         "ERROR: biomeval_nbis_putc_transform_table : biomeval_nbis_lofilt[%d] to high at %f\n",
+         "ERROR: biomeval_nbis_putc_transform_table : lofilt[%d] to high at %f\n",
          coef, dbl_tmp);
          return(-82);
       }
 
       if(debug > 2) {
          fprintf(stderr, "lo[%d] = %u\n", coef, int_dat);
-         fprintf(stderr, "lof[%d] = %0.15f\n", coef, biomeval_nbis_lofilt[coef]);
+         fprintf(stderr, "lof[%d] = %0.15f\n", coef, lofilt[coef]);
       }
 
       if((ret = biomeval_nbis_putc_byte(sign, odata, oalloc, olen)))
@@ -912,7 +912,7 @@ int biomeval_nbis_putc_transform_table(
    }
 
    for(coef = (hisz>>1); coef < hisz; coef++) {
-      dbl_tmp = biomeval_nbis_hifilt[coef];
+      dbl_tmp = hifilt[coef];
       if(dbl_tmp >= 0.0) {
          sign = 0;
       }
@@ -932,16 +932,16 @@ int biomeval_nbis_putc_transform_table(
          int_dat = (unsigned int)sround_uint(dbl_tmp / 10.0);
       }
       else {
-         dbl_tmp = biomeval_nbis_hifilt[coef];
+         dbl_tmp = hifilt[coef];
          fprintf(stderr,
-         "ERROR: biomeval_nbis_putc_transform_table : biomeval_nbis_hifilt[%d] to high at %f\n",
+         "ERROR: biomeval_nbis_putc_transform_table : hifilt[%d] to high at %f\n",
          coef, dbl_tmp);
          return(-83);
       }
 
       if(debug > 2) {
          fprintf(stderr, "hi[%d] = %u\n", coef, int_dat);
-         fprintf(stderr, "hif[%d] = %0.15f\n", coef, biomeval_nbis_hifilt[coef]);
+         fprintf(stderr, "hif[%d] = %0.15f\n", coef, hifilt[coef]);
       }
 
       if((ret = biomeval_nbis_putc_byte(sign, odata, oalloc, olen)))
@@ -962,7 +962,7 @@ int biomeval_nbis_putc_transform_table(
 /* Routine to read in quantization table parameters. */
 /*****************************************************/
 int biomeval_nbis_read_quantization_table(
-   DQT_TABLE *biomeval_nbis_dqt_table,  /* quatization table structure */
+   DQT_TABLE *dqt_table,  /* quatization table structure */
    FILE *infp)            /* input file */
 {
    int ret;
@@ -979,9 +979,9 @@ int biomeval_nbis_read_quantization_table(
       return(ret);
    if((ret = biomeval_nbis_read_ushort(&shrt_dat, infp)))
       return(ret);
-   biomeval_nbis_dqt_table->bin_center = (float)shrt_dat;
+   dqt_table->bin_center = (float)shrt_dat;
    while(scale > 0) {
-      biomeval_nbis_dqt_table->bin_center /= 10.0;
+      dqt_table->bin_center /= 10.0;
       scale--;
    }
 
@@ -990,27 +990,27 @@ int biomeval_nbis_read_quantization_table(
          return(ret);
       if((ret = biomeval_nbis_read_ushort(&shrt_dat, infp)))
          return(ret);
-      biomeval_nbis_dqt_table->q_bin[cnt] = (float)shrt_dat;
+      dqt_table->q_bin[cnt] = (float)shrt_dat;
       while(scale > 0) {
-         biomeval_nbis_dqt_table->q_bin[cnt] /= 10.0;
+         dqt_table->q_bin[cnt] /= 10.0;
          scale--;
       }
       if((ret = biomeval_nbis_read_byte(&scale, infp)))
          return(ret);
       if((ret = biomeval_nbis_read_ushort(&shrt_dat, infp)))
          return(ret);
-      biomeval_nbis_dqt_table->z_bin[cnt] = (float)shrt_dat;
+      dqt_table->z_bin[cnt] = (float)shrt_dat;
       while(scale > 0) {
-         biomeval_nbis_dqt_table->z_bin[cnt] /= 10.0;
+         dqt_table->z_bin[cnt] /= 10.0;
          scale--;
       }
 
       if(debug > 2)
          fprintf(stderr, "q[%d] = %f :: z[%d] = %f\n",
-         cnt, biomeval_nbis_dqt_table->q_bin[cnt], cnt, biomeval_nbis_dqt_table->z_bin[cnt]);
+         cnt, dqt_table->q_bin[cnt], cnt, dqt_table->z_bin[cnt]);
 
    }
-   biomeval_nbis_dqt_table->dqt_def = 1;
+   dqt_table->dqt_def = 1;
 
    if(debug > 0)
       fprintf(stderr, "Finished reading quantization table.\n\n");
@@ -1023,7 +1023,7 @@ int biomeval_nbis_read_quantization_table(
 /* Routine to read in quantization table parameters from memory buffer. */
 /************************************************************************/
 int biomeval_nbis_getc_quantization_table(
-   DQT_TABLE *biomeval_nbis_dqt_table,  /* quatization table structure */
+   DQT_TABLE *dqt_table,  /* quatization table structure */
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
 {
@@ -1041,9 +1041,9 @@ int biomeval_nbis_getc_quantization_table(
       return(ret);
    if((ret = biomeval_nbis_getc_ushort(&shrt_dat, cbufptr, ebufptr)))
       return(ret);
-   biomeval_nbis_dqt_table->bin_center = (float)shrt_dat;
+   dqt_table->bin_center = (float)shrt_dat;
    while(scale > 0) {
-      biomeval_nbis_dqt_table->bin_center /= 10.0;
+      dqt_table->bin_center /= 10.0;
       scale--;
    }
 
@@ -1052,27 +1052,27 @@ int biomeval_nbis_getc_quantization_table(
          return(ret);
       if((ret = biomeval_nbis_getc_ushort(&shrt_dat, cbufptr, ebufptr)))
          return(ret);
-      biomeval_nbis_dqt_table->q_bin[cnt] = (float)shrt_dat;
+      dqt_table->q_bin[cnt] = (float)shrt_dat;
       while(scale > 0) {
-         biomeval_nbis_dqt_table->q_bin[cnt] /= 10.0;
+         dqt_table->q_bin[cnt] /= 10.0;
          scale--;
       }
       if((ret = biomeval_nbis_getc_byte(&scale, cbufptr, ebufptr)))
          return(ret);
       if((ret = biomeval_nbis_getc_ushort(&shrt_dat, cbufptr, ebufptr)))
          return(ret);
-      biomeval_nbis_dqt_table->z_bin[cnt] = (float)shrt_dat;
+      dqt_table->z_bin[cnt] = (float)shrt_dat;
       while(scale > 0) {
-         biomeval_nbis_dqt_table->z_bin[cnt] /= 10.0;
+         dqt_table->z_bin[cnt] /= 10.0;
          scale--;
       }
 
       if(debug > 2)
          fprintf(stderr, "q[%d] = %f :: z[%d] = %f\n",
-         cnt, biomeval_nbis_dqt_table->q_bin[cnt], cnt, biomeval_nbis_dqt_table->z_bin[cnt]);
+         cnt, dqt_table->q_bin[cnt], cnt, dqt_table->z_bin[cnt]);
 
    }
-   biomeval_nbis_dqt_table->dqt_def = 1;
+   dqt_table->dqt_def = 1;
 
    if(debug > 0)
       fprintf(stderr, "Finished reading quantization table.\n\n");
@@ -1085,7 +1085,7 @@ int biomeval_nbis_getc_quantization_table(
 /* Writes quantization table to the open file. */
 /***********************************************/
 int biomeval_nbis_write_quantization_table(
-   QUANT_VALS *biomeval_nbis_quant_vals,   /* quantization parameters */
+   QUANT_VALS *quant_vals,   /* quantization parameters */
    FILE *outfp)               /* compressed file */
 {
    int ret, sub;                /* subband indicators */
@@ -1105,14 +1105,14 @@ int biomeval_nbis_write_quantization_table(
    /* exponent scaling value */
    if((ret = biomeval_nbis_write_byte(2, outfp)))
       return(ret);
-   /* biomeval_nbis_quantizer bin center parameter */
+   /* quantizer bin center parameter */
    if((ret = biomeval_nbis_write_ushort(44, outfp)))
       return(ret);
 
    for(sub = 0; sub < 64; sub ++) {
       if(sub >= 0 && sub < 60) {
-         if(biomeval_nbis_quant_vals->qbss[sub] != 0.0) {
-            flt_tmp = biomeval_nbis_quant_vals->qbss[sub];
+         if(quant_vals->qbss[sub] != 0.0) {
+            flt_tmp = quant_vals->qbss[sub];
             scale_ex = 0;
             if(flt_tmp < 65535) {
                while(flt_tmp < 65535) {
@@ -1123,14 +1123,14 @@ int biomeval_nbis_write_quantization_table(
                shrt_dat = (unsigned short)sround(flt_tmp / 10.0);
             }
             else {
-               flt_tmp = biomeval_nbis_quant_vals->qbss[sub];
+               flt_tmp = quant_vals->qbss[sub];
                fprintf(stderr,
                "ERROR : biomeval_nbis_write_quantization_table : Q[%d] to high at %f\n",
                sub, flt_tmp);
                return(-84);
             }
 
-            flt_tmp = biomeval_nbis_quant_vals->qzbs[sub];
+            flt_tmp = quant_vals->qzbs[sub];
             scale_ex2 = 0;
             if(flt_tmp < 65535) {
                while(flt_tmp < 65535) {
@@ -1141,7 +1141,7 @@ int biomeval_nbis_write_quantization_table(
                shrt_dat2 = (unsigned short)sround(flt_tmp / 10.0);
             }
             else {
-               flt_tmp = biomeval_nbis_quant_vals->qzbs[sub];
+               flt_tmp = quant_vals->qzbs[sub];
                fprintf(stderr,
                "ERROR : biomeval_nbis_write_quantization_table : Z[%d] to high at %f\n",
                sub, flt_tmp);
@@ -1166,8 +1166,8 @@ int biomeval_nbis_write_quantization_table(
          fprintf(stderr,
          "qi[%d] = %d    ::  zi[%d] = %d\n", sub, shrt_dat, sub, shrt_dat2);
          fprintf(stderr,
-         "q[%d] = %5.7f  ::  z[%d] = %5.7f\n", sub, biomeval_nbis_quant_vals->qbss[sub],
-          sub, biomeval_nbis_quant_vals->qzbs[sub]);
+         "q[%d] = %5.7f  ::  z[%d] = %5.7f\n", sub, quant_vals->qbss[sub],
+          sub, quant_vals->qzbs[sub]);
       }
 
       if((ret = biomeval_nbis_write_byte(scale_ex, outfp)))
@@ -1190,7 +1190,7 @@ int biomeval_nbis_write_quantization_table(
 /* Stores quantization table in the output buffer. */
 /***************************************************/
 int biomeval_nbis_putc_quantization_table(
-   QUANT_VALS *biomeval_nbis_quant_vals,   /* quantization parameters  */
+   QUANT_VALS *quant_vals,   /* quantization parameters  */
    unsigned char *odata,             /* output byte buffer       */
    const int oalloc,         /* allocated size of buffer */
    int   *olen)              /* filled length of buffer  */
@@ -1212,14 +1212,14 @@ int biomeval_nbis_putc_quantization_table(
    /* exponent scaling value */
    if((ret = biomeval_nbis_putc_byte(2, odata, oalloc, olen)))
       return(ret);
-   /* biomeval_nbis_quantizer bin center parameter */
+   /* quantizer bin center parameter */
    if((ret = biomeval_nbis_putc_ushort(44, odata, oalloc, olen)))
       return(ret);
 
    for(sub = 0; sub < 64; sub ++) {
       if(sub >= 0 && sub < 60) {
-         if(biomeval_nbis_quant_vals->qbss[sub] != 0.0) {
-            flt_tmp = biomeval_nbis_quant_vals->qbss[sub];
+         if(quant_vals->qbss[sub] != 0.0) {
+            flt_tmp = quant_vals->qbss[sub];
             scale_ex = 0;
             if(flt_tmp < 65535) {
                while(flt_tmp < 65535) {
@@ -1230,14 +1230,14 @@ int biomeval_nbis_putc_quantization_table(
                shrt_dat = (unsigned short)sround(flt_tmp / 10.0);
             }
             else {
-               flt_tmp = biomeval_nbis_quant_vals->qbss[sub];
+               flt_tmp = quant_vals->qbss[sub];
                fprintf(stderr,
                "ERROR : biomeval_nbis_putc_quantization_table : Q[%d] to high at %f\n",
                sub, flt_tmp);
                return(-86);
             }
 
-            flt_tmp = biomeval_nbis_quant_vals->qzbs[sub];
+            flt_tmp = quant_vals->qzbs[sub];
             scale_ex2 = 0;
             if(flt_tmp < 65535) {
                while(flt_tmp < 65535) {
@@ -1248,7 +1248,7 @@ int biomeval_nbis_putc_quantization_table(
                shrt_dat2 = (unsigned short)sround(flt_tmp / 10.0);
             }
             else {
-               flt_tmp = biomeval_nbis_quant_vals->qzbs[sub];
+               flt_tmp = quant_vals->qzbs[sub];
                fprintf(stderr,
                "ERROR : biomeval_nbis_putc_quantization_table : Z[%d] to high at %f\n",
                sub, flt_tmp);
@@ -1273,8 +1273,8 @@ int biomeval_nbis_putc_quantization_table(
          fprintf(stderr,
          "qi[%d] = %d    ::  zi[%d] = %d\n", sub, shrt_dat, sub, shrt_dat2);
          fprintf(stderr,
-         "q[%d] = %5.7f  ::  z[%d] = %5.7f\n", sub, biomeval_nbis_quant_vals->qbss[sub],
-          sub, biomeval_nbis_quant_vals->qzbs[sub]);
+         "q[%d] = %5.7f  ::  z[%d] = %5.7f\n", sub, quant_vals->qbss[sub],
+          sub, quant_vals->qzbs[sub]);
       }
 
       if((ret = biomeval_nbis_putc_byte(scale_ex, odata, oalloc, olen)))
@@ -1297,7 +1297,7 @@ int biomeval_nbis_putc_quantization_table(
 /* Routine to read in huffman table parameters. */
 /************************************************/
 int biomeval_nbis_read_huffman_table_wsq(
-   DHT_TABLE *biomeval_nbis_dht_table,  /* huffman table structure */
+   DHT_TABLE *dht_table,  /* huffman table structure */
    FILE *infp)            /* input file */
 {
    int ret;
@@ -1313,9 +1313,9 @@ int biomeval_nbis_read_huffman_table_wsq(
       return(ret);
 
    /* Store table into global structure list. */
-   memcpy((biomeval_nbis_dht_table+table_id)->huffbits, huffbits, MAX_HUFFBITS);
-   memcpy((biomeval_nbis_dht_table+table_id)->huffvalues, huffvalues, MAX_HUFFCOUNTS_WSQ+1);
-   (biomeval_nbis_dht_table+table_id)->tabdef = 1;
+   memcpy((dht_table+table_id)->huffbits, huffbits, MAX_HUFFBITS);
+   memcpy((dht_table+table_id)->huffvalues, huffvalues, MAX_HUFFCOUNTS_WSQ+1);
+   (dht_table+table_id)->tabdef = 1;
    free(huffbits);
    free(huffvalues);
 
@@ -1327,7 +1327,7 @@ int biomeval_nbis_read_huffman_table_wsq(
          return(ret);
 
       /* If table is already defined ... */
-      if((biomeval_nbis_dht_table+table_id)->tabdef){
+      if((dht_table+table_id)->tabdef){
          free(huffbits);
          free(huffvalues);
          fprintf(stderr, "ERROR : biomeval_nbis_read_huffman_table_wsq : ");
@@ -1336,9 +1336,9 @@ int biomeval_nbis_read_huffman_table_wsq(
       }
 
       /* Store table into global structure list. */
-      memcpy((biomeval_nbis_dht_table+table_id)->huffbits, huffbits, MAX_HUFFBITS);
-      memcpy((biomeval_nbis_dht_table+table_id)->huffvalues, huffvalues, MAX_HUFFCOUNTS_WSQ+1);
-      (biomeval_nbis_dht_table+table_id)->tabdef = 1;
+      memcpy((dht_table+table_id)->huffbits, huffbits, MAX_HUFFBITS);
+      memcpy((dht_table+table_id)->huffvalues, huffvalues, MAX_HUFFCOUNTS_WSQ+1);
+      (dht_table+table_id)->tabdef = 1;
       free(huffbits);
       free(huffvalues);
    }
@@ -1350,7 +1350,7 @@ int biomeval_nbis_read_huffman_table_wsq(
 /* Routine to read in huffman table parameters from memory buffer. */
 /*******************************************************************/
 int biomeval_nbis_getc_huffman_table_wsq(
-   DHT_TABLE *biomeval_nbis_dht_table,  /* huffman table structure */
+   DHT_TABLE *dht_table,  /* huffman table structure */
    unsigned char **cbufptr,  /* current byte in input buffer */
    unsigned char *ebufptr)   /* end of input buffer */
 {
@@ -1367,10 +1367,10 @@ int biomeval_nbis_getc_huffman_table_wsq(
       return(ret);
 
    /* Store table into global structure list. */
-   memcpy((biomeval_nbis_dht_table+table_id)->huffbits, huffbits, MAX_HUFFBITS);
-   memcpy((biomeval_nbis_dht_table+table_id)->huffvalues, huffvalues,
+   memcpy((dht_table+table_id)->huffbits, huffbits, MAX_HUFFBITS);
+   memcpy((dht_table+table_id)->huffvalues, huffvalues,
           MAX_HUFFCOUNTS_WSQ+1);
-   (biomeval_nbis_dht_table+table_id)->tabdef = 1;
+   (dht_table+table_id)->tabdef = 1;
    free(huffbits);
    free(huffvalues);
 
@@ -1382,7 +1382,7 @@ int biomeval_nbis_getc_huffman_table_wsq(
          return(ret);
 
       /* If table is already defined ... */
-      if((biomeval_nbis_dht_table+table_id)->tabdef){
+      if((dht_table+table_id)->tabdef){
          free(huffbits);
          free(huffvalues);
          fprintf(stderr, "ERROR : biomeval_nbis_getc_huffman_table_wsq : ");
@@ -1391,10 +1391,10 @@ int biomeval_nbis_getc_huffman_table_wsq(
       }
 
       /* Store table into global structure list. */
-      memcpy((biomeval_nbis_dht_table+table_id)->huffbits, huffbits, MAX_HUFFBITS);
-      memcpy((biomeval_nbis_dht_table+table_id)->huffvalues, huffvalues,
+      memcpy((dht_table+table_id)->huffbits, huffbits, MAX_HUFFBITS);
+      memcpy((dht_table+table_id)->huffvalues, huffvalues,
              MAX_HUFFCOUNTS_WSQ+1);
-      (biomeval_nbis_dht_table+table_id)->tabdef = 1;
+      (dht_table+table_id)->tabdef = 1;
       free(huffbits);
       free(huffvalues);
    }
