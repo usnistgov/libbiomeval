@@ -182,7 +182,7 @@ namespace BiometricEvaluation
 			/** @return This object before incrementing offset. */
 			inline AutoArrayIterator
 			operator++(
-			    int postfix)
+			    int)
 			{
 				const AutoArrayIterator previous(*this);
 				++(*this);
@@ -192,7 +192,7 @@ namespace BiometricEvaluation
 			/** @return This object before decrementing offset. */
 			inline AutoArrayIterator
 			operator--(
-			    int postfix)
+			    int)
 			{
 				AutoArrayIterator previous(*this);
 				--(*this);

@@ -638,7 +638,7 @@ namespace BiometricEvaluation {
 			/** @return Copy of self before advancing. */
 			RecordStoreIterator
 			operator++(
-			    int postfix);
+			    int);
 
 			/**
 			 * @brief

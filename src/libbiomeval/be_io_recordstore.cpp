@@ -180,7 +180,7 @@ BiometricEvaluation::IO::RecordStoreIterator::operator++()
 
 BiometricEvaluation::IO::RecordStoreIterator
 BiometricEvaluation::IO::RecordStoreIterator::operator++(
-    int postfix)
+    int)
 {
 	BE::IO::RecordStoreIterator previousIterator(*this);
 	++(*this);

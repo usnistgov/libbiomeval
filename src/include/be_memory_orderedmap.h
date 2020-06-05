@@ -78,7 +78,7 @@ namespace BiometricEvaluation
 			/** Move to the next pair */
 			OrderedMapIterator
 			operator++(
-			    int dummy);
+			    int);
 			
 			/** Move to the previous pair. */
 			OrderedMapIterator&
@@ -87,7 +87,7 @@ namespace BiometricEvaluation
 			/** Move to the previous pair. */
 			OrderedMapIterator
 			operator--(
-			    int dummy);
+			    int);
 		
 			/**
 			 * @brief
@@ -198,7 +198,7 @@ namespace BiometricEvaluation
 			/** Move to the next pair */
 			OrderedMapConstIterator
 			operator++(
-			    int dummy);
+			    int);
 			
 			/** Move to the previous pair. */
 			OrderedMapConstIterator&
@@ -207,7 +207,7 @@ namespace BiometricEvaluation
 			/** Move to the previous pair. */
 			OrderedMapConstIterator
 			operator--(
-			    int dummy);
+			    int);
 		
 			/**
 			 * @brief
@@ -671,7 +671,7 @@ BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::operator++()
 template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::operator++(
-    int dummy)
+    int)
 {
 	OrderedMapIterator previousIterator(*this);
 	++(*this);
@@ -689,7 +689,7 @@ BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::operator--()
 template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>
 BiometricEvaluation::Memory::OrderedMapIterator<Key, T>::operator--(
-    int dummy)
+    int)
 {
 	OrderedMapIterator previousIterator(*this);
 	--(*this);
@@ -776,7 +776,7 @@ BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator++()
 template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator++(
-    int dummy)
+    int)
 {
 	OrderedMapConstIterator previousIterator(*this);
 	++(*this);
@@ -794,7 +794,7 @@ BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator--()
 template<class Key, class T>
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>
 BiometricEvaluation::Memory::OrderedMapConstIterator<Key, T>::operator--(
-    int dummy)
+    int)
 {
 	OrderedMapConstIterator previousIterator(*this);
 	--(*this);
