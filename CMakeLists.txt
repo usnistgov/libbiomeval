@@ -27,8 +27,32 @@
 #
 
 cmake_minimum_required(VERSION 2.8.11)
-project(biomeval)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" VERSION_FILE_CONTENTS)
+string(REGEX REPLACE "\n" ";" VERSION_FILE_CONTENTS ${VERSION_FILE_CONTENTS})
+foreach (line ${VERSION_FILE_CONTENTS})
+	string(REGEX MATCH "MAJOR_VERSION=.+" MAJOR_VERSION_FOUND "${line}")
+	if (MAJOR_VERSION_FOUND)
+		string(REPLACE "MAJOR_VERSION=" "" MAJOR_VERSION "${line}")
+	endif (MAJOR_VERSION_FOUND)
 
+	string(REGEX MATCH "MINOR_VERSION=.+" MINOR_VERSION_FOUND "${line}")
+	if (MINOR_VERSION_FOUND)
+		string(REPLACE "MINOR_VERSION=" "" MINOR_VERSION "${line}")
+	endif (MINOR_VERSION_FOUND)
+
+	string(REGEX MATCH "COMPATIBILITY_VERSION=.+" COMPATIBILITY_VERSION_FOUND "${line}")
+	if (COMPATIBILITY_VERSION_FOUND)
+		string(REPLACE "COMPATIBILITY_VERSION=" "" COMPATIBILITY_VERSION "${line}")
+	endif (COMPATIBILITY_VERSION_FOUND)
+endforeach (line ${VERSION_FILE_CONTENTS})
+
+if(${CMAKE_MAJOR_VERSION} VERSION_GREATER 2)
+  cmake_policy(SET CMP0048 NEW)
+  project(biomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+else()
+  project(biomeval)
+  set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+endif()
 #
 # The CMake config files must exist in the directories added to this config:
 #
