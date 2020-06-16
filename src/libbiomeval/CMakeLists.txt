@@ -277,7 +277,7 @@ target_link_libraries(${SHAREDLIB} ${OPENSSL_LIBRARIES})
 # Berkeley DB
 #
 set(BERKELEYDB_FIND_REQUIRED TRUE)
-find_package(BerkeleyDB)
+find_package(BERKELEYDB)
 if(NOT BERKELEYDB_FOUND)
   message(FATAL_ERROR "Could not find Berkeley Database.")
 endif(NOT BERKELEYDB_FOUND)
@@ -288,7 +288,7 @@ target_link_libraries(${SHAREDLIB} ${BERKELEYDB_LIBRARIES})
 # OpenJPEG and JPEG2000
 #
 set(OPENJP2_FIND_REQUIRED TRUE)
-find_package(OpenJP2)
+find_package(OPENJP2)
 if(NOT OPENJP2_FOUND)
   message(FATAL_ERROR "Could not find OpenJP2.")
 endif(NOT OPENJP2_FOUND)
