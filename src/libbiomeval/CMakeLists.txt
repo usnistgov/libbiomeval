@@ -38,8 +38,7 @@ cmake_minimum_required(VERSION 2.8.11)
 # Get the major and minor library versions from the VERSION file, with format
 # expected to be MAJOR_VERSION=mm and MINOR_VERSION=nn on separate lines.
 #
-project(libbiomeval)
-file(READ "${PROJECT_SOURCE_DIR}/../../VERSION" VERSION_FILE_CONTENTS)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/../../VERSION" VERSION_FILE_CONTENTS)
 string(REGEX REPLACE "\n" ";" VERSION_FILE_CONTENTS ${VERSION_FILE_CONTENTS})
 foreach (line ${VERSION_FILE_CONTENTS})
 	string(REGEX MATCH "MAJOR_VERSION=.+" MAJOR_VERSION_FOUND "${line}")
@@ -62,9 +61,9 @@ endforeach (line ${VERSION_FILE_CONTENTS})
 # Define common options
 #
 add_definitions(-DMAJOR_VERSION -DMINOR_VERSION)
-set(BIOMEVAL_INCLUDE ${PROJECT_SOURCE_DIR}/../include)
+set(BIOMEVAL_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 file(GLOB BIOMEVAL_HEADERS ${BIOMEVAL_INCLUDE}/*.h)
-set(NBIS_INCLUDE ${PROJECT_SOURCE_DIR}/../../nbis/include)
+set(NBIS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include)
 #
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
   cmake_policy(SET CMP0048 NEW)
