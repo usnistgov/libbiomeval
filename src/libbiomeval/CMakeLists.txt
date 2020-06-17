@@ -83,7 +83,16 @@ set(STATICLIB ${CORELIB})
 set(STATICLIBTGT ${CORELIB}-static)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
+if(${CMAKE_MAJOR_VERSION} GREATER 2)
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+else()
+    if(MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++11")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
+    endif(MSVC)
+endif()
 
 #
 # Location of CMake modules local to BIOMEVAL
