@@ -75,6 +75,11 @@ endif()
 set(CORELIB biomeval)
 set(SHAREDLIB ${CORELIB})
 
+# NBIS uses "insecure" functions under Windows
+if(MSVC)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS_GLOBALS)
+endif(MSVC)
+
 #
 # The library names. Because a target name cannot be duplicated, build the
 # shared and static libraries under two different names, but the output
