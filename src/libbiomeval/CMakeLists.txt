@@ -153,6 +153,12 @@ set(MPIRECEIVER be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocess
 # Some files have not been ported to Windows. Sorry about that.
 #
 if(MSVC)
+    list(REMOVE_ITEM CORE "be_error_signal_manager.cpp" "be_framework_api.cpp" "be_time_watchdog.cpp" "be_process_statistics.cpp")
+    list(REMOVE_ITEM IO "be_io_syslogsheet.cpp")
+
+    unset(PROCESS)
+    unset(MESSAGE_CENTER)
+
     list(APPEND CORE "be_windowsfixup.cpp")
 endif(MSVC)
 
@@ -191,7 +197,7 @@ endif()
 #
 set(MPISOURCES ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER})
 find_package(MPI)
-if(MPI_CXX_FOUND)
+if(MPI_CXX_FOUND AND NOT MSVC)
   add_library(mpiobjs OBJECT ${MPISOURCES})
   if (${CMAKE_VERSION} VERSION_LESS "3.10")
     set_target_properties(
@@ -207,9 +213,9 @@ if(MPI_CXX_FOUND)
       mpiobjs
       PUBLIC ${MPI_CXX_INCLUDE_DIRS} ${BIOMEVAL_INCLUDE})
   endif(${CMAKE_VERSION} VERSION_LESS "3.10")
-else(MPI_CXX_FOUND)
+else(MPI_CXX_FOUND AND NOT MSVC)
   message(STATUS "Building without MPI support.")
-endif(MPI_CXX_FOUND)
+endif(MPI_CXX_FOUND AND NOT MSVC)
 
 #
 # Build the Framework-local version of NBIS
@@ -235,9 +241,9 @@ endif(NOT ${BIGEND})
 add_library(coreobjs OBJECT ${PACKAGES})
 
 set(OBJLIBS $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
-if(MPI_CXX_FOUND)
+if(MPI_CXX_FOUND AND NOT MSVC)
   set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:mpiobjs>)
-endif(MPI_CXX_FOUND)
+endif(MPI_CXX_FOUND AND NOT MSVC)
 if(FFMPEG_FOUND)
   set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:vidobjs>)
 endif(FFMPEG_FOUND)
@@ -336,12 +342,12 @@ endif(FFMPEG_FOUND)
 #
 # OpenMPI
 #
-if(MPI_CXX_FOUND)
+if(MPI_CXX_FOUND AND NOT MSVC)
   message(STATUS "Adding MPI support to ${SHAREDLIB}.")
   target_link_libraries(${SHAREDLIB} ${MPI_CXX_LINK_FLAGS} ${MPI_CXX_LIBRARIES})
-else(MPI_CXX_FOUND)
+else(MPI_CXX_FOUND AND NOT MSVC)
   message(STATUS "Will build ${SHAREDLIB} without MPI support.")
-endif(MPI_CXX_FOUND)
+endif(MPI_CXX_FOUND AND NOT MSVC)
 
 #
 # PCSC

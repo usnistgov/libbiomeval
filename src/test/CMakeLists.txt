@@ -160,6 +160,44 @@ foreach(src IN LISTS sources)
     target_compile_definitions(test_be_process_posixthreadmanager PUBLIC POSIXTHREADTEST)
   endif()
 
+  if(MSVC)
+    STRING(FIND "${exec}" "_process" FOUND_STR)
+    if(FOUND_STR)
+        unset(build_it)
+    endif(FOUND_STR)
+    unset(FOUND_STR)
+
+    STRING(FIND "${exec}" "_mpi" FOUND_STR)
+    if(FOUND_STR)
+        unset(build_it)
+    endif(FOUND_STR)
+    unset(FOUND_STR)
+
+    STRING(FIND "${exec}" "_mc" FOUND_STR)
+    if(FOUND_STR)
+        unset(build_it)
+    endif(FOUND_STR)
+    unset(FOUND_STR)
+
+    STRING(FIND "${exec}" "_message" FOUND_STR)
+    if(FOUND_STR)
+        unset(build_it)
+    endif(FOUND_STR)
+    unset(FOUND_STR)
+
+    if("${exec}" STREQUAL "test_be_framework_api")
+        unset(build_it)
+    endif("${exec}" STREQUAL "test_be_framework_api")
+
+    if("${exec}" STREQUAL "test_be_error_signal_processor")
+        unset(build_it)
+    endif("${exec}" STREQUAL "test_be_error_signal_processor")
+
+    if("${exec}" STREQUAL "test_be_io_syslogsheet")
+        unset(build_it)
+    endif("${exec}" STREQUAL "test_be_io_syslogsheet")
+  endif(MSVC)
+
   #
   # The default build, executable named after source file name.
   #
@@ -170,10 +208,10 @@ foreach(src IN LISTS sources)
   #
   # Options needed for certain test programs
   #
-  if(${exec} STREQUAL test_be_process_statistics)
+  if(${exec} STREQUAL test_be_process_statistics AND NOT MSVC)
     target_link_libraries(${exec} pthread)
   endif()
-  if(${exec} STREQUAL test_be_process_semaphore)
+  if(${exec} STREQUAL test_be_process_semaphore AND NOT MSVC)
     target_link_libraries(${exec} pthread)
   endif()
 
