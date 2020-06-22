@@ -319,19 +319,25 @@ uint64_t
 BiometricEvaluation::IO::DBRecordStore::Impl::getSpaceUsed()
     const
 {
-	struct stat sb;
-
 	this->sync();
-	if (stat(this->_dbnameP.c_str(), &sb) != 0)
-		throw Error::StrategyError("Could not find primary DB file");
-	uint64_t szP = (uint64_t)sb.st_blocks * (uint64_t)S_BLKSIZE;
+
+	uint64_t szP{ RecordStore::Impl::getSpaceUsed() };
+
+	try {
+		szP += BE::IO::Utility::getFileSize(this->_dbnameP);
+	} catch (const BE::Error::Exception& e) {
+		throw Error::StrategyError("Could not get size of primary DB file: " + e.whatString());
+	}
 
 	/* The subordinate DB may not exist */
-	if (stat(this->_dbnameS.c_str(), &sb) != 0)
-		sb.st_blocks = 0;
+	if (!BE::IO::Utility::fileExists(this->_dbnameS))
+		return (szP);
 
-	return (RecordStore::Impl::getSpaceUsed() +
-		szP + ((uint64_t)sb.st_blocks * (uint64_t)S_BLKSIZE));
+	try {
+		return (szP + BE::IO::Utility::getFileSize(this->_dbnameS));
+	} catch (const BE::Error::Exception& e) {
+		throw Error::StrategyError("Could not get size of secondary DB file: " + e.whatString());
+	}
 }
 
 void
