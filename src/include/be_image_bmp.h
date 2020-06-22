@@ -227,10 +227,14 @@ namespace BiometricEvaluation
 			ColorTable _colorTable{};
 		};
 
+		#ifndef BI_RGB
 		/** Compression method specifier for raw RGB triples. */
 		static const uint8_t BI_RGB = 0;
+		#endif /* BI_RGB */
+		#ifndef BI_RLE8
 		/** Compression method specifier for 8-bit RLE data. */
 		static const uint8_t BI_RLE8 = 1;
+		#endif /* BI_RLE8 */
 
 	}
 }
