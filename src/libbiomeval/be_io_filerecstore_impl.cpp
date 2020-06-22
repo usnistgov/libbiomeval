@@ -88,7 +88,7 @@ BiometricEvaluation::IO::FileRecordStore::Impl::getSpaceUsed()
 			    Error::errorStr() + ")");
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
-		total += sb.st_blocks * S_BLKSIZE;
+		total += sb.st_size;
 	}	
 
 	if (dir != nullptr) {
