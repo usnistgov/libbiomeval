@@ -372,8 +372,10 @@ target_link_libraries(${SHAREDLIB} ${HWLOC_LIBRARIES})
 #
 # Other libs not specifically searched for above.
 #
-target_link_libraries(${SHAREDLIB} sqlite3 crypto z png tiff)
-
+find_package(SQLite3 REQUIRED)
+find_package(TIFF REQUIRED)
+find_package(PNG REQUIRED)
+target_link_libraries(${SHAREDLIB} ${SQLite3_LIBRARIES} ${TIFF_LIBRARIES} ${PNG_LIBRARIES})
 #
 # Installation.
 # Note that because both the static and shared libraries use the same public
