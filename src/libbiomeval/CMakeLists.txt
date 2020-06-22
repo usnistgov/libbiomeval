@@ -150,6 +150,13 @@ set(MPIDISTRIBUTOR be_mpi_distributor.cpp be_mpi_recordstoredistributor.cpp be_m
 set(MPIRECEIVER be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocessor.cpp)
 
 #
+# Some files have not been ported to Windows. Sorry about that.
+#
+if(MSVC)
+    list(APPEND CORE "be_windowsfixup.cpp")
+endif(MSVC)
+
+#
 # All the packages for the core library, except:
 #	MPI which is built separately and linked in later, optional.
 #	VIDEO if the required libraries are present.
