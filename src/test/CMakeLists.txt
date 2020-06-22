@@ -48,12 +48,11 @@ if(${CMAKE_MAJOR_VERSION} GREATER 2)
     endif(MSVC)
 else()
     if(MSVC)
-        add_compile_options(/std:c++11 /DEBUG /Zi /MDd)
+        add_compile_options(/std:c++14 /DEBUG /Zi /MDd)
     else()
         add_compile_options(--std=c++11 -g)
     endif(MSVC)
 endif()
-add_compile_options(--std=c++11 -g)
 
 #
 # The <project>_SOURCE_DIR and <project>_BINARY_DIR are created by the
