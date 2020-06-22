@@ -65,8 +65,9 @@ of the software.
 #include <usebsd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <ioutil.h>
+
+#include <nbis_windows.h>
 
 /***********************************************************************
 ************************************************************************

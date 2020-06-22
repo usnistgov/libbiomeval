@@ -73,7 +73,8 @@ of the software.
 #include <usebsd.h>
 #include <an2k.h>
 #include <string.h>
-#include <strings.h>
+
+#include <nbis_windows.h>
 
 /***********************************************************************
 ************************************************************************

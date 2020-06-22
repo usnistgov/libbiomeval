@@ -59,7 +59,8 @@ of the software.
 ***********************************************************************/
 
 #include <stdio.h>
-#include <unistd.h>
+
+#include <nbis_windows.h>
 
 /**********************************************************************/
 int biomeval_nbis_filesize(char *ifile)

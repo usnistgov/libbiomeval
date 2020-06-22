@@ -61,8 +61,9 @@ of the software.
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/param.h>
 #include <ioutil.h>
+
+#include <nbis_windows.h>
 
 #define TRUE 1
 #define FALSE 0
