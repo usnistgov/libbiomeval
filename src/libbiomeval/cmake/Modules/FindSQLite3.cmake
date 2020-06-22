@@ -19,49 +19,49 @@
 #
 #This module will set the following variables if found:
 #
-#``SQLite3_INCLUDE_DIRS``
+#``SQLITE3_INCLUDE_DIRS``
 #  where to find sqlite3.h, etc.
-#``SQLite3_LIBRARIES``
+#``SQLITE3_LIBRARIES``
 #  the libraries to link against to use SQLite3.
-#``SQLite3_VERSION``
+#``SQLITE3_VERSION``
 #  version of the SQLite3 library found
-#``SQLite3_FOUND``
+#``SQLITE3_FOUND``
 #  TRUE if found
 #
 #]=======================================================================]
 if(${CMAKE_VERSION} VERSION_LESS "3.14")
 # Look for the necessary header
-find_path(SQLite3_INCLUDE_DIR NAMES sqlite3.h)
-mark_as_advanced(SQLite3_INCLUDE_DIR)
+find_path(SQLITE3_INCLUDE_DIR NAMES sqlite3.h)
+mark_as_advanced(SQLITE3_INCLUDE_DIR)
 
 # Look for the necessary library
-find_library(SQLite3_LIBRARY NAMES sqlite3 sqlite)
-mark_as_advanced(SQLite3_LIBRARY)
+find_library(SQLITE3_LIBRARY NAMES sqlite3 sqlite)
+mark_as_advanced(SQLITE3_LIBRARY)
 
 # Extract version information from the header file
-if(SQLite3_INCLUDE_DIR)
-    file(STRINGS ${SQLite3_INCLUDE_DIR}/sqlite3.h _ver_line
+if(SQLITE3_INCLUDE_DIR)
+    file(STRINGS ${SQLITE3_INCLUDE_DIR}/sqlite3.h _ver_line
          REGEX "^#define SQLITE_VERSION  *\"[0-9]+\\.[0-9]+\\.[0-9]+\""
          LIMIT_COUNT 1)
     string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+"
-           SQLite3_VERSION "${_ver_line}")
+           SQLITE3_VERSION "${_ver_line}")
     unset(_ver_line)
 endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SQLite3
-    REQUIRED_VARS SQLite3_INCLUDE_DIR SQLite3_LIBRARY
-    VERSION_VAR SQLite3_VERSION)
+    REQUIRED_VARS SQLITE3_INCLUDE_DIR SQLITE3_LIBRARY
+    VERSION_VAR SQLITE3_VERSION)
 
 # Create the imported target
-if(SQLite3_FOUND)
-    set(SQLite3_INCLUDE_DIRS ${SQLite3_INCLUDE_DIR})
-    set(SQLite3_LIBRARIES ${SQLite3_LIBRARY})
+if(SQLITE3_FOUND)
+    set(SQLITE3_INCLUDE_DIRS ${SQLITE3_INCLUDE_DIR})
+    set(SQLITE3_LIBRARIES ${SQLITE3_LIBRARY})
     if(NOT TARGET SQLite::SQLite3)
         add_library(SQLite::SQLite3 UNKNOWN IMPORTED)
         set_target_properties(SQLite::SQLite3 PROPERTIES
-            IMPORTED_LOCATION             "${SQLite3_LIBRARY}"
-            INTERFACE_INCLUDE_DIRECTORIES "${SQLite3_INCLUDE_DIR}")
+            IMPORTED_LOCATION             "${SQLITE3_LIBRARY}"
+            INTERFACE_INCLUDE_DIRECTORIES "${SQLITE3_INCLUDE_DIR}")
     endif()
 endif()
 endif()
