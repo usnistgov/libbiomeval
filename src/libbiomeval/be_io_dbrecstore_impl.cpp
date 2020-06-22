@@ -23,6 +23,7 @@
 #include <be_error.h>
 #include <be_io_utility.h>
 #include <be_text.h>
+#include <be_windowsfixup.h>
 
 #include "be_io_dbrecstore_impl.h"
 

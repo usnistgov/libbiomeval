@@ -11,9 +11,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <dirent.h>
-#include <unistd.h>
-
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
@@ -30,6 +27,7 @@
 #endif
 #include <be_text.h>
 #include <be_io_utility.h>
+#include <be_windowsfixup.h>
 
 namespace BE = BiometricEvaluation;
 

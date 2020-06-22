@@ -16,6 +16,7 @@
 
 #include <be_io_filelogcabinet.h>
 #include <be_io_utility.h>
+#include <be_windowsfixup.h>
 
 namespace BE = BiometricEvaluation;
 

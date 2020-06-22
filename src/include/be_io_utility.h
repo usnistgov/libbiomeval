@@ -18,6 +18,7 @@
 
 #include <be_error_exception.h>
 #include <be_memory_autoarray.h>
+#include <be_windowsfixup.h>
 
 namespace BiometricEvaluation
 {

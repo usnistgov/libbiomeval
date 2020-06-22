@@ -9,10 +9,8 @@
  */
 
 #include "be_io_archiverecstore_impl.h"
-#include <sys/param.h>
 #include <sys/stat.h>
 
-#include <unistd.h>
 
 #include <algorithm>
 #include <cerrno>
@@ -26,6 +24,7 @@
 #include <be_io_archiverecstore.h>
 #include <be_memory_autoarray.h>
 #include <be_text.h>
+#include <be_windowsfixup.h>
 
 namespace BE = BiometricEvaluation;
 

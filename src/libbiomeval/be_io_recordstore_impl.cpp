@@ -12,7 +12,6 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <dirent.h>
 
 #include <iostream>
 #include <fstream>
@@ -32,6 +31,7 @@
 #include <be_io_sqliterecstore.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
+#include <be_windowsfixup.h>
 
 
 namespace BE = BiometricEvaluation;

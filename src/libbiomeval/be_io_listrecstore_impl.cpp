@@ -13,6 +13,7 @@
 
 #include "be_io_listrecstore_impl.h"
 #include <be_error.h>
+#include <be_io_utility.h>
 #include <be_text.h>
 
 namespace BE = BiometricEvaluation;

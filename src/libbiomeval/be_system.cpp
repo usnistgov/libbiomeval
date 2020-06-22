@@ -19,7 +19,8 @@
 #include <sys/sysctl.h>
 #endif
 #include <hwloc.h>
-#include <unistd.h>
+
+#include <be_windowsfixup.h>
 
 uint32_t
 BiometricEvaluation::System::getCPUCount()

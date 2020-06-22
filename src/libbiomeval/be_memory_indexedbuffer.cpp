@@ -8,12 +8,11 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <arpa/inet.h>
-
 #include <cstring>
 
 #include <be_error_exception.h>
 #include <be_memory_indexedbuffer.h>
+#include <be_windowsfixup.h>
 
 /******************************************************************************/
 /* Method implementations.                                                    */
