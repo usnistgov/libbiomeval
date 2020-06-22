@@ -8,6 +8,8 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <ostream>
+
 #include <be_error_exception.h>
 #include <be_time_timer.h>
 
