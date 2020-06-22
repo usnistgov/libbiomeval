@@ -104,7 +104,7 @@ BiometricEvaluation::System::getRealMemorySize()
 double
 BiometricEvaluation::System::getLoadAverage()
 {
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__) || defined(_WIN32)
 	throw Error::NotImplemented();
 #else
 	double avg[1];

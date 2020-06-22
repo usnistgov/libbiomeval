@@ -25,7 +25,9 @@
 #include <sstream>
 
 #include <be_error.h>
+#ifndef _WIN32
 #include <be_error_signal_manager.h>
+#endif
 #include <be_text.h>
 #include <be_io_utility.h>
 
@@ -394,6 +396,9 @@ BiometricEvaluation::IO::Utility::readPipe(
     size_t size,
     int pipeFD)
 {
+#ifdef _WIN32
+	throw BE::Error::NotImplemented("IO::Utility::readPipe()");
+#else
 	size_t remaining = size;
 	uint8_t *ptr = (uint8_t *)data;;
 	while (true) {
@@ -415,6 +420,7 @@ BiometricEvaluation::IO::Utility::readPipe(
 			throw Error::ObjectDoesNotExist("Widowed pipe");
 		}
 	}
+#endif
 }
 
 void
@@ -431,6 +437,9 @@ BiometricEvaluation::IO::Utility::writePipe(
     size_t size,
     int pipeFD)
 {	
+#ifdef _WIN32
+	throw BE::Error::NotImplemented("IO::Utility::writePipe()");
+#else
 	sigset_t sigset;
 	sigemptyset(&sigset);
 	sigaddset(&sigset, SIGPIPE);
@@ -459,6 +468,7 @@ BiometricEvaluation::IO::Utility::writePipe(
 			break;
 		}
 	}
+#endif
 }
 
 void
