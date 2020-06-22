@@ -71,10 +71,14 @@ of the software.
 clock_t 
 biomeval_nbis_ticks(void)
 {
+#ifdef _WIN32
+    return clock();
+#else
 	struct tms buff;
 	
 	times(&buff);
 	return buff.tms_utime;
+#endif
 }
 
 
@@ -84,6 +88,10 @@ biomeval_nbis_ticks(void)
 int
 biomeval_nbis_ticksPerSec(void)
 {
+#ifdef _WIN32
+    return (int)CLOCKS_PER_SEC;
+#else
 	return (int)sysconf(_SC_CLK_TCK);
+#endif
 }
 
