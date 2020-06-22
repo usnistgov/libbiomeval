@@ -73,18 +73,25 @@ make install
 
 System Packages
 ---------------
-Some modules require system packages that may not be installed by default on
-all operating systems. Package names are listed below for RHEL/CentOS, macOS
-(via [MacPorts](https://www.macports.org)), and Ubuntu. Other operating systems
-may use similarly-named packages.
+ * Some modules require system packages that may not be installed by default o
+   all operating systems. Package names are listed below for RHEL/CentOS, macOS
+   (via [MacPorts](https://www.macports.org)), Ubuntu, and Windows (via
+   [`vcpkg`](https://github.com/Microsoft/vcpkg)). Other operating systems may
+   use similarly-named packages.
 
-Under CentOS 8, several packages listed below are now part of the "PowerTools"
-repository, which is disabled by default. This repository can be enabled by
-issuing the command:
-```bash
-# Enable PowerTools repository
-sudo yum config-manager --set-enabled PowerTools
-```
+ * Under CentOS 8, several packages listed below are now part of the "PowerTools"
+   repository, which is disabled by default. This repository can be enabled by
+   issuing the command:
+   ```bash
+   # Enable PowerTools repository
+   sudo yum config-manager --set-enabled PowerTools
+   ```
+
+ * When using `vcpkg`, you must provide CMake with the path to your vcpkg
+   toolchain:
+   ```dos
+   cmake .. -DCMAKE_TOOLCHAIN_PATH=%vcpkg_root%\scripts\buildsystems\vcpkg.cmake
+   ```
 
 ### CORE
 | Name         | RHEL/CentOS     | MacPorts                     | Ubuntu       | vcpkg     |
