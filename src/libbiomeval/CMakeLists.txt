@@ -387,6 +387,12 @@ endif()
 find_package(TIFF REQUIRED)
 find_package(PNG REQUIRED)
 target_link_libraries(${SHAREDLIB} ${TIFF_LIBRARIES} ${PNG_LIBRARIES})
+
+# Need Winsock on Windows
+if(MSVC)
+	target_link_libraries(${SHAREDLIB} Ws2_32)
+endif(MSVC)
+
 #
 # Installation.
 # Note that because both the static and shared libraries use the same public
