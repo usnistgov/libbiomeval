@@ -221,7 +221,7 @@ foreach(src IN LISTS sources)
     endif()
   endif()
 
-  if(${exec} STREQUAL test_be_process_manager)
+  if(${exec} STREQUAL test_be_process_manager AND NOT MSVC)
     add_executable(test_be_process_forkmanager ${src})
     target_compile_definitions(test_be_process_forkmanager PUBLIC FORKTEST)
     add_executable(test_be_process_posixthreadmanager ${src})
