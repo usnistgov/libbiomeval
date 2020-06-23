@@ -233,7 +233,7 @@ BiometricEvaluation::Image::TIFF::TIFF(
 		yRes = 72;
 
 	/* RGBRGBRGB vs RRRGGGBBB when retrieving scanlines */
-	uint8_t planarConfig{};
+	uint16_t planarConfig{};
 	if (TIFFGetField(tiff.get(), TIFFTAG_PLANARCONFIG, &planarConfig) != 1)
 		throw BE::Error::StrategyError("Could not read planar "
 		    "configuration");
