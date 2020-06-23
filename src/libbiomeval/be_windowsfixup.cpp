@@ -99,4 +99,49 @@ lstat(
 	return (stat(path, s));
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int
+strncasecmp(
+    const char* s1,
+    const char* s2,
+    size_t n)
+{
+	return (_strnicmp(s1, s2, n));
+}
+
+char*
+index(
+    const char* s,
+    int c)
+{
+	return ((char*)strchr(s, c));
+}
+
+int gettimeofday(struct timeval* tp, struct timezone*)
+{
+	static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
+
+	SYSTEMTIME  systemTime;
+	FILETIME    fileTime;
+	uint64_t    time;
+
+	GetSystemTime(&systemTime);
+	SystemTimeToFileTime(&systemTime, &fileTime);
+	time = ((uint64_t)fileTime.dwLowDateTime);
+	time += ((uint64_t)fileTime.dwHighDateTime) << 32;
+
+	tp->tv_sec = (long)((time - EPOCH) / 10000000L);
+	tp->tv_usec = (long)(systemTime.wMilliseconds * 1000);
+
+	return (0);
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+
 #endif

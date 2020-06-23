@@ -71,6 +71,20 @@ int mkstemp(char*);
 /* 7: Symlinks aren't quite the same on Windows */
 int lstat(const char*, struct stat*);
 
+/* 8: Missing or alternate names with required C linkage for NBIS */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int strncasecmp(const char* s1, const char* s2, size_t n);
+char* index(const char* s, int c);
+int gettimeofday(struct timeval*, struct timezone*);
+
+#ifdef __cplusplus
+}
+#endif
+
 #else
 
 /* 1 */
