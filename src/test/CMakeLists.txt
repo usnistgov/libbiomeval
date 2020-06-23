@@ -35,6 +35,8 @@ endif()
 
 cmake_minimum_required(VERSION 2.8.11)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../libbiomeval/cmake/Modules/")
+
 file(GLOB sources "${PROJECT_SOURCE_DIR}/test_*.cpp")
 
 #
@@ -61,11 +63,77 @@ endif()
 #
 if(libbiomeval_SOURCE_DIR)
   include_directories(${libbiomeval_SOURCE_DIR}/../include)
-  link_libraries(-L${libbiomeval_BINARY_DIR} -lbiomeval)
+  if(MSVC)
+    link_libraries(${libbiomeval_BINARY_DIR}/$<CONFIGURATION>/biomeval.lib)
+  else(MSVC)
+    link_libraries(-L${libbiomeval_BINARY_DIR}/../../lib/ -lbiomeval)
+  endif(MSVC)
 else()
   include_directories(${PROJECT_SOURCE_DIR}/../include)
-  link_libraries(-L${CMAKE_SOURCE_DIR}/../../lib/ -lbiomeval)
+  if(MSVC)
+    link_libraries(${CMAKE_BINARY_DIR}/$<CONFIGURATION>/biomeval.lib)
+  else(MSVC)
+    link_libraries(-L${CMAKE_BINARY_DIR}/../../lib/ -lbiomeval)
+  endif(MSVC)
 endif()
+
+# Windows doesn't have the concept of rpath. DLLs must be in PATH
+if(MSVC)
+  find_package(FFMPEG)
+  if(FFMPEG_FOUND)
+    link_libraries(${FFMPEG_LIBRARIES})
+  endif(FFMPEG_FOUND)
+
+  find_package(OPENSSL)
+  if(OPENSSL_FOUND)
+    link_libraries(${OPENSSL_LIBRARIES})
+  endif(OPENSSL_FOUND)
+
+  find_package(BERKELEYDB)
+  if(BERKELEYDB_FOUND)
+    link_libraries(${BERKELEYDB_LIBRARIES})
+  endif(BERKELEYDB_FOUND)
+
+  find_package(JPEG)
+  if(JPEG_FOUND)
+    link_libraries(${JPEG_LIBRARIES})
+  endif(JPEG_FOUND)
+
+  find_package(OPENJP2)
+  if(OPENJP2_FOUND)
+    link_libraries(${OPENJP2_LIBRARIES})
+  endif(OPENJP2_FOUND)
+
+  find_package(HWLOC)
+  if(HWLOC_FOUND)
+    link_libraries(${HWLOC_LIBRARIES})
+  endif(HWLOC_FOUND)
+
+  find_package(PNG)
+  if(PNG_FOUND)
+    link_libraries(${PNG_LIBRARIES})
+  endif(PNG_FOUND)
+
+  find_package(TIFF)
+  if(TIFF_FOUND)
+    link_libraries(${TIFF_LIBRARIES})
+  endif(TIFF_FOUND)
+
+  if(${CMAKE_VERSION} VERSION_LESS "3.14")
+	find_package(SQLITE3 REQUIRED)
+	link_libraries(${SQLITE3_LIBRARIES})
+  else()
+	find_package(SQLite3 REQUIRED)
+	if(MSVC)
+		link_libraries(${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/sqlite3.lib)
+	else(MSVC)
+		link_libraries(${SQLite3_LIBRARIES})
+	endif(MSVC)
+  endif()
+
+  # Winsock2
+  link_libraries(Ws2_32)
+endif(MSVC)
 
 foreach(src IN LISTS sources)
   set(build_it 1)
