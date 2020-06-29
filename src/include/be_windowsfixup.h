@@ -79,6 +79,8 @@ extern "C" {
 
 int strncasecmp(const char* s1, const char* s2, size_t n);
 char* index(const char* s, int c);
+
+/* 9: No gettimeofday */
 int gettimeofday(struct timeval*, struct timezone*);
 
 #ifdef __cplusplus
@@ -105,6 +107,9 @@ int gettimeofday(struct timeval*, struct timezone*);
 
 /* 5 */
 #include <dirent.h>
+
+/* 9 */
+#include <sys/time.h>
 
 #endif /* _WIN32 */
 
