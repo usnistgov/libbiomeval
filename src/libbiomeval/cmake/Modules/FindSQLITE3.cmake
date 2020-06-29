@@ -29,7 +29,6 @@
 #  TRUE if found
 #
 #]=======================================================================]
-if(${CMAKE_VERSION} VERSION_LESS "3.14")
 # Look for the necessary header
 find_path(SQLITE3_INCLUDE_DIR NAMES sqlite3.h)
 mark_as_advanced(SQLITE3_INCLUDE_DIR)
@@ -49,7 +48,7 @@ if(SQLITE3_INCLUDE_DIR)
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(SQLite3
+find_package_handle_standard_args(SQLITE3
     REQUIRED_VARS SQLITE3_INCLUDE_DIR SQLITE3_LIBRARY
     VERSION_VAR SQLITE3_VERSION)
 
@@ -63,5 +62,4 @@ if(SQLITE3_FOUND)
             IMPORTED_LOCATION             "${SQLITE3_LIBRARY}"
             INTERFACE_INCLUDE_DIRECTORIES "${SQLITE3_INCLUDE_DIR}")
     endif()
-endif()
 endif()

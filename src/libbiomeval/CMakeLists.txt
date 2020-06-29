@@ -372,18 +372,11 @@ target_link_libraries(${SHAREDLIB} ${HWLOC_LIBRARIES})
 #
 # Other libs not specifically searched for above.
 #
-if(${CMAKE_VERSION} VERSION_LESS "3.14")
-	find_package(SQLITE3 REQUIRED)
-	target_link_libraries(${SHAREDLIB} ${SQLITE3_LIBRARIES})
-else()
-	find_package(SQLite3 REQUIRED)
-	target_link_libraries(${SHAREDLIB} ${SQLite3_LIBRARIES})
-	if (MSVC)
-		target_link_libraries(${SHAREDLIB} ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/sqlite3.lib)
-	else(MSVC)
-		target_link_libraries(${SHAREDLIB} ${SQLite3_LIBRARIES})
-	endif(MSVC)
-endif()
+
+# This will use our Module
+find_package(SQLITE3 REQUIRED)
+target_link_libraries(${SHAREDLIB} ${SQLITE3_LIBRARIES})
+
 find_package(TIFF REQUIRED)
 find_package(PNG REQUIRED)
 target_link_libraries(${SHAREDLIB} ${TIFF_LIBRARIES} ${PNG_LIBRARIES})
