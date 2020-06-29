@@ -12,6 +12,8 @@
 
 #include <be_windowsfixup.h>
 
+#include <fcntl.h>
+
 #include <cstdlib>
 #include <ctime>
 #include <string>
@@ -88,7 +90,15 @@ mkstemp(
     char* t)
 {
 	const std::string s{ t };
-	return (_mktemp_s(t, s.size()));
+	if (_mktemp_s(t, s.size() + 1) != 0)
+		return (-1);
+
+	int fileHandle{ -1 };
+	if (_sopen_s(&fileHandle, t, _O_CREAT, _SH_DENYNO,
+	    _S_IREAD | _S_IWRITE) != 0)
+		return (-1);
+
+	return (fileHandle);
 }
 
 int
