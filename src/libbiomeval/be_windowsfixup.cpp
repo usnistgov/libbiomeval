@@ -44,6 +44,8 @@ namespace BiometricEvaluation
 				case Method::basename:
 					return (fname);
 				case Method::dirname:
+					if (dir == nullptr || dir[0] == '\0')
+						strncpy(dir, ".", 2);
 					return (dir);
 				}
 			}
