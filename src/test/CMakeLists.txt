@@ -39,20 +39,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../libbiomeval
 
 file(GLOB sources "${PROJECT_SOURCE_DIR}/test_*.cpp")
 
-#
-# Test programs are always built with debug turned on
-#
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
     set(CMAKE_CXX_STANDARD 11)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    if(MSVC)
-        add_compile_options(/DEBUG /Zi /MDd)
-    endif(MSVC)
 else()
     if(MSVC)
-        add_compile_options(/std:c++14 /DEBUG /Zi /MDd)
+        add_compile_options(/std:c++14)
     else()
-        add_compile_options(--std=c++11 -g)
+        add_compile_options(--std=c++11)
     endif(MSVC)
 endif()
 
