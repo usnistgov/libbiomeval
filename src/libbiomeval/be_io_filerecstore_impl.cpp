@@ -34,7 +34,6 @@ BiometricEvaluation::IO::FileRecordStore::Impl::Impl(
 	if (mkdir(_theFilesDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
 		throw Error::StrategyError("Could not create file area "
 		    "directory (" + Error::errorStr() + ")");
-	return;
 }
 
 BiometricEvaluation::IO::FileRecordStore::Impl::Impl(
