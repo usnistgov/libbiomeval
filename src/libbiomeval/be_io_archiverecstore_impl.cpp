@@ -581,9 +581,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::move(
 {
 	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
-
-	RecordStore::Impl::move(pathname);
+	
 	this->close_streams();
+	RecordStore::Impl::move(pathname);
 }
 
 bool
