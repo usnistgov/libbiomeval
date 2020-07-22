@@ -43,8 +43,6 @@ BiometricEvaluation::IO::FileRecordStore::Impl::Impl(
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::Impl::canonicalName(_fileArea);
-	if (mkdir(_theFilesDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
-	return;
 }
 
 BiometricEvaluation::IO::FileRecordStore::Impl::~Impl()
