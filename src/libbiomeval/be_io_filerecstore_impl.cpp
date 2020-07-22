@@ -79,8 +79,10 @@ BiometricEvaluation::IO::FileRecordStore::Impl::getSpaceUsed()
 	struct stat sb;
 	std::string cname;
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		cname = entry->d_name;
 		cname = FileRecordStore::Impl::canonicalName(cname);
 		if (stat(cname.c_str(), &sb) != 0)	
@@ -256,8 +258,10 @@ BiometricEvaluation::IO::FileRecordStore::Impl::i_sequence(
 	uint64_t i = 1;
 	std::string cname;
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		cname = _theFilesDir + "/" + entry->d_name;
 		if (stat(cname.c_str(), &sb) != 0)	
 			throw Error::StrategyError("Cannot stat store file (" +
@@ -323,8 +327,10 @@ BiometricEvaluation::IO::FileRecordStore::Impl::setCursorAtKey(
 	int i = 1;
 	std::string cname;
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		cname = _theFilesDir + "/" + entry->d_name;
 		if (stat(cname.c_str(), &sb) != 0)	
 			throw Error::StrategyError("Cannot stat store file (" +

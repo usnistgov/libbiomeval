@@ -85,8 +85,10 @@ BiometricEvaluation::IO::Utility::copyDirectoryContents(
 		throw Error::StrategyError(sourcepath + " could not be opened");
 
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		if ((strcmp(entry->d_name, ".") == 0) ||
 		    (strcmp(entry->d_name, "..") == 0))
 			continue;
@@ -132,8 +134,10 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 		throw Error::StrategyError(dirpath + " could not be opened");
 	
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		if ((strcmp(entry->d_name, ".") == 0) ||
 		    (strcmp(entry->d_name, "..") == 0))
 			continue;
@@ -264,8 +268,10 @@ BiometricEvaluation::IO::Utility::sumDirectoryUsage(const std::string &pathname)
 		    + Error::errorStr() + ")");
 	
 	while ((entry = readdir(dir)) != NULL) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		if ((strcmp(entry->d_name, ".") == 0) ||
 		    (strcmp(entry->d_name, "..") == 0))
 			continue;
