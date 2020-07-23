@@ -47,6 +47,12 @@ namespace BiometricEvaluation
 			if (err == 0) {
 				switch (method) {
 				case Method::basename:
+					/* If no basename, it's dirname */
+					if (fname[0] == '\0') {
+						if (dir[0] == '\0')
+							strncpy(dir, ".", 2);
+						strncpy(fname, dir, 2);
+					}
 					return (fname);
 				case Method::dirname:
 					if (dir[0] == '\0')
