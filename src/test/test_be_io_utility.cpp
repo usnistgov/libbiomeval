@@ -9,7 +9,6 @@
  */
 
 #include <sys/wait.h>
-#include <unistd.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -19,6 +18,7 @@
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
 #include <be_memory_autoarrayutility.h>
+#include <be_windowsfixup.h>
 
 using namespace BiometricEvaluation;
 using namespace std;

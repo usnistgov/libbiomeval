@@ -13,9 +13,8 @@
 #include <iostream>
 #include <memory>
 
-#include <unistd.h>
-
 #include <be_time_timer.h>
+#include <be_windowsfixup.h>
 
 using namespace std;
 using namespace BiometricEvaluation;

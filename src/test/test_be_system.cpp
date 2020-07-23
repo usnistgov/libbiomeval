@@ -10,9 +10,10 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <unistd.h>
+
 #include <be_error_exception.h>
 #include <be_system.h>
+#include <be_windowsfixup.h>
 
 using namespace std;
 using namespace BiometricEvaluation;

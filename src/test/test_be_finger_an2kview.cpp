@@ -8,8 +8,6 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <unistd.h>
-
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -19,6 +17,7 @@
 #include <be_finger_an2kview_fixedres.h>
 #include <be_error_exception.h>
 #include <be_io_utility.h>
+#include <be_windowsfixup.h>
 
 using namespace std;
 using namespace BiometricEvaluation;
