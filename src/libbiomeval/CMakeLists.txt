@@ -204,10 +204,11 @@ add_library(coreobjs OBJECT ${PACKAGES})
 #  target that references $<TARGET_OBJECTS:objlib>".
 # https://cmake.org/cmake/help/v3.12/command/add_library.html#object-libraries
 #
+set(OBJLIBS "")
 if(CMAKE_GENERATOR STREQUAL Xcode)
 	set(XCODE_GENERATOR_FIX "be_fix_cmake_xcode_generator.cpp")
 	file(WRITE "${XCODE_GENERATOR_FIX}" "")
-	set(OBJLIBS "${XCODE_GENERATOR_FIX}")
+	list(APPEND OBJLIBS "${XCODE_GENERATOR_FIX}")
 endif(CMAKE_GENERATOR STREQUAL Xcode)
 
 list(APPEND OBJLIBS $<TARGET_OBJECTS:coreobjs>)
