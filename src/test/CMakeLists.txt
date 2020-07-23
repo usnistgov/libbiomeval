@@ -15,7 +15,7 @@
 #     make
 #
 # If this CMake file is used independently of the library CMake, libbiomeval
-# must be built and installed in the common/lib directoy. 
+# must be built and installed in the common/lib directory.
 # If this CMake file is invoked from another CMake file that also includes
 # the libbiomeval, then the library will be linked from that build's location.
 #
@@ -36,8 +36,6 @@ endif()
 cmake_minimum_required(VERSION 2.8.11)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../libbiomeval/cmake/Modules/")
-
-file(GLOB sources "${PROJECT_SOURCE_DIR}/test_*.cpp")
 
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
     set(CMAKE_CXX_STANDARD 11)
@@ -122,155 +120,150 @@ if(MSVC)
   link_libraries(Ws2_32)
 endif(MSVC)
 
-foreach(src IN LISTS sources)
-  set(build_it 1)
-  get_filename_component(exec ${src} NAME_WE)
+#
+# Exhaustively add each target rather than looping over source files. Some
+# generators (namely MSVC) don't seem to pick up each target in the loop.
+#
 
-  #
-  # Some test programs have special compiler options.
-  #
-  if(${exec} STREQUAL test_be_io_recordstore)
-    add_executable(test_be_io_filerecordstore ${src})
-    target_compile_definitions(test_be_io_filerecordstore PUBLIC FILERECORDSTORETEST)
-    add_executable(test_be_io_dbrecordstore ${src})
-    target_compile_definitions(test_be_io_dbrecordstore PUBLIC DBRECORDSTORETEST)
-    add_executable(test_be_io_archiverecordstore ${src})
-    target_compile_definitions(test_be_io_archiverecordstore PUBLIC ARCHIVERECORDSTORETEST)
-    add_executable(test_be_io_sqliterecordstore ${src})
-    target_compile_definitions(test_be_io_sqliterecordstore PUBLIC SQLITERECORDSTORETEST)
-    add_executable(test_be_io_compressedrecordstore ${src})
-    target_compile_definitions(test_be_io_compressedrecordstore PUBLIC COMPRESSEDRECORDSTORETEST)
-    #
-    # Don't build the executable based on the file name
-    #
-    unset(build_it)
-  endif()
+# The following executables do not require special treatment
+add_executable(test_be_data_interchange_an2k test_be_data_interchange_an2k.cpp)
+add_executable(test_be_data_interchange_ansi2004 test_be_data_interchange_ansi2004.cpp)
+add_executable(test_be_error test_be_error.cpp)
+add_executable(test_be_face_incitsviews test_be_face_incitsviews.cpp)
+add_executable(test_be_feature_an2kminutiae test_be_feature_an2kminutiae.cpp)
+add_executable(test_be_finger_an2kview test_be_finger_an2kview.cpp)
+add_executable(test_be_finger_incitsviews test_be_finger_incitsviews.cpp)
+add_executable(test_be_framework test_be_framework.cpp)
+add_executable(test_be_framework_enumeration test_be_framework_enumeration.cpp)
+add_executable(test_be_io_archiverecstore test_be_io_archiverecstore.cpp)
+add_executable(test_be_io_filelogcabinet test_be_io_filelogcabinet.cpp)
+add_executable(test_be_io_filerecstore test_be_io_filerecstore.cpp)
+add_executable(test_be_io_listrecstore test_be_io_listrecstore.cpp)
+add_executable(test_be_io_persistentrecordstoreunion test_be_io_persistentrecordstoreunion.cpp)
+add_executable(test_be_io_properties test_be_io_properties.cpp)
+add_executable(test_be_io_propertiesfile test_be_io_propertiesfile.cpp)
+add_executable(test_be_io_recordstoreunion test_be_io_recordstoreunion.cpp)
+add_executable(test_be_io_utility test_be_io_utility.cpp)
+add_executable(test_be_iris_incitsviews test_be_iris_incitsviews.cpp)
+add_executable(test_be_latent_an2kview test_be_latent_an2kview.cpp)
+add_executable(test_be_memory_autoarray test_be_memory_autoarray.cpp)
+add_executable(test_be_memory_indexedbuffer test_be_memory_indexedbuffer.cpp)
+add_executable(test_be_memory_orderedmap test_be_memory_orderedmap.cpp)
+add_executable(test_be_palm_an2kview test_be_palm_an2kview.cpp)
+add_executable(test_be_system test_be_system.cpp)
+add_executable(test_be_text test_be_text.cpp)
+add_executable(test_be_time test_be_time.cpp)
+add_executable(test_be_time_timer test_be_time_timer.cpp)
 
-  if(${exec} STREQUAL test_be_io_recordstore-stress)
-    add_executable(test_be_io_filerecordstore-stress ${src})
-    target_compile_definitions(test_be_io_filerecordstore-stress PUBLIC FILERECORDSTORETEST)
-    add_executable(test_be_io_dbrecordstore-stress ${src})
-    target_compile_definitions(test_be_io_dbrecordstore-stress PUBLIC DBRECORDSTORETEST)
-    add_executable(test_be_io_archiverecordstore-stress ${src})
-    target_compile_definitions(test_be_io_archiverecordstore-stress PUBLIC ARCHIVERECORDSTORETEST)
-    add_executable(test_be_io_sqliterecordstore-stress ${src})
-    target_compile_definitions(test_be_io_sqliterecordstore-stress PUBLIC SQLITERECORDSTORETEST)
-    #
-    # Don't build the executable based on the file name
-    #
-    unset(build_it)
-  endif()
+# Individual RecordStore test executables (requires compiler definition)
+add_executable(test_be_io_filerecordstore test_be_io_recordstore.cpp)
+target_compile_definitions(test_be_io_filerecordstore PUBLIC FILERECORDSTORETEST)
+add_executable(test_be_io_dbrecordstore test_be_io_recordstore.cpp)
+target_compile_definitions(test_be_io_dbrecordstore PUBLIC DBRECORDSTORETEST)
+add_executable(test_be_io_archiverecordstore test_be_io_recordstore.cpp)
+target_compile_definitions(test_be_io_archiverecordstore PUBLIC ARCHIVERECORDSTORETEST)
+add_executable(test_be_io_sqliterecordstore test_be_io_recordstore.cpp)
+target_compile_definitions(test_be_io_sqliterecordstore PUBLIC SQLITERECORDSTORETEST)
+add_executable(test_be_io_compressedrecordstore test_be_io_recordstore.cpp)
+target_compile_definitions(test_be_io_compressedrecordstore PUBLIC COMPRESSEDRECORDSTORETEST)
 
-  if(${exec} STREQUAL test_be_image_image)
-    add_executable(test_be_image_raw ${src})
-    target_compile_definitions(test_be_image_raw PUBLIC RAWTEST)
-    add_executable(test_be_image_jpeg ${src})
-    target_compile_definitions(test_be_image_jpeg PUBLIC JPEGBTEST)
-    add_executable(test_be_image_jpegl ${src})
-    target_compile_definitions(test_be_image_jpegl PUBLIC JPEGLTEST)
-    add_executable(test_be_image_jpeg2000 ${src})
-    target_compile_definitions(test_be_image_jpeg2000 PUBLIC JPEG2000TEST)
-    add_executable(test_be_image_jpeg2000l ${src})
-    target_compile_definitions(test_be_image_jpeg2000l PUBLIC JPEG2000LTEST)
-    add_executable(test_be_image_netpbm ${src})
-    target_compile_definitions(test_be_image_netpbm PUBLIC NETPBMTEST)
-    add_executable(test_be_image_png ${src})
-    target_compile_definitions(test_be_image_png PUBLIC PNGTEST)
-    add_executable(test_be_image_wsq ${src})
-    target_compile_definitions(test_be_image_wsq PUBLIC WSQTEST)
-    add_executable(test_be_image_bmp ${src})
-    target_compile_definitions(test_be_image_bmp PUBLIC BMPTEST)
-    add_executable(test_be_image_tiff ${src})
-    target_compile_definitions(test_be_image_tiff PUBLIC TIFFTEST)
-    add_executable(test_be_image_factory ${src})
-    target_compile_definitions(test_be_image_factory PUBLIC FACTORYTEST)
-    #
-    # Don't build the executable based on the file name
-    #
-    unset(build_it)
-  endif()
+# Individual RecordStore stress-test executables (requires compiler definition)
+add_executable(test_be_io_filerecordstore-stress test_be_io_recordstore-stress.cpp)
+target_compile_definitions(test_be_io_filerecordstore-stress PUBLIC FILERECORDSTORETEST)
+add_executable(test_be_io_dbrecordstore-stress test_be_io_recordstore-stress.cpp)
+target_compile_definitions(test_be_io_dbrecordstore-stress PUBLIC DBRECORDSTORETEST)
+add_executable(test_be_io_archiverecordstore-stress test_be_io_recordstore-stress.cpp)
+target_compile_definitions(test_be_io_archiverecordstore-stress PUBLIC ARCHIVERECORDSTORETEST)
+add_executable(test_be_io_sqliterecordstore-stress test_be_io_recordstore-stress.cpp)
+target_compile_definitions(test_be_io_sqliterecordstore-stress PUBLIC SQLITERECORDSTORETEST)
 
-  if(${exec} STREQUAL test_be_video)
-    if(NOT TARGET vidobjs)
-      unset(build_it)
-    endif()
-  endif()
+# Individual Image format test executables (requires compiler definition)
+add_executable(test_be_image_raw test_be_image_image.cpp)
+target_compile_definitions(test_be_image_raw PUBLIC RAWTEST)
+add_executable(test_be_image_jpeg test_be_image_image.cpp)
+target_compile_definitions(test_be_image_jpeg PUBLIC JPEGBTEST)
+add_executable(test_be_image_jpegl test_be_image_image.cpp)
+target_compile_definitions(test_be_image_jpegl PUBLIC JPEGLTEST)
+add_executable(test_be_image_jpeg2000 test_be_image_image.cpp)
+target_compile_definitions(test_be_image_jpeg2000 PUBLIC JPEG2000TEST)
+add_executable(test_be_image_jpeg2000l test_be_image_image.cpp)
+target_compile_definitions(test_be_image_jpeg2000l PUBLIC JPEG2000LTEST)
+add_executable(test_be_image_netpbm test_be_image_image.cpp)
+target_compile_definitions(test_be_image_netpbm PUBLIC NETPBMTEST)
+add_executable(test_be_image_png test_be_image_image.cpp)
+target_compile_definitions(test_be_image_png PUBLIC PNGTEST)
+add_executable(test_be_image_wsq test_be_image_image.cpp)
+target_compile_definitions(test_be_image_wsq PUBLIC WSQTEST)
+add_executable(test_be_image_bmp test_be_image_image.cpp)
+target_compile_definitions(test_be_image_bmp PUBLIC BMPTEST)
+add_executable(test_be_image_tiff test_be_image_image.cpp)
+target_compile_definitions(test_be_image_tiff PUBLIC TIFFTEST)
+add_executable(test_be_image_factory test_be_image_image.cpp)
+target_compile_definitions(test_be_image_factory PUBLIC FACTORYTEST)
 
-  if(${exec} STREQUAL test_be_rs_mpi OR ${exec} STREQUAL test_be_csv_mpi)
-    if(NOT TARGET mpiobjs)
-      unset(build_it)
-    endif()
-  endif()
+# Individual process manager executables (requires compiler definition)
+if (NOT MSVC)
+	add_executable(test_be_process_forkmanager test_be_process_manager.cpp)
+	target_compile_definitions(test_be_process_forkmanager PUBLIC FORKTEST)
+	add_executable(test_be_process_posixthreadmanager test_be_process_manager.cpp)
+	target_compile_definitions(test_be_process_posixthreadmanager PUBLIC POSIXTHREADTEST)
+endif (NOT MSVC)
 
-  if(${exec} STREQUAL test_be_device_smartcard OR ${exec} STREQUAL test_be_device_tlv)
-    if(NOT TARGET deviceobjs)
-      unset(build_it)
-    endif()
-  endif()
+# MPI test executables require that MPI support was compiled in
+if (TARGET mpiobjs)
+	# We also have not tested MPI on Windows
+	if (NOT MSVC)
+		add_executable(test_be_csv_mpi test_be_csv_mpi.cpp)
+		add_executable(test_be_rs_mpi test_be_rs_mpi.cpp)
+	endif (NOT MSVC)
+endif (TARGET mpiobjs)
 
-  if(${exec} STREQUAL test_be_process_manager AND NOT MSVC)
-    add_executable(test_be_process_forkmanager ${src})
-    target_compile_definitions(test_be_process_forkmanager PUBLIC FORKTEST)
-    add_executable(test_be_process_posixthreadmanager ${src})
-    target_compile_definitions(test_be_process_posixthreadmanager PUBLIC POSIXTHREADTEST)
-  endif()
+# ISO/IEC 7816 test executables require that device support was compiled in
+if (TARGET deviceobjs)
+	add_executable(test_be_device_smartcard test_be_device_smartcard.cpp)
+	add_executable(test_be_device_tlv test_be_device_tlv.cpp)
+endif (TARGET deviceobjs)
 
-  if(MSVC)
-    STRING(FIND "${exec}" "_process" FOUND_STR)
-    if(FOUND_STR)
-        unset(build_it)
-    endif(FOUND_STR)
-    unset(FOUND_STR)
+# Process and video test programs require a threading library, which we
+# haven't tested under Windows
+if (NOT MSVC)
+	add_executable(test_be_process_semaphore test_be_process_semaphore.cpp)
+	add_executable(test_be_process_statistics test_be_process_statistics.cpp)
 
-    STRING(FIND "${exec}" "_mpi" FOUND_STR)
-    if(FOUND_STR)
-        unset(build_it)
-    endif(FOUND_STR)
-    unset(FOUND_STR)
+	# Video test executables require that video support was compiled in
+	if (TARGET vidobjs)
+		add_executable(test_be_video test_be_video.cpp)
+	endif (TARGET vidobjs)
 
-    STRING(FIND "${exec}" "_mc" FOUND_STR)
-    if(FOUND_STR)
-        unset(build_it)
-    endif(FOUND_STR)
-    unset(FOUND_STR)
+	find_package(Threads REQUIRED)
+	if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.1)
+		target_link_libraries(test_be_process_semaphore PRIVATE Threads::Threads)
+		target_link_libraries(test_be_process_statistics PRIVATE Threads::Threads)
+		if (TARGET test_be_video)
+			target_link_libraries(test_be_video PRIVATE Threads::Threads)
+		endif (TARGET test_be_video)
+	else (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.1)
+		if (CMAKE_THREAD_LIBS_INIT)
+			target_link_libraries(test_be_process_semaphore "${CMAKE_THREAD_LIBS_INIT}")
+			target_link_libraries(test_be_process_statistics "${CMAKE_THREAD_LIBS_INIT}")
+			if (TARGET test_be_video)
+				target_link_libraries(test_be_video "${CMAKE_THREAD_LIBS_INIT}")
+			endif (TARGET test_be_video)
+		endif (CMAKE_THREAD_LIBS_INIT)
+	endif (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.1)
+endif (NOT MSVC)
 
-    STRING(FIND "${exec}" "_message" FOUND_STR)
-    if(FOUND_STR)
-        unset(build_it)
-    endif(FOUND_STR)
-    unset(FOUND_STR)
-
-    if("${exec}" STREQUAL "test_be_framework_api")
-        unset(build_it)
-    endif("${exec}" STREQUAL "test_be_framework_api")
-
-    if("${exec}" STREQUAL "test_be_error_signal_processor")
-        unset(build_it)
-    endif("${exec}" STREQUAL "test_be_error_signal_processor")
-
-    if("${exec}" STREQUAL "test_be_io_syslogsheet")
-        unset(build_it)
-    endif("${exec}" STREQUAL "test_be_io_syslogsheet")
-  endif(MSVC)
-
-  #
-  # The default build, executable named after source file name.
-  #
-  if(build_it)
-    add_executable(${exec} ${src})
-  endif()
-
-  #
-  # Options needed for certain test programs
-  #
-  if(${exec} STREQUAL test_be_process_statistics AND NOT MSVC)
-    target_link_libraries(${exec} pthread)
-  endif()
-  if(${exec} STREQUAL test_be_process_semaphore AND NOT MSVC)
-    target_link_libraries(${exec} pthread)
-  endif()
-
-endforeach(src)
+# Some test executables are not yet supported on Windows because we have not
+# compiled in the relevant classes from libbiomeval. We can't
+# EXCLUDE_FROM_ALL, because CMake only excludes from the ALL_BUILD target on
+# newer versions of Visual Studio and not the sln target, which is the
+# default build target.
+if (NOT MSVC)
+	add_executable(test_be_error_signal_manager test_be_error_signal_manager.cpp)
+	add_executable(test_be_framework_api test_be_framework_api.cpp)
+	add_executable(test_be_io_syslogsheet test_be_io_syslogsheet.cpp)
+	add_executable(test_be_time_watchdog test_be_time_watchdog.cpp)
+endif (NOT MSVC)
 
 #
 # Link the test data into the build directory.
