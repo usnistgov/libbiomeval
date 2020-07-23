@@ -515,9 +515,22 @@ BiometricEvaluation::IO::Utility::createTemporaryFile(
     const std::string &prefix,
     const std::string &parentDir)
 {
-	if (parentDir.empty() || parentDir == ".")
-		path = "";
-	else
+	path.clear();
+
+#ifdef _WIN32
+	/* Default argument is "/tmp" but that won't exist on Windows */
+	if (parentDir == "/tmp") {
+		char winDefaultParentDir[MAX_PATH];
+		const auto len = GetTempPath(MAX_PATH, winDefaultParentDir);
+		if ((len > MAX_PATH) || (len == 0))
+			throw BE::Error::StrategyError("Invalid return "
+			    "from GetTempPath (" + BE::Error::errorStr() + 
+			    ')');
+		/* GetTempPath appends trailing slash */
+		path = winDefaultParentDir;
+	} else
+#endif /* _WIN32 */
+	if (!parentDir.empty() && parentDir != ".")
 		path = parentDir + '/';
 	std::string tmpl = "-XXXXXX";
 	if (prefix.empty() )

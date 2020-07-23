@@ -453,6 +453,12 @@ namespace BiometricEvaluation
 			 * Exclusivity is not guaranteed for the path returned,
 			 * since the exclusive descriptor is closed before
 			 * returning.
+			 *
+			 * @note
+			 * The default argument for `parentDir` is "/tmp".
+			 * On Windows, this will be replaced with the
+			 * appropriate Windows temporary directory, but
+			 * Windows does not guarantee write access.
 			 */
 			std::string
 			createTemporaryFile(
@@ -484,6 +490,12 @@ namespace BiometricEvaluation
 			 *
 			 * @note
 			 * Caller must fclose(3) the returned stream.
+			 *
+			 * @note
+			 * The default argument for `parentDir` is "/tmp".
+			 * On Windows, this will be replaced with the
+			 * appropriate Windows temporary directory, but
+			 * Windows does not guarantee write access.
 			 */
 			FILE*
 			createTemporaryFile(
