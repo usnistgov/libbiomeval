@@ -73,7 +73,7 @@ else()
   set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 endif()
 set(CORELIB biomeval)
-set(SHAREDLIB ${CORELIB})
+set(SHAREDLIB ${CORELIB} CACHE INTERNAL "Name of shared library and target")
 
 # NBIS uses "insecure" functions under Windows
 if(MSVC)
@@ -85,7 +85,7 @@ endif(MSVC)
 # shared and static libraries under two different names, but the output
 # filename for the static will be the different than the target name.
 set(STATICLIB ${CORELIB})
-set(STATICLIBTGT ${CORELIB}-static)
+set(STATICLIBTGT ${CORELIB}-static CACHE INTERNAL "Name of static library target")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
