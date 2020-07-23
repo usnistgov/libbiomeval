@@ -37,6 +37,11 @@ namespace BiometricEvaluation
 			static char dir[_MAX_DIR];
 			static char fname[_MAX_FNAME];
 			static char ext[_MAX_EXT];
+
+			/* Clear the buffers we support */
+			std::memset(dir, '\0', _MAX_DIR);
+			std::memset(fname, '\0', _MAX_FNAME);
+
 			const errno_t err = _splitpath_s<_MAX_DRIVE, _MAX_DIR,
 			    _MAX_FNAME, _MAX_EXT>(p, drive, dir, fname, ext);
 			if (err == 0) {
