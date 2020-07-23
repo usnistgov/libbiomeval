@@ -67,8 +67,17 @@ char*
 dirname(
     const char* p)
 {
-	return (BiometricEvaluation::libgen::call_libgen_method(p,
-		BiometricEvaluation::libgen::Method::dirname));
+	/* 
+	 * On Windows, a trailing slash changes dirname. We want to mimic
+	 * Linux, so remove training slashes.
+	 */
+	std::string noSlash{p};
+	while ((noSlash.length() > 1) && 
+	    ((noSlash.back() == '\\') || (noSlash.back() == '/')))
+		noSlash.pop_back();
+
+	return (BiometricEvaluation::libgen::call_libgen_method(
+	    noSlash.c_str(), BiometricEvaluation::libgen::Method::dirname));
 }
 
 struct tm*
