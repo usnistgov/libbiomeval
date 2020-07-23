@@ -8,8 +8,6 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <sys/wait.h>
-
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -26,6 +24,9 @@ using namespace std;
 static int
 testPipe()
 {
+#ifdef _WIN32
+	throw BiometricEvaluation::Error::NotImplemented{};
+#else /* _WIN32 */
 	cout << "Testing pipe functions.\n";
 	std::string msg("Test Message; pay attention!");
 	int msgSize = msg.length();
@@ -83,6 +84,7 @@ testPipe()
 		wait(&status);
 		return (EXIT_SUCCESS);
 	}
+#endif /* _WIN32 */
 }
 
 int
@@ -302,7 +304,16 @@ main(int argc, char* argv[])
 	cout << "Success." << endl;
 	fclose(tempFp);
 	unlink(testTempFile.c_str());
-			
-	return (testPipe());
+
+	try {
+		return (testPipe());
+	} catch (const Error::NotImplemented&) {
+#ifdef _WIN32
+		return (EXIT_SUCCESS);
+#else /* _WIN32 */
+		std::cout << "FAIL: Caught NotImplemented from testPipe\n";
+		return (EXIT_FAILURE);
+#endif
+	}
 }
 

@@ -83,6 +83,8 @@ char* index(const char* s, int c);
 /* 9: No gettimeofday */
 int gettimeofday(struct timeval*, struct timezone*);
 
+/* 10: Skipping for now (sys/wait.h) */
+
 #ifdef __cplusplus
 }
 #endif
@@ -110,6 +112,9 @@ int gettimeofday(struct timeval*, struct timezone*);
 
 /* 9 */
 #include <sys/time.h>
+
+/* 10 */
+#include <sys/wait.h>
 
 #endif /* _WIN32 */
 
