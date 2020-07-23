@@ -20,7 +20,8 @@
 using namespace std;
 using namespace BiometricEvaluation;
 
-void sleepCallback() { std::this_thread::sleep_for(1s); }
+std::chrono::seconds oneSec() { return (std::chrono::seconds(1)); };
+void sleepCallback() { std::this_thread::sleep_for(oneSec()); }
 
 int main(int argc, char *argv[])
 {
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
 		cout << "Time sleep_for(1s)... ";
 		fflush(stdout);
 		atimer->start();
-		std::this_thread::sleep_for(1s);
+		std::this_thread::sleep_for(oneSec());
 		atimer->stop();
 		cout << "passed" << endl;
 		cout << "Time in microseconds for sleep_for(1s): "
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
 	try {
 		cout << "Time sleep_for(1s) in lambda... " << flush;
 		const auto timer = Time::Timer([]{ 
-		    std::this_thread::sleep_for(1s); });
+		    std::this_thread::sleep_for(oneSec()); });
 		cout << "passed" << endl;
 		cout << "Time for sleep_for(1s) in lambda: " << timer << endl;
 	} catch (Error::StrategyError &e) {
