@@ -53,10 +53,27 @@ namespace BiometricEvaluation
 							strncpy(dir, ".", 2);
 						strncpy(fname, dir, 2);
 					}
+
+					/* We do not want trailing slashes */
+					for (int i = strnlen(fname, 
+					    _MAX_FNAME); (i > 0) && 
+					    (i <= _MAX_FNAME); --i)
+						if (fname[i] == '\\' ||
+						    fname[i] == '/')
+							fname[i] = '\0';
+
 					return (fname);
 				case Method::dirname:
 					if (dir[0] == '\0')
 						strncpy(dir, ".", 2);
+
+					/* We do not want trailing slashes */
+					for (int i = strnlen(dir, _MAX_DIR);
+					    (i > 0) && (i <= _MAX_DIR); --i)
+						if (dir[i] == '\\' ||
+						    dir[i] == '/')
+							dir[i] = '\0';
+
 					return (dir);
 				}
 			}
