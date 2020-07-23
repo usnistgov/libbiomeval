@@ -91,10 +91,10 @@ int
 main(int argc, char* argv[])
 {
 	/* readFile */
-	cout << "Read text file: ";
+	cout << "Read file (" << __FILE__ << "): ";
 	Memory::uint8Array textFile;
 	try {
-		textFile = IO::Utility::readFile("test_be_io_utility.cpp");
+		textFile = IO::Utility::readFile(__FILE__);
 		cout << "success" << endl;
 		
 //		/* Print a line of the text file, just for kicks */
