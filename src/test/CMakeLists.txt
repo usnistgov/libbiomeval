@@ -300,13 +300,13 @@ if (NOT MSVC)
 	endif (TARGET vidobjs)
 
 	find_package(Threads REQUIRED)
-	if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.1)
+	if (${CMAKE_VERSION} VERSION_GREATER 3.0.9999)
 		target_link_libraries(test_be_process_semaphore PRIVATE Threads::Threads)
 		target_link_libraries(test_be_process_statistics PRIVATE Threads::Threads)
 		if (TARGET test_be_video)
 			target_link_libraries(test_be_video PRIVATE Threads::Threads)
 		endif (TARGET test_be_video)
-	else (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.1)
+	else (${CMAKE_VERSION} VERSION_GREATER 3.0.9999)
 		if (CMAKE_THREAD_LIBS_INIT)
 			target_link_libraries(test_be_process_semaphore "${CMAKE_THREAD_LIBS_INIT}")
 			target_link_libraries(test_be_process_statistics "${CMAKE_THREAD_LIBS_INIT}")
@@ -314,7 +314,7 @@ if (NOT MSVC)
 				target_link_libraries(test_be_video "${CMAKE_THREAD_LIBS_INIT}")
 			endif (TARGET test_be_video)
 		endif (CMAKE_THREAD_LIBS_INIT)
-	endif (${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.1)
+	endif (${CMAKE_VERSION} VERSION_GREATER 3.0.9999)
 endif (NOT MSVC)
 
 # Some test executables are not yet supported on Windows because we have not
@@ -336,13 +336,13 @@ endif (NOT MSVC)
 # Windows needs to differentiate between static/dynamic and release/debug
 # builds. TODO above notes that static lib is hardcoded for test executables.
 if (MSVC)
-	if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+	if (CMAKE_VERSION VERSION_GREATER 3.14.9999)
 		set_property(GLOBAL PROPERTY
 		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-	else (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+	else (CMAKE_VERSION VERSION_GREATER 3.14.9999)
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-	endif (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+	endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
 endif (MSVC)
 
 #

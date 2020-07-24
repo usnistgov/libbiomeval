@@ -287,7 +287,7 @@ if (BUILD_BIOMEVAL_SHARED)
 	# can't be avoided on Windows if you want to support Release and Debug 
 	# configurations.
 	if (MSVC)
-		if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		if (CMAKE_VERSION VERSION_GREATER 3.14.9999)
 			set_target_properties(${SHAREDLIB} PROPERTIES 
 			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 			set_target_properties(coreobjs PROPERTIES 
@@ -305,7 +305,7 @@ if (BUILD_BIOMEVAL_SHARED)
 				    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 			endif (PCSC_FOUND)
 
-		else (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		elseif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
 			set_target_properties(
 			    ${SHAREDLIB} nbisobjs coreobjs vidobjs deviceobjs
 			    PROPERTIES 
@@ -325,7 +325,7 @@ if (BUILD_BIOMEVAL_SHARED)
 				    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
 				    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 			endif (PCSC_FOUND)
-		endif (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
 	endif(MSVC)
 endif (BUILD_BIOMEVAL_SHARED)
 
@@ -354,7 +354,7 @@ if (BUILD_BIOMEVAL_STATIC)
 		endif(PCSC_FOUND)
 		add_library(${STATICLIBTGT} STATIC ${OBJLIBS_STATIC})
 
-		if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		if (CMAKE_VERSION VERSION_GREATER 3.14.999)
 			set_target_properties(${STATICLIBTGT} PROPERTIES 
 			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 			set_target_properties(coreobjs-static PROPERTIES 
@@ -372,7 +372,7 @@ if (BUILD_BIOMEVAL_STATIC)
 				    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 			endif (PCSC_FOUND)
 
-		else (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		else (CMAKE_VERSION VERSION_GREATER 3.14.999)
 			set_target_properties(
 			    ${STATICLIBTGT} nbisobjs-static coreobjs-static
 			    vidobjs-static deviceobjs-static
@@ -393,7 +393,7 @@ if (BUILD_BIOMEVAL_STATIC)
 				    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd"
 				    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 			endif (PCSC_FOUND)
-		endif (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		endif (CMAKE_VERSION VERSION_GREATER 3.14.999)
 	endif (NOT MSVC)
 
 	set_target_properties(
