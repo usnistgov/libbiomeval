@@ -172,6 +172,10 @@ set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${
 find_package(FFMPEG)
 if(FFMPEG_FOUND)
   add_library(vidobjs OBJECT ${VIDEO})
+  if (MSVC)
+	add_library(vidobjs-static OBJECT ${VIDEO})
+        target_include_directories(vidobjs-static PUBLIC ${BIOMEVAL_INCLUDE})
+  endif (MSVC)
   message(STATUS "Adding VIDEO support.")
 else(FFMPEG_FOUND)
   message(STATUS "Building without VIDEO support.")
@@ -185,6 +189,10 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   if(PCSC_FOUND)
     message(STATUS "Adding PCSC support.")
     add_library(deviceobjs OBJECT ${DEVICE})
+    if (MSVC)
+      add_library(deviceobjs-static OBJECT ${DEVICE})
+      target_include_directories(deviceobjs-static PUBLIC ${BIOMEVAL_INCLUDE})
+    endif (MSVC)
   else(PCSC_FOUND)
     message(STATUS "Building without PCSC support.")
   endif(PCSC_FOUND)
@@ -223,6 +231,10 @@ endif(MPI_CXX_FOUND AND NOT MSVC)
 file(GLOB_RECURSE NBISSOURCE "${PROJECT_SOURCE_DIR}/../../nbis/lib/*.c")
 add_library(nbisobjs OBJECT ${NBISSOURCE})
 target_include_directories(nbisobjs PUBLIC ${NBIS_INCLUDE})
+if (MSVC)
+	add_library(nbisobjs-static OBJECT ${NBISSOURCE})
+	target_include_directories(nbisobjs-static PUBLIC ${NBIS_INCLUDE})
+endif (MSVC)
 
 #
 # Big-Endian check needed for NBIS
@@ -252,7 +264,98 @@ if(PCSC_FOUND)
 endif(PCSC_FOUND)
 
 add_library(${SHAREDLIB} SHARED ${OBJLIBS})
-add_library(${STATICLIBTGT} STATIC ${OBJLIBS})
+if (NOT MSVC)
+	add_library(${STATICLIBTGT} STATIC ${OBJLIBS})
+else (NOT MSVC)
+	# Windows needs to differentiate between static/dynamic and release/
+	# debug builds. We are using object libraries to avoid recompilation of
+	# code for Linux static and shared libraries. This repeat compilation
+	# can't be avoided on Windows if you want to support Release and Debug 
+	# configurations.
+
+	set(CMAKE_DEBUG_POSTFIX "d")
+
+	add_library(coreobjs-static OBJECT ${PACKAGES})
+	target_include_directories(coreobjs-static PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
+
+	set(OBJLIBS_STATIC $<TARGET_OBJECTS:coreobjs-static> $<TARGET_OBJECTS:nbisobjs-static>)
+	if(FFMPEG_FOUND)
+	  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:vidobjs-static>)
+	endif(FFMPEG_FOUND)
+	if(PCSC_FOUND)
+	  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:deviceobjs-static>)
+	endif(PCSC_FOUND)
+	add_library(${STATICLIBTGT} STATIC ${OBJLIBS_STATIC})
+
+	if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		set_target_properties(${SHAREDLIB} PROPERTIES 
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+		set_target_properties(${STATICLIBTGT} PROPERTIES 
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+		set_target_properties(coreobjs PROPERTIES 
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+		set_target_properties(coreobjs-static PROPERTIES 
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+		set_target_properties(nbisobjs PROPERTIES 
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+		set_target_properties(nbisobjs-static PROPERTIES 
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+		if (FFMPEG_FOUND)
+			set_target_properties(vidobjs PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+			set_target_properties(vidobjs-static PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+		endif (FFMPEG_FOUND)
+
+		if (PCSC_FOUND)
+			set_target_properties(deviceobjs PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+			set_target_properties(deviceobjs-static PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+		endif (PCSC_FOUND)
+
+	else (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		set_target_properties(
+		    ${SHAREDLIB} nbisobjs coreobjs vidobjs deviceobjs
+		    PROPERTIES 
+		    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
+		    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+
+		set_target_properties(
+		    ${STATICLIBTGT} nbisobjs-static coreobjs-static
+		    vidobjs-static deviceobjs-static
+		    PROPERTIES
+		    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd"
+		    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+
+		if (FFMPEG_FOUND)
+			set_target_properties(vidobjs
+			    PROPERTIES 
+			    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
+			    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+
+			set_target_properties(vidobjs-static
+			    PROPERTIES
+			    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd"
+			    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+		endif (FFMPEG_FOUND)
+
+		if (PCSC_FOUND)
+			set_target_properties(deviceobjs
+			    PROPERTIES 
+			    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
+			    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+
+			set_target_properties(deviceobjs-static
+			    PROPERTIES
+			    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd"
+			    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+		endif (PCSC_FOUND)
+	endif (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+endif (NOT MSVC)
 
 set_target_properties(
   ${SHAREDLIB}

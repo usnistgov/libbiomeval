@@ -53,17 +53,18 @@ endif()
 # CMake config for the framework library, and hence <project> must match
 # the project name given on that config file.
 #
+# TODO: Do not hardcode linkage against static or shared library. Build both?
 if(libbiomeval_SOURCE_DIR)
   include_directories(${libbiomeval_SOURCE_DIR}/../include)
   if(MSVC)
-    link_libraries(${libbiomeval_BINARY_DIR}/$<CONFIGURATION>/biomeval.lib)
+    link_libraries(${libbiomeval_BINARY_DIR}/$<CONFIGURATION>/biomeval$<$<CONFIG:Debug>:d>.lib)
   else(MSVC)
     link_libraries(-L${libbiomeval_BINARY_DIR} -lbiomeval)
   endif(MSVC)
 else()
   include_directories(${PROJECT_SOURCE_DIR}/../include)
   if(MSVC)
-    link_libraries(${CMAKE_BINARY_DIR}/$<CONFIGURATION>/biomeval.lib)
+    link_libraries(${CMAKE_BINARY_DIR}/$<CONFIGURATION>/biomeval$<$<CONFIG:Debug>:d>.lib)
   else(MSVC)
     link_libraries(-L${CMAKE_BINARY_DIR}/../../lib/ -lbiomeval)
   endif(MSVC)
@@ -325,6 +326,16 @@ if (NOT MSVC)
 	add_executable(test_be_time_watchdog test_be_time_watchdog.cpp)
 	add_dependencies(test_be_time_watchdog ${STATICLIBTGT} ${SHAREDLIB})
 endif (NOT MSVC)
+
+# Windows needs to differentiate between static/dynamic and release/debug
+# builds. TODO above notes that static lib is hardcoded for test executables.
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+	set_property(GLOBAL PROPERTY
+	    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+else (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+endif (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
 
 #
 # Link the test data into the build directory.
