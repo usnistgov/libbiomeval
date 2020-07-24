@@ -53,6 +53,27 @@ else()
   project(biomeval)
   set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 endif()
+
+# Allow disabling the static or shared library. This is primarily useful under 
+# Windows to limit the amount of repeat compilation.
+option(BUILD_BIOMEVAL_SHARED "Build a shared version of libbiomeval" ON)
+if (BUILD_BIOMEVAL_SHARED)
+	message(STATUS "Shared library: ON")
+else (BUILD_BIOMEVAL_SHARED)
+	message(STATUS "Shared library: OFF")
+endif (BUILD_BIOMEVAL_SHARED)
+
+option(BUILD_BIOMEVAL_STATIC "Build a static version of libbiomeval" ON)
+if (BUILD_BIOMEVAL_STATIC)
+	message(STATUS "Static library: ON")
+else (BUILD_BIOMEVAL_STATIC)
+	message(STATUS "Static library: OFF")
+endif (BUILD_BIOMEVAL_STATIC)
+
+if (NOT BUILD_BIOMEVAL_SHARED AND NOT BUILD_BIOMEVAL_STATIC)
+	message(FATAL_ERROR "You must build at least a static or shared library.")
+endif (NOT BUILD_BIOMEVAL_SHARED AND NOT BUILD_BIOMEVAL_STATIC)
+
 #
 # The CMake config files must exist in the directories added to this config:
 #
@@ -68,4 +89,24 @@ else(CMAKE_HOST_APPLE)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=lib")
   endif(NOT MSVC)
 endif(CMAKE_HOST_APPLE)
-add_subdirectory(src/test/ bin)
+
+# Add option to disable building test programs
+# TODO: Test programs are hardcoded to link statically on Windows and shared
+#       elsewhere
+include(CMakeDependentOption)
+if (MSVC)
+	CMAKE_DEPENDENT_OPTION(BUILD_BIOMEVAL_TESTS "Build test executables" ON
+	    "BUILD_BIOMEVAL_STATIC" OFF)
+else (MSVC)
+	CMAKE_DEPENDENT_OPTION(BUILD_BIOMEVAL_TESTS "Build test executables" ON
+	    "BUILD_BIOMEVAL_SHARED" OFF)
+endif (MSVC)
+if (BUILD_BIOMEVAL_TESTS)
+	message(STATUS "Test executables: ON")
+else (BUILD_BIOMEVAL_TESTS)
+	message(STATUS "Test executables: OFF")
+endif (BUILD_BIOMEVAL_TESTS)
+
+if (BUILD_BIOMEVAL_TESTS)
+	add_subdirectory(src/test/ bin)
+endif (BUILD_BIOMEVAL_TESTS)
