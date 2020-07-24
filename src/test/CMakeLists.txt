@@ -335,13 +335,15 @@ endif (NOT MSVC)
 
 # Windows needs to differentiate between static/dynamic and release/debug
 # builds. TODO above notes that static lib is hardcoded for test executables.
-if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
-	set_property(GLOBAL PROPERTY
-	    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-else (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-endif (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+if (MSVC)
+	if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		set_property(GLOBAL PROPERTY
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	else (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+	endif (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
+endif (MSVC)
 
 #
 # Link the test data into the build directory.
