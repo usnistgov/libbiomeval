@@ -88,9 +88,11 @@ BiometricEvaluation::IO::FileRecordStore::Impl::getSpaceUsed()
 
 			if (dir != nullptr) {
 				if (closedir(dir)) {
-					throw Error::StrategyError("Could not close " +
-						this->_theFilesDir + "(" + Error::errorStr() + ") "
-					    "while exiting with error " + errorStr);
+					throw Error::StrategyError("Could not "
+					    "close " + this->_theFilesDir + " "
+					    "(" + Error::errorStr() + ") "
+					    "while exiting with error " +
+					    errorStr);
 				}
 			}
 
@@ -263,8 +265,9 @@ BiometricEvaluation::IO::FileRecordStore::Impl::i_sequence(
 		if (dir != nullptr) {
 			if (closedir(dir)) {
 				throw Error::StrategyError("Could not close " +
-					this->_theFilesDir + "(" + Error::errorStr() + ") "
-					"while exiting with error " + errorStr);
+				    this->_theFilesDir + "(" + 
+				    Error::errorStr() + ") while exiting with "
+				    "error " + errorStr);
 			}
 		}
 
@@ -286,9 +289,11 @@ BiometricEvaluation::IO::FileRecordStore::Impl::i_sequence(
 				Error::errorStr() + ")"};
 			if (dir != nullptr) {
 				if (closedir(dir)) {
-					throw Error::StrategyError("Could not close " +
-						this->_theFilesDir + "(" + Error::errorStr() + ") "
-						"while exiting with error " + errorStr);
+					throw Error::StrategyError("Could not "
+					    "close " + this->_theFilesDir + " "
+					    "(" + Error::errorStr() + ") "
+					    "while exiting with error " +
+					    errorStr);
 				}
 			}
 
@@ -307,8 +312,9 @@ BiometricEvaluation::IO::FileRecordStore::Impl::i_sequence(
 		if (dir != nullptr) {
 			if (closedir(dir)) {
 				throw Error::StrategyError("Could not close " +
-					this->_theFilesDir + "(" + Error::errorStr() + ") "
-					"while exiting with error " + errorStr);
+				    this->_theFilesDir + " (" + 
+				    Error::errorStr() + ") while exiting with "
+				    "error " + errorStr);
 			}
 		}
 
