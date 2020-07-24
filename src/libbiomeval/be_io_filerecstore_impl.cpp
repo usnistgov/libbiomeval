@@ -83,7 +83,7 @@ BiometricEvaluation::IO::FileRecordStore::Impl::getSpaceUsed()
 		cname = entry->d_name;
 		cname = FileRecordStore::Impl::canonicalName(cname);
 		if (stat(cname.c_str(), &sb) != 0) {
-			const auto errorStr{"Cannot stat store file (" +
+			const std::string errorStr{"Cannot stat store file (" +
 				Error::errorStr() + ")"};
 
 			if (dir != nullptr) {
@@ -259,7 +259,7 @@ BiometricEvaluation::IO::FileRecordStore::Impl::i_sequence(
 		_cursorPos = 1;
 
 	if (_cursorPos > getCount()) { /* Client needs to start over */
-		const auto errorStr{"No record at position"};
+		const std::string errorStr{"No record at position"};
 		if (dir != nullptr) {
 			if (closedir(dir)) {
 				throw Error::StrategyError("Could not close " +
@@ -282,7 +282,7 @@ BiometricEvaluation::IO::FileRecordStore::Impl::i_sequence(
 #endif
 		cname = _theFilesDir + "/" + entry->d_name;
 		if (stat(cname.c_str(), &sb) != 0) {
-			const auto errorStr{"Cannot stat store file (" +
+			const std::string errorStr{"Cannot stat store file (" +
 				Error::errorStr() + ")"};
 			if (dir != nullptr) {
 				if (closedir(dir)) {
@@ -302,7 +302,7 @@ BiometricEvaluation::IO::FileRecordStore::Impl::i_sequence(
 	}	
 	/* Sanity check */
 	if (i > _cursorPos) {
-		const auto errorStr{"Record cursor position out of "
+		const std::string errorStr{"Record cursor position out of "
 		    "sync"};
 		if (dir != nullptr) {
 			if (closedir(dir)) {
