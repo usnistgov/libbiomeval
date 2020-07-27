@@ -120,7 +120,7 @@ System Packages
 
 ### IO
 | Name         | RHEL/CentOS  | MacPorts | Ubuntu       | vcpkg  |
-|:------------:|:------------:|:--------:|:-------------|: ---- :|
+|:------------:|:------------:|:--------:|:------------:|: ---- :|
 | Zlib         | `zlib-devel` | `zlib`   | `zlib1g-dev` | `zlib` |
 
 ### MPIBASE, MPIDISTRIBUTOR, MPIRECEIVER
