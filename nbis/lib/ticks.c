@@ -71,7 +71,7 @@ clock_t
 biomeval_nbis_ticks(void)
 {
 #ifdef _WIN32
-    return clock();
+	return clock();
 #else
 	struct tms buff;
 	
@@ -88,7 +88,7 @@ int
 biomeval_nbis_ticksPerSec(void)
 {
 #ifdef _WIN32
-    return (int)CLOCKS_PER_SEC;
+	return (int)CLOCKS_PER_SEC;
 #else
 	return (int)sysconf(_SC_CLK_TCK);
 #endif
