@@ -132,13 +132,22 @@ BiometricEvaluation::Text::digest(
 	
 	/* Determine the digest requested */
 	if (strcasecmp(digest.c_str(), "md5") == 0) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 		digestFunction = CC_MD5;
+#pragma clang diagnostic pop
 		digestLength = CC_MD5_DIGEST_LENGTH;
 	} else if (strcasecmp(digest.c_str(), "md4") == 0) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 		digestFunction = CC_MD4;
+#pragma clang diagnostic pop
 		digestLength = CC_MD4_DIGEST_LENGTH;
 	} else if (strcasecmp(digest.c_str(), "md2") == 0) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 		digestFunction = CC_MD2;
+#pragma clang diagnostic pop
 		digestLength = CC_MD2_DIGEST_LENGTH;
 	} else if (strcasecmp(digest.c_str(), "sha1") == 0) {
 		digestFunction = CC_SHA1;

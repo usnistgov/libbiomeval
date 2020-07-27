@@ -258,20 +258,33 @@ endif(NOT ${BIGEND})
 # files into object-only libraries, then combining the object files together
 # with the BIOMEVAL and NBIS objects.
 #
+set(OBJLIBS "")
+
 if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
 	add_library(coreobjs OBJECT ${PACKAGES})
 
-	set(OBJLIBS $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
+	list(APPEND OBJLIBS $<TARGET_OBJECTS:coreobjs>)
+	list(APPEND OBJLIBS $<TARGET_OBJECTS:nbisobjs>)
 	if(MPI_CXX_FOUND AND NOT MSVC)
-	  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:mpiobjs>)
+	  list(APPEND OBJLIBS $<TARGET_OBJECTS:mpiobjs>)
 	endif(MPI_CXX_FOUND AND NOT MSVC)
 	if(FFMPEG_FOUND)
-	  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:vidobjs>)
+	  list(APPEND OBJLIBS $<TARGET_OBJECTS:vidobjs>)
 	endif(FFMPEG_FOUND)
 	if(PCSC_FOUND)
-	  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:deviceobjs>)
+	  list(APPEND OBJLIBS $<TARGET_OBJECTS:deviceobjs>)
 	endif(PCSC_FOUND)
 endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+
+# "Some native build systems (such as Xcode) may not like targets that have
+#  only object files, so consider adding at least one real source file to any
+#  target that references $<TARGET_OBJECTS:objlib>".
+# https://cmake.org/cmake/help/v3.12/command/add_library.html#object-libraries
+if(CMAKE_GENERATOR STREQUAL Xcode)
+	set(XCODE_GENERATOR_FIX "be_fix_cmake_xcode_generator.cpp")
+	file(WRITE "${XCODE_GENERATOR_FIX}" "")
+	list(APPEND OBJLIBS "${XCODE_GENERATOR_FIX}")
+endif(CMAKE_GENERATOR STREQUAL Xcode)
 
 if (BUILD_BIOMEVAL_SHARED)
 	add_library(${SHAREDLIB} SHARED ${OBJLIBS})
@@ -347,10 +360,10 @@ if (BUILD_BIOMEVAL_STATIC)
 
 		set(OBJLIBS_STATIC $<TARGET_OBJECTS:coreobjs-static> $<TARGET_OBJECTS:nbisobjs-static>)
 		if(FFMPEG_FOUND)
-		  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:vidobjs-static>)
+		  list(APPEND OBJLIBS_STATIC $<TARGET_OBJECTS:vidobjs-static>)
 		endif(FFMPEG_FOUND)
 		if(PCSC_FOUND)
-		  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:deviceobjs-static>)
+		  list(APPEND OBJLIBS_STATIC $<TARGET_OBJECTS:deviceobjs-static>)
 		endif(PCSC_FOUND)
 		add_library(${STATICLIBTGT} STATIC ${OBJLIBS_STATIC})
 
