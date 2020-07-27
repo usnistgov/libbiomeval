@@ -13,8 +13,8 @@
 
 #include <be_memory_autoarray.h>
 #include <be_memory_autoarrayutility.h>
+#include <be_sysdeps.h>
 #include <be_time.h>
-#include <be_windowsfixup.h>
 
 std::string
 BiometricEvaluation::Time::getCurrentTime()

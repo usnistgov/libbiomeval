@@ -64,7 +64,7 @@ of the software.
 #include <fet.h>
 #include <defs.h>
 
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 
 /*******************************************************************/
 int biomeval_nbis_lookupfet(char **ovalue, char *feature, FET *fet)

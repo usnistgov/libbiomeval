@@ -25,9 +25,9 @@
 #ifndef _WIN32
 #include <be_error_signal_manager.h>
 #endif
-#include <be_text.h>
 #include <be_io_utility.h>
-#include <be_windowsfixup.h>
+#include <be_sysdeps.h>
+#include <be_text.h>
 
 namespace BE = BiometricEvaluation;
 

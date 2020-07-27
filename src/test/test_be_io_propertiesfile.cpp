@@ -17,7 +17,7 @@
 #include <be_error_exception.h>
 #include <be_io_propertiesfile.h>
 #include <be_io_utility.h>
-#include <be_windowsfixup.h>
+#include <be_sysdeps.h>
 
 
 using namespace std;

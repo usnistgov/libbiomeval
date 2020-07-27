@@ -75,7 +75,7 @@ of the software.
 #include <math.h>
 #include <intrlv.h>
 
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 
 /*****************************************************************/
 int biomeval_nbis_intrlv2not_mem(unsigned char **oodata, int *oolen, unsigned char *idata,

@@ -70,7 +70,7 @@ of the software.
 #include <defs.h>
 #include <util.h>
 
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 
 /***********************************************************************/
 void biomeval_nbis_updatefet(char *feature, char *value, FET *fet)

@@ -77,7 +77,7 @@ of the software.
 #include <stdio.h>
 #include <errno.h>
 
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 
 #include <an2k.h>
 #include <ioutil.h>

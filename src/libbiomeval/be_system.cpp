@@ -20,7 +20,7 @@
 #endif
 #include <hwloc.h>
 
-#include <be_windowsfixup.h>
+#include <be_sysdeps.h>
 
 uint32_t
 BiometricEvaluation::System::getCPUCount()

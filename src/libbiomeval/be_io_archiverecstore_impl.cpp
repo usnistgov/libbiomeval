@@ -23,8 +23,8 @@
 #include <be_io_utility.h>
 #include <be_io_archiverecstore.h>
 #include <be_memory_autoarray.h>
+#include <be_sysdeps.h>
 #include <be_text.h>
-#include <be_windowsfixup.h>
 
 namespace BE = BiometricEvaluation;
 

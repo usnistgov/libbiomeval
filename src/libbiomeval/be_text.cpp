@@ -24,9 +24,9 @@
 #include <sstream>
 #include <vector>
 
-#include <be_text.h>
 #include <be_memory_autoarray.h>
-#include <be_windowsfixup.h>
+#include <be_sysdeps.h>
+#include <be_text.h>
 
 namespace BE = BiometricEvaluation;
 

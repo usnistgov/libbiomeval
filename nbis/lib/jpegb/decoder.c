@@ -29,7 +29,7 @@
 #include <string.h>
 #include <jpegb.h>
 
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 
 #define CM_PER_INCH 2.54
 

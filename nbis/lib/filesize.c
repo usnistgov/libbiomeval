@@ -60,7 +60,7 @@ of the software.
 
 #include <stdio.h>
 
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 
 /**********************************************************************/
 int biomeval_nbis_filesize(char *ifile)

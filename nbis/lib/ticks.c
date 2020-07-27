@@ -62,7 +62,7 @@ of the software.
 #include <sys/types.h>
 #include <time.h>
 
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 
 /* biomeval_nbis_ticks 13-Nov-90 15:41
  *		Get number of ticks used by process.

@@ -63,7 +63,7 @@ of the software.
 #include <string.h>
 #include <ioutil.h>
 
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 
 #define TRUE 1
 #define FALSE 0

@@ -76,7 +76,7 @@ identified are necessarily the best available for the purpose.
 
 #include <an2k.h>
 
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 
 /***********************************************************************
 ************************************************************************

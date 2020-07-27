@@ -16,7 +16,7 @@
 #include <be_error.h>
 #include <be_error_exception.h>
 #include <be_io_utility.h>
-#include <be_windowsfixup.h>
+#include <be_sysdeps.h>
 
 #include "be_io_filerecstore_impl.h"
 

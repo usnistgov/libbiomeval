@@ -34,7 +34,7 @@
 #define TESTDEFINED
 #endif
 
-#include <be_windowsfixup.h>
+#include <be_sysdeps.h>
 
 #ifdef TESTDEFINED
 using namespace BiometricEvaluation;

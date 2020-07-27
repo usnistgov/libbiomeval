@@ -16,7 +16,7 @@
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
 #include <be_memory_autoarrayutility.h>
-#include <be_windowsfixup.h>
+#include <be_sysdeps.h>
 
 using namespace BiometricEvaluation;
 using namespace std;

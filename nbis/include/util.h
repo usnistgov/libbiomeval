@@ -49,7 +49,7 @@ of the software.
 #ifdef __MSYS__
 #include <sys/time.h>
 #else
-#include <nbis_windows.h>
+#include <nbis_sysdeps.h>
 #endif
 
 #ifndef True

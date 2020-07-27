@@ -10,7 +10,7 @@
 
 #ifdef _WIN32
 
-#include <be_windowsfixup.h>
+#include <be_sysdeps.h>
 
 #include <fcntl.h>
 

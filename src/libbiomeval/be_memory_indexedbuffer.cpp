@@ -12,7 +12,7 @@
 
 #include <be_error_exception.h>
 #include <be_memory_indexedbuffer.h>
-#include <be_windowsfixup.h>
+#include <be_sysdeps.h>
 
 /******************************************************************************/
 /* Method implementations.                                                    */
