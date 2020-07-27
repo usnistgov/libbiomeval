@@ -159,7 +159,7 @@ if(MSVC)
     unset(PROCESS)
     unset(MESSAGE_CENTER)
 
-    list(APPEND CORE "be_windowsfixup.cpp")
+    list(APPEND CORE "be_sysdeps.cpp")
 endif(MSVC)
 
 #
