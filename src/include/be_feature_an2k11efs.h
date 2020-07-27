@@ -217,7 +217,7 @@ namespace BiometricEvaluation
 			/** Manual ridge count */
 			M
 		};
-		using MORC = enum MethodOfRidgeCounting;
+		using MORC = MethodOfRidgeCounting;
 
 		/**
 		 * @brief
@@ -245,7 +245,7 @@ namespace BiometricEvaluation
 			EFTS7,
 			QUADRANT
 		};
-		using MRA = enum MinutiaeRidgeCountAlgorithm;
+		using MRA = MinutiaeRidgeCountAlgorithm;
 
 		/**
 		 * @brief

@@ -27,7 +27,52 @@
 #
 
 cmake_minimum_required(VERSION 2.8.11)
-project(biomeval)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" VERSION_FILE_CONTENTS)
+string(REGEX REPLACE "\n" ";" VERSION_FILE_CONTENTS ${VERSION_FILE_CONTENTS})
+foreach (line ${VERSION_FILE_CONTENTS})
+	string(REGEX MATCH "MAJOR_VERSION=.+" MAJOR_VERSION_FOUND "${line}")
+	if (MAJOR_VERSION_FOUND)
+		string(REPLACE "MAJOR_VERSION=" "" MAJOR_VERSION "${line}")
+	endif (MAJOR_VERSION_FOUND)
+
+	string(REGEX MATCH "MINOR_VERSION=.+" MINOR_VERSION_FOUND "${line}")
+	if (MINOR_VERSION_FOUND)
+		string(REPLACE "MINOR_VERSION=" "" MINOR_VERSION "${line}")
+	endif (MINOR_VERSION_FOUND)
+
+	string(REGEX MATCH "COMPATIBILITY_VERSION=.+" COMPATIBILITY_VERSION_FOUND "${line}")
+	if (COMPATIBILITY_VERSION_FOUND)
+		string(REPLACE "COMPATIBILITY_VERSION=" "" COMPATIBILITY_VERSION "${line}")
+	endif (COMPATIBILITY_VERSION_FOUND)
+endforeach (line ${VERSION_FILE_CONTENTS})
+
+if(${CMAKE_MAJOR_VERSION} VERSION_GREATER 2)
+  cmake_policy(SET CMP0048 NEW)
+  project(biomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+else()
+  project(biomeval)
+  set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+endif()
+
+# Allow disabling the static or shared library. This is primarily useful under 
+# Windows to limit the amount of repeat compilation.
+option(BUILD_BIOMEVAL_SHARED "Build a shared version of libbiomeval" ON)
+if (BUILD_BIOMEVAL_SHARED)
+	message(STATUS "Shared library: ON")
+else (BUILD_BIOMEVAL_SHARED)
+	message(STATUS "Shared library: OFF")
+endif (BUILD_BIOMEVAL_SHARED)
+
+option(BUILD_BIOMEVAL_STATIC "Build a static version of libbiomeval" ON)
+if (BUILD_BIOMEVAL_STATIC)
+	message(STATUS "Static library: ON")
+else (BUILD_BIOMEVAL_STATIC)
+	message(STATUS "Static library: OFF")
+endif (BUILD_BIOMEVAL_STATIC)
+
+if (NOT BUILD_BIOMEVAL_SHARED AND NOT BUILD_BIOMEVAL_STATIC)
+	message(FATAL_ERROR "You must build at least a static or shared library.")
+endif (NOT BUILD_BIOMEVAL_SHARED AND NOT BUILD_BIOMEVAL_STATIC)
 
 #
 # The CMake config files must exist in the directories added to this config:
@@ -40,6 +85,28 @@ add_subdirectory(src/libbiomeval/ lib)
 if(CMAKE_HOST_APPLE)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rpath lib")
 else(CMAKE_HOST_APPLE)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=lib")
+  if(NOT MSVC)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=lib")
+  endif(NOT MSVC)
 endif(CMAKE_HOST_APPLE)
-add_subdirectory(src/test/ bin)
+
+# Add option to disable building test programs
+# TODO: Test programs are hardcoded to link statically on Windows and shared
+#       elsewhere
+include(CMakeDependentOption)
+if (MSVC)
+	CMAKE_DEPENDENT_OPTION(BUILD_BIOMEVAL_TESTS "Build test executables" ON
+	    "BUILD_BIOMEVAL_STATIC" OFF)
+else (MSVC)
+	CMAKE_DEPENDENT_OPTION(BUILD_BIOMEVAL_TESTS "Build test executables" ON
+	    "BUILD_BIOMEVAL_SHARED" OFF)
+endif (MSVC)
+if (BUILD_BIOMEVAL_TESTS)
+	message(STATUS "Test executables: ON")
+else (BUILD_BIOMEVAL_TESTS)
+	message(STATUS "Test executables: OFF")
+endif (BUILD_BIOMEVAL_TESTS)
+
+if (BUILD_BIOMEVAL_TESTS)
+	add_subdirectory(src/test/ bin)
+endif (BUILD_BIOMEVAL_TESTS)

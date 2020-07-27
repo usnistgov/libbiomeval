@@ -8,9 +8,6 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <sys/wait.h>
-#include <unistd.h>
-
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -19,6 +16,7 @@
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
 #include <be_memory_autoarrayutility.h>
+#include <be_sysdeps.h>
 
 using namespace BiometricEvaluation;
 using namespace std;
@@ -26,6 +24,9 @@ using namespace std;
 static int
 testPipe()
 {
+#ifdef _WIN32
+	throw BiometricEvaluation::Error::NotImplemented{};
+#else /* _WIN32 */
 	cout << "Testing pipe functions.\n";
 	std::string msg("Test Message; pay attention!");
 	int msgSize = msg.length();
@@ -83,16 +84,17 @@ testPipe()
 		wait(&status);
 		return (EXIT_SUCCESS);
 	}
+#endif /* _WIN32 */
 }
 
 int
 main(int argc, char* argv[])
 {
 	/* readFile */
-	cout << "Read text file: ";
+	cout << "Read file (" << __FILE__ << "): ";
 	Memory::uint8Array textFile;
 	try {
-		textFile = IO::Utility::readFile("test_be_io_utility.cpp");
+		textFile = IO::Utility::readFile(__FILE__);
 		cout << "success" << endl;
 		
 //		/* Print a line of the text file, just for kicks */
@@ -302,7 +304,16 @@ main(int argc, char* argv[])
 	cout << "Success." << endl;
 	fclose(tempFp);
 	unlink(testTempFile.c_str());
-			
-	return (testPipe());
+
+	try {
+		return (testPipe());
+	} catch (const Error::NotImplemented&) {
+#ifdef _WIN32
+		return (EXIT_SUCCESS);
+#else /* _WIN32 */
+		std::cout << "FAIL: Caught NotImplemented from testPipe\n";
+		return (EXIT_FAILURE);
+#endif
+	}
 }
 

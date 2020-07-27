@@ -27,7 +27,8 @@ BE_Image_CompressionAlgorithm_EnumToStringMap = {
     {BiometricEvaluation::Image::CompressionAlgorithm::JP2L, "JP2L"},
     {BiometricEvaluation::Image::CompressionAlgorithm::NetPBM, "NetPBM"},
     {BiometricEvaluation::Image::CompressionAlgorithm::PNG, "PNG"},
-    {BiometricEvaluation::Image::CompressionAlgorithm::BMP, "BMP"}
+    {BiometricEvaluation::Image::CompressionAlgorithm::BMP, "BMP"},
+    {BiometricEvaluation::Image::CompressionAlgorithm::TIFF, "TIFF"}
 };
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Image::CompressionAlgorithm,

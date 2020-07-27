@@ -38,18 +38,32 @@ cmake_minimum_required(VERSION 2.8.11)
 # Get the major and minor library versions from the VERSION file, with format
 # expected to be MAJOR_VERSION=mm and MINOR_VERSION=nn on separate lines.
 #
-project(libbiomeval)
-execute_process(COMMAND grep MAJOR_VERSION= ${PROJECT_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MAJOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND grep MINOR_VERSION= ${PROJECT_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE MINOR_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(COMMAND grep COMPATIBILITY_VERSION= ${PROJECT_SOURCE_DIR}/../../VERSION COMMAND cut -f2 -d= OUTPUT_VARIABLE COMPATIBILITY_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/../../VERSION" VERSION_FILE_CONTENTS)
+string(REGEX REPLACE "\n" ";" VERSION_FILE_CONTENTS ${VERSION_FILE_CONTENTS})
+foreach (line ${VERSION_FILE_CONTENTS})
+	string(REGEX MATCH "MAJOR_VERSION=.+" MAJOR_VERSION_FOUND "${line}")
+	if (MAJOR_VERSION_FOUND)
+		string(REPLACE "MAJOR_VERSION=" "" MAJOR_VERSION "${line}")
+	endif (MAJOR_VERSION_FOUND)
+
+	string(REGEX MATCH "MINOR_VERSION=.+" MINOR_VERSION_FOUND "${line}")
+	if (MINOR_VERSION_FOUND)
+		string(REPLACE "MINOR_VERSION=" "" MINOR_VERSION "${line}")
+	endif (MINOR_VERSION_FOUND)
+
+	string(REGEX MATCH "COMPATIBILITY_VERSION=.+" COMPATIBILITY_VERSION_FOUND "${line}")
+	if (COMPATIBILITY_VERSION_FOUND)
+		string(REPLACE "COMPATIBILITY_VERSION=" "" COMPATIBILITY_VERSION "${line}")
+	endif (COMPATIBILITY_VERSION_FOUND)
+endforeach (line ${VERSION_FILE_CONTENTS})
 
 #
 # Define common options
 #
 add_definitions(-DMAJOR_VERSION -DMINOR_VERSION)
-set(BIOMEVAL_INCLUDE ${PROJECT_SOURCE_DIR}/../include)
+set(BIOMEVAL_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 file(GLOB BIOMEVAL_HEADERS ${BIOMEVAL_INCLUDE}/*.h)
-set(NBIS_INCLUDE ${PROJECT_SOURCE_DIR}/../../nbis/include)
+set(NBIS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include)
 #
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
   cmake_policy(SET CMP0048 NEW)
@@ -59,17 +73,31 @@ else()
   set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 endif()
 set(CORELIB biomeval)
-set(SHAREDLIB ${CORELIB})
+set(SHAREDLIB ${CORELIB} CACHE INTERNAL "Name of shared library and target")
+
+# NBIS uses "insecure" functions under Windows
+if(MSVC)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS_GLOBALS)
+endif(MSVC)
 
 #
 # The library names. Because a target name cannot be duplicated, build the
 # shared and static libraries under two different names, but the output
 # filename for the static will be the different than the target name.
 set(STATICLIB ${CORELIB})
-set(STATICLIBTGT ${CORELIB}-static)
+set(STATICLIBTGT ${CORELIB}-static CACHE INTERNAL "Name of static library target")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
+if(${CMAKE_MAJOR_VERSION} GREATER 2)
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+else()
+    if(MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
+    endif(MSVC)
+endif()
 
 #
 # Location of CMake modules local to BIOMEVAL
@@ -122,6 +150,19 @@ set(MPIDISTRIBUTOR be_mpi_distributor.cpp be_mpi_recordstoredistributor.cpp be_m
 set(MPIRECEIVER be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocessor.cpp)
 
 #
+# Some files have not been ported to Windows. Sorry about that.
+#
+if(MSVC)
+    list(REMOVE_ITEM CORE "be_error_signal_manager.cpp" "be_framework_api.cpp" "be_time_watchdog.cpp" "be_process_statistics.cpp")
+    list(REMOVE_ITEM IO "be_io_syslogsheet.cpp")
+
+    unset(PROCESS)
+    unset(MESSAGE_CENTER)
+
+    list(APPEND CORE "be_sysdeps.cpp")
+endif(MSVC)
+
+#
 # All the packages for the core library, except:
 #	MPI which is built separately and linked in later, optional.
 #	VIDEO if the required libraries are present.
@@ -130,7 +171,13 @@ set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${
 
 find_package(FFMPEG)
 if(FFMPEG_FOUND)
-  add_library(vidobjs OBJECT ${VIDEO})
+  if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+    add_library(vidobjs OBJECT ${VIDEO})
+  endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+  if (MSVC AND BUILD_BIOMEVAL_STATIC)
+	add_library(vidobjs-static OBJECT ${VIDEO})
+        target_include_directories(vidobjs-static PUBLIC ${BIOMEVAL_INCLUDE})
+  endif (MSVC AND BUILD_BIOMEVAL_STATIC)
   message(STATUS "Adding VIDEO support.")
 else(FFMPEG_FOUND)
   message(STATUS "Building without VIDEO support.")
@@ -143,7 +190,13 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   find_package(PCSC)
   if(PCSC_FOUND)
     message(STATUS "Adding PCSC support.")
-    add_library(deviceobjs OBJECT ${DEVICE})
+    if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+      add_library(deviceobjs OBJECT ${DEVICE})
+    endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+    if (MSVC AND BUILD_BIOMEVAL_STATIC)
+      add_library(deviceobjs-static OBJECT ${DEVICE})
+      target_include_directories(deviceobjs-static PUBLIC ${BIOMEVAL_INCLUDE})
+    endif (MSVC AND BUILD_BIOMEVAL_STATIC)
   else(PCSC_FOUND)
     message(STATUS "Building without PCSC support.")
   endif(PCSC_FOUND)
@@ -156,7 +209,7 @@ endif()
 #
 set(MPISOURCES ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER})
 find_package(MPI)
-if(MPI_CXX_FOUND)
+if(MPI_CXX_FOUND AND NOT MSVC)
   add_library(mpiobjs OBJECT ${MPISOURCES})
   if (${CMAKE_VERSION} VERSION_LESS "3.10")
     set_target_properties(
@@ -172,16 +225,24 @@ if(MPI_CXX_FOUND)
       mpiobjs
       PUBLIC ${MPI_CXX_INCLUDE_DIRS} ${BIOMEVAL_INCLUDE})
   endif(${CMAKE_VERSION} VERSION_LESS "3.10")
-else(MPI_CXX_FOUND)
+else(MPI_CXX_FOUND AND NOT MSVC)
   message(STATUS "Building without MPI support.")
-endif(MPI_CXX_FOUND)
+endif(MPI_CXX_FOUND AND NOT MSVC)
 
 #
 # Build the Framework-local version of NBIS
 #
 file(GLOB_RECURSE NBISSOURCE "${PROJECT_SOURCE_DIR}/../../nbis/lib/*.c")
-add_library(nbisobjs OBJECT ${NBISSOURCE})
-target_include_directories(nbisobjs PUBLIC ${NBIS_INCLUDE})
+if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+	add_library(nbisobjs OBJECT ${NBISSOURCE})
+endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+	target_include_directories(nbisobjs PUBLIC ${NBIS_INCLUDE})
+endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+if (MSVC AND BUILD_BIOMEVAL_STATIC)
+	add_library(nbisobjs-static OBJECT ${NBISSOURCE})
+	target_include_directories(nbisobjs-static PUBLIC ${NBIS_INCLUDE})
+endif (MSVC AND BUILD_BIOMEVAL_STATIC)
 
 #
 # Big-Endian check needed for NBIS
@@ -197,47 +258,169 @@ endif(NOT ${BIGEND})
 # files into object-only libraries, then combining the object files together
 # with the BIOMEVAL and NBIS objects.
 #
-add_library(coreobjs OBJECT ${PACKAGES})
+if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+	add_library(coreobjs OBJECT ${PACKAGES})
 
-set(OBJLIBS $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
-if(MPI_CXX_FOUND)
-  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:mpiobjs>)
-endif(MPI_CXX_FOUND)
-if(FFMPEG_FOUND)
-  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:vidobjs>)
-endif(FFMPEG_FOUND)
-if(PCSC_FOUND)
-  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:deviceobjs>)
-endif(PCSC_FOUND)
+	set(OBJLIBS $<TARGET_OBJECTS:coreobjs> $<TARGET_OBJECTS:nbisobjs>)
+	if(MPI_CXX_FOUND AND NOT MSVC)
+	  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:mpiobjs>)
+	endif(MPI_CXX_FOUND AND NOT MSVC)
+	if(FFMPEG_FOUND)
+	  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:vidobjs>)
+	endif(FFMPEG_FOUND)
+	if(PCSC_FOUND)
+	  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:deviceobjs>)
+	endif(PCSC_FOUND)
+endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
 
-add_library(${SHAREDLIB} SHARED ${OBJLIBS})
-add_library(${STATICLIBTGT} STATIC ${OBJLIBS})
+if (BUILD_BIOMEVAL_SHARED)
+	add_library(${SHAREDLIB} SHARED ${OBJLIBS})
+	set_target_properties(
+	    ${SHAREDLIB}
+	    PROPERTIES VERSION ${PROJECT_VERSION}
+	    SOVERSION ${MAJOR_VERSION}
+	    PUBLIC_HEADER "${BIOMEVAL_HEADERS}")
 
-set_target_properties(
-  ${SHAREDLIB}
-  PROPERTIES VERSION ${PROJECT_VERSION}
-  SOVERSION ${MAJOR_VERSION}
-  PUBLIC_HEADER "${BIOMEVAL_HEADERS}")
-set_target_properties(
-  ${STATICLIBTGT}
-  PROPERTIES ARCHIVE_OUTPUT_NAME ${STATICLIB}
-  PUBLIC_HEADER "${BIOMEVAL_HEADERS}")
+	# Windows needs to differentiate between static/dynamic and release/
+	# debug builds. We are using object libraries to avoid recompilation of
+	# code for Linux static and shared libraries. This repeat compilation
+	# can't be avoided on Windows if you want to support Release and Debug 
+	# configurations.
+	if (MSVC)
+		if (CMAKE_VERSION VERSION_GREATER 3.14.9999)
+			set_target_properties(${SHAREDLIB} PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+			set_target_properties(coreobjs PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+			set_target_properties(nbisobjs PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+
+			if (FFMPEG_FOUND)
+				set_target_properties(vidobjs PROPERTIES 
+				    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+			endif (FFMPEG_FOUND)
+
+			if (PCSC_FOUND)
+				set_target_properties(deviceobjs PROPERTIES 
+				    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+			endif (PCSC_FOUND)
+
+		elseif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
+			set_target_properties(
+			    ${SHAREDLIB} nbisobjs coreobjs vidobjs deviceobjs
+			    PROPERTIES 
+			    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
+			    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+
+			if (FFMPEG_FOUND)
+				set_target_properties(vidobjs
+				    PROPERTIES 
+				    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
+				    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+			endif (FFMPEG_FOUND)
+
+			if (PCSC_FOUND)
+				set_target_properties(deviceobjs
+				    PROPERTIES 
+				    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
+				    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+			endif (PCSC_FOUND)
+		endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
+	endif(MSVC)
+endif (BUILD_BIOMEVAL_SHARED)
+
+if (MSVC)
+	set(CMAKE_DEBUG_POSTFIX "d")
+endif (MSVC)
+
+if (BUILD_BIOMEVAL_STATIC)
+	if (NOT MSVC)
+		add_library(${STATICLIBTGT} STATIC ${OBJLIBS})
+	else (NOT MSVC)
+		# Windows needs to differentiate between static/dynamic and release/
+		# debug builds. We are using object libraries to avoid recompilation of
+		# code for Linux static and shared libraries. This repeat compilation
+		# can't be avoided on Windows if you want to support Release and Debug 
+		# configurations.
+		add_library(coreobjs-static OBJECT ${PACKAGES})
+		target_include_directories(coreobjs-static PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
+
+		set(OBJLIBS_STATIC $<TARGET_OBJECTS:coreobjs-static> $<TARGET_OBJECTS:nbisobjs-static>)
+		if(FFMPEG_FOUND)
+		  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:vidobjs-static>)
+		endif(FFMPEG_FOUND)
+		if(PCSC_FOUND)
+		  set(OBJLIBS ${OBJLIBS} $<TARGET_OBJECTS:deviceobjs-static>)
+		endif(PCSC_FOUND)
+		add_library(${STATICLIBTGT} STATIC ${OBJLIBS_STATIC})
+
+		if (CMAKE_VERSION VERSION_GREATER 3.14.999)
+			set_target_properties(${STATICLIBTGT} PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+			set_target_properties(coreobjs-static PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+			set_target_properties(nbisobjs-static PROPERTIES 
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+			if (FFMPEG_FOUND)
+				set_target_properties(vidobjs-static PROPERTIES 
+				    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+			endif (FFMPEG_FOUND)
+
+			if (PCSC_FOUND)
+				set_target_properties(deviceobjs-static PROPERTIES 
+				    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+			endif (PCSC_FOUND)
+
+		else (CMAKE_VERSION VERSION_GREATER 3.14.999)
+			set_target_properties(
+			    ${STATICLIBTGT} nbisobjs-static coreobjs-static
+			    vidobjs-static deviceobjs-static
+			    PROPERTIES
+			    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd"
+			    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+
+			if (FFMPEG_FOUND)
+				set_target_properties(vidobjs-static
+				    PROPERTIES
+				    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd"
+				    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+			endif (FFMPEG_FOUND)
+
+			if (PCSC_FOUND)
+				set_target_properties(deviceobjs-static
+				    PROPERTIES
+				    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd"
+				    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+			endif (PCSC_FOUND)
+		endif (CMAKE_VERSION VERSION_GREATER 3.14.999)
+	endif (NOT MSVC)
+
+	set_target_properties(
+	    ${STATICLIBTGT}
+	    PROPERTIES ARCHIVE_OUTPUT_NAME ${STATICLIB}
+	    PUBLIC_HEADER "${BIOMEVAL_HEADERS}")
+endif (BUILD_BIOMEVAL_STATIC)
 
 #
 # For OS-X, add paths where the ports packages are placed.
 #
 if(CMAKE_HOST_APPLE)
-  set_target_properties(${SHAREDLIB} PROPERTIES MACOSX_RPATH ON)
   target_include_directories(coreobjs PUBLIC /opt/local/include)
-  target_link_libraries(${SHAREDLIB} -L/opt/local/lib)
-#
-# Apple-provided frameworks
-#
-  target_link_libraries(${SHAREDLIB} "-framework Foundation" "-framework Security" "-framework PCSC")
+  if (BUILD_BIOMEVAL_SHARED)
+	  set_target_properties(${SHAREDLIB} PROPERTIES MACOSX_RPATH ON)
+	  target_link_libraries(${SHAREDLIB} -L/opt/local/lib)
+	  #
+	  # Apple-provided frameworks
+	  #
+	  target_link_libraries(${SHAREDLIB} "-framework Foundation" "-framework Security" "-framework PCSC")
+  endif (BUILD_BIOMEVAL_SHARED)
   add_definitions("-DDarwin")
 endif(CMAKE_HOST_APPLE)
 
-target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
+if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+	target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
+endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
 
 #
 # Add the definition for Linux that is used as a conditional within a
@@ -257,29 +440,35 @@ if(NOT OPENSSL_FOUND)
   message(FATAL_ERROR "Could not find OpenSSL.")
 endif(NOT OPENSSL_FOUND)
 include_directories(PUBLIC ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(${SHAREDLIB} ${OPENSSL_LIBRARIES})
+if (BUILD_BIOMEVAL_SHARED)
+	target_link_libraries(${SHAREDLIB} ${OPENSSL_LIBRARIES})
+endif()
 
 #
 # Berkeley DB
 #
 set(BERKELEYDB_FIND_REQUIRED TRUE)
-find_package(BerkeleyDB)
+find_package(BERKELEYDB)
 if(NOT BERKELEYDB_FOUND)
   message(FATAL_ERROR "Could not find Berkeley Database.")
 endif(NOT BERKELEYDB_FOUND)
 include_directories(PUBLIC ${BERKELEYDB_INCLUDE_DIR})
-target_link_libraries(${SHAREDLIB} ${BERKELEYDB_LIBRARIES})
+if (BUILD_BIOMEVAL_SHARED)
+	target_link_libraries(${SHAREDLIB} ${BERKELEYDB_LIBRARIES})
+endif (BUILD_BIOMEVAL_SHARED)
 
 #
 # OpenJPEG and JPEG2000
 #
 set(OPENJP2_FIND_REQUIRED TRUE)
-find_package(OpenJP2)
+find_package(OPENJP2)
 if(NOT OPENJP2_FOUND)
   message(FATAL_ERROR "Could not find OpenJP2.")
 endif(NOT OPENJP2_FOUND)
 include_directories(PUBLIC ${OPENJP2_INCLUDE_DIR})
-target_link_libraries(${SHAREDLIB} ${OPENJP2_LIBRARIES})
+if (BUILD_BIOMEVAL_SHARED)
+	target_link_libraries(${SHAREDLIB} ${OPENJP2_LIBRARIES})
+endif (BUILD_BIOMEVAL_SHARED)
 
 set(JPEG_FIND_REQUIRED TRUE)
 find_package(JPEG)
@@ -287,26 +476,34 @@ if(NOT JPEG_FOUND)
   message(FATAL_ERROR "Could not find JPEG.")
 endif(NOT JPEG_FOUND)
 include_directories(PUBLIC ${JPEG_INCLUDE_DIR})
-target_link_libraries(${SHAREDLIB} ${JPEG_LIBRARIES})
+if (BUILD_BIOMEVAL_SHARED)
+	target_link_libraries(${SHAREDLIB} ${JPEG_LIBRARIES})
+endif (BUILD_BIOMEVAL_SHARED)
 
 #
 # FFMPEG
 #
 if(FFMPEG_FOUND)
   include_directories(PUBLIC ${FFMPEG_INCLUDE_DIR})
-  target_include_directories(vidobjs PUBLIC ${BIOMEVAL_INCLUDE})
-  target_link_libraries(${SHAREDLIB} ${FFMPEG_LIBRARIES})
+  if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+    target_include_directories(vidobjs PUBLIC ${BIOMEVAL_INCLUDE})
+  endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+  if (BUILD_BIOMEVAL_SHARED)
+    target_link_libraries(${SHAREDLIB} ${FFMPEG_LIBRARIES})
+  endif (BUILD_BIOMEVAL_SHARED)
 endif(FFMPEG_FOUND)
 
 #
 # OpenMPI
 #
-if(MPI_CXX_FOUND)
+if(MPI_CXX_FOUND AND NOT MSVC)
   message(STATUS "Adding MPI support to ${SHAREDLIB}.")
-  target_link_libraries(${SHAREDLIB} ${MPI_CXX_LINK_FLAGS} ${MPI_CXX_LIBRARIES})
-else(MPI_CXX_FOUND)
+  if (BUILD_BIOMEVAL_SHARED)
+    target_link_libraries(${SHAREDLIB} ${MPI_CXX_LINK_FLAGS} ${MPI_CXX_LIBRARIES})
+  endif (BUILD_BIOMEVAL_SHARED)
+else(MPI_CXX_FOUND AND NOT MSVC)
   message(STATUS "Will build ${SHAREDLIB} without MPI support.")
-endif(MPI_CXX_FOUND)
+endif(MPI_CXX_FOUND AND NOT MSVC)
 
 #
 # PCSC
@@ -314,7 +511,9 @@ endif(MPI_CXX_FOUND)
 if(PCSC_FOUND)
    include_directories(PUBLIC ${PCSC_INCLUDE_DIR})
    target_include_directories(deviceobjs PUBLIC ${BIOMEVAL_INCLUDE})
-   target_link_libraries(${SHAREDLIB} ${PCSC_LIBRARIES})
+   if (BUILD_BIOMEVAL_SHARED)
+     target_link_libraries(${SHAREDLIB} ${PCSC_LIBRARIES})
+   endif (BUILD_BIOMEVAL_SHARED)
 endif(PCSC_FOUND)
 
 #
@@ -326,12 +525,30 @@ if(NOT HWLOC_FOUND)
   message(FATAL_ERROR "Could not find hwloc.")
 endif(NOT HWLOC_FOUND)
 include_directories(PUBLIC ${HWLOC_INCLUDE_DIR})
-target_link_libraries(${SHAREDLIB} ${HWLOC_LIBRARIES})
+if (BUILD_BIOMEVAL_SHARED)
+	target_link_libraries(${SHAREDLIB} ${HWLOC_LIBRARIES})
+endif (BUILD_BIOMEVAL_SHARED)
 
 #
 # Other libs not specifically searched for above.
 #
-target_link_libraries(${SHAREDLIB} sqlite3 crypto z png tiff)
+
+# This will use our Module
+find_package(SQLITE3 REQUIRED)
+if (BUILD_BIOMEVAL_SHARED)
+	target_link_libraries(${SHAREDLIB} ${SQLITE3_LIBRARIES})
+endif (BUILD_BIOMEVAL_SHARED)
+
+find_package(TIFF REQUIRED)
+find_package(PNG REQUIRED)
+if (BUILD_BIOMEVAL_SHARED)
+	target_link_libraries(${SHAREDLIB} ${TIFF_LIBRARIES} ${PNG_LIBRARIES})
+endif (BUILD_BIOMEVAL_SHARED)
+
+# Need Winsock on Windows
+if(MSVC AND BUILD_BIOMEVAL_SHARED)
+	target_link_libraries(${SHAREDLIB} Ws2_32)
+endif(MSVC AND BUILD_BIOMEVAL_SHARED)
 
 #
 # Installation.
@@ -340,15 +557,18 @@ target_link_libraries(${SHAREDLIB} sqlite3 crypto z png tiff)
 # If that is not desired, remove the PUBLIC_HEADER clause from both the
 # add_library() and install() commands for one of the libraries.
 #
-install(
-  TARGETS ${STATICLIBTGT}
-  DESTINATION lib
-  PUBLIC_HEADER DESTINATION include)
-install(
-  TARGETS ${SHAREDLIB}
-  LIBRARY DESTINATION lib
-  PUBLIC_HEADER DESTINATION include)
-
+if (BUILD_BIOMEVAL_STATIC)
+	install(
+	  TARGETS ${STATICLIBTGT}
+	  DESTINATION lib
+	  PUBLIC_HEADER DESTINATION include)
+endif (BUILD_BIOMEVAL_STATIC)
+if (BUILD_BIOMEVAL_SHARED)
+	install(
+	  TARGETS ${SHAREDLIB}
+	  LIBRARY DESTINATION lib
+	  PUBLIC_HEADER DESTINATION include)
+endif (BUILD_BIOMEVAL_SHARED)
 #
 # RPM Creation
 #

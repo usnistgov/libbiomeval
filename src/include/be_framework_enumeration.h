@@ -294,7 +294,7 @@ namespace BiometricEvaluation \
 	} \
 }\
 /* This is here to require a semicolon after macro instantation */\
-asm("")
+static_assert(true, "")
 
 
 /**
@@ -429,6 +429,6 @@ BiometricEvaluation::Framework::Enumeration::to_int_type( \
 	    BE_ENUMERATED_TYPE_>::type>(enumVal)); \
 }\
 /* This is here to require a semicolon after macro instantation */\
-asm("")
+static_assert(true, "")
 
 #endif /* BE_FRAMEWORK_ENUMERATION_H_ */

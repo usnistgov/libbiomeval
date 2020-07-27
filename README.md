@@ -17,39 +17,33 @@ The goals of Biometric Evaluation Framework include:
 
 How to Build
 ------------
-If all requirements have been met, building is as simple as:
+Once all requirements have been met, use CMake to build:
 ```bash
-make
+mkdir build
+cd build
+cmake ..
+cmake --build .
 ```
-
-### Build Configuration
-The makefile understands several variables:
-
- * **`CC`**: C compiler;
- * **`CXX`**: C++ compiler;
- * **`MPICXX`**: OpenMPI compiler;
- * **`EXTRA_CXXFLAGS`**: Additional compile-time flags to **`$(CC)`**;
- * **`EXTRA_CXXFLAGS`**: Additional compile-time flags to **`$(CXX)`**;
- * **`EXTRA_LDFLAGS`**: Additional link-time flags to **`$(CXX)`**;
- * **`32`**: Force 32-bit compilation when set to `1`;
- * **`64`**: Force 64-bit compilation when set to `1`.
 
 Requirements
 ------------
  * A C++ 2011 compiler:
 	* `g++` >= 4.7
 	* `clang++` >= 3.1
-	* `icpc` >= 15.0
 
  * A supported operating system:
 	* RHEL/CentOS >= 7.x
 	* macOS >= 10.9
-	* Cygwin 1.7.x
 
  * System packages (depending on desired modules, see below).
 
 Other operating systems and compilers are likely to work as expected, but have
-not been thoroughly tested.
+not been thoroughly tested. The following have been known to work in part at
+some point, but are not officially supported:
+
+ * `icpc` >= 15.0
+ * Cygwin 1.7.x
+ * Windows 10/Microsoft Visual Studio 2019 (x64)
 
 Installing
 ----------
@@ -79,24 +73,30 @@ make install
 
 System Packages
 ---------------
-Some modules require system packages that may not be installed by default on
-all operating systems. Package names are listed below for RHEL/CentOS, macOS
-(via [MacPorts](https://www.macports.org)), and Ubuntu. Other operating systems
-may use similarly-named packages.
+ * Some modules require system packages that may not be installed by default o
+   all operating systems. Package names are listed below for RHEL/CentOS, macOS
+   (via [MacPorts](https://www.macports.org)), Ubuntu, and Windows (via
+   [`vcpkg`](https://github.com/Microsoft/vcpkg)). Other operating systems may
+   use similarly-named packages.
 
-Under CentOS 8, several packages listed below are now part of the "PowerTools"
-repository, which is disabled by default. This repository can be enabled by
-issuing the command:
-```bash
-# Enable PowerTools repository
-sudo yum config-manager --set-enabled PowerTools
-```
+ * Under CentOS 8, several packages listed below are now part of the "PowerTools"
+   repository, which is disabled by default. This repository can be enabled by
+   issuing the command:
+   ```bash
+   # Enable PowerTools repository
+   sudo yum config-manager --set-enabled PowerTools
+   ```
+
+ * When using `vcpkg`, you must provide CMake with the path to your vcpkg
+   toolchain:
+   ```dos
+   cmake .. -DCMAKE_TOOLCHAIN_PATH=%vcpkg_root%\scripts\buildsystems\vcpkg.cmake
+   ```
 
 ### CORE
-| Name         | RHEL/CentOS     | MacPorts                     | Ubuntu       |
-|:------------:|:---------------:|:----------------------------:|:------------:|
-| pkg-config   | `pkgconfig`     | `pkgconfig`                  | `pkg-config` |
-| OpenSSL      | `openssl-devel` | n/a (uses macOS CommonCrypto)| `libssl-dev` |
+| Name         | RHEL/CentOS     | MacPorts                     | Ubuntu       | vcpkg     |
+|:------------:|:---------------:|:----------------------------:|:------------:|:---------:|
+| OpenSSL      | `openssl-devel` | n/a (uses macOS CommonCrypto)| `libssl-dev` | `openssl` |
 
 ### DEVICE
 
@@ -105,13 +105,13 @@ sudo yum config-manager --set-enabled PowerTools
 | PCSC Lite | `pcsc-lite-devel` | n/a (requires [Command Line Tools](https://developer.apple.com/library/archive/technotes/tn2339/_index.html)) | `libpcsclite-dev` |
 
 ### IMAGE
-| Name         | RHEL/CentOS           | MacPorts   | Ubuntu             |
-|:------------:|:---------------------:|:----------:|:------------------:|
-| OpenJPEG 2.x | `openjpeg2-devel`     | `openjpeg` | `libopenjp2-7-dev` |
-| libjpeg      | `libjpeg-turbo-devel` | `jpeg`     | `libjpeg-dev`      |
-| libpng       | `libpng-devel`        | `libpng`   | `libpng-dev`       |
-| libtiff      | `libtiff-devel`       | `tiff`     | `libtiff-dev`      |
-| Zlib         | `zlib-devel`          | `zlib`     | `zlib1g-dev`       |
+| Name         | RHEL/CentOS           | MacPorts   | Ubuntu             | vcpkg          |
+|:------------:|:---------------------:|:----------:|:------------------:|:--------------:|
+| OpenJPEG 2.x | `openjpeg2-devel`     | `openjpeg` | `libopenjp2-7-dev` | `openjpeg`     |
+| libjpeg      | `libjpeg-turbo-devel` | `jpeg`     | `libjpeg-dev`      | `libjpeg-turbo`|
+| libpng       | `libpng-devel`        | `libpng`   | `libpng-dev`       | `libpng`       |
+| libtiff      | `libtiff-devel`       | `tiff`     | `libtiff-dev`      | `tiff`         |
+| Zlib         | `zlib-devel`          | `zlib`     | `zlib1g-dev`       | `zlib`         |
 
 **Note:**
 
@@ -119,14 +119,14 @@ sudo yum config-manager --set-enabled PowerTools
    enabled by installing the package `epel-release`.
 
 ### IO
-| Name         | RHEL/CentOS  | MacPorts | Ubuntu       |
-|:------------:|:------------:|:--------:|:-------------|
-| Zlib         | `zlib-devel` | `zlib`   | `zlib1g-dev` |
+| Name         | RHEL/CentOS  | MacPorts | Ubuntu       | vcpkg  |
+|:------------:|:------------:|:--------:|:-------------|: ---- :|
+| Zlib         | `zlib-devel` | `zlib`   | `zlib1g-dev` | `zlib` |
 
 ### MPIBASE, MPIDISTRIBUTOR, MPIRECEIVER
-| Name         | RHEL/CentOS     | MacPorts  | Ubuntu           |
-|:------------:|:---------------:|:---------:|:----------------:|
-| Open MPI     | `openmpi-devel` | `openmpi` | `libopenmpi-dev` |
+| Name         | RHEL/CentOS     | MacPorts  | Ubuntu           | vcpkg   |
+|:------------:|:---------------:|:---------:|:----------------:|:-------:|
+| Open MPI     | `openmpi-devel` | `openmpi` | `libopenmpi-dev` | `msmpi` |
 
 **Note:**
 
@@ -145,22 +145,25 @@ sudo yum config-manager --set-enabled PowerTools
    sudo port select mpi openmpi-mp-fortran
    ```
 
+ * With `msmpi` and vcpkg, you must first install the
+  [Microsoft MPI redistributable package](https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi).
+
 ### RECORDSTORE
-| Name         | RHEL/CentOS    | MacPorts  | Ubuntu           |
-|:------------:|:--------------:|:---------:|:----------------:|
-| Berkeley DB  | `libdb-cxx-devel` | `db62`    | `libdb++-dev`      |
-| SQLite 3     | `sqlite-devel` | `sqlite3` | `libsqlite3-dev` |
-| Zlib         | `zlib-devel`   | `zlib`    | `zlib1g-dev`     |
+| Name         | RHEL/CentOS        | MacPorts  | Ubuntu           | vcpkg        |
+|:------------:|:------------------:|:---------:|:----------------:|:------------:|
+| Berkeley DB  | `libdb-cxx-devel`  | `db62`    | `libdb++-dev`    | `berkeleydb` |
+| SQLite 3     | `sqlite-devel`     | `sqlite3` | `libsqlite3-dev` | `sqlite3`    |
+| Zlib         | `zlib-devel`       | `zlib`    | `zlib1g-dev`     | `zlib`       |
 
 ### SYSTEM
-| Name                       | RHEL/CentOS   | MacPorts | Ubuntu         |
-|:--------------------------:|:-------------:|:--------:|:--------------:|
-| Portable Hardware Locality | `hwloc-devel` | `hwloc`  | `libhwloc-dev` |
+| Name                       | RHEL/CentOS   | MacPorts | Ubuntu         | vcpkg   |
+|:--------------------------:|:-------------:|:--------:|:--------------:|:-------:|
+| Portable Hardware Locality | `hwloc-devel` | `hwloc`  | `libhwloc-dev` | `hwloc` |
 
 ### VIDEO
-| Name                        | RHEL/CentOS | MacPorts       | Ubuntu          |
-|:---------------------------:|:-----------:|:--------------:|:---------------:|
-| [ffmpeg](http://ffmpeg.org) | Build from source, and install to `/usr/local` | `ffmpeg-devel` | `libavcodec-dev`, `libavformat-dev`, `libswscale-dev` |
+| Name                        | RHEL/CentOS | MacPorts       | Ubuntu          | vcpkg |
+|:---------------------------:|:-----------:|:--------------:|:---------------:|:------|
+| [ffmpeg](http://ffmpeg.org) | Build from source, and install to `/usr/local` | `ffmpeg-devel` | `libavcodec-dev`, `libavformat-dev`, `libswscale-dev` | `ffmpeg` |
 
 
 #### NIST Biometric Image Software (NBIS)

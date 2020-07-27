@@ -9,7 +9,6 @@
  ******************************************************************************/
 
 #include <sys/stat.h>
-#include <dirent.h>
 
 #include <cstdio>
 #include <iostream>
@@ -17,6 +16,7 @@
 #include <be_error.h>
 #include <be_error_exception.h>
 #include <be_io_utility.h>
+#include <be_sysdeps.h>
 
 #include "be_io_filerecstore_impl.h"
 
@@ -34,7 +34,6 @@ BiometricEvaluation::IO::FileRecordStore::Impl::Impl(
 	if (mkdir(_theFilesDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
 		throw Error::StrategyError("Could not create file area "
 		    "directory (" + Error::errorStr() + ")");
-	return;
 }
 
 BiometricEvaluation::IO::FileRecordStore::Impl::Impl(
@@ -44,8 +43,6 @@ BiometricEvaluation::IO::FileRecordStore::Impl::Impl(
 {
 	_cursorPos = 1;
 	_theFilesDir = RecordStore::Impl::canonicalName(_fileArea);
-	if (mkdir(_theFilesDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0)
-	return;
 }
 
 BiometricEvaluation::IO::FileRecordStore::Impl::~Impl()
@@ -79,16 +76,31 @@ BiometricEvaluation::IO::FileRecordStore::Impl::getSpaceUsed()
 	struct stat sb;
 	std::string cname;
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		cname = entry->d_name;
 		cname = FileRecordStore::Impl::canonicalName(cname);
-		if (stat(cname.c_str(), &sb) != 0)	
-			throw Error::StrategyError("Cannot stat store file (" +
-			    Error::errorStr() + ")");
+		if (stat(cname.c_str(), &sb) != 0) {
+			const std::string errorStr{"Cannot stat store file (" +
+				Error::errorStr() + ")"};
+
+			if (dir != nullptr) {
+				if (closedir(dir)) {
+					throw Error::StrategyError("Could not "
+					    "close " + this->_theFilesDir + " "
+					    "(" + Error::errorStr() + ") "
+					    "while exiting with error " +
+					    errorStr);
+				}
+			}
+
+			throw Error::StrategyError{errorStr};
+		}
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
-		total += sb.st_blocks * S_BLKSIZE;
+		total += sb.st_size;
 	}	
 
 	if (dir != nullptr) {
@@ -248,20 +260,45 @@ BiometricEvaluation::IO::FileRecordStore::Impl::i_sequence(
 	    (cursor == BE_RECSTORE_SEQ_START))
 		_cursorPos = 1;
 
-	if (_cursorPos > getCount())	/* Client needs to start over */
-		throw Error::ObjectDoesNotExist("No record at position");
+	if (_cursorPos > getCount()) { /* Client needs to start over */
+		const std::string errorStr{"No record at position"};
+		if (dir != nullptr) {
+			if (closedir(dir)) {
+				throw Error::StrategyError("Could not close " +
+				    this->_theFilesDir + "(" + 
+				    Error::errorStr() + ") while exiting with "
+				    "error " + errorStr);
+			}
+		}
+
+		throw Error::ObjectDoesNotExist(errorStr);
+	}
 
 	struct dirent *entry;
 	struct stat sb;
 	uint64_t i = 1;
 	std::string cname;
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		cname = _theFilesDir + "/" + entry->d_name;
-		if (stat(cname.c_str(), &sb) != 0)	
-			throw Error::StrategyError("Cannot stat store file (" +
-			    Error::errorStr() + ")");
+		if (stat(cname.c_str(), &sb) != 0) {
+			const std::string errorStr{"Cannot stat store file (" +
+				Error::errorStr() + ")"};
+			if (dir != nullptr) {
+				if (closedir(dir)) {
+					throw Error::StrategyError("Could not "
+					    "close " + this->_theFilesDir + " "
+					    "(" + Error::errorStr() + ") "
+					    "while exiting with error " +
+					    errorStr);
+				}
+			}
+
+			throw BE::Error::StrategyError{errorStr};
+		}
 		if ((S_IFMT & sb.st_mode) == S_IFDIR)	/* skip '.' and '..' */
 			continue;
 		if (i == _cursorPos)
@@ -269,9 +306,20 @@ BiometricEvaluation::IO::FileRecordStore::Impl::i_sequence(
 		i++;
 	}	
 	/* Sanity check */
-	if (i > _cursorPos)
-		throw Error::StrategyError("Record cursor position out of "
-		    "sync");
+	if (i > _cursorPos) {
+		const std::string errorStr{"Record cursor position out of "
+		    "sync"};
+		if (dir != nullptr) {
+			if (closedir(dir)) {
+				throw Error::StrategyError("Could not close " +
+				    this->_theFilesDir + " (" + 
+				    Error::errorStr() + ") while exiting with "
+				    "error " + errorStr);
+			}
+		}
+
+		throw Error::StrategyError{errorStr};
+	}
 
 	BE::IO::RecordStore::Record record;
 	record.key = entry->d_name;
@@ -323,8 +371,10 @@ BiometricEvaluation::IO::FileRecordStore::Impl::setCursorAtKey(
 	int i = 1;
 	std::string cname;
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		cname = _theFilesDir + "/" + entry->d_name;
 		if (stat(cname.c_str(), &sb) != 0)	
 			throw Error::StrategyError("Cannot stat store file (" +

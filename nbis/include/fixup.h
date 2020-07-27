@@ -44,7 +44,7 @@ of the software.
 #ifndef _FIXUP_H
 #define _FIXUP_H
 
-#ifdef __MSYS__
+#if defined(__MSYS__) || defined(_WIN32)
   #include <windows.h>
   #define sleep(seconds) Sleep((seconds)*1000)
 #endif

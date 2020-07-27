@@ -9,10 +9,8 @@
  */
 
 #include "be_io_archiverecstore_impl.h"
-#include <sys/param.h>
 #include <sys/stat.h>
 
-#include <unistd.h>
 
 #include <algorithm>
 #include <cerrno>
@@ -25,6 +23,7 @@
 #include <be_io_utility.h>
 #include <be_io_archiverecstore.h>
 #include <be_memory_autoarray.h>
+#include <be_sysdeps.h>
 #include <be_text.h>
 
 namespace BE = BiometricEvaluation;
@@ -162,20 +161,24 @@ uint64_t
 BiometricEvaluation::IO::ArchiveRecordStore::Impl::getSpaceUsed()
     const
 {
-	struct stat sb;
 	uint64_t total;
 
 	total = RecordStore::Impl::getSpaceUsed();
 	sync();
-	if (stat(canonicalName(MANIFEST_FILE_NAME).c_str(), &sb) != 0)
-		throw Error::StrategyError("Could not find manifest file");
-	total += sb.st_blocks * S_BLKSIZE;
 
-	if (stat(canonicalName(ARCHIVE_FILE_NAME).c_str(), &sb) != 0)
+	try {
+		total += BE::IO::Utility::getFileSize(canonicalName(MANIFEST_FILE_NAME));
+	} catch (const BE::Error::Exception& e) {
+		throw Error::StrategyError("Could not get size of manifest file: " + e.whatString());
+	}
+
+	try {
+		total += BE::IO::Utility::getFileSize(canonicalName(ARCHIVE_FILE_NAME));
+	}catch (const BE::Error::Exception& e) {
 		throw Error::StrategyError("Could not find archive file");
-	total += sb.st_blocks * S_BLKSIZE;
+	}
+
 	return (total);
-	
 }
 
 void
@@ -578,9 +581,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::move(
 {
 	if (this->getMode() == Mode::ReadOnly)
 		throw Error::StrategyError("RecordStore was opened read-only");
-
-	RecordStore::Impl::move(pathname);
+	
 	this->close_streams();
+	RecordStore::Impl::move(pathname);
 }
 
 bool

@@ -11,9 +11,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <dirent.h>
-#include <unistd.h>
-
 #include <cerrno>
 #include <cstdint>
 #include <cstdio>
@@ -25,9 +22,12 @@
 #include <sstream>
 
 #include <be_error.h>
+#ifndef _WIN32
 #include <be_error_signal_manager.h>
-#include <be_text.h>
+#endif
 #include <be_io_utility.h>
+#include <be_sysdeps.h>
+#include <be_text.h>
 
 namespace BE = BiometricEvaluation;
 
@@ -85,8 +85,10 @@ BiometricEvaluation::IO::Utility::copyDirectoryContents(
 		throw Error::StrategyError(sourcepath + " could not be opened");
 
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		if ((strcmp(entry->d_name, ".") == 0) ||
 		    (strcmp(entry->d_name, "..") == 0))
 			continue;
@@ -132,8 +134,10 @@ BiometricEvaluation::IO::Utility::removeDirectory(
 		throw Error::StrategyError(dirpath + " could not be opened");
 	
 	while ((entry = readdir(dir)) != nullptr) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		if ((strcmp(entry->d_name, ".") == 0) ||
 		    (strcmp(entry->d_name, "..") == 0))
 			continue;
@@ -264,8 +268,10 @@ BiometricEvaluation::IO::Utility::sumDirectoryUsage(const std::string &pathname)
 		    + Error::errorStr() + ")");
 	
 	while ((entry = readdir(dir)) != NULL) {
+#ifndef _WIN32
 		if (entry->d_ino == 0)
 			continue;
+#endif
 		if ((strcmp(entry->d_name, ".") == 0) ||
 		    (strcmp(entry->d_name, "..") == 0))
 			continue;
@@ -394,6 +400,9 @@ BiometricEvaluation::IO::Utility::readPipe(
     size_t size,
     int pipeFD)
 {
+#ifdef _WIN32
+	throw BE::Error::NotImplemented("IO::Utility::readPipe()");
+#else
 	size_t remaining = size;
 	uint8_t *ptr = (uint8_t *)data;;
 	while (true) {
@@ -415,6 +424,7 @@ BiometricEvaluation::IO::Utility::readPipe(
 			throw Error::ObjectDoesNotExist("Widowed pipe");
 		}
 	}
+#endif
 }
 
 void
@@ -431,6 +441,9 @@ BiometricEvaluation::IO::Utility::writePipe(
     size_t size,
     int pipeFD)
 {	
+#ifdef _WIN32
+	throw BE::Error::NotImplemented("IO::Utility::writePipe()");
+#else
 	sigset_t sigset;
 	sigemptyset(&sigset);
 	sigaddset(&sigset, SIGPIPE);
@@ -459,6 +472,7 @@ BiometricEvaluation::IO::Utility::writePipe(
 			break;
 		}
 	}
+#endif
 }
 
 void
@@ -501,9 +515,22 @@ BiometricEvaluation::IO::Utility::createTemporaryFile(
     const std::string &prefix,
     const std::string &parentDir)
 {
-	if (parentDir.empty() || parentDir == ".")
-		path = "";
-	else
+	path.clear();
+
+#ifdef _WIN32
+	/* Default argument is "/tmp" but that won't exist on Windows */
+	if (parentDir == "/tmp") {
+		char winDefaultParentDir[MAX_PATH];
+		const auto len = GetTempPath(MAX_PATH, winDefaultParentDir);
+		if ((len > MAX_PATH) || (len == 0))
+			throw BE::Error::StrategyError("Invalid return "
+			    "from GetTempPath (" + BE::Error::errorStr() + 
+			    ')');
+		/* GetTempPath appends trailing slash */
+		path = winDefaultParentDir;
+	} else
+#endif /* _WIN32 */
+	if (!parentDir.empty() && parentDir != ".")
 		path = parentDir + '/';
 	std::string tmpl = "-XXXXXX";
 	if (prefix.empty() )

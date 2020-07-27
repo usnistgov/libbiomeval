@@ -8,11 +8,6 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <libgen.h>	/*  for basename(3) and dirname(3) */
-#ifdef basename		/* GNU has this macro irresponsibly defined */
-#undef basename
-#endif
-
 #ifdef Darwin
 #include <CommonCrypto/CommonDigest.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -29,8 +24,9 @@
 #include <sstream>
 #include <vector>
 
-#include <be_text.h>
 #include <be_memory_autoarray.h>
+#include <be_sysdeps.h>
+#include <be_text.h>
 
 namespace BE = BiometricEvaluation;
 

@@ -91,13 +91,14 @@ BiometricEvaluation::IO::CompressedRecordStore::Impl::Impl(
 	std::string compressorType = props->getProperty(COMPRESSOR_TYPE_KEY);
 	
 	/* Parse compressor type */
-	/* TODO: Need string -> enum */
-	if (strncasecmp(compressorType.c_str(), "GZIP", 4) == 0)
+	try {
 		this->_compressor =
-		    IO::Compressor::createCompressor(Compressor::Kind::GZIP);
-	else
+			IO::Compressor::createCompressor(to_enum<Compressor::Kind>(
+			compressorType));
+	} catch (const BE::Error::Exception& e) {
 		throw Error::StrategyError(compressorType + " is not a valid "
-		    "compressor type");
+		    "compressor type: " + e.whatString());
+	}
 }
 
 BiometricEvaluation::IO::CompressedRecordStore::Impl::~Impl()

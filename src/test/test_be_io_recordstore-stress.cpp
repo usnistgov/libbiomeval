@@ -8,8 +8,6 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#include <sys/time.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -35,6 +33,8 @@
 #include <be_io_sqliterecstore.h>
 #define TESTDEFINED
 #endif
+
+#include <be_sysdeps.h>
 
 #ifdef TESTDEFINED
 using namespace BiometricEvaluation;

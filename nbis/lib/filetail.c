@@ -60,7 +60,8 @@ of the software.
 ***********************************************************************/
 
 #include <string.h>
-#include <sys/param.h>
+
+#include <nbis_sysdeps.h>
 
 /*************************************************************/
 /* Filetail() is a destructive procedure which takes a path  */
