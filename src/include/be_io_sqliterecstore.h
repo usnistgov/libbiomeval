@@ -19,7 +19,7 @@ namespace BiometricEvaluation
 	{
 		/**
 		 * @brief
-		 * A RecordStore implementation using a SQLite database
+		 * An IO::RecordStore implementation using a SQLite database
 		 * as the underlying record storage system.
 		 */
 		class SQLiteRecordStore : public RecordStore

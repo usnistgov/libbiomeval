@@ -21,7 +21,7 @@ namespace BiometricEvaluation
 	{
 		/**
 		 * @brief
-		 * Sibling-implemented RecordStore with Compression.
+		 * Sibling-implemented IO::RecordStore with Compression.
 		 */
 		class CompressedRecordStore : public RecordStore
 		{

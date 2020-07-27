@@ -25,7 +25,7 @@ namespace BiometricEvaluation
 	{
 		/**
 		 * @brief
-		 * Compressor for gzip compression from zlib.
+		 * An IO::Compressor for gzip compression from zlib.
 		 */
 		class GZip : public Compressor
 		{

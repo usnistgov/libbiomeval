@@ -46,8 +46,8 @@ testMemorySizes(Process::Statistics &stats)
 			ptr[i] = (char *)malloc(1024*1024);
 			for (int j = 0; j < 1024*1024; j++)
 				*ptr[i] = j;
-			stats.getMemorySizes(&vmrss, &vmsize, &vmpeak,
-			    &vmdata, &vmstack);
+			std::tie(vmrss, vmsize, vmpeak, vmdata, vmstack) =
+			    stats.getMemorySizes();
 			cout << "\tRSS: " << vmrss;
 			cout << " : Size: " << vmsize;
 			cout << " : Peak: " << vmpeak;
@@ -73,19 +73,19 @@ main(int argc, char *argv[])
 	 *
 	 */
 	cout << "Creating Statistics object: ";
-	Process::Statistics stats;
+	Process::Statistics stats{};
 	cout << "success.\n";
 
 	uint64_t userstart, userend;
 	uint64_t systemstart, systemend;
 	int64_t diff;
 	try {
-		stats.getCPUTimes(&userstart, &systemstart);
+		std::tie(userstart, systemstart) = stats.getCPUTimes();
 		cout << "Total User time at start: " << userstart << " : ";
 
 		LONGDELAY;
 
-		stats.getCPUTimes(&userend, nullptr);
+		std::tie(userend, std::ignore) = stats.getCPUTimes();
 		cout << "At end: " << userend << ": ";
 		diff = userend - userstart;
 		if (diff > 0) {
@@ -150,20 +150,22 @@ main(int argc, char *argv[])
 	/*
 	 * System time, after some activity.
 	 */
-	stats.getCPUTimes(nullptr, &systemend);
+	std::tie(std::ignore, systemend) = stats.getCPUTimes();
 	cout << "Total System time at start: " << systemstart << " : ";
 	cout << "At end: " << systemend << ": " << endl;
 
 	cout << "Creating LogCabinet for Statistics object." << flush << endl;
-	IO::FileLogCabinet lc("statLogCabinet", "Cabinet for Statistics");
+	std::shared_ptr<IO::FileLogCabinet> lc;
+	lc.reset(new IO::FileLogCabinet(
+	    "statLogCabinet", "Cabinet for Statistics"));
 
 	/*
 	 * The logging tests need to be done last.
 	 */
 	cout << "Creating Statistics object with logging: " << flush;
-	Process::Statistics *logstats;
+	std::unique_ptr<Process::Statistics> logstats;
 	try {
-		logstats = new Process::Statistics(&lc);
+		logstats.reset(new Process::Statistics(lc));
 	} catch (Error::NotImplemented &e) {
 		cout << "Caught " << e.what() << "; OK." << endl;
 		return (EXIT_SUCCESS);
@@ -180,11 +182,9 @@ main(int argc, char *argv[])
 		}
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
-		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
-		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::NotImplemented &e) {
 		cout << "Caught " << e.what() << "; OK." << endl;
@@ -197,15 +197,12 @@ main(int argc, char *argv[])
 		sleep(6);
 	} catch (Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
-		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
-		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::ObjectExists &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
-		delete logstats;
 		return (EXIT_FAILURE);
 	} catch (Error::NotImplemented &e) {
 		cout << "Caught " << e.what() << "; OK." << endl;
@@ -260,6 +257,5 @@ main(int argc, char *argv[])
 	}
 	cout << "There should be over 1000 entries in the log." << endl;
 
-	delete logstats;
 	return (EXIT_SUCCESS);
 }

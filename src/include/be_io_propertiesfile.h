@@ -24,7 +24,7 @@ namespace BiometricEvaluation
 	{
 		/**
 		 * @brief
-		 * A Properties object persisted in an file on disk.
+		 * An IO::Properties object persisted in a file on disk.
 		 * @details
 		 * An example file might look like this:
 		 * \verbatim

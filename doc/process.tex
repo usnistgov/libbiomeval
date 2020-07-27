@@ -28,20 +28,35 @@ using namespace BiometricEvaluation;
 
 int main(int argc, char *argv[])
 {
-    Process::Statistics stats;
+    Process::Statistics stats{};
+    cout << "success.\n";
+
     uint64_t userstart, userend;
-    uint64_t systemstart, systemend;
-    uint64_t diff;
+    int64_t diff;
     try {
-	stats.getCPUTimes(&userstart, &systemstart);
+        /*
+         * Obtain the user time needed to run some code ...
+         */
+        std::tie(userstart, std::ignore) = stats.getCPUTimes();
+        cout << "Total User time at start: " << userstart << " : ";
 
-	// Do some long processing....
+        // Do some long processing....
 
-	stats.getCPUTimes(&userend, &systemend);
-	diff = userend - userstart;
+        std::tie(userend, std::ignore) = stats.getCPUTimes();
+        cout << "At end: " << userend << ": ";
+        diff = userend - userstart;
 	cout << "User time elapsed is " << diff << endl;
-	diff = systemend - systemstart;
-	cout << "System time elapsed is " << diff << endl;
+
+        /*
+         * Obtain the memory usage of the current process ...
+         */
+        uint64_t vmrss, vmsize, vmpeak, vmdata, vmstack;
+        std::tie(vmrss, vmsize, vmpeak, vmdata, vmstack) = stats.getMemorySizes();
+        cout << "\tRSS: " << vmrss;
+        cout << " : Size: " << vmsize;
+        cout << " : Peak: " << vmpeak;
+        cout << " : Data: " << vmdata;
+        cout << " : Stack: " << vmstack << endl;
     } catch (Error::Exception) {
 	cout << "Caught " << e.getInfo() << endl;
     }
@@ -82,11 +97,12 @@ using namespace BiometricEvaluation;
 
 int main(int argc, char *argv[])
 {
-    IO::LogCabinet lc("statLogCabinet", "Cabinet for Statistics", "");
+    std::shared_ptr<IO::FileLogCabinet> lc;
+    lc.reset(new IO::FileLogCabinet("statLogCabinet", "Cabinet for Stats"));
+    std::unique_ptr<Process::Statistics> logstats;
 
-    Process::Statistics *logstats;
     try {
-	logstats = new Process::Statistics(&lc);
+	logstats.reset(new Process::Statistics(lc));
     } catch (Error::Exception &e) {
 	cout << "Caught " << e.getInfo() << endl;
 	return (EXIT_FAILURE);
@@ -99,7 +115,6 @@ int main(int argc, char *argv[])
 	}
     } catch (Error::Exception &e) {
 	cout << "Caught " << e.getInfo() << endl;
-	delete logstats;
 	return (EXIT_FAILURE);
     }
 
@@ -108,7 +123,6 @@ int main(int argc, char *argv[])
 	logstats->startAutoLogging(1);
     } catch (Error::ObjectExists &e) {
 	cout << "Caught " << e.getInfo() << endl;
-	delete logstats;
 	return (EXIT_FAILURE);
     }
 
@@ -116,7 +130,6 @@ int main(int argc, char *argv[])
 
     // Stop logging
     logstats->stopAutoLogging();
-    delete logstats;
 }
 \end{lstlisting}
 

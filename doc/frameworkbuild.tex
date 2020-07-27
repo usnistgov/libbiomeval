@@ -10,8 +10,8 @@ It is not possible to subset \sname to use an earlier version of C++.
 
 Two implementations of C++11 known to compile \sname are:
 \begin{itemize}
-\item GNU Compiler Collection version 4.8.2 on Linux.
-\item Apple LLVM version 6.0 (clang-600.0.56) on OS-X.
+\item GNU Compiler Collection version 4.8.5 on Linux.
+\item Apple LLVM version 11.0.3 (clang-1103.0.32.59) on MacOS.
 \end{itemize}
 
 \section{The Framework Build System}
@@ -36,7 +36,12 @@ to the desired build of \sname.
 
 Building the \sname using CMake~\cite{org:cmake} is possible, and provides
 a simpler cross-platform build system. In the {\tt common/src/libbiomeval}
-directory is a {\tt CMakeLists.txt} file that controls the build. 
+directory is a {\tt CMakeLists.txt} file that controls the build. Advantages
+of using the CMake build system include auto-discovery of required software
+dependencies and compilation of the test programs. Also, some dependencies
+are optional, and when not found, the library will be built without some
+functionality. For example, video support and MPI parallel job support are
+optional under the CMake build.
 
 To build static and shared library versions of libbiomeval, including the
 subset of NBIS included with the Framework, the steps are:
@@ -142,7 +147,7 @@ an example of the runtime package is \texttt{openmpi-1.6.4-3}, while
 the related development package would be \texttt{openmpi-devel-1.6.4-3}.
 
 The location of the OpenMPI libraries may be installed in a specific location.
-For example, on the CnetOS-7 Linux distribution, the MPI libraries are installed
+For example, on the CentOS-7 Linux distribution, the MPI libraries are installed
 on {\tt /usr/lib64/openmpi/lib/}, but the dynamic linker configuration will
 not locate those libraries, and linking of an application against the \sname
 library will fail. To fix this problem create
