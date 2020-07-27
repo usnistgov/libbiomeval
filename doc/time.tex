@@ -14,7 +14,7 @@ a block of code takes to execute. On many systems (e.g. Linux) the timer
 resolution is in microseconds.
 
 \lstref{lst:timeruse} shows how an application can use a \class{Timer}
-object to limit obtain the amount of time used for the execution of a block
+object to obtain the amount of time used for the execution of a block
 of code.
 
 \begin{lstlisting}[caption={Using the \class{Timer}}, label=lst:timeruse]
@@ -22,26 +22,25 @@ of code.
 
 int main(int argc, char *argv[])
 {
-	Time::Timer timer = new Time::Timer();
+	Time::Timer aTimer = new Time::Timer();
 
 	try {
-		atimer->start();
+		aTimer->start();
 		// do something useful, or not
-		atimer->stop();
-		cout << "Elapsed time: " << atimer->elapsed() << endl;
+		aTimer->stop();
+		std::cout << "Elapsed time: " << aTimer->elapsed() << std::endl;
 	} catch (Error::StrategyError &e) {
-		cout << "Failed to create timer." << endl;
+		std::cerr << "Failed to create timer." << std::endl;
 	}
 }
 \end{lstlisting}
 
 \section{Limiting Execution Time}
 
-The \class{Watchdog} class allows applications to control the amount of time
+The \class{Watchdog} class allows applications to limit the amount of time
 that a block of code has to execute. The time can be {\em real} (i.e. ``wall'')
 time, or {\em process} time (not available on Windows). One typical usage for
-a \class{Watchdog} timer is when a call is made to a function that may never return,
-due to problems processing an input biometric image.
+a \class{Watchdog} timer is when a call is made to a function that may never return due to problems processing an input biometric image.
 
 \class{Watchdog} timers can be used in conjunction with \class{SignalManager} in
 order to both limit the processing time of a call, and handle all signals
@@ -54,7 +53,7 @@ invoked inside of the \code{WATCHDOG} block. This restriction includes calls to
 \code{sleep(3)} because it is based on signal handling as well.
 
 \lstref{lst:watchdoguse} shows how an application can use a \class{Watchdog}
-object to limit the about of process time for a block of code.
+object to limit the amount of process time for a block of code.
 
 \begin{lstlisting}[caption={Using the \class{Watchdog}}, label=lst:watchdoguse]
 #include <be_time_watchdog.h>
@@ -63,17 +62,17 @@ int main(int argc, char *argv[])
     Time::Watchdog theDog = new Time::Watchdog(Time::Watchdog::PROCESSTIME);
     theDog->setInterval(300);	// 300 microseconds
 
-    Time::Timer timer;
+    Time::Timer aTimer;
 
     BEGIN_WATCHDOG_BLOCK(theDog, watchdogblock1);
-        timer.start();
+        aTimer.start();
         // Do something that may take more than 300 usecs
-        timer.stop();
-        cout << "Total time was " <<  timer.elapsed() << endl;
+        aTimer.stop();
+        std::cout << "Total time was " <<  aTimer.elapsed() << std::endl;
     END_WATCHDOG_BLOCK(theDog, watchdogblock1);
     if (theDog->expired()) {
-        timer.stop();
-        cerr << "That took too long." << endl;
+        aTimer.stop();
+        std::cerr << "That took too long." << std::endl;
     }
 {
 }
