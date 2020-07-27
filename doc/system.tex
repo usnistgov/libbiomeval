@@ -3,10 +3,10 @@
 %
 \chapter{System}
 \label{chp-system}
-The \namespace{System} package provides a set of functions in the that
+The \namespace{System} package provides a set of functions that
 return information about the hardware and operating system. This information
 can be used by applications to determine the amount of real memory, number of
-central processing units, or current load average. This information can be
+central processing units, or current load average, and can be
 used to dynamically tailor the application behavior, or simply to provide
 additional information in a runtime log.
 
@@ -32,13 +32,16 @@ main(int argc, char* argv[]) {
         cpuCount =  System::getCPUCount();
         cpuCount--;    // subtract one CPU for the parent process
         memSize = System::getRealMemorySize();
-        Process::Statistics::getMemorySizes(NULL, &vmSize, NULL, NULL, NULL);
+	uint64_t vmSize;
+	Process::Statistics stats{};
+	std::tie(std::ignore, vmSize, std::ignore, std::ignore, std::ignore)
+	    = stats.getMemorySizes();
         memSize -= vmSize;   // subtract off memory used by parent
 
         // Give each child a fraction of the memory
         spawnChildren(cpuCount, memSize / cpuCount);
     } catch (Error::NotImplemented) {
-            cout << "Running a single process only." << endl;
+            std::cout << "Running a single process only." << endl;
     }
 
     // processing done by parent ...

@@ -31,7 +31,7 @@ namespace BiometricEvaluation
 		 * whether or not to use the const version of the iterator.
 		 * The second is the contained type of the AutoArray.
 		 */
-		template <bool CONST, class T>
+		template <bool C, class T>
 		class AutoArrayIterator
 		{
 		public:
@@ -44,22 +44,22 @@ namespace BiometricEvaluation
 			    std::random_access_iterator_tag;
 			/** Type when dereferencing iterators */
 			using value_type = typename
-			    std::conditional<CONST, const T, T>::type;
+			    std::conditional<C, const T, T>::type;
 			/** Type used to measure distance between iterators */
 			using difference_type = std::ptrdiff_t;
 			/** Pointer to the type iterated over */
 			using pointer = typename
-			    std::conditional<CONST, const T*, T*>::type;
+			    std::conditional<C, const T*, T*>::type;
 			/** Reference to the type iterated over */
 			using reference = typename
-			    std::conditional<CONST, const T&, T&>::type;
+			    std::conditional<C, const T&, T&>::type;
 
 			/**
 			 * @brief
 			 * Convenience definition for a reference to the
 			 * iterated type with appropriate constness.
 			 */
-			using container = typename std::conditional<CONST,
+			using container = typename std::conditional<C,
 			    const AutoArray<T>*, AutoArray<T>*>::type;
 
 			/*
@@ -215,7 +215,7 @@ namespace BiometricEvaluation
 			/** @return Offset decremented by rhs' offset. */
 			inline difference_type
 			operator-(
-			    const AutoArrayIterator<CONST, T> &rhs)
+			    const AutoArrayIterator<C, T> &rhs)
 			    const
 			{
 				return (_offset - rhs._offset);

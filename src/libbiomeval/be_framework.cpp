@@ -34,6 +34,8 @@ BiometricEvaluation::Framework::getCompiler()
 	return ("clang");
 #elif defined (__GNUC__)
 	return ("gcc");
+#elif defined (_MSC_VER)
+	return ("Visual Studio");
 #else
 	return ("Unknown");
 #endif	/* Compilers */
@@ -94,6 +96,12 @@ BiometricEvaluation::Framework::getCompilerVersion()
 #else
 	version << ".?";
 #endif /* __GNUC_PATCHLEVEL__ */
+
+	/* Visual Studio */
+#elif defined (_MSC_FULL_VER)
+	version << _MSC_FULL_VER;
+#elif defined (_MSC_VER)
+	version << _MSC_VER;
 
 	/* Unknown */
 #else

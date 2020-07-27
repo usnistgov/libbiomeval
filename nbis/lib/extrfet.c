@@ -65,10 +65,10 @@ of the software.
 
 #include <usebsd.h>
 #include <string.h>
-#include <strings.h>
 #include <fet.h>
 #include <util.h>
 
+#include <nbis_sysdeps.h>
 
 /*******************************************************************/
 char *biomeval_nbis_extractfet(char *feature, FET *fet)

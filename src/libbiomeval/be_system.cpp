@@ -19,7 +19,8 @@
 #include <sys/sysctl.h>
 #endif
 #include <hwloc.h>
-#include <unistd.h>
+
+#include <be_sysdeps.h>
 
 uint32_t
 BiometricEvaluation::System::getCPUCount()
@@ -104,7 +105,7 @@ BiometricEvaluation::System::getRealMemorySize()
 double
 BiometricEvaluation::System::getLoadAverage()
 {
-#ifdef __CYGWIN__
+#if defined(__CYGWIN__) || defined(_WIN32)
 	throw Error::NotImplemented();
 #else
 	double avg[1];

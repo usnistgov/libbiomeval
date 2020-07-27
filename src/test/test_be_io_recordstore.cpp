@@ -15,10 +15,10 @@
 #include <sstream>
 #include <memory>
 #include <string>
-#include <unistd.h>
 
 #include <be_io_utility.h>
 #include <be_memory_autoarrayutility.h>
+#include <be_sysdeps.h>
 
 #ifdef FILERECORDSTORETEST
 #include <be_io_filerecstore.h>

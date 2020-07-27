@@ -27,8 +27,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/param.h>
 #include <jpegb.h>
+
+#include <nbis_sysdeps.h>
 
 #define CM_PER_INCH 2.54
 

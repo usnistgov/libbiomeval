@@ -23,20 +23,36 @@
 #
 #   BERKELEYDB_LIBRARY, where to find the library.
 
-find_path(BERKELEYDB_INCLUDE_DIR db_cxx.h
-  /usr/include/
-  /opt/local/include/db48/
-  /opt/local/include/db62/
-)
+if(UNIX)
+	find_path(BERKELEYDB_INCLUDE_DIR db_cxx.h
+	  /usr/include/
+	  /opt/local/include/db48/
+	  /opt/local/include/db62/
+	)
+elseif(WIN32)
+	if(_VCPKG_INSTALLED_DIR AND VCPKG_TARGET_TRIPLET)
+		find_path(BERKELEYDB_INCLUDE_DIR db_cxx.h
+			${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include
+		)
+	endif(_VCPKG_INSTALLED_DIR AND VCPKG_TARGET_TRIPLET)
+endif()
 
 #
 # IMPORTANT: Make sure the library search paths are in the same version order
 # as the above include search paths.
 #
-find_library(BERKELEYDB_LIBRARY NAMES db_cxx PATHS
-  /opt/local/lib/db48/
-  /opt/local/lib/db62/
-)
+if(UNIX)
+	find_library(BERKELEYDB_LIBRARY NAMES db_cxx PATHS
+	  /opt/local/lib/db48/
+	  /opt/local/lib/db62/
+	)
+elseif(WIN32)
+	if(_VCPKG_INSTALLED_DIR AND VCPKG_TARGET_TRIPLET)
+		find_library(BERKELEYDB_LIBRARY NAMES libdb48.lib PATHS
+			${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib
+		)
+	endif(_VCPKG_INSTALLED_DIR AND VCPKG_TARGET_TRIPLET)
+endif()
 
 # handle the QUIETLY and REQUIRED arguments and set BERKELEYDB_FOUND to TRUE if
 # all listed variables are TRUE

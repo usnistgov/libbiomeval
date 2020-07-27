@@ -21,13 +21,19 @@ extern "C" {
 #if JPEG_LIB_VERSION <= 90
 	#if JPEG_LIB_VERSION == 90
 		#if JPEG_LIB_VERSION_MINOR < 2
-			#ifndef HAVE_BOOLEAN
+			#ifdef _WIN32
+				typedef unsigned char boolean;
+			#else
 				typedef int boolean;
-			#endif /* HAVE_BOOLEAN */
+			#endif /* _WIN32 */
 		#endif /* JPEG_LIB_VERSION_MINOR < 2 */
 	#else /* JPEG_LIB_VERSION == 90 */
 		#ifndef HAVE_BOOLEAN
-			typedef int boolean;
+			#ifdef _WIN32
+				typedef unsigned char boolean;
+			#else
+				typedef int boolean;
+			#endif /* _WIN32 */
 		#endif /* HAVE_BOOLEAN */
 	#endif /* JPEG_LIB_VERSION == 90 */
 #endif /* JPEG_LIB_VERSION */

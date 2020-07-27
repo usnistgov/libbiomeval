@@ -21,22 +21,9 @@ using namespace BiometricEvaluation;
 using namespace BiometricEvaluation::Framework::Enumeration;
 
 static Memory::uint8Array
-openAN2KFile(const string filename)
+openAN2KFile(const string &filename)
 {
-	/* Any exceptions from calls below just float out. */
-	uint64_t sz = IO::Utility::getFileSize(filename);
-
-	FILE *fp = fopen(filename.c_str(), "r");
-	if (fp == nullptr)
-		throw(Error::Exception("Could not open file"));
-
-	Memory::uint8Array buf(sz);
-	if (fread(buf, 1, sz, fp) != sz) {
-		fclose(fp);
-		throw(Error::Exception("Could not read file"));
-	}
-	return(buf);
-	fclose(fp);
+	return (IO::Utility::readFile(filename));
 }
 
 static void

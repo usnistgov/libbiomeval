@@ -48,7 +48,7 @@ namespace BiometricEvaluation
 		 * taken from the Type-3/4/5/6 record to that returned by
 		 * the Image object directly.
 		 */
-		class AN2KView : public View::View {
+		class AN2KView : public BiometricEvaluation::View::View {
 		public:
 			/** The type of AN2K record. */
 			enum class RecordType : uint16_t

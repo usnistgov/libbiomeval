@@ -13,6 +13,7 @@
 
 #include "be_io_listrecstore_impl.h"
 #include <be_error.h>
+#include <be_io_utility.h>
 #include <be_text.h>
 
 namespace BE = BiometricEvaluation;
@@ -155,12 +156,12 @@ uint64_t
 BiometricEvaluation::IO::ListRecordStore::Impl::getSpaceUsed()
     const
 {
-	struct stat sb;
-
-	if (stat(RecordStore::Impl::canonicalName(KEYLISTFILENAME).c_str(), &sb)
-	     != 0)
-		throw Error::StrategyError("Could not find KeyList file");
-	return (RecordStore::Impl::getSpaceUsed() + (sb.st_blocks * S_BLKSIZE));
+	try {
+		return (RecordStore::Impl::getSpaceUsed() +
+			BE::IO::Utility::getFileSize(RecordStore::Impl::canonicalName(KEYLISTFILENAME)));
+	} catch (const BE::Error::Exception& e) {
+		throw BE::Error::StrategyError("Could not get size of KeyList file: " + e.whatString());
+	}
 }
 
 void

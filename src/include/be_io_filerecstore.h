@@ -21,7 +21,8 @@ namespace BiometricEvaluation {
 	namespace IO {
 
 		/**
-		 * Class to represent the record store data storage mechanism
+		 * @brief
+		 * A class to represent the record store data storage mechanism
 		 * implemented as files for each record.
 		 * @note
 		 * For the methods that take a key parameter,

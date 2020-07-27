@@ -17,6 +17,14 @@ namespace BiometricEvaluation
 {
 	namespace IO
 	{
+		/**
+		 * @brief
+		 * An implementation of IO::RecordStoreUnion that persists
+		 * across instantiations.
+		 * @details
+		 * State data is saved within the file system under the
+		 * path specified during construction.
+		 */
 		class PersistentRecordStoreUnion : public RecordStoreUnion
 		{
 		public:

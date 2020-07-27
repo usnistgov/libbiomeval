@@ -12,7 +12,6 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <dirent.h>
 
 #include <iostream>
 #include <fstream>
@@ -32,6 +31,7 @@
 #include <be_io_sqliterecstore.h>
 #include <be_io_utility.h>
 #include <be_memory_autoarray.h>
+#include <be_sysdeps.h>
 
 
 namespace BE = BiometricEvaluation;
@@ -153,11 +153,11 @@ BiometricEvaluation::IO::RecordStore::Impl::setCursor(int cursor)
 uint64_t
 BiometricEvaluation::IO::RecordStore::Impl::getSpaceUsed() const
 {
-	struct stat sb;
-
-	if (stat(_controlFile.c_str(), &sb) != 0)
-		throw Error::StrategyError("Could not find control file");
-	return (sb.st_blocks * S_BLKSIZE);
+	try {
+		return (BE::IO::Utility::getFileSize(this->_controlFile));
+	} catch (const BE::Error::StrategyError& e) {
+		throw Error::StrategyError("Could not get size of control file: " + e.whatString());
+	}
 }
 
 void

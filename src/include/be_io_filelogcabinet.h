@@ -23,7 +23,12 @@
 namespace BiometricEvaluation {
     namespace IO {
 	/**
+	 * @brief
 	 * A class to represent a collection of log sheets.
+	 *
+	 * @details
+	 * All IO::FileLogsheet backing files are stored in the directory
+	 * managed by objects of this class.
 	 */
 	class FileLogCabinet {
 		public:

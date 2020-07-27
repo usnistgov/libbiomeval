@@ -217,7 +217,6 @@ static void internalGetCPUTimes(
 BiometricEvaluation::Process::Statistics::Statistics()
 {
 	_pid = getpid();
-	_logCabinet = nullptr;
 	_logging = false;
 	_autoLogging = false;
 	pthread_mutex_init(&_logMutex, nullptr);
@@ -236,10 +235,10 @@ BiometricEvaluation::Process::Statistics::~Statistics()
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
-    IO::FileLogCabinet * const logCabinet)
+    const std::shared_ptr<IO::FileLogCabinet> &logCabinet) :
+    _logCabinet(logCabinet)
 {
 	_pid = getpid();
-	_logCabinet = logCabinet;
 
 	std::ostringstream lsname, descr;
 	std::string procname = internalGetProcName(_pid);
@@ -261,7 +260,6 @@ BiometricEvaluation::Process::Statistics::Statistics(
 BiometricEvaluation::Process::Statistics::Statistics(
     const std::shared_ptr<BE::IO::Logsheet> &logSheet) :
     _pid(getpid()),
-    _logCabinet(nullptr),
     _logSheet(logSheet),
     _logging(true),
     _autoLogging(false)
@@ -270,40 +268,27 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	_logSheet->writeComment(LogsheetHeader);
 }
 
-void
-BiometricEvaluation::Process::Statistics::getCPUTimes(
-    uint64_t *usertime,
-    uint64_t *systemtime)
+std::tuple<uint64_t, uint64_t>
+BiometricEvaluation::Process::Statistics::getCPUTimes()
 {
 	uint64_t utime, stime;
 
 	internalGetCPUTimes(&utime, &stime);
-	if (usertime != nullptr)
-		*usertime = utime;
-	if (systemtime != nullptr)
-		*systemtime = stime;
+	return (std::make_tuple(utime, stime));
 }
 
-void
-BiometricEvaluation::Process::Statistics::getMemorySizes(
-    uint64_t *vmrss,
-    uint64_t *vmsize,
-    uint64_t *vmpeak,
-    uint64_t *vmdata,
-    uint64_t *vmstack)
+std::tuple<
+    uint64_t, 
+    uint64_t,
+    uint64_t,
+    uint64_t,
+    uint64_t>
+BiometricEvaluation::Process::Statistics::getMemorySizes()
 {
 	/* Let exceptions from this call float out */
 	PSTATS ps = internalGetPstats(_pid);
-	if (vmrss != nullptr)
-		*vmrss = ps.vmrss;
-	if (vmsize != nullptr)
-		*vmsize = ps.vmsize;
-	if (vmpeak != nullptr)
-		*vmpeak = ps.vmpeak;
-	if (vmdata != nullptr)
-		*vmdata = ps.vmdata;
-	if (vmstack != nullptr)
-		*vmstack = ps.vmstack;
+	return (std::make_tuple(ps.vmrss, ps.vmsize, ps.vmpeak, ps.vmdata,
+	     ps.vmstack));
 }
 
 uint32_t

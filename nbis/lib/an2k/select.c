@@ -72,10 +72,11 @@ identified are necessarily the best available for the purpose.
 #include <stdlib.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <strings.h>
 #include <ctype.h>
 
 #include <an2k.h>
+
+#include <nbis_sysdeps.h>
 
 /***********************************************************************
 ************************************************************************

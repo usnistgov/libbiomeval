@@ -61,8 +61,9 @@ of the software.
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/param.h>
 #include <util.h>
+
+#include <nbis_sysdeps.h>
 
 /*************************************************************/
 /* Filehead() is a destructive procedure which takes a path  */

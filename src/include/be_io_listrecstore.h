@@ -20,8 +20,8 @@ namespace BiometricEvaluation
 	{
 		/**
 		 * @brief
-		 * RecordStore that reads a list of keys from a text file, 
-		 * and retrieves the data from another RecordStore.
+		 * IO::RecordStore that reads a list of keys from a text file, 
+		 * and retrieves the data from another IO::RecordStore.
 		 * @details
 		 * ListRecordStores must be hand-crafted by first setting the
 		 * 'Source Record Store', 'Type', and 'Count' properties in the

@@ -12,15 +12,16 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
-
-#include <unistd.h>
+#include <thread>
 
 #include <be_time_timer.h>
+#include <be_sysdeps.h>
 
 using namespace std;
 using namespace BiometricEvaluation;
 
-void sleepCallback() { sleep(1); }
+std::chrono::seconds oneSec() { return (std::chrono::seconds(1)); };
+void sleepCallback() { std::this_thread::sleep_for(oneSec()); }
 
 int main(int argc, char *argv[])
 {
@@ -81,15 +82,15 @@ int main(int argc, char *argv[])
 	}
 
 	try {
-		cout << "Time sleep(1)... ";
+		cout << "Time sleep_for(1s)... ";
 		fflush(stdout);
 		atimer->start();
-		sleep(1);
+		std::this_thread::sleep_for(oneSec());
 		atimer->stop();
 		cout << "passed" << endl;
-		cout << "Time in microseconds for sleep(1): "
+		cout << "Time in microseconds for sleep_for(1s): "
 		    << atimer->elapsed() << endl;
-		cout << "Time in nanoseconds for sleep(1):  "
+		cout << "Time in nanoseconds for sleep_for(1s):  "
 		    << atimer->elapsed(true) << endl;
 	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;
@@ -116,10 +117,11 @@ int main(int argc, char *argv[])
 	}
 
 	try {
-		cout << "Time sleep(1) in lambda... " << flush;
-		const auto timer = Time::Timer([]{ sleep(1); });
+		cout << "Time sleep_for(1s) in lambda... " << flush;
+		const auto timer = Time::Timer([]{ 
+		    std::this_thread::sleep_for(oneSec()); });
 		cout << "passed" << endl;
-		cout << "Time for sleep(1) in lambda: " << timer << endl;
+		cout << "Time for sleep_for(1s) in lambda: " << timer << endl;
 	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;
@@ -127,11 +129,11 @@ int main(int argc, char *argv[])
 	}
 
 	try {
-		cout << "Time sleep(1) in time(function pointer)... " << endl;
+		cout << "Time sleep_for(1s) in time(function pointer)... " << endl;
 		Time::Timer timer;
-		cout << "Time for sleep(1) in time(function pointer): " <<
+		cout << "Time for sleep_for(1s) in time(function pointer): " <<
 		    timer.time(sleepCallback) << endl;
-		cout << "Chained elapsed time for sleep(1): " <<
+		cout << "Chained elapsed time for sleep_for(1s): " <<
 		    timer.time(sleepCallback).elapsedStr() << endl;
 	} catch (Error::StrategyError &e) {
 		cout << "failed" << endl;

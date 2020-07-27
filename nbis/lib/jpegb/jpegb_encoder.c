@@ -24,8 +24,9 @@
 ***********************************************************************/
 
 #include <stdio.h>
-#include <sys/param.h>
 #include <jpegb.h>
+
+#include <nbis_sysdeps.h>
 
 /**********************************************************************/
 int biomeval_nbis_jpegb_encode_mem(unsigned char **oout_buffer, int *oolen,
