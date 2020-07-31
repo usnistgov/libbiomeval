@@ -34,6 +34,15 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+# Create dirent_windows.h at build time
+if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include/dirent_windows.h")
+	if (UNIX)
+		execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/../include/be_dirent_windows.h ${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include/dirent_windows.h)
+	elseif(WIN32)
+		execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../include/be_dirent_windows.h" "${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include/dirent_windows.h")
+	endif()
+endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include/dirent_windows.h")
+
 #
 # Get the major and minor library versions from the VERSION file, with format
 # expected to be MAJOR_VERSION=mm and MINOR_VERSION=nn on separate lines.

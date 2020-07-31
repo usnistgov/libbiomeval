@@ -7,6 +7,7 @@
 nbis/big_endian_check
 build*/
 be_fix_cmake_xcode_generator.cpp
+nbis/include/dirent_windows.h
 
 # Image test write raw files
 src/test/*raw
