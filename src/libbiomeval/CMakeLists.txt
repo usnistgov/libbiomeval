@@ -217,6 +217,9 @@ endif()
 # be added to the BIOMEVAL library later. MPI is optional.
 #
 set(MPISOURCES ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER})
+# Provide some hints to help find MPI
+list(APPEND CMAKE_PREFIX_PATH "/opt/local/bin")
+list(APPEND CMAKE_PREFIX_PATH "/usr/lib64/openmpi/bin")
 find_package(MPI)
 if(MPI_CXX_FOUND AND NOT MSVC)
   add_library(mpiobjs OBJECT ${MPISOURCES})
