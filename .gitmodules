@@ -1,3 +1,4 @@
 [submodule "doccommon"]
 	path = doccommon
-	url = git@gitlab.nist.gov:774_03/becommon/doccommon.git
+	url = https://github.com/usnistgov/be_doccommon.git
+	ignore = untracked
