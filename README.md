@@ -66,11 +66,6 @@ libbiomeval-10.0-1.x86_64.rpm: rsa sha1 (md5) pgp md5 OK
 rpm --install libbiomeval-10.0-1.x86_64.rpm
 ```
 
-A version compiled from source can be installed via the top-level makefile.
-```bash
-make install
-```
-
 System Packages
 ---------------
  * Some modules require system packages that may not be installed by default o
@@ -130,15 +125,6 @@ System Packages
 
 **Note:**
 
- * You need to modify the definition of `MPICXX` in [`common.mk`][1] if `mpicxx`
-   is not in your `PATH`:
-
-    | OS          | Default `mpicxx` location       |
-    |:-----------:| :------------------------------:|
-    | MacPorts    | `/opt/local/bin/mpicxx`         |
-    | RHEL/CentOS | `/usr/lib64/openmpi/bin/mpicxx` |
-    | Ubuntu      | `/usr/bin/mpicxx`               |
-
  * With MacPorts, you may need to select a different MPI group if you have more
    than one installed:
    ```bash
@@ -169,18 +155,7 @@ System Packages
 #### NIST Biometric Image Software (NBIS)
 [NBIS](https://www.nist.gov/services-resources/software/nist-biometric-image-software-nbis) is supported under current versions
 of RHEL/CentOS, Ubuntu, and macOS. The Framework repository contains a subset
-of NBIS that is built from the top-level makefile. However, if there is a need
-to use the _official_ NBIS, then the makefile in `common/src/libbiomeval` can
-be changed to use that NBIS build. Biometric Evaluation Framework will look for NBIS
-to be installed at `/usr/local/nbis`. To build NBIS,
-[download the source](https://www.nist.gov/itl/iad/image-group/products-and-services/image-group-open-source-server-nigos),
-and follow this basic build procedure:
-
-```
-./setup.sh /usr/local/nbis [--without-X11]
-make config it
-sudo make install
-```
+of NBIS that is built automatically.
 
 ---
 
