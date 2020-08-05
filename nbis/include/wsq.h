@@ -185,7 +185,7 @@ typedef struct header_frm {
 } FRM_HEADER_WSQ;
 
 /* External global variables. */
-extern int debug;
+extern int biomeval_nbis_debug;
 extern QUANT_VALS biomeval_nbis_quant_vals;
 extern W_TREE biomeval_nbis_w_tree[];
 extern Q_TREE biomeval_nbis_q_tree[];

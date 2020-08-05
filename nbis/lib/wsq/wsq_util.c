@@ -529,7 +529,7 @@ int biomeval_nbis_quantize(
             }
          }
       }
-      else if(debug > 0)
+      else if(biomeval_nbis_debug > 0)
          fprintf(stderr, "%d -> %3.6f\n", cnt, quant_vals->qbss[cnt]);
    }
 

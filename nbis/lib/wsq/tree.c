@@ -160,7 +160,7 @@ void biomeval_nbis_build_w_tree(
    else
       w_tree[19].leny = (w_tree[15].leny + 1) / 2;
 
-   if(debug > 1) {
+   if(biomeval_nbis_debug > 1) {
       for(node = 0; node < 20; node++)
          fprintf(stderr,
          "t%d -> x = %d  y = %d : dx = %d  dy = %d : ir = %d  ic = %d\n",
@@ -269,7 +269,7 @@ void biomeval_nbis_build_q_tree(
    biomeval_nbis_q_tree4(q_tree,0,w_tree[19].lenx,w_tree[19].leny,
              w_tree[19].x,w_tree[19].y);
 
-   if(debug > 1) {
+   if(biomeval_nbis_debug > 1) {
       for(node = 0; node < 60; node++)
          fprintf(stderr, "t%d -> x = %d  y = %d : lx = %d  ly = %d\n",
          node, q_tree[node].x, q_tree[node].y,

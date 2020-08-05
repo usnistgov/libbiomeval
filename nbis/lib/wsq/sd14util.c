@@ -168,13 +168,13 @@ int biomeval_nbis_wsq14_decode_file(unsigned char **odata, int *owidth, int *ohe
    height = biomeval_nbis_frm_header_wsq.height;
    num_pix = width * height;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "SOI_WSQ, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
    biomeval_nbis_build_wsq_trees_wsq14(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, width, height);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
 
    /* Allocate working memory. */
@@ -193,7 +193,7 @@ int biomeval_nbis_wsq14_decode_file(unsigned char **odata, int *owidth, int *ohe
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr,
          "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
@@ -205,7 +205,7 @@ int biomeval_nbis_wsq14_decode_file(unsigned char **odata, int *owidth, int *ohe
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "WSQ subband data blocks unquantized\n\n");
 
    /* Done with quantized wavelet subband data. */
@@ -218,7 +218,7 @@ int biomeval_nbis_wsq14_decode_file(unsigned char **odata, int *owidth, int *ohe
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "WSQ reconstruction of image finished\n\n");
 
    cdata = (unsigned char *)malloc(num_pix * sizeof(unsigned char));
@@ -239,7 +239,7 @@ int biomeval_nbis_wsq14_decode_file(unsigned char **odata, int *owidth, int *ohe
    /* Added by MDG on 02-24-05 */
    biomeval_nbis_free_wsq_decoder_resources();
 
-  if(debug > 0)
+  if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Doubleing point pixels converted to unsigned char\n\n");
 
 
@@ -310,14 +310,14 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    height = biomeval_nbis_frm_header_wsq.height;
    num_pix = width * height;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "SOI_WSQ, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
    biomeval_nbis_build_shuffle_trees_wsq14(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN,
                             biomeval_nbis_q_tree_wsq14, Q_TREELEN, width, height);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
 
    /* Allocate working memory. */
@@ -334,7 +334,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr,
          "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
@@ -424,7 +424,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "SOI_WSQ, tables, and frame header written\n\n");
 
    /* Allocate a temporary buffer for holding compressed block data.    */
@@ -465,7 +465,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    free(huffbits);
    free(huffvalues);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Huffman code Table 1 generated and written\n\n");
 
    /* Compress Block 1 data. */
@@ -499,7 +499,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Block 1 compressed and written\n\n");
 
    /******************/
@@ -530,7 +530,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
    free(huffbits);
    free(huffvalues);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Huffman code Table 2 generated and written\n\n");
 
    /* Compress Block 2 data. */
@@ -564,7 +564,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Block 2 compressed and written\n\n");
 
    /******************/
@@ -602,7 +602,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Block 3 compressed and written\n\n");
 
    /* Done with huffman compressing blocks, so done with buffer. */
@@ -614,7 +614,7 @@ int biomeval_nbis_wsq14_2_wsq(unsigned char **odata, int *olen, FILE *infp)
       return(ret);
    }
 
-   if(debug > 0) {
+   if(biomeval_nbis_debug > 0) {
       fprintf(stderr,
               "hsize1 = %d :: hsize2 = %d :: hsize3 = %d\n", hsize1, hsize2, hsize3);
       fprintf(stderr,"@ complen = %d :: ratio = %.1f\n", hsize,
@@ -687,7 +687,7 @@ static int biomeval_nbis_read_huff_table_wsq14(
    unsigned char table;           /* huffman table indicator */
    unsigned char char_dat;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading huffman table.\n");
 
    bytes_cnt = 0;
@@ -699,7 +699,7 @@ static int biomeval_nbis_read_huff_table_wsq14(
       if((ret = biomeval_nbis_read_byte(&table, infp)))
          return(ret);
 
-      if(debug > 2)
+      if(biomeval_nbis_debug > 2)
          fprintf(stderr, "table = %d\n", table);
 
       num_hufvals = 0;
@@ -712,7 +712,7 @@ static int biomeval_nbis_read_huff_table_wsq14(
             return(ret);
          (dht_table+table)->huffbits[cnt] = char_dat;
 
-         if(debug > 2)
+         if(biomeval_nbis_debug > 2)
             fprintf(stderr,
                     "huffbits[%d] = %d\n",
                     cnt, (dht_table+table)->huffbits[cnt]);
@@ -736,7 +736,7 @@ static int biomeval_nbis_read_huff_table_wsq14(
             return(ret);
          (dht_table+table)->huffvalues[cnt] = char_dat;
 
-         if(debug > 2)
+         if(biomeval_nbis_debug > 2)
             fprintf(stderr,
                     "huffvalues[%d] = %d\n",
                     cnt, (dht_table+table)->huffvalues[cnt]);
@@ -746,7 +746,7 @@ static int biomeval_nbis_read_huff_table_wsq14(
       (dht_table+table)->tabdef = 1;
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr,
               "Finished reading huffman table.\n\n");
 

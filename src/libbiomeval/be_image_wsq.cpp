@@ -13,7 +13,7 @@
 extern "C" {
 	#include <dataio.h>
 	#include <wsq.h>
-	int debug = 0;	/* Required by libwsq */
+	int biomeval_nbis_debug = 0;	/* Required by libwsq */
 }
 
 #include <be_image_wsq.h>

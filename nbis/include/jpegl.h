@@ -193,7 +193,7 @@ typedef struct sheader {
 } SCN_HEADER;
 
 /* GLOBAL VARIABLES */
-extern int debug;
+extern int biomeval_nbis_debug;
 
 /* encoder.c */
 extern int biomeval_nbis_jpegl_encode_mem(unsigned char **, int *, IMG_DAT *, char *);

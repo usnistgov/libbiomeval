@@ -181,7 +181,7 @@ static int biomeval_nbis_getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
    unsigned char *huffbits, *huffvalues;
    HUF_TABLE *thuf_table;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start reading huffman table jpegl_sd4.\n");
 
    if((ret = biomeval_nbis_getc_byte(&number, cbufptr, ebufptr)))
@@ -200,7 +200,7 @@ static int biomeval_nbis_getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
          return(ret);
       }
 
-   if(debug > 1)
+   if(biomeval_nbis_debug > 1)
       for (i = 0; i < MAX_HUFFBITS_JPEGL_SD4;  i++)
          fprintf(stdout, "bits[%d] = %d\n", i, huffbits[i]);
 
@@ -219,7 +219,7 @@ static int biomeval_nbis_getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
          return(ret);
       }
 
-   if(debug > 1)
+   if(biomeval_nbis_debug > 1)
       for (i = 0; i < number-MAX_HUFFBITS_JPEGL_SD4;  i++)
          fprintf(stdout, "values[%d] = %d\n", i, huffvalues[i]);
 
@@ -288,7 +288,7 @@ static int biomeval_nbis_getc_huffman_table_jpegl_sd4(HUF_TABLE **huf_table,
    free(thuf_table->huffcode_table);
    thuf_table->huffcode_table = (HUFFCODE *)NULL;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Done reading huffman table jpegl_sd4.\n");
 
    return(0);

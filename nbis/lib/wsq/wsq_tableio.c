@@ -348,7 +348,7 @@ int biomeval_nbis_read_transform_table(
    unsigned int cnt, shrt_dat;           /* counter and temp short data */
    unsigned char scale, sign;            /* scaling and sign parameters */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading transform table.\n");
 
    if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
@@ -359,7 +359,7 @@ int biomeval_nbis_read_transform_table(
       return(ret);
 
 
-   if(debug > 2) {
+   if(biomeval_nbis_debug > 2) {
       fprintf(stderr, "losize = %d\n", dtt_table->losz);
       fprintf(stderr, "hisize = %d\n", dtt_table->hisz);
    }
@@ -437,7 +437,7 @@ int biomeval_nbis_read_transform_table(
       if(sign != 0)
          a_lofilt[cnt] *= -1.0;
 
-      if(debug > 3)
+      if(biomeval_nbis_debug > 3)
          fprintf(stderr, "biomeval_nbis_lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
 
       if(dtt_table->hisz % 2) {
@@ -498,7 +498,7 @@ int biomeval_nbis_read_transform_table(
       if(sign != 0)
          a_hifilt[cnt] *= -1.0;
 
-      if(debug > 2)
+      if(biomeval_nbis_debug > 2)
          fprintf(stderr, "biomeval_nbis_hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
 
       if(dtt_table->losz % 2) {
@@ -520,7 +520,7 @@ int biomeval_nbis_read_transform_table(
    dtt_table->lodef = 1;
    dtt_table->hidef = 1;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished reading transform table.\n\n");
 
    return(0);
@@ -541,7 +541,7 @@ int biomeval_nbis_getc_transform_table(
    unsigned int cnt, shrt_dat;           /* counter and temp short data */
    unsigned char scale, sign;            /* scaling and sign parameters */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading transform table.\n");
 
    if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
@@ -552,7 +552,7 @@ int biomeval_nbis_getc_transform_table(
       return(ret);
 
 
-   if(debug > 2) {
+   if(biomeval_nbis_debug > 2) {
       fprintf(stderr, "losize = %d\n", dtt_table->losz);
       fprintf(stderr, "hisize = %d\n", dtt_table->hisz);
    }
@@ -630,7 +630,7 @@ int biomeval_nbis_getc_transform_table(
       if(sign != 0)
          a_lofilt[cnt] *= -1.0;
 
-      if(debug > 3)
+      if(biomeval_nbis_debug > 3)
          fprintf(stderr, "biomeval_nbis_lofilt[%d] = %.15f\n", cnt, a_lofilt[cnt]);
 
       if(dtt_table->hisz % 2) {
@@ -691,7 +691,7 @@ int biomeval_nbis_getc_transform_table(
       if(sign != 0)
          a_hifilt[cnt] *= -1.0;
 
-      if(debug > 2)
+      if(biomeval_nbis_debug > 2)
          fprintf(stderr, "biomeval_nbis_hifilt[%d] = %.15f\n", cnt, a_hifilt[cnt]);
 
       if(dtt_table->losz % 2) {
@@ -713,7 +713,7 @@ int biomeval_nbis_getc_transform_table(
    dtt_table->lodef = 1;
    dtt_table->hidef = 1;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished reading transform table.\n\n");
 
    return(0);
@@ -735,7 +735,7 @@ int biomeval_nbis_write_transform_table(
    float dbl_tmp;        /* temp variable */
    char scale_ex, sign;  /* exponent scaling and sign parameters */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing transform table.\n");
 
    if((ret = biomeval_nbis_write_ushort(DTT_WSQ, outfp)))
@@ -777,7 +777,7 @@ int biomeval_nbis_write_transform_table(
          return(-80);
       }
 
-      if(debug > 2) {
+      if(biomeval_nbis_debug > 2) {
          fprintf(stderr, "lo[%d] = %u\n", coef, int_dat);
          fprintf(stderr, "lof[%d] = %0.15f\n", coef, lofilt[coef]);
       }
@@ -818,7 +818,7 @@ int biomeval_nbis_write_transform_table(
          return(-81);
       }
 
-      if(debug > 2) {
+      if(biomeval_nbis_debug > 2) {
          fprintf(stderr, "hi[%d] = %u\n", coef, int_dat);
          fprintf(stderr, "hif[%d] = %0.15f\n", coef, hifilt[coef]);
       }
@@ -831,7 +831,7 @@ int biomeval_nbis_write_transform_table(
          return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished writing transform table.\n\n");
 
    return(0);
@@ -855,7 +855,7 @@ int biomeval_nbis_putc_transform_table(
    float dbl_tmp;       /* temp variable */
    char scale_ex, sign; /* exponent scaling and sign parameters */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing transform table.\n");
 
    if((ret = biomeval_nbis_putc_ushort(DTT_WSQ, odata, oalloc, olen)))
@@ -898,7 +898,7 @@ int biomeval_nbis_putc_transform_table(
          return(-82);
       }
 
-      if(debug > 2) {
+      if(biomeval_nbis_debug > 2) {
          fprintf(stderr, "lo[%d] = %u\n", coef, int_dat);
          fprintf(stderr, "lof[%d] = %0.15f\n", coef, lofilt[coef]);
       }
@@ -939,7 +939,7 @@ int biomeval_nbis_putc_transform_table(
          return(-83);
       }
 
-      if(debug > 2) {
+      if(biomeval_nbis_debug > 2) {
          fprintf(stderr, "hi[%d] = %u\n", coef, int_dat);
          fprintf(stderr, "hif[%d] = %0.15f\n", coef, hifilt[coef]);
       }
@@ -952,7 +952,7 @@ int biomeval_nbis_putc_transform_table(
          return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished writing transform table.\n\n");
 
    return(0);
@@ -970,7 +970,7 @@ int biomeval_nbis_read_quantization_table(
    unsigned short cnt, shrt_dat;  /* counter and temp short data */
    unsigned char scale;           /* scaling parameter */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading quantization table.\n");
 
    if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
@@ -1005,14 +1005,14 @@ int biomeval_nbis_read_quantization_table(
          scale--;
       }
 
-      if(debug > 2)
+      if(biomeval_nbis_debug > 2)
          fprintf(stderr, "q[%d] = %f :: z[%d] = %f\n",
          cnt, dqt_table->q_bin[cnt], cnt, dqt_table->z_bin[cnt]);
 
    }
    dqt_table->dqt_def = 1;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished reading quantization table.\n\n");
 
    return(0);
@@ -1032,7 +1032,7 @@ int biomeval_nbis_getc_quantization_table(
    unsigned short cnt, shrt_dat;  /* counter and temp short data */
    unsigned char scale;           /* scaling parameter */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading quantization table.\n");
 
    if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
@@ -1067,14 +1067,14 @@ int biomeval_nbis_getc_quantization_table(
          scale--;
       }
 
-      if(debug > 2)
+      if(biomeval_nbis_debug > 2)
          fprintf(stderr, "q[%d] = %f :: z[%d] = %f\n",
          cnt, dqt_table->q_bin[cnt], cnt, dqt_table->z_bin[cnt]);
 
    }
    dqt_table->dqt_def = 1;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished reading quantization table.\n\n");
 
    return(0);
@@ -1094,7 +1094,7 @@ int biomeval_nbis_write_quantization_table(
    float flt_tmp;               /* temp variable */
 
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing quantization table.\n");
 
    if((ret = biomeval_nbis_write_ushort(DQT_WSQ, outfp)))
@@ -1162,7 +1162,7 @@ int biomeval_nbis_write_quantization_table(
          shrt_dat2 = 0;
       }
 
-      if(debug > 2) {
+      if(biomeval_nbis_debug > 2) {
          fprintf(stderr,
          "qi[%d] = %d    ::  zi[%d] = %d\n", sub, shrt_dat, sub, shrt_dat2);
          fprintf(stderr,
@@ -1180,7 +1180,7 @@ int biomeval_nbis_write_quantization_table(
          return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished writing quantization table.\n\n");
 
    return(0);
@@ -1201,7 +1201,7 @@ int biomeval_nbis_putc_quantization_table(
    float flt_tmp;              /* temp variable */
 
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing quantization table.\n");
 
    if((ret = biomeval_nbis_putc_ushort(DQT_WSQ, odata, oalloc, olen)))
@@ -1269,7 +1269,7 @@ int biomeval_nbis_putc_quantization_table(
          shrt_dat2 = 0;
       }
 
-      if(debug > 2) {
+      if(biomeval_nbis_debug > 2) {
          fprintf(stderr,
          "qi[%d] = %d    ::  zi[%d] = %d\n", sub, shrt_dat, sub, shrt_dat2);
          fprintf(stderr,
@@ -1287,7 +1287,7 @@ int biomeval_nbis_putc_quantization_table(
          return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished writing quantization table.\n\n");
 
    return(0);
@@ -1413,7 +1413,7 @@ int biomeval_nbis_read_frame_header_wsq(
    unsigned short hdr_size, shrt_dat;  /* header size and data pointer */
    unsigned char scale;                /* exponent scaling parameter */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading frame header.\n");
 
    if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
@@ -1450,7 +1450,7 @@ int biomeval_nbis_read_frame_header_wsq(
    if((ret = biomeval_nbis_read_ushort(&(frm_header->software), infp)))
       return(ret);
 
-   if(debug > 2) {
+   if(biomeval_nbis_debug > 2) {
        fprintf(stderr, "black = %d :: white = %u\n",
                frm_header->black, frm_header->white);
        fprintf(stderr, "w = %d :: h = %d\n",
@@ -1461,7 +1461,7 @@ int biomeval_nbis_read_frame_header_wsq(
                         frm_header->wsq_encoder);
        fprintf(stdout, "Software = %d\n", frm_header->software);
    }
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished reading frame header.\n\n");
    
    return(0);
@@ -1479,7 +1479,7 @@ int biomeval_nbis_getc_frame_header_wsq(
    unsigned short hdr_size, shrt_dat;  /* header size and data pointer */
    unsigned char scale;                /* exponent scaling parameter */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading frame header.\n");
 
    if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
@@ -1516,7 +1516,7 @@ int biomeval_nbis_getc_frame_header_wsq(
    if((ret = biomeval_nbis_getc_ushort(&(frm_header->software), cbufptr, ebufptr)))
       return(ret);
 
-   if(debug > 2) {
+   if(biomeval_nbis_debug > 2) {
        fprintf(stderr, "black = %d :: white = %u\n",
                frm_header->black, frm_header->white);
        fprintf(stderr, "w = %d :: h = %d\n",
@@ -1527,7 +1527,7 @@ int biomeval_nbis_getc_frame_header_wsq(
                         frm_header->wsq_encoder);
        fprintf(stdout, "Software = %d\n", frm_header->software);
    }
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished reading frame header.\n\n");
    
    return(0);
@@ -1548,7 +1548,7 @@ int biomeval_nbis_write_frame_header_wsq(
    char scale_ex;        /* exponent scaling parameter */
    unsigned short shrt_dat;      /* temp variable */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing frame header.\n");
 
    if((ret = biomeval_nbis_write_ushort(SOF_WSQ, outfp)))
@@ -1567,7 +1567,7 @@ int biomeval_nbis_write_frame_header_wsq(
    if((ret = biomeval_nbis_write_ushort(width, outfp)))
       return(ret);
 
-   if(debug > 2)
+   if(biomeval_nbis_debug > 2)
       fprintf(stderr,
               "m_shift = %f  :: r_scale = %f\n", m_shift, r_scale);
 
@@ -1609,7 +1609,7 @@ int biomeval_nbis_write_frame_header_wsq(
    if((ret = biomeval_nbis_write_ushort(0, outfp)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished writing frame header.\n\n");
 
    return(0);
@@ -1632,7 +1632,7 @@ int biomeval_nbis_putc_frame_header_wsq(
    char scale_ex;         /* exponent scaling parameter */
    unsigned short shrt_dat;       /* temp variable */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing frame header.\n");
 
    if((ret = biomeval_nbis_putc_ushort(SOF_WSQ, odata, oalloc, olen)))
@@ -1651,7 +1651,7 @@ int biomeval_nbis_putc_frame_header_wsq(
    if((ret = biomeval_nbis_putc_ushort(width, odata, oalloc, olen)))
       return(ret);
 
-   if(debug > 2)
+   if(biomeval_nbis_debug > 2)
       fprintf(stderr,
               "m_shift = %f  :: r_scale = %f\n", m_shift, r_scale);
 
@@ -1693,7 +1693,7 @@ int biomeval_nbis_putc_frame_header_wsq(
    if((ret = biomeval_nbis_putc_ushort(0, odata, oalloc, olen)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished writing frame header.\n\n");
 
    return(0);
@@ -1709,7 +1709,7 @@ int biomeval_nbis_read_block_header(
    int ret;
    unsigned short hdr_size;     /* block header size */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading block header.\n");
 
    if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
@@ -1717,9 +1717,9 @@ int biomeval_nbis_read_block_header(
    if((ret = biomeval_nbis_read_byte(huff_table, infp)))
       return(ret);
 
-   if(debug > 2)
+   if(biomeval_nbis_debug > 2)
       fprintf(stderr, "huff_table = %d\n", *huff_table);
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished reading block header.\n\n");
 
    return(0);
@@ -1736,7 +1736,7 @@ int biomeval_nbis_getc_block_header(
    int ret;
    unsigned short hdr_size;     /* block header size */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading block header.\n");
 
    if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
@@ -1744,9 +1744,9 @@ int biomeval_nbis_getc_block_header(
    if((ret = biomeval_nbis_getc_byte(huff_table, cbufptr, ebufptr)))
       return(ret);
 
-   if(debug > 2)
+   if(biomeval_nbis_debug > 2)
       fprintf(stderr, "huff_table = %d\n", *huff_table);
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished reading block header.\n\n");
 
    return(0);
@@ -1761,7 +1761,7 @@ int biomeval_nbis_write_block_header(
 {
    int ret;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing block header.\n");
 
    if((ret = biomeval_nbis_write_ushort(SOB_WSQ, outfp)))
@@ -1772,7 +1772,7 @@ int biomeval_nbis_write_block_header(
    if((ret = biomeval_nbis_write_byte(table, outfp)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished writing block header.\n\n");
 
    return(0);
@@ -1789,7 +1789,7 @@ int biomeval_nbis_putc_block_header(
 {
    int ret;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing block header.\n");
 
    if((ret = biomeval_nbis_putc_ushort(SOB_WSQ, odata, oalloc, olen)))
@@ -1800,7 +1800,7 @@ int biomeval_nbis_putc_block_header(
    if((ret = biomeval_nbis_putc_byte((unsigned char)table, odata, oalloc, olen)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished writing block header.\n\n");
 
    return(0);

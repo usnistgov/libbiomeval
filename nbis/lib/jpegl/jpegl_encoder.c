@@ -83,7 +83,7 @@ int biomeval_nbis_jpegl_encode_mem(unsigned char **odata, int *olen, IMG_DAT *im
    unsigned char *outbuf;
    int outlen, outalloc;
 
-   if(debug > 0){
+   if(biomeval_nbis_debug > 0){
       fprintf(stdout, "Image Data Structure\n");
       fprintf(stdout, "w = %d, h = %d, d = %d, ppi = %d\n",
               img_dat->max_width, img_dat->max_height, img_dat->pix_depth,
@@ -260,7 +260,7 @@ int biomeval_nbis_gen_diff_freqs(IMG_DAT *img_dat, HUF_TABLE **huf_table)
          data_diff++;
       }
 
-      if(debug > 2){
+      if(biomeval_nbis_debug > 2){
          for(pixel = 0; pixel < MAX_HUFFCOUNTS_JPEGL+1; pixel++)
             fprintf(stdout, "freqs[%d] = %d\n", pixel,
                     huf_table[i]->freq[pixel]);

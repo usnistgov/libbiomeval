@@ -71,7 +71,7 @@ int biomeval_nbis_check_huffcodes_wsq(HUFFCODE *hufftable, int last_size)
       for(k = 0; (k < (hufftable+i)->size) && all_ones; k++)
          all_ones = (all_ones && (((hufftable+i)->code >> k) & 0x0001));
       if(all_ones) {
-         if(debug > 0) {
+         if(biomeval_nbis_debug > 0) {
             fprintf(stderr, "WARNING: A code in the hufftable contains an ");
             fprintf(stderr, "all 1's code.\n         This image may still be ");
             fprintf(stderr, "decodable.\n         It is not compliant with ");

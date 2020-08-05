@@ -59,7 +59,7 @@ of the software.
 #include <wsq.h>
 
 /*
-int debug;
+int biomeval_nbis_debug;
 */
 #ifdef TARGET_OS
    QUANT_VALS biomeval_nbis_quant_vals;

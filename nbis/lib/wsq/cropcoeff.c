@@ -296,7 +296,7 @@ int biomeval_nbis_wsq_cropcoeff_mem(
        return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
      fprintf(stderr, "Cropped coefficients: UL (%d,%d)  %d x %d\n", ulx,uly,  *ow, *oh);
 
    if((ret = biomeval_nbis_wsq_huffcode_mem(wsq_data, olen, 
@@ -362,7 +362,7 @@ int biomeval_nbis_wsq_huffcode_mem(
    biomeval_nbis_putc_ushort(height,wsq_data,huff_pos,&wsq_len);
    biomeval_nbis_putc_ushort(width,wsq_data,huff_pos,&wsq_len);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "SOI, tables, and frame header written\n\n");
 
    /* Compute quantized WSQ subband block sizes */
@@ -409,7 +409,7 @@ int biomeval_nbis_wsq_huffcode_mem(
    free(huffbits);
    free(huffvalues);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Huffman code Table 1 generated and written\n\n");
 
    /* Compress Block 1 data. */
@@ -440,7 +440,7 @@ int biomeval_nbis_wsq_huffcode_mem(
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Block 1 compressed and written\n\n");
 
    /******************/
@@ -469,7 +469,7 @@ int biomeval_nbis_wsq_huffcode_mem(
    free(huffbits);
    free(huffvalues);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Huffman code Table 2 generated and written\n\n");
 
    /* Compress Block 2 data. */
@@ -500,7 +500,7 @@ int biomeval_nbis_wsq_huffcode_mem(
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Block 2 compressed and written\n\n");
 
    /******************/
@@ -532,7 +532,7 @@ int biomeval_nbis_wsq_huffcode_mem(
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Block 3 compressed and written\n\n");
 
    /* Done with huffman compressing blocks, so done with buffer. */
@@ -543,11 +543,11 @@ int biomeval_nbis_wsq_huffcode_mem(
       return(ret);
    }
 
-   if(debug > 1) {
+   if(biomeval_nbis_debug > 1) {
       fprintf(stderr,
               "hsize1 = %d :: hsize2 = %d :: hsize3 = %d\n", hsize1, hsize2, hsize3);
    }
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout,"  \t\tCropped complen = %d :: ratio = %.1f\n",
               hsize, (float)(num_pix)/(float)hsize);
 
@@ -649,13 +649,13 @@ int biomeval_nbis_wsq_dehuff_mem(
    *iw = width;
    *ih = height;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "SOI, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
    biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, width, height);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
 
    /* The Q-tables and T-tables are not always located prior to the 
@@ -725,13 +725,13 @@ int biomeval_nbis_wsq_dehuff_mem(
    /* Compute original huffman coded length */
    ihsize -= ebufptr-cbufptr;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr,
 	     "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
    *pqdata = qdata;
 
-   if (debug > 0) 
+   if (biomeval_nbis_debug > 0) 
      fprintf(stdout,"Original complen = %d :: ratio = %.3f \n",
 	     ihsize, (float)(num_pix)/(float)ihsize);
 

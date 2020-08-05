@@ -131,7 +131,7 @@ int biomeval_nbis_read_marker_jpegl(unsigned short *omarker, const int type, FIL
    if((ret = biomeval_nbis_read_ushort(&marker, infp)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Read Marker = %d, type %d\n", marker, type);
 
    switch(type){
@@ -192,7 +192,7 @@ int biomeval_nbis_getc_marker_jpegl(unsigned short *omarker, const int type,
    if((ret = biomeval_nbis_getc_ushort(&marker, cbufptr, ebufptr)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Read Marker = %d, type %d\n", marker, type);
 
    switch(type){
@@ -284,7 +284,7 @@ int biomeval_nbis_read_jfif_header(JFIF_HEADER **ojfif_header, FILE *infp)
    JFIF_HEADER *jfif_header;
    unsigned short table_len;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start reading JFIF header.\n");
 
    jfif_header = (JFIF_HEADER *)malloc(sizeof(JFIF_HEADER));
@@ -344,7 +344,7 @@ int biomeval_nbis_read_jfif_header(JFIF_HEADER **ojfif_header, FILE *infp)
       return(-12);
    }
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Table Len = %d\n", table_len);
       fprintf(stdout, "Ident = %s\n", jfif_header->ident);
       fprintf(stdout, "version = %d.", (jfif_header->ver & 0xff00) >> 8);
@@ -356,7 +356,7 @@ int biomeval_nbis_read_jfif_header(JFIF_HEADER **ojfif_header, FILE *infp)
       fprintf(stdout, "ty = %d\n", jfif_header->ty);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished reading JFIF header.\n");
 
    *ojfif_header = jfif_header;
@@ -373,7 +373,7 @@ int biomeval_nbis_getc_jfif_header(JFIF_HEADER **ojfif_header,
    JFIF_HEADER *jfif_header;
    unsigned short table_len;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start reading JFIF header.\n");
 
    jfif_header = (JFIF_HEADER *)malloc(sizeof(JFIF_HEADER));
@@ -434,7 +434,7 @@ int biomeval_nbis_getc_jfif_header(JFIF_HEADER **ojfif_header,
       return(-12);
    }
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Table Len = %d\n", table_len);
       fprintf(stdout, "Ident = %s\n", jfif_header->ident);
       fprintf(stdout, "version = %d.", (jfif_header->ver & 0xff00) >> 8);
@@ -446,7 +446,7 @@ int biomeval_nbis_getc_jfif_header(JFIF_HEADER **ojfif_header,
       fprintf(stdout, "ty = %d\n", jfif_header->ty);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished reading JFIF header.\n");
 
    *ojfif_header = jfif_header;
@@ -461,7 +461,7 @@ int biomeval_nbis_write_jfif_header(JFIF_HEADER *jfif_header, FILE *outfp)
    int table_len, i;
    int ret;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start writing JFIF header.\n");
    
    if(strcmp(jfif_header->ident, JFIF_IDENT) != 0){
@@ -476,7 +476,7 @@ int biomeval_nbis_write_jfif_header(JFIF_HEADER *jfif_header, FILE *outfp)
 
    table_len = JFIF_HEADER_LEN;
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Table Len = %d\n", table_len);
       fprintf(stdout, "Ident = %s\n", jfif_header->ident);
       fprintf(stdout, "version = %d.", (jfif_header->ver & 0xff00) >> 8);
@@ -514,7 +514,7 @@ int biomeval_nbis_write_jfif_header(JFIF_HEADER *jfif_header, FILE *outfp)
    if((ret = biomeval_nbis_write_byte(jfif_header->ty, outfp)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished writing JFIF header.\n");
 
    return(0);
@@ -529,7 +529,7 @@ int biomeval_nbis_putc_jfif_header(JFIF_HEADER *jfif_header, unsigned char *outb
    int table_len, i;
    int ret;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start writing JFIF header.\n");
    
    if(strcmp(jfif_header->ident, JFIF_IDENT) != 0){
@@ -544,7 +544,7 @@ int biomeval_nbis_putc_jfif_header(JFIF_HEADER *jfif_header, unsigned char *outb
 
    table_len = JFIF_HEADER_LEN;
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Table Len = %d\n", table_len);
       fprintf(stdout, "Ident = %s\n", jfif_header->ident);
       fprintf(stdout, "version = %d.", (jfif_header->ver & 0xff00) >> 8);
@@ -582,7 +582,7 @@ int biomeval_nbis_putc_jfif_header(JFIF_HEADER *jfif_header, unsigned char *outb
    if((ret = biomeval_nbis_putc_byte(jfif_header->ty, outbuf, outalloc, outlen)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished writing JFIF header.\n");
 
    return(0);
@@ -693,7 +693,7 @@ int biomeval_nbis_read_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, FILE *
    unsigned short Lf;
    FRM_HEADER_JPEGL *frm_header;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start reading frame header.\n");
 
    frm_header = (FRM_HEADER_JPEGL *)malloc(sizeof(FRM_HEADER_JPEGL));
@@ -747,7 +747,7 @@ int biomeval_nbis_read_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, FILE *
       }
    }
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Lf = %d\n", Lf);
       fprintf(stdout, "P = %d\n", frm_header->prec);
       fprintf(stdout, "Y = %d\n", frm_header->y);
@@ -760,7 +760,7 @@ int biomeval_nbis_read_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header, FILE *
       }
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished frame frame header.\n\n");
 
    *ofrm_header = frm_header;
@@ -777,7 +777,7 @@ int biomeval_nbis_getc_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header,
    unsigned short Lf;
    FRM_HEADER_JPEGL *frm_header;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start reading frame header.\n");
 
    frm_header = (FRM_HEADER_JPEGL *)malloc(sizeof(FRM_HEADER_JPEGL));
@@ -831,7 +831,7 @@ int biomeval_nbis_getc_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header,
       }
    }
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Lf = %d\n", Lf);
       fprintf(stdout, "P = %d\n", frm_header->prec);
       fprintf(stdout, "Y = %d\n", frm_header->y);
@@ -844,7 +844,7 @@ int biomeval_nbis_getc_frame_header_jpegl(FRM_HEADER_JPEGL **ofrm_header,
       }
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished frame frame header.\n\n");
 
    *ofrm_header = frm_header;
@@ -859,10 +859,10 @@ int biomeval_nbis_write_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, FILE *o
 {
    int i, ret;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start writing frame header.\n");
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Lf = %d\n", 8+(3*frm_header->Nf));
       fprintf(stdout, "P = %d\n", frm_header->prec);
       fprintf(stdout, "Y = %d\n", frm_header->y);
@@ -906,7 +906,7 @@ int biomeval_nbis_write_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, FILE *o
          return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished writing frame header.\n\n");
 
    return(0);
@@ -920,10 +920,10 @@ int biomeval_nbis_putc_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, unsigned
 {
    int i, ret;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start writing frame header.\n");
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Lf = %d\n", 8+(3*frm_header->Nf));
       fprintf(stdout, "P = %d\n", frm_header->prec);
       fprintf(stdout, "Y = %d\n", frm_header->y);
@@ -967,7 +967,7 @@ int biomeval_nbis_putc_frame_header_jpegl(FRM_HEADER_JPEGL *frm_header, unsigned
          return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished writing frame header.\n\n");
 
    return(0);
@@ -1028,7 +1028,7 @@ int biomeval_nbis_read_scan_header(SCN_HEADER **oscn_header, FILE *infp)
    unsigned short Ls;
    SCN_HEADER *scn_header;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start reading scan header\n");
 
    scn_header = (SCN_HEADER *)malloc(sizeof(SCN_HEADER));
@@ -1078,7 +1078,7 @@ int biomeval_nbis_read_scan_header(SCN_HEADER **oscn_header, FILE *infp)
       return(ret);
    }
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Ls = %d\n", Ls);
       fprintf(stdout, "Ns = %d\n", scn_header->Ns);
 
@@ -1092,7 +1092,7 @@ int biomeval_nbis_read_scan_header(SCN_HEADER **oscn_header, FILE *infp)
       fprintf(stdout, "Ahl = %d\n", scn_header->Ahl);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished reading scan header\n");
 
 
@@ -1110,7 +1110,7 @@ int biomeval_nbis_getc_scan_header(SCN_HEADER **oscn_header, unsigned char **cbu
    unsigned short Ls;
    SCN_HEADER *scn_header;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start reading scan header\n");
 
    scn_header = (SCN_HEADER *)malloc(sizeof(SCN_HEADER));
@@ -1160,7 +1160,7 @@ int biomeval_nbis_getc_scan_header(SCN_HEADER **oscn_header, unsigned char **cbu
       return(ret);
    }
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Ls = %d\n", Ls);
       fprintf(stdout, "Ns = %d\n", scn_header->Ns);
 
@@ -1174,7 +1174,7 @@ int biomeval_nbis_getc_scan_header(SCN_HEADER **oscn_header, unsigned char **cbu
       fprintf(stdout, "Ahl = %d\n", scn_header->Ahl);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished reading scan header\n");
 
 
@@ -1189,10 +1189,10 @@ int biomeval_nbis_write_scan_header(SCN_HEADER *scn_header, FILE *outfp)
 {
    int i, ret;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start writing scan header\n");
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Ls = %d\n", 6+(2*scn_header->Ns));
       fprintf(stdout, "Ns = %d\n", scn_header->Ns);
 
@@ -1235,7 +1235,7 @@ int biomeval_nbis_write_scan_header(SCN_HEADER *scn_header, FILE *outfp)
    if((ret = biomeval_nbis_write_byte(scn_header->Ahl, outfp)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished writing scan header\n");
 
    return(0);
@@ -1249,10 +1249,10 @@ int biomeval_nbis_putc_scan_header(SCN_HEADER *scn_header, unsigned char *outbuf
 {
    int i, ret;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start writing scan header\n");
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Ls = %d\n", 6+(2*scn_header->Ns));
       fprintf(stdout, "Ns = %d\n", scn_header->Ns);
 
@@ -1295,7 +1295,7 @@ int biomeval_nbis_putc_scan_header(SCN_HEADER *scn_header, unsigned char *outbuf
    if((ret = biomeval_nbis_putc_byte(scn_header->Ahl, outbuf, outalloc, outlen)))
       return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished writing scan header\n");
 
    return(0);
@@ -1313,7 +1313,7 @@ int biomeval_nbis_read_comment(
    unsigned short hdr_size;              /* header size */
    unsigned char *comment;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading Comment Field.\n");
 
    if((ret = biomeval_nbis_read_ushort(&hdr_size, infp)))
@@ -1342,7 +1342,7 @@ int biomeval_nbis_read_comment(
    /* have one here by default due to the calloc of one extra byte at  */
    /* the end. */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Comment =  %s", comment);
 
    *ocomment = comment;
@@ -1362,7 +1362,7 @@ int biomeval_nbis_getc_comment(
    unsigned short hdr_size;              /* header size */
    unsigned char *comment;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Reading Comment Field.\n");
 
    if((ret = biomeval_nbis_getc_ushort(&hdr_size, cbufptr, ebufptr)))
@@ -1388,7 +1388,7 @@ int biomeval_nbis_getc_comment(
    /* have one here by default due to the calloc of one extra byte at  */
    /* the end. */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Comment =  %s", comment);
 
    *ocomment = comment;
@@ -1407,7 +1407,7 @@ int biomeval_nbis_write_comment(
    int ret;
    unsigned short hdr_size;              /* header size */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing Comment Field.\n");
 
    if((ret = biomeval_nbis_write_ushort(marker, outfp)))
@@ -1424,7 +1424,7 @@ int biomeval_nbis_write_comment(
      return(-2);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished Writing Comment Field.\n");
 
    return(0);
@@ -1445,7 +1445,7 @@ int biomeval_nbis_putc_comment(
    int ret, i;
    unsigned short hdr_size;              /* header size */
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Writing Comment Field to Buffer.\n");
 
    if((ret = biomeval_nbis_putc_ushort(marker, odata, oalloc, olen)))
@@ -1458,7 +1458,7 @@ int biomeval_nbis_putc_comment(
       if((ret = biomeval_nbis_putc_byte(comment[i], odata, oalloc, olen)))
          return(ret);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Finished Writing Comment Field to Buffer.\n");
 
    return(0);

@@ -78,7 +78,7 @@ extern int pointwidth;
 extern char *title;
 extern int wx, wy;
 extern int verbose;
-extern int debug;
+extern int biomeval_nbis_debug;
 /* Deactivated from command line: defaults used only. */
 extern int automatic;
 extern unsigned int sleeptime;

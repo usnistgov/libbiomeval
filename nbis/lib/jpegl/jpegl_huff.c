@@ -100,7 +100,7 @@ int biomeval_nbis_read_huffman_table(unsigned char *otable_id, unsigned char **o
    unsigned char *huffbits, *huffvalues;
    unsigned short num_hufvals;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start reading huffman table.\n");
 
    /* table_len */
@@ -169,7 +169,7 @@ int biomeval_nbis_read_huffman_table(unsigned char *otable_id, unsigned char **o
    }
    (*bytes_left) -= num_hufvals;
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Table Len = %d\n", table_len);
       fprintf(stdout, "Table ID = %d\n", table_id);
       for(i = 0; i < MAX_HUFFBITS; i++)
@@ -178,7 +178,7 @@ int biomeval_nbis_read_huffman_table(unsigned char *otable_id, unsigned char **o
          fprintf(stdout, "values[%d] = %d\n", i, huffvalues[i]);
    }
    
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished reading huffman table.\n");
 
    *otable_id = table_id;
@@ -202,7 +202,7 @@ int biomeval_nbis_getc_huffman_table(unsigned char *otable_id, unsigned char **o
    unsigned char *huffbits, *huffvalues;
    unsigned short num_hufvals;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start reading huffman table.\n");
 
    /* table_len */
@@ -271,7 +271,7 @@ int biomeval_nbis_getc_huffman_table(unsigned char *otable_id, unsigned char **o
    }
    (*bytes_left) -= num_hufvals;
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Table Len = %d\n", table_len);
       fprintf(stdout, "Table ID = %d\n", table_id);
       for(i = 0; i < MAX_HUFFBITS; i++)
@@ -280,7 +280,7 @@ int biomeval_nbis_getc_huffman_table(unsigned char *otable_id, unsigned char **o
          fprintf(stdout, "values[%d] = %d\n", i, huffvalues[i]);
    }
    
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished reading huffman table.\n");
 
    *otable_id = table_id;
@@ -303,7 +303,7 @@ int biomeval_nbis_write_huffman_table(
    int i, ret;
    unsigned short table_len, values_offset;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start writing huffman table.\n");
 
    /* DHT */
@@ -315,7 +315,7 @@ int biomeval_nbis_write_huffman_table(
    for(i = 0; i < MAX_HUFFBITS; i++)
       table_len += huffbits[i];   /* values size */
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Table Len = %d\n", table_len);
       fprintf(stdout, "Table ID = %d\n", table_id);
       for(i = 0; i < MAX_HUFFBITS; i++)
@@ -344,7 +344,7 @@ int biomeval_nbis_write_huffman_table(
          return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished writing huffman table.\n\n");
 
    return(0);
@@ -365,7 +365,7 @@ int biomeval_nbis_putc_huffman_table(
    int i, ret;
    unsigned short table_len, values_offset;
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Start writing huffman table.\n");
 
    /* DHT */
@@ -377,7 +377,7 @@ int biomeval_nbis_putc_huffman_table(
    for(i = 0; i < MAX_HUFFBITS; i++)
       table_len += huffbits[i];   /* values size */
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Table Len = %d\n", table_len);
       fprintf(stdout, "Table ID = %d\n", table_id);
       for(i = 0; i < MAX_HUFFBITS; i++)
@@ -406,7 +406,7 @@ int biomeval_nbis_putc_huffman_table(
          return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stdout, "Finished writing huffman table.\n\n");
 
    return(0);
@@ -445,7 +445,7 @@ int biomeval_nbis_find_huff_sizes(int **ocodesize, int *freq, const int max_huff
 
       if(value2 == -1) {
 	 free(others);
-	 if(debug > 2){
+	 if(biomeval_nbis_debug > 2){
 	    for (i = 0; i <= max_huffcounts; i++) 
 	       fprintf(stdout, "codesize[%d] = %d\n", i, codesize[i]);
 	 }
@@ -546,7 +546,7 @@ int biomeval_nbis_find_num_huff_sizes(unsigned char **obits, int *adjust, int *c
          *adjust = 1;
    }
 
-   if(debug > 2){
+   if(biomeval_nbis_debug > 2){
       for(i = 0; i < MAX_HUFFBITS<<1; i++)
 	 fprintf(stdout, "bits[%d] = %d\n", i, bits[i]);
       fprintf(stdout, "ADJUST = %d\n", *adjust);
@@ -610,7 +610,7 @@ int biomeval_nbis_sort_huffbits(unsigned char *bits)
       }
    }
 
-   if(debug > 1){
+   if(biomeval_nbis_debug > 1){
       fprintf(stdout, "Huffbits after sorting.\n");
       for(i = 0; i < MAX_HUFFBITS<<1; i++)
          fprintf(stdout,"sort_bits[%d] = %d\n", i, bits[i]);
@@ -645,7 +645,7 @@ int biomeval_nbis_sort_code_sizes(unsigned char **ovalues, int *codesize,
       }
    }
 
-   if(debug > 2){
+   if(biomeval_nbis_debug > 2){
       for(i = 0; i <= max_huffcounts; i++)
 	 fprintf(stdout, "values[%d] = %d\n", i, values[i]);
    }
@@ -676,7 +676,7 @@ int biomeval_nbis_build_huffcode_table(HUFFCODE **ohuffcode_table,
       (new_huffcode_table+values[size])->size = (in_huffcode_table+size)->size;
    }
 
-   if(debug > 3){
+   if(biomeval_nbis_debug > 3){
       for(size = 0; size <= max_huffcounts; size++) {
          fprintf(stdout, "huff_size[%d] = %d\n", size,
                  new_huffcode_table[size].size);
@@ -717,7 +717,7 @@ int biomeval_nbis_build_huffsizes(HUFFCODE **ohuffcode_table, int *temp_size,
    }
    (huffcode_table+(*temp_size))->size = 0;
 
-   if(debug > 2){
+   if(biomeval_nbis_debug > 2){
       int ii;
       fprintf(stderr, "In biomeval_nbis_build_huffsizes:\n");
       for(ii = 0; ii < max_huffcounts+1; ii++)

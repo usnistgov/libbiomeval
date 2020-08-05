@@ -150,13 +150,13 @@ int biomeval_nbis_wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *o
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "SOI, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
    biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, width, height);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
 
    /* Allocate working memory. */
@@ -174,7 +174,7 @@ int biomeval_nbis_wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *o
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr,
          "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
@@ -186,7 +186,7 @@ int biomeval_nbis_wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *o
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "WSQ subband data blocks unquantized\n\n");
 
    /* Done with quantized wavelet subband data. */
@@ -199,7 +199,7 @@ int biomeval_nbis_wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *o
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "WSQ reconstruction of image finished\n\n");
 
    cdata = (unsigned char *)malloc(num_pix * sizeof(unsigned char));
@@ -220,7 +220,7 @@ int biomeval_nbis_wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *o
    /* Added by MDG on 02-24-05 */
    biomeval_nbis_free_wsq_decoder_resources();
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Doubleing point pixels converted to unsigned char\n\n");
 
    /* Assign reconstructed pixmap and attributes to output pointers. */
@@ -289,13 +289,13 @@ int biomeval_nbis_wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "SOI, tables, and frame header read\n\n");
 
    /* Build WSQ decomposition trees. */
    biomeval_nbis_build_wsq_trees(biomeval_nbis_w_tree, W_TREELEN, biomeval_nbis_q_tree, Q_TREELEN, width, height);
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Tables for wavelet decomposition finished\n\n");
 
    /* Allocate working memory. */
@@ -314,7 +314,7 @@ int biomeval_nbis_wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr,
          "Quantized WSQ subband data blocks read and Huffman decoded\n\n");
 
@@ -326,7 +326,7 @@ int biomeval_nbis_wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "WSQ subband data blocks unquantized\n\n");
 
    /* Done with biomeval_nbis_quantized wavelet subband data. */
@@ -339,7 +339,7 @@ int biomeval_nbis_wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *
       return(ret);
    }
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "WSQ reconstruction of image finished\n\n");
 
    cdata = (unsigned char *)malloc(num_pix * sizeof(unsigned char));
@@ -360,7 +360,7 @@ int biomeval_nbis_wsq_decode_file(unsigned char **odata, int *ow, int *oh, int *
    /* Added by MDG on 02-24-05 */
    biomeval_nbis_free_wsq_decoder_resources();
 
-   if(debug > 0)
+   if(biomeval_nbis_debug > 0)
       fprintf(stderr, "Doubleing point pixels converted to unsigned char\n\n");
 
 
@@ -446,7 +446,7 @@ int biomeval_nbis_huffman_decode_data_mem(
 
          biomeval_nbis_build_huffcodes(hufftable);
          if((ret = biomeval_nbis_check_huffcodes_wsq(hufftable, last_size)))
-            if(debug > 0)
+            if(biomeval_nbis_debug > 0)
                fprintf(stderr, "         hufftable_id = %d\n", hufftable_id);
 
          /* this routine builds a set of three tables used in decoding */
@@ -626,7 +626,7 @@ int biomeval_nbis_huffman_decode_data_file(
             return(ret);
          biomeval_nbis_build_huffcodes(hufftable);
          if((ret = biomeval_nbis_check_huffcodes_wsq(hufftable, last_size)))
-            if(debug > 0)
+            if(biomeval_nbis_debug > 0)
                fprintf(stderr, "         hufftable_id = %d\n", hufftable_id);
 
          /* this routine builds a set of three tables used in decoding */
