@@ -34,6 +34,12 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+if (BUILD_BIOMEVAL_32BIT)
+	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+endif (BUILD_BIOMEVAL_32BIT)
+
 # Create dirent_windows.h at build time
 if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include/dirent_windows.h")
 	if (UNIX)
@@ -219,6 +225,7 @@ endif()
 set(MPISOURCES ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER})
 # Provide some hints to help find MPI
 list(APPEND CMAKE_PREFIX_PATH "/opt/local/bin")
+list(APPEND CMAKE_PREFIX_PATH "/usr/lib/openmpi/bin")
 list(APPEND CMAKE_PREFIX_PATH "/usr/lib64/openmpi/bin")
 find_package(MPI)
 if(MPI_CXX_FOUND AND NOT MSVC)

@@ -79,6 +79,27 @@ if (NOT BUILD_BIOMEVAL_SHARED AND NOT BUILD_BIOMEVAL_STATIC)
 	message(FATAL_ERROR "You must build at least a static or shared library.")
 endif (NOT BUILD_BIOMEVAL_SHARED AND NOT BUILD_BIOMEVAL_STATIC)
 
+# 32-bit compilation on systems that support compiling both 32- and 64-bit. On
+# Windows, this is part of the platform (cmake's -A flag).
+
+# Detect if it seems we're on a 64-bit machine capable of also producing a
+# 32-bit build.
+if ((NOT MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8) OR (CMAKE_GENERATOR STREQUAL "Xcode" AND XCODE_VERSION VERSION_LESS 10))
+	set(POSSIBLE_TO_BUILD_32BIT YES)
+else ((NOT MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8) OR (CMAKE_GENERATOR STREQUAL "Xcode" AND XCODE_VERSION VERSION_LESS 10))
+	set(POSSIBLE_TO_BUILD_32BIT NO)
+endif ((NOT MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8) OR (CMAKE_GENERATOR STREQUAL "Xcode" AND XCODE_VERSION VERSION_LESS 10))
+
+if (POSSIBLE_TO_BUILD_32BIT)
+	option(BUILD_BIOMEVAL_32BIT "Build code for 32-bit architecture." OFF)
+endif (POSSIBLE_TO_BUILD_32BIT)
+if (NOT MSVC AND POSSIBLE_TO_BUILD_32BIT)
+	if (BUILD_BIOMEVAL_32BIT)
+		message(STATUS "Bitness: 32-bit")
+	else (BUILD_BIOMEVAL_32BIT)
+		message(STATUS "Bitness: 64-bit")
+	endif (BUILD_BIOMEVAL_32BIT)
+endif (NOT MSVC AND POSSIBLE_TO_BUILD_32BIT)
 #
 # The CMake config files must exist in the directories added to this config:
 #
