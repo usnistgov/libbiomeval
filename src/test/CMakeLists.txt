@@ -155,6 +155,9 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 			    CXX_FLAGS_RELEASE "/MT"
 			    CXX_FLAGS_DEBUG "/MTd")
 		endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
+
+		# It also needs to link Crypt32
+		target_link_libraries(${TARGET_NAME} Crypt32)
 	endif (MSVC)
 endfunction(set_biomeval_test_exe_dependencies)
 

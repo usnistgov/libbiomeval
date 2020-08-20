@@ -582,6 +582,11 @@ if(MSVC AND BUILD_BIOMEVAL_SHARED)
 	target_link_libraries(${SHAREDLIB} Ws2_32)
 endif(MSVC AND BUILD_BIOMEVAL_SHARED)
 
+# Need crypt32 on Windows
+if (MSVC)
+	target_link_libraries(${STATICLIBTGT} Crypt32)
+endif (MSVC)
+
 #
 # Installation.
 # Note that because both the static and shared libraries use the same public
