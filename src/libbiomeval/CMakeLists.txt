@@ -104,7 +104,11 @@ set(STATICLIBTGT ${CORELIB}-static CACHE INTERNAL "Name of static library target
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
-    set(CMAKE_CXX_STANDARD 11)
+    if (MSVC)
+        set(CMAKE_CXX_STANDARD 14)
+    else (MSVC)
+        set(CMAKE_CXX_STANDARD 11)
+    endif (MSVC)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 else()
     if(MSVC)
