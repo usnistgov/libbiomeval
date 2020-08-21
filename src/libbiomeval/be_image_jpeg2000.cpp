@@ -16,6 +16,63 @@
 
 namespace BE = BiometricEvaluation;
 
+/** 
+ * @brief
+ * Object with method to delete OpenJPEG codec objects.
+ *
+ * @details
+ * Visual Studio 32-bit doesn't seem to allow function pointers as Deleters.
+ */
+struct OpenJPEG_CodecDeleter
+{
+	void
+	operator()(
+	    opj_codec_t *codec)
+	    const
+	    noexcept
+	{
+		opj_destroy_codec(codec);
+	}
+};
+
+/**
+ * @brief
+ * Object with method to delete OpenJPEG image objects.
+ *
+ * @details
+ * Visual Studio 32-bit doesn't seem to allow function pointers as Deleters.
+ */
+struct OpenJPEG_ImageDeleter
+{
+	void
+	operator()(
+	    opj_image_t *image)
+	    const
+	    noexcept
+	{
+		opj_image_destroy(image);
+	}
+};
+
+/**
+ * @brief
+ * Object with method to delete OpenJPEG stream objects.
+ *
+ * @details
+ * Visual Studio 32-bit doesn't seem to allow function pointers as Deleters.
+ */
+struct OpenJPEG_StreamDeleter
+{
+	void 
+	operator()(
+	    opj_stream_t *stream)
+	    const
+	    noexcept
+	{
+		opj_stream_destroy(stream);
+	}
+};
+
 BiometricEvaluation::Image::JPEG2000::JPEG2000(
     const uint8_t *data,
     const uint64_t size,
@@ -30,20 +87,20 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
     statusCallback),
     _codecFormat(codecFormat)
 {
-	std::unique_ptr<opj_codec_t, void(*)(opj_codec_t*)> codec(
+	std::unique_ptr<opj_codec_t, OpenJPEG_CodecDeleter> codec(
 	    static_cast<opj_codec_t*>(this->getDecompressionCodec()),
-	    opj_destroy_codec);
-	std::unique_ptr<opj_stream_t, void(*)(opj_stream_t*)> stream(
+	    OpenJPEG_CodecDeleter{});
+	std::unique_ptr<opj_stream_t, OpenJPEG_StreamDeleter> stream(
 	    static_cast<opj_stream_t*>(this->getDecompressionStream()),
-	    opj_stream_destroy);
+	    OpenJPEG_StreamDeleter{});
 
 	opj_image_t *imagePtr = nullptr;
 	if (opj_read_header(stream.get(), codec.get(), &imagePtr) == OPJ_FALSE)
 		throw Error::Exception("Could not read header");
 	if (imagePtr == nullptr)
 		throw Error::Exception("Parsed header is empty");
-	std::unique_ptr<opj_image_t, void(*)(opj_image_t*)> image(
-	    imagePtr, opj_image_destroy);
+	std::unique_ptr<opj_image_t, OpenJPEG_ImageDeleter> image(
+	    imagePtr, OpenJPEG_ImageDeleter{});
 
 	if (image->numcomps <= 0)
 		throw Error::NotImplemented("No components");
@@ -118,20 +175,20 @@ BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Image::JPEG2000::getRawData()
     const
 {
-	std::unique_ptr<opj_codec_t, void(*)(opj_codec_t*)> codec(
+	std::unique_ptr<opj_codec_t, OpenJPEG_CodecDeleter> codec(
 	    static_cast<opj_codec_t*>(this->getDecompressionCodec()),
-	    opj_destroy_codec);
-	std::unique_ptr<opj_stream_t, void(*)(opj_stream_t*)> stream(
+	    OpenJPEG_CodecDeleter{});
+	std::unique_ptr<opj_stream_t, OpenJPEG_StreamDeleter> stream(
 	    static_cast<opj_stream_t*>(this->getDecompressionStream()),
-	    opj_stream_destroy);
+	    OpenJPEG_StreamDeleter{});
 
 	opj_image_t *imagePtr = nullptr;
 	if (opj_read_header(stream.get(), codec.get(), &imagePtr) == OPJ_FALSE)
 		throw Error::Exception("Could not read header");
 	if (imagePtr == nullptr)
 		throw Error::Exception("Parsed header is empty");
-	std::unique_ptr<opj_image_t, void(*)(opj_image_t*)> image(
-	    imagePtr, opj_image_destroy);
+	std::unique_ptr<opj_image_t, OpenJPEG_ImageDeleter> image(
+	    imagePtr, OpenJPEG_ImageDeleter{});
 
 	if (image->numcomps <= 0)
 		throw Error::NotImplemented("No components");

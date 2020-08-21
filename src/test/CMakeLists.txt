@@ -43,7 +43,11 @@ cmake_minimum_required(VERSION 2.8.11)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../libbiomeval/cmake/Modules/")
 
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
-    set(CMAKE_CXX_STANDARD 11)
+    if (MSVC)
+        set(CMAKE_CXX_STANDARD 14)
+    else (MSVC)
+        set(CMAKE_CXX_STANDARD 11)
+    endif (MSVC)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 else()
     if(MSVC)
@@ -155,6 +159,9 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 			    CXX_FLAGS_RELEASE "/MT"
 			    CXX_FLAGS_DEBUG "/MTd")
 		endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
+
+		# It also needs to link Crypt32
+		target_link_libraries(${TARGET_NAME} Crypt32)
 	endif (MSVC)
 endfunction(set_biomeval_test_exe_dependencies)
 
