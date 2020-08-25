@@ -203,23 +203,31 @@ else(FFMPEG_FOUND)
 endif(FFMPEG_FOUND)
 
 #
-# PCSC (Smartcard) support is an optional library on Linux
+# PCSC (Smartcard) support is an optional library
 #
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-  find_package(PCSC)
-  if(PCSC_FOUND)
-    message(STATUS "Adding PCSC support.")
-    if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
-      add_library(deviceobjs OBJECT ${DEVICE})
-    endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
-    if (MSVC AND BUILD_BIOMEVAL_STATIC)
-      add_library(deviceobjs-static OBJECT ${DEVICE})
-      target_include_directories(deviceobjs-static PUBLIC ${BIOMEVAL_INCLUDE})
-    endif (MSVC AND BUILD_BIOMEVAL_STATIC)
-  else(PCSC_FOUND)
-    message(STATUS "Building without PCSC support.")
-  endif(PCSC_FOUND)
-endif()
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	find_library(PCSC_FRAMEWORK PCSC)  
+	if (PCSC_FRAMEWORK)
+		set(PCSC_FOUND ON)
+	endif (PCSC_FRAMEWORK)
+else (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	find_package(PCSC)
+endif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+
+if (PCSC_FOUND)
+	message(STATUS "Adding PCSC support.")
+	if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+		add_library(deviceobjs OBJECT ${DEVICE})
+		target_include_directories(deviceobjs PUBLIC ${BIOMEVAL_INCLUDE})
+	endif ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
+
+	if (MSVC AND BUILD_BIOMEVAL_STATIC)
+		add_library(deviceobjs-static OBJECT ${DEVICE})
+		target_include_directories(deviceobjs-static PUBLIC ${BIOMEVAL_INCLUDE})
+	endif (MSVC AND BUILD_BIOMEVAL_STATIC)
+else (PCSC_FOUND)
+	message(STATUS "Building without PCSC support.")
+endif (PCSC_FOUND)
 
 #
 # Keep MPI related files separate so we can use a different compiler command.
@@ -446,10 +454,9 @@ if(CMAKE_HOST_APPLE)
   if (BUILD_BIOMEVAL_SHARED)
 	  set_target_properties(${SHAREDLIB} PROPERTIES MACOSX_RPATH ON)
 	  target_link_libraries(${SHAREDLIB} -L/opt/local/lib)
-	  #
-	  # Apple-provided frameworks
-	  #
-	  target_link_libraries(${SHAREDLIB} "-framework Foundation" "-framework Security" "-framework PCSC")
+	  if (PCSC_FOUND)
+	  	target_link_libraries(${SHAREDLIB} ${PCSC_FRAMEWORK})
+	  endif (PCSC_FOUND)
   endif (BUILD_BIOMEVAL_SHARED)
   add_definitions("-DDarwin")
 endif(CMAKE_HOST_APPLE)
@@ -470,15 +477,25 @@ endif()
 #
 # OpenSSL
 #
-set(OPENSSL_FIND_REQUIRED TRUE)
-find_package(OpenSSL)
-if(NOT OPENSSL_FOUND)
-  message(FATAL_ERROR "Could not find OpenSSL.")
-endif(NOT OPENSSL_FOUND)
-include_directories(PUBLIC ${OPENSSL_INCLUDE_DIR})
-if (BUILD_BIOMEVAL_SHARED)
-	target_link_libraries(${SHAREDLIB} ${OPENSSL_LIBRARIES})
-endif()
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	# On macOS, we use the built-in frameworks instead.
+	find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)  
+	find_library(SECURITY_FRAMEWORK Security REQUIRED)  
+	if (BUILD_BIOMEVAL_SHARED)
+		target_link_libraries(${SHAREDLIB} 
+		    ${FOUNDATION_FRAMEWORK} ${SECURITY_FRAMEWORK})
+	endif (BUILD_BIOMEVAL_SHARED)
+else (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	set(OPENSSL_FIND_REQUIRED TRUE)
+	find_package(OpenSSL)
+	if(NOT OPENSSL_FOUND)
+	  message(FATAL_ERROR "Could not find OpenSSL.")
+	endif(NOT OPENSSL_FOUND)
+	include_directories(PUBLIC ${OPENSSL_INCLUDE_DIR})
+	if (BUILD_BIOMEVAL_SHARED)
+		target_link_libraries(${SHAREDLIB} ${OPENSSL_LIBRARIES})
+	endif()
+endif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 #
 # Berkeley DB
