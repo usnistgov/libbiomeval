@@ -43,7 +43,7 @@ some point, but are not officially supported:
 
  * `icpc` >= 15.0
  * Cygwin 1.7.x
- * Windows 10/Microsoft Visual Studio 2019 (x64)
+ * Windows 10/Microsoft Visual Studio 2019
 
 Installing
 ----------
@@ -68,7 +68,7 @@ rpm --install libbiomeval-10.0-1.x86_64.rpm
 
 System Packages
 ---------------
- * Some modules require system packages that may not be installed by default o
+ * Some modules require system packages that may not be installed by default on
    all operating systems. Package names are listed below for RHEL/CentOS, macOS
    (via [MacPorts](https://www.macports.org)), Ubuntu, and Windows (via
    [`vcpkg`](https://github.com/Microsoft/vcpkg)). Other operating systems may
@@ -89,24 +89,24 @@ System Packages
    ```
 
 ### CORE
-| Name         | RHEL/CentOS     | MacPorts                     | Ubuntu       | vcpkg     |
+| Name         | RHEL/CentOS     | MacPorts/Homebrew            | Ubuntu       | vcpkg     |
 |:------------:|:---------------:|:----------------------------:|:------------:|:---------:|
 | OpenSSL      | `openssl-devel` | n/a (uses macOS CommonCrypto)| `libssl-dev` | `openssl` |
 
 ### DEVICE
 
-| Name      | RHEL/CentOS       | MacPorts                         | Ubuntu   |
+| Name      | RHEL/CentOS       | MacPorts/Homebrew                | Ubuntu   |
 |:---------:|:-----------------:|:--------------------------------:|:--------:|
 | PCSC Lite | `pcsc-lite-devel` | n/a (requires [Command Line Tools](https://developer.apple.com/library/archive/technotes/tn2339/_index.html)) | `libpcsclite-dev` |
 
 ### IMAGE
-| Name         | RHEL/CentOS           | MacPorts   | Ubuntu             | vcpkg          |
-|:------------:|:---------------------:|:----------:|:------------------:|:--------------:|
-| OpenJPEG 2.x | `openjpeg2-devel`     | `openjpeg` | `libopenjp2-7-dev` | `openjpeg`     |
-| libjpeg      | `libjpeg-turbo-devel` | `jpeg`     | `libjpeg-dev`      | `libjpeg-turbo`|
-| libpng       | `libpng-devel`        | `libpng`   | `libpng-dev`       | `libpng`       |
-| libtiff      | `libtiff-devel`       | `tiff`     | `libtiff-dev`      | `tiff`         |
-| Zlib         | `zlib-devel`          | `zlib`     | `zlib1g-dev`       | `zlib`         |
+| Name         | RHEL/CentOS           | MacPorts   | Homebrew               | Ubuntu             | vcpkg          |
+|:------------:|:---------------------:|:----------:|:----------------------:|:------------------:|:--------------:|
+| OpenJPEG 2.x | `openjpeg2-devel`     | `openjpeg` | `openjpeg`             | `libopenjp2-7-dev` | `openjpeg`     |
+| libjpeg      | `libjpeg-turbo-devel` | `jpeg`     | `jpeg` or `jpeg-turbo` | `libjpeg-dev`      | `libjpeg-turbo`|
+| libpng       | `libpng-devel`        | `libpng`   | `libpng`               | `libpng-dev`       | `libpng`       |
+| libtiff      | `libtiff-devel`       | `tiff`     | `libtiff`              | `libtiff-dev`      | `tiff`         |
+| Zlib         | `zlib-devel`          | `zlib`     | `zlib`                 | `zlib1g-dev`       | `zlib`         |
 
 **Note:**
 
@@ -114,14 +114,14 @@ System Packages
    enabled by installing the package `epel-release`.
 
 ### IO
-| Name         | RHEL/CentOS  | MacPorts | Ubuntu       | vcpkg  |
-|:------------:|:------------:|:--------:|:------------:|:------:|
-| Zlib         | `zlib-devel` | `zlib`   | `zlib1g-dev` | `zlib` |
+| Name         | RHEL/CentOS  | MacPorts | Homebrew  |Ubuntu       | vcpkg  |
+|:------------:|:------------:|:--------:|:---------:|:-----------:|:------:|
+| Zlib         | `zlib-devel` | `zlib`   | `zlib`    |`zlib1g-dev` | `zlib` |
 
 ### MPIBASE, MPIDISTRIBUTOR, MPIRECEIVER
-| Name         | RHEL/CentOS     | MacPorts  | Ubuntu           | vcpkg   |
-|:------------:|:---------------:|:---------:|:----------------:|:-------:|
-| Open MPI     | `openmpi-devel` | `openmpi` | `libopenmpi-dev` | `msmpi` |
+| Name         | RHEL/CentOS     | MacPorts  | Homebrew   | Ubuntu           | vcpkg   |
+|:------------:|:---------------:|:---------:|:----------:|:----------------:|:-------:|
+| Open MPI     | `openmpi-devel` | `openmpi` | `open-mpi` | `libopenmpi-dev` | `msmpi` |
 
 **Note:**
 
@@ -135,21 +135,21 @@ System Packages
   [Microsoft MPI redistributable package](https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi).
 
 ### RECORDSTORE
-| Name         | RHEL/CentOS        | MacPorts  | Ubuntu           | vcpkg        |
-|:------------:|:------------------:|:---------:|:----------------:|:------------:|
-| Berkeley DB  | `libdb-cxx-devel`  | `db62`    | `libdb++-dev`    | `berkeleydb` |
-| SQLite 3     | `sqlite-devel`     | `sqlite3` | `libsqlite3-dev` | `sqlite3`    |
-| Zlib         | `zlib-devel`       | `zlib`    | `zlib1g-dev`     | `zlib`       |
+| Name         | RHEL/CentOS        | MacPorts  | Homebrew      | Ubuntu           | vcpkg        |
+|:------------:|:------------------:|:---------:|:-------------:|:----------------:|:------------:|
+| Berkeley DB  | `libdb-cxx-devel`  | `db62`    | `berkeley-db` | `libdb++-dev`    | `berkeleydb` |
+| SQLite 3     | `sqlite-devel`     | `sqlite3` | `sqlite`      | `libsqlite3-dev` | `sqlite3`    |
+| Zlib         | `zlib-devel`       | `zlib`    | `zlib`        | `zlib1g-dev`     | `zlib`       |
 
 ### SYSTEM
-| Name                       | RHEL/CentOS   | MacPorts | Ubuntu         | vcpkg   |
-|:--------------------------:|:-------------:|:--------:|:--------------:|:-------:|
-| Portable Hardware Locality | `hwloc-devel` | `hwloc`  | `libhwloc-dev` | `hwloc` |
+| Name                       | RHEL/CentOS   | MacPorts | Homebrew | Ubuntu         | vcpkg   |
+|:--------------------------:|:-------------:|:--------:|:--------:|:--------------:|:-------:|
+| Portable Hardware Locality | `hwloc-devel` | `hwloc`  | `hwloc`  | `libhwloc-dev` | `hwloc` |
 
 ### VIDEO
-| Name                        | RHEL/CentOS | MacPorts       | Ubuntu          | vcpkg |
-|:---------------------------:|:-----------:|:--------------:|:---------------:|:------|
-| [ffmpeg](http://ffmpeg.org) | Build from source, and install to `/usr/local` | `ffmpeg-devel` | `libavcodec-dev`, `libavformat-dev`, `libswscale-dev` | `ffmpeg` |
+| Name                        | RHEL/CentOS | MacPorts       | Homebrew | Ubuntu          | vcpkg |
+|:---------------------------:|:-----------:|:--------------:|:--------:|:---------------:|:------|
+| [ffmpeg](http://ffmpeg.org) | Build from source, and install to `/usr/local` | `ffmpeg-devel` | `ffmpeg` | `libavcodec-dev`, `libavformat-dev`, `libswscale-dev` | `ffmpeg` |
 
 
 #### NIST Biometric Image Software (NBIS)
