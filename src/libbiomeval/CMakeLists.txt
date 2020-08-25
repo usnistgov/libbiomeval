@@ -449,7 +449,7 @@ if(CMAKE_HOST_APPLE)
 	  #
 	  # Apple-provided frameworks
 	  #
-	  target_link_libraries(${SHAREDLIB} "-framework Foundation" "-framework Security" "-framework PCSC")
+	  target_link_libraries(${SHAREDLIB} "-framework PCSC")
   endif (BUILD_BIOMEVAL_SHARED)
   add_definitions("-DDarwin")
 endif(CMAKE_HOST_APPLE)
@@ -470,15 +470,25 @@ endif()
 #
 # OpenSSL
 #
-set(OPENSSL_FIND_REQUIRED TRUE)
-find_package(OpenSSL)
-if(NOT OPENSSL_FOUND)
-  message(FATAL_ERROR "Could not find OpenSSL.")
-endif(NOT OPENSSL_FOUND)
-include_directories(PUBLIC ${OPENSSL_INCLUDE_DIR})
-if (BUILD_BIOMEVAL_SHARED)
-	target_link_libraries(${SHAREDLIB} ${OPENSSL_LIBRARIES})
-endif()
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	# On macOS, we use the built-in frameworks instead.
+	find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)  
+	find_library(SECURITY_FRAMEWORK Security REQUIRED)  
+	if (BUILD_BIOMEVAL_SHARED)
+		target_link_libraries(${SHAREDLIB} 
+		    ${FOUNDATION_FRAMEWORK} ${SECURITY_FRAMEWORK})
+	endif (BUILD_BIOMEVAL_SHARED)
+else (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	set(OPENSSL_FIND_REQUIRED TRUE)
+	find_package(OpenSSL)
+	if(NOT OPENSSL_FOUND)
+	  message(FATAL_ERROR "Could not find OpenSSL.")
+	endif(NOT OPENSSL_FOUND)
+	include_directories(PUBLIC ${OPENSSL_INCLUDE_DIR})
+	if (BUILD_BIOMEVAL_SHARED)
+		target_link_libraries(${SHAREDLIB} ${OPENSSL_LIBRARIES})
+	endif()
+endif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 
 #
 # Berkeley DB
