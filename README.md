@@ -157,6 +157,17 @@ System Packages
 of RHEL/CentOS, Ubuntu, and macOS. The Framework repository contains a subset
 of NBIS that is built automatically.
 
+Options
+-------
+The CMake build supports the following options:
+
+| CMake Option            | Default | Description                                          |
+|:-----------------------:|:-------:|:----------------------------------------------------:|
+| `BUILD_BIOMEVAL_SHARED` | ON      | Build shared library (i.e., `.so`, `.dll`, `.dylib`) |
+| `BUILD_BIOMEVAL_STATIC` | ON      | Build static library (i.e., `.a`, `.lib`)            |
+| `BUILD_BIOMEVAL_TESTS`  | ON      | Build test programs                                  |
+| `BUILD_BIOMEVAL_32BIT`  | OFF     | Compile 32-bit on 64-bit host OS                     |
+
 ---
 
 As Seen In...
