@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include <string>
 
 #include <be_memory_orderedmap.h>
 

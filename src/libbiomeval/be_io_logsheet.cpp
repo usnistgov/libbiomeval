@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <cctype>
 #include <iomanip>
 
 #include <be_error_exception.h>

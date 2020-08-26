@@ -18,6 +18,7 @@
 #endif
 
 #include <algorithm>
+#include <cctype>
 #include <locale>
 #include <iomanip>
 #include <memory>

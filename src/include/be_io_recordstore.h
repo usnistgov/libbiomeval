@@ -706,7 +706,7 @@ namespace BiometricEvaluation {
 			/* Default copy assignment operator */
 			RecordStoreIterator&
 			operator=(
-			    RecordStoreIterator &rhs) = default;
+			    const RecordStoreIterator &rhs) = default;
 
 			/** Default move assignment operator */
 			RecordStoreIterator&
