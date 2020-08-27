@@ -144,7 +144,7 @@ typedef struct jheader {
    unsigned char tx, ty;
 } JFIF_HEADER;
 
-typedef struct image {
+typedef struct image_data {
    int max_width, max_height, pix_depth, ppi;
    int intrlv; /* 0 = no, 1 = yes */
    int n_cmpnts;
