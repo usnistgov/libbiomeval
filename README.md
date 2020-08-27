@@ -1,5 +1,9 @@
 Biometric Evaluation Framework
 ==============================
+
+[![Linux Build Status (TravisCI)](https://travis-ci.org/usnistgov/libbiomeval.svg)](https://travis-ci.org/usnistgov/libbiomeval)
+[![Windows Build Status (AppVeyor)](https://ci.appveyor.com/api/projects/status/ppx968i9fpj4om95?svg=true)](https://ci.appveyor.com/project/usnistgov/libbiomeval)
+
 Biometric Evaluation Framework is a set of C++ classes, error codes, and design
 patterns used to create a common environment to provide logging, data
 management, error handling, and other functionality that is needed for many
