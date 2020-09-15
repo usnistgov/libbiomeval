@@ -89,7 +89,7 @@ System Packages
  * When using `vcpkg`, you must provide CMake with the path to your vcpkg
    toolchain:
    ```dos
-   cmake .. -DCMAKE_TOOLCHAIN_PATH=%vcpkg_root%\scripts\buildsystems\vcpkg.cmake
+   cmake .. -DCMAKE_TOOLCHAIN_FILE=%vcpkg_root%\scripts\buildsystems\vcpkg.cmake
    ```
 
 ### CORE
