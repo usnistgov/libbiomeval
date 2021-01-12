@@ -37,10 +37,13 @@ namespace BiometricEvaluation
 			static char dir[_MAX_DIR];
 			static char fname[_MAX_FNAME];
 			static char ext[_MAX_EXT];
+			static char path[_MAX_PATH];
 
-			/* Clear the buffers we support */
+			std::memset(drive, '\0', _MAX_DRIVE);
 			std::memset(dir, '\0', _MAX_DIR);
 			std::memset(fname, '\0', _MAX_FNAME);
+			std::memset(ext, '\0', _MAX_EXT);
+			std::memset(path, '\0', _MAX_PATH);
 
 			const errno_t err = _splitpath_s<_MAX_DRIVE, _MAX_DIR,
 			    _MAX_FNAME, _MAX_EXT>(p, drive, dir, fname, ext);
@@ -54,28 +57,31 @@ namespace BiometricEvaluation
 						strncpy(fname, dir, 2);
 					}
 
-					/* We do not want trailing slashes */
-					for (int i = strnlen(fname, 
-					    _MAX_FNAME); (i > 0) && 
-					    (i <= _MAX_FNAME); --i)
-						if (fname[i] == '\\' ||
-						    fname[i] == '/')
-							fname[i] = '\0';
-
-					return (fname);
+					if (_makepath_s<_MAX_PATH>(path,
+					    nullptr, nullptr, fname, ext) != 0)
+						return (nullptr);
+					break;
 				case Method::dirname:
 					if (dir[0] == '\0')
 						strncpy(dir, ".", 2);
 
-					/* We do not want trailing slashes */
-					for (int i = strnlen(dir, _MAX_DIR);
-					    (i > 0) && (i <= _MAX_DIR); --i)
-						if (dir[i] == '\\' ||
-						    dir[i] == '/')
-							dir[i] = '\0';
-
-					return (dir);
+					if (_makepath_s<_MAX_PATH>(path, drive,
+					    dir, nullptr, nullptr) != 0)
+						return (nullptr);
+					break;
 				}
+
+				/* We do not want trailing slashes */
+				for (int i = strnlen(path, _MAX_PATH) - 1;
+				    i > 0; --i) {
+					if (path[i] == '\\' ||
+					    path[i] == '/')
+						path[i] = '\0';
+					else
+						break;
+				}
+
+				return (path);
 			}
 
 			return (nullptr);

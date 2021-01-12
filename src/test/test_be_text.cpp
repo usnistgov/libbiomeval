@@ -110,6 +110,13 @@ main(int argc, char* argv[])
 	    "/this/portion/is/the/dirname/and_this_is_the_filename",
 	    "./foobar", "foobar/", "foobar", "/foobar", ".", "/",
 	    "/////", "foobar////", "foobar////a", "", "foo/bar/"};
+#ifdef _WIN32
+	paths.push_back("C:\\Program Files\\NFIQ 2\\bin\\model.yaml");
+	paths.push_back("C:/Program Files/NFIQ 2/bin/model.yaml");
+	paths.push_back("\\\\Program Files\\NFIQ 2\\bin\\model.yaml");
+	paths.push_back("\\\\");
+	paths.push_back("C:\\");
+#endif
 	for (const auto &path : paths) {
 		cout << "Path: " << path << endl;
 		cout << "Dirname: " << Text::dirname(path) << endl;
