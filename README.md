@@ -179,11 +179,12 @@ As Seen In...
 NIST is committed to using Biometric Evaluation Framework in their biometric
 evaluations, including:
 
- * [FpVTE 2012](https://www.nist.gov/itl/iad/image-group/fpvte-2012);
+ * [ELFT](https://www.nist.gov/itl/iad/image-group/evaluation-latent-friction-ridge-technology);
+ * [FRVT](https://www.nist.gov/programs-projects/face-recognition-vendor-test-frvt-ongoing);
+ * [IREX 10](https://www.nist.gov/programs-projects/iris-exchange-irex-10-ongoing-evaluation-iris-recognition);
  * [MINEX III](https://www.nist.gov/itl/iad/image-group/minutiae-interoperability-exchange-minex-iii);
- * [IREX III](https://www.nist.gov/itl/iad/image-group/irex-iii-homepage);
- * [FaCE](https://www.nist.gov/programs-projects/face-challenges);
- * [FIVE](https://www.nist.gov/programs-projects/face-video-evaluation-five);
+ * [PFT III](https://www.nist.gov/itl/iad/image-group/proprietary-fingerprint-template-pft-iii);
+ * [SlapSeg III](https://www.nist.gov/itl/iad/image-group/slap-fingerprint-segmentation-evaluation-iii);
  * ...and more.
 
 Communication
