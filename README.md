@@ -153,7 +153,7 @@ System Packages
 ### VIDEO
 | Name                        | RHEL/CentOS | MacPorts       | Homebrew | Ubuntu          | vcpkg |
 |:---------------------------:|:-----------:|:--------------:|:--------:|:---------------:|:------|
-| [ffmpeg](http://ffmpeg.org) | Build from source, and install to `/usr/local` | `ffmpeg-devel` | `ffmpeg` | `libavcodec-dev`, `libavformat-dev`, `libswscale-dev` | `ffmpeg` |
+| [ffmpeg](http://ffmpeg.org) | Build from source, and install to `/usr/local` | `ffmpeg` | `ffmpeg` | `libavcodec-dev`, `libavformat-dev`, `libswscale-dev` | `ffmpeg` |
 
 
 #### NIST Biometric Image Software (NBIS)
