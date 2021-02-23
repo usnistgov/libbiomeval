@@ -11,6 +11,7 @@
 #ifndef __BE_DATA_INTERCHANGE_AN2K__
 #define __BE_DATA_INTERCHANGE_AN2K__
 
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -262,6 +263,77 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Obtain the count of all fixed resolution (Type 3-6)
+			 * views.
+			 *
+			 * @return
+			 * The number of fixed resolution captures in the AN2K
+			 * record.
+			 */
+			uint32_t
+			getAllFixedResolutionCaptureCount()
+			    const;
+
+
+			/**
+			 * @brief
+			 * Obtain the count of fixed resolution (Type 3-6)
+			 * views.
+			 *
+			 * @param type
+			 * The fixed resolution record type.
+			 *
+			 * @return
+			 * The number of fixed resolution captures in the AN2K
+			 * record.
+			 */
+			uint32_t
+			getFixedResolutionCaptureCount(
+			    const View::AN2KView::RecordType type)
+			    const;
+
+			/**
+			 * @brief
+			 * Obtain all fixed resolution (Type 3-6) views.
+			 * @details
+			 * The returned vector will be empty when no capture
+			 * views are present in the AN2KRecord.
+			 *
+			 * @param type
+			 * The fixed resolution record type.
+			 *
+			 * @return
+			 * A vector of AN2KViewFixedResolution objects, each
+			 * representing a single view.
+			 */
+			std::vector<Finger::AN2KViewFixedResolution>
+			getAllFixedResolutionCaptures()
+			    const;
+
+
+			/**
+			 * @brief
+			 * Obtain all fixed resolution (Type 3-6) views of a
+			 * particular type.
+			 * @details
+			 * The returned vector will be empty when no capture
+			 * views of the specified type are present in the
+			 * AN2KRecord.
+			 *
+			 * @param type
+			 * The fixed resolution record type.
+			 *
+			 * @return
+			 * Vectors of AN2KViewFixedResolution objects, each
+			 * representing a single view, separated by type
+			 */
+			std::vector<Finger::AN2KViewFixedResolution>
+			getFixedResolutionCaptures(
+			    const View::AN2KView::RecordType type)
+			    const;
+
+			/**
+			 * @brief
 			 * Obtain the count of capture (Type-15) palm views.
 			 *
 			 * @return
@@ -367,7 +439,10 @@ namespace BiometricEvaluation
 			struct tm _gmt;
 			/** Directory of character sets */
 			std::vector<CharacterSet> _dcs;
-			
+
+			std::map<View::AN2KView::RecordType,
+			    std::vector<Finger::AN2KViewFixedResolution>>
+			    _fixedResolutionCaptures;
 			std::vector<Latent::AN2KView> _fingerLatents;
 			std::vector<Finger::AN2KViewCapture> _fingerCaptures;
 			std::vector<Palm::AN2KView> _palmCaptures;
@@ -396,6 +471,8 @@ namespace BiometricEvaluation
     			void readMinutiaeData(Memory::uint8Array &buf);
 			void readFingerCaptures(Memory::uint8Array &buf);
 			void readFingerLatents(Memory::uint8Array &buf);
+			void readFixedResolutionCaptures(Memory::uint8Array
+			    &buf);
 			void readPalmCaptures(Memory::uint8Array &buf);
 		};
 	}
