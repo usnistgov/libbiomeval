@@ -271,7 +271,7 @@ namespace BiometricEvaluation
 			 * record.
 			 */
 			uint32_t
-			getFixedResolutionCaptureCount()
+			getFingerFixedResolutionCaptureCount()
 			    const;
 
 
@@ -288,7 +288,7 @@ namespace BiometricEvaluation
 			 * record.
 			 */
 			uint32_t
-			getFixedResolutionCaptureCount(
+			getFingerFixedResolutionCaptureCount(
 			    const View::AN2KView::RecordType type)
 			    const;
 
@@ -307,7 +307,7 @@ namespace BiometricEvaluation
 			 * representing a single view.
 			 */
 			std::vector<Finger::AN2KViewFixedResolution>
-			getFixedResolutionCaptures()
+			getFingerFixedResolutionCaptures()
 			    const;
 
 
@@ -328,7 +328,7 @@ namespace BiometricEvaluation
 			 * representing a single view, separated by type
 			 */
 			std::vector<Finger::AN2KViewFixedResolution>
-			getFixedResolutionCaptures(
+			getFingerFixedResolutionCaptures(
 			    const View::AN2KView::RecordType type)
 			    const;
 
@@ -442,7 +442,7 @@ namespace BiometricEvaluation
 
 			std::map<View::AN2KView::RecordType,
 			    std::vector<Finger::AN2KViewFixedResolution>>
-			    _fixedResolutionCaptures;
+			    _fingerFixedResolutionCaptures;
 			std::vector<Latent::AN2KView> _fingerLatents;
 			std::vector<Finger::AN2KViewCapture> _fingerCaptures;
 			std::vector<Palm::AN2KView> _palmCaptures;

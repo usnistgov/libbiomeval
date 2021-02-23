@@ -31,7 +31,7 @@ namespace BE = BiometricEvaluation;
  * DataInterchange::EFS, we are not parsing that value here.
  */
 static const std::array<BiometricEvaluation::View::AN2KView::RecordType, 4>
-    FixedResolutionTypes = {
+    FingerFixedResolutionTypes = {
     BiometricEvaluation::View::AN2KView::RecordType::Type_3,
     BiometricEvaluation::View::AN2KView::RecordType::Type_4,
     BiometricEvaluation::View::AN2KView::RecordType::Type_5,
@@ -233,10 +233,10 @@ void
 BiometricEvaluation::DataInterchange::AN2KRecord::readFixedResolutionCaptures(
     Memory::uint8Array &buf)
 {
-	for (const auto type : FixedResolutionTypes) {
+	for (const auto type : FingerFixedResolutionTypes) {
 		for (int i{1}; ; ++i) {
 			try {
-				this->_fixedResolutionCaptures[type].
+				this->_fingerFixedResolutionCaptures[type].
 				    emplace_back(buf, type, i);
 			} catch (const Error::DataError&) {
 				break;
@@ -379,25 +379,26 @@ BiometricEvaluation::DataInterchange::AN2KRecord::getFingerCaptures() const
 
 uint32_t
 BiometricEvaluation::DataInterchange::AN2KRecord::
-    getFixedResolutionCaptureCount(
+    getFingerFixedResolutionCaptureCount(
     const View::AN2KView::RecordType type)
     const
 {
 	try {
 		return (static_cast<uint32_t>(
-		    this->_fixedResolutionCaptures.at(type).size()));
+		    this->_fingerFixedResolutionCaptures.at(type).size()));
 	} catch (const std::out_of_range&) {
 		return (0);
 	}
 }
 
 std::vector<BiometricEvaluation:: Finger::AN2KViewFixedResolution>
-BiometricEvaluation::DataInterchange::AN2KRecord::getFixedResolutionCaptures(
+BiometricEvaluation::DataInterchange::AN2KRecord::
+getFingerFixedResolutionCaptures(
     const View::AN2KView::RecordType type)
     const
 {
 	try {
-		return (this->_fixedResolutionCaptures.at(type));
+		return (this->_fingerFixedResolutionCaptures.at(type));
 	} catch (const std::out_of_range&) {
 		return {};
 	}
@@ -405,15 +406,16 @@ BiometricEvaluation::DataInterchange::AN2KRecord::getFixedResolutionCaptures(
 
 uint32_t
 BiometricEvaluation::DataInterchange::AN2KRecord::
-    getFixedResolutionCaptureCount()
+    getFingerFixedResolutionCaptureCount()
     const
 {
 	uint32_t counter{0};
 
-	for (const auto type : FixedResolutionTypes) {
+	for (const auto type : FingerFixedResolutionTypes) {
 		try {
 			counter += static_cast<uint32_t>(
-			    this->_fixedResolutionCaptures.at(type).size());
+			    this->_fingerFixedResolutionCaptures.at(type).
+			    size());
 		} catch (const std::out_of_range&) {}
 	}
 
@@ -422,16 +424,16 @@ BiometricEvaluation::DataInterchange::AN2KRecord::
 
 std::vector<BiometricEvaluation::Finger::AN2KViewFixedResolution>
 BiometricEvaluation::DataInterchange::AN2KRecord::
-    getFixedResolutionCaptures()
+    getFingerFixedResolutionCaptures()
     const
 {
 	std::vector<Finger::AN2KViewFixedResolution> captures{};
-	captures.reserve(this->getFixedResolutionCaptureCount());
+	captures.reserve(this->getFingerFixedResolutionCaptureCount());
 
-	for (const auto type : FixedResolutionTypes)
+	for (const auto type : FingerFixedResolutionTypes)
 		captures.insert(captures.end(),
-		    this->_fixedResolutionCaptures.at(type).cbegin(),
-		    this->_fixedResolutionCaptures.at(type).cend());
+		    this->_fingerFixedResolutionCaptures.at(type).cbegin(),
+		    this->_fingerFixedResolutionCaptures.at(type).cend());
 
 
 	return (captures);
