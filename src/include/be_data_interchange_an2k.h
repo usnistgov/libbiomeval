@@ -11,12 +11,10 @@
 #ifndef __BE_DATA_INTERCHANGE_AN2K__
 #define __BE_DATA_INTERCHANGE_AN2K__
 
-#include <map>
 #include <set>
 #include <string>
 #include <vector>
 
-#include <be_view_an2kview.h>
 #include <be_finger_an2kminutiae_data_record.h>
 #include <be_finger_an2kview_fixedres.h>
 #include <be_latent_an2kview.h>
@@ -264,77 +262,6 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Obtain the count of all fixed resolution (Type 3-6)
-			 * views.
-			 *
-			 * @return
-			 * The number of fixed resolution captures in the AN2K
-			 * record.
-			 */
-			uint32_t
-			getAllFixedResolutionCaptureCount()
-			    const;
-
-
-			/**
-			 * @brief
-			 * Obtain the count of fixed resolution (Type 3-6)
-			 * views.
-			 *
-			 * @param type
-			 * The fixed resolution record type.
-			 *
-			 * @return
-			 * The number of fixed resolution captures in the AN2K
-			 * record.
-			 */
-			uint32_t
-			getFixedResolutionCaptureCount(
-			    const View::AN2KView::RecordType type)
-			    const;
-
-			/**
-			 * @brief
-			 * Obtain all fixed resolution (Type 3-6) views.
-			 * @details
-			 * The returned vector will be empty when no capture
-			 * views are present in the AN2KRecord.
-			 *
-			 * @param type
-			 * The fixed resolution record type.
-			 *
-			 * @return
-			 * A vector of AN2KViewFixedResolution objects, each
-			 * representing a single view.
-			 */
-			std::vector<Finger::AN2KViewFixedResolution>
-			getAllFixedResolutionCaptures()
-			    const;
-
-
-			/**
-			 * @brief
-			 * Obtain all fixed resolution (Type 3-6) views of a
-			 * particular type.
-			 * @details
-			 * The returned vector will be empty when no capture
-			 * views of the specified type are present in the
-			 * AN2KRecord.
-			 *
-			 * @param type
-			 * The fixed resolution record type.
-			 *
-			 * @return
-			 * Vectors of AN2KViewFixedResolution objects, each
-			 * representing a single view, separated by type
-			 */
-			std::vector<Finger::AN2KViewFixedResolution>
-			getFixedResolutionCaptures(
-			    const View::AN2KView::RecordType type)
-			    const;
-
-			/**
-			 * @brief
 			 * Obtain the count of capture (Type-15) palm views.
 			 *
 			 * @return
@@ -469,8 +396,6 @@ namespace BiometricEvaluation
     			void readMinutiaeData(Memory::uint8Array &buf);
 			void readFingerCaptures(Memory::uint8Array &buf);
 			void readFingerLatents(Memory::uint8Array &buf);
-			void readFixedResolutionCaptures(Memory::uint8Array
-			    &buf);
 			void readPalmCaptures(Memory::uint8Array &buf);
 		};
 	}
