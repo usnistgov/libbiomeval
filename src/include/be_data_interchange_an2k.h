@@ -271,7 +271,7 @@ namespace BiometricEvaluation
 			 * record.
 			 */
 			uint32_t
-			getAllFixedResolutionCaptureCount()
+			getFixedResolutionCaptureCount()
 			    const;
 
 
@@ -307,7 +307,7 @@ namespace BiometricEvaluation
 			 * representing a single view.
 			 */
 			std::vector<Finger::AN2KViewFixedResolution>
-			getAllFixedResolutionCaptures()
+			getFixedResolutionCaptures()
 			    const;
 
 

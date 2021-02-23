@@ -405,7 +405,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::getFixedResolutionCaptures(
 
 uint32_t
 BiometricEvaluation::DataInterchange::AN2KRecord::
-    getAllFixedResolutionCaptureCount()
+    getFixedResolutionCaptureCount()
     const
 {
 	uint32_t counter{0};
@@ -422,11 +422,11 @@ BiometricEvaluation::DataInterchange::AN2KRecord::
 
 std::vector<BiometricEvaluation::Finger::AN2KViewFixedResolution>
 BiometricEvaluation::DataInterchange::AN2KRecord::
-    getAllFixedResolutionCaptures()
+    getFixedResolutionCaptures()
     const
 {
 	std::vector<Finger::AN2KViewFixedResolution> captures{};
-	captures.reserve(this->getAllFixedResolutionCaptureCount());
+	captures.reserve(this->getFixedResolutionCaptureCount());
 
 	for (const auto type : FixedResolutionTypes)
 		captures.insert(captures.end(),
