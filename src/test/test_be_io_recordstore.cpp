@@ -700,6 +700,13 @@ main(int argc, char* argv[]) {
 #ifdef TESTDEFINED
 
 	cout << "Running tests with new record store:" << endl;
+	std::cout << "isRecordStore(" << rsPath << "): ";
+	if (IO::RecordStore::isRecordStore(rsPath)) {
+		std::cout << "[FAIL]\n";
+		return (EXIT_FAILURE);
+	} else
+		std::cout << "[PASS]\n";
+
 	if (runTests(rs) != 0) {
 		delete rs;
 		return (EXIT_FAILURE);
@@ -782,6 +789,14 @@ main(int argc, char* argv[]) {
 
 	cout << endl << "----------------------------------------" << endl << endl;
 	cout << "Running tests with existing record store:" << endl;
+	std::cout << "isRecordStore(" << rsPath << "): ";
+	if (IO::RecordStore::isRecordStore(rsPath))
+		std::cout << "[PASS]\n";
+	else {
+		std::cout << "[FAIL]\n";
+		return (EXIT_FAILURE);
+	}
+
 	if (runTests(rs) != 0) {
 		delete rs;
 		return (EXIT_FAILURE);
@@ -859,6 +874,13 @@ main(int argc, char* argv[]) {
 	} catch (Error::StrategyError &e) {
 		cout << "Caught: " << e.what() << endl;
 	}
+
+	std::cout << "isRecordStore(" << rsPath << "): ";
+	if (IO::RecordStore::isRecordStore(rsPath)) {
+		std::cout << "[FAIL]\n";
+		return (EXIT_FAILURE);
+	} else
+		std::cout << "[PASS]\n";
 
 	return(EXIT_SUCCESS);
 #endif

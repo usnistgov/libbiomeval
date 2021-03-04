@@ -52,6 +52,29 @@ static const std::string COREPROPERTYERROR("Cannot change core properties");
 const std::string BiometricEvaluation::IO::RecordStore::Impl::RSREADONLYERROR(
     "RecordStore was opened read-only");
 
+static void
+validateControlFile(
+    std::shared_ptr<BE::IO::Properties> props)
+{
+	/* Ensure all required properties exist */
+	try {
+		props->getProperty(DESCRIPTIONPROPERTY);
+	} catch (BE::Error::ObjectDoesNotExist& e) {
+		throw BE::Error::StrategyError(
+		    "Description property is missing");
+	}
+	try {
+		props->getProperty(TYPEPROPERTY);
+	} catch (BE::Error::ObjectDoesNotExist& e) {
+		throw BE::Error::StrategyError("Type property is missing");
+	}
+	try {
+		props->getPropertyAsInteger(COUNTPROPERTY);
+	} catch (BE::Error::ObjectDoesNotExist& e) {
+		throw BE::Error::StrategyError("Count property is missing");
+	}
+}
+
 /*
  * Constructors
  */
@@ -223,6 +246,40 @@ BiometricEvaluation::IO::RecordStore::Impl::changeDescription(
 
 	_props->setProperty(DESCRIPTIONPROPERTY, description);
 	_props->sync();
+}
+
+/**
+ * @brief
+ * Determine if a location appears to be a RecordStore.
+ *
+ * @param pathname
+ * The path name of the location to check.
+ *
+ * @return
+ * true if `pathname` appears to point to a RecordStore,
+ * false otherwise.
+ */
+bool
+BiometricEvaluation::IO::RecordStore::Impl::isRecordStore(
+    const std::string &pathname)
+{
+	if (!BE::IO::Utility::fileExists(pathname))
+		return (false);
+
+	const std::string controlFile{pathname + '/' + CONTROLFILENAME};
+	if (!BE::IO::Utility::fileExists(controlFile))
+		return (false);
+
+	/* Found the control file, check if required keys are present */
+	std::unique_ptr<BE::IO::Properties> props{};
+	try {
+		::validateControlFile(std::make_shared<BE::IO::PropertiesFile>(
+		    controlFile, BE::IO::Mode::ReadOnly));
+	} catch (...) {
+		return (false);
+	}
+
+	return (true);
 }
 
 std::shared_ptr<BiometricEvaluation::IO::RecordStore>
@@ -500,21 +557,7 @@ BiometricEvaluation::IO::RecordStore::Impl::validateControlFile()
 	this->openControlFile();
 
 	/* Ensure all required properties exist */
-	try {
-		_props->getProperty(DESCRIPTIONPROPERTY);
-        } catch (Error::ObjectDoesNotExist& e) {
-                throw Error::StrategyError("Description property is missing");
-        }
-	try {
-		_props->getProperty(TYPEPROPERTY);
-        } catch (Error::ObjectDoesNotExist& e) {
-                throw Error::StrategyError("Type property is missing");
-        }
-	try {
-		_props->getPropertyAsInteger(COUNTPROPERTY);
-        } catch (Error::ObjectDoesNotExist& e) {
-                throw Error::StrategyError("Count property is missing");
-        }
+	::validateControlFile(this->_props);
 }
 
 void

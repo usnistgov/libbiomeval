@@ -438,6 +438,21 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
+			 * Determine if a location appears to be a RecordStore.
+			 *
+			 * @param pathname
+			 * The path name of the location to check.
+			 *
+			 * @return
+			 * true if `pathname` appears to point to a RecordStore,
+			 * false otherwise.
+			 */
+			static bool
+			isRecordStore(
+			    const std::string &pathname);
+
+			/**
+			 * @brief
 			 * Open an existing RecordStore and return a managed
 			 * pointer to the the object representing that store.
 			 * @details
