@@ -8,6 +8,7 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <array>
 #include <cstdio>
 #include <set>
 
@@ -17,6 +18,24 @@ extern "C" {
 }
 
 namespace BE = BiometricEvaluation;
+
+/**
+ * @brief
+ * Fixed resolution types.
+ * @description
+ * Types supported by AN2K::Finger::AN2KViewFixedResolution.
+ *
+ * @note
+ * EFS treats Type_7 has Fixed Resolution (latent) because this existed before
+ * Type 13. However, because this is DataInterchange::AN2K, not
+ * DataInterchange::EFS, we are not parsing that value here.
+ */
+static const std::array<BiometricEvaluation::View::AN2KView::RecordType, 4>
+    FingerFixedResolutionTypes = {
+    BiometricEvaluation::View::AN2KView::RecordType::Type_3,
+    BiometricEvaluation::View::AN2KView::RecordType::Type_4,
+    BiometricEvaluation::View::AN2KView::RecordType::Type_5,
+    BiometricEvaluation::View::AN2KView::RecordType::Type_6};
 
 /******************************************************************************/
 /* Private functions.                                                         */
@@ -47,7 +66,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::recordLocations(
 		    std::underlying_type<
 		    View::AN2KView::RecordType>::type>(recordType))
 			locations.insert(i);
-			
+
 	return (locations);
 }
 
@@ -211,6 +230,22 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readFingerLatents(
 }
 
 void
+BiometricEvaluation::DataInterchange::AN2KRecord::readFixedResolutionCaptures(
+    Memory::uint8Array &buf)
+{
+	for (const auto type : FingerFixedResolutionTypes) {
+		for (int i{1}; ; ++i) {
+			try {
+				this->_fingerFixedResolutionCaptures[type].
+				    emplace_back(buf, type, i);
+			} catch (const Error::DataError&) {
+				break;
+			}
+		}
+	}
+}
+
+void
 BiometricEvaluation::DataInterchange::AN2KRecord::readMinutiaeData(
     Memory::uint8Array &buf)
 {
@@ -265,6 +300,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readAN2KRecord(
 	readMinutiaeData(buf);
 	readFingerCaptures(buf);
 	readFingerLatents(buf);
+	readFixedResolutionCaptures(buf);
 	readPalmCaptures(buf);
 }
 
@@ -339,6 +375,68 @@ std::vector<BE::Finger::AN2KViewCapture>
 BiometricEvaluation::DataInterchange::AN2KRecord::getFingerCaptures() const
 {
 	return (_fingerCaptures);
+}
+
+uint32_t
+BiometricEvaluation::DataInterchange::AN2KRecord::
+    getFingerFixedResolutionCaptureCount(
+    const View::AN2KView::RecordType type)
+    const
+{
+	try {
+		return (static_cast<uint32_t>(
+		    this->_fingerFixedResolutionCaptures.at(type).size()));
+	} catch (const std::out_of_range&) {
+		return (0);
+	}
+}
+
+std::vector<BiometricEvaluation:: Finger::AN2KViewFixedResolution>
+BiometricEvaluation::DataInterchange::AN2KRecord::
+getFingerFixedResolutionCaptures(
+    const View::AN2KView::RecordType type)
+    const
+{
+	try {
+		return (this->_fingerFixedResolutionCaptures.at(type));
+	} catch (const std::out_of_range&) {
+		return {};
+	}
+}
+
+uint32_t
+BiometricEvaluation::DataInterchange::AN2KRecord::
+    getFingerFixedResolutionCaptureCount()
+    const
+{
+	uint32_t counter{0};
+
+	for (const auto type : FingerFixedResolutionTypes) {
+		try {
+			counter += static_cast<uint32_t>(
+			    this->_fingerFixedResolutionCaptures.at(type).
+			    size());
+		} catch (const std::out_of_range&) {}
+	}
+
+	return (counter);
+}
+
+std::vector<BiometricEvaluation::Finger::AN2KViewFixedResolution>
+BiometricEvaluation::DataInterchange::AN2KRecord::
+    getFingerFixedResolutionCaptures()
+    const
+{
+	std::vector<Finger::AN2KViewFixedResolution> captures{};
+	captures.reserve(this->getFingerFixedResolutionCaptureCount());
+
+	for (const auto type : FingerFixedResolutionTypes)
+		captures.insert(captures.end(),
+		    this->_fingerFixedResolutionCaptures.at(type).cbegin(),
+		    this->_fingerFixedResolutionCaptures.at(type).cend());
+
+
+	return (captures);
 }
 
 uint32_t
