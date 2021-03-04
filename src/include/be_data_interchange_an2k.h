@@ -418,6 +418,38 @@ namespace BiometricEvaluation
 			getDirectoryOfCharacterSets()
 			    const;
 
+			/**
+			 * @brief
+			 * Determine if file appears to be an ANSI/NIST
+			 * record.
+			 *
+			 * @param filename
+			 * Path to a file in question.
+			 *
+			 * @return
+			 * true if the file at `filename` appears to be an
+			 * ANSI/NIST record, false otherwise.
+			 */
+			static bool
+			isAN2KRecord(
+			    const std::string &filename);
+
+			/**
+			 * @brief
+			 * Determine if file appears to be an ANSI/NIST
+			 * record.
+			 *
+			 * @param buf
+			 * Memory buffer in question.
+			 *
+			 * @return
+			 * true if the contents of `buf` appears to be an
+			 * ANSI/NIST record, false otherwise.
+			 */
+			static bool
+			isAN2KRecord(
+			    BiometricEvaluation::Memory::uint8Array &buf);
+
 		protected:
 			AN2KRecord() { }
 

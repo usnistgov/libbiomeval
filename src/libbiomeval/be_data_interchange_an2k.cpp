@@ -480,3 +480,26 @@ BiometricEvaluation::DataInterchange::AN2KRecord::getDirectoryOfCharacterSets()
 {
 	return (_dcs);
 }
+
+bool
+BiometricEvaluation::DataInterchange::AN2KRecord::isAN2KRecord(
+    const std::string &filename)
+{
+	/*
+	 * Do some checks, since failing these will cause liban2k to print to
+	 * the console.
+	 */
+	if (!BE::IO::Utility::fileExists(filename))
+		return (false);
+	if (BE::IO::Utility::getFileSize(filename) < ((2 * FIELD_NUM_LEN) + 2))
+		return (false);
+
+	return (biomeval_nbis_is_ANSI_NIST_file(filename.c_str()) == TRUE);
+}
+
+bool
+BiometricEvaluation::DataInterchange::AN2KRecord::isAN2KRecord(
+    BiometricEvaluation::Memory::uint8Array &buf)
+{
+	return (biomeval_nbis_is_ANSI_NIST(buf, buf.size()) == TRUE);
+}

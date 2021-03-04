@@ -171,6 +171,14 @@ main(int argc, char* argv[]) {
 			cout << "AN2K record " << record.key << ":" << endl;
 			
 			DataInterchange::AN2KRecord an2k(record.data);
+			std::cout << "isAN2KRecord(record.data): ";
+			if (DataInterchange::AN2KRecord::isAN2KRecord(
+			    record.data))
+				std::cout << "[PASS]\n";
+			else {
+				std::cout << "[FAIL]\n";
+				return (EXIT_FAILURE);
+			}
 			printRecordInfo(an2k);
 
 			int i = 0;
@@ -225,6 +233,21 @@ main(int argc, char* argv[]) {
 			cout << "Failed sequence: " << e.what() << endl;
 			return (EXIT_FAILURE);
 		}
+	}
+
+	std::cout << "isAN2KRecord(filename): ";
+	if (DataInterchange::AN2KRecord::isAN2KRecord(
+	    "test_data/type9-efs.an2k")) {
+		if (DataInterchange::AN2KRecord::isAN2KRecord(
+		    "test_data/fmr.ansi2004")) {
+			std::cout << "[FAIL]\n";
+			return (EXIT_FAILURE);
+		} else
+			std::cout << "[PASS]\n";
+
+	} else {
+		std::cout << "[FAIL]\n";
+		return (EXIT_FAILURE);
 	}
 
 	return(testAN2K11EFS("test_data/type9-efs.an2k"));
