@@ -107,6 +107,88 @@ namespace BiometricEvaluation
 					return (currentState ==
 					    APICurrentState::Completed);
 				}
+
+				/**
+				 * @brief
+				 * Obtain the exception string.
+				 *
+				 * @return
+				 * Explanatory message of the exception thrown
+				 * if the exception is derived from
+				 * std::exception, or a default-initialized
+				 * string otherwise.
+				 */
+				std::string
+				getExceptionStr()
+				    const
+				    noexcept
+				{
+					try {
+						this->rethrowException();
+					} catch (const std::exception &e) {
+						return (e.what());
+					} catch (...) {
+						return {};
+					}
+				}
+
+				/**
+				 * @brief
+				 * Rethrow the caught exception.
+				 * @details
+				 * This is useful for applications by allowing
+				 * them to examine an exception thrown during
+				 * call() from either success or failure
+				 * callback when rethrowExceptions is false.
+				 * It also prevents needing to define
+				 * a verbose type outside a try/catch block
+				 * when rethrowExceptions is true.
+				 *
+				 * @note
+				 * If no exception was caught, an exception
+				 * will still be thrown.
+				 *
+				 * @throw
+				 * Always throws.
+				 */
+				[[noreturn]]
+				void
+				rethrowException()
+				    const
+				{
+					if (this->currentState !=
+					    APICurrentState::ExceptionCaught)
+						throw Error::StrategyError{
+						    "No exception handled, "
+						    "current state is " +
+						    to_string(
+						    this->currentState)};
+					if (!this->exceptionPtr)
+						throw Error::StrategyError{
+						    "Exception was caught, but "
+						    "not saved"};
+
+					std::rethrow_exception(
+					    this->exceptionPtr);
+				}
+
+				/**
+				 * @brief
+				 * Save a thrown exception.
+				 *
+				 * @param e
+				 * Pointer to exception caught.
+				 */
+				void
+				setException(
+				    std::exception_ptr e)
+				{
+					this->exceptionPtr = e;
+				}
+
+			private:
+				/** Pointer to exception caught */
+				std::exception_ptr exceptionPtr{};
 			};
 
 			/** Constructor */
@@ -253,6 +335,7 @@ BiometricEvaluation::Framework::API<T>::call(
 			this->getTimer()->stop();
 			ret.elapsed = this->getTimer()->elapsed();
 			ret.currentState = APICurrentState::ExceptionCaught;
+			ret.setException(std::current_exception());
 
 			if (failure)
 				failure(ret);
