@@ -90,6 +90,13 @@ BiometricEvaluation::IO::RecordStore::containsKey(
 	return (true);
 }
 
+bool
+BiometricEvaluation::IO::RecordStore::isRecordStore(
+    const std::string &pathname)
+{
+	return (BE::IO::RecordStore::Impl::isRecordStore(pathname));
+}
+
 std::shared_ptr<BiometricEvaluation::IO::RecordStore>
 BiometricEvaluation::IO::RecordStore::openRecordStore(
     const std::string &pathname,
