@@ -40,7 +40,17 @@ namespace BiometricEvaluation
 			/** Operation has returned. */
 			Completed
 		};
+	}
+}
 
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Framework::APICurrentState,
+    BE_Framework_APICurrentState_EnumToStringMap);
+
+namespace BiometricEvaluation
+{
+	namespace Framework
+	{
 		/**
 		 * @brief
 		 * A convenient way to execute biometric technology evaluation
@@ -161,7 +171,7 @@ namespace BiometricEvaluation
 						throw Error::StrategyError{
 						    "No exception handled, "
 						    "current state is " +
-						    to_string(
+						    Enumeration::to_string(
 						    this->currentState)};
 					if (!this->exceptionPtr)
 						throw Error::StrategyError{
@@ -372,9 +382,5 @@ BiometricEvaluation::Framework::API<T>::call(
 
 	return (ret);
 }
-
-BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
-    BiometricEvaluation::Framework::APICurrentState,
-    BE_Framework_APICurrentState_EnumToStringMap);
 
 #endif /* BE_FRAMEWORK_API_H_ */
