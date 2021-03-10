@@ -302,8 +302,9 @@ BiometricEvaluation::Text::dirname(
     const std::string &path)
 {
 	static Memory::AutoArray<char> buf;
-	buf.resize(strlen(path.c_str()) + 1);
-	strncpy(buf, path.c_str(), strlen(path.c_str()) + 1);
+	buf.resize(path.size() + 1);
+	std::copy(path.cbegin(), path.cend(), buf.begin());
+	buf[buf.size() - 1] = '\0';
 
 	return (::dirname(buf));
 }
