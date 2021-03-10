@@ -22,6 +22,7 @@
 #include <locale>
 #include <iomanip>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <vector>
 
@@ -290,9 +291,12 @@ BiometricEvaluation::Text::basename(
 	if (pathCopy.length() == 0)
 		pathCopy = path;
 
-	static Memory::AutoArray<char> buf;
-	buf.resize(pathCopy.length() + 1);
-	strncpy(buf, pathCopy.c_str(), pathCopy.length() + 1);
+	Memory::AutoArray<char> buf(pathCopy.size() + 1);
+	std::copy(pathCopy.cbegin(), pathCopy.cend(), buf.begin());
+	buf[buf.size() - 1] = '\0';
+
+	static std::mutex basenameMutex{};
+	std::lock_guard<std::mutex> lock(basenameMutex);
 
 	return (::basename(buf));
 }
@@ -301,10 +305,12 @@ std::string
 BiometricEvaluation::Text::dirname(
     const std::string &path)
 {
-	static Memory::AutoArray<char> buf;
-	buf.resize(path.size() + 1);
+	Memory::AutoArray<char> buf(path.size() + 1);
 	std::copy(path.cbegin(), path.cend(), buf.begin());
 	buf[buf.size() - 1] = '\0';
+
+	static std::mutex dirnameMutex{};
+	std::lock_guard<std::mutex> lock(dirnameMutex);
 
 	return (::dirname(buf));
 }
