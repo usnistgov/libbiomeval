@@ -16,11 +16,34 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
     const AN2K11EFS::Orientation& ort)
 {
-	s << "Default: "; if(ort.is_default) s << "true; "; else s << "false; ";
-	s << "EOD: " << ort.eod << "; ";
-	s << "EUC: "; if (ort.has_euc) s << ort.euc; else s << "N/A";
+	switch (ort.encodingMethod) {
+	case Orientation::EncodingMethod::Default:
+		/* FALLTHROUGH */
+	case Orientation::EncodingMethod::UserDefined:
+		s << "EOD: " << ort.eod << "; ";
+		s << "EUC: "; if (ort.has_euc) s << ort.euc; else s << "N/A";
+		break;
+	case Orientation::EncodingMethod::Indeterminate:
+		s << "false; Indeterminate";
+		break;
+	}
+
 	return (s);
 }
+
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::Orientation::
+    EncodingMethod, std::string>
+BE_Feature_AN2K11EFS_Orientation_EncodingMethod_EnumToStringMap = {
+	{BE::Feature::AN2K11EFS::Orientation::EncodingMethod::Default,
+	    "Default"},
+	{BE::Feature::AN2K11EFS::Orientation::EncodingMethod::UserDefined,
+	    "User Defined"},
+	{BE::Feature::AN2K11EFS::Orientation::EncodingMethod::Indeterminate,
+	    "Indeterminate"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Orientation::EncodingMethod,
+    BE_Feature_AN2K11EFS_Orientation_EncodingMethod_EnumToStringMap);
 
 const std::map<BiometricEvaluation::Feature::AN2K11EFS::FingerprintSegment,
     std::string>

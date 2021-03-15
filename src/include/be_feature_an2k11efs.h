@@ -31,13 +31,29 @@ namespace BiometricEvaluation
 		 * and its uncertainty.
 		 */
 		struct Orientation {
+			/** Interpretation of encoded orientation values. */
+			enum class EncodingMethod {
+				/** No orientation was encoded */
+				Default,
+				/**
+				 * Encoded value indicates orientation was not
+				 * determined.
+				 */
+				Indeterminate,
+				/** Value was encoded */
+				UserDefined
+			};
+
 			/** ANSI/NIST default direction */
 			static const int	EODDefault = 0;
 			/** ANSI/NIST default uncertainty */
 			static const int	EUCDefault = 15;
+			/** ANSI/NIST indeterminate uncertainty */
+			static const int	EUCIndeterminate = 180;
 
-			/** Whether the values are the defaults */
-			bool	is_default;
+			/** Interpretation of encoded values. */
+			EncodingMethod encodingMethod;
+
 			/** Direction */
 			int	eod;
 			bool	has_euc;
@@ -763,6 +779,10 @@ namespace BiometricEvaluation
 	} /* Namespace AN2K11EFS */
 	} /* Namespace Feature */
 }
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::Orientation::EncodingMethod,
+    BE_Feature_AN2K11EFS_Orientation_EncodingMethod_EnumToStringMap);
 
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Feature::AN2K11EFS::FingerprintSegment,

@@ -349,6 +349,8 @@ readImageInfo(
 	 * Orientation
 	 */
 	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_ORT_ID, type9) == TRUE) {
+		ii.ort.encodingMethod = BE::Feature::AN2K11EFS::Orientation::
+		    EncodingMethod::UserDefined;
 		ii.ort.eod =
 		     std::atoi((char*)field->subfields[0]->items[0]->value);
 
@@ -359,8 +361,15 @@ readImageInfo(
 			ii.ort.has_euc = true;
 			ii.ort.euc = std::atoi(
 			    (char*)field->subfields[0]->items[1]->value);
+
+			if (ii.ort.euc == BE::Feature::AN2K11EFS::Orientation::
+			    EUCIndeterminate)
+				ii.ort.encodingMethod = BE::Feature::AN2K11EFS::
+				    Orientation::EncodingMethod::Indeterminate;
 		}
 	} else {	/* Assign default values per AN2k standard. */
+		ii.ort.encodingMethod = BE::Feature::AN2K11EFS::Orientation::
+		    EncodingMethod::Default;
 		ii.ort.eod = BE::Feature::AN2K11EFS::Orientation::EODDefault;
 		ii.ort.euc = BE::Feature::AN2K11EFS::Orientation::EUCDefault;
 	}
