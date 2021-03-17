@@ -50,6 +50,8 @@ testWatchdogAndSignalManager(Time::Watchdog *theDog)
 	cout << "Testing SignalManager inside Watchdog: ";
 	fflush(stdout);
 	theDog->setInterval(700);
+	if (theDog->getInterval() != 700)
+		cout << "Failure in getInterval()\n";
 	BEGIN_WATCHDOG_BLOCK(theDog, watchdogblock1);
 		BEGIN_SIGNAL_BLOCK(asigmgr, sigblock1);
 			*cptr = 'a';
@@ -108,6 +110,8 @@ testWatchdog(Time::Watchdog *theDog)
 	cout << "Testing Watchdog expiration: ";
 	fflush(stdout);
 	theDog->setInterval(300);
+	if (theDog->getInterval() != 300)
+		cout << "Failure in getInterval()\n";
 	BEGIN_WATCHDOG_BLOCK(theDog, watchdogblock1);
 		LONGDELAY;	/* Can't sleep(3) in Watchdog block */
 		cout << "You should not see this message; failed.\n";
@@ -139,6 +143,8 @@ testWatchdog(Time::Watchdog *theDog)
 	 */
 	Time::Timer timer;
 	theDog->setInterval(Time::OneHalfSecond);
+	if (theDog->getInterval() != Time::OneHalfSecond)
+		cout << "Failure in getInterval()\n";
 	cout << "Testing Watchdog timing per reality: ";
 	timer.start();
 	BEGIN_WATCHDOG_BLOCK(theDog, watchdogblock3);
@@ -173,6 +179,8 @@ int main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 	cout << "success." << endl;
+	if (Indy->getInterval() != 0)
+		cout << "Failure in getInterval()\n";
 #ifndef __CYGWIN__
 	if (testWatchdog(Indy) != 0)
 		return (EXIT_FAILURE);

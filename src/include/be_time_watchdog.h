@@ -135,6 +135,18 @@ namespace BiometricEvaluation {
 			Watchdog(const uint8_t type);
 
 			/**
+			 * @brief
+			 * Obtain the timer interval
+			 *
+			 * @return
+			 * Current timer interval.
+			 */
+			uint64_t
+			getInterval()
+			    const
+			    noexcept;
+
+			/**
 			 * Set the interval for the timer, but don't start the
 			 * timer. Setting a value of 0 will essentially disable
 			 * the timer. Timer intervals are in microseconds,

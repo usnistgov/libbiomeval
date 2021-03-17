@@ -51,6 +51,14 @@ BiometricEvaluation::Time::Watchdog::Watchdog(
 	_expired = false;
 }
 
+uint64_t
+BiometricEvaluation::Time::Watchdog::getInterval()
+    const
+    noexcept
+{
+	return (this->_interval);
+}
+
 void
 BiometricEvaluation::Time::Watchdog::setInterval(uint64_t interval)
 {
