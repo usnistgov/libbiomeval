@@ -92,8 +92,9 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 		    BE::MPI::openLogsheet(
 			this->_resources->getLogsheetURL(),
 			"MPI::Worker");
-	} catch (const Error::Exception&) {
-		MPI::printStatus("Worker failed to open log sheet");
+	} catch (const Error::Exception &e) {
+		MPI::printStatus("Worker failed to open log sheet (" +
+		    e.whatString() +  ')');
         	return(-1);
 	}
 	BE::IO::Logsheet *log = this->_logsheet.get();

@@ -62,11 +62,34 @@ BiometricEvaluation::IO::SysLogsheet::setup(
 	/* Open the connection to the system logger daemon */
 	int sockFD = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
 	if (sockFD == -1)
-		throw BE::Error::StrategyError("Could not create socket");
-	
+		throw BE::Error::StrategyError("Could not create socket: " +
+		    Error::errorStr(true));
+
 	struct hostent *host = gethostbyname(hostname.c_str());
-	if (host == NULL)
-		throw BE::Error::StrategyError("Could not resolve hostname");
+	if (host == NULL) {
+		std::string msg{};
+		switch (h_errno) {
+		case HOST_NOT_FOUND:
+			msg = "The specified host is unknown";
+			break;
+		case NO_DATA:
+			msg = "The requested name is valid but does not have "
+			    "an IP address. Another type of request to the "
+			    "name server for this domain may return an answer";
+			break;
+		case NO_RECOVERY:
+			msg = "A nonrecoverable name server error occurred";
+			break;
+		case TRY_AGAIN:
+			msg = "A temporary error occurred on an authoritative "
+			    "name server";
+			break;
+		default:
+			msg = "Unknown";
+		}
+		throw BE::Error::StrategyError("Could not resolve hostname: " +
+		    msg + " (h_errno == " + std::to_string(h_errno) + ')');
+	}
 
 	struct sockaddr_in server;
 	bzero((char *)&server, sizeof(server));
@@ -76,7 +99,8 @@ BiometricEvaluation::IO::SysLogsheet::setup(
 
 	int rval = connect(sockFD, (struct sockaddr *)&server, sizeof(server));
 	if (rval < 0)
-		throw BE::Error::StrategyError("Could not connect to server");
+		throw BE::Error::StrategyError("Could not connect to server: " +
+		    Error::errorStr(true));
 
 	this->_sockFD = sockFD;
 	this->_operational = true;
@@ -102,7 +126,9 @@ BiometricEvaluation::IO::SysLogsheet::SysLogsheet(
 	setup(url, description);
 	long maxLen = sysconf(_SC_HOST_NAME_MAX);
 	Memory::uint8Array buf(maxLen);
-	(void)gethostname((char *)&buf[0], maxLen);
+	if (gethostname((char *)&buf[0], maxLen) == -1)
+		throw BE::Error::StrategyError{"Could not get hostname: " +
+		    Error::errorStr(true)};
 	_hostname = std::string((char *)&buf[0]);
 }
 
