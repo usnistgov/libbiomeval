@@ -391,11 +391,16 @@ BiometricEvaluation::Feature::AN2K7Minutiae::readType9Record(
 	
 	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, FPC_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field FPC not found");
-	for (int i = 0; i < field->num_subfields; i++)
-		_fpc.push_back(PatternClassification::Entry(
-		    (std::string((char*)field->subfields[i]->items[0]->
-		    value) == "T"), (char *)field->subfields[i]->
-		    items[1]->value));
+	for (int i = 0; i < field->num_subfields; i++) {
+		if (field->subfields[i]->num_items == 2)
+			_fpc.push_back(PatternClassification::Entry(
+			    (std::string((char*)field->subfields[i]->items[0]->
+			    value) == "T"), (char *)field->subfields[i]->
+			    items[1]->value));
+		else
+			throw BE::Error::DataError{"Invalid number of items "
+			    "for field FPC, subfield " + std::to_string(i)};
+	}
 
 	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, RDG_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field RDG not found");
