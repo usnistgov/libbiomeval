@@ -1,0 +1,175 @@
+name: Build Library and Tests
+
+on:
+  pull_request:
+    paths-ignore:
+      - '.gitignore'
+      - '.travis.yml'
+      - '**.md'
+      - 'appveyor.yml'
+      - 'src/test/test_data/**'
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '.gitignore'
+      - '.travis.yml'
+      - '**.md'
+      - 'appveyor.yml'
+      - 'src/test/test_data/**'
+
+env:
+  CONFIGURATION: Release
+  BUILD_BIOMEVAL_SHARED: ON
+  BUILD_BIOMEVAL_STATIC: ON
+  BUILD_BIOMEVAL_TESTS: ON
+  BUILD_BIOMEVAL_32BIT: OFF
+
+jobs:
+  build:
+    name: Build Matrix
+
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      matrix:
+        config:
+          - { os: macOS-10.15, arch: x64 }
+          - { os: ubuntu-16.04, arch: x64 }
+          - { os: ubuntu-18.04, arch: x64 }
+          - { os: ubuntu-20.04, arch: x64 }
+          - { os: windows-2019, arch: x64 }
+          - { os: windows-2019, arch: x86 }
+          - { os: windows-2016, arch: x64 }
+          - { os: windows-2016, arch: x86 }
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+      with:
+        submodules: false
+
+    - name: Install vcpkg
+      if: ${{ runner.os == 'Windows' }}
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git fresh-vcpkg
+        .\\fresh-vcpkg\\bootstrap-vcpkg.bat -disableMetrics
+
+    - name: Package Cache (Windows)
+      if: ${{ runner.os == 'Windows' }}
+      id: vcpkg-cache
+      uses: actions/cache@v2
+      with:
+        path: fresh-vcpkg\installed
+        key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-vcpkg_install
+        restore-keys: |
+          ${{ matrix.config.os }}-${{ matrix.config.arch }}-vcpkg_install
+
+    - name: Install Packages (Linux)
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        sudo apt -y install \
+            libavcodec-dev \
+            libavformat-dev \
+            libdb++-dev \
+            libhwloc-dev \
+            libjpeg-dev \
+            libopenjp2-7-dev \
+            libopenmpi-dev \
+            libpcsclite-dev \
+            libpng-dev \
+            libsqlite3-dev \
+            libswscale-dev \
+            libssl-dev \
+            libtiff-dev \
+            zlib1g-dev
+
+    - name: Install Packages (macOS)
+      if: ${{ runner.os == 'macOS' }}
+      shell: bash
+      # FIXME: homebrew's open-mpi package doesn't include C++ bindings
+      run: |
+        brew install \
+            berkeley-db \
+            hwloc \
+            ffmpeg \
+            jpeg-turbo \
+            libpng \
+            libtiff \
+            openjpeg \
+            openssl \
+            sqlite \
+            zlib
+
+    - name: Install Packages (Windows)
+      if: ${{ runner.os == 'Windows' }}
+      shell: bash
+      run: |
+        fresh-vcpkg/vcpkg install \
+          --triplet=${{ matrix.config.arch }}-windows-static \
+          berkeleydb \
+          hwloc \
+          libjpeg-turbo \
+          liblzma \
+          libpng \
+          openjpeg \
+          openssl \
+          sqlite3 \
+          tiff \
+          zlib
+        fresh-vcpkg/vcpkg install --triplet=${{ matrix.config.arch }}-windows \
+          berkeleydb \
+          hwloc \
+          libjpeg-turbo \
+          liblzma \
+          libpng \
+          openjpeg \
+          openssl \
+          sqlite3 \
+          tiff \
+          zlib
+
+    - name: Create Build Directory
+      run: cmake -E make_directory ${{ github.workspace }}/build
+
+    - name: Configure CMake (Single-config Generator)
+      if: ${{ runner.os != 'Windows' }}
+      shell: bash
+      working-directory: ${{ github.workspace }}/build
+      run: |
+        cmake \
+            -DCMAKE_BUILD_TYPE=${CONFIGURATION} \
+            -DBUILD_BIOMEVAL_STATIC=${BUILD_BIOMEVAL_STATIC} \
+            -DBUILD_BIOMEVAL_SHARED=${BUILD_BIOMEVAL_SHARED} \
+            -DBUILD_BIOMEVAL_TESTS=${BUILD_BIOMEVAL_TESTS} \
+            -DBUILD_BIOMEVAL_32BIT=${BUILD_BIOMEVAL_32BIT} \
+            ${GITHUB_WORKSPACE}
+
+    - name: Configure CMake (Multi-config Generator)
+      if: ${{ runner.os == 'Windows' }}
+      shell: bash
+      env:
+        cmake_arch_flag: ${{ matrix.config.arch == 'x86' && 'Win32' || 'x64' }}
+      working-directory: ${{ github.workspace }}\build
+      run: |
+        cmake \
+            -A ${cmake_arch_flag} \
+            -DCMAKE_TOOLCHAIN_FILE=../fresh-vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DCMAKE_CONFIGURATION_TYPES="${CONFIGURATION}" \
+            -DBUILD_BIOMEVAL_STATIC=${BUILD_BIOMEVAL_STATIC} \
+            -DBUILD_BIOMEVAL_SHARED=${BUILD_BIOMEVAL_SHARED} \
+            -DBUILD_BIOMEVAL_TESTS=${BUILD_BIOMEVAL_TESTS} \
+            -DBUILD_BIOMEVAL_32BIT=${BUILD_BIOMEVAL_32BIT} \
+            ${GITHUB_WORKSPACE}
+
+    - name: Build (Single-config Generator)
+      if: ${{ runner.os != 'Windows' }}
+      shell: bash
+      working-directory: ${{ github.workspace }}/build
+      run: cmake --build .
+
+    - name: Build (Multi-config Generator)
+      if: ${{ runner.os == 'Windows' }}
+      shell: bash
+      working-directory: ${{ github.workspace }}/build
+      run: cmake --build . --config ${CONFIGURATION}
