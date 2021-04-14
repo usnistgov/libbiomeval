@@ -690,7 +690,14 @@ template<class T>
 typename BiometricEvaluation::Memory::AutoArray<T>::iterator
 BiometricEvaluation::Memory::AutoArray<T>::end() 
 {
-	return (iterator(this, this->size()));
+	if (this->size() > std::numeric_limits<typename BiometricEvaluation::
+	    Memory::AutoArrayIterator<false, T>::difference_type>::max())
+		throw BiometricEvaluation::Error::StrategyError{"AutoArray too "
+		    "large to represent end iterator"};
+
+	return (iterator(this,
+	    static_cast<typename BiometricEvaluation::Memory::
+	    AutoArrayIterator<false, T>::difference_type>(this->size())));
 }
 
 template<class T>
@@ -706,7 +713,14 @@ typename BiometricEvaluation::Memory::AutoArray<T>::const_iterator
 BiometricEvaluation::Memory::AutoArray<T>::cend()
     const
 {
-	return (const_iterator(this, this->size()));
+	if (this->size() > std::numeric_limits<typename BiometricEvaluation::
+	    Memory::AutoArrayIterator<true, T>::difference_type>::max())
+		throw BiometricEvaluation::Error::StrategyError{"AutoArray too "
+		    "large to represent end iterator"};
+
+	return (const_iterator(this,
+	    static_cast<typename BiometricEvaluation::Memory::
+	    AutoArrayIterator<true, T>::difference_type>(this->size())));
 }
 
 /******************************************************************************/
