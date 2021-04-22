@@ -164,8 +164,11 @@ main(int argc, char *argv[])
 	 */
 	cout << "Creating Statistics object with logging: " << flush;
 	std::unique_ptr<Process::Statistics> logstats;
+	/*
+	 * Log both basic process stats and those for all tasks.
+	 */
 	try {
-		logstats.reset(new Process::Statistics(lc));
+		logstats.reset(new Process::Statistics(lc, true));
 	} catch (Error::NotImplemented &e) {
 		cout << "Caught " << e.what() << "; OK." << endl;
 		return (EXIT_SUCCESS);

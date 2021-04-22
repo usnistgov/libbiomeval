@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -28,6 +29,9 @@
 #include <be_io_utility.h>
 
 namespace BE = BiometricEvaluation;
+namespace fs = std::filesystem;
+
+typedef std::vector<std::tuple<pid_t, uint64_t, uint64_t>> TaskStatsList;
 
 /*
  * There is no standard method to obtain process statistics from the OS.
@@ -55,6 +59,7 @@ using PSTATS = struct _pstats;
 static const std::string LogsheetHeader =
     "EntryType EntryNum Usertime Systime RSS VMSize VMPeak VMData VMStack "
     "Threads";
+static const std::string TasksLogsheetHeader = "TID utime stime";
 static const std::string StartAutologComment = "Autolog started. Interval: ";
 static const std::string StopAutologComment = "Autolog stopped. ";
 
@@ -198,6 +203,68 @@ internalGetPstats(pid_t pid)
 }
 #endif	/* OS check */
 
+static TaskStatsList
+internalGetTasksStats(pid_t pid)
+#if defined Linux
+{
+	TaskStatsList allStats{};
+	std::string tpath{"/proc/" + std::to_string(pid) + "/task/"};
+	if (!fs::is_directory(tpath)) {
+		throw BE::Error::StrategyError(
+		    "Could not find " + tpath + ".");
+	}
+	/*
+	 * Iterate through all /proc/<pid>/task/<tid>/stat files.
+	 */
+	for (auto& p: fs::directory_iterator(tpath)) {
+		std::string tstatPath{p.path().string() + "/stat"};
+		std::ifstream ifs(tstatPath);
+		//XXX Should we continue here to the next subdir, and
+		//XXX build an exception string to throw at the loop end?
+		if (ifs.fail()) {
+			throw BE::Error::StrategyError(
+				"Could not open " + tstatPath + ".");
+		}
+		/*
+		 * Tokenize the line using the space character.
+		 * ID is first field, user time is the 14th field,
+		 * system time is the 15th field.
+		 */
+		std::vector<std::string> tokens{};
+		std::string token{};
+		while (std::getline(ifs, token, ' ')) {
+			tokens.push_back(token);
+		}
+		/*
+		 * Add the stats for this task to the set of stats.
+		 */
+		pid_t tid = std::stoi(tokens[0]);
+		uint64_t utime = std::stoi(tokens[13]);
+		uint64_t stime = std::stoi(tokens[14]);
+		allStats.push_back(std::make_tuple(tid, utime, stime));
+	}
+	return (allStats);
+}
+
+#elif defined Darwin
+
+/*
+ * Local function to get usage stats from the Darwin (Mac OS-X) OS.
+ */
+{
+	throw BE::Error::NotImplemented();
+}
+
+#else /* Unsupported OS */
+
+/*
+ * The default, not-implemented-here stats function.
+ */
+{
+	throw BE::Error::NotImplemented();
+}
+#endif	/* OS check */
+
 static void internalGetCPUTimes(
     uint64_t *usertime,
     uint64_t *systemtime)
@@ -235,21 +302,37 @@ BiometricEvaluation::Process::Statistics::~Statistics()
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
-    const std::shared_ptr<IO::FileLogCabinet> &logCabinet) :
-    _logCabinet(logCabinet)
+    const std::shared_ptr<IO::FileLogCabinet> &logCabinet,
+    bool doTasksLogging) :
+    _logCabinet(logCabinet),
+    _doTasksLogging(doTasksLogging)
 {
 	_pid = getpid();
-
-	std::ostringstream lsname, descr;
 	std::string procname = internalGetProcName(_pid);
-	lsname << procname << "-" << _pid << ".stats.log";
-	descr << "Statistics for " << procname << " (PID " << _pid << ")";
+	std::string lsname = procname + '-' + std::to_string(_pid) +
+	    ".stats.log";
+	std::string descr = "Statistics for " + procname + " (PID " +
+	    std::to_string(this->_pid) + ")";
 	try {
-		_logSheet = logCabinet->newLogsheet(lsname.str(), descr.str());
+		_logSheet = logCabinet->newLogsheet(lsname, descr);
 	} catch (BE::Error::ObjectExists &e) {
 		throw BE::Error::StrategyError("Logsheet already exists.");
 	} catch (BE::Error::StrategyError &e) {
 		throw;
+	}
+	if (_doTasksLogging) {
+		lsname = procname + '-' + std::to_string(_pid) +
+		     ".taskstats.log";
+		descr = "Statistics for all tasks under " + procname +
+		     " (PID " + std::to_string(this->_pid) + ")";
+		try {
+			_tasksLogSheet = logCabinet->newLogsheet(lsname, descr);
+		} catch (BE::Error::ObjectExists &e) {
+			throw BE::Error::StrategyError(
+			    "Logsheet already exists.");
+		} catch (BE::Error::StrategyError &e) {
+			throw;
+		}
 	}
 	_logging = true;
 	_autoLogging = false;
@@ -258,23 +341,40 @@ BiometricEvaluation::Process::Statistics::Statistics(
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
-    const std::shared_ptr<BE::IO::Logsheet> &logSheet) :
+    const std::shared_ptr<BE::IO::Logsheet> &logSheet,
+    std::optional<std::shared_ptr<IO::Logsheet>> tasksLogSheet) :
     _pid(getpid()),
     _logSheet(logSheet),
+    _tasksLogSheet(tasksLogSheet),
     _logging(true),
     _autoLogging(false)
 {
 	pthread_mutex_init(&_logMutex, nullptr);
 	_logSheet->writeComment(LogsheetHeader);
+	if (_tasksLogSheet.has_value()) {
+		_tasksLogSheet->get()->writeComment(TasksLogsheetHeader);
+		_doTasksLogging = true;
+	}
 }
 
-std::tuple<uint64_t, uint64_t>
+std::tuple<
+    uint64_t,
+    uint64_t>
 BiometricEvaluation::Process::Statistics::getCPUTimes()
 {
 	uint64_t utime, stime;
 
 	internalGetCPUTimes(&utime, &stime);
 	return (std::make_tuple(utime, stime));
+}
+
+std::vector<std::tuple<
+    pid_t,
+    uint64_t,
+    uint64_t>>
+BiometricEvaluation::Process::Statistics::getTasksStats()
+{
+	return (internalGetTasksStats(this->_pid));
 }
 
 std::tuple<
@@ -318,6 +418,22 @@ BiometricEvaluation::Process::Statistics::logStats()
 	*_logSheet << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
 	*_logSheet << ps.vmdata << " " << ps.vmstack << " " << ps.threads;
 	_logSheet->newEntry();
+
+	if (_doTasksLogging) {
+		auto allStats = internalGetTasksStats(_pid);
+		*_tasksLogSheet->get() << "PID: " << _pid << ' ';
+		for (auto [tid, utime, stime]: allStats) {
+			*_tasksLogSheet->get() << '{' << tid << ", " << utime
+			    << ", " << stime << "} ";
+#if 0
+			*_tasksLogSheet->get() << "TID: " << tid <<
+			    " utime: " << utime <<
+			    ", stime: " << stime << '\n';
+#endif
+		}
+//		*_tasksLogSheet->get() << '\n';
+		_tasksLogSheet->get()->newEntry();
+	}
 
 	pthread_mutex_unlock(&this->_logMutex);
 }
