@@ -105,16 +105,16 @@ set(STATICLIBTGT ${CORELIB}-static CACHE INTERNAL "Name of static library target
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if(${CMAKE_MAJOR_VERSION} GREATER 2)
     if (MSVC)
-        set(CMAKE_CXX_STANDARD 14)
+        set(CMAKE_CXX_STANDARD 17)
     else (MSVC)
-        set(CMAKE_CXX_STANDARD 11)
+        set(CMAKE_CXX_STANDARD 17)
     endif (MSVC)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 else()
     if(MSVC)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++14")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
     else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++17")
     endif(MSVC)
 endif()
 
@@ -585,6 +585,14 @@ endif (BUILD_BIOMEVAL_SHARED)
 #
 # Other libs not specifically searched for above.
 #
+
+# GCC < 9 needs to explicitly link libstdc++fs
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  if (BUILD_BIOMEVAL_SHARED)
+    target_link_libraries(${SHAREDLIB}
+      $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
+  endif()
+endif()
 
 # This will use our Module
 find_package(SQLITE3 REQUIRED)
