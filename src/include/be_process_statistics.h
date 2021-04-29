@@ -28,11 +28,13 @@ namespace BiometricEvaluation {
 		 * process statistics, such as memory usage, system time, etc.
 		 *
 		 * @details
+		 * There are two groups of statistics: Memory and time info
+		 * for the process, and system/user time for all tasks (threads)
+		 * created by the process.
 		 * The information gathered by objects of this class are for the
-		 * current process, and can optionally be logged to a 
+		 * current process, and can automatically be logged to a 
 		 * FileLogsheet object contained within the provided 
-		 * FileLogCabinet.
-		 *
+		 * FileLogCabinet. The task statistics are optionally logged.
 		 * @note
 		 * The resolution of a returned value for many methods may
 		 * not match the resolution allowed by the interface. For
@@ -126,12 +128,16 @@ namespace BiometricEvaluation {
 
 			/**
 			 * Obtain the current child tasks statistics for 
-			 * the process.
+			 * the process. The time values are in units of
+			 * seconds.
+			 *
 			 * An example call and processing:
-			 *
-			 *
-			 *
-			 *
+			 * auto allStats = stats.getTasksStats();
+			 * for (auto [tid, utime, stime]: allStats) {
+			 *    cout << "TID is " << tid <<
+			 *      " utime is " << utime <<
+			 *      ", stime is " << stime << '\n';
+			 * }
 			 *
 			 * @note
 			 * This method may not be implemented in all operating
@@ -150,8 +156,8 @@ namespace BiometricEvaluation {
 			 */
 			std::vector<std::tuple<
 			    pid_t,
-			    uint64_t,
-			    uint64_t>> getTasksStats();
+			    float,
+			    float>> getTasksStats();
 
 			/**
 			 * Obtain the current virtual memory (VM) set sizes for
@@ -274,6 +280,7 @@ namespace BiometricEvaluation {
 			std::optional<std::shared_ptr<IO::Logsheet>>
 			    _tasksLogSheet{};
 			bool _logging{};
+			pid_t _loggingTaskID{};
 			bool _doTasksLogging{};
 			bool _autoLogging{};
 			pthread_t _loggingThread{};

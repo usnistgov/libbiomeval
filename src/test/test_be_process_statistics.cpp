@@ -8,10 +8,12 @@
  * about its quality, reliability, or any other characteristic.
  */
 
+#include <sys/syscall.h>
 #include <cstdlib>
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
+#include <time.h>
 #include <be_time.h>
 #include <be_process_statistics.h>
 
@@ -29,9 +31,26 @@ using namespace BiometricEvaluation;
 }
 
 static void*
-child(void *)
+sleepyChild(void *)
 {
 	sleep(2);
+	return (nullptr);
+}
+
+static void*
+busyChild(void *tNum)
+{
+	pid_t tID = syscall(SYS_gettid);
+	cout << __FUNCTION__ << " , TID is " << tID << "\n";
+
+	std::ifstream ifs("/dev/zero");
+	char c;
+	/* Generate some user and system time. */
+	for (uint64_t i = 0; i < 999999999; i++) {
+		auto a = i * i * i * i;
+		ifs.get(c);
+	}
+	cout << tID << " exiting.\n";
 	return (nullptr);
 }
 
@@ -118,9 +137,9 @@ main(int argc, char *argv[])
 	 * Create a few threads, and compare to what is measured.
 	 */
 	pthread_t thread1, thread2, thread3;
-	(void)pthread_create(&thread1, nullptr, child, nullptr);
-	(void)pthread_create(&thread2, nullptr, child, nullptr);
-	(void)pthread_create(&thread3, nullptr, child, nullptr);
+	(void)pthread_create(&thread1, nullptr, sleepyChild, nullptr);
+	(void)pthread_create(&thread2, nullptr, sleepyChild, nullptr);
+	(void)pthread_create(&thread3, nullptr, sleepyChild, nullptr);
 	cout << "Testing getNumThreads(): ";
 	try {
 		cout << "Count is " << stats.getNumThreads() << ": ";
@@ -211,7 +230,7 @@ main(int argc, char *argv[])
 		cout << "Caught " << e.what() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
-	cout << "The log sheet in statLogCabinet should have 11 or 12 entries." << flush << endl;
+	cout << "The stat log sheet in statLogCabinet should have 11 or 12 entries." << flush << endl;
 
 	/*
 	 * Try to start the already logging object.
@@ -228,6 +247,31 @@ main(int argc, char *argv[])
 		cout << "failed.\n";
 		return (EXIT_FAILURE);
 	}
+
+	/*
+	 * Fill up the tasks log with some data.
+	 */
+	cout << "Creating some busy threads...\n";
+	pthread_t threads[5];
+	for (auto t = 0; t < 5; t++) {
+		(void)pthread_create(&threads[t], nullptr, busyChild, nullptr);
+	}
+	cout << "Give the children some time.\n";
+	sleep(7);
+	cout << "Task stats:\n";
+	auto allStats = logstats->getTasksStats();
+	for (auto [tid, utime, stime]: allStats) {
+		cout << "TID is " << tid <<
+		" utime is " << utime <<
+		", stime is " << stime << '\n';
+	}
+	cout << "\n\n";
+	cout << "Waiting for busy threads to terminate...\n";
+	for (auto t = 0; t < 5; t++) {
+		(void)pthread_join(threads[t], nullptr);
+	}
+	cout << "done. Check the tasks log sheet for user and system times greater than 0.\n";
+
 	logstats->stopAutoLogging();
 
 	cout << "Attempting to stop a stopped logging object: ";
@@ -248,7 +292,7 @@ main(int argc, char *argv[])
 	 */
 	cout << "Rapid-fire start/stop: ";
 	try {
-		for (int i=0; i<1500; i++) {
+		for (int i=0; i<110; i++) {
 //			cout << "start ... " << flush;
 			logstats->startAutoLogging(2);
 			logstats->stopAutoLogging();
@@ -258,7 +302,7 @@ main(int argc, char *argv[])
 		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		return (EXIT_FAILURE);
 	}
-	cout << "There should be over 1000 entries in the log." << endl;
+	cout << "There should be over 100 entries in the log." << endl;
 
 	return (EXIT_SUCCESS);
 }
