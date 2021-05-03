@@ -35,6 +35,19 @@ namespace fs = std::filesystem;
 typedef std::vector<std::tuple<pid_t, float, float>> TaskStatsList;
 
 /*
+ * A structure to pass information between the logging task and the parent.
+ */
+struct startLoggerPackage {
+	uint64_t interval;
+	int flag;
+	pid_t loggingTaskID;
+	BE::Process::Statistics *stat;
+	pthread_mutex_t logMutex;
+	pthread_cond_t logCond;
+};
+static struct startLoggerPackage slp{};
+
+/*
  * There is no standard method to obtain process statistics from the OS.
  * So we'll define static-local functions here for each OS that is supported.
  * Unfortunately, these functions may be dependent not only on the OS, but
@@ -461,18 +474,6 @@ BiometricEvaluation::Process::Statistics::callStatistics_logStats()
 	this->logStats();
 }
 
-/*
- * A structure to pass information between the logging task and the parent.
- */
-struct loggerPackage {
-	uint64_t interval;
-	int flag;
-	pid_t loggingTaskID;
-	BE::Process::Statistics *stat;
-	pthread_mutex_t logMutex;
-	pthread_cond_t logCond;
-};
-
 extern "C" void *
 autoLogger(void *ptr)
 {
@@ -490,31 +491,30 @@ autoLogger(void *ptr)
 	 * We need to copy data out of the logging package in a manner
 	 * that is synchronized with the owner of the package.
 	 */
-	struct loggerPackage *lp = (struct loggerPackage *)(ptr);
-	pthread_mutex_lock(&lp->logMutex);
-	BE::Process::Statistics *stat = lp->stat;
+	pthread_mutex_lock(&slp.logMutex);
+	BE::Process::Statistics *stat = slp.stat;
 	/*
 	 * Convert _interval to sec/nsec from usec
 	 */
-	time_t sec = (time_t)(lp->interval / BE::Time::MicrosecondsPerSecond);
-	long nsec = (long)((lp->interval % BE::Time::MicrosecondsPerSecond) * 1000);
-	lp->loggingTaskID = 0;
+	time_t sec = (time_t)(slp.interval / BE::Time::MicrosecondsPerSecond);
+	long nsec = (long)((slp.interval % BE::Time::MicrosecondsPerSecond) * 1000);
+	slp.loggingTaskID = 0;
 #ifdef Linux
-	lp->loggingTaskID = syscall(SYS_gettid);
+	slp.loggingTaskID = syscall(SYS_gettid);
 #endif
-	lp->flag = 1;
-	pthread_cond_signal(&lp->logCond);
-	pthread_mutex_unlock(&lp->logMutex);
+	slp.flag = 1;
+	pthread_cond_signal(&slp.logCond);
+	pthread_mutex_unlock(&slp.logMutex);
 
 	/*
 	 * Synchronize with the parent thread so it can copy the info
 	 * out of the logging package before any log entries are made.
 	 */
-	pthread_mutex_lock(&lp->logMutex);
-	while (lp->flag != 0) {
-		pthread_cond_wait(&lp->logCond, &lp->logMutex);
+	pthread_mutex_lock(&slp.logMutex);
+	while (slp.flag != 0) {
+		pthread_cond_wait(&slp.logCond, &slp.logMutex);
 	}
-	pthread_mutex_unlock(&lp->logMutex);
+	pthread_mutex_unlock(&slp.logMutex);
 
 	/*
 	 * Add log entries until this thread is cancelled.
@@ -567,27 +567,21 @@ BiometricEvaluation::Process::Statistics::startAutoLogging(
 	if (interval == 0)
 		return;
 
-	struct loggerPackage *lp;
-	lp = (struct loggerPackage *)malloc(sizeof(struct loggerPackage));
-	if (lp == nullptr)
-		throw BE::Error::StrategyError("Memory allocation error");
-
-	lp->interval = interval;
-	lp->stat = this;
-	lp->flag = 0;
-	pthread_mutex_init(&lp->logMutex, nullptr);
-	pthread_cond_init(&lp->logCond, nullptr);
+	slp.interval = interval;
+	slp.stat = this;
+	slp.flag = 0;
+	pthread_mutex_init(&slp.logMutex, nullptr);
+	pthread_cond_init(&slp.logCond, nullptr);
 
 	int retval = pthread_create(&_loggingThread, nullptr, autoLogger,
-	    (void *)lp);
+	    nullptr);
 	if (retval != 0) {
-		free (lp);
 		throw BE::Error::StrategyError("Creating thread failed: " +
 		    BE::Error::errorStr());
 	}
 
 	std::ostringstream comment;
-	comment << StartAutologComment << lp->interval << " microseconds.";
+	comment << StartAutologComment << slp.interval << " microseconds.";
 	_logSheet->writeComment(comment.str());
 	_tasksLogSheet->get()->writeComment(comment.str());
 
@@ -595,21 +589,18 @@ BiometricEvaluation::Process::Statistics::startAutoLogging(
 	 * Synchronize with the logging thread so it can copy the info
 	 * out of the logging package before it is freed.
 	 */
-	pthread_mutex_lock(&lp->logMutex);
-	while (lp->flag != 1) {
-		pthread_cond_wait(&lp->logCond, &lp->logMutex);
+	pthread_mutex_lock(&slp.logMutex);
+	while (slp.flag != 1) {
+		pthread_cond_wait(&slp.logCond, &slp.logMutex);
 	}
-	this->_loggingTaskID = lp->loggingTaskID;
+	this->_loggingTaskID = slp.loggingTaskID;
 
 	/*
 	 * Tell the logging task that it can start logging.
 	 */
-	lp->flag = 0;
-	pthread_cond_signal(&lp->logCond);
-	pthread_mutex_unlock(&lp->logMutex);
-	pthread_cond_destroy(&lp->logCond);
-	pthread_mutex_destroy(&lp->logMutex);
-	free(lp);
+	slp.flag = 0;
+	pthread_cond_signal(&slp.logCond);
+	pthread_mutex_unlock(&slp.logMutex);
 	_autoLogging = true;
 }
 
