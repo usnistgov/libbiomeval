@@ -12,10 +12,13 @@ of processes.
 \label{sec-process_statistics}
 
 When a application is running, there may be a need to obtain information of the
-process executing that application. The \namespace{Process} can be used
-by the application itself to gather statistics related to the current amount
-of memory
-being used, the number of threads, and other items. Biometric evaluation test
+process executing that application. The \class{Process::Statistics} class can
+be used by the application itself to gather statistics related to the current
+amount of memory being used, the number of threads, and other items. In
+addition, CPU user and system times can be gathered for all threads belonging
+to the process.
+
+Biometric evaluation test
 drivers are linked against a third party library, and therefore, the application
 writer does not control the thread count or memory usage for much of the
 processing. \lstref{lst:processstatisticsuse} shows how an application can
@@ -57,6 +60,16 @@ int main(int argc, char *argv[])
         cout << " : Peak: " << vmpeak;
         cout << " : Data: " << vmdata;
         cout << " : Stack: " << vmstack << endl;
+
+        /*
+         * Obtain the user and system times for all threads.
+         */
+        auto allStats = logstats->getTasksStats();
+        for (auto [tid, utime, stime]: allStats) {
+                cout << "TID is " << tid <<
+                " utime is " << utime <<
+                ", stime is " << stime << '\n';
+        }
     } catch (Error::Exception) {
 	cout << "Caught " << e.getInfo() << endl;
     }
@@ -64,19 +77,24 @@ int main(int argc, char *argv[])
 }
 \end{lstlisting}
 
-In addition to using the \namespace{Process} API to gather statistics to be
+In addition to using the \class{Statistics} API to gather statistics to be
 returned from
-the function call, the API provides a means to have a ``standard'' set of
-statistics logged either synchronously or asynchronously to a 
-\class{LogSheet} (See~\secref{sec-logging}) contained within a \class{LogCabinet}.
-Applications can
-start and stop logging at will to this \class{LogSheet}. Post-mortem analysis can
-then be done on the entries in the log.
+the function call, the API provides a means to have a set of
+statistics logged either synchronously or asynchronously to a pair of
+\class{Logsheet} objects. (See~\secref{sec-logging}) In addition, these sheets
+can be contained within a \class{LogCabinet}. Applications can
+start and stop logging at will to these sheets. Post mortem analysis
+can then be done on the entries in the log.
 \lstref{lst:processstatisticslogging} shows the use of logging.
 
-The \class{LogSheet} will have a file name constructed from the process name (i.e.
-the application executable) and the process ID. An example \class{LogSheet} contains
-this information at the start:
+If the \class{Statistics} object is constructed with a \class{LogCabinet}
+object, the log sheets will have a file name constructed from the
+process name (i.e. the application executable) and the process ID.
+Alternatively, the \class{Statistics} object can be constructed with one or
+two \class{Logsheet} objects, giving the application more control over where
+the files are stored.
+
+An example log sheet contains this information at the start:
 
 \begin{verbatim}
 Description: Statistics for test_be_process_statistics (PID 28370)
@@ -85,9 +103,39 @@ E0000000001 728889 6998 1788 57472 62612 31020 84 1
 E0000000002 1300802 6998 1792 57472 62612 31020 84 1
 \end{verbatim}
 
-The \class{Statistics} object creates the \class{LogSheet} with an appropriate description
-and comment entry with column headers. Each gathering of the statistics results
-in a single log entry.
+If the optional task statistics are to be logged, a separate file is created
+in the \class{LogCabinet} with an appropriate name. Entries in this sheet are
+of this form:
+
+\begin{verbatim}
+Description: Statistics for all tasks under test_be_process_statistics (PID 29193)
+# Parent-ID {task-ID utime stime} ...
+# Statistics auto-logger task is marked with (L)
+E 0000000001 29193 {29193, 0.25, 0}
+E 0000000002 29193 {29193, 0.5, 0}
+E 0000000003 29193 {29193, 0.73, 0}
+E 0000000004 29193 {29193, 0.96, 0}
+E 0000000005 29193 {29193, 1.2, 0}
+E 0000000006 29193 {29193, 1.43, 0}
+# Autolog started. Interval: 1000000 microseconds.
+E 0000000007 29193 {29193, 1.67, 0} {29197(L), 0, 0}
+E 0000000008 29193 {29193, 1.67, 0} {29197(L), 0, 0}
+E 0000000009 29193 {29193, 1.67, 0} {29197(L), 0, 0}
+E 0000000010 29193 {29193, 1.67, 0} {29197(L), 0, 0}
+E 0000000011 29193 {29193, 1.67, 0} {29197(L), 0, 0}
+E 0000000012 29193 {29193, 1.67, 0} {29197(L), 0, 0}
+E 0000000013 29193 {29193, 1.67, 0} {29197(L), 0, 0} {29198, 0, 0} {29199, 0.01, 0}
+E 0000000014 29193 {29193, 1.67, 0} {29197(L), 0, 0} {29198, 0.19, 0} {29199, 0.19, 0}
+E 0000000015 29193 {29193, 1.67, 0} {29197(L), 0, 0} {29198, 0.38, 0.01} {29199, 0.4, 0}
+\end{verbatim}
+
+The above example contains entries for the single task under the process, then
+once auto-logging has started, more threads were created. Note that the thread
+responsible for logging is identified with the {\tt (L)} tag.
+
+When the \class{LogCabinet} is used, the \class{Statistics} object creates the
+\class{Logsheet} objects with an appropriate description and comment entry with 
+column headers. Each gathering of the statistics results in a single log entry.
 
 \begin{lstlisting}[caption={Logging Process Statistics}, label=lst:processstatisticslogging]
 #include <be_error_exception.h>
@@ -102,7 +150,8 @@ int main(int argc, char *argv[])
     std::unique_ptr<Process::Statistics> logstats;
 
     try {
-	logstats.reset(new Process::Statistics(lc));
+	// Auto-log both process and task statistics
+	logstats.reset(new Process::Statistics(lc, true));
     } catch (Error::Exception &e) {
 	cout << "Caught " << e.getInfo() << endl;
 	return (EXIT_FAILURE);
@@ -118,9 +167,9 @@ int main(int argc, char *argv[])
 	return (EXIT_FAILURE);
     }
 
-    // Set up asynchronous logging, every second
+    // Set up asynchronous logging, every 1/10 second
     try {
-	logstats->startAutoLogging(1);
+	logstats->startAutoLogging(100000);
     } catch (Error::ObjectExists &e) {
 	cout << "Caught " << e.getInfo() << endl;
 	return (EXIT_FAILURE);
@@ -155,7 +204,7 @@ using \class{Fork\allowbreak Manager}, new processes will be created with
 \class{Manager}.  Likewise, \class{POSIX\allowbreak Thread\allowbreak Manager}
 creates new POSIX threads.  Because both of theses classes inherit from
 \class{Manager}, it is as trivial as changing the \class{Manager} object type
-to change how the workload is parallelized.
+to change how the workload is made parallel.
 
 \subsection{Worker}
 \label{subsec-process_worker}
@@ -266,14 +315,14 @@ a \class{Manager} object.  All communications to the \class{Worker}
 (e.g. \code{is\allowbreak Working()}) should be delegated through the
 \class{Worker\allowbreak Controller}.  If defining a new \class{Manager}, note
 that the \class{Worker\allowbreak Controller} may seem unnecessary for the
-parallelization technique being employed.  It's true
-that some parallelization techniques may not require this ``middle-man''
+parallel technique being employed.  It's true
+that some parallel techniques may not require this ``middle-man''
 approach, but others do.  Do not be concerned if a \class{Worker\allowbreak
 Controller} implementation ends up being nothing more than a ``pass-thru'' to
 the \class{Worker}.
 
 \lstref{lst:process_manager-example} is a continuation of
-\lstref{lst:process_worker-example} demonstraiting the use of \class{Manager}s
+\lstref{lst:process_worker-example} demonstrating the use of \class{Manager}s
 and \class{Worker\allowbreak Controller}s.
 
 \begin{lstlisting}[caption={Using \class{Manager}s and \class{WorkerController}s}, label=lst:process_manager-example]
