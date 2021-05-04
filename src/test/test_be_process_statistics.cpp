@@ -181,8 +181,10 @@ main(int argc, char *argv[])
 	/*
 	 * The logging tests need to be done last.
 	 */
-	cout << "Creating Statistics object with logging: " << flush;
+	cout << "Creating Statistics object with process and task logging: "
+	     << flush;
 	std::unique_ptr<Process::Statistics> logstats;
+
 	/*
 	 * Log both basic process stats and those for all tasks.
 	 */
@@ -304,5 +306,32 @@ main(int argc, char *argv[])
 	}
 	cout << "There should be over 100 entries in the log." << endl;
 
+	cout << "Create main and tasks log sheets: ";
+	std::shared_ptr<IO::FileLogsheet> ls1{};
+	std::optional<std::shared_ptr<IO::FileLogsheet>> ls2{};
+	std::shared_ptr<IO::FileLogsheet> sptr{};
+	try {
+		ls1.reset(new IO::FileLogsheet(
+		    "FirstSheet.log", "Main log sheet"));
+		sptr.reset(new IO::FileLogsheet(
+		    "SecondLogSheet.log", "Tasks log sheet"));
+		ls2 = sptr;
+	} catch (Error::Exception &e) {
+		cout << "Caught " << e.what() << "; ERROR." << flush << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << "Done.\n";
+	cout << "Log to individual log sheets: ";
+	try {
+		logstats.reset(new Process::Statistics(ls1, ls2));
+		logstats->startAutoLogging(2000);
+		sleep(1);
+		logstats->stopAutoLogging();
+	} catch (Error::Exception &e) {
+		cout << "Caught " << e.what() << "; ERROR." << flush << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << "Done. Check the two log sheets for 300-350 entries.\n";
+		
 	return (EXIT_SUCCESS);
 }

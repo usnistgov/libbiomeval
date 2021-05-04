@@ -583,7 +583,9 @@ BiometricEvaluation::Process::Statistics::startAutoLogging(
 	std::ostringstream comment;
 	comment << StartAutologComment << slp.interval << " microseconds.";
 	_logSheet->writeComment(comment.str());
-	_tasksLogSheet->get()->writeComment(comment.str());
+	if (_doTasksLogging) {
+		_tasksLogSheet->get()->writeComment(comment.str());
+	}
 
 	/*
 	 * Synchronize with the logging thread so it can copy the info
@@ -621,6 +623,8 @@ BiometricEvaluation::Process::Statistics::stopAutoLogging()
 	std::ostringstream comment;
 	comment << StopAutologComment;
 	_logSheet->writeComment(comment.str());
-	_tasksLogSheet->get()->writeComment(comment.str());
+	if (_doTasksLogging) {
+		_tasksLogSheet->get()->writeComment(comment.str());
+	}
 }
 
