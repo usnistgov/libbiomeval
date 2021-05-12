@@ -210,6 +210,7 @@ endif(WITH_FFMPEG)
 #
 # PCSC (Smartcard) support is an optional library
 #
+if (WITH_PCSC)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	find_library(PCSC_FRAMEWORK PCSC)  
 	if (PCSC_FRAMEWORK)
@@ -231,8 +232,12 @@ if (PCSC_FOUND)
 		target_include_directories(deviceobjs-static PUBLIC ${BIOMEVAL_INCLUDE})
 	endif (MSVC AND BUILD_BIOMEVAL_STATIC)
 else (PCSC_FOUND)
+	# FIXME: Should we complain if WITH_PCSC=YES but PCSC is not found?
 	message(STATUS "Building without PCSC support.")
 endif (PCSC_FOUND)
+else(WITH_PCSC)
+	message(STATUS "Building without PCSC support.")
+endif(WITH_PCSC)
 
 #
 # Keep MPI related files separate so we can use a different compiler command.
