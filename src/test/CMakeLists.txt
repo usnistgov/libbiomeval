@@ -110,10 +110,12 @@ if(MSVC)
     link_libraries(${OPENJP2_LIBRARIES})
   endif(OPENJP2_FOUND)
 
+  if(WITH_HWLOC)
   find_package(HWLOC)
   if(HWLOC_FOUND)
     link_libraries(${HWLOC_LIBRARIES})
   endif(HWLOC_FOUND)
+  endif(WITH_HWLOC)
 
   find_package(PNG)
   if(PNG_FOUND)

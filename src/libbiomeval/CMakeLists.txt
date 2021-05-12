@@ -572,6 +572,8 @@ endif(PCSC_FOUND)
 #
 # The Portable Hardware Locality hwloc
 #
+if (WITH_HWLOC)
+add_definitions(-DBIOMEVAL_WITH_HWLOC)
 set(HWLOC_FIND_REQUIRED TRUE)
 find_package(HWLOC)
 if(NOT HWLOC_FOUND)
@@ -581,6 +583,9 @@ include_directories(PUBLIC ${HWLOC_INCLUDE_DIR})
 if (BUILD_BIOMEVAL_SHARED)
 	target_link_libraries(${SHAREDLIB} ${HWLOC_LIBRARIES})
 endif (BUILD_BIOMEVAL_SHARED)
+else (WITH_HWLOC)
+    message(STATUS "Building without HWLOC support.")
+endif (WITH_HWLOC)
 
 #
 # Other libs not specifically searched for above.

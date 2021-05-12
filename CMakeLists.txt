@@ -136,3 +136,6 @@ endif (BUILD_BIOMEVAL_TESTS)
 if (BUILD_BIOMEVAL_TESTS)
 	add_subdirectory(src/test/ bin)
 endif (BUILD_BIOMEVAL_TESTS)
+
+# Build sources that require libhwloc
+option(WITH_HWLOC "Build sources that require libhwloc" ON)
