@@ -188,6 +188,7 @@ endif(MSVC)
 #
 set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${MESSAGE_CENTER})
 
+if (WITH_FFMPEG)
 find_package(FFMPEG)
 if(FFMPEG_FOUND)
   if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
@@ -199,8 +200,12 @@ if(FFMPEG_FOUND)
   endif (MSVC AND BUILD_BIOMEVAL_STATIC)
   message(STATUS "Adding VIDEO support.")
 else(FFMPEG_FOUND)
+  # FIXME: Should we complain if WITH_FFMPEG=YES but FFMPEG is not found?
   message(STATUS "Building without VIDEO support.")
 endif(FFMPEG_FOUND)
+else(WITH_FFMPEG)
+  message(STATUS "Building without VIDEO support.")
+endif(WITH_FFMPEG)
 
 #
 # PCSC (Smartcard) support is an optional library
