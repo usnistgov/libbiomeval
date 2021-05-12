@@ -139,3 +139,5 @@ endif (BUILD_BIOMEVAL_TESTS)
 
 # Build sources that require libhwloc
 option(WITH_HWLOC "Build sources that require libhwloc" ON)
+# Build sources that require OpenMPI
+option(WITH_MPI "Build sources that require MPI" ON)

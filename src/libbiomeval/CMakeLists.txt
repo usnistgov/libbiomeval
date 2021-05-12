@@ -235,6 +235,7 @@ endif (PCSC_FOUND)
 # be added to the BIOMEVAL library later. MPI is optional.
 #
 set(MPISOURCES ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER})
+if(WITH_MPI)
 # Provide some hints to help find MPI
 list(APPEND CMAKE_PREFIX_PATH "/opt/local/bin")
 list(APPEND CMAKE_PREFIX_PATH "/usr/lib/openmpi/bin")
@@ -257,8 +258,12 @@ if(MPI_CXX_FOUND AND NOT MSVC)
       PUBLIC ${MPI_CXX_INCLUDE_DIRS} ${BIOMEVAL_INCLUDE})
   endif(${CMAKE_VERSION} VERSION_LESS "3.10")
 else(MPI_CXX_FOUND AND NOT MSVC)
+  # FIXME: Should we stop if WITH_MPI=ON, but MPI not found?
   message(STATUS "Building without MPI support.")
 endif(MPI_CXX_FOUND AND NOT MSVC)
+else(WITH_MPI)
+  message(STATUS "Building without MPI support.")
+endif(WITH_MPI)
 
 #
 # Build the Framework-local version of NBIS
