@@ -100,6 +100,16 @@ if (NOT MSVC AND POSSIBLE_TO_BUILD_32BIT)
 		message(STATUS "Bitness: 64-bit")
 	endif (BUILD_BIOMEVAL_32BIT)
 endif (NOT MSVC AND POSSIBLE_TO_BUILD_32BIT)
+
+# Build sources that require libhwloc
+option(WITH_HWLOC "Build sources that require libhwloc" ON)
+# Build sources that require OpenMPI
+option(WITH_MPI "Build sources that require MPI" ON)
+# Build sources that require FFMPEG
+option(WITH_FFMPEG "Build sources that requires FFMPEG" ON)
+# Build sources that require PCSC
+option(WITH_PCSC "Build sources that requires PCSC" ON)
+
 #
 # The CMake config files must exist in the directories added to this config:
 #
@@ -136,12 +146,3 @@ endif (BUILD_BIOMEVAL_TESTS)
 if (BUILD_BIOMEVAL_TESTS)
 	add_subdirectory(src/test/ bin)
 endif (BUILD_BIOMEVAL_TESTS)
-
-# Build sources that require libhwloc
-option(WITH_HWLOC "Build sources that require libhwloc" ON)
-# Build sources that require OpenMPI
-option(WITH_MPI "Build sources that require MPI" ON)
-# Build sources that require FFMPEG
-option(WITH_FFMPEG "Build sources that requires FFMPEG" ON)
-# Build sources that require PCSC
-option(WITH_PCSC "Build sources that requires PCSC" ON)
