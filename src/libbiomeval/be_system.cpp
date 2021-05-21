@@ -18,7 +18,10 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
+
+#ifdef BIOMEVAL_WITH_HWLOC
 #include <hwloc.h>
+#endif
 
 #include <be_sysdeps.h>
 
@@ -35,6 +38,7 @@ BiometricEvaluation::System::getCPUCount()
 uint32_t
 BiometricEvaluation::System::getCPUCoreCount()
 {
+#ifdef BIOMEVAL_WITH_HWLOC
 	hwloc_topology_t topology;
 	hwloc_topology_init(&topology);
 	hwloc_topology_load(topology);
@@ -46,11 +50,15 @@ BiometricEvaluation::System::getCPUCoreCount()
 	uint32_t count = hwloc_get_nbobjs_by_depth(topology, depth);
 	hwloc_topology_destroy(topology);
 	return (count);
+#else
+	throw BiometricEvaluation::Error::NotImplemented{};
+#endif
 }
 
 uint32_t
 BiometricEvaluation::System::getCPUSocketCount()
 {
+#ifdef BIOMEVAL_WITH_HWLOC
 	hwloc_topology_t topology;
 	hwloc_topology_init(&topology);
 	hwloc_topology_load(topology);
@@ -63,6 +71,9 @@ BiometricEvaluation::System::getCPUSocketCount()
 	uint32_t count = hwloc_get_nbobjs_by_depth(topology, depth);
 	hwloc_topology_destroy(topology);
 	return (count);
+#else
+	throw BiometricEvaluation::Error::NotImplemented{};
+#endif
 }
 
 uint64_t

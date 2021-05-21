@@ -188,6 +188,7 @@ endif(MSVC)
 #
 set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${MESSAGE_CENTER})
 
+if (WITH_FFMPEG)
 find_package(FFMPEG)
 if(FFMPEG_FOUND)
   if ((MSVC AND BUILD_BIOMEVAL_SHARED) OR NOT MSVC)
@@ -199,12 +200,17 @@ if(FFMPEG_FOUND)
   endif (MSVC AND BUILD_BIOMEVAL_STATIC)
   message(STATUS "Adding VIDEO support.")
 else(FFMPEG_FOUND)
+  # FIXME: Should we complain if WITH_FFMPEG=YES but FFMPEG is not found?
   message(STATUS "Building without VIDEO support.")
 endif(FFMPEG_FOUND)
+else(WITH_FFMPEG)
+  message(STATUS "Building without VIDEO support.")
+endif(WITH_FFMPEG)
 
 #
 # PCSC (Smartcard) support is an optional library
 #
+if (WITH_PCSC)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	find_library(PCSC_FRAMEWORK PCSC)  
 	if (PCSC_FRAMEWORK)
@@ -226,8 +232,12 @@ if (PCSC_FOUND)
 		target_include_directories(deviceobjs-static PUBLIC ${BIOMEVAL_INCLUDE})
 	endif (MSVC AND BUILD_BIOMEVAL_STATIC)
 else (PCSC_FOUND)
+	# FIXME: Should we complain if WITH_PCSC=YES but PCSC is not found?
 	message(STATUS "Building without PCSC support.")
 endif (PCSC_FOUND)
+else(WITH_PCSC)
+	message(STATUS "Building without PCSC support.")
+endif(WITH_PCSC)
 
 #
 # Keep MPI related files separate so we can use a different compiler command.
@@ -235,6 +245,7 @@ endif (PCSC_FOUND)
 # be added to the BIOMEVAL library later. MPI is optional.
 #
 set(MPISOURCES ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER})
+if(WITH_MPI)
 # Provide some hints to help find MPI
 list(APPEND CMAKE_PREFIX_PATH "/opt/local/bin")
 list(APPEND CMAKE_PREFIX_PATH "/usr/lib/openmpi/bin")
@@ -257,8 +268,12 @@ if(MPI_CXX_FOUND AND NOT MSVC)
       PUBLIC ${MPI_CXX_INCLUDE_DIRS} ${BIOMEVAL_INCLUDE})
   endif(${CMAKE_VERSION} VERSION_LESS "3.10")
 else(MPI_CXX_FOUND AND NOT MSVC)
+  # FIXME: Should we stop if WITH_MPI=ON, but MPI not found?
   message(STATUS "Building without MPI support.")
 endif(MPI_CXX_FOUND AND NOT MSVC)
+else(WITH_MPI)
+  message(STATUS "Building without MPI support.")
+endif(WITH_MPI)
 
 #
 # Build the Framework-local version of NBIS
@@ -572,6 +587,8 @@ endif(PCSC_FOUND)
 #
 # The Portable Hardware Locality hwloc
 #
+if (WITH_HWLOC)
+add_definitions(-DBIOMEVAL_WITH_HWLOC)
 set(HWLOC_FIND_REQUIRED TRUE)
 find_package(HWLOC)
 if(NOT HWLOC_FOUND)
@@ -581,6 +598,9 @@ include_directories(PUBLIC ${HWLOC_INCLUDE_DIR})
 if (BUILD_BIOMEVAL_SHARED)
 	target_link_libraries(${SHAREDLIB} ${HWLOC_LIBRARIES})
 endif (BUILD_BIOMEVAL_SHARED)
+else (WITH_HWLOC)
+    message(STATUS "Building without HWLOC support.")
+endif (WITH_HWLOC)
 
 #
 # Other libs not specifically searched for above.

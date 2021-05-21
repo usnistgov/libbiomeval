@@ -85,10 +85,12 @@ endif()
 
 # Windows doesn't have the concept of rpath. DLLs must be in PATH
 if(MSVC)
+  if (WITH_FFMPEG)
   find_package(FFMPEG)
   if(FFMPEG_FOUND)
     link_libraries(${FFMPEG_LIBRARIES})
   endif(FFMPEG_FOUND)
+  endif(WITH_FFMPEG)
 
   find_package(OPENSSL)
   if(OPENSSL_FOUND)
@@ -110,10 +112,12 @@ if(MSVC)
     link_libraries(${OPENJP2_LIBRARIES})
   endif(OPENJP2_FOUND)
 
+  if(WITH_HWLOC)
   find_package(HWLOC)
   if(HWLOC_FOUND)
     link_libraries(${HWLOC_LIBRARIES})
   endif(HWLOC_FOUND)
+  endif(WITH_HWLOC)
 
   find_package(PNG)
   if(PNG_FOUND)
