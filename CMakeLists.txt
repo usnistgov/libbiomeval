@@ -106,9 +106,9 @@ option(WITH_HWLOC "Build sources that require libhwloc" ON)
 # Build sources that require OpenMPI
 option(WITH_MPI "Build sources that require MPI" ON)
 # Build sources that require FFMPEG
-option(WITH_FFMPEG "Build sources that requires FFMPEG" ON)
+option(WITH_FFMPEG "Build sources that require FFMPEG" ON)
 # Build sources that require PCSC
-option(WITH_PCSC "Build sources that requires PCSC" ON)
+option(WITH_PCSC "Build sources that require PCSC" ON)
 
 #
 # The CMake config files must exist in the directories added to this config:
