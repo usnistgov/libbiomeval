@@ -51,10 +51,10 @@ main(int argc, char* argv[]) {
 	bool success = false;
 	try {
 		an2kv.reset(new Latent::AN2KView("test_data/type9.an2k", 1));
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -67,7 +67,7 @@ main(int argc, char* argv[]) {
 	success = false;
 	try {
 		an2kv.reset(new Latent::AN2KView("nbv5425GHdfsdfad", 1));
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -78,10 +78,10 @@ main(int argc, char* argv[]) {
 	cout << "Attempt to construct with good file: ";
 	try {
 		an2kv.reset(new Latent::AN2KView("test_data/type9-13.an2k", 1));
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -100,7 +100,7 @@ main(int argc, char* argv[]) {
 	}
 	try {
 		bufAn2kv.reset(new Latent::AN2KView(buf, 1));
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		return (EXIT_FAILURE);
 	}

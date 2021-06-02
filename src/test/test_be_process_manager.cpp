@@ -86,7 +86,7 @@ workerMain()
 			data.copy((uint8_t *)key.str().c_str(),
 			    key.str().length() + 1);
 			rs->insert(key.str(), data);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << e.what() << endl;
 		}
 		
@@ -117,7 +117,7 @@ workerMain()
 				this->sendMessageToManager(communication);
 				cout << "<<" << ID << "Messsage sent"
 				    << endl;
-			} catch (Error::Exception &e) {
+			} catch (const Error::Exception &e) {
 				cerr << "<<" << ID <<
 				    "CAUGHT: " << e.whatString() << endl;
 			}
@@ -262,7 +262,7 @@ main(
 			    IO::RecordStore::createRecordStore(name.str(),
 			    "Test RS", IO::RecordStore::Kind::BerkeleyDB));
 			workers[i]->setParameterFromInteger("instance", i + 1);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << e.what() << endl;
 		}
 	}
@@ -314,7 +314,7 @@ main(
 		try {
 			cout << ">> (M) Send message to " << i + 1 << endl;
  			workers[i]->sendMessageToWorker(message);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << ">>>> (M) SND CAUGHT: " << e.what() << endl;
 		}
 	}
@@ -327,7 +327,7 @@ main(
 			    "(from instance " << sender->getWorker()->
 			    getParameterAsInteger("instance") << ")" <<
 			    endl;
-	} catch (Error::Exception &f) {
+	} catch (const Error::Exception &f) {
 		cout << ">>>> (M) RCV CAUGHT: " << f.what() << endl;
 	}
 
@@ -365,7 +365,7 @@ main(
 	try {
 		workers[0]->sendMessageToWorker(message);
 		cout << "sent (FAIL)" << endl;
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "caught ObjectDoesNotExist (success)" << endl;
 	}
 

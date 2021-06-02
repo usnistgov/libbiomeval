@@ -810,7 +810,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::removeRecordSegments(
 		dbtkey.set_size(keyseg.length());
 		try {
 			rc = DBin->del(nullptr, &dbtkey, 0);
-		} catch (DbException &e) {
+		} catch (const DbException &e) {
 			throw Error::StrategyError("Could not delete (DB "
 			    "error = "+ std::to_string(e.get_errno()) + " -- "+
 			    e.what() + ")");

@@ -44,7 +44,7 @@ childFunction()
 		sem.reset(new
 		    BE::Process::Semaphore(semName));
 		std::cout << "Success." << std::endl;
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Failed: " << e.whatString() << std::endl;
 		return (EXIT_FAILURE);
 	}
@@ -58,7 +58,7 @@ childFunction()
 		} else {
 			std::cout << "Success." << std::endl;
 		}
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Failed: " << e.whatString() << std::endl;
 		return (EXIT_FAILURE);
 	}
@@ -80,7 +80,7 @@ childFunction()
 		} else {
 			std::cout << "Success." << std::endl;
 		}
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Failed: " << e.whatString() << std::endl;
 		return (EXIT_FAILURE);
 	}
@@ -94,7 +94,7 @@ childFunction()
 		} else {
 			std::cout << "Success." << std::endl;
 		}
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Failed: " << e.whatString() << std::endl;
 		sem->wait(false);
 		return (EXIT_FAILURE);
@@ -132,7 +132,7 @@ parentCounter()
 	try {
 		sem.reset(new
 			BE::Process::Semaphore(semName, S_IRUSR|S_IWUSR, 1));
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		pMsg("parentCounter() could not create Semaphore.\n");
 		return (EXIT_FAILURE);
 	}
@@ -222,10 +222,10 @@ main(int argc, char *argv[])
 		sem.reset(new
 		    BE::Process::Semaphore("/fefifofum"));
 		std::cout << "Failure." << std::endl;
-	} catch (BE::Error::ObjectDoesNotExist &e) {
+	} catch (const BE::Error::ObjectDoesNotExist &e) {
 		std::cout << "Success." << std::endl;
 		success = true;
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Failed: " << e.whatString() << std::endl;
 	}
 	if (!success) {
@@ -239,7 +239,7 @@ main(int argc, char *argv[])
 		sem.reset(new
 		    BE::Process::Semaphore(semName, S_IRUSR|S_IWUSR, 0));
 		std::cout << "Success." << std::endl;
-	} catch (BE::Error::ObjectExists &e) {
+	} catch (const BE::Error::ObjectExists &e) {
 		/* Remove a stale semaphore */
 		pMsg("Removing failed Semaphore: ");
 		// XXX replace with class function if ever implemented
@@ -251,7 +251,7 @@ main(int argc, char *argv[])
 		sem.reset(new
 		    BE::Process::Semaphore(semName, S_IRUSR|S_IWUSR, 0));
 		std::cout << "Success." << std::endl;
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Failed: " << e.whatString() << std::endl;
 		return (EXIT_FAILURE);
 	}
@@ -261,10 +261,10 @@ main(int argc, char *argv[])
 	try {
 		sem.reset(new
 		    BE::Process::Semaphore(semName, S_IRUSR|S_IWUSR, 0));
-	} catch (BE::Error::ObjectExists &e) {
+	} catch (const BE::Error::ObjectExists &e) {
 		std::cout << "Success." << std::endl;
 		success = true;
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Failed: " << e.whatString() << std::endl;
 		return (EXIT_FAILURE);
 	}
@@ -301,14 +301,14 @@ main(int argc, char *argv[])
 		try {
 			sem->post();
 			std::cout << "Success." << std::endl;
-		} catch (BE::Error::Exception &e) {
+		} catch (const BE::Error::Exception &e) {
 			std::cout << "Failed: " << e.whatString() << std::endl;
 			return (EXIT_FAILURE);
 		}
 		sleep(2);
 		try {
 			sem->post();
-		} catch (BE::Error::Exception &e) {
+		} catch (const BE::Error::Exception &e) {
 			std::cout << "Second post() Failed: "
 			    << e.whatString() << std::endl;
 			return (EXIT_FAILURE);
@@ -316,7 +316,7 @@ main(int argc, char *argv[])
 		sleep(2);
 		try {
 			sem->post();
-		} catch (BE::Error::Exception &e) {
+		} catch (const BE::Error::Exception &e) {
 			std::cout << "Third post() Failed: "
 			    << e.whatString() << std::endl;
 			return (EXIT_FAILURE);

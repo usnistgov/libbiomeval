@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	try {
 		timer = new Time::Timer();
 		cout << "passed" << endl;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 		atimer->stop();
 		cout << "failed" << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "passed" << endl;
 	}
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 			return (EXIT_FAILURE);
 		}
 		cout << "Time = " << seconds << " (should be 0)" << endl;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
@@ -69,14 +69,14 @@ int main(int argc, char *argv[])
 		atimer->elapsed();
 		cout << "failed" << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "passed" << endl;
 	}
 
 	/* Stop the timer we started before */
 	try {
 		atimer->stop();
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 		    << atimer->elapsed() << endl;
 		cout << "Time in nanoseconds for sleep_for(1s):  "
 		    << atimer->elapsed(true) << endl;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 		cout << "Time in nanoseconds for no-op:  "
 		    << atimer->elapsed(true)
 		    << " (" << atimer->elapsedStr(true, true) << ")\n";
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 		    std::this_thread::sleep_for(oneSec()); });
 		cout << "passed" << endl;
 		cout << "Time for sleep_for(1s) in lambda: " << timer << endl;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 		    timer.time(sleepCallback) << endl;
 		cout << "Chained elapsed time for sleep_for(1s): " <<
 		    timer.time(sleepCallback).elapsedStr() << endl;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);

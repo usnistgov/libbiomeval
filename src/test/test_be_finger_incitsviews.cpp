@@ -80,7 +80,7 @@ testANSI2004()
 	bool success = false;
 	try {
 		fngv = Finger::ANSI2004View("nbv5425GHdfsdfad", "", 1);
-	} catch (Error::Exception& e) {
+	} catch (const Error::Exception& e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -92,10 +92,10 @@ testANSI2004()
 
 	try {
 		fngv = Finger::ANSI2004View("test_data/fmr.ansi2004", "", 3);
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (false);
-	} catch (Error::Exception& e) {
+	} catch (const Error::Exception& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}
@@ -115,7 +115,7 @@ testANSI2007()
 	bool success = false;
 	try {
 		fngv = Finger::ANSI2007View("nbv5425GHdfsdfad", "", 1);
-	} catch (Error::Exception& e) {
+	} catch (const Error::Exception& e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -127,10 +127,10 @@ testANSI2007()
 
 	try {
 		fngv = Finger::ANSI2007View("test_data/fmr.ansi2007", "", 1);
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (false);
-	} catch (Error::Exception& e) {
+	} catch (const Error::Exception& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}
@@ -149,10 +149,10 @@ testISO2005()
 	cout << "Attempt to construct with good file: ";
 	try {
 		fngv = Finger::ISO2005View("test_data/fmr.iso2005", "", 2);
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (false);
-	} catch (Error::Exception& e) {
+	} catch (const Error::Exception& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}

@@ -256,7 +256,7 @@ compareProperties(
 		} catch (const Error::ObjectDoesNotExist&) {
 			cerr << "\t*** raw version missing" << endl;
 			passed = false;
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cerr << "\t*** " << e.what() << endl;
 			passed = false;
 		}
@@ -271,7 +271,7 @@ compareProperties(
 		} catch (const Error::ObjectDoesNotExist&) {
 			cerr << "\t*** raw gray version missing" << endl;
 			passed = false;
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cerr << "\t*** " << e.what() << endl;
 			passed = false;
 		}
@@ -310,7 +310,7 @@ main(
 	try {
 		imageRS = IO::RecordStore::openRecordStore(
 		    RSParentDir + '/' + ImageRSName, IO::Mode::ReadOnly);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cerr << "Could not open " << RSParentDir << "/" <<
 		    ImageRSName << ": " << e.what() << endl;
 		return (EXIT_FAILURE);
@@ -321,7 +321,7 @@ main(
 	try {
 		imagePropRS = IO::RecordStore::openRecordStore(
 		    RSParentDir + '/' + ImagePropRSName, IO::Mode::ReadOnly);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cerr << "Could not open " << RSParentDir << "/" <<
 		    ImagePropRSName << ": " << e.what() << endl;
 		return (EXIT_FAILURE);
@@ -340,7 +340,7 @@ main(
 		} catch (const Error::ObjectDoesNotExist&) {
 			/* Exhausted sample images */
 			return (EXIT_SUCCESS);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cerr << e.what() << endl;
 			continue;
 		}
@@ -377,7 +377,7 @@ main(
 			}
 		} catch (const Error::ObjectDoesNotExist&) {
 			doPropertyCompare = false;
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cerr << e.what() << endl;
 			continue;
 		}
@@ -485,7 +485,7 @@ main(
 			    ios_base::trunc);
 			cout << "\tRaw Size: " << buf.size() << " (" <<
 			    rawKey << RawSuffix << ")" << endl;
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cerr << "Error getRawData/writeFile for "
 			    << record.key << endl;
 		}
@@ -496,7 +496,7 @@ main(
 			    ios_base::trunc);
 			cout << "\tRaw 8-bit Grayscale Size: " << buf.size() <<
 			    " (" << rawKey << RawGraySuffix << ")" << endl;
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cerr << "Error getRawGrayscaleData/writeFile " <<
 			   "for " << record.key << endl;
 			cerr << e.whatString() << endl;

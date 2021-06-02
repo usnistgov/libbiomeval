@@ -222,7 +222,7 @@ int main (int argc, char* argv[]) {
 	cout << "Removing record store...";
 	try {
 		IO::RecordStore::removeRecordStore(archivefn);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Failed: " << e.whatString() << endl;
 		return (EXIT_FAILURE);
 	}

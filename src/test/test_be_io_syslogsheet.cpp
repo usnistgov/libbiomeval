@@ -46,7 +46,7 @@ doLogSheetTests(BE::IO::Logsheet &ls)
 			ls << " 'Random' value is " << f << ".";
 			ls.newEntry();
 		}
-	} catch (BE::Error::StrategyError &e) {
+	} catch (const BE::Error::StrategyError &e) {
 		std::cout << "Caught " << e.whatString() << std::endl;
 		return (-1);
 	}
@@ -68,7 +68,7 @@ main(int argc, char* argv[])
 	try {
 		ls = new BE::IO::SysLogsheet(url, description, appname,
 		    true, false);
-	} catch (BE::Error::StrategyError& e) {
+	} catch (const BE::Error::StrategyError& e) {
 		std::cout << "Caught " << e.whatString() << std::endl;
 		return (-1);
 	}
@@ -87,7 +87,7 @@ main(int argc, char* argv[])
 		*uls << "First entry that is saved to the log file.";
 		uls->newEntry();
 
-	} catch (BE::Error::StrategyError& e) {
+	} catch (const BE::Error::StrategyError& e) {
 		std::cout << "Caught " << e.whatString() << std::endl;
 		return (-1);
 	}
@@ -116,7 +116,7 @@ main(int argc, char* argv[])
 		uls->writeComment("Next entry is triple newline");
 		std::cout << "Triple newline;" << std::endl;
 		*uls << "\n\n\n"; uls->newEntry();
-	} catch (BE::Error::StrategyError& e) {
+	} catch (const BE::Error::StrategyError& e) {
 		std::cout << "Caught " << e.whatString() << std::endl;
 		return (-1);
 	}
@@ -148,7 +148,7 @@ main(int argc, char* argv[])
 	try {
 		uls.reset(new BE::IO::SysLogsheet(url, description,
 		    appname, hostname, false, true));
-	} catch (BE::Error::StrategyError& e) {
+	} catch (const BE::Error::StrategyError& e) {
 		std::cout << "Caught " << e.whatString() << std::endl;
 		return (-1);
 	}

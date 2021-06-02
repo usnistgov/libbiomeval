@@ -94,7 +94,7 @@ static void writeToLogsheet(
 	 */
 	try {
 		logsheet.writeDebug(message);
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		if (!displayedMessage) {
 			BE::MPI::printStatus("Log failure: " + e.whatString()
 			    + "; logging disabled");
@@ -145,7 +145,7 @@ BiometricEvaluation::MPI::openLogsheet(
 				try {
 					logsheet.reset(
 					    new BE::IO::FileLogsheet(locURL));
-				} catch (BE::Error::Exception &e) {
+				} catch (const BE::Error::Exception &e) {
 					throw BE::Error::Exception(
 					    "Could not open FileLogsheet: " 
 					    + e.whatString());
@@ -161,7 +161,7 @@ BiometricEvaluation::MPI::openLogsheet(
 				    description,
 				    std::to_string(::MPI::COMM_WORLD.Get_rank()),
 				    true, true));
-			} catch (BE::Error::Exception &e) {
+			} catch (const BE::Error::Exception &e) {
 				throw BE::Error::Exception(
 				    "Could not open SysLogsheet: " 
 				    + e.whatString());

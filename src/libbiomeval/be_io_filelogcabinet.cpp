@@ -71,7 +71,7 @@ BiometricEvaluation::IO::FileLogCabinet::~FileLogCabinet()
 {
 	try {
 		writeControlFile();
-	} catch (Error::StrategyError& e) {
+	} catch (const Error::StrategyError& e) {
 		if (!std::uncaught_exception())
 			std::cerr << e.whatString() << std::endl;
 	}

@@ -46,7 +46,7 @@ BiometricEvaluation::Image::BMP::BMP(
 		this->setHasAlphaChannel(false);
 
 		BMP::getDIBHeader(data, size, &dibHeader);
-	} catch (Error::NotImplemented &e) {
+	} catch (const Error::NotImplemented &e) {
 		throw Error::StrategyError(e.what());
 	}
 
@@ -126,7 +126,7 @@ BiometricEvaluation::Image::BMP::getRawData()
 	try {
 		BMP::getBMPHeader(bmpData, bmpDataSize, &bmpHeader);
 		BMP::getDIBHeader(bmpData, bmpDataSize, &dibHeader);
-	} catch (Error::NotImplemented &e) {
+	} catch (const Error::NotImplemented &e) {
 		throw Error::DataError(e.what());
 	}
 	/* Image size is not required */

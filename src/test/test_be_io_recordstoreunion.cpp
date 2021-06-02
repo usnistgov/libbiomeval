@@ -108,7 +108,7 @@ cleanUp()
 	for (const auto &rs : {RS1, RS2}) {
 		try {
 			BE::IO::RecordStore::removeRecordStore(rs);
-		} catch (BE::Error::Exception &e) {
+		} catch (const BE::Error::Exception &e) {
 			std::cout << e.whatString() << std::endl;
 		}
 	}
@@ -142,7 +142,7 @@ main(
 			{RS2, BE::IO::RecordStore::openRecordStore(RS2)}});
 
 		doTest(*rsUnion.get());
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << e.whatString() << std::endl;
 		rv = EXIT_FAILURE;
 	}

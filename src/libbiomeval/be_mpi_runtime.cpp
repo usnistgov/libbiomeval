@@ -87,14 +87,14 @@ BiometricEvaluation::MPI::Runtime::start(
 	if (::MPI::COMM_WORLD.Get_rank() == 0)
 		try {
 			distributor.start();
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			printStatus("Could not start distributor: "
 			    + e.whatString());
 		}
 	else
 		try {
 			receiver.start();
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			printStatus("Could not start receiver: "
 			    + e.whatString());
 		}

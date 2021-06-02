@@ -37,7 +37,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::Impl(
 
 	try {
 		this->open_streams();
-	} catch (Error::FileError &e) {
+	} catch (const Error::FileError &e) {
 		throw Error::StrategyError(e.what());
 	}
 }
@@ -52,9 +52,9 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::Impl(
 	try {
 		this->open_streams();
 		read_manifest();
-	} catch (Error::ConversionError &e) {
+	} catch (const Error::ConversionError &e) {
 		throw Error::StrategyError(e.what());
-	} catch (Error::FileError &e) {
+	} catch (const Error::FileError &e) {
 		throw Error::StrategyError(e.what());
 	}
 }
@@ -292,7 +292,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::read(
 	if (_archivefp.is_open() == false) {
 		try {
 			this->open_streams();
-		} catch (Error::FileError &e) {
+		} catch (const Error::FileError &e) {
 			throw Error::StrategyError(e.what());
 		}
 	}
@@ -329,7 +329,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::insert(
 	if (_archivefp.is_open() == false) {
 		try {
 			this->open_streams();
-		} catch (Error::FileError &e) {
+		} catch (const Error::FileError &e) {
 			throw Error::StrategyError(e.what());
 		}
 	}
@@ -361,7 +361,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::write_manifest_entry(
 	if (_archivefp.is_open() == false) {
 		try {
 			this->open_streams();
-		} catch (Error::FileError &e) {
+		} catch (const Error::FileError &e) {
 			throw Error::StrategyError(e.what());
 		}
 	}

@@ -113,7 +113,7 @@ main(
 		makeRecordStores(childNames);
 		newPRSTest(prsPath, childNames);
 		existingPRSTest(prsPath);
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << e.whatString() << std::endl;
 		rv = EXIT_FAILURE;
 	}

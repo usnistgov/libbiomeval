@@ -28,7 +28,7 @@ testNonMutable(IO::Properties &props)
 	success = false;
 	try {
 		props.setProperty("foo", "bar");
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -40,7 +40,7 @@ testNonMutable(IO::Properties &props)
 	success = false;
 	try {
 		props.setPropertyFromInteger("foo", 23);
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -135,10 +135,10 @@ main(int argc, char* argv[]) {
 	IO::Properties *props;
 	try {
 		props = new IO::Properties();
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -159,7 +159,7 @@ main(int argc, char* argv[]) {
 	try {
 		cout << "Value for property '" << property << "' is '";
 		cout << props->getProperty(property) << "';";
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
 	}
@@ -174,7 +174,7 @@ main(int argc, char* argv[]) {
 	cout << "Retrieving non-integer property as integer: ";
 	try {
 		(void)props->getPropertyAsInteger(property);
-	} catch (Error::ConversionError &e) {
+	} catch (const Error::ConversionError &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -193,7 +193,7 @@ main(int argc, char* argv[]) {
 	try {
 		cout << "Value for property '" << property << "' is ";
 		cout << props->getPropertyAsInteger(property) << ";";
-	} catch (Error::ConversionError &e) {
+	} catch (const Error::ConversionError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
 	}
@@ -212,7 +212,7 @@ main(int argc, char* argv[]) {
 		(void)props->getPropertyAsInteger(property);
 		cout << "Value for property '" << property << "' is ";
 		cout << props->getPropertyAsInteger(property) << ";";
-	} catch (Error::ConversionError &e) {
+	} catch (const Error::ConversionError &e) {
 		cout << "Caught " << e.what() << ";failure." << endl;
 		return (EXIT_FAILURE);
 	}
@@ -231,7 +231,7 @@ main(int argc, char* argv[]) {
 		(void)props->getPropertyAsInteger(property);
 		cout << "Value for property '" << property << "' is ";
 		cout << props->getPropertyAsInteger(property) << ";";
-	} catch (Error::ConversionError &e) {
+	} catch (const Error::ConversionError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
 	}
@@ -249,7 +249,7 @@ main(int argc, char* argv[]) {
 	props->setProperty(property, value);
 	try {
 		(void)props->getPropertyAsInteger(property);
-	} catch (Error::ConversionError &e) {
+	} catch (const Error::ConversionError &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -266,7 +266,7 @@ main(int argc, char* argv[]) {
 	property = "foo";
 	try {
 		(void)props->getProperty(property);
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -279,7 +279,7 @@ main(int argc, char* argv[]) {
 	cout << "Retrieving non-existent property as integer: ";
 	try {
 		(void)props->getPropertyAsInteger(property);
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -295,11 +295,11 @@ main(int argc, char* argv[]) {
 	delete props;
 	try {
 		props = new IO::Properties(IO::Mode::ReadOnly);
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what()  << endl;
 	cout << "success." << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -323,7 +323,7 @@ main(int argc, char* argv[]) {
 			
 		cout << "\nTest iteration: " << endl;
 		iterateProperties(propsBuf);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "FAILURE: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}

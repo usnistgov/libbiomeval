@@ -191,7 +191,7 @@ BiometricEvaluation::IO::RecordStore::Impl::sync() const
 
 	try {
 		_props->sync();
-	} catch (Error::Exception& e) {
+	} catch (const Error::Exception& e) {
 		throw Error::StrategyError(e.whatString());
 	}
 }
@@ -418,7 +418,7 @@ BiometricEvaluation::IO::RecordStore::Impl::mergeRecordStores(
 	for (uint32_t i = 0; i < pathnames.size(); i++) {
 		try {
 			rs = openRecordStore(pathnames[i], Mode::ReadOnly);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			throw Error::StrategyError(e.whatString());
 		}
 	
@@ -565,7 +565,7 @@ BiometricEvaluation::IO::RecordStore::Impl::openControlFile()
 {
 	try {
 		_props.reset(new IO::PropertiesFile(_controlFile, _mode));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
                 throw Error::StrategyError("Could not open properties (" +
 		    e.whatString() + ')');
 	}

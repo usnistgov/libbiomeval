@@ -109,10 +109,10 @@ main(int argc, char* argv[]) {
 	try {
 		_an2kv = new Finger::AN2KViewFixedResolution(
 		    "test_data/type9.an2k", View::AN2KView::RecordType::Type_3, 1);
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -126,7 +126,7 @@ main(int argc, char* argv[]) {
 	try {
 		_an2kv = new Finger::AN2KViewFixedResolution(
 		    "nbv5425GHdfsdfad", View::AN2KView::RecordType::Type_3, 1);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -140,10 +140,10 @@ main(int argc, char* argv[]) {
 		_an2kv = new Finger::AN2KViewFixedResolution(
 		    "test_data/type4-slaps.an2k",
 		    View::AN2KView::RecordType::Type_4, 1);
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -157,10 +157,10 @@ main(int argc, char* argv[]) {
 		an2kv.reset(new Finger::AN2KViewFixedResolution(
 		    "test_data/type3.an2k",
 		    View::AN2KView::RecordType::Type_3, 1));
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}

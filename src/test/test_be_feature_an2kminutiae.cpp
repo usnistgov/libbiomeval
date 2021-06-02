@@ -30,10 +30,10 @@ testAN2K7Minutiae(const std::string &fname)
 	Feature::AN2K7Minutiae *_an2km;
 	try {
 		_an2km = new Feature::AN2K7Minutiae(fname, 1);
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (1);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (1);
 	}
@@ -56,7 +56,7 @@ testAN2K7Minutiae(const std::string &fname)
 		dps = an2km->getDeltas();
 		fgp = an2km->getPositions();
 
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (1);
 	}
@@ -98,10 +98,10 @@ testAN2K11EFS(const std::string &fname)
 	try {
 		_an2kefs = new Feature::AN2K11EFS::ExtendedFeatureSet(fname, 1);
 		//_an2kefs = new Feature::AN2K11EFS::ExtendedFeatureSet(fname, 3);
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what() << ".\n";
 		return (1);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << ".\n";
 		return (1);
 	}

@@ -154,7 +154,7 @@ BiometricEvaluation::MPI::RecordStoreDistributor::createWorkPackage(
 
 			fillBufferWithKeyAndValue(packageData, record.key,
 			    record.data, index);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			log->writeDebug("Caught " + e.whatString());
 			continue;
 		}
@@ -186,7 +186,7 @@ BiometricEvaluation::MPI::RecordStoreDistributor::checkpointSave(
 		    keyCount);
 		chkData->sync();
 		this->getLogsheet()->writeDebug("Checkpoint saved: " + reason);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		this->getLogsheet()->writeDebug(
 		    "Checkpoint save: Caught " + e.whatString());
 	}
@@ -212,7 +212,7 @@ BiometricEvaluation::MPI::RecordStoreDistributor::checkpointRestore()
 		this->getLogsheet()->writeDebug(
 		    "Checkpoint restore: " + chkData->getProperty(
 			BE::MPI::Distributor::CHECKPOINTREASON));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		this->getLogsheet()->writeDebug(
 		    "Checkpoint restore: Caught " + e.whatString());
 		throw;

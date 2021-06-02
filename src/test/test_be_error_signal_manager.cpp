@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	} catch (const Error::ParameterError&) {
 		cout << "success.\n";
 		success = true;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "failed." << endl;
 		cout << "Caught " << e.what() << ".\n";
 		return (EXIT_FAILURE);
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 	try {
 		sigmgr = new Error::SignalManager();
 		cout << "success." << endl;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "failed." << endl;
 		cout << "Caught " << e.what() << ".\n";
 		return (EXIT_FAILURE);

@@ -71,10 +71,10 @@ static int insertMany(IO::RecordStore *rs)
 		gettimeofday(&starttm, nullptr);
 		try {
 			rs->insert(theKey, theData);
-		} catch (Error::ObjectExists& e) {
+		} catch (const Error::ObjectExists& e) {
 			cout << "Whoops! Record exists?. Insert failed at record " << i << "." << endl;
 			return (-1);
-		} catch (Error::StrategyError& e) {
+		} catch (const Error::StrategyError& e) {
 			cout << "Could not insert record " << i << ": " <<
 			    e.what() << "." << endl;
 			return (-1);
@@ -143,10 +143,10 @@ int main (int argc, char* argv[]) {
 			 * SQLiteRecordStore. */
 			rs = new IO::SQLiteRecordStore(rsname, descr);
 #endif
-		} catch (Error::ObjectExists& e) {
+		} catch (const Error::ObjectExists& e) {
 			cout << "The RecordStore already exists; exiting." << endl;
 			return (EXIT_FAILURE);
-		} catch (Error::StrategyError& e) {
+		} catch (const Error::StrategyError& e) {
 			cout << "A strategy error occurred: " << e.what() << endl;
 		}
 		delete rs;
@@ -165,7 +165,7 @@ int main (int argc, char* argv[]) {
 #ifdef SQLITERECORDSTORETEST
 			rs = new IO::SQLiteRecordStore(rsname, IO::Mode::ReadWrite);
 #endif
-		} catch (Error::ObjectDoesNotExist& e) {
+		} catch (const Error::ObjectDoesNotExist& e) {
 			cout << "Could not re-open RecordStore; exiting." << endl;
 			return (EXIT_FAILURE);
 		}
@@ -212,10 +212,10 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, nullptr);
 		try {
 			ars->replace(theKey, theData);
-		} catch (Error::ObjectDoesNotExist& e) {
+		} catch (const Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exists?. Insert failed at record " << i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (Error::StrategyError& e) {
+		} catch (const Error::StrategyError& e) {
 			cout << "Could not replace record " << i << ": " <<
 			    e.what() << "." << endl;
 			return (EXIT_FAILURE);
@@ -233,11 +233,11 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, nullptr);
 		try {
 			theData = ars->read(theKey);
-		} catch (Error::ObjectDoesNotExist& e) {
+		} catch (const Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (Error::StrategyError& e) {
+		} catch (const Error::StrategyError& e) {
 			cout << "Could not read record " << i << ": " <<
 			    e.what() << "." << endl;
 			return (EXIT_FAILURE);
@@ -256,11 +256,11 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, nullptr);
 		try {
 			theData = ars->read(theKey);
-		} catch (Error::ObjectDoesNotExist& e) {
+		} catch (const Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Read failed at record " <<
 			    i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (Error::StrategyError& e) {
+		} catch (const Error::StrategyError& e) {
 			cout << "Could not read record " << i << ": " <<
 			    e.what() << "." << endl;
 			return (EXIT_FAILURE);
@@ -274,7 +274,7 @@ int main (int argc, char* argv[]) {
 	uint64_t startStoreSize;
 	try {
 		startStoreSize = ars->getSpaceUsed();
-	} catch (Error::StrategyError& e) {
+	} catch (const Error::StrategyError& e) {
                 cout << "Can't get space usage:" << e.what() << "." << endl;
 		return (EXIT_FAILURE);
         }
@@ -287,11 +287,11 @@ int main (int argc, char* argv[]) {
 		gettimeofday(&starttm, nullptr);
 		try {
 			ars->remove(theKey);
-		} catch (Error::ObjectDoesNotExist& e) {
+		} catch (const Error::ObjectDoesNotExist& e) {
 			cout << "Whoops! Record doesn't exist?. Remove failed at record " <<
 			    i << "." << endl;
 			return (EXIT_FAILURE);
-		} catch (Error::StrategyError& e) {
+		} catch (const Error::StrategyError& e) {
 			cout << "Could not remove record " << i << ": " <<
 			    e.what() << "." << endl;
 			return (EXIT_FAILURE);
@@ -305,7 +305,7 @@ int main (int argc, char* argv[]) {
 	uint64_t endStoreSize;
 	try {
 		endStoreSize = ars->getSpaceUsed();
-	} catch (Error::StrategyError& e) {
+	} catch (const Error::StrategyError& e) {
                 cout << "Can't get space usage:" << e.what() << "." << endl;
 		return (EXIT_FAILURE);
         }

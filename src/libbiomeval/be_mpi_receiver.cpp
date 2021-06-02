@@ -116,7 +116,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 	try {
 		this->_workPackageProcessor =
 		    this->_workPackageProcessor->newProcessor(this->_logsheet);
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::string error{"Worker failed to create a child package "
 		    "processor (" + e.whatString() + ")"};
 		MPI::printStatus(error);
@@ -167,7 +167,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 			if (taskStatus != MPI::TaskStatus::OK) {
 				break;
 			}
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			MPI::logMessage(*log, "Worker send message failure: "
 			    + e.whatString());
 			break;
@@ -182,7 +182,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 			if (this->waitForMessage() == false)
 				break;
 			this->receiveMessageFromManager(message);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			MPI::logMessage(*log, "Worker receive message failure: "
 			    + e.whatString());
 			taskStatus = MPI::TaskStatus::Failed;
@@ -211,7 +211,7 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 			this->receiveMessageFromManager(message);
 			workPackage = MPI::WorkPackage(message);
 			workPackage.setNumElements(wpCount);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			MPI::logMessage(*log, "Failed to receive work package: "
 			    + e.whatString());
 			taskStatus = MPI::TaskStatus::Failed;
@@ -220,13 +220,13 @@ BiometricEvaluation::MPI::Receiver::PackageWorker::workerMain()
 		try {
 			this->_workPackageProcessor->processWorkPackage(
 			    workPackage);
-		} catch (MPI::TerminateJob &e) {
+		} catch (const MPI::TerminateJob &e) {
 			MPI::logMessage(*log,
 			    "Package processor wants complete job termination: "
 			    + e.whatString());
 			taskStatus = MPI::TaskStatus::RequestJobTermination;
 			continue; /* Attempt to send one final status */
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			MPI::logMessage(*log,
 			    "Package processor wants shutdown: "
 			    + e.whatString());
@@ -347,7 +347,7 @@ BiometricEvaluation::MPI::Receiver::sendWorkPackage(
 		if (taskStatus != MPI::TaskStatus::OK) {
 			try {  
 				this->_processManager.stopWorker(worker);
-			} catch (Error::Exception &e) {
+			} catch (const Error::Exception &e) {
 				MPI::logMessage(*log,
 				    "Task-N stopping worker: Caught: "
 				    + e.whatString());
@@ -471,7 +471,7 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 			MPI::WorkPackage workPackage(workPackageRaw);
 			workPackage.setNumElements(numElements);
 			this->sendWorkPackage(workPackage);
-		} catch (MPI::TerminateJob &e) {
+		} catch (const MPI::TerminateJob &e) {
 			MPI::logMessage(*log,
 			    "Package processor requested job termination " +
 			    e.whatString());
@@ -481,7 +481,7 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 			    (void *)&taskStatus, 1, MPI_INT32_T, 0,
 			     to_int_type(MPI::MessageTag::Control));
 			status = MPI::TaskStatus::RequestJobTermination;
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			MPI::logMessage(*log,
 			    "Failure to process work package: "
 			    + e.whatString());
@@ -508,7 +508,7 @@ BiometricEvaluation::MPI::Receiver::startWorkers()
 		wc = this->_processManager.addWorker(pw);
 		try {
 			this->_processManager.startWorker(wc, false, true);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			MPI::logMessage(*log, "Worker start failed: " +
 			    e.whatString());
 			//XXX Throw exception?
@@ -558,7 +558,7 @@ BiometricEvaluation::MPI::Receiver::start()
 	try {
 		this->_workPackageProcessor.get()->performInitialization(
 		    this->_logsheet);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		MPI::logMessage(*log, "Could not initialize package processor: "
 		    + e.whatString());
 		taskStatus = to_int_type(MPI::TaskStatus::Failed);
@@ -629,7 +629,7 @@ BiometricEvaluation::MPI::Receiver::shutdown(
 			try {
 				msgAvail = this->_processManager.getNextMessage(
 				    worker, inMessage);
-			} catch (Error::Exception &e) {
+			} catch (const Error::Exception &e) {
 				MPI::logMessage(*log, "Task-N receiving message: "
 				"Caught: " + e.whatString());
 				/*
@@ -644,7 +644,7 @@ BiometricEvaluation::MPI::Receiver::shutdown(
 				break;
 			try {
 				this->_processManager.stopWorker(worker);
-			} catch (Error::Exception &e) {
+			} catch (const Error::Exception &e) {
 				MPI::logMessage(*log, "Task-N stopping worker: "
 				"Caught: " + e.whatString());
 			}
@@ -656,7 +656,7 @@ BiometricEvaluation::MPI::Receiver::shutdown(
 	 */
 	try {
 		this->_workPackageProcessor.get()->performShutdown();
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		MPI::logMessage(*log, "Could not shutdown package processor: "
 		    + e.whatString());
 	}
