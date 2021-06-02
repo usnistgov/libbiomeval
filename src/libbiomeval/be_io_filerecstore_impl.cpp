@@ -130,7 +130,7 @@ BiometricEvaluation::IO::FileRecordStore::Impl::insert(
 
 	try {
 		writeNewRecordFile(pathname, data, size);
-	} catch (Error::StrategyError& e) {
+	} catch (const Error::StrategyError&) {
 		throw;
 	}
 	RecordStore::Impl::insert(key, data, size);
@@ -199,7 +199,7 @@ BiometricEvaluation::IO::FileRecordStore::Impl::replace(
 
 	try {
 		writeNewRecordFile(pathname, data, size);
-	} catch (Error::StrategyError& e) {
+	} catch (const Error::StrategyError& ) {
 		throw;
 	}
 }

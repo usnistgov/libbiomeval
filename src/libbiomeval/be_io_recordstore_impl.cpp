@@ -59,18 +59,18 @@ validateControlFile(
 	/* Ensure all required properties exist */
 	try {
 		props->getProperty(DESCRIPTIONPROPERTY);
-	} catch (BE::Error::ObjectDoesNotExist& e) {
+	} catch (const BE::Error::ObjectDoesNotExist&) {
 		throw BE::Error::StrategyError(
 		    "Description property is missing");
 	}
 	try {
 		props->getProperty(TYPEPROPERTY);
-	} catch (BE::Error::ObjectDoesNotExist& e) {
+	} catch (const BE::Error::ObjectDoesNotExist&) {
 		throw BE::Error::StrategyError("Type property is missing");
 	}
 	try {
 		props->getPropertyAsInteger(COUNTPROPERTY);
-	} catch (BE::Error::ObjectDoesNotExist& e) {
+	} catch (const BE::Error::ObjectDoesNotExist&) {
 		throw BE::Error::StrategyError("Count property is missing");
 	}
 }
@@ -124,7 +124,7 @@ BiometricEvaluation::IO::RecordStore::Impl::Impl(
 	_controlFile = canonicalName(CONTROLFILENAME);
 	try {
 		(void)validateControlFile();
-	} catch (Error::StrategyError& e) {
+	} catch (const Error::StrategyError&) {
 		throw;
 	}
 }
@@ -298,9 +298,9 @@ BiometricEvaluation::IO::RecordStore::Impl::openRecordStore(
 	PropertiesFile *props;
 	try {
 		props = new PropertiesFile(controlFile, Mode::ReadOnly);
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &) {
                 throw Error::StrategyError("Could not read properties");
-        } catch (Error::FileError& e) {
+        } catch (const Error::FileError& ) {
                 throw Error::StrategyError("Could not open properties");
 	}
 	std::unique_ptr<PropertiesFile> aprops(props);
@@ -308,7 +308,7 @@ BiometricEvaluation::IO::RecordStore::Impl::openRecordStore(
 	std::string type;
 	try {
 		type = aprops->getProperty(TYPEPROPERTY);
-	} catch (Error::ObjectDoesNotExist& e) {
+	} catch (const Error::ObjectDoesNotExist& ) {
 		throw Error::StrategyError("Type property is missing");
 	}
 
@@ -374,15 +374,15 @@ BiometricEvaluation::IO::RecordStore::Impl::removeRecordStore(
 	/* Confirm that pathname is a RecordStore */
 	try {   
 		openRecordStore(pathname);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		throw;
 	}
 
 	try {
 		IO::Utility::removeDirectory(pathname);
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (const Error::ObjectDoesNotExist &) {
 		throw;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &) {
 		throw;
 	}
 }

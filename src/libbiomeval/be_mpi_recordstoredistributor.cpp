@@ -31,7 +31,7 @@ BiometricEvaluation::MPI::RecordStoreDistributor::RecordStoreDistributor(
 	try {
 		this->_resources.reset(
 		    new RecordStoreResources(propertiesFileName));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		//XXX log a message?
 		throw;
 	}

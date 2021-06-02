@@ -63,7 +63,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::~Impl()
 {
 	try {
 		close_streams();
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &) {
 		/* 
 		 * Don't throw exceptions in destructors.  Even if we cannot
 		 * close the file streams here, the OS will take care of that
@@ -174,7 +174,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::getSpaceUsed()
 
 	try {
 		total += BE::IO::Utility::getFileSize(canonicalName(ARCHIVE_FILE_NAME));
-	}catch (const BE::Error::Exception& e) {
+	}catch (const BE::Error::Exception& ) {
 		throw Error::StrategyError("Could not find archive file");
 	}
 
@@ -348,7 +348,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::insert(
 	try { 
 		write_manifest_entry(key, entry);
 		RecordStore::Impl::insert(key, data, size);
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &) {
 		throw;	
 	}
 }
@@ -398,7 +398,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::remove(
 		write_manifest_entry(key, entry->second);
 		RecordStore::Impl::remove(key);
 		_dirty = true;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &) {
 		throw;
 	}
 }

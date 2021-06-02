@@ -36,14 +36,14 @@ BiometricEvaluation::IO::ListRecordStore::Impl::Impl(
 	try {
 		sourceRSName =
 		    props->getProperty(SOURCERECORDSTOREPROPERTY);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		throw Error::StrategyError("Could not find " +
 		    SOURCERECORDSTOREPROPERTY + " property");
 	}
 	try {
 		this->_sourceRecordStore = IO::RecordStore::openRecordStore(
 		    sourceRSName, Mode::ReadOnly);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		throw Error::StrategyError("Could not open source "
 		    "RecordStore " + sourceRSName);
 	}

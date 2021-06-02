@@ -26,7 +26,7 @@ BiometricEvaluation::MPI::CSVDistributor::CSVDistributor(
 	try {
 		this->_resources.reset(
 		    new CSVResources(propertiesFileName));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		throw;
 	}
 }

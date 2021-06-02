@@ -106,7 +106,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_setup(
 		throw Error::StrategyError("Could not open primary DB (DB "
 		    "error = " + std::to_string(e.get_errno()) + " -- " +
 		    e.what() + ")");
-	} catch (const std::exception &e) {
+	} catch (const std::exception &) {
 		throw Error::StrategyError("Could not open primary DB (" +
 		    Error::errorStr() + ")");
 	}
@@ -123,7 +123,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_setup(
 		throw BE::Error::StrategyError("Could not create DB cursor "
 		    "(DB error = " + std::to_string(
 		    e.get_errno()) + " -- " + e.what() + ")");
-	} catch (const std::exception &e) {
+	} catch (const std::exception &) {
 		throw Error::StrategyError("Could not create DB cursor (" +
 		    Error::errorStr() + ")");
 	}
@@ -162,7 +162,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::i_setup(
 		throw Error::StrategyError("Could not open subordinate DB "
 		    "(DB error = " + std::to_string(e.get_errno()) + " -- " +
 		    e.what() + ")");
-	} catch (const std::exception &e) {
+	} catch (const std::exception &) {
 		throw Error::StrategyError("Could not open subordinate DB "
 		    "(" + Error::errorStr() + ")");
 	}
@@ -211,14 +211,14 @@ BiometricEvaluation::IO::DBRecordStore::Impl::Impl(
 			tmpDB->open(nullptr, tmpDBName.c_str(),
 			    nullptr, DB_BTREE, DB_CREATE | DB_EXCL,
 			    DBRS_MODE_RW);
-		} catch (const DbException &e) {
+		} catch (const DbException &) {
 			if (mode == Mode::ReadWrite) {
 				throw Error::StrategyError(
 				    "Could not upgrade database.");
 			} else {
 				return;
 			}
-		} catch (const std::exception &e) {
+		} catch (const std::exception &) {
 			if (mode == Mode::ReadWrite) {
 				throw Error::StrategyError(
 				    "Could not upgrade database.");
@@ -612,7 +612,7 @@ BiometricEvaluation::IO::DBRecordStore::Impl::setCursorAtKey(
 		throw BE::Error::StrategyError("Could not set Dbc (DB "
 		    "error = " + std::to_string(e.get_errno()) + " -- " + 
 		    e.what() + ")");
-	} catch (const std::exception &e) {
+	} catch (const std::exception &) {
 		throw Error::StrategyError("Could not set Dbc (" +
 		    Error::errorStr() + ")");
 	}
@@ -712,9 +712,9 @@ BiometricEvaluation::IO::DBRecordStore::Impl::insertRecordSegments(
 			ptr += dbtdata.get_size();
 			try {
 				insertIntoDB(DBin, dbtkey, dbtdata);
-			} catch (Error::ObjectExists &e) {
+			} catch (const Error::ObjectExists &) {
 				throw;
-			} catch (Error::StrategyError &e) {
+			} catch (const Error::StrategyError &) {
 				throw;
 			}
 			keyseg = genKeySegName(key, segnum);

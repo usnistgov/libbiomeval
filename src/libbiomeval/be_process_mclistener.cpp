@@ -41,7 +41,7 @@ BiometricEvaluation::Process::MessageCenterListener::workerMain()
 	try {
 		this->setupSocket();
 		this->listen();
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		return (EXIT_FAILURE);
 	}
 
@@ -56,7 +56,7 @@ BiometricEvaluation::Process::MessageCenterListener::workerMain()
 			if (MessageCenterUtility::dataAvailable(
 			    this->_socket, MessageCenter::DEFAULT_TIMEOUT))
 				this->spawnReceiver(this->accept());
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &) {
 			/* TODO */
 		}
 
@@ -80,7 +80,7 @@ BiometricEvaluation::Process::MessageCenterListener::workerMain()
 					this->sendMessageToManager(message);
 				}
 			}
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &) {
 			/* TODO */
 		}
 
@@ -112,7 +112,7 @@ BiometricEvaluation::Process::MessageCenterListener::workerMain()
 					this->_clientMap[client]->
 					    sendMessageToWorker(message);
 			}
-		} catch (BE::Error::Exception &e) {
+		} catch (const BE::Error::Exception &) {
 			/* TODO */
 		}
 

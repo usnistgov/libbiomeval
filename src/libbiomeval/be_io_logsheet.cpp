@@ -134,7 +134,7 @@ BiometricEvaluation::IO::Logsheet::newEntry()
 {
 	try {
 		this->write(this->_sbuf.str());
-	} catch (BE::Error::StrategyError &e) {
+	} catch (const BE::Error::StrategyError &) {
 		throw;
 	}
 	this->resetCurrentEntry();

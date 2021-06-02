@@ -52,7 +52,7 @@ BiometricEvaluation::MPI::RecordStoreResources::RecordStoreResources(
 	try {
 		this->_recordStore = IO::RecordStore::openRecordStore(
 		    RSName, IO::Mode::ReadOnly);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 	}
 }
 
