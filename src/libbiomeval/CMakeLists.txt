@@ -95,6 +95,23 @@ if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS_GLOBALS)
 endif(MSVC)
 
+# Diagnostics: AppleClang, clang, and g++ share most diagnostic flags
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	list(APPEND DIAGNOSTIC_FLAGS -Wall -Wextra -Wpedantic -Wconversion
+	-Wsign-conversion -Wimplicit-fallthrough -Wformat=2 -Wdouble-promotion
+	-Wshadow -Wnon-virtual-dtor -Woverloaded-virtual -Wunused)
+
+	# Add a few compiler-specific diagnostics
+	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		list(APPEND DIAGNOSTIC_FLAGS -Wunused-exception-parameter)
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		list(APPEND DIAGNOSTIC_FLAGS -Wmisleading-indentation
+		-Wnull-dereference -Wlogical-op)
+	endif()
+elseif (MSVC)
+	list(APPEND DIAGNOSTIC_FLAGS /W4 /w14640)
+endif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+
 #
 # The library names. Because a target name cannot be duplicated, build the
 # shared and static libraries under two different names, but the output
@@ -187,6 +204,11 @@ endif(MSVC)
 #	VIDEO if the required libraries are present.
 #
 set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${MESSAGE_CENTER})
+if (CMAKE_VERSION VERSION_GREATER 3.10.9999)
+	set_source_files_properties(${PACKAGES} ${VIDEO} ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER} PROPERTIES COMPILE_OPTIONS "${DIAGNOSTIC_FLAGS}")
+else (CMAKE_VERSION VERSION_GREATER 3.10.9999)
+	set_source_files_properties(${PACKAGES} ${VIDEO} ${MPIBASE} ${MPIDISTRIBUTOR} ${MPIRECEIVER} PROPERTIES COMPILE_FLAGS "${DIAGNOSTIC_FLAGS}")
+endif (CMAKE_VERSION VERSION_GREATER 3.10.9999)
 
 if (WITH_FFMPEG)
 find_package(FFMPEG)
