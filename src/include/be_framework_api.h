@@ -229,17 +229,13 @@ namespace BiometricEvaluation
 			 *
 			 * @throw ...
 			 * Exceptions raised from `operation`, if caught, are
-			 * rethrown when `rethrowExceptions` is `true`.
+			 * rethrown when API::willRethrowExceptions() is `true`.
 			 *
 			 * @note
 			 * success is called and currentState ==
 			 * APICurrentState::Completed if operation
 			 * returns, regardless of the Code of operation's
 			 * Status.
-			 *
-			 * @note
-			 * Exceptions caught are rethrown after calling
-			 * failure().
 			 */
 			Result
 			call(
@@ -247,10 +243,41 @@ namespace BiometricEvaluation
 			    const std::function<void(const Result&)>
 			    &success = {},
 			    const std::function<void(const Result&)>
-			    &failure = {},
-			    const bool rethrowExceptions = false);
+			    &failure = {});
 
-			/** 
+			/**
+			 * @brief
+			 * Obtain whether or not exceptions raised in call()
+			 * will be rethrown.
+			 *
+			 * @return
+			 * `true` if exceptions raised in call() will be
+			 * rethrown, `false` otherwise.
+			 */
+			bool
+			willRethrowExceptions()
+			    const
+			{
+				return (this->_rethrowExceptions);
+			}
+
+			/**
+			 * @brief
+			 * Change whether or not exceptions raised in call()
+			 * should be rethrown.
+			 *
+			 * @param shouldRethrow
+			 * `true` if exceptions raised in call() will be
+			 * rethrown, `false` otherwise.
+			 */
+			void
+			setRethrowExceptions(
+			    const bool shouldRethrow)
+			{
+				this->_rethrowExceptions = shouldRethrow;
+			}
+
+			/**
 			 * @brief
 			 * Obtain the timer object.
 			 *
@@ -295,6 +322,8 @@ namespace BiometricEvaluation
 			}
 
 		private:
+			/** Whether or not exceptions should be rethrown */
+			bool _rethrowExceptions{false};
 			/** Timer */
 			std::shared_ptr<BiometricEvaluation::Time::Timer>
 			    _timer;
@@ -317,6 +346,7 @@ BiometricEvaluation::Framework::API<T>::Result::Result() :
 
 template<typename T>
 BiometricEvaluation::Framework::API<T>::API() :
+    _rethrowExceptions{false},
     _timer(new BiometricEvaluation::Time::Timer()),
     _watchdog(new BiometricEvaluation::Time::Watchdog(
         BiometricEvaluation::Time::Watchdog::REALTIME)),
@@ -330,8 +360,7 @@ typename BiometricEvaluation::Framework::API<T>::Result
 BiometricEvaluation::Framework::API<T>::call(
     const std::function<T(void)> &operation,
     const std::function<void(const Framework::API<T>::Result&)> &success,
-    const std::function<void(const Framework::API<T>::Result&)> &failure,
-    const bool rethrowExceptions)
+    const std::function<void(const Framework::API<T>::Result&)> &failure)
 {
 	Result ret;
 
@@ -350,7 +379,7 @@ BiometricEvaluation::Framework::API<T>::call(
 			if (failure)
 				failure(ret);
 
-			if (rethrowExceptions)
+			if (this->_rethrowExceptions)
 				throw;
 
 			return (ret);
