@@ -248,6 +248,66 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Obtain whether or not **all** protections enabled by
+			 * this object are enabled.
+			 * @details
+			 * Protections include:
+			 *   * Catching exceptions
+			 *   * Not rethrowing exceptions
+			 *   * Enabling WatchdogTimer
+			 *   * Enabling SignalManager
+			 *
+			 * @return
+			 * `true` if **all** protections are enabled, `false` if
+			 * one or more protections are disabled.
+			 *
+			 * @note
+			 * Individual protection statuses may be queried through
+			 * their respective objects/methods.
+			 */
+			bool
+			protectionsEnabled()
+			    const
+			{
+				return (this->willCatchExceptions() &&
+				    !this->willRethrowExceptions() &&
+				    this->getWatchdog()->isEnabled() &&
+				    this->getSignalManager->isEnabled());
+			}
+
+			/**
+			 * @brief
+			 * Wholesale change of process protections enabled by
+			 * this object.
+			 * @details
+			 * Protections include:
+			 *   * Catching exceptions
+			 *   * Not rethrowing exceptions
+			 *   * Enabling WatchdogTimer
+			 *   * Enabling SignalManager
+			 *
+			 * @param protectionsEnabled
+			 * `true` if **all** protections should be enabled,
+			 * `false` if **all** protections should be disabled.
+			 *
+			 * @note
+			 * Protections can be enabled or disabled individually
+			 * through their respective objects/methods.
+			 */
+			void
+			setProtectionsEnabled(
+			    const bool protectionsEnabled)
+			{
+				this->setCatchExceptions(protectionsEnabled);
+				this->setRethrowExceptions(!protectionsEnabled);
+				this->getWatchdog()->setEnabled(
+				    protectionsEnabled);
+				this->getSignalManager->setEnabled(
+				    protectionsEnabled);
+			}
+
+			/**
+			 * @brief
 			 * Obtain whether or not exceptions caught in call()
 			 * will be rethrown.
 			 *
