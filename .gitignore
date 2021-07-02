@@ -11,10 +11,6 @@ nbis/include/dirent_windows.h
 
 # Image test write raw files
 src/test/*raw
-# Test programs
-src/test/test_be_*
-src/test/test_construct_*
-src/test/be_process_commandcenter_example
 # Older RS do not have subordinate files
 src/test/test_data/ImagePropertiesRS/rsdb.subordinate
 src/test/test_data/ImageRS/ImageRS.subordinate
