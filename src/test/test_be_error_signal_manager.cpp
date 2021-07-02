@@ -116,11 +116,22 @@ int main(int argc, char *argv[])
 	}
 
 	/*
-	 * Last test.
+	 * Test disabling
 	 */
-	cout << "Testing send of SIGUSR1: Should see signal and end of process: ";
-	fflush(stdout);
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGUSR1);
+	asigmgr->setSignalSet(sigset);
+
+	asigmgr->setEnabled(false);
+	std::cout << "Testing disabling signal manager. Should see signal "
+	    "and end of process.\n";
+	BEGIN_SIGNAL_BLOCK(asigmgr, sigblock3);
 	kill(getpid(), SIGUSR1);
+	END_SIGNAL_BLOCK(asigmgr, sigblock3);
+	if (asigmgr->sigHandled()) {
+		std::cout << "Signal handled, but manager disabled.\n";
+		return (EXIT_FAILURE);
+	}
 
 	cout << "Failed to allow signal through.\n";
 	return (EXIT_FAILURE);
