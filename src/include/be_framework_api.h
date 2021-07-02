@@ -228,8 +228,9 @@ namespace BiometricEvaluation
 			 * Analytics about the return of operation.
 			 *
 			 * @throw ...
-			 * Exceptions raised from `operation`, if caught, are
-			 * rethrown when API::willRethrowExceptions() is `true`.
+			 * Exceptions raised from `operation`, if caught
+			 * (willCatchExceptions() is `true`), are rethrown
+			 * when API::willRethrowExceptions() is `true`.
 			 *
 			 * @note
 			 * success is called and currentState ==
@@ -247,12 +248,16 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Obtain whether or not exceptions raised in call()
+			 * Obtain whether or not exceptions caught in call()
 			 * will be rethrown.
 			 *
 			 * @return
 			 * `true` if exceptions raised in call() will be
 			 * rethrown, `false` otherwise.
+			 *
+			 * @note
+			 * Exceptions will not be caught (and thus not rethrown)
+			 * if willCatchExceptions() is `false`.
 			 */
 			bool
 			willRethrowExceptions()
@@ -263,18 +268,54 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Change whether or not exceptions raised in call()
+			 * Change whether or not exceptions caught in call()
 			 * should be rethrown.
 			 *
 			 * @param shouldRethrow
 			 * `true` if exceptions raised in call() will be
 			 * rethrown, `false` otherwise.
+			 *
+			 * @note
+			 * Exceptions will not be caught (and thus not rethrown)
+			 * if willCatchExceptions() is `false`.
 			 */
 			void
 			setRethrowExceptions(
 			    const bool shouldRethrow)
 			{
 				this->_rethrowExceptions = shouldRethrow;
+			}
+
+			/**
+			 * @brief
+			 * Set whether or not to catch exceptions from call(),
+			 * triggering the `failure` block.
+			 *
+			 * @param catchExceptions
+			 * `true` if call()'s `operation` should be executed
+			 * within a try block, `false` otherwise.
+			 */
+			void
+			setCatchExceptions(
+			    const bool catchExceptions)
+			{
+				this->_catchExceptions = false;
+			}
+
+			/**
+			 * @brief
+			 * Obtain whether or not exceptions raised in call()
+			 * will be caught, triggering the `failure` block.
+			 *
+			 * @return
+			 * `true` if call()'s `operation` will be executed
+			 * within a try block, `false` otherwise.
+			 */
+			bool
+			willCatchExceptions()
+			    const
+			{
+				return (this->_catchExceptions);
 			}
 
 			/**
@@ -322,6 +363,8 @@ namespace BiometricEvaluation
 			}
 
 		private:
+			/** Whether or not to catch exceptions */
+			bool _catchExceptions{true};
 			/** Whether or not exceptions should be rethrown */
 			bool _rethrowExceptions{false};
 			/** Timer */
@@ -346,6 +389,7 @@ BiometricEvaluation::Framework::API<T>::Result::Result() :
 
 template<typename T>
 BiometricEvaluation::Framework::API<T>::API() :
+    _catchExceptions{true},
     _rethrowExceptions{false},
     _timer(new BiometricEvaluation::Time::Timer()),
     _watchdog(new BiometricEvaluation::Time::Watchdog(
@@ -367,22 +411,28 @@ BiometricEvaluation::Framework::API<T>::call(
 	BEGIN_SIGNAL_BLOCK(this->getSignalManager(), SM_BLOCK);
 	BEGIN_WATCHDOG_BLOCK(this->getWatchdog(), WD_BLOCK);
 		ret.currentState = APICurrentState::Running;
-		this->getTimer()->start();
-		try {
+		if (this->willCatchExceptions()) {
+			this->getTimer()->start();
+			try {
+				ret.status = operation();
+			} catch (...) {
+				this->getTimer()->stop();
+				ret.elapsed = this->getTimer()->elapsed();
+				ret.currentState =
+				    APICurrentState::ExceptionCaught;
+				ret.setException(std::current_exception());
+
+				if (failure)
+					failure(ret);
+
+				if (this->_rethrowExceptions)
+					throw;
+
+				return (ret);
+			}
+		} else {
+			this->getTimer()->start();
 			ret.status = operation();
-		} catch (...) {
-			this->getTimer()->stop();
-			ret.elapsed = this->getTimer()->elapsed();
-			ret.currentState = APICurrentState::ExceptionCaught;
-			ret.setException(std::current_exception());
-
-			if (failure)
-				failure(ret);
-
-			if (this->_rethrowExceptions)
-				throw;
-
-			return (ret);
 		}
 		this->getTimer()->stop();
 	END_WATCHDOG_BLOCK(this->getWatchdog(), WD_BLOCK);
