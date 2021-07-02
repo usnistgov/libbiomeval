@@ -25,6 +25,8 @@
 #define BEGIN_WATCHDOG_BLOCK(_watchdog, _blockname) do {		\
 	(_watchdog)->clearExpired();					\
 	(_watchdog)->clearCanSigJump();					\
+	if (!(_watchdog)->isEnabled())					\
+		break;							\
 	if (sigsetjmp(							\
 	    BiometricEvaluation::Time::Watchdog::_sigJumpBuf, 1) != 0) \
 	 {								\
@@ -36,12 +38,16 @@
 } while (0)
 
 #define END_WATCHDOG_BLOCK(_watchdog, _blockname) do {			\
+	if (!(_watchdog)->isEnabled())					\
+		break;							\
 	_blockname ## _end:						\
 	(_watchdog)->clearCanSigJump();					\
 	(_watchdog)->stop();						\
 } while (0);
 
 #define ABORT_WATCHDOG(_watchdog) do {					\
+	if (!(_watchdog)->isEnabled())					\
+		break;							\
 	(_watchdog)->clearCanSigJump();					\
 	(_watchdog)->stop();						\
 } while (0);
@@ -204,6 +210,22 @@ namespace BiometricEvaluation {
 			 */
 			void clearExpired();
 
+			/**
+			 * Enable or disable the timer.
+			 *
+			 * @param enabled
+			 * `true` if enabled, `false` otherwise.
+			 *
+			 * @note
+			 * This enables easier debugging without changing
+			 * sourcecode to remove Watchdog blocks.
+			 */
+			void setEnabled(
+			    const bool enabled);
+
+			/** Check the enabled status of the timer. */
+			bool isEnabled() const;
+
 			/*
 			 * Flag indicating can jump after handling a signal,
 			 * and the jump buffer used by the signal handler.
@@ -224,6 +246,9 @@ namespace BiometricEvaluation {
 			 * pair to take advantage of this capability.
 			 */
 			static void sighandler(int signo);
+
+			/** Whether or not the timer is enabled. */
+			bool _enabled{true};
 
 			/*
 			 * Current timer interval.
