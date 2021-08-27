@@ -193,9 +193,20 @@ BiometricEvaluation::Image::PNG::getRawData()
 	png_read_info(png_ptr, png_info_ptr);
 
 	/* PNG default storage is big-endian */
-	if ((png_get_bit_depth(png_ptr, png_info_ptr) > 8) &&
-	    BiometricEvaluation::Memory::isLittleEndian())
+	auto pngBitDepth{png_get_bit_depth(png_ptr, png_info_ptr)};
+	if ((pngBitDepth > 8) && BiometricEvaluation::Memory::isLittleEndian())
 		png_set_swap(png_ptr);
+
+	/*
+	 * Let libpng do the work for us of converting <8 bit depth images.
+	 * Image::getRawData() expects this.
+	 */
+	auto color_type{png_get_color_type(png_ptr, png_info_ptr)};
+	if ((color_type == PNG_COLOR_TYPE_GRAY) && (pngBitDepth < 8)) {
+		png_set_expand_gray_1_2_4_to_8(png_ptr);
+		png_read_update_info(png_ptr, png_info_ptr);
+		pngBitDepth = png_get_bit_depth(png_ptr, png_info_ptr);
+	}
 
 	/* Determine size of decompressed data */
 	const png_uint_32 rowbytes = png_get_rowbytes(png_ptr, png_info_ptr);
@@ -209,11 +220,11 @@ BiometricEvaluation::Image::PNG::getRawData()
 	png_read_image(png_ptr, row_pointers);
 
 	/* Check for palette color (1, 2, 4, 8-bit depth only) */
-	if (this->getBitDepth() > 8) {
+	if (pngBitDepth > 8) {
 		png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
 		return (rawData);
 	}
-	png_byte color_type{png_get_color_type(png_ptr, png_info_ptr)};
+	color_type = png_get_color_type(png_ptr, png_info_ptr);
 	if ((color_type & PNG_COLOR_MASK_PALETTE) != PNG_COLOR_MASK_PALETTE) {
 		png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
 		return (rawData);
