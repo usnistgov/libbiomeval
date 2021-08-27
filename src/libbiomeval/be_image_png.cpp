@@ -113,8 +113,20 @@ BiometricEvaluation::Image::PNG::PNG(
 	}
 	png_read_info(png_ptr, png_info_ptr);
 
-	setColorDepth(png_get_bit_depth(png_ptr, png_info_ptr) *
+	const auto pngBitDepth{png_get_bit_depth(png_ptr, png_info_ptr)};
+	setColorDepth(pngBitDepth *
 	    png_get_channels(png_ptr, png_info_ptr));
+	/* Possible this could be <8-bit palette color */
+	const auto colorType{png_get_color_type(png_ptr, png_info_ptr)};
+	if ((this->getColorDepth() <= 8) &&
+	    ((colorType & PNG_COLOR_MASK_PALETTE) == PNG_COLOR_MASK_PALETTE)) {
+		/*
+		 * FIXME: This isn't true, but we don't have the concept of
+		 * color modes and PNG does.
+		 */
+		setColorDepth(24);
+	}
+
 	this->setBitDepth(png_get_bit_depth(png_ptr, png_info_ptr));
 	setDimensions(Size(png_get_image_width(png_ptr, png_info_ptr),
 	    png_get_image_height(png_ptr, png_info_ptr)));
