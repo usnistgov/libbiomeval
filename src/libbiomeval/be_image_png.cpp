@@ -209,15 +209,32 @@ BiometricEvaluation::Image::PNG::getRawData()
 	if ((pngBitDepth > 8) && BiometricEvaluation::Memory::isLittleEndian())
 		png_set_swap(png_ptr);
 
-	/*
-	 * Let libpng do the work for us of converting <8 bit depth images.
-	 * Image::getRawData() expects this.
-	 */
+
+	/* Let libpng help us do transformations. */
+	bool didTransformations{false};
 	auto color_type{png_get_color_type(png_ptr, png_info_ptr)};
 	if ((color_type == PNG_COLOR_TYPE_GRAY) && (pngBitDepth < 8)) {
 		png_set_expand_gray_1_2_4_to_8(png_ptr);
+		didTransformations = true;
+	}
+
+	/* De-paletteize */
+	if (color_type == PNG_COLOR_TYPE_PALETTE) {
+		png_set_palette_to_rgb(png_ptr);
+		didTransformations = true;
+	}
+
+	/* Interpret tRNS block into alpha channel */
+	if (png_get_valid(png_ptr, png_info_ptr, PNG_INFO_tRNS)) {
+		png_set_tRNS_to_alpha(png_ptr);
+		didTransformations = true;
+	}
+
+	/* Update the info_ptr. Can only be called once! */
+	if (didTransformations) {
 		png_read_update_info(png_ptr, png_info_ptr);
 		pngBitDepth = png_get_bit_depth(png_ptr, png_info_ptr);
+		color_type = png_get_color_type(png_ptr, png_info_ptr);
 	}
 
 	/* Determine size of decompressed data */
@@ -231,52 +248,6 @@ BiometricEvaluation::Image::PNG::getRawData()
 		row_pointers[row] = rawData + (row * rowbytes);
 	png_read_image(png_ptr, row_pointers);
 
-	/* Check for palette color (1, 2, 4, 8-bit depth only) */
-	if (pngBitDepth > 8) {
-		png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
-		return (rawData);
-	}
-	color_type = png_get_color_type(png_ptr, png_info_ptr);
-	if ((color_type & PNG_COLOR_MASK_PALETTE) != PNG_COLOR_MASK_PALETTE) {
-		png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
-		return (rawData);
-	}
-
-	/* Read and parse the palette data */
-	png_colorp palette{};
-	int paletteSize{};
-	if (png_get_PLTE(png_ptr, png_info_ptr, &palette, &paletteSize) !=
-	    PNG_INFO_PLTE) {
-	    	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
-		throw BE::Error::StrategyError("Expected palette data, but no "
-		    "PLTE chunk found");
-	}
-
-	const bool paletteIsGrayscale = std::all_of(&palette[0],
-	    &palette[paletteSize], [](const png_color &c) -> bool {
-		return ((c.red == c.green) && (c.green == c.blue));
-	});
-
-	if (paletteIsGrayscale) {
-		std::for_each(rawData.begin(), rawData.end(), [&](uint8_t &c) {
-			c = palette[c].red;
-		});
-	} else {
-		BE::Memory::uint8Array expandedRawData(rawData.size() * 3);
-		BE::Memory::MutableIndexedBuffer buf{expandedRawData};
-
-		std::for_each(rawData.begin(), rawData.end(),
-		    [&](const uint8_t &c) {
-			const auto paletteColor = palette[c];
-			buf.pushU8Val(paletteColor.red);
-			buf.pushU8Val(paletteColor.green);
-			buf.pushU8Val(paletteColor.blue);
-		});
-
-		rawData = expandedRawData;
-	}
-
-	png_free_data(png_ptr, png_info_ptr, PNG_FREE_PLTE, 0);
 	png_destroy_read_struct(&png_ptr, &png_info_ptr, nullptr);
 	return (rawData);
 }
