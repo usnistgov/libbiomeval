@@ -128,7 +128,7 @@ BiometricEvaluation::IO::FileLogsheet::write(const std::string &entry)
 
 	*_theLogFile << EntryDelimiter << ' '
 	    << this->getCurrentEntryNumberAsString()
-	    << ' ' << entry << std::endl;
+	    << ' ' << entry << '\n';
 	if (_theLogFile->fail()) {
 		std::ostringstream sbuf;
 		sbuf << "Failed writing entry " << this->getCurrentEntryNumber()
@@ -147,7 +147,7 @@ BiometricEvaluation::IO::FileLogsheet::writeComment(
 	if (this->getCommentCommit() == false)
 		return;
 
-	*_theLogFile << CommentDelimiter << ' ' << entry << std::endl;
+	*_theLogFile << CommentDelimiter << ' ' << entry << '\n';
 	if (_theLogFile->fail())
 		throw Error::StrategyError();
 	if (this->getAutoSync())
@@ -161,7 +161,7 @@ BiometricEvaluation::IO::FileLogsheet::writeDebug(
 	if (this->getDebugCommit() == false)
 		return;
 
-	*_theLogFile << DebugDelimiter << ' ' << entry << std::endl;
+	*_theLogFile << DebugDelimiter << ' ' << entry << '\n';
 	if (_theLogFile->fail())
 		throw Error::StrategyError();
 	if (this->getAutoSync())
