@@ -59,25 +59,19 @@ else()
   set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 endif()
 
-# Allow disabling the static or shared library. This is primarily useful under 
-# Windows to limit the amount of repeat compilation.
-option(BUILD_BIOMEVAL_SHARED "Build a shared version of libbiomeval" ON)
-if (BUILD_BIOMEVAL_SHARED)
-	message(STATUS "Shared library: ON")
-else (BUILD_BIOMEVAL_SHARED)
-	message(STATUS "Shared library: OFF")
-endif (BUILD_BIOMEVAL_SHARED)
+if (BUILD_SHARED_LIBS)
+	message(STATUS "Build type: SHARED")
+else()
+	message(STATUS "Build type: STATIC")
+endif(BUILD_SHARED_LIBS)
 
-option(BUILD_BIOMEVAL_STATIC "Build a static version of libbiomeval" ON)
-if (BUILD_BIOMEVAL_STATIC)
-	message(STATUS "Static library: ON")
-else (BUILD_BIOMEVAL_STATIC)
-	message(STATUS "Static library: OFF")
-endif (BUILD_BIOMEVAL_STATIC)
-
-if (NOT BUILD_BIOMEVAL_SHARED AND NOT BUILD_BIOMEVAL_STATIC)
-	message(FATAL_ERROR "You must build at least a static or shared library.")
-endif (NOT BUILD_BIOMEVAL_SHARED AND NOT BUILD_BIOMEVAL_STATIC)
+option(FORCE_STATIC_DEPENDENCIES "Force linking against static versions of dependencies" OFF)
+if (FORCE_STATIC_DEPENDENCIES)
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
+	message(STATUS "Dependency type: STATIC only")
+else (FORCE_STATIC_DEPENDENCIES)
+	message(STATUS "Dependency type: SHARED preferred, STATIC possible")
+endif (FORCE_STATIC_DEPENDENCIES)
 
 # 32-bit compilation on systems that support compiling both 32- and 64-bit. On
 # Windows, this is part of the platform (cmake's -A flag).
@@ -126,17 +120,6 @@ else(CMAKE_HOST_APPLE)
   endif(NOT MSVC)
 endif(CMAKE_HOST_APPLE)
 
-# Add option to disable building test programs
-# TODO: Test programs are hardcoded to link statically on Windows and shared
-#       elsewhere
-include(CMakeDependentOption)
-if (MSVC)
-	CMAKE_DEPENDENT_OPTION(BUILD_BIOMEVAL_TESTS "Build test executables" ON
-	    "BUILD_BIOMEVAL_STATIC" OFF)
-else (MSVC)
-	CMAKE_DEPENDENT_OPTION(BUILD_BIOMEVAL_TESTS "Build test executables" ON
-	    "BUILD_BIOMEVAL_SHARED" OFF)
-endif (MSVC)
 if (BUILD_BIOMEVAL_TESTS)
 	message(STATUS "Test executables: ON")
 else (BUILD_BIOMEVAL_TESTS)
