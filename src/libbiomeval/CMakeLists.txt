@@ -342,11 +342,13 @@ endif(CMAKE_GENERATOR STREQUAL Xcode)
 
 if (BUILD_SHARED_LIBS)
 	add_library(${CORELIB} SHARED ${OBJLIBS})
+	set_target_properties(${CORELIB} PROPERTIES
+            POSITION_INDEPENDENT_CODE ON)
 else()
 	add_library(${CORELIB} STATIC ${OBJLIBS})
+	set_target_properties(${CORELIB} PROPERTIES
+            POSITION_INDEPENDENT_CODE OFF)
 endif(BUILD_SHARED_LIBS)
-set_target_properties(${CORELIB} PROPERTIES
-    POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
 
 set_target_properties(
     ${CORELIB}
