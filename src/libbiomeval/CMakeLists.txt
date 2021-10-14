@@ -550,13 +550,57 @@ if (MSVC AND FORCE_STATIC_DEPENDENCIES)
 	target_link_libraries(${STATICLIBTGT} Crypt32)
 endif (MSVC AND FORCE_STATIC_DEPENDENCIES)
 
+target_include_directories(${CORELIB} PUBLIC $<INSTALL_INTERFACE:include>)
+
 #
 # Installation.
 #
+include(GNUInstallDirs)
 install(
   TARGETS ${CORELIB}
-  LIBRARY DESTINATION lib
-  PUBLIC_HEADER DESTINATION include)
+  EXPORT biomeval-targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/biomevalConfig.cmake.in
+    ${CMAKE_BINARY_DIR}/cmake/biomeval-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/biomeval
+)
+
+write_basic_package_version_file(
+    ${CMAKE_BINARY_DIR}/cmake/biomeval-config-version.cmake
+    VERSION ${biomeval_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+install(
+    FILES
+        ${CMAKE_BINARY_DIR}/cmake/biomeval-config.cmake
+        ${CMAKE_BINARY_DIR}/cmake/biomeval-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/biomeval
+)
+
+install(
+    DIRECTORY
+        "${PROJECT_SOURCE_DIR}/cmake/Modules/"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/biomeval/Modules
+)
+
+install(EXPORT biomeval-targets
+    FILE biomeval-targets.cmake
+    NAMESPACE biomeval::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/biomeval
+)
+
+export(EXPORT biomeval-targets
+    FILE ${CMAKE_BINARY_DIR}/cmake/biomeval-targets.cmake
+    NAMESPACE biomeval::
+)
+
+
 #
 # RPM Creation
 #
