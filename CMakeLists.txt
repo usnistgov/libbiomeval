@@ -65,13 +65,16 @@ else()
 	message(STATUS "Build type: STATIC")
 endif(BUILD_SHARED_LIBS)
 
-option(FORCE_STATIC_DEPENDENCIES "Force linking against static versions of dependencies" OFF)
-if (FORCE_STATIC_DEPENDENCIES)
-        set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
-	message(STATUS "Dependency type: STATIC only")
-else (FORCE_STATIC_DEPENDENCIES)
-	message(STATUS "Dependency type: SHARED preferred, STATIC possible")
-endif (FORCE_STATIC_DEPENDENCIES)
+include(CMakeDependentOption)
+cmake_dependent_option(FORCE_STATIC_DEPENDENCIES "Force linking against static versions of dependencies" OFF "NOT MSVC" OFF)
+if (NOT MSVC)
+	if (FORCE_STATIC_DEPENDENCIES)
+		set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
+		message(STATUS "Dependency type: STATIC only")
+	else (FORCE_STATIC_DEPENDENCIES)
+		message(STATUS "Dependency type: SHARED preferred, STATIC possible")
+	endif (FORCE_STATIC_DEPENDENCIES)
+endif(NOT MSVC)
 
 # 32-bit compilation on systems that support compiling both 32- and 64-bit. On
 # Windows, this is part of the platform (cmake's -A flag).
