@@ -593,6 +593,15 @@ install(
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/biomeval
 )
 
+# Install dependent vcpkg DLLs
+if (MSVC)
+	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}$<$<CONFIG:Debug>:/Debug>$<$<CONFIG:Release>:/Release>/
+	    DESTINATION ${CMAKE_INSTALL_BINDIR}
+	    FILES_MATCHING
+	    PATTERN "*dll"
+	    PATTERN "${CORELIB}.dll" EXCLUDE)
+endif (MSVC)
+
 install(
     DIRECTORY
         "${PROJECT_SOURCE_DIR}/cmake/Modules/"
