@@ -542,13 +542,15 @@ target_link_libraries(${CORELIB} ${PNG_LIBRARIES})
 
 # Need Winsock on Windows
 if(MSVC)
-	target_link_libraries(${CORELIB} Ws2_32)
+	find_library(WS2_32_LIBRARY Ws2_32 REQUIRED)
+	target_link_libraries(${CORELIB} ${WS2_32_LIBRARY})
 endif(MSVC)
 
 # Need crypt32 on static Win32 builds
-if (MSVC AND FORCE_STATIC_DEPENDENCIES)
-	target_link_libraries(${STATICLIBTGT} Crypt32)
-endif (MSVC AND FORCE_STATIC_DEPENDENCIES)
+if (MSVC AND NOT BUILD_SHARED_LIBS)
+	find_library(CRYPT32_LIBRARY Crypt32 REQUIRED)
+	target_link_libraries(${CORELIB} ${CRYPT32_LIBRARY})
+endif (MSVC AND NOT BUILD_SHARED_LIBS)
 
 target_include_directories(${CORELIB} PUBLIC $<INSTALL_INTERFACE:include>)
 
