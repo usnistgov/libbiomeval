@@ -367,22 +367,21 @@ endif (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
 if (MSVC)
 	if (CMAKE_VERSION VERSION_GREATER 3.14.9999)
 		set_target_properties(${CORELIB} PROPERTIES
-		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
 		set_target_properties(coreobjs PROPERTIES
-		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
 		set_target_properties(nbisobjs PROPERTIES
-		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
 
 		if (FFMPEG_FOUND)
 			set_target_properties(vidobjs PROPERTIES
-			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
 		endif (FFMPEG_FOUND)
 
 		if (PCSC_FOUND)
 			set_target_properties(deviceobjs PROPERTIES
-			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
 		endif (PCSC_FOUND)
-
 	elseif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
 		set_target_properties(
 		    ${CORELIB} nbisobjs coreobjs vidobjs deviceobjs
