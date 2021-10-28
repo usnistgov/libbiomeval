@@ -168,7 +168,7 @@ The CMake build supports the following options:
 |:-----------------------:|:-------:|:----------------------------------------------------:|:-----:|
 | `BUILD_BIOMEVAL_32BIT`  | `OFF`   | Compile 32-bit on 64-bit host OS                     ||
 | `BUILD_BIOMEVAL_TESTS`  | `OFF`   | Build test programs                                  ||
-| `BUILD_SHARED_LIBS`     | `ON`    | Build shared library (i.e., `.so`, `.dll`, `.dylib`) | When `OFF`, a static library (i.e., `.a`, `.lib`) is built instead |
+| `BUILD_SHARED_LIBS`     | `OFF`    | Build shared library (i.e., `.so`, `.dll`, `.dylib`) | When `OFF`, a static library (i.e., `.a`, `.lib`) is built instead |
 | `FORCE_STATIC_DEPENDENCIES` | `OFF` | Force linking against `.a`/`.lib` third-party dependencies. | Unavailable on Windows (use `-DBUILD_SHARED_LIBS=OFF` for similar behavior) |
 | `WITH_FFMPEG` | `ON` | Build sources that require [FFMPEG](https://ffmpeg.org) | Unavailable when `FORCE_STATIC_DEPENDENCIES` is `ON` |
 | `WITH_HWLOC` | `ON` | Build sources that require [libhwloc](https://www.open-mpi.org/projects/hwloc/) |
