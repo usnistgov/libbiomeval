@@ -155,13 +155,19 @@ BiometricEvaluation::Image::Image::getRawGrayscaleData(
 	uint16_t rValue, bValue, gValue;
 
 	/*
-	 * Convert to 16-bit or 8-bit. 1-bit conversions will be quantized
+	 * Convert to 16-bit or 8-bit. 1,2,4-bit conversions will be quantized
 	 * after converting to 8-bit.
 	 */
 	for (uint32_t i = 0; i < rawColor.size(); i += bpcIn) {
 		switch (this->getColorDepth()) {
 		case 1:
-			/* Bitmap images are upped to 8-bit in getRawData() */
+			/* Images are upped to 8-bit in getRawData() */
+			/* FALLTHROUGH */
+		case 2:
+			/* Images are upped to 8-bit in getRawData() */
+			/* FALLTHROUGH */
+		case 4:
+			/* Images are upped to 8-bit in getRawData() */
 			/* FALLTHROUGH */
 		case 8: /* 8-bit single-channel (grayscale) */
 			if (depth == 8) {
