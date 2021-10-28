@@ -219,15 +219,7 @@ if(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
 
   add_library(vidobjs OBJECT ${VIDEO})
   target_include_directories(vidobjs PUBLIC ${BIOMEVAL_INCLUDE})
-
-  if (FORCE_STATIC_DEPENDENCIES)
-       target_link_libraries(vidobjs ${FFMPEGPKG_STATIC_LINK_LIBRARIES})
-  else (FORCE_STATIC_DEPENDENCIES)
-      target_link_libraries(vidobjs ${FFMPEG_LIBRARIES})
-  endif (FORCE_STATIC_DEPENDENCIES)
-
   include_directories(PUBLIC ${FFMPEG_INCLUDE_DIR})
-
 else(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
   # FIXME: Should we complain if WITH_FFMPEG=YES but FFMPEG is not found?
   message(STATUS "Building without VIDEO support.")
