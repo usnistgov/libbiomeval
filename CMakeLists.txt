@@ -102,10 +102,13 @@ endif (NOT MSVC AND POSSIBLE_TO_BUILD_32BIT)
 option(WITH_HWLOC "Build sources that require libhwloc" ON)
 # Build sources that require OpenMPI
 option(WITH_MPI "Build sources that require MPI" ON)
-# Build sources that require FFMPEG
-option(WITH_FFMPEG "Build sources that require FFMPEG" ON)
 # Build sources that require PCSC
 option(WITH_PCSC "Build sources that require PCSC" ON)
+
+# Build sources that require FFMPEG. FFMPEG has *many* dynamic dependencies that
+# aren't built static on all systems, therefore we cannot guarantee they'll be
+# found.
+cmake_dependent_option(WITH_FFMPEG "Build sources that require FFMPEG" ON "NOT FORCE_STATIC_DEPENDENCIES" OFF)
 
 #
 # The CMake config files must exist in the directories added to this config:
