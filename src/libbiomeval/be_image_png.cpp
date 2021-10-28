@@ -119,13 +119,10 @@ BiometricEvaluation::Image::PNG::PNG(
 	/* Possible this could be <8-bit palette color */
 	const auto colorType{png_get_color_type(png_ptr, png_info_ptr)};
 	if ((this->getColorDepth() <= 8) &&
-	    ((colorType & PNG_COLOR_MASK_PALETTE) == PNG_COLOR_MASK_PALETTE)) {
-		/*
-		 * FIXME: This isn't true, but we don't have the concept of
-		 * color modes and PNG does.
-		 */
-		setColorDepth(24);
-	}
+	    ((colorType & PNG_COLOR_MASK_PALETTE) == PNG_COLOR_MASK_PALETTE))
+		throw BE::Error::NotImplemented("Color palette PNG image, "
+		    "bit depth = " + std::to_string(pngBitDepth) + ", color "
+		    "type = " + std::to_string(colorType));
 
 	this->setBitDepth(pngBitDepth);
 	setDimensions(Size(png_get_image_width(png_ptr, png_info_ptr),
