@@ -164,12 +164,16 @@ Options
 -------
 The CMake build supports the following options:
 
-| CMake Option            | Default | Description                                          |
-|:-----------------------:|:-------:|:----------------------------------------------------:|
-| `BUILD_BIOMEVAL_SHARED` | ON      | Build shared library (i.e., `.so`, `.dll`, `.dylib`) |
-| `BUILD_BIOMEVAL_STATIC` | ON      | Build static library (i.e., `.a`, `.lib`)            |
-| `BUILD_BIOMEVAL_TESTS`  | ON      | Build test programs                                  |
-| `BUILD_BIOMEVAL_32BIT`  | OFF     | Compile 32-bit on 64-bit host OS                     |
+| CMake Option            | Default | Description                                          | Notes |
+|:-----------------------:|:-------:|:----------------------------------------------------:|:-----:|
+| `BUILD_BIOMEVAL_32BIT`  | `OFF`   | Compile 32-bit on 64-bit host OS                     ||
+| `BUILD_BIOMEVAL_TESTS`  | `OFF`   | Build test programs                                  ||
+| `BUILD_SHARED_LIBS`     | `ON`    | Build shared library (i.e., `.so`, `.dll`, `.dylib`) | When `OFF`, a static library (i.e., `.a`, `.lib`) is built instead |
+| `FORCE_STATIC_DEPENDENCIES` | `OFF` | Force linking against `.a`/`.lib` third-party dependencies. | Unavailable on Windows (use `-DBUILD_SHARED_LIBS=OFF` for similar behavior) |
+| `WITH_FFMPEG` | `ON` | Build sources that require [FFMPEG](https://ffmpeg.org) | Unavailable when `FORCE_STATIC_DEPENDENCIES` is `ON` |
+| `WITH_HWLOC` | `ON` | Build sources that require [libhwloc](https://www.open-mpi.org/projects/hwloc/) |
+| `WITH_MPI` | `ON` | Build sources that require [OpenMPI](https://www.open-mpi.org/) |
+| `WITH_PCSC` | `ON` | Build sources that require [PCSC](https://pcsclite.apdu.fr) |
 
 ---
 
