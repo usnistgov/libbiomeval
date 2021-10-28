@@ -57,99 +57,11 @@ else()
     endif(MSVC)
 endif()
 
-#
-# The <project>_SOURCE_DIR and <project>_BINARY_DIR are created by the
-# CMake config for the framework library, and hence <project> must match
-# the project name given on that config file.
-#
-# TODO: Do not hardcode linkage against static or shared library. Build both?
-if(libbiomeval_SOURCE_DIR)
-  include_directories(${libbiomeval_SOURCE_DIR}/../include)
-  if (CMAKE_GENERATOR STREQUAL Xcode)
-    link_libraries(-L${libbiomeval_BINARY_DIR}/$<CONFIGURATION> -lbiomeval)
-  elseif(MSVC)
-    link_libraries(${libbiomeval_BINARY_DIR}/$<CONFIGURATION>/biomeval$<$<CONFIG:Debug>:d>.lib)
-  else(CMAKE_GENERATOR STREQUAL Xcode)
-    link_libraries(-L${libbiomeval_BINARY_DIR} -lbiomeval)
-  endif(CMAKE_GENERATOR STREQUAL Xcode)
-else()
-  include_directories(${PROJECT_SOURCE_DIR}/../include)
-  if (CMAKE_GENERATOR STREQUAL Xcode)
-    link_libraries(-L${CMAKE_BINARY_DIR}/../../$<CONFIGURATION> -lbiomeval)
-  elseif(MSVC)
-    link_libraries(${CMAKE_BINARY_DIR}/$<CONFIGURATION>/biomeval$<$<CONFIG:Debug>:d>.lib)
-  else(CMAKE_GENERATOR STREQUAL Xcode)
-    link_libraries(-L${CMAKE_BINARY_DIR}/../../lib/ -lbiomeval)
-  endif(CMAKE_GENERATOR STREQUAL Xcode)
-endif()
-
-# Windows doesn't have the concept of rpath. DLLs must be in PATH
-if(MSVC)
-  if (WITH_FFMPEG)
-  find_package(FFMPEG)
-  if(FFMPEG_FOUND)
-    link_libraries(${FFMPEG_LIBRARIES})
-  endif(FFMPEG_FOUND)
-  endif(WITH_FFMPEG)
-
-  find_package(OPENSSL)
-  if(OPENSSL_FOUND)
-    link_libraries(${OPENSSL_LIBRARIES})
-  endif(OPENSSL_FOUND)
-
-  find_package(BERKELEYDB)
-  if(BERKELEYDB_FOUND)
-    link_libraries(${BERKELEYDB_LIBRARIES})
-  endif(BERKELEYDB_FOUND)
-
-  find_package(JPEG)
-  if(JPEG_FOUND)
-    link_libraries(${JPEG_LIBRARIES})
-  endif(JPEG_FOUND)
-
-  find_package(OPENJP2)
-  if(OPENJP2_FOUND)
-    link_libraries(${OPENJP2_LIBRARIES})
-  endif(OPENJP2_FOUND)
-
-  if(WITH_HWLOC)
-  find_package(HWLOC)
-  if(HWLOC_FOUND)
-    link_libraries(${HWLOC_LIBRARIES})
-  endif(HWLOC_FOUND)
-  endif(WITH_HWLOC)
-
-  find_package(PNG)
-  if(PNG_FOUND)
-    link_libraries(${PNG_LIBRARIES})
-  endif(PNG_FOUND)
-
-  find_package(TIFF)
-  if(TIFF_FOUND)
-    link_libraries(${TIFF_LIBRARIES})
-  endif(TIFF_FOUND)
-
-  find_package(SQLITE3 REQUIRED)
-  if(SQLITE3_FOUND)
-    link_libraries(${SQLITE3_LIBRARIES})
-  endif(SQLITE3_FOUND)
-
-  # Winsock2
-  link_libraries(Ws2_32)
-endif(MSVC)
-
-if (BUILD_BIOMEVAL_STATIC)
-	set(DEPENDENT_LIB "${STATICLIBTGT}")
-else (BUILD_BIOMEVAL_STATIC)
-	set(DEPENDENT_LIB "${SHAREDLIB}")
-endif (BUILD_BIOMEVAL_STATIC)
-
 function(set_biomeval_test_exe_dependencies TARGET_NAME)
-	if (BUILD_BIOMEVAL_STATIC)
-		add_dependencies(${TARGET_NAME} ${STATICLIBTGT})
-	else (BUILD_BIOMEVAL_STATIC)
-		add_dependencies(${TARGET_NAME} ${SHAREDLIB})
-	endif (BUILD_BIOMEVAL_STATIC)
+	# Build library first
+	add_dependencies(${TARGET_NAME} biomeval)
+	target_include_directories(${TARGET_NAME} PRIVATE ${libbiomeval_SOURCE_DIR}/../include)
+	target_link_libraries(${TARGET_NAME} PRIVATE biomeval)
 
 	# Windows needs to differentiate between static/dynamic and
 	# release/debug builds. TODO above notes that static lib is hardcoded
@@ -163,9 +75,6 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 			    CXX_FLAGS_RELEASE "/MT"
 			    CXX_FLAGS_DEBUG "/MTd")
 		endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
-
-		# It also needs to link Crypt32
-		target_link_libraries(${TARGET_NAME} Crypt32)
 	endif (MSVC)
 endfunction(set_biomeval_test_exe_dependencies)
 
