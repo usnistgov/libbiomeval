@@ -327,9 +327,9 @@ list(APPEND OBJLIBS $<TARGET_OBJECTS:nbisobjs>)
 if(MPI_CXX_FOUND AND NOT MSVC)
   list(APPEND OBJLIBS $<TARGET_OBJECTS:mpiobjs>)
 endif(MPI_CXX_FOUND AND NOT MSVC)
-if(FFMPEG_FOUND)
+if(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
   list(APPEND OBJLIBS $<TARGET_OBJECTS:vidobjs>)
-endif(FFMPEG_FOUND)
+endif(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
 if(PCSC_FOUND)
   list(APPEND OBJLIBS $<TARGET_OBJECTS:deviceobjs>)
 endif(PCSC_FOUND)
@@ -380,10 +380,10 @@ if (MSVC)
 		set_target_properties(nbisobjs PROPERTIES
 		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
 
-		if (FFMPEG_FOUND)
+		if (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
 			set_target_properties(vidobjs PROPERTIES
 			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
-		endif (FFMPEG_FOUND)
+		endif (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
 
 		if (PCSC_FOUND)
 			set_target_properties(deviceobjs PROPERTIES
@@ -396,12 +396,12 @@ if (MSVC)
 		    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
 		    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 
-		if (FFMPEG_FOUND)
+		if (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
 			set_target_properties(vidobjs
 			    PROPERTIES
 			    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
 			    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-		endif (FFMPEG_FOUND)
+		endif (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
 
 		if (PCSC_FOUND)
 			set_target_properties(deviceobjs
