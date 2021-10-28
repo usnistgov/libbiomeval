@@ -127,7 +127,7 @@ BiometricEvaluation::Image::PNG::PNG(
 		setColorDepth(24);
 	}
 
-	this->setBitDepth(png_get_bit_depth(png_ptr, png_info_ptr));
+	this->setBitDepth(pngBitDepth);
 	setDimensions(Size(png_get_image_width(png_ptr, png_info_ptr),
 	    png_get_image_height(png_ptr, png_info_ptr)));
 
