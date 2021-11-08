@@ -113,11 +113,11 @@ BiometricEvaluation::Image::PNG::PNG(
 	}
 	png_read_info(png_ptr, png_info_ptr);
 
-	const auto pngBitDepth{png_get_bit_depth(png_ptr, png_info_ptr)};
+	const auto pngBitDepth = png_get_bit_depth(png_ptr, png_info_ptr);
 	setColorDepth(pngBitDepth *
 	    png_get_channels(png_ptr, png_info_ptr));
 	/* Possible this could be <8-bit palette color */
-	const auto colorType{png_get_color_type(png_ptr, png_info_ptr)};
+	const auto colorType = png_get_color_type(png_ptr, png_info_ptr);
 	if ((this->getColorDepth() <= 8) &&
 	    ((colorType & PNG_COLOR_MASK_PALETTE) == PNG_COLOR_MASK_PALETTE))
 		throw BE::Error::NotImplemented("Color palette PNG image, "
@@ -202,14 +202,14 @@ BiometricEvaluation::Image::PNG::getRawData()
 	png_read_info(png_ptr, png_info_ptr);
 
 	/* PNG default storage is big-endian */
-	auto pngBitDepth{png_get_bit_depth(png_ptr, png_info_ptr)};
+	auto pngBitDepth = png_get_bit_depth(png_ptr, png_info_ptr);
 	if ((pngBitDepth > 8) && BiometricEvaluation::Memory::isLittleEndian())
 		png_set_swap(png_ptr);
 
 
 	/* Let libpng help us do transformations. */
 	bool didTransformations{false};
-	auto color_type{png_get_color_type(png_ptr, png_info_ptr)};
+	auto color_type = png_get_color_type(png_ptr, png_info_ptr);
 	if ((color_type == PNG_COLOR_TYPE_GRAY) && (pngBitDepth < 8)) {
 		png_set_expand_gray_1_2_4_to_8(png_ptr);
 		didTransformations = true;
