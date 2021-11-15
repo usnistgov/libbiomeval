@@ -97,8 +97,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u_response.html">APDUResponse</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The data and status words returned by the card in response to a command.  <a href="struct_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u_response.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_impl.html">Impl</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -108,18 +106,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6d7feb13f4d9d5196527fdf8aaca8626"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a6d7feb13f4d9d5196527fdf8aaca8626">Smartcard</a> (unsigned int cardNum, const <a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> &amp;appID)</td></tr>
 <tr class="memdesc:a6d7feb13f4d9d5196527fdf8aaca8626"><td class="mdescLeft">&#160;</td><td class="mdescRight">Connect to the Nth card in the system and activate the application with the given identifier.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a6d7feb13f4d9d5196527fdf8aaca8626">More...</a><br /></td></tr>
 <tr class="separator:a6d7feb13f4d9d5196527fdf8aaca8626"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6bf00e18db0e12ef35ad63d36240555c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a6bf00e18db0e12ef35ad63d36240555c">getDedicatedFileObject</a> (const <a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> &amp;objectID)</td></tr>
-<tr class="memdesc:a6bf00e18db0e12ef35ad63d36240555c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a data object from the application dedicated file.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a6bf00e18db0e12ef35ad63d36240555c">More...</a><br /></td></tr>
-<tr class="separator:a6bf00e18db0e12ef35ad63d36240555c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a6aa4db418fb2e3e30ae2c2fa2d68df"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u_response.html">APDUResponse</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a8a6aa4db418fb2e3e30ae2c2fa2d68df">sendAPDU</a> (<a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">Device::Smartcard::APDU</a> &amp;apdu)</td></tr>
-<tr class="memdesc:a8a6aa4db418fb2e3e30ae2c2fa2d68df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send an <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">APDU</a> to a card using the best transmission method available for the card.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a8a6aa4db418fb2e3e30ae2c2fa2d68df">More...</a><br /></td></tr>
-<tr class="separator:a8a6aa4db418fb2e3e30ae2c2fa2d68df"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad79c3c166703cc6b7a0baadf9b22946a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#ad79c3c166703cc6b7a0baadf9b22946a">getLastAPDU</a> () const</td></tr>
-<tr class="memdesc:ad79c3c166703cc6b7a0baadf9b22946a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain a copy of the last <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">APDU</a> sent to the card.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#ad79c3c166703cc6b7a0baadf9b22946a">More...</a><br /></td></tr>
-<tr class="separator:ad79c3c166703cc6b7a0baadf9b22946a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a843e14ed16db455f339d30f88e261d39"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a843e14ed16db455f339d30f88e261d39">getLastResponseData</a> () const</td></tr>
-<tr class="memdesc:a843e14ed16db455f339d30f88e261d39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain a copy of the last response data returned from the card.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a843e14ed16db455f339d30f88e261d39">More...</a><br /></td></tr>
-<tr class="separator:a843e14ed16db455f339d30f88e261d39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99409aa3e81b87bcabc00514b3258420"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a99409aa3e81b87bcabc00514b3258420">getDedicatedFileObject</a> (const <a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> &amp;objectID)</td></tr>
+<tr class="memdesc:a99409aa3e81b87bcabc00514b3258420"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read a data object from the application dedicated file.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a99409aa3e81b87bcabc00514b3258420">More...</a><br /></td></tr>
+<tr class="separator:a99409aa3e81b87bcabc00514b3258420"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76561bb28439ce27af34eba669fc1986"><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u_response.html">APDUResponse</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a76561bb28439ce27af34eba669fc1986">sendAPDU</a> (<a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">Device::Smartcard::APDU</a> &amp;apdu)</td></tr>
+<tr class="memdesc:a76561bb28439ce27af34eba669fc1986"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send an <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">APDU</a> to a card using the best transmission method available for the card.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a76561bb28439ce27af34eba669fc1986">More...</a><br /></td></tr>
+<tr class="separator:a76561bb28439ce27af34eba669fc1986"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67db236bba7d593e690ecab12ae6cc5d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a67db236bba7d593e690ecab12ae6cc5d">getLastAPDU</a> () const</td></tr>
+<tr class="memdesc:a67db236bba7d593e690ecab12ae6cc5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain a copy of the last <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">APDU</a> sent to the card.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a67db236bba7d593e690ecab12ae6cc5d">More...</a><br /></td></tr>
+<tr class="separator:a67db236bba7d593e690ecab12ae6cc5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad952a6eeee04241117bc8dadc2be6161"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#ad952a6eeee04241117bc8dadc2be6161">getLastResponseData</a> () const</td></tr>
+<tr class="memdesc:ad952a6eeee04241117bc8dadc2be6161"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain a copy of the last response data returned from the card.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#ad952a6eeee04241117bc8dadc2be6161">More...</a><br /></td></tr>
+<tr class="separator:ad952a6eeee04241117bc8dadc2be6161"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac5d99e01e7b30b47abd7bcb4cdf1e7d"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#aac5d99e01e7b30b47abd7bcb4cdf1e7d">getReaderID</a> () const</td></tr>
 <tr class="memdesc:aac5d99e01e7b30b47abd7bcb4cdf1e7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain the identifier of the reader that the smartcard is plugged into.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#aac5d99e01e7b30b47abd7bcb4cdf1e7d">More...</a><br /></td></tr>
 <tr class="separator:aac5d99e01e7b30b47abd7bcb4cdf1e7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,9 +130,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a60fcf324eb9f4437e4b7d50daaebd908"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a60fcf324eb9f4437e4b7d50daaebd908">Smartcard</a> (<a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html">Smartcard</a> &amp;&amp;other) noexcept</td></tr>
 <tr class="memdesc:a60fcf324eb9f4437e4b7d50daaebd908"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move constructor.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a60fcf324eb9f4437e4b7d50daaebd908">More...</a><br /></td></tr>
 <tr class="separator:a60fcf324eb9f4437e4b7d50daaebd908"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac1a6f8597061734b60e1d7a6a1b2f826"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html">Smartcard</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#ac1a6f8597061734b60e1d7a6a1b2f826">operator=</a> (<a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html">Smartcard</a> &amp;&amp;other) noexcept</td></tr>
-<tr class="memdesc:ac1a6f8597061734b60e1d7a6a1b2f826"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#ac1a6f8597061734b60e1d7a6a1b2f826">More...</a><br /></td></tr>
-<tr class="separator:ac1a6f8597061734b60e1d7a6a1b2f826"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1cb04924480fa48b292729bccef1aa9e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html">Smartcard</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a1cb04924480fa48b292729bccef1aa9e">operator=</a> (<a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html">Smartcard</a> &amp;&amp;other) noexcept</td></tr>
+<tr class="memdesc:a1cb04924480fa48b292729bccef1aa9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move assignment.  <a href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a1cb04924480fa48b292729bccef1aa9e">More...</a><br /></td></tr>
+<tr class="separator:a1cb04924480fa48b292729bccef1aa9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Representation of a single ISO 7816 smartcard in the system. </p>
@@ -173,8 +171,6 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00033">33</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
-
 </div>
 </div>
 <a id="a6d7feb13f4d9d5196527fdf8aaca8626" name="a6d7feb13f4d9d5196527fdf8aaca8626"></a>
@@ -204,7 +200,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Connect to the Nth card in the system and activate the application with the given identifier. </p>
-<p >Cards are numbered according to reader sequencing. Therefore, the first card (number 0) is expected to be in the first reader. The response data from application activation can be retrieved with the <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a843e14ed16db455f339d30f88e261d39" title="Obtain a copy of the last response data returned from the card.">getLastResponseData()</a> method. </p><dl class="params"><dt>Parameters</dt><dd>
+<p >Cards are numbered according to reader sequencing. Therefore, the first card (number 0) is expected to be in the first reader. The response data from application activation can be retrieved with the <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#ad952a6eeee04241117bc8dadc2be6161" title="Obtain a copy of the last response data returned from the card.">getLastResponseData()</a> method. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">cardNum</td><td>The number of the card to attach to. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">appID</td><td>The ID of the application to activate on the card. </td></tr>
@@ -219,8 +215,6 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00039">39</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
 
 </div>
 </div>
@@ -240,8 +234,6 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Destructor. </p>
-
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00047">47</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
 
 </div>
 </div>
@@ -272,19 +264,17 @@ Public Member Functions</h2></td></tr>
 <p>Move constructor. </p>
 <p ><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html" title="Representation of a single ISO 7816 smartcard in the system.">Smartcard</a> objects are movable, maintaining the single instance of the access to the physical card. This allows the object to be placed in an STL container. </p>
 
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00089">89</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
-
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a6bf00e18db0e12ef35ad63d36240555c" name="a6bf00e18db0e12ef35ad63d36240555c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6bf00e18db0e12ef35ad63d36240555c">&#9670;&nbsp;</a></span>getDedicatedFileObject()</h2>
+<a id="a99409aa3e81b87bcabc00514b3258420" name="a99409aa3e81b87bcabc00514b3258420"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99409aa3e81b87bcabc00514b3258420">&#9670;&nbsp;</a></span>getDedicatedFileObject()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">BiometricEvaluation::Memory::uint8Array</a> BiometricEvaluation::Device::Smartcard::getDedicatedFileObject </td>
+          <td class="memname"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> BiometricEvaluation::Device::Smartcard::getDedicatedFileObject </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> &amp;&#160;</td>
           <td class="paramname"><em>objectID</em></td><td>)</td>
@@ -315,18 +305,16 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00052">52</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
-
 </div>
 </div>
-<a id="a8a6aa4db418fb2e3e30ae2c2fa2d68df" name="a8a6aa4db418fb2e3e30ae2c2fa2d68df"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8a6aa4db418fb2e3e30ae2c2fa2d68df">&#9670;&nbsp;</a></span>sendAPDU()</h2>
+<a id="a76561bb28439ce27af34eba669fc1986" name="a76561bb28439ce27af34eba669fc1986"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76561bb28439ce27af34eba669fc1986">&#9670;&nbsp;</a></span>sendAPDU()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="struct_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u_response.html">BiometricEvaluation::Device::Smartcard::APDUResponse</a> BiometricEvaluation::Device::Smartcard::sendAPDU </td>
+          <td class="memname"><a class="el" href="struct_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u_response.html">APDUResponse</a> BiometricEvaluation::Device::Smartcard::sendAPDU </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">Device::Smartcard::APDU</a> &amp;&#160;</td>
           <td class="paramname"><em>apdu</em></td><td>)</td>
@@ -350,18 +338,16 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00059">59</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
-
 </div>
 </div>
-<a id="ad79c3c166703cc6b7a0baadf9b22946a" name="ad79c3c166703cc6b7a0baadf9b22946a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad79c3c166703cc6b7a0baadf9b22946a">&#9670;&nbsp;</a></span>getLastAPDU()</h2>
+<a id="a67db236bba7d593e690ecab12ae6cc5d" name="a67db236bba7d593e690ecab12ae6cc5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67db236bba7d593e690ecab12ae6cc5d">&#9670;&nbsp;</a></span>getLastAPDU()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">BiometricEvaluation::Memory::uint8Array</a> BiometricEvaluation::Device::Smartcard::getLastAPDU </td>
+          <td class="memname"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> BiometricEvaluation::Device::Smartcard::getLastAPDU </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -372,18 +358,16 @@ Public Member Functions</h2></td></tr>
 <p>Obtain a copy of the last <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">APDU</a> sent to the card. </p>
 <dl class="section return"><dt>Returns</dt><dd>The last sent <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">APDU</a> as an array of octets. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00066">66</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
-
 </div>
 </div>
-<a id="a843e14ed16db455f339d30f88e261d39" name="a843e14ed16db455f339d30f88e261d39"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a843e14ed16db455f339d30f88e261d39">&#9670;&nbsp;</a></span>getLastResponseData()</h2>
+<a id="ad952a6eeee04241117bc8dadc2be6161" name="ad952a6eeee04241117bc8dadc2be6161"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad952a6eeee04241117bc8dadc2be6161">&#9670;&nbsp;</a></span>getLastResponseData()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">BiometricEvaluation::Memory::uint8Array</a> BiometricEvaluation::Device::Smartcard::getLastResponseData </td>
+          <td class="memname"><a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> BiometricEvaluation::Device::Smartcard::getLastResponseData </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -393,8 +377,6 @@ Public Member Functions</h2></td></tr>
 
 <p>Obtain a copy of the last response data returned from the card. </p>
 <dl class="section return"><dt>Returns</dt><dd>The last response data as an array of octets. May be empty. </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00072">72</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
 
 </div>
 </div>
@@ -415,8 +397,6 @@ Public Member Functions</h2></td></tr>
 
 <p>Obtain the identifier of the reader that the smartcard is plugged into. </p>
 <dl class="section return"><dt>Returns</dt><dd>The string identifier of the reader. </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00078">78</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
 
 </div>
 </div>
@@ -439,17 +419,15 @@ Public Member Functions</h2></td></tr>
 <p>Set the 'dryrun' state. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">state</td><td>True when the <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">APDU</a> should be created, but not sent to the card. @seealso <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#ad79c3c166703cc6b7a0baadf9b22946a" title="Obtain a copy of the last APDU sent to the card.">getLastAPDU()</a> </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">state</td><td>True when the <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html">APDU</a> should be created, but not sent to the card. @seealso <a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html#a67db236bba7d593e690ecab12ae6cc5d" title="Obtain a copy of the last APDU sent to the card.">getLastAPDU()</a> </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00084">84</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
-
 </div>
 </div>
-<a id="ac1a6f8597061734b60e1d7a6a1b2f826" name="ac1a6f8597061734b60e1d7a6a1b2f826"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac1a6f8597061734b60e1d7a6a1b2f826">&#9670;&nbsp;</a></span>operator=()</h2>
+<a id="a1cb04924480fa48b292729bccef1aa9e" name="a1cb04924480fa48b292729bccef1aa9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1cb04924480fa48b292729bccef1aa9e">&#9670;&nbsp;</a></span>operator=()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -458,7 +436,7 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html">BiometricEvaluation::Device::Smartcard</a> &amp; BiometricEvaluation::Device::Smartcard::operator= </td>
+          <td class="memname"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html">Smartcard</a> &amp; BiometricEvaluation::Device::Smartcard::operator= </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html">Smartcard</a> &amp;&amp;&#160;</td>
           <td class="paramname"><em>other</em></td><td>)</td>
@@ -475,13 +453,10 @@ Public Member Functions</h2></td></tr>
 <p>Move assignment. </p>
 <p ><a class="el" href="class_biometric_evaluation_1_1_device_1_1_smartcard.html" title="Representation of a single ISO 7816 smartcard in the system.">Smartcard</a> objects are movable, maintaining the single instance of the access to the physical card. This allows the object to be placed in an STL container. </p>
 
-<p class="definition">Definition at line <a class="el" href="be__device__smartcard_8cpp_source.html#l00096">96</a> of file <a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a>.</p>
-
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="be__device__smartcard_8h_source.html">be_device_smartcard.h</a></li>
-<li><a class="el" href="be__device__smartcard_8cpp_source.html">be_device_smartcard.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.9.2-->

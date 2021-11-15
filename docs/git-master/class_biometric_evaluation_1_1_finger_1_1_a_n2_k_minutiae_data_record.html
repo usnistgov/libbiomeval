@@ -94,18 +94,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7cf9fdef0733613e23aa61ab969f9c5b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a7cf9fdef0733613e23aa61ab969f9c5b">AN2KMinutiaeDataRecord</a> (<a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> &amp;buf, int recordNumber)</td></tr>
 <tr class="memdesc:a7cf9fdef0733613e23aa61ab969f9c5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an <a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html" title="Representation of a Type-9 Record from an AN2K file.">AN2KMinutiaeDataRecord</a> object from data contained in a memory buffer.  <a href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a7cf9fdef0733613e23aa61ab969f9c5b">More...</a><br /></td></tr>
 <tr class="separator:a7cf9fdef0733613e23aa61ab969f9c5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f1898eb7f3d51fc30c78a86d725ba68"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_biometric_evaluation_1_1_feature_1_1_a_n2_k7_minutiae.html">Feature::AN2K7Minutiae</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a3f1898eb7f3d51fc30c78a86d725ba68">getAN2K7Minutiae</a> () const</td></tr>
-<tr class="memdesc:a3f1898eb7f3d51fc30c78a86d725ba68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain the "standard" minutiae data from this Type-9 Record (fields 9.005 - 9.012).  <a href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a3f1898eb7f3d51fc30c78a86d725ba68">More...</a><br /></td></tr>
-<tr class="separator:a3f1898eb7f3d51fc30c78a86d725ba68"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9b6c566493dc5f04475790a683bef2d"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s_1_1_extended_feature_set.html">Feature::AN2K11EFS::ExtendedFeatureSet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#ad9b6c566493dc5f04475790a683bef2d">getAN2K11EFS</a> () const</td></tr>
-<tr class="memdesc:ad9b6c566493dc5f04475790a683bef2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain the extended feature set data from this Type-9 Record (fields 9.300 - 9.399).  <a href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#ad9b6c566493dc5f04475790a683bef2d">More...</a><br /></td></tr>
-<tr class="separator:ad9b6c566493dc5f04475790a683bef2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8d610f5e3a2a51a68dd07215545f6677"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_biometric_evaluation_1_1_finger.html#ad9ac500ac8e5de5ab1cd25f8734a9cce">Impression</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a8d610f5e3a2a51a68dd07215545f6677">getImpressionType</a> () const</td></tr>
-<tr class="memdesc:a8d610f5e3a2a51a68dd07215545f6677"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return impression type field from Type-9 Record.  <a href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a8d610f5e3a2a51a68dd07215545f6677">More...</a><br /></td></tr>
-<tr class="separator:a8d610f5e3a2a51a68dd07215545f6677"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a981573c3bb7c353f50d62fa6b7016cbb"><td class="memItemLeft" align="right" valign="top">std::map&lt; uint16_t, <a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a981573c3bb7c353f50d62fa6b7016cbb">getRegisteredVendorBlock</a> (<a class="el" href="namespace_biometric_evaluation_1_1_feature.html#a2e66653ded0d3a15ac89df6e1cb3aacc">Feature::MinutiaeFormat</a> vendor) const</td></tr>
-<tr class="memdesc:a981573c3bb7c353f50d62fa6b7016cbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain data recorded in a registered vendor minutiae block found in this Type-9 Record.  <a href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a981573c3bb7c353f50d62fa6b7016cbb">More...</a><br /></td></tr>
-<tr class="separator:a981573c3bb7c353f50d62fa6b7016cbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19248a2ff48bdc18b7b5f6f4d1527afa"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_biometric_evaluation_1_1_feature_1_1_a_n2_k7_minutiae.html">Feature::AN2K7Minutiae</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a19248a2ff48bdc18b7b5f6f4d1527afa">getAN2K7Minutiae</a> () const</td></tr>
+<tr class="memdesc:a19248a2ff48bdc18b7b5f6f4d1527afa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain the "standard" minutiae data from this Type-9 Record (fields 9.005 - 9.012).  <a href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a19248a2ff48bdc18b7b5f6f4d1527afa">More...</a><br /></td></tr>
+<tr class="separator:a19248a2ff48bdc18b7b5f6f4d1527afa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a307720d1a3a49e1ba66038536bf30158"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="class_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s_1_1_extended_feature_set.html">Feature::AN2K11EFS::ExtendedFeatureSet</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a307720d1a3a49e1ba66038536bf30158">getAN2K11EFS</a> () const</td></tr>
+<tr class="memdesc:a307720d1a3a49e1ba66038536bf30158"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain the extended feature set data from this Type-9 Record (fields 9.300 - 9.399).  <a href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a307720d1a3a49e1ba66038536bf30158">More...</a><br /></td></tr>
+<tr class="separator:a307720d1a3a49e1ba66038536bf30158"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a072d6295ee15b217655801a172b075b1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespace_biometric_evaluation_1_1_finger.html#ad9ac500ac8e5de5ab1cd25f8734a9cce">Impression</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a072d6295ee15b217655801a172b075b1">getImpressionType</a> () const</td></tr>
+<tr class="memdesc:a072d6295ee15b217655801a172b075b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return impression type field from Type-9 Record.  <a href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a072d6295ee15b217655801a172b075b1">More...</a><br /></td></tr>
+<tr class="separator:a072d6295ee15b217655801a172b075b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99524879617e63eeda912772f8fac531"><td class="memItemLeft" align="right" valign="top">std::map&lt; uint16_t, <a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a99524879617e63eeda912772f8fac531">getRegisteredVendorBlock</a> (<a class="el" href="namespace_biometric_evaluation_1_1_feature.html#a2e66653ded0d3a15ac89df6e1cb3aacc">Feature::MinutiaeFormat</a> vendor) const</td></tr>
+<tr class="memdesc:a99524879617e63eeda912772f8fac531"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain data recorded in a registered vendor minutiae block found in this Type-9 Record.  <a href="class_biometric_evaluation_1_1_finger_1_1_a_n2_k_minutiae_data_record.html#a99524879617e63eeda912772f8fac531">More...</a><br /></td></tr>
+<tr class="separator:a99524879617e63eeda912772f8fac531"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Representation of a Type-9 Record from an AN2K file. </p>
@@ -156,8 +156,6 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html#l00019">19</a> of file <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html">be_finger_an2kminutiae_data_record.cpp</a>.</p>
-
 </div>
 </div>
 <a id="a7cf9fdef0733613e23aa61ab969f9c5b" name="a7cf9fdef0733613e23aa61ab969f9c5b"></a>
@@ -202,19 +200,17 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html#l00041">41</a> of file <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html">be_finger_an2kminutiae_data_record.cpp</a>.</p>
-
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a3f1898eb7f3d51fc30c78a86d725ba68" name="a3f1898eb7f3d51fc30c78a86d725ba68"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3f1898eb7f3d51fc30c78a86d725ba68">&#9670;&nbsp;</a></span>getAN2K7Minutiae()</h2>
+<a id="a19248a2ff48bdc18b7b5f6f4d1527afa" name="a19248a2ff48bdc18b7b5f6f4d1527afa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19248a2ff48bdc18b7b5f6f4d1527afa">&#9670;&nbsp;</a></span>getAN2K7Minutiae()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_biometric_evaluation_1_1_feature_1_1_a_n2_k7_minutiae.html">BiometricEvaluation::Feature::AN2K7Minutiae</a> &gt; BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getAN2K7Minutiae </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_biometric_evaluation_1_1_feature_1_1_a_n2_k7_minutiae.html">Feature::AN2K7Minutiae</a> &gt; BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getAN2K7Minutiae </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -225,18 +221,16 @@ Public Member Functions</h2></td></tr>
 <p>Obtain the "standard" minutiae data from this Type-9 Record (fields 9.005 - 9.012). </p>
 <dl class="section return"><dt>Returns</dt><dd>Shared pointer to an AN2KMinutiae object containing the standard format minutiae data found in this Type-9 Record. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html#l00053">53</a> of file <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html">be_finger_an2kminutiae_data_record.cpp</a>.</p>
-
 </div>
 </div>
-<a id="ad9b6c566493dc5f04475790a683bef2d" name="ad9b6c566493dc5f04475790a683bef2d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad9b6c566493dc5f04475790a683bef2d">&#9670;&nbsp;</a></span>getAN2K11EFS()</h2>
+<a id="a307720d1a3a49e1ba66038536bf30158" name="a307720d1a3a49e1ba66038536bf30158"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a307720d1a3a49e1ba66038536bf30158">&#9670;&nbsp;</a></span>getAN2K11EFS()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s_1_1_extended_feature_set.html">BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet</a> &gt; BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getAN2K11EFS </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="class_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s_1_1_extended_feature_set.html">Feature::AN2K11EFS::ExtendedFeatureSet</a> &gt; BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getAN2K11EFS </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -247,18 +241,16 @@ Public Member Functions</h2></td></tr>
 <p>Obtain the extended feature set data from this Type-9 Record (fields 9.300 - 9.399). </p>
 <dl class="section return"><dt>Returns</dt><dd>Shared pointer to an AN2K11ExtendedFeatureSet object if present in the record. The managed pointer will nulptr if there is no extended feature data. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html#l00060">60</a> of file <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html">be_finger_an2kminutiae_data_record.cpp</a>.</p>
-
 </div>
 </div>
-<a id="a8d610f5e3a2a51a68dd07215545f6677" name="a8d610f5e3a2a51a68dd07215545f6677"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8d610f5e3a2a51a68dd07215545f6677">&#9670;&nbsp;</a></span>getImpressionType()</h2>
+<a id="a072d6295ee15b217655801a172b075b1" name="a072d6295ee15b217655801a172b075b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a072d6295ee15b217655801a172b075b1">&#9670;&nbsp;</a></span>getImpressionType()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="namespace_biometric_evaluation_1_1_finger.html#ad9ac500ac8e5de5ab1cd25f8734a9cce">BiometricEvaluation::Finger::Impression</a> BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getImpressionType </td>
+          <td class="memname"><a class="el" href="namespace_biometric_evaluation_1_1_finger.html#ad9ac500ac8e5de5ab1cd25f8734a9cce">Impression</a> BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getImpressionType </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
@@ -269,18 +261,16 @@ Public Member Functions</h2></td></tr>
 <p>Return impression type field from Type-9 Record. </p>
 <dl class="section return"><dt>Returns</dt><dd>Impression type of the image from which minutiae points were generated. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html#l00067">67</a> of file <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html">be_finger_an2kminutiae_data_record.cpp</a>.</p>
-
 </div>
 </div>
-<a id="a981573c3bb7c353f50d62fa6b7016cbb" name="a981573c3bb7c353f50d62fa6b7016cbb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a981573c3bb7c353f50d62fa6b7016cbb">&#9670;&nbsp;</a></span>getRegisteredVendorBlock()</h2>
+<a id="a99524879617e63eeda912772f8fac531" name="a99524879617e63eeda912772f8fac531"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99524879617e63eeda912772f8fac531">&#9670;&nbsp;</a></span>getRegisteredVendorBlock()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::map&lt; uint16_t, <a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">BiometricEvaluation::Memory::uint8Array</a> &gt; BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getRegisteredVendorBlock </td>
+          <td class="memname">std::map&lt; uint16_t, <a class="el" href="namespace_biometric_evaluation_1_1_memory.html#a0c69f4c4f8d71ef567764278b14db994">Memory::uint8Array</a> &gt; BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getRegisteredVendorBlock </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="namespace_biometric_evaluation_1_1_feature.html#a2e66653ded0d3a15ac89df6e1cb3aacc">Feature::MinutiaeFormat</a>&#160;</td>
           <td class="paramname"><em>vendor</em></td><td>)</td>
@@ -304,13 +294,10 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html#l00074">74</a> of file <a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html">be_finger_an2kminutiae_data_record.cpp</a>.</p>
-
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="be__finger__an2kminutiae__data__record_8h_source.html">be_finger_an2kminutiae_data_record.h</a></li>
-<li><a class="el" href="be__finger__an2kminutiae__data__record_8cpp_source.html">be_finger_an2kminutiae_data_record.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.9.2-->

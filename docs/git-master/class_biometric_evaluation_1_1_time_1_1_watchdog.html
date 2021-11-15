@@ -128,7 +128,7 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:a29207c7b81c72630a7f4d4146a1a2688"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a29207c7b81c72630a7f4d4146a1a2688">REALTIME</a> = 1</td></tr>
 <tr class="memdesc:a29207c7b81c72630a7f4d4146a1a2688"><td class="mdescLeft">&#160;</td><td class="mdescRight">A <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html" title="A Watchdog object can be used by applications to limit the amount of processing time taken by a block...">Watchdog</a> based on real (wall clock) time.  <a href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a29207c7b81c72630a7f4d4146a1a2688">More...</a><br /></td></tr>
 <tr class="separator:a29207c7b81c72630a7f4d4146a1a2688"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6adf50d850c0634efe59fe874330716"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#ac6adf50d850c0634efe59fe874330716">_canSigJump</a> = false</td></tr>
+<tr class="memitem:ac6adf50d850c0634efe59fe874330716"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#ac6adf50d850c0634efe59fe874330716">_canSigJump</a></td></tr>
 <tr class="separator:ac6adf50d850c0634efe59fe874330716"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0485dd34770eed540543a823e7fc043f"><td class="memItemLeft" align="right" valign="top">static sigjmp_buf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a0485dd34770eed540543a823e7fc043f">_sigJumpBuf</a></td></tr>
 <tr class="separator:a0485dd34770eed540543a823e7fc043f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -181,8 +181,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
 </dl>
 <dl class="section warning"><dt>Warning</dt><dd><a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#aa601ea43e63bc81182fe566971719ba7" title="A Watchdog based on process time.">Watchdog::PROCESSTIME</a> is not supported under Cygwin. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00036">36</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
-
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
@@ -212,8 +210,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
 <p>Obtain the timer interval. </p>
 <dl class="section return"><dt>Returns</dt><dd>Current timer interval. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00055">55</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
-
 </div>
 </div>
 <a id="ae57e43ba061886853a3f61e84934cc57" name="ae57e43ba061886853a3f61e84934cc57"></a>
@@ -241,8 +237,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00063">63</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
-
 </div>
 </div>
 <a id="a1d0848b8b7275bf6b42829966adf29b0" name="a1d0848b8b7275bf6b42829966adf29b0"></a>
@@ -267,8 +261,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
   </table>
   </dd>
 </dl>
-
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00082">82</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
 
 </div>
 </div>
@@ -295,8 +287,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00114">114</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
-
 </div>
 </div>
 <a id="a8b22879a58ed5a2f45a5473092bbc32c" name="a8b22879a58ed5a2f45a5473092bbc32c"></a>
@@ -317,8 +307,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
 <p>Indicate whether the watchdog timer expired. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the timer expired, false otherwise. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00163">163</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
-
 </div>
 </div>
 <a id="a50e581f334dcb8fc465499f8df65f493" name="a50e581f334dcb8fc465499f8df65f493"></a>
@@ -337,8 +325,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
 </div><div class="memdoc">
 
 <p>Indicate that the signal handler can jump into the application code after handling the signal. </p>
-
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00139">139</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
 
 </div>
 </div>
@@ -359,8 +345,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
 
 <p>Clears the flag for the <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html" title="A Watchdog object can be used by applications to limit the amount of processing time taken by a block...">Watchdog</a> object to indicate that the signal jump block is no longer valid. </p>
 
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00145">145</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
-
 </div>
 </div>
 <a id="aed7c5257d3bbcee6a67b69b4167a02d9" name="aed7c5257d3bbcee6a67b69b4167a02d9"></a>
@@ -380,8 +364,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
 
 <p>Set a flag to indicate the timer expired. </p>
 
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00151">151</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
-
 </div>
 </div>
 <a id="af77a1c30ae6b60b8875e3f6aa2cfba6d" name="af77a1c30ae6b60b8875e3f6aa2cfba6d"></a>
@@ -400,8 +382,6 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
 </div><div class="memdoc">
 
 <p>Clear the flag indicating the timer expired. </p>
-
-<p class="definition">Definition at line <a class="el" href="be__time__watchdog_8cpp_source.html#l00157">157</a> of file <a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a>.</p>
 
 </div>
 </div>
@@ -468,7 +448,7 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool BiometricEvaluation::Time::Watchdog::_canSigJump = false</td>
+          <td class="memname">bool BiometricEvaluation::Time::Watchdog::_canSigJump</td>
         </tr>
       </table>
   </td>
@@ -506,9 +486,8 @@ The <a class="el" href="class_biometric_evaluation_1_1_time_1_1_watchdog.html#a5
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="be__time__watchdog_8h_source.html">be_time_watchdog.h</a></li>
-<li><a class="el" href="be__time__watchdog_8cpp_source.html">be_time_watchdog.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.9.2-->

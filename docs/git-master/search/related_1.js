@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['addworker_0',['addWorker',['../class_biometric_evaluation_1_1_process_1_1_fork_worker_controller.html#ae259ae18ff18e2204aaca1fb2d76b3a3',1,'BiometricEvaluation::Process::ForkWorkerController']]],
-  ['setexitstatus_1',['setExitStatus',['../class_biometric_evaluation_1_1_process_1_1_fork_worker_controller.html#a2647c0fbdd2e3fba99b6b3702517a832',1,'BiometricEvaluation::Process::ForkWorkerController']]],
-  ['startworker_2',['startWorker',['../class_biometric_evaluation_1_1_process_1_1_fork_worker_controller.html#a7de535daa522125bb4a9fef8629d5e1a',1,'BiometricEvaluation::Process::ForkWorkerController']]],
-  ['startworkers_3',['startWorkers',['../class_biometric_evaluation_1_1_process_1_1_fork_worker_controller.html#a6ba4014147c7105bd584620abd29935b',1,'BiometricEvaluation::Process::ForkWorkerController']]],
-  ['stopworker_4',['stopWorker',['../class_biometric_evaluation_1_1_process_1_1_fork_worker_controller.html#a62100aefcd2e3a1a5cc0f7c8788a2b13',1,'BiometricEvaluation::Process::ForkWorkerController']]]
+  ['operator_2b_0',['operator+',['../class_biometric_evaluation_1_1_memory_1_1_auto_array_iterator.html#a42824a5c7054739f47d4f5ab33ef44c8',1,'BiometricEvaluation::Memory::AutoArrayIterator']]],
+  ['operator_2d_1',['operator-',['../class_biometric_evaluation_1_1_memory_1_1_auto_array_iterator.html#aaa71e7623c889a58bfa3113d7f5a6083',1,'BiometricEvaluation::Memory::AutoArrayIterator']]],
+  ['orderedmap_3c_20key_2c_20t_20_3e_2',['OrderedMap&lt; Key, T &gt;',['../class_biometric_evaluation_1_1_memory_1_1_ordered_map_iterator.html#a72f7e62cd75d72163ace07d8b0439f14',1,'BiometricEvaluation::Memory::OrderedMapIterator::OrderedMap&lt; Key, T &gt;()'],['../class_biometric_evaluation_1_1_memory_1_1_ordered_map_const_iterator.html#a72f7e62cd75d72163ace07d8b0439f14',1,'BiometricEvaluation::Memory::OrderedMapConstIterator::OrderedMap&lt; Key, T &gt;()']]],
+  ['orderedmapconstiterator_3c_20key_2c_20t_20_3e_3',['OrderedMapConstIterator&lt; Key, T &gt;',['../class_biometric_evaluation_1_1_memory_1_1_ordered_map_iterator.html#a8aede911b37f877a7020bf5b8ffa5ea0',1,'BiometricEvaluation::Memory::OrderedMapIterator::OrderedMapConstIterator&lt; Key, T &gt;()'],['../class_biometric_evaluation_1_1_memory_1_1_ordered_map.html#a8aede911b37f877a7020bf5b8ffa5ea0',1,'BiometricEvaluation::Memory::OrderedMap::OrderedMapConstIterator&lt; Key, T &gt;()']]],
+  ['orderedmapiterator_3c_20key_2c_20t_20_3e_4',['OrderedMapIterator&lt; Key, T &gt;',['../class_biometric_evaluation_1_1_memory_1_1_ordered_map.html#aad98767a6ad129b9ecd82af047e2cda0',1,'BiometricEvaluation::Memory::OrderedMap']]]
 ];

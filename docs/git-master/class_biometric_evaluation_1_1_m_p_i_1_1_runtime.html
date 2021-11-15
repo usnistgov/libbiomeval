@@ -144,14 +144,12 @@ Public Member Functions</h2></td></tr>
 <p>Construct the runtime environment for the processes making up the <a class="el" href="namespace_biometric_evaluation_1_1_m_p_i.html" title="Common declarations and functions for the MPI-based functionality.">MPI</a> job. </p>
 <p >Whether to save a checkpoint on clean shutdown, and recover a checkpoint on startup, is optionally specified. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">argc</td><td>The argument count, taken from the command line passed to <a class="el" href="big__endian__check_8c.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main()</a>. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">argv</td><td>The argument vector, taken from the command line passed to <a class="el" href="big__endian__check_8c.html#ae66f6b31b5ad750f1fe042a706a4e3d4">main()</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">argc</td><td>The argument count, taken from the command line passed to main(). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">argv</td><td>The argument vector, taken from the command line passed to main(). </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">checkpointEnable</td><td>True indicates that a checkpoint should be saved on early shutdown and restored on startup, if the checkpoint data is present.. Checkpoints are implementation-defined by the <a class="el" href="class_biometric_evaluation_1_1_m_p_i_1_1_distributor.html" title="A class to represent an MPI task that distributes work to other tasks.">Distributor</a> classes. </td></tr>
   </table>
   </dd>
 </dl>
-
-<p class="definition">Definition at line <a class="el" href="be__mpi__runtime_8cpp_source.html#l00035">35</a> of file <a class="el" href="be__mpi__runtime_8cpp_source.html">be_mpi_runtime.cpp</a>.</p>
 
 </div>
 </div>
@@ -169,8 +167,6 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="be__mpi__runtime_8cpp_source.html#l00045">45</a> of file <a class="el" href="be__mpi__runtime_8cpp_source.html">be_mpi_runtime.cpp</a>.</p>
 
 </div>
 </div>
@@ -210,8 +206,6 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__mpi__runtime_8cpp_source.html#l00082">82</a> of file <a class="el" href="be__mpi__runtime_8cpp_source.html">be_mpi_runtime.cpp</a>.</p>
-
 </div>
 </div>
 <a id="aa2500dd33f2c8304506f6a8dbfb65c5f" name="aa2500dd33f2c8304506f6a8dbfb65c5f"></a>
@@ -231,8 +225,6 @@ Public Member Functions</h2></td></tr>
 
 <p>Shutdown the runtime environment for the <a class="el" href="namespace_biometric_evaluation_1_1_m_p_i.html" title="Common declarations and functions for the MPI-based functionality.">MPI</a> job. </p>
 <p >This method must be called in order for the <a class="el" href="namespace_biometric_evaluation_1_1_m_p_i.html" title="Common declarations and functions for the MPI-based functionality.">MPI</a> runtime to cleanly exit. </p>
-
-<p class="definition">Definition at line <a class="el" href="be__mpi__runtime_8cpp_source.html#l00106">106</a> of file <a class="el" href="be__mpi__runtime_8cpp_source.html">be_mpi_runtime.cpp</a>.</p>
 
 </div>
 </div>
@@ -261,13 +253,10 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__mpi__runtime_8cpp_source.html#l00112">112</a> of file <a class="el" href="be__mpi__runtime_8cpp_source.html">be_mpi_runtime.cpp</a>.</p>
-
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="be__mpi__runtime_8h_source.html">be_mpi_runtime.h</a></li>
-<li><a class="el" href="be__mpi__runtime_8cpp_source.html">be_mpi_runtime.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.9.2-->

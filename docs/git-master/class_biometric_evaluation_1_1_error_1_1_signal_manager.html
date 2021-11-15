@@ -122,7 +122,7 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:ad7b967a191f868bc8f9a798762e10599"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_error_1_1_signal_manager.html#ad7b967a191f868bc8f9a798762e10599">_canSigJump</a> = false</td></tr>
+<tr class="memitem:ad7b967a191f868bc8f9a798762e10599"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_error_1_1_signal_manager.html#ad7b967a191f868bc8f9a798762e10599">_canSigJump</a></td></tr>
 <tr class="memdesc:ad7b967a191f868bc8f9a798762e10599"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag indicating can jump after handling a signal.  <a href="class_biometric_evaluation_1_1_error_1_1_signal_manager.html#ad7b967a191f868bc8f9a798762e10599">More...</a><br /></td></tr>
 <tr class="separator:ad7b967a191f868bc8f9a798762e10599"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e4389737e2d26d187dc7439c38d8bb9"><td class="memItemLeft" align="right" valign="top">static sigjmp_buf&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_error_1_1_signal_manager.html#a1e4389737e2d26d187dc7439c38d8bb9">_sigJumpBuf</a></td></tr>
@@ -164,8 +164,6 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00045">45</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
-
 </div>
 </div>
 <a id="a589a6e4739d9e4d445c308e172ebfbb9" name="a589a6e4739d9e4d445c308e172ebfbb9"></a>
@@ -197,8 +195,6 @@ Static Public Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00051">51</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
 
 </div>
 </div>
@@ -233,8 +229,6 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00062">62</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
-
 </div>
 </div>
 <a id="aeccb3bff8dbbdb2c5cdaa781d2a02e57" name="aeccb3bff8dbbdb2c5cdaa781d2a02e57"></a>
@@ -253,8 +247,6 @@ Static Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Clear all signal handling. </p>
-
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00072">72</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
 
 </div>
 </div>
@@ -275,8 +267,6 @@ Static Public Attributes</h2></td></tr>
 
 <p>Set the default signals this object will manage: SIGSEGV and SIGBUS. </p>
 
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00078">78</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
-
 </div>
 </div>
 <a id="a821d4628469e95a7f5bfa9ca4b5f71b3" name="a821d4628469e95a7f5bfa9ca4b5f71b3"></a>
@@ -296,8 +286,6 @@ Static Public Attributes</h2></td></tr>
 
 <p>Indicate whether a signal was handled. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if a signal was handled, false otherwise. </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00086">86</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
 
 </div>
 </div>
@@ -325,8 +313,6 @@ Static Public Attributes</h2></td></tr>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>If an application invokes <a class="el" href="class_biometric_evaluation_1_1_error_1_1_signal_manager.html#a2ccf9363dc388fcbe0f14ee66c8c4907" title="Start handling signals of the current signal set.">start()</a> without setting up a signal jump block, behavior is undefined, and can result in an infinite loop if further processing causes a signal to be raised. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00092">92</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
-
 </div>
 </div>
 <a id="a4da50d2eef8c8ef6841cf53f8b2faeaf" name="a4da50d2eef8c8ef6841cf53f8b2faeaf"></a>
@@ -352,8 +338,6 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00113">113</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
-
 </div>
 </div>
 <a id="aae488e03b2aa39107d5540735561e2b4" name="aae488e03b2aa39107d5540735561e2b4"></a>
@@ -372,8 +356,6 @@ Static Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Set a flag to indicate a signal was handled. </p>
-
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00134">134</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
 
 </div>
 </div>
@@ -394,8 +376,6 @@ Static Public Attributes</h2></td></tr>
 
 <p>Clear the indication that a signal was handled. </p>
 
-<p class="definition">Definition at line <a class="el" href="be__error__signal__manager_8cpp_source.html#l00140">140</a> of file <a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a>.</p>
-
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
@@ -409,7 +389,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool BiometricEvaluation::Error::SignalManager::_canSigJump = false</td>
+          <td class="memname">bool BiometricEvaluation::Error::SignalManager::_canSigJump</td>
         </tr>
       </table>
   </td>
@@ -453,9 +433,8 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="be__error__signal__manager_8h_source.html">be_error_signal_manager.h</a></li>
-<li><a class="el" href="be__error__signal__manager_8cpp_source.html">be_error_signal_manager.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- HTML footer for doxygen 1.9.2-->

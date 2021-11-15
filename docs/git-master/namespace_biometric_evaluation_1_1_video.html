@@ -76,8 +76,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#enum-members">Enumerations</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle"><div class="title">BiometricEvaluation::Video Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -87,17 +86,12 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_biometric_evaluation_1_1_video_1_1_buffer_data.html">BufferData</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_video_1_1_container.html">Container</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Representation of a video container.  <a href="class_biometric_evaluation_1_1_video_1_1_container.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_biometric_evaluation_1_1_video_1_1_frame.html">Frame</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_video_1_1_stream.html">Stream</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_biometric_evaluation_1_1_video_1_1_stream_impl.html">StreamImpl</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implementation of a video container using the FFMPEG libraries.  <a href="class_biometric_evaluation_1_1_video_1_1_stream_impl.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
@@ -120,13 +114,6 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a981f9701464081c5b422645baf57d10b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Container formats.  <a href="namespace_biometric_evaluation_1_1_video.html#a981f9701464081c5b422645baf57d10b">More...</a><br /></td></tr>
 <tr class="separator:a981f9701464081c5b422645baf57d10b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:aaa7ca5f8db19aaef9e120cd97e65ae6c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_biometric_evaluation_1_1_video.html#aaa7ca5f8db19aaef9e120cd97e65ae6c">read_packet</a> (void *opaque, uint8_t *buf, int buf_size)</td></tr>
-<tr class="separator:aaa7ca5f8db19aaef9e120cd97e65ae6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36efe4dcf2efe319c5e2f1ce863a90b1"><td class="memItemLeft" align="right" valign="top">int64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespace_biometric_evaluation_1_1_video.html#a36efe4dcf2efe319c5e2f1ce863a90b1">seek</a> (void *opaque, int64_t offset, int whence)</td></tr>
-<tr class="separator:a36efe4dcf2efe319c5e2f1ce863a90b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Basic information relating to video and streams. </p>
@@ -196,79 +183,6 @@ Functions</h2></td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="be__video_8h_source.html#l00041">41</a> of file <a class="el" href="be__video_8h_source.html">be_video.h</a>.</p>
-
-</div>
-</div>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="aaa7ca5f8db19aaef9e120cd97e65ae6c" name="aaa7ca5f8db19aaef9e120cd97e65ae6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaa7ca5f8db19aaef9e120cd97e65ae6c">&#9670;&nbsp;</a></span>read_packet()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int BiometricEvaluation::Video::read_packet </td>
-          <td>(</td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>opaque</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>buf</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>buf_size</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="be__video__impl_8cpp_source.html#l00031">31</a> of file <a class="el" href="be__video__impl_8cpp_source.html">be_video_impl.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a36efe4dcf2efe319c5e2f1ce863a90b1" name="a36efe4dcf2efe319c5e2f1ce863a90b1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a36efe4dcf2efe319c5e2f1ce863a90b1">&#9670;&nbsp;</a></span>seek()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int64_t BiometricEvaluation::Video::seek </td>
-          <td>(</td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>opaque</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int64_t&#160;</td>
-          <td class="paramname"><em>offset</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>whence</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="be__video__impl_8cpp_source.html#l00049">49</a> of file <a class="el" href="be__video__impl_8cpp_source.html">be_video_impl.cpp</a>.</p>
 
 </div>
 </div>
