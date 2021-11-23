@@ -21,6 +21,7 @@
 find_path(FFMPEG_INCLUDE_DIR libavcodec/avcodec.h
   /usr/local/include/
   /opt/local/include/
+  /opt/homebrew/include/
 )
 
 find_library(FFMPEG_AVFORMAT NAMES avformat)

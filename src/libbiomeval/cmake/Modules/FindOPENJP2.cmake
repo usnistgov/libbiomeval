@@ -27,6 +27,7 @@ find_path(OPENJP2_INCLUDE_DIR opj_config.h
   /usr/include/openjpeg-2.4/
   /usr/local/include/openjpeg-2.4/
   /opt/local/include/openjpeg-2.4/
+  /opt/homebrew/include/openjpeg-2.4/
   /usr/include/openjpeg-2.3/
   /usr/local/include/openjpeg-2.3/
   /opt/local/include/openjpeg-2.3/
