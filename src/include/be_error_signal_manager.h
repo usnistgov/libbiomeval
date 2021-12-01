@@ -20,9 +20,9 @@
  * a signal handling block.
  */
 #define BEGIN_SIGNAL_BLOCK(_sigmgr, _blockname) do {			\
-	(_sigmgr)->clearSigHandled();					\
 	if (!(_sigmgr)->isEnabled())					\
 		break;							\
+	(_sigmgr)->clearSigHandled();					\
 	(_sigmgr)->stop();						\
 	if (sigsetjmp(							\
 	    BiometricEvaluation::Error::SignalManager::_sigJumpBuf, 1) != 0) \

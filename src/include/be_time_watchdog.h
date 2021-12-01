@@ -23,10 +23,10 @@
  */
 
 #define BEGIN_WATCHDOG_BLOCK(_watchdog, _blockname) do {		\
-	(_watchdog)->clearExpired();					\
-	(_watchdog)->clearCanSigJump();					\
 	if (!(_watchdog)->isEnabled())					\
 		break;							\
+	(_watchdog)->clearExpired();					\
+	(_watchdog)->clearCanSigJump();					\
 	if (sigsetjmp(							\
 	    BiometricEvaluation::Time::Watchdog::_sigJumpBuf, 1) != 0) \
 	 {								\
