@@ -165,6 +165,12 @@ namespace BiometricEvaluation
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
 			 *
+			 * @important
+			 * Bit depth of data returned from this method is at
+			 * least 8. If getBitDepth() < 8, data is losslessly
+			 * converted to use 8 bits to represent a single color
+			 * channel.
+			 *
 			 * @return
 			 *	AutoArray holding raw image data.
 			 *
@@ -179,6 +185,12 @@ namespace BiometricEvaluation
 		 	 * @brief
 			 * Accessor for the raw image data. The data returned
 			 * should not be compressed or encoded.
+			 *
+			 * @important
+			 * Bit depth of data returned from this method is at
+			 * least 8. If getBitDepth() < 8, data is losslessly
+			 * converted to use 8 bits to represent a single color
+			 * channel.
 			 *
 			 * @param[in] removeAlphaChannelIfPresent
 			 * Whether or not to remove an alpha channel if one

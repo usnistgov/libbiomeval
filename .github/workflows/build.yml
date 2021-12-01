@@ -20,8 +20,6 @@ on:
 
 env:
   CONFIGURATION: Release
-  BUILD_BIOMEVAL_SHARED: ON
-  BUILD_BIOMEVAL_STATIC: ON
   BUILD_BIOMEVAL_TESTS: ON
   BUILD_BIOMEVAL_32BIT: OFF
 
@@ -31,16 +29,20 @@ jobs:
 
     runs-on: ${{ matrix.config.os }}
     strategy:
+      fail-fast: false
       matrix:
         config:
-          - { os: macOS-10.15, arch: x64 }
-          - { os: ubuntu-16.04, arch: x64 }
-          - { os: ubuntu-18.04, arch: x64 }
-          - { os: ubuntu-20.04, arch: x64 }
-          - { os: windows-2019, arch: x64 }
-          - { os: windows-2019, arch: x86 }
-          - { os: windows-2016, arch: x64 }
-          - { os: windows-2016, arch: x86 }
+          - { os: macOS-11, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: macOS-10.15, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: ubuntu-18.04, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: ubuntu-20.04, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: ubuntu-20.04, arch: x64, shared: OFF, force-static-deps: OFF }
+          - { os: windows-2022, arch: x64, shared: OFF, force-static-deps: OFF }
+          - { os: windows-2019, arch: x64, shared: OFF, force-static-deps: OFF }
+          - { os: windows-2019, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: windows-2019, arch: x86, shared: ON, force-static-deps: OFF }
+          - { os: windows-2016, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: windows-2016, arch: x86, shared: ON, force-static-deps: OFF }
 
     steps:
     - name: Checkout Code
@@ -139,10 +141,10 @@ jobs:
       run: |
         cmake \
             -DCMAKE_BUILD_TYPE=${CONFIGURATION} \
-            -DBUILD_BIOMEVAL_STATIC=${BUILD_BIOMEVAL_STATIC} \
-            -DBUILD_BIOMEVAL_SHARED=${BUILD_BIOMEVAL_SHARED} \
+            -DBUILD_SHARED_LIBS=${{ matrix.config.shared }} \
             -DBUILD_BIOMEVAL_TESTS=${BUILD_BIOMEVAL_TESTS} \
             -DBUILD_BIOMEVAL_32BIT=${BUILD_BIOMEVAL_32BIT} \
+            -DFORCE_STATIC_DEPENDENCIES=${{ matrix.config.force-static-deps }} \
             ${GITHUB_WORKSPACE}
 
     - name: Configure CMake (Multi-config Generator)
@@ -156,8 +158,7 @@ jobs:
             -A ${cmake_arch_flag} \
             -DCMAKE_TOOLCHAIN_FILE=../fresh-vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DCMAKE_CONFIGURATION_TYPES="${CONFIGURATION}" \
-            -DBUILD_BIOMEVAL_STATIC=${BUILD_BIOMEVAL_STATIC} \
-            -DBUILD_BIOMEVAL_SHARED=${BUILD_BIOMEVAL_SHARED} \
+            -DBUILD_SHARED_LIBS=${{ matrix.config.shared }} \
             -DBUILD_BIOMEVAL_TESTS=${BUILD_BIOMEVAL_TESTS} \
             -DBUILD_BIOMEVAL_32BIT=${BUILD_BIOMEVAL_32BIT} \
             ${GITHUB_WORKSPACE}

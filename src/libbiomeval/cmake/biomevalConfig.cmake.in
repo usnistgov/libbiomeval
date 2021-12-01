@@ -1,0 +1,6 @@
+@PACKAGE_INIT@
+
+if(NOT TARGET biomeval::biomeval)
+    include(${CMAKE_CURRENT_LIST_DIR}/biomeval-targets.cmake)
+endif()
+
