@@ -249,7 +249,6 @@ BiometricEvaluation::MPI::Distributor::distributeWork()
 				*log << "Job termination request from Task-" <<
 				    task;
 				MPI::logEntry(*log);
-				this->_activeMpiTasks.erase(task);
 				BE::MPI::TermExit = true;
 				continue;
 			}
