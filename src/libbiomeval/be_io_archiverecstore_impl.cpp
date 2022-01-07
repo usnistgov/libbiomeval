@@ -101,7 +101,7 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::open_streams()
 			_manifestfp.open(
 			    canonicalName(MANIFEST_FILE_NAME).c_str(),
 			    std::fstream::in | std::fstream::out |
-			    std::fstream::app);
+			    std::fstream::app | std::fstream::ate);
 		if (!_manifestfp || (_manifestfp.is_open() == false))
 			throw Error::FileError("Could not open manifest");
 	}
@@ -128,7 +128,8 @@ BiometricEvaluation::IO::ArchiveRecordStore::Impl::open_streams()
 			_archivefp.open(
 			    canonicalName(ARCHIVE_FILE_NAME).c_str(),
 			    std::fstream::in | std::fstream::out |
-			    std::fstream::app | std::fstream::binary);
+			    std::fstream::app | std::fstream::ate |
+			    std::fstream::binary);
 		if (!_archivefp || (_archivefp.is_open() == false))
 			throw Error::FileError("Could not open archive");
 	}
