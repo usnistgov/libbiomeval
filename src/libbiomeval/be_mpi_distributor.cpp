@@ -125,7 +125,7 @@ BiometricEvaluation::MPI::Distributor::start()
 		::MPI::COMM_WORLD.Send((void *)&taskCmd, 1, MPI_INT32_T,
 		     task, to_int_type(MPI::MessageTag::Control));
 	}
-	MPI::logMessage(*log, "Done sending start messages");
+	MPI::logMessage(*log, "Finished sending start messages");
 
 	/* Wait for the OK reply from each child, signaling ready for work. */
 	MPI::logMessage(*log, "Waiting for start message responses");
@@ -134,9 +134,13 @@ BiometricEvaluation::MPI::Distributor::start()
 		::MPI::COMM_WORLD.Recv(&taskStatus, 1, MPI_INT32_T,
 		    task, to_int_type(MPI::MessageTag::Control));
 
+		MPI::logMessage(*log, "Received start message response from "
+		    "Task-" + std::to_string(task) + "(" +
+		    to_string(to_enum<MPI::TaskStatus>(taskStatus)) + ")");
 		if (taskStatus == to_int_type(MPI::TaskStatus::OK))
 			this->_activeMpiTasks.insert(task);
 	}
+	MPI::logMessage(*log, "Received all start message responses");
 
 	if (this->_activeMpiTasks.empty())
 		MPI::logMessage(*log, "No receiver tasks available");
