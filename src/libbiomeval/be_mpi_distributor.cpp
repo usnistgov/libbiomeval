@@ -7,6 +7,7 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
+
 #include <set>
 #include <string>
 #include <sstream>
@@ -115,28 +116,27 @@ BiometricEvaluation::MPI::Distributor::start()
 	/* Release other tasks to start up */
 	::MPI::COMM_WORLD.Barrier();
 
-	/*
- 	 * Tell each child task to start requesting by sending an OK.
- 	 */
-	//XXX This should be asynchronous because some tasks
-	//XXX may have long startup times.
+	/* Tell each child task to init */
 	BE::IO::Logsheet *log = this->_logsheet.get();
 	MPI::logMessage(*log, "Sending messages to Task-N processes");
-	MPI::taskstat_t taskStatus;
-	for (int task = 1; task < this->_resources->getNumTasks(); task++) {
-		*log << "Tell Task-" << task << " to startup";
-		MPI::logEntry(*log);
-
+	for (int task{1}; task < this->_resources->getNumTasks(); ++task) {
 		MPI::taskcmd_t taskCmd =
 		    to_int_type(MPI::TaskCommand::Continue);
 		::MPI::COMM_WORLD.Send((void *)&taskCmd, 1, MPI_INT32_T,
 		     task, to_int_type(MPI::MessageTag::Control));
+	}
+	MPI::logMessage(*log, "Done sending start messages");
+
+	/* Wait for the OK reply from each child, signaling ready for work. */
+	MPI::logMessage(*log, "Waiting for start message responses");
+	for (int task{1}; task < this->_resources->getNumTasks(); ++task) {
+		MPI::taskstat_t taskStatus;
 		::MPI::COMM_WORLD.Recv(&taskStatus, 1, MPI_INT32_T,
 		    task, to_int_type(MPI::MessageTag::Control));
+
 		if (taskStatus == to_int_type(MPI::TaskStatus::OK))
 			this->_activeMpiTasks.insert(task);
 	}
-	MPI::logMessage(*log, "Done sending start messages");
 
 	if (this->_activeMpiTasks.empty())
 		MPI::logMessage(*log, "No receiver tasks available");
