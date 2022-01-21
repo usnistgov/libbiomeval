@@ -228,18 +228,15 @@ namespace BiometricEvaluation
 			 * Analytics about the return of operation.
 			 *
 			 * @throw ...
-			 * Exceptions raised from `operation`, if caught, are
-			 * rethrown when `rethrowExceptions` is `true`.
+			 * Exceptions raised from `operation`, if caught
+			 * (willCatchExceptions() is `true`), are rethrown
+			 * when API::willRethrowExceptions() is `true`.
 			 *
 			 * @note
 			 * success is called and currentState ==
 			 * APICurrentState::Completed if operation
 			 * returns, regardless of the Code of operation's
 			 * Status.
-			 *
-			 * @note
-			 * Exceptions caught are rethrown after calling
-			 * failure().
 			 */
 			Result
 			call(
@@ -247,10 +244,141 @@ namespace BiometricEvaluation
 			    const std::function<void(const Result&)>
 			    &success = {},
 			    const std::function<void(const Result&)>
-			    &failure = {},
-			    const bool rethrowExceptions = false);
+			    &failure = {});
 
-			/** 
+			/**
+			 * @brief
+			 * Obtain whether or not **all** protections enabled by
+			 * this object are enabled.
+			 * @details
+			 * Protections include:
+			 *   * Catching exceptions
+			 *   * Not rethrowing exceptions
+			 *   * Enabling WatchdogTimer
+			 *   * Enabling SignalManager
+			 *
+			 * @return
+			 * `true` if **all** protections are enabled, `false` if
+			 * one or more protections are disabled.
+			 *
+			 * @note
+			 * Individual protection statuses may be queried through
+			 * their respective objects/methods.
+			 */
+			bool
+			protectionsEnabled()
+			    const
+			{
+				return (this->willCatchExceptions() &&
+				    !this->willRethrowExceptions() &&
+				    this->getWatchdog()->isEnabled() &&
+				    this->getSignalManager->isEnabled());
+			}
+
+			/**
+			 * @brief
+			 * Wholesale change of process protections enabled by
+			 * this object.
+			 * @details
+			 * Protections include:
+			 *   * Catching exceptions
+			 *   * Not rethrowing exceptions
+			 *   * Enabling WatchdogTimer
+			 *   * Enabling SignalManager
+			 *
+			 * @param protectionsEnabled
+			 * `true` if **all** protections should be enabled,
+			 * `false` if **all** protections should be disabled.
+			 *
+			 * @note
+			 * Protections can be enabled or disabled individually
+			 * through their respective objects/methods.
+			 */
+			void
+			setProtectionsEnabled(
+			    const bool protectionsEnabled)
+			{
+				this->setCatchExceptions(protectionsEnabled);
+				this->setRethrowExceptions(!protectionsEnabled);
+				this->getWatchdog()->setEnabled(
+				    protectionsEnabled);
+				this->getSignalManager->setEnabled(
+				    protectionsEnabled);
+			}
+
+			/**
+			 * @brief
+			 * Obtain whether or not exceptions caught in call()
+			 * will be rethrown.
+			 *
+			 * @return
+			 * `true` if exceptions raised in call() will be
+			 * rethrown, `false` otherwise.
+			 *
+			 * @note
+			 * Exceptions will not be caught (and thus not rethrown)
+			 * if willCatchExceptions() is `false`.
+			 */
+			bool
+			willRethrowExceptions()
+			    const
+			{
+				return (this->_rethrowExceptions);
+			}
+
+			/**
+			 * @brief
+			 * Change whether or not exceptions caught in call()
+			 * should be rethrown.
+			 *
+			 * @param shouldRethrow
+			 * `true` if exceptions raised in call() will be
+			 * rethrown, `false` otherwise.
+			 *
+			 * @note
+			 * Exceptions will not be caught (and thus not rethrown)
+			 * if willCatchExceptions() is `false`.
+			 */
+			void
+			setRethrowExceptions(
+			    const bool shouldRethrow)
+			{
+				this->_rethrowExceptions = shouldRethrow;
+			}
+
+			/**
+			 * @brief
+			 * Set whether or not to catch exceptions from call(),
+			 * triggering the `failure` block.
+			 *
+			 * @param catchExceptions
+			 * `true` if call()'s `operation` should be executed
+			 * within a try block, `false` otherwise.
+			 */
+			void
+			setCatchExceptions(
+			    const bool catchExceptions)
+			{
+				this->_catchExceptions = false;
+			}
+
+			/**
+			 * @brief
+			 * Obtain whether or not exceptions raised in call()
+			 * will be caught, triggering the `failure` block.
+			 *
+			 * @return
+			 * `true` if call()'s `operation` will be executed
+			 * within a try block, `false` otherwise.
+			 */
+			bool
+			willCatchExceptions()
+			    const
+			{
+				return (this->_catchExceptions);
+			}
+
+			/**
 			 * @brief
 			 * Obtain the timer object.
 			 *
@@ -295,6 +423,10 @@ namespace BiometricEvaluation
 			}
 
 		private:
+			/** Whether or not to catch exceptions */
+			bool _catchExceptions{true};
+			/** Whether or not exceptions should be rethrown */
+			bool _rethrowExceptions{false};
 			/** Timer */
 			std::shared_ptr<BiometricEvaluation::Time::Timer>
 			    _timer;
@@ -317,6 +449,8 @@ BiometricEvaluation::Framework::API<T>::Result::Result() :
 
 template<typename T>
 BiometricEvaluation::Framework::API<T>::API() :
+    _catchExceptions{true},
+    _rethrowExceptions{false},
     _timer(new BiometricEvaluation::Time::Timer()),
     _watchdog(new BiometricEvaluation::Time::Watchdog(
         BiometricEvaluation::Time::Watchdog::REALTIME)),
@@ -330,30 +464,35 @@ typename BiometricEvaluation::Framework::API<T>::Result
 BiometricEvaluation::Framework::API<T>::call(
     const std::function<T(void)> &operation,
     const std::function<void(const Framework::API<T>::Result&)> &success,
-    const std::function<void(const Framework::API<T>::Result&)> &failure,
-    const bool rethrowExceptions)
+    const std::function<void(const Framework::API<T>::Result&)> &failure)
 {
 	Result ret;
 
 	BEGIN_SIGNAL_BLOCK(this->getSignalManager(), SM_BLOCK);
 	BEGIN_WATCHDOG_BLOCK(this->getWatchdog(), WD_BLOCK);
 		ret.currentState = APICurrentState::Running;
-		this->getTimer()->start();
-		try {
+		if (this->willCatchExceptions()) {
+			this->getTimer()->start();
+			try {
+				ret.status = operation();
+			} catch (...) {
+				this->getTimer()->stop();
+				ret.elapsed = this->getTimer()->elapsed();
+				ret.currentState =
+				    APICurrentState::ExceptionCaught;
+				ret.setException(std::current_exception());
+
+				if (failure)
+					failure(ret);
+
+				if (this->_rethrowExceptions)
+					throw;
+
+				return (ret);
+			}
+		} else {
+			this->getTimer()->start();
 			ret.status = operation();
-		} catch (...) {
-			this->getTimer()->stop();
-			ret.elapsed = this->getTimer()->elapsed();
-			ret.currentState = APICurrentState::ExceptionCaught;
-			ret.setException(std::current_exception());
-
-			if (failure)
-				failure(ret);
-
-			if (rethrowExceptions)
-				throw;
-
-			return (ret);
 		}
 		this->getTimer()->stop();
 	END_WATCHDOG_BLOCK(this->getWatchdog(), WD_BLOCK);

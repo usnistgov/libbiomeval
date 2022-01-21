@@ -157,6 +157,35 @@ testWatchdog(Time::Watchdog *theDog)
 		return (-1);
 	}
 	cout << "success.\n";
+
+	/* Test that disabling and re-enabling works */
+	std::cout << "Testing Watchdog disable: " << std::flush;
+	theDog->setInterval(300);
+	theDog->setEnabled(false);
+	BEGIN_WATCHDOG_BLOCK(theDog, watchdogblock4);
+		LONGDELAY;
+	END_WATCHDOG_BLOCK(theDog, watchdogblock4);
+	if (theDog->expired()) {
+		std::cout << "Watchdog barked, but enabled() is false.\n";
+		return (-1);
+	} else {
+		std::cout << "success\n";
+	}
+
+	std::cout << "Testing Watchdog enable: " << std::flush;
+	theDog->setEnabled(true);
+	BEGIN_WATCHDOG_BLOCK(theDog, watchdogblock5);
+		LONGDELAY;
+		std::cout << "You should not see this message; failed.\n";
+		return (-1);
+	END_WATCHDOG_BLOCK(theDog, watchdogblock5);
+	if (theDog->expired()) {
+		std::cout << "success." << endl;
+	} else {
+		std::cout << "Watchdog should have barked; failed.\n";
+		return (-1);
+	}
+
 	return (0);
 }
 

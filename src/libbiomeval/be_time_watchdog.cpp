@@ -34,7 +34,8 @@ BiometricEvaluation::Time::WatchdogSignalHandler(
 }
 
 BiometricEvaluation::Time::Watchdog::Watchdog(
-    const uint8_t type)
+    const uint8_t type) :
+    _enabled{true}
 {
 	if ((type != Watchdog::PROCESSTIME) && (type != Watchdog::REALTIME)) {
 		throw (Error::ParameterError());
@@ -163,4 +164,18 @@ bool
 BiometricEvaluation::Time::Watchdog::expired()
 {
 	return (_expired);
+}
+
+void
+BiometricEvaluation::Time::Watchdog::setEnabled(
+    const bool enabled)
+{
+	this->_enabled = enabled;
+}
+
+bool
+BiometricEvaluation::Time::Watchdog::isEnabled()
+    const
+{
+	return (this->_enabled);
 }

@@ -20,6 +20,8 @@
  * a signal handling block.
  */
 #define BEGIN_SIGNAL_BLOCK(_sigmgr, _blockname) do {			\
+	if (!(_sigmgr)->isEnabled())					\
+		break;							\
 	(_sigmgr)->clearSigHandled();					\
 	(_sigmgr)->stop();						\
 	if (sigsetjmp(							\
@@ -32,11 +34,15 @@
 } while (0)
 
 #define END_SIGNAL_BLOCK(_sigmgr, _blockname) do {			\
+	if (!(_sigmgr)->isEnabled())					\
+		break;							\
 	_blockname ## _end:						\
 	(_sigmgr)->stop();						\
 } while (0);
 
 #define ABORT_SIGNAL_MANAGER(_sigmgr) do {				\
+	if (!(_sigmgr)->isEnabled())					\
+		break;							\
 	(_sigmgr)->stop();						\
 } while (0);
 
@@ -182,6 +188,22 @@ namespace BiometricEvaluation {
 			void clearSigHandled();
 
 			/**
+			 * Enable or disable signal handling.
+			 *
+			 * @param enabled
+			 * `true` if enabled, `false` otherwise.
+			 *
+			 * @note
+			 * This enables easier debugging without changing
+			 * sourcecode to remove SignalManager blocks.
+			 */
+			void setEnabled(
+			    const bool enabled);
+
+			/** Check the enabled status of signal handling. */
+			bool isEnabled() const;
+
+			/**
 			 * Flag indicating can jump after handling a signal.
 			 * @note Should not be directly used by applications.
 			 */
@@ -195,6 +217,9 @@ namespace BiometricEvaluation {
 		protected:
 
 		private:
+			/** Whether or not the timer is enabled. */
+			bool _enabled{true};
+
 			/**
 			 * Current signal set.
 			 */

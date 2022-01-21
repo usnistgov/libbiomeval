@@ -42,14 +42,16 @@ validSignalSet(const sigset_t sigset)
 	return (true);
 }
 
-BiometricEvaluation::Error::SignalManager::SignalManager()
+BiometricEvaluation::Error::SignalManager::SignalManager() :
+    _enabled{true}
 {
 	_canSigJump = false;
 	this->setDefaultSignalSet();
 }
 
 BiometricEvaluation::Error::SignalManager::SignalManager(
-    const sigset_t signalSet)
+    const sigset_t signalSet) :
+    _enabled{true}
 {
 	if (!validSignalSet(signalSet)) {
 		throw (Error::ParameterError("Invalid signal set"));
@@ -140,4 +142,18 @@ void
 BiometricEvaluation::Error::SignalManager::clearSigHandled()
 {
 	_sigHandled = false;
+}
+
+void
+BiometricEvaluation::Error::SignalManager::setEnabled(
+    const bool enabled)
+{
+	this->_enabled = enabled;
+}
+
+bool
+BiometricEvaluation::Error::SignalManager::isEnabled()
+    const
+{
+	return (this->_enabled);
 }
