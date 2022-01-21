@@ -94,6 +94,13 @@ int gettimeofday(struct timeval*, struct timezone*);
 /* 1 */
 #include <arpa/inet.h>
 
+/* 2 */
+
+#include <libgen.h>	/*  for basename(3) and dirname(3) */
+#ifdef basename		/* GNU has this macro irresponsibly defined */
+#undef basename
+#endif
+
 /* 3 */
 #include <unistd.h>
 
