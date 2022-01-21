@@ -21,7 +21,7 @@ int main(
 		    "test_data/listRecordStore", IO::Mode::ReadWrite);
 		cout << "FAIL." << endl;
 		return (1);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "SUCCESS: " << e.what() << endl;
 	}
 
@@ -30,7 +30,7 @@ int main(
 		rs = IO::RecordStore::openRecordStore(
 		    "test_data/listRecordStore", IO::Mode::ReadOnly);
 		cout << "SUCCESS" << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "FAIL: " << e.what() << endl;
 		return (1);
 	}
@@ -52,7 +52,7 @@ int main(
 			counter++;
 		} catch (const Error::ObjectDoesNotExist&) {
 			break;
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << endl << "FAIL: " << e.what() << endl;
 			return (2);
 		}
@@ -76,7 +76,7 @@ int main(
 			counter++;
 		} catch (const Error::ObjectDoesNotExist&) {
                         break;
-                } catch (Error::Exception &e) {
+                } catch (const Error::Exception &e) {
                         cout << endl << "FAIL: " << e.what() << endl;
                         return (4);
                 }
@@ -97,7 +97,7 @@ int main(
 	key = "B004.AN2";
 	try {
 		rs->setCursorAtKey(key);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "FAIL: " << e.what() << endl;
 		return (6);
 	}
@@ -107,7 +107,7 @@ int main(
 			counter++;
 		} catch (const Error::ObjectDoesNotExist&) {
 			break;
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << endl << "FAIL: " << e.what() << endl;
 			return (7);
 		}
@@ -130,7 +130,7 @@ int main(
 		rs->insert(key, data);
 		retval = 9;
 		cout << "FAIL." << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "SUCCESS: " << e.what() << endl;
 	}
 
@@ -138,7 +138,7 @@ int main(
 	try {
 		rs->insert(key, nullptr, 0);
 		retval = 9;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "SUCCESS: " << e.what() << endl;
 	}
 
@@ -147,7 +147,7 @@ int main(
 		rs->replace(key, data);
 		retval = 9;
 		cout << "FAIL." << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "SUCCESS: " << e.what() << endl;
 	}
 
@@ -155,7 +155,7 @@ int main(
 	try {
 		rs->replace(key, nullptr, 0);
 		retval = 9;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "SUCCESS: " << e.what() << endl;
 	}
 
@@ -164,7 +164,7 @@ int main(
 		rs->remove(key);
 		retval = 9;
 		cout << "FAIL." << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "SUCCESS: " << e.what() << endl;
 	}
 	
@@ -173,7 +173,7 @@ int main(
 		rs->flush(key);
 		retval = 9;
 		cout << "FAIL." << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "SUCCESS: " << e.what() << endl;
 	}
 
@@ -182,7 +182,7 @@ int main(
 		rs->sync();
 		retval = 9;
 		cout << "FAIL." << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "SUCCESS: " << e.what() << endl;
 	}
 
@@ -191,7 +191,7 @@ int main(
 		rs->move("/tmp/foo");
 		retval = 9;
 		cout << "FAIL." << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "SUCCESS: " << e.what() << endl;
 	}
 

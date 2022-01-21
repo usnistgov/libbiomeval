@@ -35,7 +35,7 @@ BiometricEvaluation::MPI::RecordStoreResources::RecordStoreResources(
 	try {
 		props.reset(new IO::PropertiesFile(propertiesFileName,
 		    IO::Mode::ReadOnly));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		throw Error::FileError("Could not open properties: " +
 		    e.whatString());
 	}
@@ -45,14 +45,14 @@ BiometricEvaluation::MPI::RecordStoreResources::RecordStoreResources(
 		    MPI::RecordStoreResources::CHUNKSIZEPROPERTY);
 		RSName = props->getProperty(
 		    MPI::RecordStoreResources::INPUTRSPROPERTY);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		throw Error::ObjectDoesNotExist("Could not read properties: " +
 		    e.whatString());
 	}
 	try {
 		this->_recordStore = IO::RecordStore::openRecordStore(
 		    RSName, IO::Mode::ReadOnly);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 	}
 }
 

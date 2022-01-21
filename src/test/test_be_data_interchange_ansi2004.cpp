@@ -93,7 +93,7 @@ testANSI2004()
 	try {
 		record.reset(new DataInterchange::ANSI2004Record(
 		    "nbv5425GHdfsdfad", ""));
-	} catch (Error::Exception& e) {
+	} catch (const Error::Exception& e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -105,10 +105,10 @@ testANSI2004()
 	try {
 		record.reset(new DataInterchange::ANSI2004Record(
 		    "test_data/fmr.ansi2004", ""));
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (false);
-	} catch (Error::Exception& e) {
+	} catch (const Error::Exception& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (false);
 	}
@@ -131,7 +131,7 @@ testANSI2004()
 			} else {
 				cout << "Failure.\n";
 			}
-		} catch (BE::Error::Exception &e) {
+		} catch (const BE::Error::Exception &e) {
 			cout << "Caught " << e.whatString() << "; ";
 		}
 	}
@@ -149,7 +149,7 @@ testANSI2004()
 		record->isolateView(99);
 	} catch (const BE::Error::ObjectDoesNotExist&) {
 		success = true;
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		cout << "Caught " << e.whatString() << "; ";
 	}
 	if (!success) {
@@ -179,7 +179,7 @@ testANSI2004()
 		record->removeView(99);
 	} catch (const BE::Error::ObjectDoesNotExist&) {
 		success = true;
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		cout << "Caught " << e.whatString() << "; ";
 	}
 	if (!success) {

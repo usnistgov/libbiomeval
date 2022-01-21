@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 #ifdef __CYGWIN__
 	} catch (const Error::NotImplemented&) {
 #endif
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "failed." << endl;
 		cout << "Caught " << e.what() << ".\n";
 		return (EXIT_FAILURE);
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
 	cout << "Creating Watchdog object with type REALTIME: ";
 	try {
 		Indy = new Time::Watchdog(Time::Watchdog::REALTIME);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "failed." << endl;
 		cout << "Caught " << e.what() << ".\n";
 		return (EXIT_FAILURE);

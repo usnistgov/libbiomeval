@@ -36,7 +36,7 @@ printViewInfo(View::View &view)
 		cout << "\tResolution: " << theImage->getResolution() << endl;
 		cout << "\tDimensions: " << theImage->getDimensions() << endl;
 		cout << "\tDepth: " << theImage->getColorDepth() << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Caught " << e.what() << endl;
 	}
 	cout << "------------------------------------------" << endl;
@@ -110,10 +110,10 @@ testISO2005()
 	cout << "Attempt to construct with good file: ";
 	try {
 		facev = Face::ISO2005View("test_data/face01.iso2005", 1);
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (false);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << e.what() << endl;
 		return (false);
 	}

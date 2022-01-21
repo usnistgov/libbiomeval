@@ -144,7 +144,7 @@ BiometricEvaluation::Image::JPEG2000::JPEG2000(
 	 */
 	try {
 		this->setHasAlphaChannel(checkForAlphaInCDEF());
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &) {
 		/* Take best guess on alpha channel presence */
 		this->setHasAlphaChannel((
 		    (image->color_space == OPJ_CLRSPC_GRAY) &&
@@ -476,7 +476,7 @@ BiometricEvaluation::Image::JPEG2000::libopenjp2Read(
 	    p_nb_bytes, ib->getSize() - ib->getIndex()));
 	try {
 		return (ib->scan(p_buffer, actualScanSize));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		return (0);
 	}
 }
@@ -494,7 +494,7 @@ BiometricEvaluation::Image::JPEG2000::libopenjp2Skip(
 
 	try {
 		return (ib->scan(nullptr, actualSkipSize));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		return (0);
 	}
 }

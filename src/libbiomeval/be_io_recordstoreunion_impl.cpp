@@ -135,7 +135,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Impl::read(
 			    rsPair.second->read(key)));
 		} catch (const BE::Error::ObjectDoesNotExist&) {
 			/* Swallow */
-		} catch (BE::Error::Exception &e) {
+		} catch (const BE::Error::Exception &e) {
 			if (!exceptions.empty())
 				exceptions += '\n';
 			exceptions += e.whatString() + " (" + rsPair.first +
@@ -165,7 +165,7 @@ BiometricEvaluation::IO::RecordStoreUnion::Impl::length(
 			    rsPair.second->length(key)));
 		} catch (const BE::Error::ObjectDoesNotExist&) {
 			/* Swallow */
-		} catch (BE::Error::Exception &e) {
+		} catch (const BE::Error::Exception &e) {
 			if (!exceptions.empty())
 				exceptions += '\n';
 			exceptions += e.whatString() + " (" + rsPair.first +

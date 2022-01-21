@@ -56,7 +56,7 @@ BiometricEvaluation::MPI::Resources::Resources(
 	try {
 		props.reset(new IO::PropertiesFile(propertiesFileName,
 		    IO::Mode::ReadOnly));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		throw Error::FileError("Could not open properties: " +
 		    e.whatString());
 	}
@@ -76,7 +76,7 @@ BiometricEvaluation::MPI::Resources::Resources(
 			this->_workersPerNode = props->getPropertyAsInteger(
 				MPI::Resources::WORKERSPERNODEPROPERTY);
 		}
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		throw Error::ObjectDoesNotExist("Could not read properties: " +
 		    e.whatString());
 	}
@@ -87,7 +87,7 @@ BiometricEvaluation::MPI::Resources::Resources(
 	try {
 		this->_logsheetURL =
 		    props->getProperty(MPI::Resources::LOGSHEETURLPROPERTY);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		this->_logsheetURL = "";
 	}
 	/*
@@ -97,7 +97,7 @@ BiometricEvaluation::MPI::Resources::Resources(
 	try {
 		this->_checkpointPath =
 		    props->getProperty(MPI::Resources::CHECKPOINTPATHPROPERTY);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		if (MPI::checkpointEnable) {
 			throw Error::ObjectDoesNotExist(
 			    "Could not read " +

@@ -99,7 +99,7 @@ TestRecordProcessor::newProcessor(
 		    propertiesFileName, IO::Mode::ReadOnly));
 		url = props->getProperty(
 		    TestRecordProcessor::RECORDLOGSHEETURLPROPERTY);
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		url = "";
 	}
 	processor->_recordLogsheet = BE::MPI::openLogsheet(
@@ -151,7 +151,7 @@ dumpRecord(
 		log << an2kRecord->getMinutiaeDataRecordSet().size()
 		    << " minutiae data sets";
 		log.newEntry();
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		log << "Not AN2K: " + e.whatString();
 		BE::MPI::logEntry(log);
 		log << "Key [" << key << "]: ";
@@ -195,7 +195,7 @@ TestRecordProcessor::processRecord(const std::string &key)
 	    this->getResources()->getRecordStore();
 	try {
 		value = inputRS->read(key);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		*log << string(__FUNCTION__) <<
 		    " could not read record: " <<
 		    e.whatString();
@@ -314,7 +314,7 @@ main(int argc, char* argv[])
 	try {
 		distributor.reset(
 		    new MPI::RecordStoreDistributor(propFile, includeValues));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		MPI::printStatus("Distributor reset(), caught: "
 		    + e.whatString());
 		runtime.abort(EXIT_FAILURE);
@@ -324,7 +324,7 @@ main(int argc, char* argv[])
 	}
 	try {
 		processor.reset(new TestRecordProcessor(propFile));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		MPI::printStatus("Processor reset(), caught: "
 		    + e.whatString());
 		runtime.abort(EXIT_FAILURE);
@@ -334,7 +334,7 @@ main(int argc, char* argv[])
 	}
 	try {
 		receiver.reset(new MPI::Receiver(propFile, processor));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		MPI::printStatus("Receiver reset(), caught: "
 		    + e.whatString());
 		runtime.abort(EXIT_FAILURE);
@@ -345,7 +345,7 @@ main(int argc, char* argv[])
 	try {
 		runtime.start(*distributor, *receiver);
 		runtime.shutdown();
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		MPI::printStatus("start/shutdown, caught: " + e.whatString());
 		runtime.abort(EXIT_FAILURE);
 	} catch (...) {

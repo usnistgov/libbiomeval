@@ -26,7 +26,7 @@ BiometricEvaluation::MPI::CSVDistributor::CSVDistributor(
 	try {
 		this->_resources.reset(
 		    new CSVResources(propertiesFileName));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &) {
 		throw;
 	}
 }
@@ -135,7 +135,7 @@ BiometricEvaluation::MPI::CSVDistributor::createWorkPackage(
 			lineData = this->_resources->readLine();
 			fillBufferWithTokens(packageData, lineData.first,
 			    lineData.second, index);
-		} catch (BE::Error::Exception &e) {
+		} catch (const BE::Error::Exception &e) {
 			log->writeDebug("Caught " + e.whatString());
 			continue;
 		}
@@ -171,7 +171,7 @@ BiometricEvaluation::MPI::CSVDistributor::checkpointSave(
 		}
 		chkData->sync();
 		this->getLogsheet()->writeDebug("Checkpoint saved: " + reason);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		this->getLogsheet()->writeDebug(
 		    "Checkpoint save: Caught " + e.whatString());
 	}
@@ -222,7 +222,7 @@ BiometricEvaluation::MPI::CSVDistributor::checkpointRestore()
 		this->getLogsheet()->writeDebug(
 		    "Checkpoint restore: " + chkData->getProperty(
 			BE::MPI::Distributor::CHECKPOINTREASON));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		this->getLogsheet()->writeDebug(
 		    "Checkpoint restore: Caught " + e.whatString());
 		throw;

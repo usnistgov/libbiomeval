@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
 	bool success = false;
 	try {
 		BE::Device::Smartcard smc(255);
-	} catch (BE::Error::ParameterError &e) {
+	} catch (const BE::Error::ParameterError &e) {
 		std::cout << "Caught: " << e.whatString();
 		success = true;
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Caught: " << e.whatString();
 	}
 	if (success)
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 				break;
 			}
 		}
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Caught: " << e.whatString() << std::endl;
 		return (EXIT_FAILURE);
 	}
@@ -107,15 +107,15 @@ int main(int argc, char *argv[])
 			dumpUint8Array(smc.getLastAPDU());
 			std::cout << "Last Response Data: " << std::endl;
 			dumpUint8Array(smc.getLastResponseData());
-		} catch (BE::Device::Smartcard::APDUException &e) {
+		} catch (const BE::Device::Smartcard::APDUException &e) {
 				std::cout << "Bad response: ";
 				printf("0x%02hhX%02hhX\n",
 				    e.response.sw1, e.response.sw2);
 				std::cout << "Sent APDU: " << std::endl;
 				dumpUint8Array(e.apdu);
-		} catch (BE::Error::ParameterError &e) {
+		} catch (const BE::Error::ParameterError &e) {
 				std::cout << "Caught " << e.whatString();
-		} catch (BE::Error::StrategyError &e) {
+		} catch (const BE::Error::StrategyError &e) {
 			std::cout << "Other error: " << e.whatString();
 		}
 		std::cout << std::endl;

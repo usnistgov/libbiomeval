@@ -246,9 +246,9 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	descr << "Statistics for " << procname << " (PID " << _pid << ")";
 	try {
 		_logSheet = logCabinet->newLogsheet(lsname.str(), descr.str());
-	} catch (BE::Error::ObjectExists &e) {
+	} catch (const BE::Error::ObjectExists &) {
 		throw BE::Error::StrategyError("Logsheet already exists.");
-	} catch (BE::Error::StrategyError &e) {
+	} catch (const BE::Error::StrategyError &) {
 		throw;
 	}
 	_logging = true;
@@ -310,7 +310,7 @@ BiometricEvaluation::Process::Statistics::logStats()
 	try { 
 		ps = internalGetPstats(_pid);
 		internalGetCPUTimes(&usertime, &systemtime);
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &) {
 		pthread_mutex_unlock(&this->_logMutex);
 		throw;
 	}

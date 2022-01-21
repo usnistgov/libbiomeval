@@ -55,7 +55,7 @@ BiometricEvaluation::Device::Smartcard::Impl::Impl(
 	try {
 		auto response = this->sendAPDU(apdu);
 		this->_lastResponseData = response.data;
-	} catch (BE::Device::Smartcard::APDUException &e) {
+	} catch (const BE::Device::Smartcard::APDUException &e) {
 		if ((e.response.sw1 == APDU::CHECK_ERR_WRONG_PARAM_QUAL) &&
 		    (e.response.sw2 == APDU::FILE_OR_APP_NOT_FOUND)) {
 			throw BE::Error::ParameterError(

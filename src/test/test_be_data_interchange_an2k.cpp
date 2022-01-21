@@ -134,7 +134,7 @@ testAN2K11EFS(const std::string &fname)
 			cout << point << " ";
 		}
 		cout << "\n";
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Failed; caught " << e.whatString() << "\n";
 		return (1);
 	}
@@ -153,7 +153,7 @@ main(int argc, char* argv[]) {
 	try {
 		rs = IO::RecordStore::openRecordStore(rsname,
 		    IO::Mode::ReadOnly);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Could not open record store " << rsname << ": "
 		    << e.what() << endl;
 		return (EXIT_FAILURE);
@@ -229,7 +229,7 @@ main(int argc, char* argv[]) {
 				cout << " AN2K7 minutiae points" << endl;
 			}
 			cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << "Failed sequence: " << e.what() << endl;
 			return (EXIT_FAILURE);
 		}

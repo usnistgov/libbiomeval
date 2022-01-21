@@ -40,7 +40,7 @@ BiometricEvaluation::MPI::CSVResources::CSVResources(
 		    IO::Mode::ReadOnly, {
 		        {BE::MPI::CSVResources::TRIMPROPERTY, "true"}
 		    }));
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		throw BE::Error::FileError("Could not open properties: " +
 		    e.whatString());
 	}
@@ -51,7 +51,7 @@ BiometricEvaluation::MPI::CSVResources::CSVResources(
 		    BE::MPI::CSVResources::CHUNKSIZEPROPERTY);
 		this->_csvPath = props->getProperty(
 		    BE::MPI::CSVResources::INPUTCSVPROPERTY);
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		throw BE::Error::ObjectDoesNotExist("Could not read "
 		    "properties: " + e.whatString());
 	}

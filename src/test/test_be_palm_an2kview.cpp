@@ -60,10 +60,10 @@ main(int argc, char* argv[]) {
 	try {
 		an2kv.reset(new Palm::AN2KView(
 		    "test_data/type9.an2k", 1));
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "A file error occurred: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -77,7 +77,7 @@ main(int argc, char* argv[]) {
 	try {
 		an2kv.reset(new Palm::AN2KView(
 		    "nbv5425GHdfsdfad", 1));
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
 	}
@@ -89,7 +89,7 @@ main(int argc, char* argv[]) {
 	try {
 		an2kv.reset(new Palm::AN2KView(
 		    "test_data/type9-15.an2k", 1));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (EXIT_FAILURE);
 	} 
@@ -108,7 +108,7 @@ main(int argc, char* argv[]) {
 	}
 	try {
 		bufAn2kv.reset(new Palm::AN2KView(buf, 1));
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
 	}

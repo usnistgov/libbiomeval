@@ -73,7 +73,7 @@ main(int argc, char* argv[])
 		buf.reset(new Memory::uint8Array(
 		    IO::Utility::readFile(filename)));
 		pvc.reset(new Video::Container(buf));
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Caught: " << e.whatString() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -88,7 +88,7 @@ main(int argc, char* argv[])
 	bool success = false;
 	try {
 		stream = pvc->getVideoStream(999);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Success; caught \'" << e.whatString() << '\'' << endl;
 		success = true;
 	}
@@ -97,7 +97,7 @@ main(int argc, char* argv[])
 	}
 	try {
 		stream = pvc->getVideoStream(1);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Could not retrieve video stream: " << e.whatString()
 		    << endl;
 		return (EXIT_FAILURE);
@@ -118,10 +118,10 @@ main(int argc, char* argv[])
 			count++;
 			if (count <= 50)
 				savePBM(frame, "frame-", "P6", "ppm", f);
-		} catch (Error::ParameterError &e) {
+		} catch (const Error::ParameterError &e) {
 			std::cout << "Caught " << e.whatString() << endl;
 			break;
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			break;
 		}
 	}
@@ -148,7 +148,7 @@ main(int argc, char* argv[])
 			auto frame = stream->getFrame(i);
 			savePBM(frame, "frame2-", "P5", "pgm", i);
 		}
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Caught: " << e.whatString() << endl;
 		success = false;
 	}
@@ -176,7 +176,7 @@ main(int argc, char* argv[])
 			savePBM(frames[i], "seq-", "P4", "pbm", i+1);
 		}
 		cout << "Success; read " << frames.size() << " frames." << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Caught: " << e.whatString() << endl;
 		cout << "Fail." << endl;
 	}

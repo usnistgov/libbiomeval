@@ -79,7 +79,7 @@ int main (int argc, char* argv[]) {
 	cout << "Removing record store...";
 	try {   
 		IO::RecordStore::removeRecordStore(frtestdir);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Failed: " << e.whatString() << endl;
 		return (EXIT_FAILURE);
 	}

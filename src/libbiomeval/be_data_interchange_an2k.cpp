@@ -206,7 +206,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readFingerCaptures(
 		try {
 			BE::Finger::AN2KViewCapture an2kv(buf, i);
 			_fingerCaptures.push_back(an2kv);
-		} catch (Error::DataError &e) {
+		} catch (const Error::DataError &) {
 			break;
 		}
 		i++;
@@ -222,7 +222,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readFingerLatents(
 		try {
 			BE::Latent::AN2KView an2kv(buf, i);
 			_fingerLatents.push_back(an2kv);
-		} catch (Error::DataError &e) {
+		} catch (const Error::DataError &) {
 			break;
 		}
 		i++;
@@ -256,7 +256,7 @@ BiometricEvaluation::DataInterchange::AN2KRecord::readMinutiaeData(
 		try {
 			_minutiaeDataRecordSet.push_back(
 			    BE::Finger::AN2KMinutiaeDataRecord(buf, *it));
-		} catch (Error::DataError &e) {
+		} catch (const Error::DataError &) {
 			break;
 		}	
 	}

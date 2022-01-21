@@ -106,7 +106,7 @@ BiometricEvaluation::IO::Utility::copyDirectoryContents(
 				    IO::Utility::readFile(sourcefile),
 				    targetfile);
 			}
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &) {
 			closedir(dir);
 			throw;
 		}

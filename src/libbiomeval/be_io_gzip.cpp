@@ -154,7 +154,7 @@ BiometricEvaluation::IO::GZip::compress(
 		try {
 			rv = this->compressChunk(flush, chunk,
 			    totalCompressedBytes, out, true, strm);
-		} catch (Error::StrategyError &e) {
+		} catch (const Error::StrategyError &) {
 			fclose(ofp);
 			throw;
 		}
@@ -224,7 +224,7 @@ BiometricEvaluation::IO::GZip::compress(
 		try {
 			rv = this->compressChunk(flush, chunk,
 			    totalCompressedBytes, compressedData, false, strm);
-		} catch (Error::StrategyError &e) {
+		} catch (const Error::StrategyError &) {
 			fclose(fp);
 			throw;
 		}
@@ -291,7 +291,7 @@ BiometricEvaluation::IO::GZip::compress(
 		try {
 			rv = this->compressChunk(flush, chunk,
 			    totalCompressedBytes, out, true, strm);
-		} catch (Error::StrategyError &e) {
+		} catch (const Error::StrategyError &) {
 			fclose(ifp);
 			fclose(ofp);
 			throw;
@@ -482,7 +482,7 @@ BiometricEvaluation::IO::GZip::decompress(
 			rv = this->decompressChunk(chunk,
 			    totalUncompressedBytes, uncompressedData, false,
 			    strm);
-		} catch (Error::StrategyError &e) {
+		} catch (const Error::StrategyError &) {
 			inflateEnd(&strm);
 			fclose(fp);
 			throw;
@@ -542,7 +542,7 @@ BiometricEvaluation::IO::GZip::decompress(
 		try {
 			rv = this->decompressChunk(chunk,
 			    totalUncompressedBytes, out, true, strm);
-		} catch (Error::StrategyError &e) {
+		} catch (const Error::StrategyError &) {
 			fclose(ifp);
 			fclose(ofp);
 			inflateEnd(&strm);
@@ -619,7 +619,7 @@ BiometricEvaluation::IO::GZip::decompress(
 			rv = this->decompressChunk(chunk,
 			    totalUncompressedBytes, out, true,
 			    strm);
-		} catch (Error::StrategyError &e) {
+		} catch (const Error::StrategyError &) {
 			fclose(ofp);
 			inflateEnd(&strm);
 			throw;

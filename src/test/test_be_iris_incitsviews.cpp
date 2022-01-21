@@ -38,7 +38,7 @@ printViewInfo(Iris::INCITSView &irisv)
 		cout << "\tDimensions: " << theImage->getDimensions() << endl;
 		cout << "\tColor bit-depth: " << theImage->getColorDepth() <<
 		    endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Caught " << e.what() << endl;
 	}
 	cout << "------------------------------------------" << endl;
@@ -120,10 +120,10 @@ testISO2011()
 	cout << "Attempt to construct with good file: ";
 	try {
 		irisv = Iris::ISO2011View("test_data/iris01.iso2011", 1);
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cout << "Caught " << e.what()  << endl;
 		return (false);
-	} catch (Error::FileError& e) {
+	} catch (const Error::FileError& e) {
 		cout << e.what() << endl;
 		return (false);
 	}

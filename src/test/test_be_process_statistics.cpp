@@ -57,9 +57,9 @@ testMemorySizes(Process::Statistics &stats)
 		}
 		for (int i = 0; i < 5; i++)
 			free(ptr[i]);
-	} catch (Error::NotImplemented &e) {
+	} catch (const Error::NotImplemented &e) {
 		cout << "Caught " << e.what() << "; OK" << endl;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (-1);
 	}
@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 		}
 	} catch (const Error::NotImplemented&) {
 		cout << "Not Implemented; OK." << endl;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -105,10 +105,10 @@ main(int argc, char *argv[])
 	bool success = false;
 	try {
 		stats.logStats();
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; success." << endl;
 		success = true;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Caught " << e.what() << endl;
 	}
 	if (!success)
@@ -130,7 +130,7 @@ main(int argc, char *argv[])
 			cout << "Failure." << endl;
 			return (EXIT_FAILURE);
 		}
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	} catch (const Error::NotImplemented&) {
@@ -166,10 +166,10 @@ main(int argc, char *argv[])
 	std::unique_ptr<Process::Statistics> logstats;
 	try {
 		logstats.reset(new Process::Statistics(lc));
-	} catch (Error::NotImplemented &e) {
+	} catch (const Error::NotImplemented &e) {
 		cout << "Caught " << e.what() << "; OK." << endl;
 		return (EXIT_SUCCESS);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -180,13 +180,13 @@ main(int argc, char *argv[])
 			cout << "." << flush; 
 			LONGDELAY;
 		}
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::NotImplemented &e) {
+	} catch (const Error::NotImplemented &e) {
 		cout << "Caught " << e.what() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
@@ -195,16 +195,16 @@ main(int argc, char *argv[])
 	try {
 		logstats->startAutoLogging(Time::MicrosecondsPerSecond);
 		sleep(6);
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::ObjectExists &e) {
+	} catch (const Error::ObjectExists &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
-	} catch (Error::NotImplemented &e) {
+	} catch (const Error::NotImplemented &e) {
 		cout << "Caught " << e.what() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
@@ -217,7 +217,7 @@ main(int argc, char *argv[])
 	success = false;
 	try {
 		logstats->startAutoLogging(1);
-	} catch (Error::ObjectExists &e) {
+	} catch (const Error::ObjectExists &e) {
 		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		success = true;
 	}
@@ -231,7 +231,7 @@ main(int argc, char *argv[])
 	success = false;
 	try {
 		logstats->stopAutoLogging();
-	} catch (Error::ObjectDoesNotExist &e) {
+	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		success = true;
 	}
@@ -251,7 +251,7 @@ main(int argc, char *argv[])
 			logstats->stopAutoLogging();
 //			cout << "stop:thread count is " << logstats->getNumThreads() << flush << endl;;
 		}
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		return (EXIT_FAILURE);
 	}

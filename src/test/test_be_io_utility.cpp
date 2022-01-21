@@ -46,7 +46,7 @@ testPipe()
 		try {
 			cout << "Child read: ";
 			IO::Utility::readPipe(cMsgArr, msgSize, pipeFD[0]);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << "Failed : " << e.whatString() << ".\n";
 			return (EXIT_FAILURE);
 		}
@@ -62,7 +62,7 @@ testPipe()
 			IO::Utility::readPipe(cMsgArr, 2, pipeFD[0]);
 			cout << "Failed; something was read.\n";
 			return (EXIT_FAILURE);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << "'" << e.whatString() << "': Success.\n";
 		}
 		return (EXIT_SUCCESS);
@@ -74,7 +74,7 @@ testPipe()
 		Memory::AutoArrayUtility::setString(pMsgArr, msg);
 		try {
 			IO::Utility::writePipe(pMsgArr, msgSize, pipeFD[1]);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cerr << "Parent failed to write message: "
 			    << e.whatString() << ".\n";
 			return (EXIT_FAILURE);
@@ -101,7 +101,7 @@ main(int argc, char* argv[])
 //		string line((char *)&(*textFile), 5, 68);
 //		cout << "\t\"" << line << '"' << endl;
 		
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "ERROR (" << e.what() << ")" << endl;
 		return (EXIT_FAILURE);
 	}
@@ -112,7 +112,7 @@ main(int argc, char* argv[])
 	try {
 		IO::Utility::writeFile(textFile, tempFileName);
 		cout << "success" << endl;
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "ERROR (" << e.what() << ")" << endl;
 		return (EXIT_FAILURE);
 	}
@@ -123,7 +123,7 @@ main(int argc, char* argv[])
 	try {
 		textFile2 = IO::Utility::readFile(tempFileName);
 
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "ERROR (" << e.what() << ")" << endl;
 		return (EXIT_FAILURE);
 	}
@@ -153,7 +153,7 @@ main(int argc, char* argv[])
 				return (EXIT_FAILURE);
 			}
 			IO::Utility::writeFile(textFile, tempFileName);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << "Caught " << e.what() << endl;
 			return (EXIT_FAILURE);
 		}
@@ -178,7 +178,7 @@ main(int argc, char* argv[])
 				return (EXIT_FAILURE);
 			}
 			mkdir(tempDirName.c_str(), 0777);
-		} catch (Error::Exception &e) {
+		} catch (const Error::Exception &e) {
 			cout << "Caught " << e.what() << endl;
 			return (EXIT_FAILURE);
 		}
@@ -206,7 +206,7 @@ main(int argc, char* argv[])
 	cout << "Create a new directory " << tree1 << ": ";
 	try {
 		IO::Utility::makePath(tree1, 0777);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -234,7 +234,7 @@ main(int argc, char* argv[])
 	     << firstLvl2 << ": ";
 	try {
 		IO::Utility::copyDirectoryContents(firstLvl1, firstLvl2, true);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -255,7 +255,7 @@ main(int argc, char* argv[])
 	cout << "Remove the directory " << tempDirName << ": ";
 	try {
 		IO::Utility::removeDirectory(tempDirName);
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -271,7 +271,7 @@ main(int argc, char* argv[])
 	string testTempFile;
 	try {
 		testTempFile = IO::Utility::createTemporaryFile("test");
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
@@ -283,7 +283,7 @@ main(int argc, char* argv[])
 	try {
 		tempFp = IO::Utility::createTemporaryFile(testTempFile,
 		    "test");
-	} catch (Error::Exception &e) {
+	} catch (const Error::Exception &e) {
 		cout << "FAIL: Caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}

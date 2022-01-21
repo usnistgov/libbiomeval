@@ -47,7 +47,7 @@ BiometricEvaluation::IO::FileLogCabinet::FileLogCabinet(
 	this->_description = description;
 	try {
 		(void)writeControlFile();
-	} catch (Error::StrategyError& e) {
+	} catch (const Error::StrategyError&) {
 		throw;
 	}
 }
@@ -62,7 +62,7 @@ BiometricEvaluation::IO::FileLogCabinet::FileLogCabinet(
 	/* _description and _count are read from the control file */
 	try {
 		(void)readControlFile();
-	} catch (Error::StrategyError& e) {
+	} catch (const Error::StrategyError&) {
 		throw;
 	}
 }
@@ -71,7 +71,7 @@ BiometricEvaluation::IO::FileLogCabinet::~FileLogCabinet()
 {
 	try {
 		writeControlFile();
-	} catch (Error::StrategyError& e) {
+	} catch (const Error::StrategyError& e) {
 		if (!std::uncaught_exception())
 			std::cerr << e.whatString() << std::endl;
 	}
@@ -92,9 +92,9 @@ BiometricEvaluation::IO::FileLogCabinet::newLogsheet(
 	FileLogsheet *ls;
 	try {
 		ls = new FileLogsheet(fullPath, description);
-	} catch (Error::ObjectExists &e) {
+	} catch (const Error::ObjectExists &) {
 		throw;
-	} catch (Error::StrategyError &e) {
+	} catch (const Error::StrategyError &) {
 		throw;
 	}
 	this->_count++;

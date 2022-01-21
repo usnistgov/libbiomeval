@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 		std::cout << BE::Device::TLV::stringFromTLV(tlv, 0);
 		std::cout << "Getting raw TLV: " << std::endl;
 		dumpRawTLV(tlv);
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cerr << "Caught " << e.whatString() << std::endl;
 	}
 	std::cout << "-----------------:" << std::endl;
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 	bool success = false;
 	try {
 		tlvP.setPrimitive(buf);
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Caught '" << e.whatString() << "'; ";
 		success = true;
 	}
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 	success = false;
 	try {
 		tlvP.setTag(buf);
-	} catch (BE::Error::Exception &e) {
+	} catch (const BE::Error::Exception &e) {
 		std::cout << "Caught '" << e.whatString() << "'; ";
 		success = true;
 	}

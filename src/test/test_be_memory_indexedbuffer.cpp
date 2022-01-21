@@ -106,7 +106,7 @@ main (int argc, char* argv[])
 			cout << output.str();
 		}
 		cout << endl;
-	} catch (Error::DataError &e) {
+	} catch (const Error::DataError &e) {
 		cerr << "Caught " << e.what() << endl;
 	}
 
