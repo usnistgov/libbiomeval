@@ -30,23 +30,21 @@ cmake --build .
 
 Requirements
 ------------
- * A C++ 2011 compiler:
-	* `g++` >= 4.7
-	* `clang++` >= 3.1
+ * A C++17 compiler:
+	* `g++` >= 8
+	* `clang++` >= 5
+	* Visual Studio >= 2019
 
  * A supported operating system:
-	* RHEL/CentOS >= 7.x
-	* macOS >= 10.9
+	* Ubuntu 20.04 LTS
+	* macOS 11
+	* Windows 10
 
  * System packages (depending on desired modules, see below).
 
 Other operating systems and compilers are likely to work as expected, but have
-not been thoroughly tested. The following have been known to work in part at
-some point, but are not officially supported:
-
- * `icpc` >= 15.0
- * Cygwin 1.7.x
- * Windows 10/Microsoft Visual Studio 2019
+not been thoroughly tested. Additionally, not all parts of `libbiomeval` will
+be enabled to build on all platforms.
 
 Installing
 ----------
