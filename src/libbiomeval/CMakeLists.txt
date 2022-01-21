@@ -521,12 +521,8 @@ endif (WITH_HWLOC)
 #
 
 # GCC < 9 needs to explicitly link libstdc++fs
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-  if (BUILD_BIOMEVAL_SHARED)
-    target_link_libraries(${SHAREDLIB}
-      $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
-  endif()
-endif()
+target_link_libraries(${CORELIB}
+    $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
 
 # This will use our Module
 find_package(SQLITE3 REQUIRED)
