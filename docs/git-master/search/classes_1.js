@@ -18,6 +18,8 @@ var searchData=
   ['api_15',['API',['../class_biometric_evaluation_1_1_framework_1_1_a_p_i.html',1,'BiometricEvaluation::Framework']]],
   ['archiverecordstore_16',['ArchiveRecordStore',['../class_biometric_evaluation_1_1_i_o_1_1_archive_record_store.html',1,'BiometricEvaluation::IO']]],
   ['autoarray_17',['AutoArray',['../class_biometric_evaluation_1_1_memory_1_1_auto_array.html',1,'BiometricEvaluation::Memory']]],
-  ['autoarrayiterator_18',['AutoArrayIterator',['../class_biometric_evaluation_1_1_memory_1_1_auto_array_iterator.html',1,'BiometricEvaluation::Memory']]],
-  ['autobuffer_19',['AutoBuffer',['../class_biometric_evaluation_1_1_memory_1_1_auto_buffer.html',1,'BiometricEvaluation::Memory']]]
+  ['autoarray_3c_20uint8_5ft_20_3e_18',['AutoArray&lt; uint8_t &gt;',['../class_biometric_evaluation_1_1_memory_1_1_auto_array.html',1,'BiometricEvaluation::Memory']]],
+  ['autoarrayiterator_19',['AutoArrayIterator',['../class_biometric_evaluation_1_1_memory_1_1_auto_array_iterator.html',1,'BiometricEvaluation::Memory']]],
+  ['autobuffer_20',['AutoBuffer',['../class_biometric_evaluation_1_1_memory_1_1_auto_buffer.html',1,'BiometricEvaluation::Memory']]],
+  ['autobuffer_3c_20ansi_5fnist_20_3e_21',['AutoBuffer&lt; ANSI_NIST &gt;',['../class_biometric_evaluation_1_1_memory_1_1_auto_buffer.html',1,'BiometricEvaluation::Memory']]]
 ];

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['call_0',['call',['../class_biometric_evaluation_1_1_framework_1_1_a_p_i.html#a8464e9a158cb809f9c3a437ec99ccbfa',1,'BiometricEvaluation::Framework::API']]],
+  ['call_0',['call',['../class_biometric_evaluation_1_1_framework_1_1_a_p_i.html#a140d6944d3823fecaa8401a232b3e993',1,'BiometricEvaluation::Framework::API']]],
   ['callstatistics_5flogstats_1',['callStatistics_logStats',['../class_biometric_evaluation_1_1_process_1_1_statistics.html#aac6d89c06918f02c0dcc78e0d447a362',1,'BiometricEvaluation::Process::Statistics']]],
   ['caseinsensitivecompare_2',['caseInsensitiveCompare',['../namespace_biometric_evaluation_1_1_text.html#ae0a100aab07d4648f36dda8a0b350578',1,'BiometricEvaluation::Text']]],
   ['cbegin_3',['cbegin',['../class_biometric_evaluation_1_1_memory_1_1_ordered_map.html#a3633a843f99316859d3835460c1880b7',1,'BiometricEvaluation::Memory::OrderedMap::cbegin()'],['../class_biometric_evaluation_1_1_memory_1_1_auto_array.html#a5520651166154a1077da5c88d421ed9d',1,'BiometricEvaluation::Memory::AutoArray::cbegin() const']]],
