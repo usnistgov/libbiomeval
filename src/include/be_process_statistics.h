@@ -14,6 +14,7 @@
 #include <pthread.h>
 
 #include <memory>
+#include <optional>
 #include <tuple>
 
 #include <be_io_filelogcabinet.h>
@@ -27,11 +28,13 @@ namespace BiometricEvaluation {
 		 * process statistics, such as memory usage, system time, etc.
 		 *
 		 * @details
+		 * There are two groups of statistics: Memory and time info
+		 * for the process, and system/user time for all tasks (threads)
+		 * created by the process.
 		 * The information gathered by objects of this class are for the
-		 * current process, and can optionally be logged to a 
+		 * current process, and can automatically be logged to a 
 		 * FileLogsheet object contained within the provided 
-		 * FileLogCabinet.
-		 *
+		 * FileLogCabinet. The task statistics are optionally logged.
 		 * @note
 		 * The resolution of a returned value for many methods may
 		 * not match the resolution allowed by the interface. For
@@ -55,6 +58,9 @@ namespace BiometricEvaluation {
 			 * 	The FileLogCabinet obejct where this object will
 			 * 	create a FileLogsheet to contain the statistic
 			 *	information for the process.
+			 * @param[in] doTasksLogging
+			 *	If true, create a second log sheet containing
+			 *	information for each task owned by the PID.
 			 * @throw Error::NotImplemented
 			 *	Logging is not supported on this OS. This
 			 *	exception can be thrown when any portion of
@@ -67,7 +73,7 @@ namespace BiometricEvaluation {
 			 *	cabinet.
 			 */
 			Statistics(const std::shared_ptr<IO::FileLogCabinet>
-			    &logCabinet);
+			    &logCabinet, bool doTasksLogging = false);
 
 			/**
 			 * @brief
@@ -76,6 +82,9 @@ namespace BiometricEvaluation {
 			 *
 			 * @param[in] logSheet
 			 * Existing Logsheet that will be appended.
+			 * @param tasksLogSheet
+			 * Optional log sheet that will contain information
+			 * for each task owned by the PID.
 			 *
 			 * @throw Error::NotImplemented
 			 * Logging is not supported on this OS. This exception
@@ -83,7 +92,9 @@ namespace BiometricEvaluation {
 			 * gathering cannot be completed.
 			 */
 			Statistics(
-			    const std::shared_ptr<IO::Logsheet> &logSheet);
+			    const std::shared_ptr<IO::Logsheet> &logSheet,
+			    std::optional<std::shared_ptr<IO::Logsheet>>
+				tasksLogSheet = std::nullopt);
 
 			~Statistics();
 
@@ -111,7 +122,42 @@ namespace BiometricEvaluation {
 			 * @throw Error::NotImplemented
 			 *	This method is not implemented on this OS.
 			 */
-			std::tuple<uint64_t, uint64_t> getCPUTimes();
+			std::tuple<
+			    uint64_t,
+			    uint64_t> getCPUTimes();
+
+			/**
+			 * Obtain the current child tasks statistics for 
+			 * the process. The time values are in units of
+			 * seconds.
+			 *
+			 * An example call and processing:
+			 * auto allStats = stats.getTasksStats();
+			 * for (auto [tid, utime, stime]: allStats) {
+			 *    cout << "TID is " << tid <<
+			 *      " utime is " << utime <<
+			 *      ", stime is " << stime << '\n';
+			 * }
+			 *
+			 * @note
+			 * This method may not be implemented in all operating
+			 * systems.
+			 *
+			 * @return A std::vector<> containing std::tuple<>
+			 * elements containing Task ID, user time, system time.
+			 *
+			 * @throw Error::StrategyError
+			 *	An error occurred when obtaining the process
+			 *	statistics from the operating system. The
+			 *	exception information string contains the
+			 *	error reason.
+			 * @throw Error::NotImplemented
+			 *	This method is not implemented on this OS.
+			 */
+			std::vector<std::tuple<
+			    pid_t,
+			    float,
+			    float>> getTasksStats();
 
 			/**
 			 * Obtain the current virtual memory (VM) set sizes for
@@ -231,10 +277,14 @@ namespace BiometricEvaluation {
 			pid_t _pid;
 			std::shared_ptr<IO::FileLogCabinet> _logCabinet{};
 			std::shared_ptr<IO::Logsheet> _logSheet{};
-			bool _logging;
-			bool _autoLogging;
-			pthread_t _loggingThread;
-			pthread_mutex_t _logMutex;
+			std::optional<std::shared_ptr<IO::Logsheet>>
+			    _tasksLogSheet{};
+			bool _logging{};
+			pid_t _loggingTaskID{};
+			bool _doTasksLogging{};
+			bool _autoLogging{};
+			pthread_t _loggingThread{};
+			pthread_mutex_t _logMutex{};
 		};
 
 	}
