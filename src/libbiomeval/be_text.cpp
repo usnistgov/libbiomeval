@@ -19,8 +19,9 @@
 
 #include <algorithm>
 #include <cctype>
-#include <locale>
+#include <filesystem>
 #include <iomanip>
+#include <locale>
 #include <memory>
 #include <mutex>
 #include <sstream>
@@ -282,37 +283,14 @@ std::string
 BiometricEvaluation::Text::basename(
     const std::string &path)
 {
-	/* Erase trailing slashes */
-	std::string pathCopy{path};
-	pathCopy.erase(std::find_if_not(pathCopy.rbegin(), pathCopy.rend(),
-	    [](const char &c) -> bool {	return (c == '/'); }).base(),
-	    pathCopy.end());
-	/* path was only slashes */
-	if (pathCopy.length() == 0)
-		pathCopy = path;
-
-	Memory::AutoArray<char> buf(pathCopy.size() + 1);
-	std::copy(pathCopy.cbegin(), pathCopy.cend(), buf.begin());
-	buf[buf.size() - 1] = '\0';
-
-	static std::mutex basenameMutex{};
-	std::lock_guard<std::mutex> lock(basenameMutex);
-
-	return (::basename(buf));
+	return (std::filesystem::path{path}.filename());
 }
 
 std::string
 BiometricEvaluation::Text::dirname(
     const std::string &path)
 {
-	Memory::AutoArray<char> buf(path.size() + 1);
-	std::copy(path.cbegin(), path.cend(), buf.begin());
-	buf[buf.size() - 1] = '\0';
-
-	static std::mutex dirnameMutex{};
-	std::lock_guard<std::mutex> lock(dirnameMutex);
-
-	return (::dirname(buf));
+	return (std::filesystem::path{path}.parent_path());
 }
 
 bool
