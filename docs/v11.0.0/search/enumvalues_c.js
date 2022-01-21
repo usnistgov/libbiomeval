@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['n_0',['N',['../namespace_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s.html#aa46e8ff27cc47c4ae31355af4a0600cfa8d9c307cb7f3c4a32822a51922d1ceaa',1,'BiometricEvaluation::Feature::AN2K11EFS']]],
+  ['na_1',['NA',['../class_biometric_evaluation_1_1_finger_1_1_a_n2_k_view_capture.html#abc240a9493d9e8cc44c7beb5ccca148aad4cd0dabcf4caa22ad92fab40844c786',1,'BiometricEvaluation::Finger::AN2KViewCapture::NA()'],['../struct_biometric_evaluation_1_1_image_1_1_resolution.html#a14e9d8f94f8aae1948d8ce590576708fad4cd0dabcf4caa22ad92fab40844c786',1,'BiometricEvaluation::Image::Resolution::NA()'],['../class_biometric_evaluation_1_1_view_1_1_a_n2_k_view.html#a5feac7829ca7c4672b6f660b4d0ee5c0ad4cd0dabcf4caa22ad92fab40844c786',1,'BiometricEvaluation::View::AN2KView::NA()'],['../namespace_biometric_evaluation_1_1_finger.html#a9bfbd3e2fe219976eb3c0cb2109878adad4cd0dabcf4caa22ad92fab40844c786',1,'BiometricEvaluation::Finger::NA()']]],
+  ['nec_2',['NEC',['../namespace_biometric_evaluation_1_1_feature.html#a2e66653ded0d3a15ac89df6e1cb3aacca7e70c0503999340437163065dbd1b1b7',1,'BiometricEvaluation::Feature']]],
+  ['netpbm_3',['NetPBM',['../namespace_biometric_evaluation_1_1_image.html#a585ddea487351f2c6b40df65c1e94dd2af361103e108b31c946b4d7747b67a32c',1,'BiometricEvaluation::Image']]],
+  ['neutral_4',['Neutral',['../namespace_biometric_evaluation_1_1_face.html#a1fa529c95a8037897db3373c3b90c6e5ae9bb5320b3890b6747c91b5a71ae5a01',1,'BiometricEvaluation::Face']]],
+  ['nevercalled_5',['NeverCalled',['../namespace_biometric_evaluation_1_1_framework.html#ab1f027fab94fcf5bdb73d7a4893d1d75a60c5715a8dd67ecc7f7850f56388e5dd',1,'BiometricEvaluation::Framework']]],
+  ['nin_6',['NIN',['../namespace_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s.html#aee2086be785ceb56d6cab0ca72688309a6f7997305578232467094741eda73496',1,'BiometricEvaluation::Feature::AN2K11EFS']]],
+  ['nodistinction_7',['NoDistinction',['../namespace_biometric_evaluation_1_1_feature.html#ab3edabe7cd611781b0b5d8a86ca6506da28db7f5d9f3a59c44e697fe018e94b62',1,'BiometricEvaluation::Feature']]],
+  ['nonadhesivesidetape_8',['NonAdhesiveSideTape',['../namespace_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s.html#ae4b74bc9186c828d8fdd9cb79cf9113ca65ac3b77f9d31d1d243d053c1200933f',1,'BiometricEvaluation::Feature::AN2K11EFS']]],
+  ['none_9',['None',['../namespace_biometric_evaluation_1_1_image.html#a585ddea487351f2c6b40df65c1e94dd2a6adf97f83acf6453d4a6a4b1070f3754',1,'BiometricEvaluation::Image::None()'],['../namespace_biometric_evaluation_1_1_video.html#a8babe12a9dc79eee5f74787862971b81a6adf97f83acf6453d4a6a4b1070f3754',1,'BiometricEvaluation::Video::None()']]],
+  ['nonlivescanpalm_10',['NonLiveScanPalm',['../namespace_biometric_evaluation_1_1_finger.html#ad9ac500ac8e5de5ab1cd25f8734a9ccea924d45969a835f8e5fdf89dc187ce8c9',1,'BiometricEvaluation::Finger']]],
+  ['nonlivescanplain_11',['NonLiveScanPlain',['../namespace_biometric_evaluation_1_1_finger.html#ad9ac500ac8e5de5ab1cd25f8734a9ccea0aa8357c2ff92a8711658e1fcf99a760',1,'BiometricEvaluation::Finger']]],
+  ['nonlivescanrolled_12',['NonLiveScanRolled',['../namespace_biometric_evaluation_1_1_finger.html#ad9ac500ac8e5de5ab1cd25f8734a9cceacf2b561c2010c2c598f4c169ad4a883c',1,'BiometricEvaluation::Finger']]],
+  ['nonprint_13',['NonPrint',['../namespace_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s.html#a7e2c8c687d4961c879db11ad13d77f50a8eb994a56a771b9f1ca6f1223ea3e794',1,'BiometricEvaluation::Feature::AN2K11EFS']]],
+  ['nonspecific_14',['NonSpecific',['../namespace_biometric_evaluation_1_1_feature.html#aa7db1f2836f7734a2ea227663390834ca1ec2f098b6dfd7637fa34b8b3aff0f00',1,'BiometricEvaluation::Feature']]],
+  ['novalue_15',['NoValue',['../namespace_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s.html#a7e2c8c687d4961c879db11ad13d77f50ad50dfcd4fe8be490a6759f4396f6a4c5',1,'BiometricEvaluation::Feature::AN2K11EFS']]],
+  ['null_16',['Null',['../class_biometric_evaluation_1_1_i_o_1_1_logsheet.html#a88dce53fd069bb313fffbc0ca723ad0cabbb93ef26e3c101ff11cdd21cab08a94',1,'BiometricEvaluation::IO::Logsheet']]],
+  ['nv_17',['NV',['../namespace_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s.html#a7e2c8c687d4961c879db11ad13d77f50a5343f615ee8aea842a0c5220a4df8d1c',1,'BiometricEvaluation::Feature::AN2K11EFS']]]
+];

@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['randomizeproperty_0',['RANDOMIZEPROPERTY',['../class_biometric_evaluation_1_1_m_p_i_1_1_c_s_v_resources.html#a5fa6ed4873c6353f771df72e1b174afb',1,'BiometricEvaluation::MPI::CSVResources']]],
+  ['randomseedproperty_1',['RANDOMSEEDPROPERTY',['../class_biometric_evaluation_1_1_m_p_i_1_1_c_s_v_resources.html#ab1bfe57c36afddd01bd5368990dccbbf',1,'BiometricEvaluation::MPI::CSVResources']]],
+  ['range_5ffailed_2',['RANGE_FAILED',['../class_biometric_evaluation_1_1_iris_1_1_i_n_c_i_t_s_view.html#a2735007f6f1869ce12128f81109136f5',1,'BiometricEvaluation::Iris::INCITSView']]],
+  ['range_5foverflow_3',['RANGE_OVERFLOW',['../class_biometric_evaluation_1_1_iris_1_1_i_n_c_i_t_s_view.html#ad06f3b342a393ce833e7d8ea3803e81a',1,'BiometricEvaluation::Iris::INCITSView']]],
+  ['range_5funassigned_4',['RANGE_UNASSIGNED',['../class_biometric_evaluation_1_1_iris_1_1_i_n_c_i_t_s_view.html#a5264e90c5f5f32490bb765b52d0c155f',1,'BiometricEvaluation::Iris::INCITSView']]],
+  ['rccs_5',['rccs',['../struct_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s_1_1_minutiae_ridge_count_info.html#ae7653437d063f4c84226de46364e3265',1,'BiometricEvaluation::Feature::AN2K11EFS::MinutiaeRidgeCountInfo']]],
+  ['rce_5feight_5fneighbor_6',['RCE_EIGHT_NEIGHBOR',['../class_biometric_evaluation_1_1_feature_1_1_i_n_c_i_t_s_minutiae.html#a713cbb4bd25c32527f3bb511f0615a97',1,'BiometricEvaluation::Feature::INCITSMinutiae']]],
+  ['rce_5ffour_5fneighbor_7',['RCE_FOUR_NEIGHBOR',['../class_biometric_evaluation_1_1_feature_1_1_i_n_c_i_t_s_minutiae.html#a1aad78a802b5f6a478a0f644ec726d2b',1,'BiometricEvaluation::Feature::INCITSMinutiae']]],
+  ['rce_5fnonspecific_8',['RCE_NONSPECIFIC',['../class_biometric_evaluation_1_1_feature_1_1_i_n_c_i_t_s_minutiae.html#afe042605351a2f20d618358b64a3cbd6',1,'BiometricEvaluation::Feature::INCITSMinutiae']]],
+  ['realtime_9',['REALTIME',['../class_biometric_evaluation_1_1_time_1_1_watchdog.html#a29207c7b81c72630a7f4d4146a1a2688',1,'BiometricEvaluation::Time::Watchdog']]],
+  ['red_10',['red',['../struct_biometric_evaluation_1_1_image_1_1_b_m_p_1_1_color_table_entry.html#a20289e607e5d776a6630b55ebb8852c2',1,'BiometricEvaluation::Image::BMP::ColorTableEntry']]],
+  ['reserved_11',['reserved',['../struct_biometric_evaluation_1_1_image_1_1_b_m_p_1_1_color_table_entry.html#a78be72054a75eebd29ef52da5c6d0051',1,'BiometricEvaluation::Image::BMP::ColorTableEntry']]],
+  ['response_12',['response',['../struct_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u_exception.html#a0d482c099ad18fdc5157c009fb0d3147',1,'BiometricEvaluation::Device::Smartcard::APDUException']]],
+  ['retry_5fcounter_5findicator_13',['RETRY_COUNTER_INDICATOR',['../class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html#a0dd5028f0ec400a28f43ae3f482b189e',1,'BiometricEvaluation::Device::Smartcard::APDU']]],
+  ['retry_5fcounter_5findicator_5fmask_14',['RETRY_COUNTER_INDICATOR_MASK',['../class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html#a2f1acd10730a931e0523c05e8743fa76',1,'BiometricEvaluation::Device::Smartcard::APDU']]],
+  ['retry_5fcounter_5fmask_15',['RETRY_COUNTER_MASK',['../class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html#a20665ae4dec04bd47e5f2794c4846454',1,'BiometricEvaluation::Device::Smartcard::APDU']]],
+  ['retry_5fcounter_5fmax_16',['RETRY_COUNTER_MAX',['../class_biometric_evaluation_1_1_device_1_1_smartcard_1_1_a_p_d_u.html#ae89b0e2302474e080e637b5a7870f311',1,'BiometricEvaluation::Device::Smartcard::APDU']]],
+  ['roi_17',['roi',['../struct_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s_1_1_image_info.html#ad775c11d94a7d8941888f6a3e34f9559',1,'BiometricEvaluation::Feature::AN2K11EFS::ImageInfo']]],
+  ['roll_18',['roll',['../struct_biometric_evaluation_1_1_face_1_1_pose_angle.html#a281535bfa18484aee1d5d753e35da913',1,'BiometricEvaluation::Face::PoseAngle']]],
+  ['roll_5fangle_5fundef_19',['ROLL_ANGLE_UNDEF',['../class_biometric_evaluation_1_1_iris_1_1_i_n_c_i_t_s_view.html#a46fffa04434c9346ece516373621835e',1,'BiometricEvaluation::Iris::INCITSView']]],
+  ['roll_5funcertain_5fundef_20',['ROLL_UNCERTAIN_UNDEF',['../class_biometric_evaluation_1_1_iris_1_1_i_n_c_i_t_s_view.html#a836323858649c93547845ad44b73059e',1,'BiometricEvaluation::Iris::INCITSView']]],
+  ['rolluncertainty_21',['rollUncertainty',['../struct_biometric_evaluation_1_1_face_1_1_pose_angle.html#a176cd929d90790b30ffcb8982b88a589',1,'BiometricEvaluation::Face::PoseAngle']]],
+  ['rpu_22',['rpu',['../struct_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s_1_1_core_point.html#a917f991c18c4aae14d597629ff3874b9',1,'BiometricEvaluation::Feature::AN2K11EFS::CorePoint::rpu()'],['../struct_biometric_evaluation_1_1_feature_1_1_a_n2_k11_e_f_s_1_1_delta_point.html#a988ea35d7f8cb857d75ddc80a19bde1c',1,'BiometricEvaluation::Feature::AN2K11EFS::DeltaPoint::rpu()']]]
+];
