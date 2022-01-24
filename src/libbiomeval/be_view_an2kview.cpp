@@ -129,6 +129,9 @@ BiometricEvaluation::View::AN2KView::convertCompressionAlgorithm(
 			return (BE::Image::CompressionAlgorithm::None);
 		else if (!strcmp((const char*)an2kValue, "WSQ20"))
 			return (BE::Image::CompressionAlgorithm::WSQ20);
+		/* XXX: "WSQ" is non-standard, but prominent in the wild. */
+		else if (!strcmp((const char*)an2kValue, "WSQ"))
+			return (BE::Image::CompressionAlgorithm::WSQ20);
 		else if (!strcmp((const char*)an2kValue, "JPEGB"))
 			return (BE::Image::CompressionAlgorithm::JPEGB);
 		else if (!strcmp((const char*)an2kValue, "JPEGL"))
