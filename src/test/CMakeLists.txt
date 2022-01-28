@@ -38,24 +38,12 @@ This process created the file `CMakeCache.txt' and the directory `CMakeFiles'.
 Please delete them.")
 endif()
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.16.3)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../libbiomeval/cmake/Modules/")
 
-if(${CMAKE_MAJOR_VERSION} GREATER 2)
-    if (MSVC)
-        set(CMAKE_CXX_STANDARD 17)
-    else (MSVC)
-        set(CMAKE_CXX_STANDARD 17)
-    endif (MSVC)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-else()
-    if(MSVC)
-        add_compile_options(/std:c++17)
-    else()
-        add_compile_options(--std=c++17)
-    endif(MSVC)
-endif()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 function(set_biomeval_test_exe_dependencies TARGET_NAME)
 	# Build library first
@@ -67,14 +55,8 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 	# release/debug builds. TODO above notes that static lib is hardcoded
 	# for test executables.
 	if (MSVC)
-		if (CMAKE_VERSION VERSION_GREATER 3.14.9999)
-			set_target_properties(${TARGET_NAME} PROPERTIES
-			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-		else (CMAKE_VERSION VERSION_GREATER 3.14.9999)
-			set_target_properties(${TARGET_NAME} PROPERTIES
-			    CXX_FLAGS_RELEASE "/MT"
-			    CXX_FLAGS_DEBUG "/MTd")
-		endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
+		set_target_properties(${TARGET_NAME} PROPERTIES
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 	endif (MSVC)
 endfunction(set_biomeval_test_exe_dependencies)
 
@@ -251,21 +233,11 @@ if (NOT MSVC)
 	endif (TARGET vidobjs)
 
 	find_package(Threads REQUIRED)
-	if (${CMAKE_VERSION} VERSION_GREATER 3.0.9999)
-		target_link_libraries(test_be_process_semaphore PRIVATE Threads::Threads)
-		target_link_libraries(test_be_process_statistics PRIVATE Threads::Threads)
-		if (TARGET test_be_video)
-			target_link_libraries(test_be_video PRIVATE Threads::Threads)
-		endif (TARGET test_be_video)
-	else (${CMAKE_VERSION} VERSION_GREATER 3.0.9999)
-		if (CMAKE_THREAD_LIBS_INIT)
-			target_link_libraries(test_be_process_semaphore "${CMAKE_THREAD_LIBS_INIT}")
-			target_link_libraries(test_be_process_statistics "${CMAKE_THREAD_LIBS_INIT}")
-			if (TARGET test_be_video)
-				target_link_libraries(test_be_video "${CMAKE_THREAD_LIBS_INIT}")
-			endif (TARGET test_be_video)
-		endif (CMAKE_THREAD_LIBS_INIT)
-	endif (${CMAKE_VERSION} VERSION_GREATER 3.0.9999)
+	target_link_libraries(test_be_process_semaphore PRIVATE Threads::Threads)
+	target_link_libraries(test_be_process_statistics PRIVATE Threads::Threads)
+	if (TARGET test_be_video)
+		target_link_libraries(test_be_video PRIVATE Threads::Threads)
+	endif (TARGET test_be_video)
 endif (NOT MSVC)
 
 # Some test executables are not yet supported on Windows because we have not

@@ -38,7 +38,7 @@
 #     make package
 #
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.16.3)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND FORCE_STATIC_DEPENDENCIES)
 	# No static libhwloc in MacPorts
@@ -91,13 +91,9 @@ set(BIOMEVAL_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 file(GLOB BIOMEVAL_HEADERS ${BIOMEVAL_INCLUDE}/*.h)
 set(NBIS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include)
 #
-if(${CMAKE_MAJOR_VERSION} GREATER 2)
-  cmake_policy(SET CMP0048 NEW)
-  project(libbiomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
-else()
-  project(libbiomeval)
-  set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
-endif()
+cmake_policy(SET CMP0048 NEW)
+project(libbiomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+
 set(CORELIB biomeval)
 
 # NBIS uses "insecure" functions under Windows
@@ -109,20 +105,8 @@ if (BUILD_SHARED_LIBS)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
-if(${CMAKE_MAJOR_VERSION} GREATER 2)
-    if (MSVC)
-        set(CMAKE_CXX_STANDARD 17)
-    else (MSVC)
-        set(CMAKE_CXX_STANDARD 17)
-    endif (MSVC)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-else()
-    if(MSVC)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-    else()
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++17")
-    endif(MSVC)
-endif()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #
 # Location of CMake modules local to BIOMEVAL
@@ -267,20 +251,11 @@ list(APPEND CMAKE_PREFIX_PATH "/usr/lib64/openmpi/bin")
 find_package(MPI)
 if(MPI_CXX_FOUND AND NOT MSVC)
   add_library(mpiobjs OBJECT ${MPISOURCES})
-  if (${CMAKE_VERSION} VERSION_LESS "3.10")
-    set_target_properties(
-      mpiobjs
-      PROPERTIES COMPILE_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
-    target_include_directories(
-      mpiobjs
-      PUBLIC ${MPI_CXX_INCLUDE_PATH} ${BIOMEVAL_INCLUDE})
-  else(${CMAKE_VERSION} VERSION_LESS "3.10")
-    target_compile_definitions(mpiobjs PUBLIC "${MPI_CXX_COMPILE_DEFINITIONS}")
-    target_compile_options(mpiobjs PUBLIC "${MPI_CXX_COMPILE_OPTIONS}")
-    target_include_directories(
-      mpiobjs
-      PUBLIC ${MPI_CXX_INCLUDE_DIRS} ${BIOMEVAL_INCLUDE})
-  endif(${CMAKE_VERSION} VERSION_LESS "3.10")
+  target_compile_definitions(mpiobjs PUBLIC "${MPI_CXX_COMPILE_DEFINITIONS}")
+  target_compile_options(mpiobjs PUBLIC "${MPI_CXX_COMPILE_OPTIONS}")
+  target_include_directories(
+    mpiobjs
+    PUBLIC ${MPI_CXX_INCLUDE_DIRS} ${BIOMEVAL_INCLUDE})
 else(MPI_CXX_FOUND AND NOT MSVC)
   # FIXME: Should we stop if WITH_MPI=ON, but MPI not found?
   message(STATUS "Building without MPI support.")
@@ -364,44 +339,22 @@ endif (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
 
 # Windows needs to differentiate between release/debug builds.
 if (MSVC)
-	if (CMAKE_VERSION VERSION_GREATER 3.14.9999)
-		set_target_properties(${CORELIB} PROPERTIES
+	set_target_properties(${CORELIB} PROPERTIES
+	    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
+	set_target_properties(coreobjs PROPERTIES
+	    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
+	set_target_properties(nbisobjs PROPERTIES
+	    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
+
+	if (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
+		set_target_properties(vidobjs PROPERTIES
 		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
-		set_target_properties(coreobjs PROPERTIES
+	endif (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
+
+	if (PCSC_FOUND)
+		set_target_properties(deviceobjs PROPERTIES
 		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
-		set_target_properties(nbisobjs PROPERTIES
-		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
-
-		if (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
-			set_target_properties(vidobjs PROPERTIES
-			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
-		endif (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
-
-		if (PCSC_FOUND)
-			set_target_properties(deviceobjs PROPERTIES
-			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
-		endif (PCSC_FOUND)
-	elseif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
-		set_target_properties(
-		    ${CORELIB} nbisobjs coreobjs vidobjs deviceobjs
-		    PROPERTIES
-		    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
-		    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-
-		if (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
-			set_target_properties(vidobjs
-			    PROPERTIES
-			    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
-			    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-		endif (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
-
-		if (PCSC_FOUND)
-			set_target_properties(deviceobjs
-			    PROPERTIES
-			    CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd"
-			    CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-		endif (PCSC_FOUND)
-	endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
+	endif (PCSC_FOUND)
 endif(MSVC)
 
 if (MSVC)
