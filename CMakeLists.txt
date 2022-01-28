@@ -52,6 +52,8 @@ cmake_policy(SET CMP0091 NEW)
 cmake_policy(SET CMP0048 NEW)
 project(biomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 
+# Use MACOSX_RPATH by default
+cmake_policy(SET CMP0042 NEW)
 
 if (BUILD_SHARED_LIBS)
 	message(STATUS "Build type: SHARED")
@@ -108,17 +110,6 @@ cmake_dependent_option(WITH_FFMPEG "Build sources that require FFMPEG" ON "NOT F
 # The CMake config files must exist in the directories added to this config:
 #
 add_subdirectory(src/libbiomeval/ lib)
-
-#
-# Link in the locally built version of the library.
-#
-if(CMAKE_HOST_APPLE)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rpath lib")
-else()
-  if(NOT MSVC)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=lib")
-  endif()
-endif()
 
 if (BUILD_BIOMEVAL_TESTS)
 	message(STATUS "Test executables: ON")

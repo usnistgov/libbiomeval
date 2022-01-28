@@ -22,6 +22,8 @@
 
 project(biomeval-test)
 
+include(GNUInstallDirs)
+
 if (BUILD_BIOMEVAL_32BIT)
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
 endif ()
@@ -56,6 +58,11 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 		    $<$<COMPILE_LANGUAGE:CXX>:-m32>
 		)
 	endif()
+
+	# Set RPATH to local build of biomeval
+	set_target_properties(${TARGET_NAME} PROPERTIES
+	    BUILD_RPATH "${CMAKE_INSTALL_LIBDIR}"
+	)
 
 	# Windows needs to differentiate between static/dynamic and
 	# release/debug builds. TODO above notes that static lib is hardcoded

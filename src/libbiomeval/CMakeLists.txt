@@ -372,7 +372,6 @@ endif ()
 #
 if(CMAKE_HOST_APPLE)
   target_include_directories(coreobjs PUBLIC /opt/local/include)
-  set_target_properties(${CORELIB} PROPERTIES MACOSX_RPATH ON)
   target_link_libraries(${CORELIB} -L/opt/local/lib)
   if (PCSC_FOUND)
 	target_link_libraries(${CORELIB} ${PCSC_FRAMEWORK})
