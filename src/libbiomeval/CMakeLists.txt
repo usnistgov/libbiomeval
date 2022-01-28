@@ -43,13 +43,13 @@ cmake_minimum_required(VERSION 3.16.3)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND FORCE_STATIC_DEPENDENCIES)
 	# No static libhwloc in MacPorts
 	set(WITH_HWLOC OFF)
-endif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND FORCE_STATIC_DEPENDENCIES)
+endif ()
 
 if (BUILD_BIOMEVAL_32BIT)
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-endif (BUILD_BIOMEVAL_32BIT)
+endif ()
 
 # Create dirent_windows.h at build time
 if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include/dirent_windows.h")
@@ -58,7 +58,7 @@ if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include/dirent_windows.h"
 	elseif(WIN32)
 		execute_process(COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../include/be_dirent_windows.h" "${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include/dirent_windows.h")
 	endif()
-endif (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include/dirent_windows.h")
+endif ()
 
 #
 # Get the major and minor library versions from the VERSION file, with format
@@ -70,18 +70,18 @@ foreach (line ${VERSION_FILE_CONTENTS})
 	string(REGEX MATCH "MAJOR_VERSION=.+" MAJOR_VERSION_FOUND "${line}")
 	if (MAJOR_VERSION_FOUND)
 		string(REPLACE "MAJOR_VERSION=" "" MAJOR_VERSION "${line}")
-	endif (MAJOR_VERSION_FOUND)
+	endif ()
 
 	string(REGEX MATCH "MINOR_VERSION=.+" MINOR_VERSION_FOUND "${line}")
 	if (MINOR_VERSION_FOUND)
 		string(REPLACE "MINOR_VERSION=" "" MINOR_VERSION "${line}")
-	endif (MINOR_VERSION_FOUND)
+	endif ()
 
 	string(REGEX MATCH "COMPATIBILITY_VERSION=.+" COMPATIBILITY_VERSION_FOUND "${line}")
 	if (COMPATIBILITY_VERSION_FOUND)
 		string(REPLACE "COMPATIBILITY_VERSION=" "" COMPATIBILITY_VERSION "${line}")
-	endif (COMPATIBILITY_VERSION_FOUND)
-endforeach (line ${VERSION_FILE_CONTENTS})
+	endif ()
+endforeach ()
 
 #
 # Define common options
@@ -99,7 +99,7 @@ set(CORELIB biomeval)
 # NBIS uses "insecure" functions under Windows
 if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS_GLOBALS)
-endif(MSVC)
+endif()
 
 if (BUILD_SHARED_LIBS)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -169,7 +169,7 @@ if(MSVC)
     unset(MESSAGE_CENTER)
 
     list(APPEND CORE "be_sysdeps.cpp")
-endif(MSVC)
+endif()
 
 #
 # All the packages for the core library, except:
@@ -194,9 +194,9 @@ if (WITH_FFMPEG)
            libavcodec
            libswscale
            libavutil)
-  else(FORCE_STATIC_DEPENDENCIES)
+  else()
     find_package(FFMPEG)
-  endif (FORCE_STATIC_DEPENDENCIES)
+  endif ()
 
 if(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
   message(STATUS "Adding VIDEO support.")
@@ -204,13 +204,13 @@ if(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
   add_library(vidobjs OBJECT ${VIDEO})
   target_include_directories(vidobjs PUBLIC ${BIOMEVAL_INCLUDE})
   include_directories(PUBLIC ${FFMPEG_INCLUDE_DIR})
-else(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
+else()
   # FIXME: Should we complain if WITH_FFMPEG=YES but FFMPEG is not found?
   message(STATUS "Building without VIDEO support.")
-endif(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
-else(WITH_FFMPEG)
+endif()
+else()
   message(STATUS "Building without VIDEO support.")
-endif(WITH_FFMPEG)
+endif()
 
 #
 # PCSC (Smartcard) support is an optional library
@@ -221,21 +221,21 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	if (PCSC_FRAMEWORK)
 		set(PCSC_FOUND ON)
 	endif (PCSC_FRAMEWORK)
-else (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+else ()
 	find_package(PCSC)
-endif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+endif ()
 
 if (PCSC_FOUND)
 	message(STATUS "Adding PCSC support.")
 	add_library(deviceobjs OBJECT ${DEVICE})
 	target_include_directories(deviceobjs PUBLIC ${BIOMEVAL_INCLUDE})
-else (PCSC_FOUND)
+else ()
 	# FIXME: Should we complain if WITH_PCSC=YES but PCSC is not found?
 	message(STATUS "Building without PCSC support.")
-endif (PCSC_FOUND)
-else(WITH_PCSC)
+endif ()
+else()
 	message(STATUS "Building without PCSC support.")
-endif(WITH_PCSC)
+endif()
 
 #
 # Keep MPI related files separate so we can use a different compiler command.
@@ -256,13 +256,13 @@ if(MPI_CXX_FOUND AND NOT MSVC)
   target_include_directories(
     mpiobjs
     PUBLIC ${MPI_CXX_INCLUDE_DIRS} ${BIOMEVAL_INCLUDE})
-else(MPI_CXX_FOUND AND NOT MSVC)
+else()
   # FIXME: Should we stop if WITH_MPI=ON, but MPI not found?
   message(STATUS "Building without MPI support.")
-endif(MPI_CXX_FOUND AND NOT MSVC)
-else(WITH_MPI)
+endif()
+else()
   message(STATUS "Building without MPI support.")
-endif(WITH_MPI)
+endif()
 
 #
 # Build the Framework-local version of NBIS
@@ -278,7 +278,7 @@ include(TestBigEndian)
 TEST_BIG_ENDIAN(BIGEND)
 if(NOT ${BIGEND})
   add_definitions("-D__NBISLE__")
-endif(NOT ${BIGEND})
+endif()
 
 #
 # Build the core library by building the .cpp
@@ -293,13 +293,13 @@ list(APPEND OBJLIBS $<TARGET_OBJECTS:coreobjs>)
 list(APPEND OBJLIBS $<TARGET_OBJECTS:nbisobjs>)
 if(MPI_CXX_FOUND AND NOT MSVC)
   list(APPEND OBJLIBS $<TARGET_OBJECTS:mpiobjs>)
-endif(MPI_CXX_FOUND AND NOT MSVC)
+endif()
 if(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
   list(APPEND OBJLIBS $<TARGET_OBJECTS:vidobjs>)
-endif(FFMPEG_FOUND OR FFMPEGPKG_FOUND)
+endif()
 if(PCSC_FOUND)
   list(APPEND OBJLIBS $<TARGET_OBJECTS:deviceobjs>)
-endif(PCSC_FOUND)
+endif()
 
 # "Some native build systems (such as Xcode) may not like targets that have
 #  only object files, so consider adding at least one real source file to any
@@ -309,7 +309,7 @@ if(CMAKE_GENERATOR STREQUAL Xcode)
 	set(XCODE_GENERATOR_FIX "be_fix_cmake_xcode_generator.cpp")
 	file(WRITE "${XCODE_GENERATOR_FIX}" "")
 	list(APPEND OBJLIBS "${XCODE_GENERATOR_FIX}")
-endif(CMAKE_GENERATOR STREQUAL Xcode)
+endif()
 
 if (BUILD_SHARED_LIBS)
 	add_library(${CORELIB} SHARED ${OBJLIBS})
@@ -320,7 +320,7 @@ else()
 	add_library(${CORELIB} STATIC ${OBJLIBS})
 	set_target_properties(${CORELIB} PROPERTIES
             POSITION_INDEPENDENT_CODE OFF)
-endif(BUILD_SHARED_LIBS)
+endif()
 
 set_target_properties(
     ${CORELIB}
@@ -331,10 +331,10 @@ set_target_properties(
 if (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
   if (FORCE_STATIC_DEPENDENCIES)
        target_link_libraries(${CORELIB} ${FFMPEGPKG_STATIC_LINK_LIBRARIES})
-  else (FORCE_STATIC_DEPENDENCIES)
+  else ()
       target_link_libraries(${CORELIB} ${FFMPEG_LIBRARIES})
-  endif (FORCE_STATIC_DEPENDENCIES)
-endif (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
+  endif ()
+endif ()
 
 
 # Windows needs to differentiate between release/debug builds.
@@ -349,17 +349,17 @@ if (MSVC)
 	if (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
 		set_target_properties(vidobjs PROPERTIES
 		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
-	endif (FFMPEG_FOUND OR FFMPEGPKG_FOUND)
+	endif ()
 
 	if (PCSC_FOUND)
 		set_target_properties(deviceobjs PROPERTIES
 		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
-	endif (PCSC_FOUND)
-endif(MSVC)
+	endif ()
+endif()
 
 if (MSVC)
 	set(CMAKE_DEBUG_POSTFIX "d")
-endif (MSVC)
+endif ()
 
 #
 # For OS-X, add paths where the ports packages are placed.
@@ -370,9 +370,9 @@ if(CMAKE_HOST_APPLE)
   target_link_libraries(${CORELIB} -L/opt/local/lib)
   if (PCSC_FOUND)
 	target_link_libraries(${CORELIB} ${PCSC_FRAMEWORK})
-  endif (PCSC_FOUND)
+  endif ()
   add_definitions("-DDarwin")
-endif(CMAKE_HOST_APPLE)
+endif()
 
 target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
 
@@ -394,7 +394,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	find_library(SECURITY_FRAMEWORK Security REQUIRED)
 	target_link_libraries(${CORELIB}
 	    ${FOUNDATION_FRAMEWORK} ${SECURITY_FRAMEWORK})
-else (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+else ()
 	set(OPENSSL_FIND_REQUIRED TRUE)
 	find_package(OpenSSL)
 	if(NOT OPENSSL_FOUND)
@@ -402,7 +402,7 @@ else (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 	endif(NOT OPENSSL_FOUND)
 	include_directories(PUBLIC ${OPENSSL_INCLUDE_DIR})
 	target_link_libraries(${CORELIB} ${OPENSSL_LIBRARIES})
-endif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+endif ()
 
 #
 # Berkeley DB
@@ -411,7 +411,7 @@ set(BERKELEYDB_FIND_REQUIRED TRUE)
 find_package(BERKELEYDB)
 if(NOT BERKELEYDB_FOUND)
   message(FATAL_ERROR "Could not find Berkeley Database.")
-endif(NOT BERKELEYDB_FOUND)
+endif()
 include_directories(PUBLIC ${BERKELEYDB_INCLUDE_DIR})
 target_link_libraries(${CORELIB} ${BERKELEYDB_LIBRARIES})
 
@@ -422,7 +422,7 @@ set(OPENJP2_FIND_REQUIRED TRUE)
 find_package(OPENJP2)
 if(NOT OPENJP2_FOUND)
   message(FATAL_ERROR "Could not find OpenJP2.")
-endif(NOT OPENJP2_FOUND)
+endif()
 include_directories(PUBLIC ${OPENJP2_INCLUDE_DIR})
 target_link_libraries(${CORELIB} ${OPENJP2_LIBRARIES})
 
@@ -430,7 +430,7 @@ set(JPEG_FIND_REQUIRED TRUE)
 find_package(JPEG)
 if(NOT JPEG_FOUND)
   message(FATAL_ERROR "Could not find JPEG.")
-endif(NOT JPEG_FOUND)
+endif()
 include_directories(PUBLIC ${JPEG_INCLUDE_DIR})
 target_link_libraries(${CORELIB} ${JPEG_LIBRARIES})
 
@@ -440,9 +440,9 @@ target_link_libraries(${CORELIB} ${JPEG_LIBRARIES})
 if(MPI_CXX_FOUND AND NOT MSVC)
   message(STATUS "Adding MPI support to ${CORELIB}.")
   target_link_libraries(${CORELIB} ${MPI_CXX_LINK_FLAGS} ${MPI_CXX_LIBRARIES})
-else(MPI_CXX_FOUND AND NOT MSVC)
+else()
   message(STATUS "Will build ${CORELIB} without MPI support.")
-endif(MPI_CXX_FOUND AND NOT MSVC)
+endif()
 
 #
 # PCSC
@@ -451,7 +451,7 @@ if(PCSC_FOUND)
    include_directories(PUBLIC ${PCSC_INCLUDE_DIR})
    target_include_directories(deviceobjs PUBLIC ${BIOMEVAL_INCLUDE})
    target_link_libraries(${CORELIB} ${PCSC_LIBRARIES})
-endif(PCSC_FOUND)
+endif()
 
 #
 # The Portable Hardware Locality hwloc
@@ -462,12 +462,12 @@ set(HWLOC_FIND_REQUIRED TRUE)
 find_package(HWLOC)
 if(NOT HWLOC_FOUND)
   message(FATAL_ERROR "Could not find hwloc.")
-endif(NOT HWLOC_FOUND)
+endif()
 include_directories(PUBLIC ${HWLOC_INCLUDE_DIR})
 target_link_libraries(${CORELIB} ${HWLOC_LIBRARIES})
-else (WITH_HWLOC)
+else ()
     message(STATUS "Building without HWLOC support.")
-endif (WITH_HWLOC)
+endif ()
 
 #
 # Other libs not specifically searched for above.
@@ -489,7 +489,7 @@ if (FORCE_STATIC_DEPENDENCIES)
     find_library(ZSTD_LIBRARY zstd REQUIRED)
     find_library(LZMA_LIBRARY lzma REQUIRED)
     target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY})
-endif (FORCE_STATIC_DEPENDENCIES)
+endif ()
 
 find_package(PNG REQUIRED)
 target_link_libraries(${CORELIB} ${PNG_LIBRARIES})
@@ -502,8 +502,8 @@ if(MSVC)
 	# Need crypt32 on static Win32 builds
 	if (NOT BUILD_SHARED_LIBS)
 		target_link_libraries(${CORELIB} crypt32)
-	endif (NOT BUILD_SHARED_LIBS)
-endif(MSVC)
+	endif ()
+endif()
 
 
 target_include_directories(${CORELIB} PUBLIC $<INSTALL_INTERFACE:include>)
@@ -548,7 +548,7 @@ if (MSVC)
 	    FILES_MATCHING
 	    PATTERN "*dll"
 	    PATTERN "${CORELIB}.dll" EXCLUDE)
-endif (MSVC)
+endif ()
 
 install(
     DIRECTORY
@@ -587,7 +587,7 @@ set(CPACK_GENERATOR "RPM")
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 if (NOT BUILD_SHARED_LIBS)
 	string(APPEND CPACK_PACKAGE_NAME "-static")
-endif(NOT BUILD_SHARED_LIBS)
+endif()
 set(CPACK_PACKAGE_RELEASE 1)
 set(CPACK_PACKAGE_CONTACT "NIST Image Group (www.nist.gov/itl/iad/image-group)")
 set(CPACK_PACKAGE_VENDOR "NIST (www.nist.gov)")

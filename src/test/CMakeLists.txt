@@ -25,7 +25,7 @@ project(biomeval-test)
 if (BUILD_BIOMEVAL_32BIT)
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-endif (BUILD_BIOMEVAL_32BIT)
+endif ()
 
 # Sanity check our source directory to make sure that we are not trying to
 # generate an in-tree build
@@ -58,7 +58,7 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 		set_target_properties(${TARGET_NAME} PROPERTIES
 		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 	endif (MSVC)
-endfunction(set_biomeval_test_exe_dependencies)
+endfunction()
 
 #
 # Exhaustively add each target rather than looping over source files. Some
@@ -197,7 +197,7 @@ if (NOT MSVC)
 	add_executable(test_be_process_posixthreadmanager test_be_process_manager.cpp)
 	set_biomeval_test_exe_dependencies(test_be_process_posixthreadmanager)
 	target_compile_definitions(test_be_process_posixthreadmanager PUBLIC POSIXTHREADTEST)
-endif (NOT MSVC)
+endif ()
 
 # MPI test executables require that MPI support was compiled in
 if (TARGET mpiobjs)
@@ -207,8 +207,8 @@ if (TARGET mpiobjs)
 		set_biomeval_test_exe_dependencies(test_be_csv_mpi)
 		add_executable(test_be_rs_mpi test_be_rs_mpi.cpp)
 		set_biomeval_test_exe_dependencies(test_be_rs_mpi)
-	endif (NOT MSVC)
-endif (TARGET mpiobjs)
+	endif ()
+endif ()
 
 # ISO/IEC 7816 test executables require that device support was compiled in
 if (TARGET deviceobjs)
@@ -216,7 +216,7 @@ if (TARGET deviceobjs)
 	set_biomeval_test_exe_dependencies(test_be_device_smartcard)
 	add_executable(test_be_device_tlv test_be_device_tlv.cpp)
 	set_biomeval_test_exe_dependencies(test_be_device_tlv)
-endif (TARGET deviceobjs)
+endif ()
 
 # Process and video test programs require a threading library, which we
 # haven't tested under Windows
@@ -230,15 +230,15 @@ if (NOT MSVC)
 	if (TARGET vidobjs)
 		add_executable(test_be_video test_be_video.cpp)
 		set_biomeval_test_exe_dependencies(test_be_video)
-	endif (TARGET vidobjs)
+	endif ()
 
 	find_package(Threads REQUIRED)
 	target_link_libraries(test_be_process_semaphore PRIVATE Threads::Threads)
 	target_link_libraries(test_be_process_statistics PRIVATE Threads::Threads)
 	if (TARGET test_be_video)
 		target_link_libraries(test_be_video PRIVATE Threads::Threads)
-	endif (TARGET test_be_video)
-endif (NOT MSVC)
+	endif ()
+endif ()
 
 # Some test executables are not yet supported on Windows because we have not
 # compiled in the relevant classes from libbiomeval. We can't
@@ -254,7 +254,7 @@ if (NOT MSVC)
 	set_biomeval_test_exe_dependencies(test_be_io_syslogsheet)
 	add_executable(test_be_time_watchdog test_be_time_watchdog.cpp)
 	set_biomeval_test_exe_dependencies(test_be_time_watchdog)
-endif (NOT MSVC)
+endif ()
 
 #
 # Link the test data into the build directory.
@@ -265,4 +265,4 @@ if (NOT EXISTS test_data)
 	elseif(WIN32)
 		execute_process(COMMAND mklink /J test_data ${PROJECT_SOURCE_DIR}/test_data)
 	endif()
-endif (NOT EXISTS test_data)
+endif ()
