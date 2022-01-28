@@ -40,6 +40,10 @@
 
 cmake_minimum_required(VERSION 3.16.3)
 
+set(BIOMEVAL_C_FLAGS "")
+set(BIOMEVAL_CXX_FLAGS "")
+set(BIOMEVAL_DEFINITIONS "")
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND FORCE_STATIC_DEPENDENCIES)
 	# No static libhwloc in MacPorts
 	set(WITH_HWLOC OFF)
@@ -47,8 +51,8 @@ endif ()
 
 if (BUILD_BIOMEVAL_32BIT)
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+	list(APPEND BIOMEVAL_C_FLAGS -m32)
+	list(APPEND BIOMEVAL_CXX_FLAGS -m32)
 endif ()
 
 # Create dirent_windows.h at build time
@@ -97,7 +101,8 @@ set(CORELIB biomeval)
 
 # NBIS uses "insecure" functions under Windows
 if(MSVC)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS_GLOBALS)
+	# FIXME: Update NBIS to not use these functions
+	list(APPEND BIOMEVAL_DEFINITIONS "_CRT_SECURE_NO_WARNINGS" "_CRT_SECURE_NO_WARNINGS_GLOBAL")
 endif()
 
 if (BUILD_SHARED_LIBS)
@@ -278,7 +283,7 @@ target_include_directories(nbisobjs PUBLIC ${NBIS_INCLUDE})
 include(TestBigEndian)
 TEST_BIG_ENDIAN(BIGEND)
 if(NOT ${BIGEND})
-  add_definitions("-D__NBISLE__")
+  	target_compile_definitions(nbisobjs PRIVATE __NBISLE__)
 endif()
 
 #
@@ -372,7 +377,7 @@ if(CMAKE_HOST_APPLE)
   if (PCSC_FOUND)
 	target_link_libraries(${CORELIB} ${PCSC_FRAMEWORK})
   endif ()
-  add_definitions("-DDarwin")
+  list(APPEND BIOMEVAL_DEFINITIONS Darwin)
 endif()
 
 target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
@@ -383,7 +388,7 @@ target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
 #
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   message(STATUS ">>> Linux")
-  add_definitions("-DLinux")
+  list(APPEND BIOMEVAL_DEFINITIONS Linux)
 endif()
 
 #
@@ -458,7 +463,7 @@ endif()
 # The Portable Hardware Locality hwloc
 #
 if (WITH_HWLOC)
-add_definitions(-DBIOMEVAL_WITH_HWLOC)
+	  list(APPEND BIOMEVAL_DEFINITIONS BIOMEVAL_WITH_HWLOC)
 set(HWLOC_FIND_REQUIRED TRUE)
 find_package(HWLOC)
 if(NOT HWLOC_FOUND)
@@ -508,6 +513,20 @@ endif()
 
 
 target_include_directories(${CORELIB} PUBLIC $<INSTALL_INTERFACE:include>)
+
+# Set flags for each target
+set(BIOMEVAL_TARGETS "coreobjs;vidobjs;deviceobjs;mpiobjs;nbisobjs;${CORELIB}")
+foreach (t ${BIOMEVAL_TARGETS})
+	if (TARGET ${t})
+		target_compile_options(${t} PRIVATE
+		    $<$<COMPILE_LANGUAGE:C>:${BIOMEVAL_C_FLAGS}>
+		    $<$<COMPILE_LANGUAGE:CXX>:${BIOMEVAL_CXX_FLAGS}>
+		)
+		target_compile_definitions(${t} PRIVATE
+		    ${BIOMEVAL_DEFINITIONS}
+		)
+	endif()
+endforeach()
 
 #
 # Installation.

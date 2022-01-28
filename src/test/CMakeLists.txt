@@ -24,7 +24,6 @@ project(biomeval-test)
 
 if (BUILD_BIOMEVAL_32BIT)
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
 endif ()
 
 # Sanity check our source directory to make sure that we are not trying to
@@ -50,6 +49,13 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 	add_dependencies(${TARGET_NAME} biomeval)
 	target_include_directories(${TARGET_NAME} PRIVATE ${libbiomeval_SOURCE_DIR}/../include)
 	target_link_libraries(${TARGET_NAME} PRIVATE biomeval)
+
+	if (BUILD_BIOMEVAL_32BIT)
+		target_compile_options(${TARGET_NAME} PRIVATE
+		    $<$<COMPILE_LANGUAGE:C>:-m32>
+		    $<$<COMPILE_LANGUAGE:CXX>:-m32>
+		)
+	endif()
 
 	# Windows needs to differentiate between static/dynamic and
 	# release/debug builds. TODO above notes that static lib is hardcoded
