@@ -393,12 +393,18 @@ endif()
 #
 # OpenSSL
 #
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-	# On macOS, we use the built-in frameworks instead.
+# On macOS, we use the built-in Security framework instead of OpenSSL, but the
+# Security framework requires C "block" support, a language extension not found
+# in all compilers.
+include(CHeckCXXCompilerFlag)
+check_cxx_compiler_flag("-fblocks" BLOCK_SUPPORT)
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND BLOCK_SUPPORT)
 	find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
 	find_library(SECURITY_FRAMEWORK Security REQUIRED)
 	target_link_libraries(${CORELIB}
 	    ${FOUNDATION_FRAMEWORK} ${SECURITY_FRAMEWORK})
+	list(APPEND BIOMEVAL_DEFINITIONS "UseAppleSecurityFramework")
+	message(STATUS "Using Apple Security Framework")
 else ()
 	set(OPENSSL_FIND_REQUIRED TRUE)
 	find_package(OpenSSL)

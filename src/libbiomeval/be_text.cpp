@@ -8,14 +8,14 @@
  * about its quality, reliability, or any other characteristic.
  */
 
-#ifdef Darwin
+#ifdef UseAppleSecurityFramework
 #include <CommonCrypto/CommonDigest.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>
 #else
 #include <openssl/buffer.h>
 #include <openssl/evp.h>
-#endif
+#endif /* UseAppleSecurityFramework */
 
 #include <algorithm>
 #include <cctype>
@@ -120,7 +120,7 @@ BiometricEvaluation::Text::digest(
     const size_t buffer_size,
     const std::string &digest)
 {
-#ifdef Darwin
+#ifdef UseAppleSecurityFramework
 	/* Use CommonCrypto under OS X (10.4 or later) */
 	
  	/* Length of the resulting digest */
@@ -359,7 +359,7 @@ std::string
 BiometricEvaluation::Text::encodeBase64(
     const BiometricEvaluation::Memory::uint8Array &data)
 {
-#ifdef Darwin
+#ifdef UseAppleSecurityFramework
 	CFErrorRef error = nullptr;
 
 	SecTransformRef transform = SecEncodeTransformCreate(
@@ -425,14 +425,14 @@ BiometricEvaluation::Text::encodeBase64(
 	BIO_free_all(handle);
 
 	return (encodedString);
-#endif /* Darwin */
+#endif /* UseAppleSecurityFramework */
 }
 
 BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Text::decodeBase64(
     const std::string &data)
 {
-#ifdef Darwin
+#ifdef UseAppleSecurityFramework
 	CFErrorRef error = nullptr;
 
 	SecTransformRef transform = SecDecodeTransformCreate(
@@ -491,5 +491,5 @@ BiometricEvaluation::Text::decodeBase64(
 	BIO_free_all(handle);
 
 	return (decodedData);
-#endif /* Darwin */
+#endif /* UseAppleSecurityFramework */
 }
