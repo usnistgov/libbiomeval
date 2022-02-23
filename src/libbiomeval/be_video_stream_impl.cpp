@@ -97,8 +97,6 @@ BiometricEvaluation::Video::StreamImpl::openContainer()
 void
 BiometricEvaluation::Video::StreamImpl::construct()
 {
-	//XXX Replace with registration of only video codecs
-	av_register_all();
 	this->openContainer();
 	this->_xScale = 1.0;
 	this->_yScale = 1.0;
