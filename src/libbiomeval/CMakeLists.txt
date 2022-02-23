@@ -438,7 +438,7 @@ endif()
 # On macOS, we use the built-in Security framework instead of OpenSSL, but the
 # Security framework requires C "block" support, a language extension not found
 # in all compilers.
-include(CHeckCXXCompilerFlag)
+include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-fblocks" BLOCK_SUPPORT)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND BLOCK_SUPPORT)
 	find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
