@@ -175,26 +175,28 @@ BiometricEvaluation::Video::StreamImpl::getNextAVFrame()
 	 * within the context depends on previous calls to this function.
 	 */
 	int gotFrame = 0;
-	AVPacket packet;
-	av_init_packet(&packet);
-	packet.size = 0;
-	packet.data = nullptr;
+	const auto AVPacketDeleter = [](AVPacket *p){  av_packet_free(&p); };
+	std::unique_ptr<AVPacket, decltype(AVPacketDeleter)> packet{
+	    av_packet_alloc(), AVPacketDeleter};
+	packet->size = 0;
+	packet->data = nullptr;
 
 	/*
 	 * Grab the next frame from the video stream.
 	 */
-	while(av_read_frame(this->_fmtCtx, &packet) >= 0) {
-		if(packet.stream_index == (int)this->_streamIndex) {
+	while(av_read_frame(this->_fmtCtx, packet.get()) >= 0) {
+		if(packet->stream_index == (int)this->_streamIndex) {
 			avcodec_decode_video2(
-			    this->_codecCtx, frameNative, &gotFrame, &packet);
-			av_packet_unref(&packet);
+			    this->_codecCtx, frameNative, &gotFrame,
+			        packet.get());
+			av_packet_unref(packet.get());
 			if (gotFrame != 0) {
 				break;
 			} else {
 				av_frame_unref(frameNative);
 			}
 		} else {
-			av_packet_unref(&packet);
+			av_packet_unref(packet.get());
 		}
 	}
 	/*
@@ -203,11 +205,10 @@ BiometricEvaluation::Video::StreamImpl::getNextAVFrame()
 	 */
 	//XXX check packet.stream_index?
 	if (gotFrame == 0) {
-		packet.size = 0;
-		packet.data = nullptr;
+		packet->size = 0;
+		packet->data = nullptr;
 		avcodec_decode_video2(
-		    this->_codecCtx, frameNative, &gotFrame, &packet);
-		av_packet_unref(&packet);
+		    this->_codecCtx, frameNative, &gotFrame, packet.get());
 	}
 	if (gotFrame == 0) {
 		throw (BE::Error::ParameterError("Frame could not be found"));
