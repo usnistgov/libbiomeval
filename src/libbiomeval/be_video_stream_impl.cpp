@@ -78,8 +78,21 @@ BiometricEvaluation::Video::StreamImpl::openContainer()
 	 * library into our codec. This is necessary for certain
 	 * stream types, H264 at least.
 	 */
-	avcodec_copy_context(this->_codecCtx,
-	    this->_fmtCtx->streams[this->_streamIndex]->codec);
+	const auto AVCodecParametersDeleter = [](AVCodecParameters *p) {
+		 avcodec_parameters_free(&p);
+	};
+	std::unique_ptr<AVCodecParameters, decltype(AVCodecParametersDeleter)>
+	    copiedCodecParams{avcodec_parameters_alloc(),
+	    AVCodecParametersDeleter};
+	if (const auto ret = avcodec_parameters_from_context(
+	    copiedCodecParams.get(),
+	    this->_fmtCtx->streams[this->_streamIndex]->codec); ret < 0)
+		throw BE::Error::StrategyError{"Could not retrieve source "
+		    "AVCodecParameters"};
+	if (const auto ret = avcodec_parameters_to_context(this->_codecCtx,
+	    copiedCodecParams.get()); ret < 0)
+		throw BE::Error::StrategyError{"Could not set destination "
+		    "AVCodecParameters"};
 
 	AVDictionary *opts = NULL;
 	av_dict_set(&opts, "refcounted_frames", "1", 0);
