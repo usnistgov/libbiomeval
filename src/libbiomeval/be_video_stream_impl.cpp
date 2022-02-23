@@ -227,7 +227,7 @@ BiometricEvaluation::Video::StreamImpl::getNextAVFrame()
 		throw (BE::Error::ParameterError("Frame could not be found"));
 	}
 	this->_currentFrameNum++;
-	this->_currentFrameTS = av_frame_get_best_effort_timestamp(frameNative);
+	this->_currentFrameTS = frameNative->best_effort_timestamp;
 	return (pFrame);
 }
 
@@ -244,7 +244,7 @@ BiometricEvaluation::Video::StreamImpl::convertAVFrame(
 	BE::Video::Frame staticFrame;
 	staticFrame.size.xSize = this->_codecCtx->width * this->_xScale;
 	staticFrame.size.ySize = this->_codecCtx->height * this->_yScale;
-	staticFrame.timestamp = av_frame_get_best_effort_timestamp(frameNative);
+	staticFrame.timestamp = frameNative->best_effort_timestamp;
 
 	/* Calculate the size of the decoded frame */
 	int frameSize = av_image_get_buffer_size(
