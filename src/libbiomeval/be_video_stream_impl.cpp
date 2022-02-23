@@ -65,7 +65,7 @@ BiometricEvaluation::Video::StreamImpl::openContainer()
 	 * the container is closed.
 	 */
 	AVCodec *codec = avcodec_find_decoder(
-	    this->_fmtCtx->streams[this->_streamIndex]->codec->codec_id);
+	    this->_fmtCtx->streams[this->_streamIndex]->codecpar->codec_id);
 	if (codec == nullptr)
 		throw (Error::StrategyError("Unsupported codec"));
 
