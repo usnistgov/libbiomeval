@@ -127,10 +127,13 @@ std::string
 BiometricEvaluation::Image::to_string(
     const Image::CoordinateSet &coordinates)
 {
+	if (coordinates.empty())
+		return ("{}");
+
 	std::string str{'{'};
 	for (size_t i = 0; i < coordinates.size() - 1; i++)
 		 str += to_string(coordinates.at(i)) + ", ";
-	str += to_string(coordinates.at(coordinates.size() - 1)) + '}';
+	str += to_string(coordinates.back()) + '}';
 	
 	return (str);
 }
