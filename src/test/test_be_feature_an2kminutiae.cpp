@@ -63,8 +63,11 @@ testAN2K7Minutiae(const std::string &fname)
 	
 	cout << "There are " << mps.size() << " minutiae points:" << endl;
 	for (size_t i = 0; i < mps.size(); i++) {
-		printf("(%u,%u,%u)\n", mps[i].coordinate.x, mps[i].coordinate.y,
+		printf("(%u,%u,%u)", mps[i].coordinate.x, mps[i].coordinate.y,
 		    mps[i].theta);
+		if (mps[i].has_type)
+			std::cout << ',' << mps[i].type;
+		std::cout << '\n';
 	}
 	cout << "There are " << rcs.size() << " ridge counts:" << endl;
 	for (size_t i = 0; i < rcs.size(); i++) {
