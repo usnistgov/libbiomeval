@@ -359,7 +359,7 @@ namespace BiometricEvaluation
 			setCatchExceptions(
 			    const bool catchExceptions)
 			{
-				this->_catchExceptions = false;
+				this->_catchExceptions = catchExceptions;
 			}
 
 			/**
