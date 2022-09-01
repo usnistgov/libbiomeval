@@ -4,18 +4,14 @@ on:
   pull_request:
     paths-ignore:
       - '.gitignore'
-      - '.travis.yml'
       - '**.md'
-      - 'appveyor.yml'
       - 'src/test/test_data/**'
   push:
     branches:
       - master
     paths-ignore:
       - '.gitignore'
-      - '.travis.yml'
       - '**.md'
-      - 'appveyor.yml'
       - 'src/test/test_data/**'
 
 env:
