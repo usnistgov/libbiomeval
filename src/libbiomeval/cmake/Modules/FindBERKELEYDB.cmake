@@ -25,9 +25,16 @@
 
 if(UNIX)
 	find_path(BERKELEYDB_INCLUDE_DIR db_cxx.h
-	  /usr/include/
-	  /opt/local/include/db48/
-	  /opt/local/include/db62/
+	    PATHS
+	        # MacPorts
+	        /opt/local/include
+	        # Homebrew
+	        /usr/local/opt/berkeley-db/include
+	        /opt/homebrew/include
+	    PATH_SUFFIXES
+	       db62
+	       db48
+	       berkeley-db
 	)
 elseif(WIN32)
 	if(_VCPKG_INSTALLED_DIR AND VCPKG_TARGET_TRIPLET)
@@ -42,9 +49,17 @@ endif()
 # as the above include search paths.
 #
 if(UNIX)
-	find_library(BERKELEYDB_LIBRARY NAMES db_cxx PATHS
-	  /opt/local/lib/db48/
-	  /opt/local/lib/db62/
+	find_library(BERKELEYDB_LIBRARY NAMES db_cxx
+	    PATHS
+	    	# MacPorts
+	        /opt/local/lib
+	        # Homebrew
+	        /usr/local/opt/berkeley-db/lib
+	        /opt/homebrew/lib
+	    PATH_SUFFIXES
+	        db62
+	        db48
+	        berkeley-db
 	)
 elseif(WIN32)
 	if(_VCPKG_INSTALLED_DIR AND VCPKG_TARGET_TRIPLET)
