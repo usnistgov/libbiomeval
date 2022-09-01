@@ -85,11 +85,11 @@ jobs:
       if: ${{ runner.os == 'macOS' }}
       shell: bash
       # FIXME: homebrew's open-mpi package doesn't include C++ bindings
+      # FIXME: we're not compatible with latest ffmpeg
       run: |
         brew install \
             berkeley-db \
             hwloc \
-            ffmpeg \
             jpeg-turbo \
             libpng \
             libtiff \
