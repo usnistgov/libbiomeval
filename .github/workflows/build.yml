@@ -163,6 +163,7 @@ jobs:
             -DBUILD_SHARED_LIBS=${{ matrix.config.shared }} \
             -DBUILD_BIOMEVAL_TESTS=${BUILD_BIOMEVAL_TESTS} \
             -DBUILD_BIOMEVAL_32BIT=${BUILD_BIOMEVAL_32BIT} \
+            -DOPENSSL_ROOT_DIR=../fresh-vcpkg/packages/openssl_${{ matrix.config.arch }}-windows-static/ \
             ${GITHUB_WORKSPACE}
 
     - name: Build (Single-config Generator)
