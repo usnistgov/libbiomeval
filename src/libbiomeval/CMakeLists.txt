@@ -541,7 +541,22 @@ target_link_libraries(${CORELIB} ${TIFF_LIBRARIES})
 if (FORCE_STATIC_DEPENDENCIES)
     find_library(ZSTD_LIBRARY zstd REQUIRED)
     find_library(LZMA_LIBRARY lzma REQUIRED)
-    target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY})
+
+    # libtiff on MacPorts is now compiled to support LERC compression,
+    # requiring libLerc when linked statically. MacPorts does not build libLerc
+    # statically, so you need to build it yourself with -DBUILD_SHARED_LIBS=OFF.
+    find_file(TIFF_CONFIG_HEADER
+        NAMES tiffconf.h
+        REQUIRED
+        HINTS ${TIFF_INCLUDE_DIR})
+    file(READ "${TIFF_CONFIG_HEADER}" TIFF_CONFIG)
+    string(REGEX MATCH "#define LERC_SUPPORT 1" TIFF_REQUIRES_LERC "${TIFF_CONFIG}")
+    if ("${TIFF_REQUIRES_LERC}" STREQUAL "")
+            target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY})
+    else()
+    	find_library(LERC_LIBRARY Lerc REQUIRED)
+        target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY} ${LERC_LIBRARY})
+    endif()
 endif (FORCE_STATIC_DEPENDENCIES)
 
 find_package(PNG REQUIRED)
