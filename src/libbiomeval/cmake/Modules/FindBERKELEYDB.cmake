@@ -30,7 +30,7 @@ if(UNIX)
 	        /opt/local/include
 	        # Homebrew
 	        /usr/local/opt/berkeley-db/include
-	        /opt/homebrew/include
+	        /opt/homebrew/opt/berkeley-db/include
 	    PATH_SUFFIXES
 	       db62
 	       db48
@@ -55,7 +55,7 @@ if(UNIX)
 	        /opt/local/lib
 	        # Homebrew
 	        /usr/local/opt/berkeley-db/lib
-	        /opt/homebrew/lib
+	        /opt/homebrew/opt/berkeley-db/lib
 	    PATH_SUFFIXES
 	        db62
 	        db48
