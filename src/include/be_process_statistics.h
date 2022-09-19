@@ -272,6 +272,24 @@ namespace BiometricEvaluation {
 			 */
 			void callStatistics_logStats();
 
+			/**
+			 * @return
+			 * Description of the task being performed.
+			 */
+			std::string
+			getComment()
+			    const;
+
+			/**
+			 * Set a description of the task being performed.
+			 *
+			 * @param comment
+			 * Description of the task being performed.
+			 */
+			void
+			setComment(
+			    std::string_view comment);
+
 		private:
 
 			pid_t _pid;
@@ -285,6 +303,7 @@ namespace BiometricEvaluation {
 			bool _autoLogging{};
 			pthread_t _loggingThread{};
 			pthread_mutex_t _logMutex{};
+			std::string _comment{};
 		};
 
 	}
