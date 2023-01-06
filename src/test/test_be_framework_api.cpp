@@ -197,14 +197,16 @@ main()
 
 	/* Success */
 	[&](const BE::Framework::API<Eval::Status>::Result &result) -> void {
-		std::cout << "Completed in " << result.elapsed << "µs, with "
+		std::cout << "Completed in " <<
+		    result.elapsed<std::chrono::microseconds>() << "µs, with "
 		    "return value of " <<
 		    to_string(result.status) << std::endl;
 	},
 
 	/* Failure */
 	[&](const BE::Framework::API<Eval::Status>::Result &result) -> void {
-		std::cout << "Failed in " << result.elapsed << "µs, with "
+		std::cout << "Failed in " <<
+		    result.elapsed<std::chrono::microseconds>() << "µs, with "
 		    "reason " << to_string(result.currentState) << std::endl;
 	});
 
@@ -222,7 +224,7 @@ main()
 	});
 	/* stringResult.status is a string */
 	std::cout << "Returned '" << stringResult.status << "' in " <<
-	    stringResult.elapsed << "µs" << std::endl;
+	    stringResult.elapsed<std::chrono::microseconds>() << "µs\n";
 
 	/*
 	 * call() returns an int, but we don't have to capture it if we use
