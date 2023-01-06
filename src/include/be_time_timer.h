@@ -162,9 +162,8 @@ namespace BiometricEvaluation
 			 * String representing the elapsed time.
 			 *
 			 * @throw Error::StrategyError
-			 * Propagated from elapsed<Duration>(), or unrecognized
-			 * duration cast occurred and units cannot be
-			 * determined.
+			 * Propagated from elapsed<Duration>() or
+			 * units<Duration>().
 			 */
 			template<typename Duration>
 			std::string
@@ -172,48 +171,62 @@ namespace BiometricEvaluation
 			    bool displayUnits = false)
 			    const
 			{
-				std::string ret{std::to_string(
+				const std::string ret{std::to_string(
 				    this->elapsed<Duration>())};
-				if (!displayUnits)
-					return (ret);
 
+				if (displayUnits)
+					return (ret + Timer::units<Duration>());
+				return (ret);
+			}
+
+			/**
+			 * @return
+			 * Unit label for a particular duration.
+			 *
+			 * @throw Error::StrategyError
+			 * Unrecognized duration encountered and units cannot be
+			 * determined.
+			 */
+			template<typename Duration>
+			static
+			std::string
+			units()
+			{
 				if ((Duration::period::num ==
 				    std::chrono::nanoseconds::period::num) &&
 				    (Duration::period::den ==
 				    std::chrono::nanoseconds::period::den)) {
-					ret += "ns";
+					return ("ns");
 				} else if ((Duration::period::num ==
 				    std::chrono::microseconds::period::num) &&
 				    (Duration::period::den ==
 				    std::chrono::microseconds::period::den)) {
-					ret += "μs";
+					return ("μs");
 				} else if ((Duration::period::num ==
 				    std::chrono::milliseconds::period::num) &&
 				    (Duration::period::den ==
 				    std::chrono::milliseconds::period::den)) {
-					ret += "ms";
+					return ("ms");
 				}  else if ((Duration::period::num ==
 				    std::chrono::seconds::period::num) &&
 				    (Duration::period::den ==
 				    std::chrono::seconds::period::den)) {
-					ret += "s";
+					return ("s");
 				} else if ((Duration::period::num ==
 				    std::chrono::minutes::period::num) &&
 				    (Duration::period::den ==
 				    std::chrono::minutes::period::den)) {
-					ret += "m";
+					return ("m");
 				} else if ((Duration::period::num ==
 				    std::chrono::hours::period::num) &&
 				    (Duration::period::den ==
 				    std::chrono::hours::period::den)) {
-					ret += "h";
+					return ("h");
 				} else {
 					throw BiometricEvaluation::Error::
 					    StrategyError{"Unknown duration "
 					    "units"};
 				}
-
-				return (ret);
 			}
 
 			/**
