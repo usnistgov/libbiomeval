@@ -109,6 +109,27 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Get the elapsed time between calls to this object's
+			 * start() and stop() methods.
+			 *
+			 * @return
+			 * Elapsed time converted to the integral units
+			 * requested, which may experience loss of precision.
+			 *
+			 * @throw Error::StrategyError
+			 * Propagated from elapsedTimePoint().
+			 */
+			template<typename Duration>
+			std::uintmax_t
+			elapsed()
+			    const
+			{
+				return (std::chrono::duration_cast<Duration>(
+				    this->elapsedTimePoint()).count());
+			}
+
+			/**
+			 * @brief
 			 * Convenience method for printing elapsed time as a
 			 * string.
 			 *
@@ -128,6 +149,91 @@ namespace BiometricEvaluation
  			   bool displayUnits = false,
  			   bool nano = false)
 			   const;
+
+			/**
+			 * @brief
+			 * Convenience method for printing elapsed time as a
+			 * string.
+			 *
+			 * @param displayUnits
+			 * Append the elapsed time units.
+			 *
+			 * @return
+			 * String representing the elapsed time.
+			 *
+			 * @throw Error::StrategyError
+			 * Propagated from elapsed<Duration>(), or unrecognized
+			 * duration cast occurred and units cannot be
+			 * determined.
+			 */
+			template<typename Duration>
+			std::string
+			elapsedStr(
+			    bool displayUnits = false)
+			    const
+			{
+				std::string ret{std::to_string(
+				    this->elapsed<Duration>())};
+				if (!displayUnits)
+					return (ret);
+
+				if ((Duration::period::num ==
+				    std::chrono::nanoseconds::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::nanoseconds::period::den)) {
+					ret += "ns";
+				} else if ((Duration::period::num ==
+				    std::chrono::microseconds::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::microseconds::period::den)) {
+					ret += "μs";
+				} else if ((Duration::period::num ==
+				    std::chrono::milliseconds::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::milliseconds::period::den)) {
+					ret += "ms";
+				}  else if ((Duration::period::num ==
+				    std::chrono::seconds::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::seconds::period::den)) {
+					ret += "s";
+				} else if ((Duration::period::num ==
+				    std::chrono::minutes::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::minutes::period::den)) {
+					ret += "m";
+				} else if ((Duration::period::num ==
+				    std::chrono::hours::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::hours::period::den)) {
+					ret += "h";
+				} else {
+					throw BiometricEvaluation::Error::
+					    StrategyError{"Unknown duration "
+					    "units"};
+				}
+
+				return (ret);
+			}
+
+			/**
+			 * @brief
+			 * Get the elapsed time between calls to this object's
+			 * start() and stop() methods.
+			 *
+			 * @return
+			 * Elapsed time.
+			 *
+			 * @throw Error::StrategyError
+			 * This object is currently timing an operation or an
+			 * error occurred when obtaining timing information.
+			 *
+			 * @seealso elapsed()
+			 */
+			std::common_type_t<BE_CLOCK_TYPE::time_point::duration,
+			    BE_CLOCK_TYPE::time_point::duration>
+			elapsedTimePoint()
+			    const;
 
 			/**
 			 * @brief

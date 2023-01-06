@@ -91,6 +91,17 @@ BiometricEvaluation::Time::Timer::elapsedStr(
 	return (ret);
 }
 
+std::common_type_t<
+    BiometricEvaluation::Time::Timer::BE_CLOCK_TYPE::time_point::duration,
+    BiometricEvaluation::Time::Timer::BE_CLOCK_TYPE::time_point::duration>
+BiometricEvaluation::Time::Timer::elapsedTimePoint()
+    const
+{
+	if (this->_inProgress)
+		throw Error::StrategyError{"Timing in progress"};
+
+	return (this->_finish - this->_start);
+}
 
 BiometricEvaluation::Time::Timer&
 BiometricEvaluation::Time::Timer::time(
