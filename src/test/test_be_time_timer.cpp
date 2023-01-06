@@ -141,6 +141,40 @@ int main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 
+	try {
+		std::cout << "Print 1s as various units:" << std::endl;
+		const auto timer = Time::Timer([]{
+		    std::this_thread::sleep_for(oneSec()); });
+
+		std::cout << " * Picoseconds: " <<
+		    timer.elapsed<
+		    std::chrono::duration<std::uintmax_t, std::pico>>() << '\n';
+		std::cout << " * Nanoseconds: " <<
+		    timer.elapsed<std::chrono::nanoseconds>() << " (" <<
+		    timer.elapsedStr<std::chrono::nanoseconds>(true) << ")\n";
+		std::cout << " * Microseconds: " <<
+		    timer.elapsed<std::chrono::microseconds>() << " (" <<
+		    timer.elapsedStr<std::chrono::microseconds>(true) << ")\n";
+		std::cout << " * Milliseconds: " <<
+		    timer.elapsed<std::chrono::milliseconds>() << " (" <<
+		    timer.elapsedStr<std::chrono::milliseconds>(true) << ")\n";
+		std::cout << " * Seconds: " <<
+		    timer.elapsed<std::chrono::seconds>() << " (" <<
+		    timer.elapsedStr<std::chrono::seconds>(true) << ")\n";
+		std::cout << " * Minutes: " <<
+		    timer.elapsed<std::chrono::minutes>() << " (" <<
+		    timer.elapsedStr<std::chrono::minutes>(true) << ")\n";
+		std::cout << " * Hours: " <<
+		    timer.elapsed<std::chrono::hours>() << " (" <<
+		    timer.elapsedStr<std::chrono::hours>(true) << ")\n";
+		std::cout << " * Days: " <<
+		    timer.elapsed<
+		    std::chrono::duration<float, std::ratio<86400>>>() << '\n';
+	} catch (const Error::StrategyError &e) {
+		cout << "failed" << endl;
+		cout << "Caught " << e.what() << endl;
+		return (EXIT_FAILURE);
+	}
 
 	return (EXIT_SUCCESS);
 }
