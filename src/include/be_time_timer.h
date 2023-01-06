@@ -46,6 +46,10 @@ namespace BiometricEvaluation
 			    std::chrono::steady_clock;
 #endif
 
+			/* Ensure chosen clock increases monotonically */
+			static_assert(BE_CLOCK_TYPE::is_steady,
+			    "BE_CLOCK_TYPE is not a steady clock");
+
 			/** Constructor for the Timer object. */
 			Timer();
 
