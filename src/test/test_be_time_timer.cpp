@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
 	cout << "Get elapsed time an untimed timer... ";
 	try {
-		double seconds = atimer->elapsed();
+		double seconds = atimer->elapsed<std::chrono::microseconds>();
 		if (seconds == 0)
 			cout << "passed" << endl;
 		else {
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 	cout << "Get elapsed time on an unstopped timer... ";
 	try {
 		atimer->start();
-		atimer->elapsed();
+		atimer->elapsed<std::chrono::microseconds>();
 		cout << "failed" << endl;
 		return (EXIT_FAILURE);
 	} catch (const Error::StrategyError &e) {
@@ -89,9 +89,9 @@ int main(int argc, char *argv[])
 		atimer->stop();
 		cout << "passed" << endl;
 		cout << "Time in microseconds for sleep_for(1s): "
-		    << atimer->elapsed() << endl;
+		    << atimer->elapsed<std::chrono::microseconds>() << endl;
 		cout << "Time in nanoseconds for sleep_for(1s):  "
-		    << atimer->elapsed(true) << endl;
+		    << atimer->elapsed<std::chrono::nanoseconds>() << endl;
 	} catch (const Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;
@@ -105,11 +105,13 @@ int main(int argc, char *argv[])
 		atimer->stop();
 		cout << "passed" << endl;
 		cout << "Time in microseconds for no-op: "
-		    << atimer->elapsed()
-		    << " (" << atimer->elapsedStr(true) << ")\n";
+		    << atimer->elapsed<std::chrono::microseconds>()
+		    << " (" << atimer->elapsedStr<std::chrono::microseconds>(
+		    true) << ")\n";
 		cout << "Time in nanoseconds for no-op:  "
-		    << atimer->elapsed(true)
-		    << " (" << atimer->elapsedStr(true, true) << ")\n";
+		    << atimer->elapsed<std::chrono::nanoseconds>()
+		    << " (" << atimer->elapsedStr<std::chrono::nanoseconds>(
+		    true) << ")\n";
 	} catch (const Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;
@@ -118,7 +120,7 @@ int main(int argc, char *argv[])
 
 	try {
 		cout << "Time sleep_for(1s) in lambda... " << flush;
-		const auto timer = Time::Timer([]{ 
+		const auto timer = Time::Timer([]{
 		    std::this_thread::sleep_for(oneSec()); });
 		cout << "passed" << endl;
 		cout << "Time for sleep_for(1s) in lambda: " << timer << endl;
@@ -134,7 +136,8 @@ int main(int argc, char *argv[])
 		cout << "Time for sleep_for(1s) in time(function pointer): " <<
 		    timer.time(sleepCallback) << endl;
 		cout << "Chained elapsed time for sleep_for(1s): " <<
-		    timer.time(sleepCallback).elapsedStr() << endl;
+		    timer.time(sleepCallback).elapsedStr<
+		    std::chrono::microseconds>() << endl;
 	} catch (const Error::StrategyError &e) {
 		cout << "failed" << endl;
 		cout << "Caught " << e.what() << endl;

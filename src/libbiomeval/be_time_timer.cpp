@@ -51,31 +51,6 @@ BiometricEvaluation::Time::Timer::stop()
 	this->_inProgress = false;
 }
 
-uint64_t
-BiometricEvaluation::Time::Timer::elapsed(
-    bool nano)
-    const
-{
-	if (nano) {
-		return (this->elapsed<std::chrono::nanoseconds>());
-	} else {
-		return (this->elapsed<std::chrono::microseconds>());
-	}
-}
-
-std::string
-BiometricEvaluation::Time::Timer::elapsedStr(
-    bool displayUnits,
-    bool nano)
-    const
-{
-	if (nano)
-		return (this->elapsedStr<std::chrono::nanoseconds>(
-		    displayUnits));
-
-	return (this->elapsedStr<std::chrono::microseconds>(displayUnits));
-}
-
 std::common_type_t<
     BiometricEvaluation::Time::Timer::BE_CLOCK_TYPE::time_point::duration,
     BiometricEvaluation::Time::Timer::BE_CLOCK_TYPE::time_point::duration>
