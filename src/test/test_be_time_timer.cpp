@@ -167,9 +167,17 @@ int main(int argc, char *argv[])
 		std::cout << " * Minutes: " <<
 		    timer.elapsed<std::chrono::minutes>() << " (" <<
 		    timer.elapsedStr<std::chrono::minutes>(true) << ")\n";
-		std::cout << " * Hours: " <<
+		std::cout << " * Hours (int): " <<
 		    timer.elapsed<std::chrono::hours>() << " (" <<
 		    timer.elapsedStr<std::chrono::hours>(true) << ")\n";
+
+		/* Demonstrate how you can convert using floating point */
+		std::chrono::duration<double, std::ratio<3600>> t =
+		    timer.elapsedTimePoint();
+		std::cout << " * Hours (float): " <<
+		    t.count() << " (" << std::to_string(t.count()) <<
+		    Time::Timer::units<std::chrono::hours>() << ")\n";
+
 		std::cout << " * Days: " <<
 		    timer.elapsed<
 		    std::chrono::duration<float, std::ratio<86400>>>() << '\n';
