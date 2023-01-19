@@ -99,6 +99,25 @@ namespace BiometricEvaluation
 			 *
 			 * @throw Error::StrategyError
 			 * Propagated from elapsedTimePoint().
+			 *
+			 * @note
+			 * Values returned from this method are limited in
+			 * their precision by the resolution of BE_CLOCK_TYPE.
+			 * For example, if the clock's native resolution is in
+			 * nanoseconds, requesting a picoseconds
+			 * representation returns 1000 times the nanosecond
+			 * value, not the true value in picoseconds.
+			 *
+			 * @note
+			 * Returned values are limited by the semantics of C++'s
+			 * duration type, which reports only **whole** units.
+			 * For example, if a representation of hours was
+			 * requested, 0 would be returned for durations of less
+			 * than 3600s, and 1 would be returned for durations
+			 * of 3600s through and including 7199s. For floating
+			 * point approximations of representations, use
+			 * elapsedTimePoint() to obtain a std::chrono::duration
+			 * that uses a floating point type to store the count.
 			 */
 			template<typename Duration>
 			std::uintmax_t
@@ -123,6 +142,9 @@ namespace BiometricEvaluation
 			 * @throw Error::StrategyError
 			 * Propagated from elapsed<Duration>() or
 			 * units<Duration>().
+			 *
+			 * @note
+			 * See the important note in elapsed().
 			 */
 			template<typename Duration>
 			std::string
@@ -201,6 +223,15 @@ namespace BiometricEvaluation
 			 * error occurred when obtaining timing information.
 			 *
 			 * @seealso elapsed()
+			 *
+			 * @note
+			 * This method may be useful for obtaining floating
+			 * point representations of durations. For example,
+			 * `std::chrono::duration<double, std::milli>(
+			 *      std::chrono::microseconds(1001599)).count()`
+			 * would return a `double` with the value 1001.599000,
+			 * the millisecond floating point representation of
+			 * 1001599 microseconds.
 			 */
 			std::common_type_t<BE_CLOCK_TYPE::time_point::duration,
 			    BE_CLOCK_TYPE::time_point::duration>
