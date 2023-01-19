@@ -160,7 +160,7 @@ namespace BiometricEvaluation
 				    std::chrono::microseconds::period::num) &&
 				    (Duration::period::den ==
 				    std::chrono::microseconds::period::den)) {
-					return ("μs");
+					return ("\xC2\xB5s");
 				} else if ((Duration::period::num ==
 				    std::chrono::milliseconds::period::num) &&
 				    (Duration::period::den ==
