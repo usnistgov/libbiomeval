@@ -56,8 +56,8 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
       shell: bash
       run: |
-        mkdir -p ${VCPKG_ROOT}/bincache
-        echo "VCPKG_DEFAULT_BINARY_CACHE=${VCPKG_ROOT}/bincache" >> ${GITHUB_ENV}
+        mkdir -p ${VCPKG_INSTALLATION_ROOT}/bincache
+        echo "VCPKG_DEFAULT_BINARY_CACHE=${VCPKG_INSTALLATION_ROOT}/bincache" >> ${GITHUB_ENV}
 
     - name: Package Cache (Windows)
       if: ${{ runner.os == 'Windows' }}
@@ -143,12 +143,12 @@ jobs:
       working-directory: ${{ github.workspace }}/build
       run: |
         cmake \
-            -DCMAKE_BUILD_TYPE=${CONFIGURATION} \
-            -DBUILD_SHARED_LIBS=${{ matrix.config.shared }} \
-            -DBUILD_BIOMEVAL_TESTS=${BUILD_BIOMEVAL_TESTS} \
-            -DBUILD_BIOMEVAL_32BIT=${BUILD_BIOMEVAL_32BIT} \
-            -DFORCE_STATIC_DEPENDENCIES=${{ matrix.config.force-static-deps }} \
-            ${GITHUB_WORKSPACE}
+            -DCMAKE_BUILD_TYPE="${CONFIGURATION}" \
+            -DBUILD_SHARED_LIBS="${{ matrix.config.shared }}" \
+            -DBUILD_BIOMEVAL_TESTS="${BUILD_BIOMEVAL_TESTS}" \
+            -DBUILD_BIOMEVAL_32BIT="${BUILD_BIOMEVAL_32BIT}" \
+            -DFORCE_STATIC_DEPENDENCIES="${{ matrix.config.force-static-deps }}" \
+            "${GITHUB_WORKSPACE}"
 
     - name: Configure CMake (Multi-config Generator)
       if: ${{ runner.os == 'Windows' }}
@@ -159,13 +159,13 @@ jobs:
       run: |
         cmake \
             -A ${cmake_arch_flag} \
-            -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake \
+            -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_CONFIGURATION_TYPES="${CONFIGURATION}" \
-            -DBUILD_SHARED_LIBS=${{ matrix.config.shared }} \
-            -DBUILD_BIOMEVAL_TESTS=${BUILD_BIOMEVAL_TESTS} \
-            -DBUILD_BIOMEVAL_32BIT=${BUILD_BIOMEVAL_32BIT} \
-            -DOPENSSL_ROOT_DIR=${VCPKG_ROOT}/packages/openssl_${{ matrix.config.arch }}-windows-static \
-            ${GITHUB_WORKSPACE}
+            -DBUILD_SHARED_LIBS="${{ matrix.config.shared }}" \
+            -DBUILD_BIOMEVAL_TESTS="${BUILD_BIOMEVAL_TESTS}" \
+            -DBUILD_BIOMEVAL_32BIT="${BUILD_BIOMEVAL_32BIT}" \
+            -DOPENSSL_ROOT_DIR="${VCPKG_INSTALLATION_ROOT}/packages/openssl_${{ matrix.config.arch }}-windows-static" \
+            "${GITHUB_WORKSPACE}"
 
     - name: Build (Single-config Generator)
       if: ${{ runner.os != 'Windows' }}
@@ -177,4 +177,4 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
       shell: bash
       working-directory: ${{ github.workspace }}/build
-      run: cmake --build . --config ${CONFIGURATION}
+      run: cmake --build . --config "${CONFIGURATION}"
