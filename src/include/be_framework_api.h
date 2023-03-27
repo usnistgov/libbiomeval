@@ -290,7 +290,7 @@ namespace BiometricEvaluation
 				return (this->willCatchExceptions() &&
 				    !this->willRethrowExceptions() &&
 				    this->getWatchdog()->isEnabled() &&
-				    this->getSignalManager->isEnabled());
+				    this->getSignalManager()->isEnabled());
 			}
 
 			/**
@@ -320,7 +320,7 @@ namespace BiometricEvaluation
 				this->setRethrowExceptions(!protectionsEnabled);
 				this->getWatchdog()->setEnabled(
 				    protectionsEnabled);
-				this->getSignalManager->setEnabled(
+				this->getSignalManager()->setEnabled(
 				    protectionsEnabled);
 			}
 
