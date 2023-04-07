@@ -28,7 +28,7 @@ namespace BiometricEvaluation {
 		 * Any additional information string is appended to that
 		 * string.
 		 */
-		class Exception : std::exception {
+		class Exception : public std::exception {
 			public:
 				/**
 				 * Construct an Exception object without
