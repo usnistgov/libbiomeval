@@ -212,6 +212,11 @@ namespace BiometricEvaluation
 			 */
 			RecordType getRecordType() const;
 
+			/** @return Information designation character */
+			int
+			getIDC()
+			    const;
+
 		protected:
 
 			/**

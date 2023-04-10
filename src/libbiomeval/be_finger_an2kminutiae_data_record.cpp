@@ -91,6 +91,13 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getRegisteredVendorBlock(
 	return (std::map<uint16_t, Memory::uint8Array>());
 }
 
+int
+BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getIDC()
+    const
+{
+	return (this->_idc);
+}
+
 /******************************************************************************/
 /* Private functions.                                                         */
 /******************************************************************************/
@@ -248,6 +255,11 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
 	FIELD *field;
 	int idx;
 	
+	/* Information designation character (9.002, mandatory) */
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, IDC_ID,
+	    type9) == FALSE)
+		throw Error::DataError("Field IDC not found");
+	this->_idc = std::atoi((char *)field->subfields[0]->items[0]->value);
 	/* Impression type (IMP) -- Field 9.003 (mandatory) */
 	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, IMP_ID, type9) == FALSE)
 		throw Error::DataError("Field IMP not found");
