@@ -168,7 +168,7 @@ size_t biomeval_nbis_fbread(void *ptr, size_t size, size_t nitems, FILE *stream,
 		ptr = (char *)ptr + bytesToRead;
 		bdb->bdb_current += bytesToRead;
 
-		return (bytesToRead);
+		return (bytesToRead / size);
 	}
 }
 
