@@ -83,6 +83,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::getRegisteredVendorBlock(
 	case Feature::MinutiaeFormat::NEC: return (_NECFeatures);
 	case Feature::MinutiaeFormat::Identix: return (_identixFeatures);
 	case Feature::MinutiaeFormat::M1: return (_M1Features);
+	case Feature::MinutiaeFormat::Other: return (_otherFeatures);
 	case Feature::MinutiaeFormat::AN2K7: /* FALLTHROUGH */
 	default: throw (Error::NotImplemented());
 	}
@@ -135,6 +136,11 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readRegisteredVendorBlock(
 	static const uint16_t IdentixFieldStart = 151;
 	/* Last field of Identix format features */
 	static const uint16_t IdentixFieldEnd = 175;
+	/* First field of Other format features */
+	static const uint16_t OtherFieldStart = 176;
+	/* Last field of Other format features */
+	static const uint16_t OtherFieldEnd = 225;
+
 
 	uint16_t startField, endField;
 	std::map<uint16_t, Memory::uint8Array> *features;
@@ -173,6 +179,11 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readRegisteredVendorBlock(
 		startField = M1FieldStart;
 		endField = M1FieldEnd;
 		features = &_M1Features;
+		break;
+	case Feature::MinutiaeFormat::Other:
+		startField = OtherFieldStart;
+		endField = OtherFieldEnd;
+		features = &_otherFeatures;
 		break;
 	case Feature::MinutiaeFormat::AN2K7:
 		/* FALLTHROUGH */
@@ -279,6 +290,7 @@ BiometricEvaluation::Finger::AN2KMinutiaeDataRecord::readType9Record(
 	readRegisteredVendorBlock(type9, Feature::MinutiaeFormat::NEC);
 	readRegisteredVendorBlock(type9, Feature::MinutiaeFormat::M1);
 	readRegisteredVendorBlock(type9, Feature::MinutiaeFormat::Identix);
+	readRegisteredVendorBlock(type9, Feature::MinutiaeFormat::Other);
 
 	/*
 	 * Try to read AN2K11 extended feature set data, although it may not
