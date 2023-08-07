@@ -225,6 +225,9 @@ namespace BiometricEvaluation {
 			std::map<uint16_t, Memory::uint8Array> _M1Features;
 			/** Identix features (Field 9.151 - 9.175) */
 			std::map<uint16_t, Memory::uint8Array> _identixFeatures;
+			/** "Other" features (Field 9.176 - 9.225) */
+			std::map<uint16_t, Memory::uint8Array> _otherFeatures;
+
 
 			/** Information designation character (9.002) */
 			int _idc{};
