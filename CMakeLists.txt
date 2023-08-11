@@ -104,6 +104,20 @@ option(WITH_HWLOC "Build sources that require libhwloc" ON)
 option(WITH_MPI "Build sources that require MPI" ON)
 # Build sources that require PCSC
 option(WITH_PCSC "Build sources that require PCSC" ON)
+# Disable things that aren't well supported under WASM
+option(BUILD_FOR_WASM "Build in a way that supports WASM" OFF)
+# Auto-enable WASM build if we can detect emscripten
+if (BUILD_FOR_WASM)
+	message(STATUS "Disabling unsupported components to enable WASM build")
+elseif(EMSCRIPTEN)
+	message(STATUS "Emscripten detected, enabling WASM by disabling unsupported components")
+	set(BUILD_FOR_WASM ON)
+endif(BUILD_FOR_WASM)
+# Use WASM exceptions (over JavaScript exceptions)
+cmake_dependent_option(WASM_EXCEPTIONS "Use WASM exceptions (instead of JavaScript exceptions)" ON "BUILD_FOR_WASM;EMSCRIPTEN" OFF)
+if (WASM_EXCEPTIONS)
+	message(STATUS "Enabling WebAssembly exception handling")
+endif (WASM_EXCEPTIONS)
 
 # Build sources that require FFMPEG. FFMPEG has *many* dynamic dependencies that
 # aren't built static on all systems, therefore we cannot guarantee they'll be

@@ -200,15 +200,21 @@ Options
 The CMake build supports the following options:
 
 | CMake Option            | Default | Description                                          | Notes |
-|:-----------------------:|:-------:|:----------------------------------------------------:|:-----:|
+|:------------------------|:-------:|:-----------------------------------------------------|:------|
 | `BUILD_BIOMEVAL_32BIT`  | `OFF`   | Compile 32-bit on 64-bit host OS                     ||
 | `BUILD_BIOMEVAL_TESTS`  | `OFF`   | Build test programs                                  ||
+| `BUILD_FOR_WASM` | `OFF` | Disable components currently not supported under WebAssembly | Defaults to `ON` when the [Emscripten](https://emscripten.org) toolchain is detected |
 | `BUILD_SHARED_LIBS`     | `OFF`    | Build shared library (i.e., `.so`, `.dll`, `.dylib`) | When `OFF`, a static library (i.e., `.a`, `.lib`) is built instead |
 | `FORCE_STATIC_DEPENDENCIES` | `OFF` | Force linking against `.a`/`.lib` third-party dependencies. | Unavailable on Windows (use `-DBUILD_SHARED_LIBS=OFF` for similar behavior) |
+| `WASM_EXCEPTIONS` | `ON` | When compiled to WebAssembly, use WebAssembly exceptions instead of JavaScript exceptions | Only available when `BUILD_FOR_WASM` is `YES` and the [Emscripten](https://emscripten.org) toolchain is detected |
 | `WITH_FFMPEG` | `ON` | Build sources that require [FFMPEG](https://ffmpeg.org) | Unavailable when `FORCE_STATIC_DEPENDENCIES` is `ON` |
 | `WITH_HWLOC` | `ON` | Build sources that require [libhwloc](https://www.open-mpi.org/projects/hwloc/) |
 | `WITH_MPI` | `ON` | Build sources that require [OpenMPI](https://www.open-mpi.org/) |
 | `WITH_PCSC` | `ON` | Build sources that require [PCSC](https://pcsclite.apdu.fr) |
+
+### A Note about WebAssembly
+
+A minimal version of the library can be compiled to WebAssembly and is supported. Compilation has only been tested using the [Emscripten](https://emscripten.org) toolchain. When this toolchain is detected (i.e., when `emcmake` is used to configure, rather than `cmake`), the above options for WebAssembly are automatically enabled.
 
 ---
 
