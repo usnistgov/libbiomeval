@@ -11,8 +11,10 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <map>
 
 #include <be_text.h>
+#include <be_memory_autoarrayutility.h>
 
 using namespace BiometricEvaluation;
 using namespace std;
@@ -142,6 +144,36 @@ main(int argc, char* argv[])
 	cout << testString << "->" << Text::toLowercase(testString) << endl;
 	if (Text::toLowercase(testString) != "hello, world!")
 		throw Error::StrategyError("toLowercase()");
+	std::cout << '\n';
+
+	/* RFC 4648 recommended test */
+	const std::map<std::string, std::string> base64Test{
+	    {"", ""},
+	    {"f", "Zg=="},
+	    {"fo", "Zm8="},
+	    {"foo", "Zm9v"},
+	    {"foob", "Zm9vYg=="},
+	    {"fooba", "Zm9vYmE="},
+	    {"foobar", "Zm9vYmFy"},
+	};
+	std::cout << "Text::encodeBase64()\n--------------------------------\n";
+	for (const auto &[k, v] : base64Test) {
+		Memory::uint8Array data;
+		Memory::AutoArrayUtility::setString(data, k, false);
+		const auto result = Text::encodeBase64(data);
+		std::cout << "encodeBase64(\"" << k << "\") = \"" << result <<
+		    "\" [" << (result == v ? "PASS]" : "FAIL]") << '\n';
+	}
+	std::cout << '\n';
+
+	std::cout << "Text::decodeBase64()\n--------------------------------\n";
+	for (const auto &[v, k] : base64Test) {
+		const auto resultAA = Text::decodeBase64(k);
+		const auto result = to_string(resultAA);
+
+		std::cout << "decodeBase64(\"" << k << "\") = \"" << result <<
+		    "\" [" << (result == v ? "PASS]" : "FAIL]") << '\n';
+	}
 
 	return (EXIT_SUCCESS);
 }

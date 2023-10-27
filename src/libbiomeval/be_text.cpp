@@ -27,6 +27,8 @@
 #include <vector>
 
 #include <be_memory_autoarray.h>
+#include <be_memory_mutableindexedbuffer.h>
+#include <be_memory_autoarrayutility.h>
 #include <be_sysdeps.h>
 #include <be_text.h>
 
@@ -360,6 +362,48 @@ BiometricEvaluation::Text::encodeBase64(
     const BiometricEvaluation::Memory::uint8Array &data)
 {
 #ifdef UseAppleSecurityFramework
+#ifdef __MAC_13_0
+	if (data.size() == 0)
+		return {};
+
+	const static std::string lookup{
+	    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"};
+
+	std::string encoded{};
+	encoded.reserve(((data.size() / 3) + (data.size() % 3 > 0)) * 4);
+
+	size_t i{};
+	uint8_t a, b, c;
+	uint32_t quanta;
+	while (i < data.size()) {
+		a = data[i++];
+		b = ((i < data.size()) ? data[i++] : 0);
+		c = ((i < data.size()) ? data[i++] : 0);
+
+		quanta = (a << 16) + (b << 8) + c;
+
+		encoded += lookup[(quanta >> 18) & 0x3f];
+		encoded += lookup[(quanta >> 12) & 0x3f];
+		encoded += lookup[(quanta >> 6) & 0x3f];
+		encoded += lookup[quanta & 0x3F];
+	}
+
+	/* If b and or c were invalid above, pad them */
+	switch (data.size() % 3) {
+	case 1:
+		encoded[encoded.size() - 2] = '=';
+		[[ fallthrough ]];
+	case 2:
+		encoded[encoded.size() - 1] = '=';
+		break;
+	}
+
+	return (encoded);
+#else /* __MAC_13_0 */
+	/*
+	 * Use Security.framework for macOS 10.7--12 (SecTransform was
+	 * deprecated in macOS 13).
+	 */
 	CFErrorRef error = nullptr;
 
 	SecTransformRef transform = SecEncodeTransformCreate(
@@ -407,7 +451,8 @@ BiometricEvaluation::Text::encodeBase64(
 		throw BE::Error::StrategyError("CFStringGetCString");
 
 	return (std::string(buffer.get(), bufferSize));
-#else
+#endif /* __MAC_13_0 */
+#else /* UseAppleSecurityFramework */
 	BIO *handle = BIO_new(BIO_s_mem());
 	handle = BIO_push(BIO_new(BIO_f_base64()), handle);
 
@@ -433,6 +478,71 @@ BiometricEvaluation::Text::decodeBase64(
     const std::string &data)
 {
 #ifdef UseAppleSecurityFramework
+#ifdef __MAC_13_0
+	/*
+	 * Based on public domain implementation from https://en.wikibooks.org/
+	 * wiki/Algorithm_Implementation/Miscellaneous/Base64#C++_2, to avoid
+	 * OpenSSL dependency on macOS.
+	 */
+	const static char padCharacter{'='};
+
+	if (data.length() % 4)
+		throw BE::Error::ParameterError("Invalid length for Base64");
+	size_t padding = 0;
+	if (!data.empty()) {
+		if (data[data.length() - 1] == padCharacter)
+			++padding;
+		if (data[data.length() - 2] == padCharacter)
+			++padding;
+	}
+
+	BE::Memory::uint8Array decodedAA(((data.length() / 4) * 3) - padding);
+	BE::Memory::MutableIndexedBuffer decoded(decodedAA);
+	uint32_t temp{};
+	std::string::const_iterator cursor = data.begin();
+	while (cursor < data.end()) {
+		for (size_t i = 0; i < 4; i++) {
+			temp <<= 6;
+			if       (*cursor >= 0x41 && *cursor <= 0x5A)
+				temp |= *cursor - 0x41;
+			else if  (*cursor >= 0x61 && *cursor <= 0x7A)
+				temp |= *cursor - 0x47;
+			else if  (*cursor >= 0x30 && *cursor <= 0x39)
+				temp |= *cursor + 0x04;
+			else if  (*cursor == 0x2B)
+				temp |= 0x3E;
+			else if  (*cursor == 0x2F)
+				temp |= 0x3F;
+			else if  (*cursor == padCharacter) {
+				switch (data.end() - cursor) {
+				case 1: /* One pad character */
+					decoded.pushU8Val((temp >> 16) & 0xFF);
+					decoded.pushU8Val((temp >> 8) & 0xFF);
+					return (decodedAA);
+				case 2: /* Two pad characters */
+					decoded.pushU8Val((temp >> 10) & 0xFF);
+					return (decodedAA);
+				default:
+					throw BE::Error::StrategyError{
+					    "Invalid padding in Base64"};
+				}
+			} else
+				throw BE::Error::StrategyError{
+				    "Invalid character in Base64"};
+			++cursor;
+		}
+
+		decoded.pushU8Val((temp >> 16) & 0xFF);
+		decoded.pushU8Val((temp >> 8) & 0xFF);
+		decoded.pushU8Val(temp & 0xFF);
+	}
+
+	return (decodedAA);
+#else /* __MAC_13_0 */
+	/*
+	 * Use Security.framework for macOS 10.7--12 (SecTransform was
+	 * deprecated in macOS 13).
+	 */
 	CFErrorRef error = nullptr;
 
 	SecTransformRef transform = SecDecodeTransformCreate(
@@ -472,7 +582,8 @@ BiometricEvaluation::Text::decodeBase64(
 	CFRelease(decodedData);
 
 	return (aa);
-#else
+#endif /* __MAC_13_0 */
+#else /* UseAppleSecurityFramework */
 	if (data.find_first_of('\n') != std::string::npos)
 		throw BE::Error::NotImplemented("Newlines in encoded data");
 
