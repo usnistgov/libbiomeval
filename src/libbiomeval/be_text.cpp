@@ -358,6 +358,15 @@ BiometricEvaluation::Text::toLowercase(
 }
 
 std::string
+BiometricEvaluation::Text::encodeBase64String(
+    const std::string &s)
+{
+	BE::Memory::uint8Array d;
+	BE::Memory::AutoArrayUtility::setString(d, s, false);
+	return (encodeBase64(d));
+}
+
+std::string
 BiometricEvaluation::Text::encodeBase64(
     const BiometricEvaluation::Memory::uint8Array &data)
 {
@@ -471,6 +480,13 @@ BiometricEvaluation::Text::encodeBase64(
 
 	return (encodedString);
 #endif /* UseAppleSecurityFramework */
+}
+
+std::string
+BiometricEvaluation::Text::decodeBase64AsString(
+    const std::string &data)
+{
+	return (to_string(decodeBase64(data)));
 }
 
 BiometricEvaluation::Memory::uint8Array

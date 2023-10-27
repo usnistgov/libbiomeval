@@ -175,6 +175,27 @@ main(int argc, char* argv[])
 		    "\" [" << (result == v ? "PASS]" : "FAIL]") << '\n';
 	}
 
+	std::cout << '\n';
+	std::cout << "Text::encodeBase64String()\n"
+	    "--------------------------------\n";
+	for (const auto &[k, v] : base64Test) {
+		const auto result = Text::encodeBase64String(k);
+		std::cout << "encodeBase64String(\"" << k << "\") = \"" <<
+		    result << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
+		    '\n';
+	}
+	std::cout << '\n';
+
+	std::cout << "Text::decodeBase64AsString()\n"
+	    "--------------------------------\n";
+	for (const auto &[v, k] : base64Test) {
+		const auto result = Text::decodeBase64AsString(k);
+
+		std::cout << "decodeBase64AsString(\"" << k << "\") = \"" <<
+		    result << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
+		    '\n';
+	}
+
 	return (EXIT_SUCCESS);
 }
 

@@ -319,6 +319,20 @@ namespace BiometricEvaluation {
 
 		/**
 		 * @brief
+		 * Perform Base64 encoding.
+		 *
+		 * @param s
+		 * String to be encoded (s.size() characters).
+		 *
+		 * @return
+		 * Base64 encoding of data.
+		 */
+		std::string
+		encodeBase64String(
+		    const std::string &s);
+
+		/**
+		 * @brief
 		 * Perform Base64 decoding.
 		 *
 		 * @param data
@@ -329,6 +343,20 @@ namespace BiometricEvaluation {
 		 */
 		BiometricEvaluation::Memory::uint8Array
 		decodeBase64(
+		    const std::string &data);
+
+		/**
+		 * @brief
+		 * Perform Base64 decoding.
+		 *
+		 * @param data
+		 * Base64 data to decode.
+		 *
+		 * @return
+		 * Base64 decoding of data.
+		 */
+		std::string
+		decodeBase64AsString(
 		    const std::string &data);
 	}
 }
