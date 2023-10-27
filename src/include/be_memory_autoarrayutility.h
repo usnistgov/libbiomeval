@@ -96,34 +96,6 @@ namespace BiometricEvaluation
 				::snprintf(cstr(aa), aa.size(), "%s",
 				    str.c_str());
 			}
-
-			/**
-			 * @brief
-			 * Copy a string into an AutoAray of uint8_t or char.
-			 *
-			 * @param aa
-			 * AutoArray whose contents will be replaced with str.
-			 * @param str
-			 * printf-style format string.
-			 * @param ...
-			 * Variable list of arguments for printf formatting.
-			 */
-			template <typename T, typename = typename
-			    std::enable_if<std::is_same<T, uint8_t>::value ||
-			    std::is_same<T, char>::value>::type>
-			inline void
-			setString(
-			    AutoArray<T> &aa,
-			    const char *str,
-			    ...)
-			{
-				aa.resize(strlen(str) + 1);
-
-				va_list args;
-				va_start(args, str);
-				::vsnprintf(cstr(aa), aa.size(), str, args);
-				va_end(args);
-			}
 		}
 	}
 }
