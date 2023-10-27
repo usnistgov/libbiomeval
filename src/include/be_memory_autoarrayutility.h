@@ -128,9 +128,12 @@ inline std::string
 to_string(
     const BiometricEvaluation::Memory::AutoArray<T> &aa)
 {
-	return (std::string(
-	    BiometricEvaluation::Memory::AutoArrayUtility::cstr(aa),
-	    aa.size() - 1));
+	if (aa.size() == 0)
+		return {};
+
+	const auto count = aa.size() - (aa[aa.size() - 1] == '\0' ? 1 : 0);
+	return (BiometricEvaluation::Memory::AutoArrayUtility::getString(aa,
+	    count));
 }
 
 #endif /* __BE_MEMORY_AUTOARRAYUTILITY_H__ */
