@@ -83,6 +83,14 @@ namespace BiometricEvaluation
 			 * AutoArray whose contents will be replaced with str.
 			 * @param str
 			 * String to assign to AutoArray.
+			 * @param includeNullTerminator
+			 * true if `aa` should be resized such that the last
+			 * element is a null terminator, false if the last
+			 * element of `aa` should be `str.back()`.
+			 *
+			 * @note
+			 * The last element of the AutoArray will be a null
+			 * terminator.
 			 */
 			template <typename T, typename = typename
 			    std::enable_if<std::is_same<T, uint8_t>::value ||
@@ -90,11 +98,12 @@ namespace BiometricEvaluation
 			inline void
 			setString(
 			    AutoArray<T> &aa,
-			    const std::string &str)
+			    const std::string &str,
+			    bool includeNullTerminator = true)
 			{
-				aa.resize(str.size() + 1);
-				::snprintf(cstr(aa), aa.size(), "%s",
-				    str.c_str());
+				aa.resize(str.size() +
+				    (includeNullTerminator ? 1 : 0));
+				aa.copy((const uint8_t *)str.c_str());
 			}
 		}
 	}
