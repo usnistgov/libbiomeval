@@ -31,7 +31,7 @@ namespace BiometricEvaluation
 			 * Cast an AutoArray of uint8_t or char to a char*.
 			 *
 			 * @param rahc
-			 * AutoArray to cast.
+			 * Null-terminated AutoArray to cast.
 			 *
 			 * @return
 			 * rahc casted as a char*.
