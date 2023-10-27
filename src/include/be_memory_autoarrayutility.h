@@ -70,7 +70,9 @@ namespace BiometricEvaluation
 			    typename AutoArray<T>::size_type count)
 			{
 				if (count > aa.size())
-					throw Error::MemoryError();
+					throw Error::ParameterError{
+					    "Requesting more characters than "
+					    "available"};
 
 				return (std::string(cstr(aa), count));
 			}
