@@ -291,7 +291,7 @@ namespace BiometricEvaluation {
 		 * Lowercase a string, respecting locale.
 		 *
 		 * @param str
-		 * String to loercase.
+		 * String to lowercase.
 		 * @param locale
 		 * Locale to use when lowercasing str.
 		 *
@@ -308,7 +308,7 @@ namespace BiometricEvaluation {
 		 * Perform Base64 encoding.
 		 *
 		 * @param data
-		 * Data to encoded.
+		 * Data to be encoded.
 		 *
 		 * @return
 		 * Base64 encoding of data.
