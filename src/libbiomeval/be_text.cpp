@@ -358,7 +358,7 @@ BiometricEvaluation::Text::toLowercase(
 }
 
 std::string
-BiometricEvaluation::Text::encodeBase64String(
+BiometricEvaluation::Text::encodeBase64(
     const std::string &s)
 {
 	BE::Memory::uint8Array d;

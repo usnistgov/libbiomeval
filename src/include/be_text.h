@@ -328,7 +328,7 @@ namespace BiometricEvaluation {
 		 * Base64 encoding of data.
 		 */
 		std::string
-		encodeBase64String(
+		encodeBase64(
 		    const std::string &s);
 
 		/**

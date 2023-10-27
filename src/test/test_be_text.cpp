@@ -176,11 +176,11 @@ main(int argc, char* argv[])
 	}
 
 	std::cout << '\n';
-	std::cout << "Text::encodeBase64String()\n"
+	std::cout << "Text::encodeBase64()\n"
 	    "--------------------------------\n";
 	for (const auto &[k, v] : base64Test) {
-		const auto result = Text::encodeBase64String(k);
-		std::cout << "encodeBase64String(\"" << k << "\") = \"" <<
+		const auto result = Text::encodeBase64(k);
+		std::cout << "encodeBase64(\"" << k << "\") = \"" <<
 		    result << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
 		    '\n';
 	}
