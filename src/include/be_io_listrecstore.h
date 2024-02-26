@@ -55,7 +55,7 @@ namespace BiometricEvaluation
 			    const std::string &pathname);
 
 			/** Destructor */
-			~ListRecordStore();
+			~ListRecordStore() = default;
 
 			/*
 			 * Implementation of the RecordStore interface.
