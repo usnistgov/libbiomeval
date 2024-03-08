@@ -615,13 +615,14 @@ target_include_directories(${CORELIB} PUBLIC $<INSTALL_INTERFACE:include>)
 # Installation.
 #
 include(GNUInstallDirs)
+set(BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 install(
   TARGETS ${CORELIB}
   EXPORT biomeval-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  PUBLIC_HEADER DESTINATION ${BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR})
 
 include(CMakePackageConfigHelpers)
 
@@ -629,6 +630,7 @@ configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/biomevalConfig.cmake.in
     ${CMAKE_BINARY_DIR}/cmake/biomeval-config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/biomeval
+    PATH_VARS BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR
 )
 
 write_basic_package_version_file(
