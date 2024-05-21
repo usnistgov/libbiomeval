@@ -242,7 +242,7 @@ internalGetTasksStats(pid_t pid)
 	 * Iterate through all /proc/<pid>/task/<tid>/stat files.
 	 */
 	float ticksPerSec = (float)sysconf(_SC_CLK_TCK);
-	if (ticksPerSec == -1) {
+	if (ticksPerSec <= 0) {
 		throw BE::Error::StrategyError(
 		    "Could not obtain system clock-ticks/sec value");
 	}
@@ -255,16 +255,21 @@ internalGetTasksStats(pid_t pid)
 			throw BE::Error::StrategyError(
 				"Could not open " + tstatPath + ".");
 		}
+
+		std::string line{};
+		if (!std::getline(ifs, line)) {
+			/* Task likely exited while reading */
+			continue;
+		}
 		/*
 		 * Tokenize the line using the space character.
 		 * ID is first field, user time is the 14th field,
 		 * system time is the 15th field.
 		 */
-		std::vector<std::string> tokens{};
-		std::string token{};
-		while (std::getline(ifs, token, ' ')) {
-			tokens.push_back(token);
-		}
+		const auto tokens = BE::Text::split(line, ' ', false);
+		if (tokens.size() < 15)
+			continue;
+
 		/*
 		 * Add the stats for this task to the set of stats.
 		 */
