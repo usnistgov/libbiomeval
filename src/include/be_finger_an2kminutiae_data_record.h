@@ -157,6 +157,11 @@ namespace BiometricEvaluation {
 			getRegisteredVendorBlock(
 			    Feature::MinutiaeFormat vendor) const;
 
+			/** @return Information designation character. */
+			int
+			getIDC()
+			    const;
+
 		protected:
 			
 		private:
@@ -220,7 +225,12 @@ namespace BiometricEvaluation {
 			std::map<uint16_t, Memory::uint8Array> _M1Features;
 			/** Identix features (Field 9.151 - 9.175) */
 			std::map<uint16_t, Memory::uint8Array> _identixFeatures;
+			/** "Other" features (Field 9.176 - 9.225) */
+			std::map<uint16_t, Memory::uint8Array> _otherFeatures;
 
+
+			/** Information designation character (9.002) */
+			int _idc{};
 			/** Impression type (IMP) -- Field 9.003 (mandatory) */
 			Impression _imp;
 		};

@@ -4,18 +4,14 @@ on:
   pull_request:
     paths-ignore:
       - '.gitignore'
-      - '.travis.yml'
       - '**.md'
-      - 'appveyor.yml'
       - 'src/test/test_data/**'
   push:
     branches:
       - master
     paths-ignore:
       - '.gitignore'
-      - '.travis.yml'
       - '**.md'
-      - 'appveyor.yml'
       - 'src/test/test_data/**'
 
 env:
@@ -32,38 +28,46 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: macOS-11, arch: x64, shared: ON, force-static-deps: OFF }
-          - { os: macOS-10.15, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: macOS-13, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: macOS-12, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: ubuntu-22.04, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: ubuntu-22.04, arch: x64, shared: OFF, force-static-deps: OFF }
           - { os: ubuntu-20.04, arch: x64, shared: ON, force-static-deps: OFF }
           - { os: ubuntu-20.04, arch: x64, shared: OFF, force-static-deps: OFF }
           - { os: windows-2022, arch: x64, shared: OFF, force-static-deps: OFF }
           - { os: windows-2019, arch: x64, shared: OFF, force-static-deps: OFF }
           - { os: windows-2019, arch: x64, shared: ON, force-static-deps: OFF }
           - { os: windows-2019, arch: x86, shared: ON, force-static-deps: OFF }
-          - { os: windows-2016, arch: x64, shared: ON, force-static-deps: OFF }
-          - { os: windows-2016, arch: x86, shared: ON, force-static-deps: OFF }
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         submodules: false
 
-    - name: Install vcpkg
+    # The Mono framework on macOS GitHub Runners provides some really old and
+    # conflicting libraries at high precedence, so remove it.
+    - name: Remove Mono Framework (macOS)
+      if: ${{ runner.os == 'macOS' }}
+      shell: bash
+      run: sudo rm -rf /Library/Frameworks/Mono.framework
+
+    - name: Prepare for Package Cache (Windows)
       if: ${{ runner.os == 'Windows' }}
+      shell: bash
       run: |
-        git clone https://github.com/microsoft/vcpkg.git fresh-vcpkg
-        .\\fresh-vcpkg\\bootstrap-vcpkg.bat -disableMetrics
+        mkdir -p ${VCPKG_INSTALLATION_ROOT}/bincache
+        echo "VCPKG_DEFAULT_BINARY_CACHE=${VCPKG_INSTALLATION_ROOT}/bincache" >> ${GITHUB_ENV}
 
     - name: Package Cache (Windows)
       if: ${{ runner.os == 'Windows' }}
       id: vcpkg-cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
-        path: fresh-vcpkg\installed
-        key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-vcpkg_install
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-STATIC_${{ matrix.config.force-static-deps }}-vcpkg
         restore-keys: |
-          ${{ matrix.config.os }}-${{ matrix.config.arch }}-vcpkg_install
+          ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-STATIC_${{ matrix.config.force-static-deps }}-vcpkg
 
     - name: Install Packages (Linux)
       if: ${{ runner.os == 'Linux' }}
@@ -89,11 +93,12 @@ jobs:
       if: ${{ runner.os == 'macOS' }}
       shell: bash
       # FIXME: homebrew's open-mpi package doesn't include C++ bindings
+      # FIXME: we're not compatible with latest ffmpeg
       run: |
-        brew install \
+        HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 \
+            HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install \
             berkeley-db \
             hwloc \
-            ffmpeg \
             jpeg-turbo \
             libpng \
             libtiff \
@@ -106,7 +111,7 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
       shell: bash
       run: |
-        fresh-vcpkg/vcpkg install \
+        vcpkg install \
           --triplet=${{ matrix.config.arch }}-windows-static \
           berkeleydb \
           hwloc \
@@ -118,7 +123,7 @@ jobs:
           sqlite3 \
           tiff \
           zlib
-        fresh-vcpkg/vcpkg install --triplet=${{ matrix.config.arch }}-windows \
+        vcpkg install --triplet=${{ matrix.config.arch }}-windows \
           berkeleydb \
           hwloc \
           libjpeg-turbo \
@@ -139,12 +144,12 @@ jobs:
       working-directory: ${{ github.workspace }}/build
       run: |
         cmake \
-            -DCMAKE_BUILD_TYPE=${CONFIGURATION} \
-            -DBUILD_SHARED_LIBS=${{ matrix.config.shared }} \
-            -DBUILD_BIOMEVAL_TESTS=${BUILD_BIOMEVAL_TESTS} \
-            -DBUILD_BIOMEVAL_32BIT=${BUILD_BIOMEVAL_32BIT} \
-            -DFORCE_STATIC_DEPENDENCIES=${{ matrix.config.force-static-deps }} \
-            ${GITHUB_WORKSPACE}
+            -DCMAKE_BUILD_TYPE="${CONFIGURATION}" \
+            -DBUILD_SHARED_LIBS="${{ matrix.config.shared }}" \
+            -DBUILD_BIOMEVAL_TESTS="${BUILD_BIOMEVAL_TESTS}" \
+            -DBUILD_BIOMEVAL_32BIT="${BUILD_BIOMEVAL_32BIT}" \
+            -DFORCE_STATIC_DEPENDENCIES="${{ matrix.config.force-static-deps }}" \
+            "${GITHUB_WORKSPACE}"
 
     - name: Configure CMake (Multi-config Generator)
       if: ${{ runner.os == 'Windows' }}
@@ -155,12 +160,13 @@ jobs:
       run: |
         cmake \
             -A ${cmake_arch_flag} \
-            -DCMAKE_TOOLCHAIN_FILE=../fresh-vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_CONFIGURATION_TYPES="${CONFIGURATION}" \
-            -DBUILD_SHARED_LIBS=${{ matrix.config.shared }} \
-            -DBUILD_BIOMEVAL_TESTS=${BUILD_BIOMEVAL_TESTS} \
-            -DBUILD_BIOMEVAL_32BIT=${BUILD_BIOMEVAL_32BIT} \
-            ${GITHUB_WORKSPACE}
+            -DBUILD_SHARED_LIBS="${{ matrix.config.shared }}" \
+            -DBUILD_BIOMEVAL_TESTS="${BUILD_BIOMEVAL_TESTS}" \
+            -DBUILD_BIOMEVAL_32BIT="${BUILD_BIOMEVAL_32BIT}" \
+            -DOPENSSL_ROOT_DIR="${VCPKG_INSTALLATION_ROOT}/packages/openssl_${{ matrix.config.arch }}-windows-static" \
+            "${GITHUB_WORKSPACE}"
 
     - name: Build (Single-config Generator)
       if: ${{ runner.os != 'Windows' }}
@@ -172,4 +178,4 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
       shell: bash
       working-directory: ${{ github.workspace }}/build
-      run: cmake --build . --config ${CONFIGURATION}
+      run: cmake --build . --config "${CONFIGURATION}"

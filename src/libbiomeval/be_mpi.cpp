@@ -59,6 +59,12 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
 std::string
 BiometricEvaluation::MPI::generateUniqueID()
 {
+	/* Don't call MPI methods if uninitialized */
+	int mpiInitialized{};
+	MPI_Initialized(&mpiInitialized);
+	if (!mpiInitialized)
+		return ("NA-NA-" + std::to_string(getpid()));
+
 	char hn[MPI_MAX_PROCESSOR_NAME];
 	int hlen;
 	(void)MPI_Get_processor_name(hn, &hlen);

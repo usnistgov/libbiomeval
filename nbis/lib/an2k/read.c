@@ -150,19 +150,25 @@ int biomeval_nbis_fbgetc(FILE *stream, AN2KBDB *bdb)
 ************************************************************************/
 size_t biomeval_nbis_fbread(void *ptr, size_t size, size_t nitems, FILE *stream, AN2KBDB *bdb)
 {
+	if ((size == 0) || (nitems == 0)) {
+		return (0);
+	}
+
 	if (stream != NULL) {
 		return (fread(ptr, size, nitems, stream));
 	} else {
-		size_t n;
-		for (n = 0; n < nitems; n++) {
-			if ((bdb->bdb_current + size) > bdb->bdb_end) {
-				return (n);
-			}
-			(void)memcpy(ptr, bdb->bdb_current, size);
-			ptr = (char *)ptr + size;
-			bdb->bdb_current += size;
-		}
-		return (n);
+		/* Maximum number of items that could be read */
+		const size_t maxItems = (bdb->bdb_end - bdb->bdb_current) /
+		    size;
+		/* Don't read more than possible */
+		const size_t bytesToRead = fmin(maxItems * size,
+		    nitems * size);
+
+		(void)memcpy(ptr, bdb->bdb_current, bytesToRead);
+		ptr = (char *)ptr + bytesToRead;
+		bdb->bdb_current += bytesToRead;
+
+		return (bytesToRead / size);
 	}
 }
 

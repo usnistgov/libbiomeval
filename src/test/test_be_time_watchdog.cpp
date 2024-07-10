@@ -151,7 +151,8 @@ testWatchdog(Time::Watchdog *theDog)
 		LONGDELAY;
 	END_WATCHDOG_BLOCK(theDog, watchdogblock3);
 	timer.stop();
-	int diff = Time::OneHalfSecond - timer.elapsed();
+	int diff = Time::OneHalfSecond - timer.elapsed<
+	    std::chrono::microseconds>();
 	if (abs(diff) > Time::OneHalfSecond * 0.05) {	/* > 5% diff? */
 		cout << "Elapsed time is > 5% of specified; failure.\n";
 		return (-1);

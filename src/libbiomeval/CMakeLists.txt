@@ -40,6 +40,23 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+if (BUILD_FOR_WASM)
+	add_definitions("-DWASM")
+	if (EMSCRIPTEN)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1")
+
+		if (WASM_EXCEPTIONS)
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sSUPPORT_LONGJMP=wasm")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwasm-exceptions")
+			set(LDFLAGS "${LDFLAGS} -fwasm-exceptions")
+			set(PNG_NAMES "png-wasm-sjlj")
+		endif (WASM_EXCEPTIONS)
+	endif (EMSCRIPTEN)
+
+	set(WITH_HWLOC OFF)
+endif()
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND FORCE_STATIC_DEPENDENCIES)
 	# No static libhwloc in MacPorts
 	set(WITH_HWLOC OFF)
@@ -193,6 +210,16 @@ endif(MSVC)
 #	VIDEO if the required libraries are present.
 #
 set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${MESSAGE_CENTER})
+if (BUILD_FOR_WASM)
+	# We're not concerned with these packages for WebAssembly
+	list(REMOVE_ITEM PACKAGES ${PROCESS} ${MESSAGE_CENTER})
+
+	# XXX: Remove RecordStore support simply to reduce the number of
+	#      dependencies that need to be recompiled for the WASM
+	#      architecture. It is likely they can be added back in the future.
+	list(REMOVE_ITEM PACKAGES ${RECORDSTORE})
+endif (BUILD_FOR_WASM)
+
 
 if (WITH_FFMPEG)
   # Our FindFFMPEG.cmake is not sufficient for finding all of FFMPEG's
@@ -412,13 +439,17 @@ endif (MSVC)
 # For OS-X, add paths where the ports packages are placed.
 #
 if(CMAKE_HOST_APPLE)
+  if (NOT BUILD_FOR_WASM)
   target_include_directories(coreobjs PUBLIC /opt/local/include)
   set_target_properties(${CORELIB} PROPERTIES MACOSX_RPATH ON)
   target_link_libraries(${CORELIB} -L/opt/local/lib)
+  endif (NOT BUILD_FOR_WASM)
   if (PCSC_FOUND)
 	target_link_libraries(${CORELIB} ${PCSC_FRAMEWORK})
   endif (PCSC_FOUND)
+  if (NOT BUILD_FOR_WASM)
   add_definitions("-DDarwin")
+  endif(NOT BUILD_FOR_WASM)
 endif(CMAKE_HOST_APPLE)
 
 target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
@@ -460,6 +491,7 @@ endif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND BLOCK_SUPPORT)
 #
 # Berkeley DB
 #
+if (NOT BUILD_FOR_WASM)
 set(BERKELEYDB_FIND_REQUIRED TRUE)
 find_package(BERKELEYDB)
 if(NOT BERKELEYDB_FOUND)
@@ -467,6 +499,7 @@ if(NOT BERKELEYDB_FOUND)
 endif(NOT BERKELEYDB_FOUND)
 include_directories(PUBLIC ${BERKELEYDB_INCLUDE_DIR})
 target_link_libraries(${CORELIB} ${BERKELEYDB_LIBRARIES})
+endif()
 
 #
 # OpenJPEG and JPEG2000
@@ -530,9 +563,11 @@ endif (WITH_HWLOC)
 target_link_libraries(${CORELIB}
     $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
 
+if (NOT BUILD_FOR_WASM)
 # This will use our Module
 find_package(SQLITE3 REQUIRED)
 target_link_libraries(${CORELIB} ${SQLITE3_LIBRARIES})
+endif()
 
 # libtiff, like ffmpeg, writes a pkg-config, but it prefers to link against
 # shared libs. We can't have that with this option.
@@ -541,7 +576,22 @@ target_link_libraries(${CORELIB} ${TIFF_LIBRARIES})
 if (FORCE_STATIC_DEPENDENCIES)
     find_library(ZSTD_LIBRARY zstd REQUIRED)
     find_library(LZMA_LIBRARY lzma REQUIRED)
-    target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY})
+
+    # libtiff on MacPorts is now compiled to support LERC compression,
+    # requiring libLerc when linked statically. MacPorts does not build libLerc
+    # statically, so you need to build it yourself with -DBUILD_SHARED_LIBS=OFF.
+    find_file(TIFF_CONFIG_HEADER
+        NAMES tiffconf.h
+        REQUIRED
+        HINTS ${TIFF_INCLUDE_DIR})
+    file(READ "${TIFF_CONFIG_HEADER}" TIFF_CONFIG)
+    string(REGEX MATCH "#define LERC_SUPPORT 1" TIFF_REQUIRES_LERC "${TIFF_CONFIG}")
+    if ("${TIFF_REQUIRES_LERC}" STREQUAL "")
+            target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY})
+    else()
+    	find_library(LERC_LIBRARY Lerc REQUIRED)
+        target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY} ${LERC_LIBRARY})
+    endif()
 endif (FORCE_STATIC_DEPENDENCIES)
 
 find_package(PNG REQUIRED)
@@ -565,13 +615,14 @@ target_include_directories(${CORELIB} PUBLIC $<INSTALL_INTERFACE:include>)
 # Installation.
 #
 include(GNUInstallDirs)
+set(BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 install(
   TARGETS ${CORELIB}
   EXPORT biomeval-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  PUBLIC_HEADER DESTINATION ${BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR})
 
 include(CMakePackageConfigHelpers)
 
@@ -579,6 +630,7 @@ configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/biomevalConfig.cmake.in
     ${CMAKE_BINARY_DIR}/cmake/biomeval-config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/biomeval
+    PATH_VARS BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR
 )
 
 write_basic_package_version_file(

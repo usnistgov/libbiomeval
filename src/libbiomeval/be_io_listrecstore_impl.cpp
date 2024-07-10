@@ -51,11 +51,6 @@ BiometricEvaluation::IO::ListRecordStore::Impl::Impl(
 	this->setCursor(BE_RECSTORE_SEQ_START);
 }
 
-BiometricEvaluation::IO::ListRecordStore::Impl::~Impl()
-{
-	this->_keyListFile->close();
-}
-
 BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::IO::ListRecordStore::Impl::read(
     const std::string &key)

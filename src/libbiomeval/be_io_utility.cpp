@@ -408,6 +408,10 @@ BiometricEvaluation::IO::Utility::readPipe(
 	while (true) {
 		ssize_t sz = read(pipeFD, ptr, remaining);
 		if (sz == -1) {
+			/* Retry interrupted system call */
+			if (errno == EINTR)
+				continue;
+
 			throw (Error::StrategyError("Could not read pipe: "
 			    + Error::errorStr()));
 		}

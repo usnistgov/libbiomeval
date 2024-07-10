@@ -28,7 +28,7 @@ namespace BiometricEvaluation {
 		 * Any additional information string is appended to that
 		 * string.
 		 */
-		class Exception : std::exception {
+		class Exception : public std::exception {
 			public:
 				/**
 				 * Construct an Exception object without
@@ -61,7 +61,7 @@ namespace BiometricEvaluation {
 				 * The information string as a char array.
 				 */
 				const char *
-				what() const noexcept;
+				what() const noexcept override;
 
 				/**
 				 * Obtain the information string associated

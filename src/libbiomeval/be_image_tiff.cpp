@@ -281,7 +281,7 @@ BiometricEvaluation::Image::TIFF::getRawData()
 	std::unique_ptr<::TIFF, void(*)(::TIFF*)> tiff(
 	    static_cast<::TIFF*>(this->getDecompressionStream()), TIFFClose);
 
-	const auto rowBytes = TIFFScanlineSize(tiff.get());
+	const auto rowBytes = TIFFScanlineSize64(tiff.get());
 	const auto dim = this->getDimensions();
 	BE::Memory::uint8Array rawData(dim.ySize * rowBytes);
 

@@ -51,46 +51,17 @@ BiometricEvaluation::Time::Timer::stop()
 	this->_inProgress = false;
 }
 
-uint64_t
-BiometricEvaluation::Time::Timer::elapsed(
-    bool nano)
+std::common_type_t<
+    BiometricEvaluation::Time::Timer::BE_CLOCK_TYPE::time_point::duration,
+    BiometricEvaluation::Time::Timer::BE_CLOCK_TYPE::time_point::duration>
+BiometricEvaluation::Time::Timer::elapsedTimePoint()
     const
 {
-	if (this->_inProgress) {
-		throw Error::StrategyError("Timing in progress");
-	}
+	if (this->_inProgress)
+		throw Error::StrategyError{"Timing in progress"};
 
-	/* 
-	 * On some systems with some clocks, we may be losing precision by 
-	 * returning microseconds. Therefore, we must use a duration_cast
-	 * instead of simply instantiating a microseconds object.
-	 */
-	if (nano) {
-		return (std::chrono::duration_cast<std::chrono::nanoseconds>(
-		    this->_finish - this->_start).count());
-	} else {
-		return (std::chrono::duration_cast<std::chrono::microseconds>(
-		    this->_finish - this->_start).count());
-	}
+	return (this->_finish - this->_start);
 }
-
-std::string
-BiometricEvaluation::Time::Timer::elapsedStr(
-    bool displayUnits,
-    bool nano)
-    const
-{
-	std::string ret{std::to_string(this->elapsed(nano))};
-	if (displayUnits) {
-		if (nano) {
-			ret += "ns";
-		} else {
-			ret += "μs";
-		}
-	}
-	return (ret);
-}
-
 
 BiometricEvaluation::Time::Timer&
 BiometricEvaluation::Time::Timer::time(
@@ -112,6 +83,6 @@ BiometricEvaluation::Time::operator<<(
     std::ostream &s,
     const BiometricEvaluation::Time::Timer &timer)
 {
-	return (s << timer.elapsedStr());
+	return (s << timer.elapsedStr<std::chrono::microseconds>());
 }
 

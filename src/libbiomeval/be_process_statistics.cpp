@@ -14,8 +14,10 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 #include <sys/resource.h>
 #include <sys/syscall.h>
@@ -72,7 +74,7 @@ struct _pstats {
 using PSTATS = struct _pstats;
 static const std::string LogsheetHeader =
     "EntryType EntryNum Usertime Systime RSS VMSize VMPeak VMData VMStack "
-    "Threads";
+    "Threads \"Comment\"";
 static const std::string TasksLogsheetHeader =
     "Parent-ID {task-ID utime stime} ...";
 static const std::string TasksLogsheetHeader2 =
@@ -240,7 +242,7 @@ internalGetTasksStats(pid_t pid)
 	 * Iterate through all /proc/<pid>/task/<tid>/stat files.
 	 */
 	float ticksPerSec = (float)sysconf(_SC_CLK_TCK);
-	if (ticksPerSec == -1) {
+	if (ticksPerSec <= 0) {
 		throw BE::Error::StrategyError(
 		    "Could not obtain system clock-ticks/sec value");
 	}
@@ -253,16 +255,21 @@ internalGetTasksStats(pid_t pid)
 			throw BE::Error::StrategyError(
 				"Could not open " + tstatPath + ".");
 		}
+
+		std::string line{};
+		if (!std::getline(ifs, line)) {
+			/* Task likely exited while reading */
+			continue;
+		}
 		/*
 		 * Tokenize the line using the space character.
 		 * ID is first field, user time is the 14th field,
 		 * system time is the 15th field.
 		 */
-		std::vector<std::string> tokens{};
-		std::string token{};
-		while (std::getline(ifs, token, ' ')) {
-			tokens.push_back(token);
-		}
+		const auto tokens = BE::Text::split(line, ' ', false);
+		if (tokens.size() < 15)
+			continue;
+
 		/*
 		 * Add the stats for this task to the set of stats.
 		 */
@@ -448,6 +455,7 @@ BiometricEvaluation::Process::Statistics::logStats()
 	*_logSheet << usertime << " " << systemtime << " ";
 	*_logSheet << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
 	*_logSheet << ps.vmdata << " " << ps.vmstack << " " << ps.threads;
+	*_logSheet << " " << std::quoted(this->_comment);
 	_logSheet->newEntry();
 
 	auto tls = this->_tasksLogSheet->get();
@@ -628,3 +636,16 @@ BiometricEvaluation::Process::Statistics::stopAutoLogging()
 	}
 }
 
+void
+BiometricEvaluation::Process::Statistics::setComment(
+    std::string_view comment)
+{
+	this->_comment = comment;
+}
+
+std::string
+BiometricEvaluation::Process::Statistics::getComment()
+    const
+{
+	return (this->_comment);
+}
