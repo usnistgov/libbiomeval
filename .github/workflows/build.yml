@@ -28,8 +28,11 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          - { os: macOS-14, arch: arm64, shared: ON, force-static-deps: OFF }
           - { os: macOS-13, arch: x64, shared: ON, force-static-deps: OFF }
           - { os: macOS-12, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: ubuntu-24.04, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: ubuntu-24.04, arch: x64, shared: OFF, force-static-deps: OFF }
           - { os: ubuntu-22.04, arch: x64, shared: ON, force-static-deps: OFF }
           - { os: ubuntu-22.04, arch: x64, shared: OFF, force-static-deps: OFF }
           - { os: ubuntu-20.04, arch: x64, shared: ON, force-static-deps: OFF }
@@ -88,6 +91,14 @@ jobs:
             libssl-dev \
             libtiff-dev \
             zlib1g-dev
+
+    - name: Remove ffmpeg from Ubuntu 24.04
+      if: ${{ matrix.config.os == 'ubuntu-24.04' }}
+      shell: bash
+      run: |
+        sudo apt -y remove \
+            libavcodec-dev \
+            libavformat-dev
 
     - name: Install Packages (macOS)
       if: ${{ runner.os == 'macOS' }}
