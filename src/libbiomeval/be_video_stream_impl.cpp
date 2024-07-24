@@ -16,7 +16,10 @@
 namespace BE = BiometricEvaluation;
 
 /*
- * Setup access to the container stream using FFMPEG libraries.
+ * Setup access to the container and then find the desired stream
+ * in the container, or error out when not found. By keeping our
+ * own container context we can move the pointers etc. to various
+ * components of the container.
  */
 void
 BiometricEvaluation::Video::StreamImpl::openContainer()
@@ -24,6 +27,12 @@ BiometricEvaluation::Video::StreamImpl::openContainer()
 	this->_currentFrameNum = 0;
 	this->_currentFrameTS = 0;
 
+	/*
+	 * We need to set up the format context as usual for reading from
+	 * any type of stream. However, because we are reading from a
+	 * memory buffer, we need to set up an IO context and buffers
+	 * that will be used by the AV library to store stream data.
+	 */
 	this->_fmtCtx = avformat_alloc_context();
 	if (this->_fmtCtx == nullptr)
 		throw BE::Error::MemoryError("Could not allocate format context");
@@ -47,9 +56,12 @@ BiometricEvaluation::Video::StreamImpl::openContainer()
 		throw BE::Error::MemoryError(
 		    "Could not allocate IO context");
 	}
-
 	this->_fmtCtx->pb = this->_avioCtx;
 
+	/*
+	 * From this point on the decoding etc. is done as it would be
+	 * for reading from a file.
+	 */
 	int ret = avformat_open_input(&this->_fmtCtx, NULL, NULL, NULL);
 	if (ret < 0)
 		throw (Error::StrategyError("Could not read container"));
@@ -64,37 +76,30 @@ BiometricEvaluation::Video::StreamImpl::openContainer()
 	 * was used for the stream. This context will be closed whenever
 	 * the container is closed.
 	 */
-	AVCodec *codec = avcodec_find_decoder(
+	const AVCodec *codec = avcodec_find_decoder(
 	    this->_fmtCtx->streams[this->_streamIndex]->codecpar->codec_id);
 	if (codec == nullptr)
 		throw (Error::StrategyError("Unsupported codec"));
 
-	this->_codecCtx = avcodec_alloc_context3(nullptr);
+	this->_codecCtx = avcodec_alloc_context3(codec);
 	if (this->_codecCtx == nullptr)
 		throw (Error::MemoryError(
 		    "Could not allocate codec context"));
 	/*
-	 * Copy all the settings from the codec allocated by the
-	 * library into our codec. This is necessary for certain
+	 * Copy all the settings from the stream codec allocated by the
+	 * library into our codec context. This is necessary for certain
 	 * stream types, H264 at least.
 	 */
-	const auto AVCodecParametersDeleter = [](AVCodecParameters *p) {
-		 avcodec_parameters_free(&p);
-	};
-	std::unique_ptr<AVCodecParameters, decltype(AVCodecParametersDeleter)>
-	    copiedCodecParams{avcodec_parameters_alloc(),
-	    AVCodecParametersDeleter};
-	if (const auto ret = avcodec_parameters_from_context(
-	    copiedCodecParams.get(),
-	    this->_fmtCtx->streams[this->_streamIndex]->codec); ret < 0)
-		throw BE::Error::StrategyError{"Could not retrieve source "
-		    "AVCodecParameters"};
 	if (const auto ret = avcodec_parameters_to_context(this->_codecCtx,
-	    copiedCodecParams.get()); ret < 0)
-		throw BE::Error::StrategyError{"Could not set destination "
-		    "AVCodecParameters"};
-
+	    this->_fmtCtx->streams[this->_streamIndex]->codecpar); ret < 0)
+		throw BE::Error::StrategyError{"Could not copy  "
+		    "AV Codec Parameters"};
+	/*
+	 * Set some options for the codec. These options must be set AFTER
+	 * the parameters have been read from the streams codec.
+	 */
 	AVDictionary *opts = NULL;
+	/* We want ownership of the frames, and we need to free them. */
 	av_dict_set(&opts, "refcounted_frames", "1", 0);
 	if (avcodec_open2(this->_codecCtx, codec, &opts) < 0 )
 		throw (Error::StrategyError("Could not open codec context"));
@@ -118,7 +123,7 @@ BiometricEvaluation::Video::StreamImpl::construct()
 }
 
 /*
- * Tear down an open stream be releasing FFMPEG library objects.
+ * Tear down an open stream by releasing FFMPEG library objects.
  */
 void
 BiometricEvaluation::Video::StreamImpl::closeContainer()
@@ -187,7 +192,6 @@ BiometricEvaluation::Video::StreamImpl::getNextAVFrame()
 	 * Read the stream to get the next frame. Note that the stream position
 	 * within the context depends on previous calls to this function.
 	 */
-	int gotFrame = 0;
 	const auto AVPacketDeleter = [](AVPacket *p){  av_packet_free(&p); };
 	std::unique_ptr<AVPacket, decltype(AVPacketDeleter)> packet{
 	    av_packet_alloc(), AVPacketDeleter};
@@ -195,15 +199,20 @@ BiometricEvaluation::Video::StreamImpl::getNextAVFrame()
 	packet->data = nullptr;
 
 	/*
-	 * Grab the next frame from the video stream.
+	 * Grab the next packet from our stream, decode it into a frame.
 	 */
+	bool gotFrame{};
 	while(av_read_frame(this->_fmtCtx, packet.get()) >= 0) {
+		gotFrame = false;
 		if(packet->stream_index == (int)this->_streamIndex) {
-			avcodec_decode_video2(
-			    this->_codecCtx, frameNative, &gotFrame,
-			        packet.get());
-			av_packet_unref(packet.get());
-			if (gotFrame != 0) {
+			int ret = avcodec_send_packet(
+			    this->_codecCtx, packet.get());
+			if (ret != 0)
+				break;
+			ret = avcodec_receive_frame(
+			    this->_codecCtx, frameNative);
+			if (ret == 0) {
+				gotFrame = true;
 				break;
 			} else {
 				av_frame_unref(frameNative);
@@ -213,22 +222,23 @@ BiometricEvaluation::Video::StreamImpl::getNextAVFrame()
 		}
 	}
 	/*
-	 * We need to flush any cached frames.
-	 * See http://ffmpeg.org/doxygen/trunk/decoding_encoding_8c-example.html
+	 * We need to flush any cached frames. Some decoders will peek ahead
+	 * and decode more frames than asked for. Pull those frames by sending
+	 * the 'flush' packet. See documenation for avcodec_send_packet().
 	 */
-	//XXX check packet.stream_index?
-	if (gotFrame == 0) {
-		packet->size = 0;
-		packet->data = nullptr;
-		avcodec_decode_video2(
-		    this->_codecCtx, frameNative, &gotFrame, packet.get());
+	if (gotFrame == false) {
+		avcodec_send_packet(this->_codecCtx, nullptr);
+		auto ret = avcodec_receive_frame(this->_codecCtx, frameNative);
+		if (ret == 0)
+			gotFrame = true;
 	}
-	if (gotFrame == 0) {
+	if (gotFrame == true) {
+		this->_currentFrameNum++;
+		this->_currentFrameTS = frameNative->best_effort_timestamp;
+		return (pFrame);
+	} else {
 		throw (BE::Error::ParameterError("Frame could not be found"));
 	}
-	this->_currentFrameNum++;
-	this->_currentFrameTS = frameNative->best_effort_timestamp;
-	return (pFrame);
 }
 
 /*
