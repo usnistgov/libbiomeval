@@ -92,23 +92,15 @@ jobs:
             libtiff-dev \
             zlib1g-dev
 
-    - name: Remove ffmpeg from Ubuntu 24.04
-      if: ${{ matrix.config.os == 'ubuntu-24.04' }}
-      shell: bash
-      run: |
-        sudo apt -y remove \
-            libavcodec-dev \
-            libavformat-dev
-
     - name: Install Packages (macOS)
       if: ${{ runner.os == 'macOS' }}
       shell: bash
       # FIXME: homebrew's open-mpi package doesn't include C++ bindings
-      # FIXME: we're not compatible with latest ffmpeg
       run: |
         HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 \
-            HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install \
+            HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install --quiet \
             berkeley-db \
+            ffmpeg \
             hwloc \
             jpeg-turbo \
             libpng \
@@ -125,6 +117,7 @@ jobs:
         vcpkg install \
           --triplet=${{ matrix.config.arch }}-windows-static \
           berkeleydb \
+          ffmpeg \
           hwloc \
           libjpeg-turbo \
           liblzma \
@@ -136,6 +129,7 @@ jobs:
           zlib
         vcpkg install --triplet=${{ matrix.config.arch }}-windows \
           berkeleydb \
+          ffmpeg \
           hwloc \
           libjpeg-turbo \
           liblzma \
