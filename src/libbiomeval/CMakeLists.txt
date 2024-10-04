@@ -572,25 +572,35 @@ endif()
 # libtiff, like ffmpeg, writes a pkg-config, but it prefers to link against
 # shared libs. We can't have that with this option.
 find_package(TIFF REQUIRED)
-target_link_libraries(${CORELIB} ${TIFF_LIBRARIES})
+target_link_libraries(${CORELIB} TIFF::TIFF)
 if (FORCE_STATIC_DEPENDENCIES)
+    # libtiff has some other dependencies that are picked up automatically when
+    # linked dynamically. Explicitly link them here.
     find_library(ZSTD_LIBRARY zstd REQUIRED)
     find_library(LZMA_LIBRARY lzma REQUIRED)
+    target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY})
 
-    # libtiff on MacPorts is now compiled to support LERC compression,
-    # requiring libLerc when linked statically. MacPorts does not build libLerc
-    # statically, so you need to build it yourself with -DBUILD_SHARED_LIBS=OFF.
+    # libtiff from MacPorts compiles in support for two otherwise optional
+    # libraries, libLerc and libdeflate. MacPorts does not build libLerc
+    # statically (though patch has been submitted), so you need to build it
+    # yourself with -DBUILD_SHARED_LIBS=OFF. libdeflate is provided as a static
+    # library by MacPorts
     find_file(TIFF_CONFIG_HEADER
         NAMES tiffconf.h
         REQUIRED
         HINTS ${TIFF_INCLUDE_DIR})
     file(READ "${TIFF_CONFIG_HEADER}" TIFF_CONFIG)
+
     string(REGEX MATCH "#define LERC_SUPPORT 1" TIFF_REQUIRES_LERC "${TIFF_CONFIG}")
-    if ("${TIFF_REQUIRES_LERC}" STREQUAL "")
-            target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY})
-    else()
+    if (NOT "${TIFF_REQUIRES_LERC}" STREQUAL "")
     	find_library(LERC_LIBRARY Lerc REQUIRED)
-        target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY} ${LERC_LIBRARY})
+        target_link_libraries(${CORELIB} ${LERC_LIBRARY})
+    endif()
+
+string(REGEX MATCH "#define LIBDEFLATE_SUPPORT 1" TIFF_REQUIRES_DEFLATE "${TIFF_CONFIG}")
+    if (NOT "${TIFF_REQUIRES_DEFLATE}" STREQUAL "")
+        find_package(libdeflate REQUIRED)
+        target_link_libraries(${CORELIB} libdeflate::libdeflate_static)
     endif()
 endif (FORCE_STATIC_DEPENDENCIES)
 
