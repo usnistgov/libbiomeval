@@ -28,8 +28,11 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          - { os: macOS-14, arch: arm64, shared: ON, force-static-deps: OFF }
+          - { os: macOS-13, arch: x64, shared: ON, force-static-deps: OFF }
           - { os: macOS-12, arch: x64, shared: ON, force-static-deps: OFF }
-          - { os: macOS-11, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: ubuntu-24.04, arch: x64, shared: ON, force-static-deps: OFF }
+          - { os: ubuntu-24.04, arch: x64, shared: OFF, force-static-deps: OFF }
           - { os: ubuntu-22.04, arch: x64, shared: ON, force-static-deps: OFF }
           - { os: ubuntu-22.04, arch: x64, shared: OFF, force-static-deps: OFF }
           - { os: ubuntu-20.04, arch: x64, shared: ON, force-static-deps: OFF }
@@ -41,7 +44,7 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: false
 
@@ -62,7 +65,7 @@ jobs:
     - name: Package Cache (Windows)
       if: ${{ runner.os == 'Windows' }}
       id: vcpkg-cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
         key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-STATIC_${{ matrix.config.force-static-deps }}-vcpkg
@@ -93,10 +96,11 @@ jobs:
       if: ${{ runner.os == 'macOS' }}
       shell: bash
       # FIXME: homebrew's open-mpi package doesn't include C++ bindings
-      # FIXME: we're not compatible with latest ffmpeg
       run: |
-        brew install \
+        HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 \
+            HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install --quiet \
             berkeley-db \
+            ffmpeg \
             hwloc \
             jpeg-turbo \
             libpng \
@@ -113,6 +117,7 @@ jobs:
         vcpkg install \
           --triplet=${{ matrix.config.arch }}-windows-static \
           berkeleydb \
+          ffmpeg \
           hwloc \
           libjpeg-turbo \
           liblzma \
@@ -124,6 +129,7 @@ jobs:
           zlib
         vcpkg install --triplet=${{ matrix.config.arch }}-windows \
           berkeleydb \
+          ffmpeg \
           hwloc \
           libjpeg-turbo \
           liblzma \

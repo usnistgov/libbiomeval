@@ -17,11 +17,18 @@
 namespace BE = BiometricEvaluation;
 
 /*
- * Setup access to the container stream using FFMPEG libraries.
+ * Setup access to the container only, no AV streams or other content, by
+ * saving our own context. 
  */
 void
 BiometricEvaluation::Video::Container::Impl::openContainer()
 {
+	/*
+	 * We need to set up the format context as usual for reading from
+	 * any type of stream. However, because we are reading from a
+	 * memory buffer, we need to set up an IO context and buffers
+	 * that will be used by the AV library to store stream data.
+	 */
 	this->_fmtCtx = avformat_alloc_context();
 	if (this->_fmtCtx == nullptr)
 		throw BE::Error::MemoryError("Could not allocate format context");
@@ -47,6 +54,10 @@ BiometricEvaluation::Video::Container::Impl::openContainer()
 
 	this->_fmtCtx->pb = this->_avioCtx;
 
+	/*
+	 * From this point on reading the container is done as it would be
+	 * for reading from a file.
+	 */
 	int ret = avformat_open_input(&this->_fmtCtx, NULL, NULL, NULL);
 	if (ret < 0)
 		throw (Error::StrategyError("Could not read container"));
@@ -64,16 +75,15 @@ BiometricEvaluation::Video::Container::Impl::openContainer()
 void
 BiometricEvaluation::Video::Container::Impl::construct()
 {
-	av_register_all();
 	this->openContainer();
 	this->_audioCount = 0;
 	this->_videoCount = 0;
 	for(unsigned int i = 0; i < this->_fmtCtx->nb_streams; i++) {
-		if (this->_fmtCtx->streams[i]->codec->codec_type == 
+		if (this->_fmtCtx->streams[i]->codecpar->codec_type == 
 		    AVMEDIA_TYPE_VIDEO) {
 			this->_videoCount++;
 		}
-		if (this->_fmtCtx->streams[i]->codec->codec_type == 
+		if (this->_fmtCtx->streams[i]->codecpar->codec_type == 
 		    AVMEDIA_TYPE_AUDIO) {
 			this->_audioCount++;
 		}
@@ -115,7 +125,7 @@ findVideoStream(
 	uint32_t videoCount = 0;
 	unsigned int stream;
 	for(stream = 0; stream < fmtCtx->nb_streams; stream++) {
-		if(fmtCtx->streams[stream]->codec->codec_type ==
+		if(fmtCtx->streams[stream]->codecpar->codec_type ==
 		    AVMEDIA_TYPE_VIDEO) {
 			videoCount++;
 			if (videoCount == videoNum) {

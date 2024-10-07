@@ -47,6 +47,12 @@ namespace BiometricEvaluation
 		 *
 		 * @note
 		 * List RecordStores must be opened read-only.
+		 *
+		 * @important
+		 * The list of keys is only consulted when iterating the
+		 * ListRecordStore. Read methods invoked manually will succeed
+		 * for any key present in the backing RecordStore, regardless of
+		 * the key's presence in the explicit list of keys.
 		 */
 		class ListRecordStore : public RecordStore {
 		public:
@@ -55,7 +61,7 @@ namespace BiometricEvaluation
 			    const std::string &pathname);
 
 			/** Destructor */
-			~ListRecordStore();
+			~ListRecordStore() = default;
 
 			/*
 			 * Implementation of the RecordStore interface.

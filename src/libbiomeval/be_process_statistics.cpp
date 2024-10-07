@@ -224,9 +224,9 @@ internalGetPstats(pid_t pid)
 
 /*
  * Get the task statistics for the given process ID. This function will
- * return throw an exception when the stats cannot be obtained, including
- * the system-wide clock ticks setting as that is needed to derive the
- * times spent in the task.
+ * return whatever information has been gathered when the stats cannot be
+ * obtained, including the system-wide clock ticks setting as that is needed to
+ * derive the times spent in the task.
  */
 static TaskStatsList
 internalGetTasksStats(pid_t pid)
@@ -234,37 +234,38 @@ internalGetTasksStats(pid_t pid)
 {
 	TaskStatsList allStats{};
 	std::string tpath{"/proc/" + std::to_string(pid) + "/task/"};
-	if (!fs::is_directory(tpath)) {
-		throw BE::Error::StrategyError(
-		    "Could not find " + tpath + ".");
-	}
+	if (!fs::is_directory(tpath))
+		return (allStats);
+
 	/*
 	 * Iterate through all /proc/<pid>/task/<tid>/stat files.
 	 */
 	float ticksPerSec = (float)sysconf(_SC_CLK_TCK);
-	if (ticksPerSec == -1) {
-		throw BE::Error::StrategyError(
-		    "Could not obtain system clock-ticks/sec value");
-	}
+	if (ticksPerSec <= 0)
+		return (allStats);
+
 	for (auto& p: fs::directory_iterator(tpath)) {
 		std::string tstatPath{p.path().string() + "/stat"};
 		std::ifstream ifs(tstatPath);
 		//XXX Should we continue here to the next subdir, and
 		//XXX build an exception string to throw at the loop end?
-		if (ifs.fail()) {
-			throw BE::Error::StrategyError(
-				"Could not open " + tstatPath + ".");
+		if (!ifs)
+			break;
+
+		std::string line{};
+		if (!std::getline(ifs, line)) {
+			/* Task likely exited while reading */
+			break;
 		}
 		/*
 		 * Tokenize the line using the space character.
 		 * ID is first field, user time is the 14th field,
 		 * system time is the 15th field.
 		 */
-		std::vector<std::string> tokens{};
-		std::string token{};
-		while (std::getline(ifs, token, ' ')) {
-			tokens.push_back(token);
-		}
+		const auto tokens = BE::Text::split(line, ' ', false);
+		if (tokens.size() < 15)
+			break;
+
 		/*
 		 * Add the stats for this task to the set of stats.
 		 */
