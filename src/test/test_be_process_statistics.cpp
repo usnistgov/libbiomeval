@@ -17,6 +17,8 @@
 #include <be_time.h>
 #include <be_process_statistics.h>
 
+#include <thread>
+
 using namespace std;
 using namespace BiometricEvaluation;
 
@@ -40,7 +42,7 @@ sleepyChild(void *)
 static void*
 busyChild(void *tNum)
 {
-	pid_t tID = syscall(SYS_gettid);
+	const auto tID = std::this_thread::get_id();
 	cout << __FUNCTION__ << " , TID is " << tID << "\n";
 
 	std::ifstream ifs("/dev/zero");
