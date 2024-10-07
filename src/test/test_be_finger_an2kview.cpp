@@ -64,10 +64,10 @@ handleAN2KView(Finger::AN2KView &an2kv)
 	 * Create a PGM header.
 	 */
 	ostringstream hdr;
-	hdr << "# " << filename << "\n";
 	hdr << "P5 " << img->getDimensions().xSize <<
 	    " " << img->getDimensions().ySize << " " <<
 	    (int)(pow(2.0, (int)img->getColorDepth()) - 1) << "\n";
+	hdr << "# " << filename << "\n";
 
 	ofstream img_out(filename.c_str(), ofstream::binary);
 	img_out << hdr.str();
