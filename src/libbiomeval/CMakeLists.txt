@@ -38,8 +38,6 @@
 #     make package
 #
 
-cmake_minimum_required(VERSION 2.8.11)
-
 if (BUILD_FOR_WASM)
 	add_definitions("-DWASM")
 	if (EMSCRIPTEN)
@@ -108,13 +106,7 @@ set(BIOMEVAL_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 file(GLOB BIOMEVAL_HEADERS ${BIOMEVAL_INCLUDE}/*.h)
 set(NBIS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include)
 #
-if(${CMAKE_MAJOR_VERSION} GREATER 2)
-  cmake_policy(SET CMP0048 NEW)
-  project(libbiomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
-else()
-  project(libbiomeval)
-  set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
-endif()
+project(libbiomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 set(CORELIB biomeval)
 
 # NBIS uses "insecure" functions under Windows

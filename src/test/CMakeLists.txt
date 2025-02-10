@@ -38,8 +38,6 @@ This process created the file `CMakeCache.txt' and the directory `CMakeFiles'.
 Please delete them.")
 endif()
 
-cmake_minimum_required(VERSION 2.8.11)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../libbiomeval/cmake/Modules/")
 
 if(${CMAKE_MAJOR_VERSION} GREATER 2)

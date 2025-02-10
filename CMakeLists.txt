@@ -26,7 +26,7 @@
 #     ./bin/test_be_feature_an2kminutiae
 #
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.20)
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" VERSION_FILE_CONTENTS)
 string(REGEX REPLACE "\n" ";" VERSION_FILE_CONTENTS ${VERSION_FILE_CONTENTS})
 foreach (line ${VERSION_FILE_CONTENTS})
@@ -51,13 +51,7 @@ if (CMAKE_VERSION VERSION_GREATER 3.14.999)
 	cmake_policy(SET CMP0091 NEW)
 endif (CMAKE_VERSION VERSION_GREATER 3.14.999)
 
-if(${CMAKE_MAJOR_VERSION} VERSION_GREATER 2)
-  cmake_policy(SET CMP0048 NEW)
-  project(biomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
-else()
-  project(biomeval)
-  set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
-endif()
+project(biomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 
 if (BUILD_SHARED_LIBS)
 	message(STATUS "Build type: SHARED")
