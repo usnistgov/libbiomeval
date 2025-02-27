@@ -478,160 +478,6 @@ BiometricEvaluation::Process::Statistics::callStatistics_logStats()
 	this->logStats();
 }
 
-extern "C" void *
-autoLogger(void *ptr)
-{
-	int type;
-
-	/*
-	 * We need some control over when this thread will be cancelled,
-	 * so defer cancellation, but we'll test for the cancel event and
-	 * give up control.
-	 */
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &type);
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &type);
-
-	/*
-	 * We need to copy data out of the logging package in a manner
-	 * that is synchronized with the owner of the package.
-	 */
-	pthread_mutex_lock(&slp.logMutex);
-	BE::Process::Statistics *stat = slp.stat;
-	/*
-	 * Convert _interval to sec/nsec from usec
-	 */
-	time_t sec = (time_t)(slp.interval / BE::Time::MicrosecondsPerSecond);
-	long nsec = (long)((slp.interval % BE::Time::MicrosecondsPerSecond) * 1000);
-	slp.loggingTaskID = 0;
-#ifdef Linux
-	slp.loggingTaskID = syscall(SYS_gettid);
-#endif
-	slp.flag = 1;
-	pthread_cond_signal(&slp.logCond);
-	pthread_mutex_unlock(&slp.logMutex);
-
-	/*
-	 * Synchronize with the parent thread so it can copy the info
-	 * out of the logging package before any log entries are made.
-	 */
-	pthread_mutex_lock(&slp.logMutex);
-	while (slp.flag != 0) {
-		pthread_cond_wait(&slp.logCond, &slp.logMutex);
-	}
-	pthread_mutex_unlock(&slp.logMutex);
-
-	/*
-	 * Add log entries until this thread is cancelled.
-	 */
-	struct timespec req, rem;
-	while (true) {
-
-		/*
-		 * Test for a cancel request. Note that we could create one
-		 * more log entry AFTER a request comes in.
-		 */
-		pthread_testcancel();
-
-		/* We want the logging operation to complete, so disable
-		 * cancellation while that is going on.
-		 */
-		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &type);
-		stat->callStatistics_logStats();
-		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &type);
-		req.tv_sec = sec;
-		req.tv_nsec = nsec;
-
-		/* We use nanosleep(2) to avoid causing signals sometimes
-		 * used by sleep(3).
-		 */
-		int retval = nanosleep(&req, &rem);
-
-		/* If a signal occurs, there will be remaining time on
-		 * the sleep interval, so use it up.
-		 */
-		if (retval == -1) {
-			while (rem.tv_sec > 0) {
-				req = rem;
-				nanosleep(&req, &rem);
-			}
-		}
-	}
-	
-	return (nullptr);
-}
-
-void
-BiometricEvaluation::Process::Statistics::startAutoLogging(
-    uint64_t interval)
-{
-	if (!_logging)
-		throw BE::Error::ObjectDoesNotExist();
-	if (_autoLogging)
-		throw BE::Error::ObjectExists();
-	if (interval == 0)
-		return;
-
-	slp.interval = interval;
-	slp.stat = this;
-	slp.flag = 0;
-	pthread_mutex_init(&slp.logMutex, nullptr);
-	pthread_cond_init(&slp.logCond, nullptr);
-
-	int retval = pthread_create(&_loggingThread, nullptr, autoLogger,
-	    nullptr);
-	if (retval != 0) {
-		throw BE::Error::StrategyError("Creating thread failed: " +
-		    BE::Error::errorStr());
-	}
-
-	std::ostringstream comment;
-	comment << StartAutologComment << slp.interval << " microseconds.";
-	_logSheet->writeComment(comment.str());
-	if (_doTasksLogging) {
-		_tasksLogSheet->get()->writeComment(comment.str());
-	}
-
-	/*
-	 * Synchronize with the logging thread so it can copy the info
-	 * out of the logging package before it is freed.
-	 */
-	pthread_mutex_lock(&slp.logMutex);
-	while (slp.flag != 1) {
-		pthread_cond_wait(&slp.logCond, &slp.logMutex);
-	}
-	this->_loggingTaskID = slp.loggingTaskID;
-
-	/*
-	 * Tell the logging task that it can start logging.
-	 */
-	slp.flag = 0;
-	pthread_cond_signal(&slp.logCond);
-	pthread_mutex_unlock(&slp.logMutex);
-	_autoLogging = true;
-}
-
-void
-BiometricEvaluation::Process::Statistics::stopAutoLogging()
-{
-	if (!_autoLogging)
-		throw BE::Error::ObjectDoesNotExist();
-	_autoLogging = false;
-	int retval = pthread_cancel(_loggingThread);
-	if (retval != 0)
-		throw BE::Error::StrategyError(
-		    "Cancel of logging thread failed: " +
-		    BE::Error::errorStr());
-
-	/* Wait for the logging thread to exit */
-	pthread_join(_loggingThread, nullptr);
-	std::ostringstream comment;
-	comment << StopAutologComment;
-	_logSheet->writeComment(comment.str());
-	if (_doTasksLogging) {
-		_tasksLogSheet->get()->writeComment(comment.str());
-	}
-}
-
 void
 BiometricEvaluation::Process::Statistics::setComment(
     std::string_view comment)
@@ -644,4 +490,10 @@ BiometricEvaluation::Process::Statistics::getComment()
     const
 {
 	return (this->_comment);
+}
+
+std::string
+BiometricEvaluation::Process::Statistics::getLogsheetEntry()
+{
+	return ("");
 }

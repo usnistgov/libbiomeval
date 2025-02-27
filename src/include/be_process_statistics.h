@@ -17,7 +17,7 @@
 #include <optional>
 #include <tuple>
 
-#include <be_io_filelogcabinet.h>
+#include <be_io_autologger.h>
 
 namespace BiometricEvaluation {
 	namespace Process {
@@ -42,7 +42,7 @@ namespace BiometricEvaluation {
 		 * resolution whereas the interface allows microsecond
 		 * resolution.
 		 */
-		class Statistics {
+		class Statistics : public IO::AutoLogger {
 		public:
 
 			/**
@@ -223,48 +223,6 @@ namespace BiometricEvaluation {
 			void logStats();
 
 			/**
-			 * @brief
-			 * Start logging process statistics automatically,
-			 * in intervals of microseconds. The first log entry
-			 * will occur soon after the call to this method as
-			 * the delay interval is invoked after the first entry.
-			 * @note
-			 * It is unrealistic to expect that log entries can
-			 * be made at a rate of one per microsecond.
-			 * @note
-			 * If stopAutoLogging() is called very soon after the
-			 * start, a log entry may not be made.
-			 *
-			 * @param[in] interval
-			 *	The gap between logging snapshots, in
-			 *	microseconds.
-			 * @throw Error::ObjectDoesNotExist
-			 *	The FileLogsheet does not exist; this object
-			 *	was not created with FileLogCabinet object.
-			 * @throw Error::ObjectExists
-			 *	Autologging is currently invoked.
-			 * @throw Error::StrategyError
-			 *	An error occurred when writing to the
-			 *	FileLogsheet.
-			 * @throw Error::NotImplemented
-			 *	The statistics gathering is not implemented for
-			 *	this operating system.
-			 */
-			void startAutoLogging(uint64_t interval);
-
-			/**
-			 * @brief
-			 * Stop the automatic logging of process statistics.
-			 *
-			 * @throw Error::ObjectDoesNotExist
-			 *	Not currently autologging.
-			 * @throw Error::StrategyError
-			 *	An error occurred when stopping, most likely
-			 *	because the logging thread died.
-			 */
-			void stopAutoLogging();
-
-			/**
 			 * Helper function in C++ space that has access to
 			 * this object, and is called from C space by the
 			 * logging thread. Applications should not call
@@ -289,6 +247,9 @@ namespace BiometricEvaluation {
 			void
 			setComment(
 			    std::string_view comment);
+
+			std::string
+			getLogsheetEntry();
 
 		private:
 
