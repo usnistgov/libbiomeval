@@ -7,7 +7,6 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
-
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -51,7 +50,6 @@ static struct startLoggerPackage slp{};
 
 BiometricEvaluation::IO::AutoLogger::AutoLogger()
 {
-	_logging = false;
 	_autoLogging = false;
 	pthread_mutex_init(&_logMutex, nullptr);
 }
@@ -69,51 +67,29 @@ BiometricEvaluation::IO::AutoLogger::~AutoLogger()
 }
 
 BiometricEvaluation::IO::AutoLogger::AutoLogger(
-    const std::shared_ptr<IO::FileLogCabinet> &logCabinet,
-    const std::string &logsheetName,
-    const std::string &logsheetDescription,
-    const std::string &logsheetHeader) :
-    _logCabinet(logCabinet)
-{
-	try {
-		_logSheet = logCabinet->newLogsheet(
-			logsheetName, logsheetDescription);
-	} catch (BE::Error::ObjectExists &) {
-		throw BE::Error::StrategyError("Logsheet already exists.");
-	} catch (const BE::Error::StrategyError &) {
-		throw;
-	}
-	_logSheet->writeComment(logsheetHeader);
-	_logging = true;
-	_autoLogging = false;
-	pthread_mutex_init(&_logMutex, nullptr);
-}
-
-BiometricEvaluation::IO::AutoLogger::AutoLogger(
     const std::shared_ptr<BE::IO::Logsheet> &logSheet,
-    const std::string &logsheetHeader) :
-    _pid(getpid()),
+    const std::function<std::string()> &callback) :
     _logSheet(logSheet),
-    _logging(true),
+    _callback(callback),
     _autoLogging(false)
 {
-	pthread_mutex_init(&_logMutex, nullptr);
-	_logSheet->writeComment(logsheetHeader);
 }
 
 void
 BiometricEvaluation::IO::AutoLogger::logEntry()
 {
-	if (!_logging)
+	if (!_autoLogging)
 		throw BE::Error::ObjectDoesNotExist();
 
+	std::string logEntry = this->_callback();
 	pthread_mutex_lock(&this->_logMutex);
-	// code here to commit the log record
+	*this->_logSheet << logEntry;
+	this->_logSheet->newEntry();
 	pthread_mutex_unlock(&this->_logMutex);
 }
 
 extern "C" void
-BiometricEvaluation::IO::AutoLogger::call_logData()
+BiometricEvaluation::IO::AutoLogger::call_logEntry()
 {
 	this->logEntry();
 }
@@ -172,7 +148,7 @@ autoLogger(void *ptr)
 		 * cancellation while that is going on.
 		 */
 		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &type);
-		logger->call_logData();
+		logger->call_logEntry();
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &type);
 		req.tv_sec = sec;
 		req.tv_nsec = nsec;
@@ -200,13 +176,10 @@ void
 BiometricEvaluation::IO::AutoLogger::startAutoLogging(
     uint64_t interval)
 {
-	if (!_logging)
-		throw BE::Error::ObjectDoesNotExist();
 	if (_autoLogging)
 		throw BE::Error::ObjectExists();
 	if (interval == 0)
 		return;
-
 	slp.interval = interval;
 	slp.logger = this;
 	slp.flag = 0;
@@ -220,7 +193,7 @@ BiometricEvaluation::IO::AutoLogger::startAutoLogging(
 		    BE::Error::errorStr());
 	}
 
-	std::ostringstream comment;
+	std::ostringstream comment{};
 	comment << StartAutologComment << slp.interval << " microseconds.";
 	_logSheet->writeComment(comment.str());
 
@@ -236,10 +209,10 @@ BiometricEvaluation::IO::AutoLogger::startAutoLogging(
 	/*
 	 * Tell the logging task that it can start logging.
 	 */
+	_autoLogging = true;
 	slp.flag = 0;
 	pthread_cond_signal(&slp.logCond);
 	pthread_mutex_unlock(&slp.logMutex);
-	_autoLogging = true;
 }
 
 void
@@ -261,16 +234,3 @@ BiometricEvaluation::IO::AutoLogger::stopAutoLogging()
 	_logSheet->writeComment(comment.str());
 }
 
-void
-BiometricEvaluation::IO::AutoLogger::setComment(
-    std::string_view comment)
-{
-	this->_comment = comment;
-}
-
-std::string
-BiometricEvaluation::IO::AutoLogger::getComment()
-    const
-{
-	return (this->_comment);
-}

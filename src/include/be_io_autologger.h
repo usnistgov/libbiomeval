@@ -13,6 +13,7 @@
 
 #include <pthread.h>
 
+#include <functional>
 #include <memory>
 #include <optional>
 #include <tuple>
@@ -38,28 +39,6 @@ namespace BiometricEvaluation {
 			AutoLogger();
 
 			/**
-			 * Construct an AutoLogger object with the associated
-			 * FileLogCabinet.
-			 *
-			 * @param[in] logCabinet
-			 * 	The FileLogCabinet obejct where this object will
-			 * 	create a FileLogsheet to contain the statistic
-			 *	information for the process.
-			 * @throw Error::ObjectExists
-			 *	The FileLogsheet already exists. This exception
-			 *	should rarely, if ever, occur.
-			 * @throw Error::StrategyError
-			 *	Failure to create the FileLogsheet in the
-			 *	cabinet.
-			 */
-			AutoLogger(
-			    const std::shared_ptr<IO::FileLogCabinet>
-				&logCabinet,
-			    const std::string &logsheetName,
-			    const std::string &logsheetDescription,
-			    const std::string &logsheetHeader);
-
-			/**
 			 * @brief
 			 * Construct an AutoLogger object that logs to an
 			 * existing Logsheet.
@@ -70,21 +49,19 @@ namespace BiometricEvaluation {
 			 */
 			AutoLogger(
 			    const std::shared_ptr<IO::Logsheet> &logSheet,
-			    const std::string &logsheetHeader);
+			    const std::function<std::string()> &callback);
 
 			virtual ~AutoLogger();
 
 			/**
 			 * @brief
-			 * Create a log entry in the in the FileLogsheet
-			 * located in the FileLogCabinet.
+			 * Create a log entry in the in the Logsheet.
 			 *
 			 * @throw Error::ObjectDoesNotExist
-			 *	The FileLogsheet does not exist; this object was
-			 *	not created with FileLogCabinet object.
+			 *	Auto-logging is currently off.
 			 * @throw Error::StrategyError
 			 *	An error occurred when writing to the
-			 *	FileLogsheet.
+			 *	Logsheet.
 			 */
 			void logEntry();
 
@@ -100,18 +77,13 @@ namespace BiometricEvaluation {
 			 * @note
 			 * If stopAutoLogging() is called very soon after the
 			 * start, a log entry may not be made.
+			 * @note
+			 * An interval value of 0 will not start auto-logging.
 			 *
 			 * @param[in] interval
-			 *	The gap between logging snapshots, in
-			 *	microseconds.
-			 * @throw Error::ObjectDoesNotExist
-			 *	The FileLogsheet does not exist; this object
-			 *	was not created with FileLogCabinet object.
+			 *	The gap between log entries, in microseconds.
 			 * @throw Error::ObjectExists
 			 *	Autologging is currently invoked.
-			 * @throw Error::StrategyError
-			 *	An error occurred when writing to the
-			 *	FileLogsheet.
 			 * @throw Error::NotImplemented
 			 *	The logging capability is not implemented for
 			 *	this operating system. Subclasses of this class
@@ -137,45 +109,14 @@ namespace BiometricEvaluation {
 			 * logging thread. Applications should not call
 			 * this function.
 			 */
-			void call_logData();
-
-			/**
-			 * @return
-			 * Description of the logging being performed.
-			 */
-			std::string
-			getComment()
-			    const;
-
-			/**
-			 * Set a description of the logging being performed.
-			 *
-			 * @param comment
-			 * Description of the task being performed.
-			 */
-			void
-			setComment(
-			    std::string_view comment);
-
-			/**
-			 * Get the class-specific log entry data string.
-			 *
-			 * @return
-			 * The log entry data string,
-			 */
-			std::string
-			virtual getLogsheetEntry() = 0;
+			void call_logEntry();
 
 		private:
-
-			pid_t _pid;
-			std::shared_ptr<IO::FileLogCabinet> _logCabinet{};
 			std::shared_ptr<IO::Logsheet> _logSheet{};
-			bool _logging{};
+			std::function<std::string()> _callback{};
 			bool _autoLogging{};
 			pthread_t _loggingThread{};
 			pthread_mutex_t _logMutex{};
-			std::string _comment{};
 		};
 
 	}
