@@ -11,8 +11,6 @@
 #ifndef __BE_PROCESS_STATISTICS_H__
 #define __BE_PROCESS_STATISTICS_H__
 
-#include <pthread.h>
-
 #include <memory>
 #include <optional>
 #include <tuple>
@@ -42,11 +40,12 @@ namespace BiometricEvaluation {
 		 * resolution whereas the interface allows microsecond
 		 * resolution.
 		 */
-		class Statistics : public IO::AutoLogger {
+		class Statistics {
 		public:
 
 			/**
-			 * Constructor with no parameters.
+			 * Construct a Statistics object without logging, for
+			 * clients to obtain process statistics directly.
 			 */
 			Statistics();
 
@@ -249,21 +248,26 @@ namespace BiometricEvaluation {
 			    std::string_view comment);
 
 			std::string
-			getLogsheetEntry();
+			getStats() const;
+
+			std::string
+			getTaskStats() const;
+
+			void startAutoLogging(uint64_t interval);
+			void stopAutoLogging();
 
 		private:
-
+			IO::AutoLogger _autoLogger{};
+			IO::AutoLogger _autoTaskLogger{};
 			pid_t _pid;
 			std::shared_ptr<IO::FileLogCabinet> _logCabinet{};
 			std::shared_ptr<IO::Logsheet> _logSheet{};
 			std::optional<std::shared_ptr<IO::Logsheet>>
 			    _tasksLogSheet{};
-			bool _logging{};
 			pid_t _loggingTaskID{};
+			pid_t _taskLoggingTaskID{};
 			bool _doTasksLogging{};
-			bool _autoLogging{};
-			pthread_t _loggingThread{};
-			pthread_mutex_t _logMutex{};
+			bool _logging{};
 			std::string _comment{};
 		};
 

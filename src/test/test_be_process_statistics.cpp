@@ -42,7 +42,7 @@ sleepyChild(void *)
 static void*
 busyChild(void *tNum)
 {
-	const auto tID = std::this_thread::get_id();
+	const auto tID = gettid();
 	cout << __FUNCTION__ << " , TID is " << tID << "\n";
 
 	std::ifstream ifs("/dev/zero");

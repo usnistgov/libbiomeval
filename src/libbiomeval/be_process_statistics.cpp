@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -22,7 +23,6 @@
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <dirent.h>
-#include <pthread.h>
 #include <unistd.h>
 
 #include <be_error.h>
@@ -39,15 +39,15 @@ typedef std::vector<std::tuple<pid_t, float, float>> TaskStatsList;
 /*
  * A structure to pass information between the logging task and the parent.
  */
+# if 0
 struct startLoggerPackage {
 	uint64_t interval;
 	int flag;
 	pid_t loggingTaskID;
 	BE::Process::Statistics *stat;
-	pthread_mutex_t logMutex;
-	pthread_cond_t logCond;
 };
 static struct startLoggerPackage slp{};
+#endif
 
 /*
  * There is no standard method to obtain process statistics from the OS.
@@ -270,6 +270,8 @@ internalGetTasksStats(pid_t pid)
 		 * Add the stats for this task to the set of stats.
 		 */
 		pid_t tid = std::stoi(tokens[0]);
+
+//std::cout << __FUNCTION__ << ": tid is " << tid << ", gettid() is " << gettid() << std::endl;
 		float utime = (float)std::stoi(tokens[13]) / ticksPerSec;
 		float stime = (float)std::stoi(tokens[14]) / ticksPerSec;
 		allStats.push_back(std::make_tuple(tid, utime, stime));
@@ -316,20 +318,10 @@ BiometricEvaluation::Process::Statistics::Statistics()
 {
 	_pid = getpid();
 	_logging = false;
-	_autoLogging = false;
-	pthread_mutex_init(&_logMutex, nullptr);
 }
 
 BiometricEvaluation::Process::Statistics::~Statistics()
 {
-	/* If the client of this object doesn't call stopAutoLogging(),
- 	 * we need to cancel the logging thread here.
- 	 */
-	if (_autoLogging) {
-		pthread_cancel(_loggingThread);
-		pthread_join(_loggingThread, nullptr);
-	}
-	pthread_mutex_destroy(&_logMutex);
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
@@ -352,25 +344,32 @@ BiometricEvaluation::Process::Statistics::Statistics(
 		throw;
 	}
 	_logSheet->writeComment(LogsheetHeader);
-	if (_doTasksLogging) {
+	std::function<std::string(void)> statFunc =
+	    std::bind(&BE::Process::Statistics::getStats, this);
+	this->_autoLogger = BE::IO::AutoLogger(this->_logSheet, statFunc);
+
+	if (doTasksLogging) {
 		lsname = procname + '-' + std::to_string(_pid) +
 		     ".taskstats.log";
 		descr = "Statistics for all tasks under " + procname +
 		     " (PID " + std::to_string(this->_pid) + ")";
 		try {
-			_tasksLogSheet = logCabinet->newLogsheet(lsname, descr);
+			this->_tasksLogSheet = logCabinet->newLogsheet(
+			    lsname, descr);
 		} catch (BE::Error::ObjectExists &e) {
 			throw BE::Error::StrategyError(
 			    "Logsheet already exists.");
 		} catch (BE::Error::StrategyError &e) {
 			throw;
 		}
-		_tasksLogSheet->get()->writeComment(TasksLogsheetHeader);
-		_tasksLogSheet->get()->writeComment(TasksLogsheetHeader2);
+		this->_tasksLogSheet->get()->writeComment(TasksLogsheetHeader);
+		this->_tasksLogSheet->get()->writeComment(TasksLogsheetHeader2);
+		std::function<std::string(void)> taskStatFunc =
+		    std::bind(&BE::Process::Statistics::getTaskStats, this);
+		this->_autoTaskLogger =
+		    BE::IO::AutoLogger(*this->_tasksLogSheet, taskStatFunc);
 	}
 	_logging = true;
-	_autoLogging = false;
-	pthread_mutex_init(&_logMutex, nullptr);
 }
 
 BiometricEvaluation::Process::Statistics::Statistics(
@@ -379,14 +378,19 @@ BiometricEvaluation::Process::Statistics::Statistics(
     _pid(getpid()),
     _logSheet(logSheet),
     _tasksLogSheet(tasksLogSheet),
-    _logging(true),
-    _autoLogging(false)
+    _logging(true)
 {
-	pthread_mutex_init(&_logMutex, nullptr);
 	_logSheet->writeComment(LogsheetHeader);
+	std::function<std::string(void)> statFunc =
+	    std::bind(&BE::Process::Statistics::getStats, this);
+	this->_autoLogger = BE::IO::AutoLogger(this->_logSheet, statFunc);
 	if (_tasksLogSheet.has_value()) {
 		_tasksLogSheet->get()->writeComment(TasksLogsheetHeader);
 		_tasksLogSheet->get()->writeComment(TasksLogsheetHeader2);
+		std::function<std::string(void)> taskStatFunc =
+		    std::bind(&BE::Process::Statistics::getTaskStats, this);
+		this->_autoTaskLogger =
+		    BE::IO::AutoLogger(*this->_tasksLogSheet, taskStatFunc);
 		_doTasksLogging = true;
 	}
 }
@@ -420,7 +424,7 @@ std::tuple<
 BiometricEvaluation::Process::Statistics::getMemorySizes()
 {
 	/* Let exceptions from this call float out */
-	PSTATS ps = internalGetPstats(_pid);
+	PSTATS ps = internalGetPstats(this->_pid);
 	return (std::make_tuple(ps.vmrss, ps.vmsize, ps.vmpeak, ps.vmdata,
 	     ps.vmstack));
 }
@@ -428,8 +432,44 @@ BiometricEvaluation::Process::Statistics::getMemorySizes()
 uint32_t
 BiometricEvaluation::Process::Statistics::getNumThreads()
 {
-	PSTATS ps = internalGetPstats(_pid);
+	PSTATS ps = internalGetPstats(this->_pid);
 	return (ps.threads);
+}
+
+std::string
+BiometricEvaluation::Process::Statistics::getStats() const
+{
+	PSTATS ps;
+	uint64_t usertime, systemtime;
+	try { 
+		ps = internalGetPstats(this->_pid);
+		internalGetCPUTimes(&usertime, &systemtime);
+	} catch (const BE::Error::Exception &) {
+		throw;
+	}
+	std::stringstream ss{};
+	ss << usertime << " " << systemtime << " ";
+	ss << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
+	ss << ps.vmdata << " " << ps.vmstack << " " << ps.threads;
+	ss << " " << std::quoted(this->_comment);
+	return (ss.str());
+}
+
+std::string
+BiometricEvaluation::Process::Statistics::getTaskStats() const
+{
+	std::stringstream ss{};
+	auto allStats = internalGetTasksStats(this->_pid);
+	ss << this->_pid << ' ';
+	for (auto [tid, utime, stime]: allStats) {
+		if (tid == this->_loggingTaskID) {
+			ss << '{' << tid << "(L), ";
+		} else {
+			ss << '{' << tid << ", ";
+		}
+		ss << utime << ", " << stime << "} ";
+	}
+	return (ss.str());
 }
 
 void
@@ -437,45 +477,10 @@ BiometricEvaluation::Process::Statistics::logStats()
 {
 	if (!_logging)
 		throw BE::Error::ObjectDoesNotExist();
-
-	PSTATS ps;
-	uint64_t usertime, systemtime;
-	pthread_mutex_lock(&this->_logMutex);
-	try { 
-		ps = internalGetPstats(_pid);
-		internalGetCPUTimes(&usertime, &systemtime);
-	} catch (const BE::Error::Exception &) {
-		pthread_mutex_unlock(&this->_logMutex);
-		throw;
-	}
-	*_logSheet << usertime << " " << systemtime << " ";
-	*_logSheet << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
-	*_logSheet << ps.vmdata << " " << ps.vmstack << " " << ps.threads;
-	*_logSheet << " " << std::quoted(this->_comment);
-	_logSheet->newEntry();
-
-	auto tls = this->_tasksLogSheet->get();
+	this->_autoLogger.addLogEntry();
 	if (_doTasksLogging) {
-		auto allStats = internalGetTasksStats(_pid);
-		*tls << this->_pid << ' ';
-		for (auto [tid, utime, stime]: allStats) {
-			if (tid == this->_loggingTaskID) {
-				*tls << '{' << tid << "(L), ";
-			} else {
-				*tls << '{' << tid << ", ";
-			}
-			*tls << utime << ", " << stime << "} ";
-		}
-		tls->newEntry();
+		this->_autoTaskLogger.addLogEntry();
 	}
-
-	pthread_mutex_unlock(&this->_logMutex);
-}
-
-extern "C" void
-BiometricEvaluation::Process::Statistics::callStatistics_logStats()
-{
-	this->logStats();
 }
 
 void
@@ -492,8 +497,31 @@ BiometricEvaluation::Process::Statistics::getComment()
 	return (this->_comment);
 }
 
-std::string
-BiometricEvaluation::Process::Statistics::getLogsheetEntry()
+void
+BiometricEvaluation::Process::Statistics::startAutoLogging(uint64_t interval)
 {
-	return ("");
+	/*
+	 * We depend on the AutoLogger to throw when not logging, and
+	 * let that float out of here.
+	*/
+        this->_autoLogger.startAutoLogging(interval);
+	this->_loggingTaskID = this->_autoLogger.getTaskID();
+	if (this->_doTasksLogging) {
+		this->_autoTaskLogger.startAutoLogging(interval);
+		this->_taskLoggingTaskID = this->_autoTaskLogger.getTaskID();
+	}
 }
+
+void
+BiometricEvaluation::Process::Statistics::stopAutoLogging()
+{
+	/*
+	 * We depend on the AutoLogger to throw when not logging, and
+	 * let that float out of here.
+	*/
+        this->_autoLogger.stopAutoLogging();
+	if (this->_doTasksLogging) {
+		this->_autoTaskLogger.stopAutoLogging();
+	}
+}
+
