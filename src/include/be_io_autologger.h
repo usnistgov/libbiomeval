@@ -26,9 +26,13 @@ namespace BiometricEvaluation {
 		/**
 		 * @brief
 		 * The AutoLogger class provides an interface for writing
-		 * to a log file within a background thread. 
+		 * to a log file within a background thread. The content for
+		 * log entries is retrieved via a call back to the owning
+		 * object.
 		 *
 		 * @details
+		 * Auto logging will not start upon construction.
+		 * @see startAutoLogging().
 		 */
 		class AutoLogger {
 		public:
@@ -48,7 +52,7 @@ namespace BiometricEvaluation {
 			 *
 			 */
 			AutoLogger(
-			    const std::shared_ptr<IO::Logsheet> &logSheet,
+			    const std::shared_ptr<IO::Logsheet> logSheet,
 			    const std::function<std::string()> &callback);
 
 			virtual ~AutoLogger();
@@ -63,7 +67,7 @@ namespace BiometricEvaluation {
 			 *	An error occurred when writing to the
 			 *	Logsheet.
 			 */
-			void logEntry();
+			void addLogEntry();
 
 			/**
 			 * @brief
@@ -86,14 +90,13 @@ namespace BiometricEvaluation {
 			 *	Autologging is currently invoked.
 			 * @throw Error::NotImplemented
 			 *	The logging capability is not implemented for
-			 *	this operating system. Subclasses of this class
-			 *	may or may not implement auto logging.
+			 *	this operating system.
 			 */
 			void startAutoLogging(uint64_t interval);
 
 			/**
 			 * @brief
-			 * Stop the automatic logging of process statistics.
+			 * Stop automatic logging.
 			 *
 			 * @throw Error::ObjectDoesNotExist
 			 *	Not currently autologging.
@@ -109,16 +112,29 @@ namespace BiometricEvaluation {
 			 * logging thread. Applications should not call
 			 * this function.
 			 */
-			void call_logEntry();
+			void call_addLogEntry();
 
+			/**
+			 * @brief
+			 * Return the task ID associated with this object.
+			 * @details
+			 * The task ID is as seen by the OS and not any given
+			 * threading library.
+			 * @return The task ID
+			 */
+			pid_t getTaskID();
+
+			struct StartLoggerPackage;
 		private:
+			std::string getStats();
+			std::string getTaskStats();
 			std::shared_ptr<IO::Logsheet> _logSheet{};
 			std::function<std::string()> _callback{};
 			bool _autoLogging{};
 			pthread_t _loggingThread{};
 			pthread_mutex_t _logMutex{};
+			std::shared_ptr<struct StartLoggerPackage> _slp{};
 		};
-
 	}
 }
 #endif /* __BE_IO_AUTOLOGGER_H__ */

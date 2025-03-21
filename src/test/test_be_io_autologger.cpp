@@ -33,10 +33,18 @@ main(int argc, char *argv[])
 	 *
 	 */
 	std::string lsname = "./autologger_logsheet";
-	std::shared_ptr<IO::Logsheet>
-	       logsheet{new IO::FileLogsheet("file://" + lsname,
-		"Autologger sheet")};
+	std::shared_ptr<IO::Logsheet> logsheet{};
+	try {
+		cout << "Creating log sheet " << lsname << endl;
+		logsheet = std::make_shared<IO::FileLogsheet>(
+			"file://" + lsname, "Autologger sheet");
+	} catch (const Error::Exception&e) {
+		cout << "Caught: " << e.what() << endl;
+		return (EXIT_FAILURE);
+	}
+
 	IO::AutoLogger logger{};
+////	logger.startAutoLogging(1);
 	try {
 		cout << "Creating AutoLogger object: ";
 		logger = IO::AutoLogger(logsheet, &logEntry);
@@ -51,7 +59,7 @@ main(int argc, char *argv[])
 	cout << "Attempting to log asynchronously: " << flush;
 	try {
 		logger.startAutoLogging(Time::OneHalfSecond);
-		sleep(6);
+		sleep(6);	// Give time or the log to fill.
 	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
@@ -65,7 +73,7 @@ main(int argc, char *argv[])
 		cout << "Caught " << e.what() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
-cout << "File size is " << std::filesystem::file_size(lsname) << endl;
+	auto startFileSz = std::filesystem::file_size(lsname);
 
 	/*
 	 * Try to start the already logging object.
@@ -96,6 +104,19 @@ cout << "File size is " << std::filesystem::file_size(lsname) << endl;
 		cout << "failed.\n";
 		return (EXIT_FAILURE);
 	}
-
+#if 0
+	//XXX We need a way to check whether log eentries are actually
+	//XXX committed to the file. The code below is not enough.
+	logsheet.reset();
+sleep(10);
+	auto endFileSz = std::filesystem::file_size(lsname);
+	auto deltaFileSz = endFileSz - startFileSz;
+cout << "startFileSz = " << startFileSz << ", endFileSz = " << endFileSz << endl;
+	if (deltaFileSz == 0) {
+		cout << "Log file did not grow after adding entries.\n";
+		return (EXIT_FAILURE);
+	}
+	cout << "Log file size grew by " << deltaFileSz << " characters.\n"; 
+#endif
 	return (EXIT_SUCCESS);
 }

@@ -36,17 +36,18 @@ namespace fs = std::filesystem;
 static const std::string StopAutologComment = "Autolog stopped. ";
 static const std::string StartAutologComment = "Autolog started. Interval: ";
 
+
 /*
- * A structure to pass information between the logging task and the parent.
- */
-struct startLoggerPackage {
+* A structure to pass information between the logging task and the parent.
+*/
+struct BiometricEvaluation::IO::AutoLogger::StartLoggerPackage {
 	uint64_t interval;
 	int flag;
-	BE::IO::AutoLogger *logger;
+	pid_t loggingTaskID;
+	BiometricEvaluation::IO::AutoLogger *logger;
 	pthread_mutex_t logMutex;
 	pthread_cond_t logCond;
 };
-static struct startLoggerPackage slp{};
 
 BiometricEvaluation::IO::AutoLogger::AutoLogger()
 {
@@ -67,7 +68,7 @@ BiometricEvaluation::IO::AutoLogger::~AutoLogger()
 }
 
 BiometricEvaluation::IO::AutoLogger::AutoLogger(
-    const std::shared_ptr<BE::IO::Logsheet> &logSheet,
+    const std::shared_ptr<BE::IO::Logsheet> logSheet,
     const std::function<std::string()> &callback) :
     _logSheet(logSheet),
     _callback(callback),
@@ -76,11 +77,8 @@ BiometricEvaluation::IO::AutoLogger::AutoLogger(
 }
 
 void
-BiometricEvaluation::IO::AutoLogger::logEntry()
+BiometricEvaluation::IO::AutoLogger::addLogEntry()
 {
-	if (!_autoLogging)
-		throw BE::Error::ObjectDoesNotExist();
-
 	std::string logEntry = this->_callback();
 	pthread_mutex_lock(&this->_logMutex);
 	*this->_logSheet << logEntry;
@@ -89,9 +87,9 @@ BiometricEvaluation::IO::AutoLogger::logEntry()
 }
 
 extern "C" void
-BiometricEvaluation::IO::AutoLogger::call_logEntry()
+BiometricEvaluation::IO::AutoLogger::call_addLogEntry()
 {
-	this->logEntry();
+	this->addLogEntry();
 }
 
 extern "C" void *
@@ -99,6 +97,8 @@ autoLogger(void *ptr)
 {
 	int type;
 
+	struct BE::IO::AutoLogger::StartLoggerPackage *slp =
+	       	(struct BE::IO::AutoLogger::StartLoggerPackage*)ptr;
 	/*
 	 * We need some control over when this thread will be cancelled,
 	 * so defer cancellation, but we'll test for the cancel event and
@@ -111,26 +111,31 @@ autoLogger(void *ptr)
 	 * We need to copy data out of the logging package in a manner
 	 * that is synchronized with the owner of the package.
 	 */
-	pthread_mutex_lock(&slp.logMutex);
-	BE::IO::AutoLogger *logger = slp.logger;
+	pthread_mutex_lock(&slp->logMutex);
+	BE::IO::AutoLogger *logger = slp->logger;
 	/*
 	 * Convert _interval to sec/nsec from usec
 	 */
-	time_t sec = (time_t)(slp.interval / BE::Time::MicrosecondsPerSecond);
-	long nsec = (long)((slp.interval % BE::Time::MicrosecondsPerSecond) * 1000);
-	slp.flag = 1;
-	pthread_cond_signal(&slp.logCond);
-	pthread_mutex_unlock(&slp.logMutex);
+	time_t sec = (time_t)(slp->interval / BE::Time::MicrosecondsPerSecond);
+	long nsec = (long)((slp->interval % BE::Time::MicrosecondsPerSecond) * 1000);
+#ifdef Linux
+	slp->loggingTaskID = ::gettid();
+#else
+	slp->loggingTaskID = 0;
+#endif
+	slp->flag = 1;
+	pthread_cond_signal(&slp->logCond);
+	pthread_mutex_unlock(&slp->logMutex);
 
 	/*
 	 * Synchronize with the parent thread so it can copy the info
 	 * out of the logging package before any log entries are made.
 	 */
-	pthread_mutex_lock(&slp.logMutex);
-	while (slp.flag != 0) {
-		pthread_cond_wait(&slp.logCond, &slp.logMutex);
+	pthread_mutex_lock(&slp->logMutex);
+	while (slp->flag != 0) {
+		pthread_cond_wait(&slp->logCond, &slp->logMutex);
 	}
-	pthread_mutex_unlock(&slp.logMutex);
+	pthread_mutex_unlock(&slp->logMutex);
 
 	/*
 	 * Add log entries until this thread is cancelled.
@@ -148,7 +153,7 @@ autoLogger(void *ptr)
 		 * cancellation while that is going on.
 		 */
 		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &type);
-		logger->call_logEntry();
+		logger->call_addLogEntry();
 		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &type);
 		req.tv_sec = sec;
 		req.tv_nsec = nsec;
@@ -180,39 +185,40 @@ BiometricEvaluation::IO::AutoLogger::startAutoLogging(
 		throw BE::Error::ObjectExists();
 	if (interval == 0)
 		return;
-	slp.interval = interval;
-	slp.logger = this;
-	slp.flag = 0;
-	pthread_mutex_init(&slp.logMutex, nullptr);
-	pthread_cond_init(&slp.logCond, nullptr);
+	_slp.reset(new struct BE::IO::AutoLogger::StartLoggerPackage());
+	_slp->interval = interval;
+	_slp->logger = this;
+	_slp->flag = 0;
+	pthread_mutex_init(&_slp->logMutex, nullptr);
+	pthread_cond_init(&_slp->logCond, nullptr);
 
 	int retval = pthread_create(&_loggingThread, nullptr, autoLogger,
-	    nullptr);
+	    _slp.get());
 	if (retval != 0) {
 		throw BE::Error::StrategyError("Creating thread failed: " +
 		    BE::Error::errorStr());
 	}
 
 	std::ostringstream comment{};
-	comment << StartAutologComment << slp.interval << " microseconds.";
+	comment << StartAutologComment << _slp->interval << " microseconds.";
 	_logSheet->writeComment(comment.str());
 
 	/*
 	 * Synchronize with the logging thread so it can copy the info
 	 * out of the logging package before it is freed.
 	 */
-	pthread_mutex_lock(&slp.logMutex);
-	while (slp.flag != 1) {
-		pthread_cond_wait(&slp.logCond, &slp.logMutex);
+	pthread_mutex_lock(&_slp->logMutex);
+	while (_slp->flag != 1) {
+		pthread_cond_wait(&_slp->logCond, &_slp->logMutex);
 	}
 
 	/*
 	 * Tell the logging task that it can start logging.
 	 */
 	_autoLogging = true;
-	slp.flag = 0;
-	pthread_cond_signal(&slp.logCond);
-	pthread_mutex_unlock(&slp.logMutex);
+	_slp->flag = 0;
+	pthread_cond_signal(&_slp->logCond);
+	pthread_mutex_unlock(&_slp->logMutex);
 }
 
 void
@@ -234,3 +240,8 @@ BiometricEvaluation::IO::AutoLogger::stopAutoLogging()
 	_logSheet->writeComment(comment.str());
 }
 
+pid_t
+BiometricEvaluation::IO::AutoLogger::getTaskID()
+{
+	return (_slp->loggingTaskID);
+}
