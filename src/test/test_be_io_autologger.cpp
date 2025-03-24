@@ -43,10 +43,12 @@ main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 
+	cout << "Attempt to log to the default AutoLogger: ";
 	IO::AutoLogger logger{};
-////	logger.startAutoLogging(1);
+	logger.startAutoLogging(1);
+	cout << "Success.\n";
 	try {
-		cout << "Creating AutoLogger object: ";
+		cout << "Creating AutoLogger object with Logsheet: ";
 		logger = IO::AutoLogger(logsheet, &logEntry);
 		cout << "success.\n";
 	} catch (const Error::NotImplemented&) {

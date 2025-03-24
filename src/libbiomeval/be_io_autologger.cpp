@@ -52,6 +52,8 @@ struct BiometricEvaluation::IO::AutoLogger::StartLoggerPackage {
 BiometricEvaluation::IO::AutoLogger::AutoLogger()
 {
 	_autoLogging = false;
+	_logSheet.reset(new IO::Logsheet());
+	_callback = []() { return(""); };
 	pthread_mutex_init(&_logMutex, nullptr);
 }
 
