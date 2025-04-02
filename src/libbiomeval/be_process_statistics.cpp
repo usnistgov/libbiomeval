@@ -501,8 +501,8 @@ void
 BiometricEvaluation::Process::Statistics::startAutoLogging(uint64_t interval)
 {
 	/*
-	 * We depend on the AutoLogger to throw when not logging, and
-	 * let that float out of here.
+	 * We depend on the AutoLogger to throw when logging fails,
+	 * and let that float out of here.
 	*/
         this->_autoLogger.startAutoLogging(interval);
 	this->_loggingTaskID = this->_autoLogger.getTaskID();

@@ -43,7 +43,7 @@ static void*
 busyChild(void *tNum)
 {
 	const auto tID = gettid();
-	cout << __FUNCTION__ << " , TID is " << tID << "\n";
+	cout << __FUNCTION__ << ", TID is " << tID << "\n";
 
 	std::ifstream ifs("/dev/zero");
 	char c;
@@ -163,7 +163,6 @@ main(int argc, char *argv[])
 	 */
 	if (testMemorySizes(stats) != 0)
 		return (EXIT_FAILURE);
-
 	pthread_join(thread1, nullptr);
 	pthread_join(thread2, nullptr);
 	pthread_join(thread3, nullptr);
@@ -174,18 +173,22 @@ main(int argc, char *argv[])
 	std::tie(std::ignore, systemend) = stats.getCPUTimes();
 	cout << "Total System time at start: " << systemstart << " : ";
 	cout << "At end: " << systemend << ": " << endl;
-
 	cout << "Creating LogCabinet for Statistics object." << flush << endl;
 	std::shared_ptr<IO::FileLogCabinet> lc;
-	lc.reset(new IO::FileLogCabinet(
-	    "statLogCabinet", "Cabinet for Statistics"));
+	try {
+		lc.reset(new IO::FileLogCabinet(
+		    "statLogCabinet", "Cabinet for Statistics"));
+	} catch (const Error::Exception &e) {
+		cout << "Caught: " << e.what() << "; terminating.\n";
+		return (EXIT_FAILURE);
+	}
 
 	/*
 	 * The logging tests need to be done last.
 	 */
 	cout << "Creating Statistics object with process and task logging: "
 	     << flush;
-	std::unique_ptr<Process::Statistics> logstats;
+	std::unique_ptr<Process::Statistics> logstats{};
 
 	/*
 	 * Log both basic process stats and those for all tasks.

@@ -7,6 +7,7 @@
  * its use by other parties, and makes no guarantees, expressed or implied,
  * about its quality, reliability, or any other characteristic.
  */
+#include <chrono>
 #include <ctime>
 #include <filesystem>
 #include <functional>
@@ -23,7 +24,12 @@ using namespace BiometricEvaluation;
 string logEntry()
 {
 	static int logNumber{0};
-	return "log entry number " + std::to_string(++logNumber);
+	std::stringstream sstream{};
+	const auto tp = std::time(nullptr);
+	sstream << __FUNCTION__ << " call number " <<
+	    std::to_string(++logNumber) << "; date is " <<
+	    std::asctime(std::localtime(&tp));
+	return (sstream.str());
 }
 
 int
@@ -32,25 +38,40 @@ main(int argc, char *argv[])
 	/*
 	 *
 	 */
-	std::string lsname = "./autologger_logsheet";
-	std::shared_ptr<IO::Logsheet> logsheet{};
+	int sleepTime = 6;
+	std::string lsname1 = "./autologger_logsheet1.log";
+	std::string lsname2 = "./autologger_logsheet2.log";
+	std::shared_ptr<IO::Logsheet> logsheet1{}, logsheet2{};;
 	try {
-		cout << "Creating log sheet " << lsname << endl;
-		logsheet = std::make_shared<IO::FileLogsheet>(
-			"file://" + lsname, "Autologger sheet");
+		cout << "Creating log sheet " << lsname1 << endl;
+		logsheet1 = std::make_shared<IO::FileLogsheet>(
+			"file://" + lsname1, "Autologger one sheet");
+		cout << "Creating log sheet " << lsname2 << endl;
+		logsheet2 = std::make_shared<IO::FileLogsheet>(
+			"file://" + lsname2, "Autologger two sheet");
 	} catch (const Error::Exception&e) {
 		cout << "Caught: " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
+	IO::AutoLogger logger1{}, logger2{}, logger3{};
 
 	cout << "Attempt to log to the default AutoLogger: ";
-	IO::AutoLogger logger{};
-	logger.startAutoLogging(1);
-	cout << "Success.\n";
+	try {
+		logger3.addLogEntry();
+		logger3.startAutoLogging(2000);
+		logger3.addLogEntry();
+		cout << "Success.\n";
+	} catch (const Error::Exception &e) {
+		cout << "caught " << e.what() << endl;
+		return (EXIT_FAILURE);
+	}
 	try {
 		cout << "Creating AutoLogger object with Logsheet: ";
-		logger = IO::AutoLogger(logsheet, &logEntry);
-		cout << "success.\n";
+		logger1 = IO::AutoLogger(logsheet1, &logEntry);
+		cout << "Success.\n";
+		cout << "Creating AutoLogger object with Second Logsheet: ";
+		logger2 = IO::AutoLogger(logsheet2, &logEntry);
+		cout << "Success.\n";
 	} catch (const Error::NotImplemented&) {
 		cout << "Not Implemented; OK." << endl;
 	} catch (const Error::StrategyError &e) {
@@ -60,8 +81,10 @@ main(int argc, char *argv[])
 
 	cout << "Attempting to log asynchronously: " << flush;
 	try {
-		logger.startAutoLogging(Time::OneHalfSecond);
-		sleep(6);	// Give time or the log to fill.
+		logger1.startAutoLogging(Time::OneHalfSecond);
+		logger2.startAutoLogging(Time::OneEighthSecond);
+		sleep(sleepTime);	// Give time for the log to fill.
+		logger1.addLogEntry();
 	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
@@ -75,7 +98,7 @@ main(int argc, char *argv[])
 		cout << "Caught " << e.what() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
-	auto startFileSz = std::filesystem::file_size(lsname);
+	auto startFileSz = std::filesystem::file_size(lsname1);
 
 	/*
 	 * Try to start the already logging object.
@@ -83,33 +106,44 @@ main(int argc, char *argv[])
 	cout << "Attempting to start currently logging object: ";
 	bool success{false};
 	try {
-		logger.startAutoLogging(1);
+		logger1.startAutoLogging(Time::OneHalfSecond);
 	} catch (const Error::ObjectExists &e) {
 		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		success = true;
 	}
 	if (!success) {
-		cout << "failed.\n";
+		cout << "Failed.\n";
 		return (EXIT_FAILURE);
 	}
 
-	logger.stopAutoLogging();
+	logger1.stopAutoLogging();
 	cout << "Attempting to stop a stopped logging object: ";
 	success = false;
 	try {
-		logger.stopAutoLogging();
+		logger1.stopAutoLogging();
 	} catch (const Error::ObjectDoesNotExist &e) {
 		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		success = true;
 	}
 	if (!success) {
-		cout << "failed.\n";
+		cout << "Failed.\n";
 		return (EXIT_FAILURE);
 	}
+	cout << "Stop remaining loggers: ";
+	success = false;
+	try {
+		logger2.stopAutoLogging();
+		logger3.stopAutoLogging();
+	} catch (const Error::ObjectDoesNotExist &e) {
+		cout << "Caught " << e.what() << "; failure.\n" << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << "Success.\n";
+
 #if 0
 	//XXX We need a way to check whether log eentries are actually
 	//XXX committed to the file. The code below is not enough.
-	logsheet.reset();
+	logsheet1.reset();
 sleep(10);
 	auto endFileSz = std::filesystem::file_size(lsname);
 	auto deltaFileSz = endFileSz - startFileSz;

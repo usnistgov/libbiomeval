@@ -13,7 +13,6 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
-#include <iomanip>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -36,56 +35,62 @@ namespace fs = std::filesystem;
 static const std::string StopAutologComment = "Autolog stopped. ";
 static const std::string StartAutologComment = "Autolog started. Interval: ";
 
-
 /*
 * A structure to pass information between the logging task and the parent.
 */
 struct BiometricEvaluation::IO::AutoLogger::StartLoggerPackage {
-	uint64_t interval;
-	int flag;
-	pid_t loggingTaskID;
-	BiometricEvaluation::IO::AutoLogger *logger;
-	pthread_mutex_t logMutex;
-	pthread_cond_t logCond;
+	uint64_t interval{};
+	int flag{};
+	pid_t loggingTaskID{};
+	BiometricEvaluation::IO::AutoLogger *logger{};
+	pthread_mutex_t logMutex{};
+	pthread_cond_t logCond{};
 };
+
+void BiometricEvaluation::IO::AutoLogger::init()
+{
+	_slp.reset(new StartLoggerPackage());
+	_autoLogging = false;
+	pthread_mutex_init(&_slp->logMutex, nullptr);
+	pthread_cond_init(&_slp->logCond, nullptr);
+}
 
 BiometricEvaluation::IO::AutoLogger::AutoLogger()
 {
-	_autoLogging = false;
 	_logSheet.reset(new IO::Logsheet());
 	_callback = []() { return(""); };
-	pthread_mutex_init(&_logMutex, nullptr);
-}
-
-BiometricEvaluation::IO::AutoLogger::~AutoLogger()
-{
-	/* If the client of this object doesn't call stopAutoLogging(),
- 	 * we need to cancel the logging thread here.
- 	 */
-	if (_autoLogging) {
-		pthread_cancel(_loggingThread);
-		pthread_join(_loggingThread, nullptr);
-	}
-	pthread_mutex_destroy(&_logMutex);
+	this->init();
 }
 
 BiometricEvaluation::IO::AutoLogger::AutoLogger(
     const std::shared_ptr<BE::IO::Logsheet> logSheet,
     const std::function<std::string()> &callback) :
     _logSheet(logSheet),
-    _callback(callback),
-    _autoLogging(false)
+    _callback(callback)
 {
+	this->init();
+}
+
+BiometricEvaluation::IO::AutoLogger::~AutoLogger()
+{
+	/*
+	 * If the client of this object doesn't call stopAutoLogging(),
+ 	 * we need to cancel the logging thread here.
+ 	 */
+	if (_autoLogging) {
+		pthread_cancel(_loggingThread);
+		pthread_join(_loggingThread, nullptr);
+	}
 }
 
 void
 BiometricEvaluation::IO::AutoLogger::addLogEntry()
 {
 	std::string logEntry = this->_callback();
-	pthread_mutex_lock(&this->_logMutex);
+	pthread_mutex_lock(&_slp->logMutex);
 	*this->_logSheet << logEntry;
 	this->_logSheet->newEntry();
-	pthread_mutex_unlock(&this->_logMutex);
+	pthread_mutex_unlock(&_slp->logMutex);
 }
 
 extern "C" void
@@ -97,8 +102,6 @@ BiometricEvaluation::IO::AutoLogger::call_addLogEntry()
 extern "C" void *
 autoLogger(void *ptr)
 {
-	int type;
-
 	struct BE::IO::AutoLogger::StartLoggerPackage *slp =
 	       	(struct BE::IO::AutoLogger::StartLoggerPackage*)ptr;
 	/*
@@ -106,6 +109,7 @@ autoLogger(void *ptr)
 	 * so defer cancellation, but we'll test for the cancel event and
 	 * give up control.
 	 */
+	int type{};
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &type);
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &type);
 
@@ -142,7 +146,7 @@ autoLogger(void *ptr)
 	/*
 	 * Add log entries until this thread is cancelled.
 	 */
-	struct timespec req, rem;
+	struct timespec req{}, rem{};
 	while (true) {
 
 		/*
@@ -187,10 +191,9 @@ BiometricEvaluation::IO::AutoLogger::startAutoLogging(
 		throw BE::Error::ObjectExists();
 	if (interval == 0)
 		return;
-	_slp.reset(new struct BE::IO::AutoLogger::StartLoggerPackage());
 	_slp->interval = interval;
-	_slp->logger = this;
 	_slp->flag = 0;
+	_slp->logger = this;
 	pthread_mutex_init(&_slp->logMutex, nullptr);
 	pthread_cond_init(&_slp->logCond, nullptr);
 
@@ -207,7 +210,7 @@ BiometricEvaluation::IO::AutoLogger::startAutoLogging(
 
 	/*
 	 * Synchronize with the logging thread so it can copy the info
-	 * out of the logging package before it is freed.
+	 * out of the logging package.
 	 */
 	pthread_mutex_lock(&_slp->logMutex);
 	while (_slp->flag != 1) {

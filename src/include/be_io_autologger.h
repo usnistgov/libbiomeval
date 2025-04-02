@@ -132,8 +132,8 @@ namespace BiometricEvaluation {
 			std::function<std::string()> _callback{};
 			bool _autoLogging{};
 			pthread_t _loggingThread{};
-			pthread_mutex_t _logMutex{};
 			std::shared_ptr<struct StartLoggerPackage> _slp{};
+			void init();
 		};
 	}
 }
