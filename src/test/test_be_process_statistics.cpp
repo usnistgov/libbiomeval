@@ -299,7 +299,7 @@ main(int argc, char *argv[])
 	 */
 	cout << "Rapid-fire start/stop: ";
 	try {
-		for (int i=0; i<110; i++) {
+		for (int i=0; i< 10; i++) {
 //			cout << "start ... " << flush;
 			logstats->startAutoLogging(2);
 			logstats->stopAutoLogging();

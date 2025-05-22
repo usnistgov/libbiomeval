@@ -346,7 +346,8 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	_logSheet->writeComment(LogsheetHeader);
 	std::function<std::string(void)> statFunc =
 	    std::bind(&BE::Process::Statistics::getStats, this);
-	this->_autoLogger = BE::IO::AutoLogger(this->_logSheet, statFunc);
+	this->_autoLogger = std::move(
+		BE::IO::AutoLogger(this->_logSheet, statFunc));
 
 	if (doTasksLogging) {
 		lsname = procname + '-' + std::to_string(_pid) +
@@ -498,7 +499,8 @@ BiometricEvaluation::Process::Statistics::getComment()
 }
 
 void
-BiometricEvaluation::Process::Statistics::startAutoLogging(uint64_t interval)
+BiometricEvaluation::Process::Statistics::startAutoLogging(
+	std::chrono::microseconds interval)
 {
 	/*
 	 * We depend on the AutoLogger to throw when logging fails,
@@ -510,6 +512,13 @@ BiometricEvaluation::Process::Statistics::startAutoLogging(uint64_t interval)
 		this->_autoTaskLogger.startAutoLogging(interval);
 		this->_taskLoggingTaskID = this->_autoTaskLogger.getTaskID();
 	}
+}
+
+void
+BiometricEvaluation::Process::Statistics::startAutoLogging(uint64_t interval)
+{
+	auto stdInterval = std::chrono::microseconds(interval);
+        this->startAutoLogging(stdInterval);
 }
 
 void

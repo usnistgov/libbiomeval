@@ -58,7 +58,9 @@ main(int argc, char *argv[])
 	cout << "Attempt to log to the default AutoLogger: ";
 	try {
 		logger3.addLogEntry();
-		logger3.startAutoLogging(2000);
+		logger3.startAutoLogging(std::chrono::milliseconds(1984));
+		auto taskID = logger3.getTaskID();
+		cout << "Task ID is " << taskID << endl;
 		logger3.addLogEntry();
 		cout << "Success.\n";
 	} catch (const Error::Exception &e) {
@@ -78,11 +80,15 @@ main(int argc, char *argv[])
 		cout << "caught " << e.what() << endl;
 		return (EXIT_FAILURE);
 	}
-
 	cout << "Attempting to log asynchronously: " << flush;
 	try {
-		logger1.startAutoLogging(Time::OneHalfSecond);
-		logger2.startAutoLogging(Time::OneEighthSecond);
+		logger1.startAutoLogging(chrono::milliseconds(333));
+		auto taskID = logger1.getTaskID();
+		cout << "logger1 Task ID is " << taskID;
+		logger2.startAutoLogging(chrono::seconds(1));
+		taskID = logger2.getTaskID();
+		cout << ", logger2 Task ID is " << taskID <<
+		"; IDs should NOT be 0 on Linux" << endl;;
 		sleep(sleepTime);	// Give time for the log to fill.
 		logger1.addLogEntry();
 	} catch (const Error::StrategyError &e) {
@@ -106,7 +112,7 @@ main(int argc, char *argv[])
 	cout << "Attempting to start currently logging object: ";
 	bool success{false};
 	try {
-		logger1.startAutoLogging(Time::OneHalfSecond);
+		logger1.startAutoLogging(chrono::seconds(1));
 	} catch (const Error::ObjectExists &e) {
 		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		success = true;

@@ -10,11 +10,13 @@
 
 #ifndef __BE_IO_AUTOLOGGER_H__
 #define __BE_IO_AUTOLOGGER_H__
-
+#include <future>
+#include <thread>
 #include <pthread.h>
 
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <tuple>
 
@@ -36,6 +38,14 @@ namespace BiometricEvaluation {
 		 */
 		class AutoLogger {
 		public:
+
+			/*
+			 * AutoLoggers are not copyable, but are movable.
+			 */
+			AutoLogger(AutoLogger const &) = delete;
+			AutoLogger& operator=(AutoLogger const &) = delete;
+			AutoLogger(AutoLogger &&);
+			AutoLogger& operator=(AutoLogger &&);
 
 			/**
 			 * Constructor with no parameters.
@@ -92,7 +102,8 @@ namespace BiometricEvaluation {
 			 *	The logging capability is not implemented for
 			 *	this operating system.
 			 */
-			void startAutoLogging(uint64_t interval);
+			void startAutoLogging(
+				std::chrono::microseconds interval);
 
 			/**
 			 * @brief
@@ -107,14 +118,6 @@ namespace BiometricEvaluation {
 			void stopAutoLogging();
 
 			/**
-			 * Helper function in C++ space that has access to
-			 * this object, and is called from C space by the
-			 * logging thread. Applications should not call
-			 * this function.
-			 */
-			void call_addLogEntry();
-
-			/**
 			 * @brief
 			 * Return the task ID associated with this object.
 			 * @details
@@ -124,16 +127,19 @@ namespace BiometricEvaluation {
 			 */
 			pid_t getTaskID();
 
-			struct StartLoggerPackage;
 		private:
+			void init();
+			void moveInit(const AutoLogger &rval);
+			void theLogger(std::chrono::microseconds interval);
 			std::string getStats();
 			std::string getTaskStats();
 			std::shared_ptr<IO::Logsheet> _logSheet{};
 			std::function<std::string()> _callback{};
-			bool _autoLogging{};
-			pthread_t _loggingThread{};
-			std::shared_ptr<struct StartLoggerPackage> _slp{};
-			void init();
+			std::shared_future<void> _myLogger{};
+			std::shared_ptr<std::mutex> _logMutex;
+			std::atomic<bool> _amLogging{};
+			std::atomic<bool> _readyFlag{};
+			pid_t _loggerTaskID{};
 		};
 	}
 }

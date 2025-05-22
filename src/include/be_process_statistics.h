@@ -253,6 +253,16 @@ namespace BiometricEvaluation {
 			std::string
 			getTaskStats() const;
 
+			/**
+			 * Start auto logging process statistics.
+			 *
+			 * @param interval
+			 * The time gap between the capture of the
+			 * statistics in microseconds.
+			 */
+			void startAutoLogging(
+				std::chrono::microseconds interval);
+			[[deprecated("Use std::chrono values instead")]]
 			void startAutoLogging(uint64_t interval);
 			void stopAutoLogging();
 
