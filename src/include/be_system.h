@@ -15,8 +15,6 @@
 #include <map>
 #include <string>
 
-#include <be_error_exception.h>
-
 namespace BiometricEvaluation 
 {
 	/**
@@ -97,7 +95,6 @@ namespace BiometricEvaluation
 		 *	underlying OS feature is not installed.
 		 */
 		double getLoadAverage();
-
 	}
 }
 #endif /* __BE_SYSTEM_H__ */
