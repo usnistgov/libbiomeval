@@ -12,6 +12,8 @@
 #define __BE_SYSTEM_H__
 
 #include <cstdint>
+#include <map>
+#include <string>
 
 #include <be_error_exception.h>
 
@@ -83,6 +85,9 @@ namespace BiometricEvaluation
 		 */
 		uint64_t getRealMemorySize();
 
+		/** @return key/value pairs of memory use information */
+		std::map<std::string, uint64_t> getMemInfo();
+
 		/**
 		 * @brief
 		 * Obtain the system load average for the last minute.
@@ -92,6 +97,7 @@ namespace BiometricEvaluation
 		 *	underlying OS feature is not installed.
 		 */
 		double getLoadAverage();
+
 	}
 }
 #endif /* __BE_SYSTEM_H__ */
