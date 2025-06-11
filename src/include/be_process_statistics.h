@@ -222,36 +222,26 @@ namespace BiometricEvaluation {
 			void logStats();
 
 			/**
-			 * Helper function in C++ space that has access to
-			 * this object, and is called from C space by the
-			 * logging thread. Applications should not call
-			 * this function.
-			 */
-			void callStatistics_logStats();
-
-			/**
 			 * @return
-			 * Description of the task being performed.
+			 * The comment string that is appended to each log
+			 * entry.
 			 */
 			std::string
 			getComment()
 			    const;
 
 			/**
-			 * Set a description of the task being performed.
-			 *
+			 * @brief
+			 * Set a comment for each log entry.
+			 * @details
+			 * The comment string is auto-appended to the end of
+			 * each log entry.
 			 * @param comment
-			 * Description of the task being performed.
+			 * Comment string
 			 */
 			void
 			setComment(
 			    std::string_view comment);
-
-			std::string
-			getStats() const;
-
-			std::string
-			getTaskStats() const;
 
 			/**
 			 * Start auto logging process statistics.
@@ -269,13 +259,15 @@ namespace BiometricEvaluation {
 		private:
 			IO::AutoLogger _autoLogger{};
 			IO::AutoLogger _autoTaskLogger{};
-			pid_t _pid;
+			pid_t _pid{};
 			std::shared_ptr<IO::FileLogCabinet> _logCabinet{};
 			std::shared_ptr<IO::Logsheet> _logSheet{};
 			std::optional<std::shared_ptr<IO::Logsheet>>
 			    _tasksLogSheet{};
 			pid_t _loggingTaskID{};
 			pid_t _taskLoggingTaskID{};
+			std::string getStatsLogEntry() const;
+			std::string getTasksStatsLogEntry() const;
 			bool _doTasksLogging{};
 			bool _logging{};
 			std::string _comment{};

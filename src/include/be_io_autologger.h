@@ -131,8 +131,6 @@ namespace BiometricEvaluation {
 			void init();
 			void moveInit(const AutoLogger &rval);
 			void theLogger(std::chrono::microseconds interval);
-			std::string getStats();
-			std::string getTaskStats();
 			std::shared_ptr<IO::Logsheet> _logSheet{};
 			std::function<std::string()> _callback{};
 			std::shared_future<void> _myLogger{};

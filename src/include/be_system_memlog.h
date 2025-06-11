@@ -45,14 +45,19 @@ namespace BiometricEvaluation
 
 			/**
 			 * @return
-			 * Description of the task being performed.
+			 * The comment string that is appended to each log
+			 * entry.
 			 */
 			std::string getComment() const;
 
 			/**
-			 * Set a description of the task being performed.
-			 *  @param comment
-			 *  Description of the task being performed.
+			 * @brief
+			 * Set a comment for each log entry.
+			 * @details
+			 * The comment string is auto-appended to the end of
+			 * each log entry.
+			 * @param comment
+			 * Comment string
 			 */
 			void setComment(std::string_view comment);
 

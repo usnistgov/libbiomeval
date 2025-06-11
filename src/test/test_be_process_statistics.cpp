@@ -203,6 +203,7 @@ main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 	cout << "Attempting to log synchronously: ";
+	logstats->setComment("log synchronously");
 	try {
 		for (int i = 0; i < 6; i++) {
 			logstats->logStats();
@@ -222,7 +223,8 @@ main(int argc, char *argv[])
 		
 	cout << "Attempting to log asynchronously: " << flush;
 	try {
-		logstats->startAutoLogging(Time::MicrosecondsPerSecond);
+		logstats->setComment("log asynchronously");
+		logstats->startAutoLogging(std::chrono::seconds(1));
 		sleep(6);
 	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
@@ -245,7 +247,7 @@ main(int argc, char *argv[])
 	cout << "Attempting to start currently logging object: ";
 	success = false;
 	try {
-		logstats->startAutoLogging(1);
+		logstats->startAutoLogging(std::chrono::microseconds(1));
 	} catch (const Error::ObjectExists &e) {
 		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		success = true;
@@ -259,12 +261,13 @@ main(int argc, char *argv[])
 	 * Fill up the tasks log with some data.
 	 */
 	cout << "Creating some busy threads...\n";
+	logstats->setComment("busy threads asynchronously");
 	pthread_t threads[5];
 	for (auto t = 0; t < 5; t++) {
 		(void)pthread_create(&threads[t], nullptr, busyChild, nullptr);
 	}
 	cout << "Give the children some time.\n";
-	sleep(7);
+	sleep(6);
 	cout << "Task stats:\n";
 	auto allStats = logstats->getTasksStats();
 	for (auto [tid, utime, stime]: allStats) {
@@ -301,7 +304,8 @@ main(int argc, char *argv[])
 	try {
 		for (int i=0; i< 10; i++) {
 //			cout << "start ... " << flush;
-			logstats->startAutoLogging(2);
+			logstats->setComment("rapid fire " + to_string(i));
+			logstats->startAutoLogging(chrono::milliseconds(3));
 			logstats->stopAutoLogging();
 //			cout << "stop:thread count is " << logstats->getNumThreads() << flush << endl;;
 		}
@@ -329,14 +333,15 @@ main(int argc, char *argv[])
 	cout << "Log to individual log sheets: ";
 	try {
 		logstats.reset(new Process::Statistics(ls1, ls2));
-		logstats->startAutoLogging(2000);
+		logstats->setComment("log to individual sheets");
+		logstats->startAutoLogging(std::chrono::microseconds(2000));
 		sleep(1);
 		logstats->stopAutoLogging();
 	} catch (Error::Exception &e) {
 		cout << "Caught " << e.what() << "; ERROR." << flush << endl;
 		return (EXIT_FAILURE);
 	}
-	cout << "Done. Check the two log sheets for 300-350 entries.\n";
+	cout << "Done. Check the two log sheets for 350-400 entries.\n";
 		
 	return (EXIT_SUCCESS);
 }

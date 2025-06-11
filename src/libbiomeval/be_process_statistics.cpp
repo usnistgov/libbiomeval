@@ -271,7 +271,6 @@ internalGetTasksStats(pid_t pid)
 		 */
 		pid_t tid = std::stoi(tokens[0]);
 
-//std::cout << __FUNCTION__ << ": tid is " << tid << ", gettid() is " << gettid() << std::endl;
 		float utime = (float)std::stoi(tokens[13]) / ticksPerSec;
 		float stime = (float)std::stoi(tokens[14]) / ticksPerSec;
 		allStats.push_back(std::make_tuple(tid, utime, stime));
@@ -345,7 +344,7 @@ BiometricEvaluation::Process::Statistics::Statistics(
 	}
 	_logSheet->writeComment(LogsheetHeader);
 	std::function<std::string(void)> statFunc =
-	    std::bind(&BE::Process::Statistics::getStats, this);
+	    std::bind(&BE::Process::Statistics::getStatsLogEntry, this);
 	this->_autoLogger = std::move(
 		BE::IO::AutoLogger(this->_logSheet, statFunc));
 
@@ -366,7 +365,8 @@ BiometricEvaluation::Process::Statistics::Statistics(
 		this->_tasksLogSheet->get()->writeComment(TasksLogsheetHeader);
 		this->_tasksLogSheet->get()->writeComment(TasksLogsheetHeader2);
 		std::function<std::string(void)> taskStatFunc =
-		    std::bind(&BE::Process::Statistics::getTaskStats, this);
+		    std::bind(&BE::Process::Statistics::getTasksStatsLogEntry,
+			 this);
 		this->_autoTaskLogger =
 		    BE::IO::AutoLogger(*this->_tasksLogSheet, taskStatFunc);
 	}
@@ -383,13 +383,14 @@ BiometricEvaluation::Process::Statistics::Statistics(
 {
 	_logSheet->writeComment(LogsheetHeader);
 	std::function<std::string(void)> statFunc =
-	    std::bind(&BE::Process::Statistics::getStats, this);
+	    std::bind(&BE::Process::Statistics::getStatsLogEntry, this);
 	this->_autoLogger = BE::IO::AutoLogger(this->_logSheet, statFunc);
 	if (_tasksLogSheet.has_value()) {
 		_tasksLogSheet->get()->writeComment(TasksLogsheetHeader);
 		_tasksLogSheet->get()->writeComment(TasksLogsheetHeader2);
 		std::function<std::string(void)> taskStatFunc =
-		    std::bind(&BE::Process::Statistics::getTaskStats, this);
+		    std::bind(&BE::Process::Statistics::getTasksStatsLogEntry,
+			this);
 		this->_autoTaskLogger =
 		    BE::IO::AutoLogger(*this->_tasksLogSheet, taskStatFunc);
 		_doTasksLogging = true;
@@ -438,7 +439,7 @@ BiometricEvaluation::Process::Statistics::getNumThreads()
 }
 
 std::string
-BiometricEvaluation::Process::Statistics::getStats() const
+BiometricEvaluation::Process::Statistics::getStatsLogEntry() const
 {
 	PSTATS ps;
 	uint64_t usertime, systemtime;
@@ -457,7 +458,7 @@ BiometricEvaluation::Process::Statistics::getStats() const
 }
 
 std::string
-BiometricEvaluation::Process::Statistics::getTaskStats() const
+BiometricEvaluation::Process::Statistics::getTasksStatsLogEntry() const
 {
 	std::stringstream ss{};
 	auto allStats = internalGetTasksStats(this->_pid);
