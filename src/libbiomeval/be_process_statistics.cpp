@@ -37,19 +37,6 @@ namespace fs = std::filesystem;
 typedef std::vector<std::tuple<pid_t, float, float>> TaskStatsList;
 
 /*
- * A structure to pass information between the logging task and the parent.
- */
-# if 0
-struct startLoggerPackage {
-	uint64_t interval;
-	int flag;
-	pid_t loggingTaskID;
-	BE::Process::Statistics *stat;
-};
-static struct startLoggerPackage slp{};
-#endif
-
-/*
  * There is no standard method to obtain process statistics from the OS.
  * So we'll define static-local functions here for each OS that is supported.
  * Unfortunately, these functions may be dependent not only on the OS, but
@@ -453,7 +440,6 @@ BiometricEvaluation::Process::Statistics::getStatsLogEntry() const
 	ss << usertime << " " << systemtime << " ";
 	ss << ps.vmrss << " " << ps.vmsize << " " << ps.vmpeak << " ";
 	ss << ps.vmdata << " " << ps.vmstack << " " << ps.threads;
-	ss << " " << std::quoted(this->_comment);
 	return (ss.str());
 }
 
@@ -485,18 +471,18 @@ BiometricEvaluation::Process::Statistics::logStats()
 	}
 }
 
-void
-BiometricEvaluation::Process::Statistics::setComment(
-    std::string_view comment)
-{
-	this->_comment = comment;
-}
-
 std::string
 BiometricEvaluation::Process::Statistics::getComment()
     const
 {
-	return (this->_comment);
+	return (this->_autoLogger.getComment());
+}
+
+void
+BiometricEvaluation::Process::Statistics::setComment(
+    std::string_view comment)
+{
+	this->_autoLogger.setComment(comment);
 }
 
 void

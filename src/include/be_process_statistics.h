@@ -222,9 +222,11 @@ namespace BiometricEvaluation {
 			void logStats();
 
 			/**
-			 * @return
-			 * The comment string that is appended to each log
+			 * @brief
+			 * Get the comment that is appended to every auto logger
 			 * entry.
+			 * @return
+			 * The comment string.
 			 */
 			std::string
 			getComment()
@@ -237,7 +239,7 @@ namespace BiometricEvaluation {
 			 * The comment string is auto-appended to the end of
 			 * each log entry.
 			 * @param comment
-			 * Comment string
+			 * The comment string.
 			 */
 			void
 			setComment(
@@ -254,6 +256,13 @@ namespace BiometricEvaluation {
 				std::chrono::microseconds interval);
 			[[deprecated("Use std::chrono values instead")]]
 			void startAutoLogging(uint64_t interval);
+
+			/**
+			 * Stop auto logging process statistics.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * Not currently logging.
+			 */
 			void stopAutoLogging();
 
 		private:
@@ -270,7 +279,6 @@ namespace BiometricEvaluation {
 			std::string getTasksStatsLogEntry() const;
 			bool _doTasksLogging{};
 			bool _logging{};
-			std::string _comment{};
 		};
 
 	}

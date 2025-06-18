@@ -68,6 +68,24 @@ namespace BiometricEvaluation {
 			virtual ~AutoLogger();
 
 			/**
+			 * @return
+			 * The comment string that is appended to each log
+			 * entry.
+			 */
+			std::string getComment() const;
+
+			/**
+			 * @brief
+			 * Set a comment for each log entry.
+			 * @details
+			 * The comment string is auto-appended to the end of
+			 * each log entry.
+			 * @param comment
+			 * Comment string
+			 */
+			void setComment(std::string_view comment);
+
+			/**
 			 * @brief
 			 * Create a log entry in the in the Logsheet.
 			 *
@@ -137,6 +155,8 @@ namespace BiometricEvaluation {
 			std::shared_ptr<std::mutex> _logMutex;
 			std::atomic<bool> _amLogging{};
 			std::atomic<bool> _readyFlag{};
+			std::string _comment{};
+			mutable std::mutex _commentMutex{};
 			pid_t _loggerTaskID{};
 		};
 	}

@@ -29,8 +29,7 @@ BiometricEvaluation::System::MemoryLogger::getMemLogEntry()
 
 	std::stringstream ss{};
 	for (const auto &[k,v] : memInfo)
-		ss << std::to_string(v) + ' ';
-	ss << std::quoted(this->getComment());
+		ss << std::to_string(v);
 	return (ss.str());
 }
 
@@ -83,14 +82,12 @@ std::string
 BiometricEvaluation::System::MemoryLogger::getComment()
     const
 {
-	std::lock_guard lock{this->_commentMutex};
-	return (this->_comment);
+	return (this->_autoLogger.getComment());
 }
 
 void
 BiometricEvaluation::System::MemoryLogger::setComment(
     std::string_view comment)
 {
-	std::lock_guard lock{this->_commentMutex};
-	this->_comment = comment;
+	this->_autoLogger.setComment(comment);
 }

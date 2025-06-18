@@ -297,24 +297,6 @@ main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 
-	/*
-	 * Try rapid-fire start/stop of logging.
-	 */
-	cout << "Rapid-fire start/stop: ";
-	try {
-		for (int i=0; i< 10; i++) {
-//			cout << "start ... " << flush;
-			logstats->setComment("rapid fire " + to_string(i));
-			logstats->startAutoLogging(chrono::milliseconds(3));
-			logstats->stopAutoLogging();
-//			cout << "stop:thread count is " << logstats->getNumThreads() << flush << endl;;
-		}
-	} catch (const Error::Exception &e) {
-		cout << "Caught " << e.what() << "; OK." << flush << endl;
-		return (EXIT_FAILURE);
-	}
-	cout << "There should be over 100 entries in the log." << endl;
-
 	cout << "Create main and tasks log sheets: ";
 	std::shared_ptr<IO::FileLogsheet> ls1{};
 	std::optional<std::shared_ptr<IO::FileLogsheet>> ls2{};

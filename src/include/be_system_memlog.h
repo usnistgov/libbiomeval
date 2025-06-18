@@ -44,9 +44,11 @@ namespace BiometricEvaluation
 			~MemoryLogger();
 
 			/**
+			 * @brief
+			 * Get the comment that is appended to every auto
+			 * logger entry.
 			 * @return
-			 * The comment string that is appended to each log
-			 * entry.
+			 * The comment string.
 			 */
 			std::string getComment() const;
 
@@ -88,10 +90,8 @@ namespace BiometricEvaluation
 			void stopAutoLogging();
 
 		private:
-			std::string _comment{};
 			IO::AutoLogger _autoLogger{};
 			std::shared_ptr<IO::Logsheet> _logSheet{};
-			mutable std::mutex _commentMutex{};
 			/**
 			 * Log memory statistic name/value pairs as one entry
 			 * in the log sheet, along with the comment.

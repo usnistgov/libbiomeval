@@ -23,12 +23,12 @@ using namespace BiometricEvaluation;
 
 string logEntry()
 {
-	static int logNumber{0};
+	static int entryNum{0};
 	std::stringstream sstream{};
-	const auto tp = std::time(nullptr);
-	sstream << __FUNCTION__ << " call number " <<
-	    std::to_string(++logNumber) << "; date is " <<
-	    std::asctime(std::localtime(&tp));
+	const auto tp_utc{std::chrono::system_clock::now()};
+	sstream << __FUNCTION__ << " call number "
+	    << std::to_string(++entryNum) << "; date is "
+	    << std::chrono::current_zone()->to_local(tp_utc);
 	return (sstream.str());
 }
 
@@ -91,6 +91,7 @@ main(int argc, char *argv[])
 		"; IDs should NOT be 0 on Linux" << endl;;
 		sleep(sleepTime);	// Give time for the log to fill.
 		logger1.addLogEntry();
+		logger1.stopAutoLogging();
 	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
 		return (EXIT_FAILURE);
@@ -104,6 +105,24 @@ main(int argc, char *argv[])
 		cout << "Caught " << e.what() << "; OK." << endl;
 	}
 	cout << "Success." << endl;
+
+	/*
+	 * Try rapid-fire start/stop of logging.
+	 */
+	cout << "Rapid-fire start/stop: ";
+	try {
+		for (int i=0; i< 10; i++) {
+//			cout << "start ... " << flush;
+			logger1.setComment("rapid fire " + to_string(i));
+			logger1.startAutoLogging(chrono::milliseconds(3));
+			logger1.stopAutoLogging();
+//			cout << "stop:thread count is " << logstats->getNumThreads() << flush << endl;;
+		}
+	} catch (const Error::Exception &e) {
+		cout << "Caught " << e.what() << "; OK." << flush << endl;
+		return (EXIT_FAILURE);
+	}
+	cout << "There should few entries in the log." << endl;
 	auto startFileSz = std::filesystem::file_size(lsname1);
 
 	/*
@@ -111,6 +130,7 @@ main(int argc, char *argv[])
 	 */
 	cout << "Attempting to start currently logging object: ";
 	bool success{false};
+	logger1.startAutoLogging(chrono::seconds(1));
 	try {
 		logger1.startAutoLogging(chrono::seconds(1));
 	} catch (const Error::ObjectExists &e) {

@@ -100,6 +100,22 @@ BiometricEvaluation::IO::AutoLogger::~AutoLogger()
 	}
 }
 
+std::string
+BiometricEvaluation::IO::AutoLogger::getComment()
+	    const
+{
+	        std::lock_guard lock{this->_commentMutex};
+		return (this->_comment);
+}
+
+void
+BiometricEvaluation::IO::AutoLogger::setComment(
+		    std::string_view comment)
+{
+	        std::lock_guard lock{this->_commentMutex};
+		this->_comment = comment;
+}
+
 void
 BiometricEvaluation::IO::AutoLogger::addLogEntry()
 {
@@ -107,10 +123,11 @@ BiometricEvaluation::IO::AutoLogger::addLogEntry()
 	 * Protect the log sheet from concurrent access as this function
 	 * can be called from multiple threads.
 	 */
-	std::string logEntry = this->_callback();
+	std::stringstream ss{};
+	ss << this->_callback() << ' ' << std::quoted(this->getComment());;
 	{
 		std::lock_guard<std::mutex> lock(*_logMutex.get());
-		*this->_logSheet << logEntry;
+		*this->_logSheet << ss.str();
 		this->_logSheet->newEntry();
 	} // force the destruction of the lock object
 }
