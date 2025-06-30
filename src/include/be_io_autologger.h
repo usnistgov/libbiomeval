@@ -89,8 +89,6 @@ namespace BiometricEvaluation {
 			 * @brief
 			 * Create a log entry in the in the Logsheet.
 			 *
-			 * @throw Error::ObjectDoesNotExist
-			 *	Auto-logging is currently off.
 			 * @throw Error::StrategyError
 			 *	An error occurred when writing to the
 			 *	Logsheet.

@@ -123,11 +123,10 @@ BiometricEvaluation::IO::AutoLogger::addLogEntry()
 	 * Protect the log sheet from concurrent access as this function
 	 * can be called from multiple threads.
 	 */
-	std::stringstream ss{};
-	ss << this->_callback() << ' ' << std::quoted(this->getComment());;
 	{
 		std::lock_guard<std::mutex> lock(*_logMutex.get());
-		*this->_logSheet << ss.str();
+		*this->_logSheet << this->_callback() << ' ' 
+		    << std::quoted(this->getComment());
 		this->_logSheet->newEntry();
 	} // force the destruction of the lock object
 }
