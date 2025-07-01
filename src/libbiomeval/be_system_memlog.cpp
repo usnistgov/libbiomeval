@@ -55,6 +55,12 @@ BiometricEvaluation::System::MemoryLogger::~MemoryLogger()
 }
 
 void
+BiometricEvaluation::System::MemoryLogger::addLogEntry()
+{
+	this->_autoLogger.addLogEntry();
+}
+
+void
 BiometricEvaluation::System::MemoryLogger::startAutoLogging(
 	std::chrono::microseconds interval, bool writeHeader)
 {
