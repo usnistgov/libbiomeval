@@ -29,7 +29,7 @@ BiometricEvaluation::System::MemoryLogger::getMemLogEntry()
 
 	std::stringstream ss{};
 	for (const auto &[k,v] : memInfo)
-		ss << std::to_string(v);
+		ss << std::to_string(v) + ' ';
 	return (ss.str());
 }
 
