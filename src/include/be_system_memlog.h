@@ -54,6 +54,15 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
+			 * Log memory information immediately.
+			 *
+			 * @throw Error::StrategyError
+			 * An error occurred when writing to the Logsheet.
+			 */
+			void addLogEntry();
+
+			/**
+			 * @brief
 			 * Set a comment for each log entry.
 			 * @details
 			 * The comment string is auto-appended to the end of
