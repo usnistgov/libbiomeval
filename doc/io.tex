@@ -205,7 +205,7 @@ main(int argc, char* argv[]) {
 The \class{SysLogsheet} is an implementation of \class{Logsheet} which writes
 log entries to a system logger service. Objects of this class are created
 with a URL starting with \verb=syslog://=.
-When using a system logger, the URL must give the hostname of the logger as
+When using a system logger, the URL must give the host name of the logger as
 well as the network port: \verb=syslog://node00:4315= for example. The system
 logger must understand the Syslog protocol as specified in
 RFC5424~\cite{rfc5425}.
@@ -213,6 +213,86 @@ RFC5424~\cite{rfc5425}.
 Multiple instances of a \class{SysLogsheet} can be created with the same URL
 with the assumption that the logging server can manage multiple incoming
 message streams.
+
+\subsection{AutoLogger}
+\label{sec-autologger}
+
+The \class{AutoLogger} provides the capability to automatically add entries
+to a \class{Logsheet} object on a periodic basis. The content of each log entry
+is returned from a callback function that is provided to the \class{AutoLogger}
+object upon construction.
+
+\lstref{lst:autologgeruse} shows an example code section using the
+\class{AutoLogger} class.
+
+\begin{lstlisting}[caption={Using an \class{AutoLogger} Object}, label=lst:autologgeruse]
+#include <chrono>
+#include <iostream>
+#include <be_io_autologger.h>
+#include <be_io_filelogsheet.h>
+
+using namespace std;
+using namespace BiometricEvaluation;
+
+string logEntry()
+{
+        static int entryNum{0};
+        std::stringstream sstream{};
+        const auto tp_utc{std::chrono::system_clock::now()};
+        sstream << __FUNCTION__ << " call number "
+            << std::to_string(++entryNum) << "; date is "
+            << std::chrono::current_zone()->to_local(tp_utc);
+        return (sstream.str());
+}
+
+int
+main(int argc, char *argv[])
+{
+        std::string lsname1 = "./autologger_logsheet1.log";
+        std::shared_ptr<IO::Logsheet> logsheet1{};
+        logsheet1 = std::make_shared<IO::FileLogsheet>(
+                "file://" + lsname1, "Autologger one sheet");
+        IO::AutoLogger logger1{};
+
+        try {
+                cout << "Creating AutoLogger object with Logsheet: ";
+                logger1 = IO::AutoLogger(logsheet1, &logEntry);
+        } catch (const Error::StrategyError &e) {
+                cout << "caught " << e.what() << endl;
+                return (EXIT_FAILURE);
+        }
+        cout << "Attempting to log asynchronously: " << flush;
+        try {
+                logger1.setComment("Logging test");
+                logger1.startAutoLogging(chrono::milliseconds(333));
+                auto taskID = logger1.getTaskID();
+                cout << "logger1 Task ID is " << taskID;
+                sleep(30);      // Give time for the log to fill.
+                logger1.addLogEntry();
+                logger1.stopAutoLogging();
+        } catch (const Error::Exception &e) {
+                cout << "Caught " << e.what() << "; failure." << endl;
+                return (EXIT_FAILURE);
+        }
+
+        return (EXIT_SUCCESS);
+}
+\end{lstlisting}
+
+Some representative entries in the log sheet.
+
+\begin{verbatim}
+Description: Autologger one sheet
+# Autolog started. Interval: 333000 microseconds.
+E 0000000001 logEntry call number 1; date is 2025-06-24 09:25:59.360389308 "test"
+E 0000000002 logEntry call number 2; date is 2025-06-24 09:25:59.710192609 "test"
+E 0000000003 logEntry call number 3; date is 2025-06-24 09:26:00.044639493 "test"
+E 0000000004 logEntry call number 4; date is 2025-06-24 09:26:00.379022306 "test"
+E 0000000005 logEntry call number 5; date is 2025-06-24 09:26:00.713566410 "test"
+E 0000000006 logEntry call number 6; date is 2025-06-24 09:26:01.047245175 "test"
+E 0000000007 logEntry call number 7; date is 2025-06-24 09:26:01.381046513 "test"
+# Autolog stopped. 
+\end{verbatim}
 
 \section{Properties}
 \label{sec-properties}
