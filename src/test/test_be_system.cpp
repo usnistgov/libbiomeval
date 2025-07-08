@@ -61,6 +61,16 @@ main(int argc, char *argv[])
 		cout << "Not Implemented; OK." << endl;
 	}
 	try {
+		cout << "Memory info: " << endl;
+		for (const auto& pair : System::getMemInfo()) {
+			std::cout << "\t" << pair.first << " = "
+			    << pair.second << endl;
+		}
+		cout << flush << endl;
+	} catch (const Error::NotImplemented&) {
+		cout << "Not Implemented; OK." << endl;
+	}
+	try {
 		LONGDELAY;
 		cout << "\tOne minute load average is ";
 		cout << System::getLoadAverage() << flush << endl;

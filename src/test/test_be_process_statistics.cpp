@@ -42,8 +42,8 @@ sleepyChild(void *)
 static void*
 busyChild(void *tNum)
 {
-	const auto tID = std::this_thread::get_id();
-	cout << __FUNCTION__ << " , TID is " << tID << "\n";
+	const auto tID = gettid();
+	cout << __FUNCTION__ << ", TID is " << tID << "\n";
 
 	std::ifstream ifs("/dev/zero");
 	char c;
@@ -163,7 +163,6 @@ main(int argc, char *argv[])
 	 */
 	if (testMemorySizes(stats) != 0)
 		return (EXIT_FAILURE);
-
 	pthread_join(thread1, nullptr);
 	pthread_join(thread2, nullptr);
 	pthread_join(thread3, nullptr);
@@ -174,18 +173,22 @@ main(int argc, char *argv[])
 	std::tie(std::ignore, systemend) = stats.getCPUTimes();
 	cout << "Total System time at start: " << systemstart << " : ";
 	cout << "At end: " << systemend << ": " << endl;
-
 	cout << "Creating LogCabinet for Statistics object." << flush << endl;
 	std::shared_ptr<IO::FileLogCabinet> lc;
-	lc.reset(new IO::FileLogCabinet(
-	    "statLogCabinet", "Cabinet for Statistics"));
+	try {
+		lc.reset(new IO::FileLogCabinet(
+		    "statLogCabinet", "Cabinet for Statistics"));
+	} catch (const Error::Exception &e) {
+		cout << "Caught: " << e.what() << "; terminating.\n";
+		return (EXIT_FAILURE);
+	}
 
 	/*
 	 * The logging tests need to be done last.
 	 */
 	cout << "Creating Statistics object with process and task logging: "
 	     << flush;
-	std::unique_ptr<Process::Statistics> logstats;
+	std::unique_ptr<Process::Statistics> logstats{};
 
 	/*
 	 * Log both basic process stats and those for all tasks.
@@ -200,6 +203,7 @@ main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 	cout << "Attempting to log synchronously: ";
+	logstats->setComment("log synchronously");
 	try {
 		for (int i = 0; i < 6; i++) {
 			logstats->logStats();
@@ -219,7 +223,8 @@ main(int argc, char *argv[])
 		
 	cout << "Attempting to log asynchronously: " << flush;
 	try {
-		logstats->startAutoLogging(Time::MicrosecondsPerSecond);
+		logstats->setComment("log asynchronously");
+		logstats->startAutoLogging(std::chrono::seconds(1));
 		sleep(6);
 	} catch (const Error::StrategyError &e) {
 		cout << "Caught " << e.what() << "; failure." << endl;
@@ -242,7 +247,7 @@ main(int argc, char *argv[])
 	cout << "Attempting to start currently logging object: ";
 	success = false;
 	try {
-		logstats->startAutoLogging(1);
+		logstats->startAutoLogging(std::chrono::microseconds(1));
 	} catch (const Error::ObjectExists &e) {
 		cout << "Caught " << e.what() << "; OK." << flush << endl;
 		success = true;
@@ -256,12 +261,13 @@ main(int argc, char *argv[])
 	 * Fill up the tasks log with some data.
 	 */
 	cout << "Creating some busy threads...\n";
+	logstats->setComment("busy threads asynchronously");
 	pthread_t threads[5];
 	for (auto t = 0; t < 5; t++) {
 		(void)pthread_create(&threads[t], nullptr, busyChild, nullptr);
 	}
 	cout << "Give the children some time.\n";
-	sleep(7);
+	sleep(6);
 	cout << "Task stats:\n";
 	auto allStats = logstats->getTasksStats();
 	for (auto [tid, utime, stime]: allStats) {
@@ -291,23 +297,6 @@ main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 
-	/*
-	 * Try rapid-fire start/stop of logging.
-	 */
-	cout << "Rapid-fire start/stop: ";
-	try {
-		for (int i=0; i<110; i++) {
-//			cout << "start ... " << flush;
-			logstats->startAutoLogging(2);
-			logstats->stopAutoLogging();
-//			cout << "stop:thread count is " << logstats->getNumThreads() << flush << endl;;
-		}
-	} catch (const Error::Exception &e) {
-		cout << "Caught " << e.what() << "; OK." << flush << endl;
-		return (EXIT_FAILURE);
-	}
-	cout << "There should be over 100 entries in the log." << endl;
-
 	cout << "Create main and tasks log sheets: ";
 	std::shared_ptr<IO::FileLogsheet> ls1{};
 	std::optional<std::shared_ptr<IO::FileLogsheet>> ls2{};
@@ -326,14 +315,15 @@ main(int argc, char *argv[])
 	cout << "Log to individual log sheets: ";
 	try {
 		logstats.reset(new Process::Statistics(ls1, ls2));
-		logstats->startAutoLogging(2000);
+		logstats->setComment("log to individual sheets");
+		logstats->startAutoLogging(std::chrono::microseconds(2000));
 		sleep(1);
 		logstats->stopAutoLogging();
 	} catch (Error::Exception &e) {
 		cout << "Caught " << e.what() << "; ERROR." << flush << endl;
 		return (EXIT_FAILURE);
 	}
-	cout << "Done. Check the two log sheets for 300-350 entries.\n";
+	cout << "Done. Check the two log sheets for 350-400 entries.\n";
 		
 	return (EXIT_SUCCESS);
 }

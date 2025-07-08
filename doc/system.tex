@@ -48,3 +48,53 @@ main(int argc, char* argv[]) {
 }
 
 \end{lstlisting}
+
+\subsection{MemoryLogger}
+\label{sec-memorylogger}
+The \class{MemoryLogger} is used to periodically add a log entry to an
+existing \class{Logsheet}, each entry containing system memory usage. Upon
+construction logging will be off and must be started by the application,
+specifying the logging interval.
+
+\begin{lstlisting}[caption={Using the \namespace{System::MemoryLogger} Class}, label=lst:memloggeruse] 
+#include <chrono>
+#include <iostream>
+
+#include <be_io_filelogsheet.h>
+#include <be_io_utility.h>
+#include <be_system_memlog.h>
+
+namespace BE = BiometricEvaluation;
+
+int
+main(int argc, char *argv[])
+{
+	auto logsheetPath = BE::IO::Utility::createTemporaryFile("memlog");
+	std::shared_ptr<BE::IO::Logsheet> logsheet =
+	    std::make_shared<BE::IO::FileLogsheet>("file://" + logsheetPath);
+	BE::System::MemoryLogger memlog{logsheet};
+
+	std::cout << "Starting autolog... " << std::flush;
+	const auto interval = std::chrono::seconds(2);
+	try {
+		memlog.startAutoLogging(interval, true);
+	} catch (const std::exception &e) {
+		std::cerr << e.what() << '\n';
+		return (EXIT_FAILURE);
+	}
+
+	//
+	// Do some memory intensive work ...
+	//
+	std::cout << "Stopping autolog... " << std::flush;
+	try {
+		memlog.stopAutoLogging();
+	} catch (const std::exception &e) {
+		std::cerr << e.what() << '\n';
+		return (EXIT_FAILURE);
+	}
+	std::cout << " [OKAY]\n";
+
+	return (EXIT_SUCCESS);
+}
+\end{lstlisting}
