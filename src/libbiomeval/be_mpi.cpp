@@ -70,14 +70,12 @@ BiometricEvaluation::MPI::generateUniqueID()
 	(void)MPI_Get_processor_name(hn, &hlen);
 	std::string hostname((char *)hn);
 	std::ostringstream oss;
+	int rank{};
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 #if 0
-	oss << hostname << ' ' 
-	    << ::MPI::COMM_WORLD.Get_rank()
-	    << '[' << getpid() << ']';
+	oss << hostname << ' ' << rank << '[' << getpid() << ']';
 #endif
-	oss << hostname << '-' 
-	    << ::MPI::COMM_WORLD.Get_rank()
-	    << '-' << getpid();
+	oss << hostname << '-' << rank << '-' << getpid();
 	return (oss.str());
 }
 
@@ -162,10 +160,12 @@ BiometricEvaluation::MPI::openLogsheet(
 		case BE::IO::Logsheet::Kind::Syslog: {
 			/* Use the MPI rank as the application name */
 			try {
+				int rank{};
+				MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 				logsheet.reset(new BE::IO::SysLogsheet(
 				    url,
 				    description,
-				    std::to_string(::MPI::COMM_WORLD.Get_rank()),
+				    std::to_string(rank),
 				    true, true));
 			} catch (const BE::Error::Exception &e) {
 				throw BE::Error::Exception(

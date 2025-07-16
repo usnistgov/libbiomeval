@@ -39,7 +39,7 @@ BiometricEvaluation::MPI::Runtime::Runtime(
     _argc{argc}, _argv{argv}
 {
 	BiometricEvaluation::MPI::checkpointEnable = checkpointEnable;
-	::MPI::Init(this->_argc, this->_argv);
+	MPI_Init(&this->_argc, &this->_argv);
 }
 
 BiometricEvaluation::MPI::Runtime::~Runtime()
@@ -84,7 +84,9 @@ BiometricEvaluation::MPI::Runtime::start(
     BiometricEvaluation::MPI::Receiver &receiver)
 {
 	setExitConditions();
-	if (::MPI::COMM_WORLD.Get_rank() == 0)
+	int rank{};
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	if (rank == 0)
 		try {
 			distributor.start();
 		} catch (const Error::Exception &e) {
@@ -105,12 +107,12 @@ BiometricEvaluation::MPI::Runtime::start(
 void
 BiometricEvaluation::MPI::Runtime::shutdown()
 {
-	::MPI::Finalize();
+	MPI_Finalize();
 }
 
 void
 BiometricEvaluation::MPI::Runtime::abort(int errcode)
 {
-	::MPI::COMM_WORLD.Abort(errcode);
+	MPI_Abort(MPI_COMM_WORLD, errcode);
 }
 
