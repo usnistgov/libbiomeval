@@ -12,7 +12,6 @@
 #define __BE_IO_AUTOLOGGER_H__
 #include <future>
 #include <thread>
-#include <pthread.h>
 
 #include <functional>
 #include <memory>

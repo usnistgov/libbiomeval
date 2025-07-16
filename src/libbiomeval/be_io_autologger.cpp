@@ -22,7 +22,6 @@
 #include <sys/resource.h>
 #include <sys/syscall.h>
 #include <dirent.h>
-#include <pthread.h>
 #include <unistd.h>
 
 #include <be_error.h>
