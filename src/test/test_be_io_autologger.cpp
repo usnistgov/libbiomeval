@@ -26,9 +26,22 @@ string logEntry()
 	static int entryNum{0};
 	std::stringstream sstream{};
 	const auto tp_utc{std::chrono::system_clock::now()};
+    const auto time = std::chrono::system_clock::to_time_t(tp_utc);
+    const auto *localTime = std::localtime(&time);
+    const auto microseconds =
+        static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(
+        tp_utc.time_since_epoch() % std::chrono::seconds(1)).count());
+
 	sstream << __FUNCTION__ << " call number "
 	    << std::to_string(++entryNum) << "; date is "
-	    << std::chrono::current_zone()->to_local(tp_utc);
+	    << (localTime->tm_year + 1900) << '-'
+	    << std::setw(2) << std::setfill('0') << (localTime->tm_mon + 1) << '-'
+	    << std::setw(2) << std::setfill('0') << localTime->tm_mday << ' '
+	    << std::setw(2) << std::setfill('0') << localTime->tm_hour << ':'
+	    << std::setw(2) << std::setfill('0') << localTime->tm_min << ':'
+	    << std::setw(2) << std::setfill('0') << localTime->tm_sec << '.'
+	    << std::setw(6) << std::setfill('0') << microseconds;
+
 	return (sstream.str());
 }
 
