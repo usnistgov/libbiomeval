@@ -27,6 +27,8 @@
 #include <vector>
 
 #include <be_memory_autoarray.h>
+#include <be_memory_mutableindexedbuffer.h>
+#include <be_memory_autoarrayutility.h>
 #include <be_sysdeps.h>
 #include <be_text.h>
 
@@ -357,139 +359,128 @@ BiometricEvaluation::Text::toLowercase(
 
 std::string
 BiometricEvaluation::Text::encodeBase64(
+    const std::string &s)
+{
+	BE::Memory::uint8Array d;
+	BE::Memory::AutoArrayUtility::setString(d, s, false);
+	return (encodeBase64(d));
+}
+
+std::string
+BiometricEvaluation::Text::encodeBase64(
     const BiometricEvaluation::Memory::uint8Array &data)
 {
-#ifdef UseAppleSecurityFramework
-	CFErrorRef error = nullptr;
+	/*
+	 * Based on public domain implementation from https://en.wikibooks.org/
+	 * wiki/Algorithm_Implementation/Miscellaneous/Base64#C++_2, to avoid
+	 * OpenSSL dependency on macOS.
+	 */
+	if (data.size() == 0)
+		return {};
 
-	SecTransformRef transform = SecEncodeTransformCreate(
-	    kSecBase64Encoding, &error);
-	if (error != nullptr) {
-		CFRelease(transform);
-		throw BE::Error::StrategyError("SecEncodeTransformCreate(): " +
-		    std::to_string(CFErrorGetCode(error)));
+	const static std::string lookup{
+	    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"};
+
+	std::string encoded{};
+	encoded.reserve(((data.size() / 3) + (data.size() % 3 > 0)) * 4);
+
+	size_t i{};
+	uint8_t a, b, c;
+	uint32_t quanta;
+	while (i < data.size()) {
+		a = data[i++];
+		b = ((i < data.size()) ? data[i++] : 0);
+		c = ((i < data.size()) ? data[i++] : 0);
+
+		quanta = (a << 16) + (b << 8) + c;
+
+		encoded += lookup[(quanta >> 18) & 0x3f];
+		encoded += lookup[(quanta >> 12) & 0x3f];
+		encoded += lookup[(quanta >> 6) & 0x3f];
+		encoded += lookup[quanta & 0x3F];
 	}
 
-	/* Convert to CFString */
-	CFDataRef sourceData = static_cast<CFDataRef>(CFDataCreate(
-	    kCFAllocatorDefault, data, data.size() + 1));
-
-	/* Set data to be encoded */
-	SecTransformSetAttribute(transform, kSecTransformInputAttributeName,
-	    sourceData, &error);
-	CFRelease(sourceData);
-	if (error != nullptr) {
-		CFRelease(transform);
-		throw BE::Error::StrategyError("SecTransformSetAttribute(): " +
-		    std::to_string(CFErrorGetCode(error)));
+	/* If b and or c were invalid above, pad them */
+	switch (data.size() % 3) {
+	case 1:
+		encoded[encoded.size() - 2] = '=';
+		[[ fallthrough ]];
+	case 2:
+		encoded[encoded.size() - 1] = '=';
+		break;
 	}
 
-	/* Encode */
-	auto encodedData = static_cast<CFDataRef>(SecTransformExecute(
-	    transform, &error));
-	CFRelease(transform);
-	if (error != nullptr)
-		throw BE::Error::StrategyError("SecTransformExecute(): " +
-		    std::to_string(CFErrorGetCode(error)));
+	return (encoded);
+}
 
-	/* Convert result to CFString */
-	auto stringRef = CFStringCreateFromExternalRepresentation(
-	    kCFAllocatorDefault, encodedData, kCFStringEncodingASCII);
-	CFRelease(encodedData);
-
-	/* Convert CFString to C string */
-	auto bufferSize = CFStringGetLength(stringRef) + 1;
-	std::unique_ptr<char[]> buffer(new char[bufferSize]);
-	auto rv = CFStringGetCString(stringRef, buffer.get(), bufferSize,
-	    kCFStringEncodingASCII);
-	CFRelease(stringRef);
-	if (!rv)
-		throw BE::Error::StrategyError("CFStringGetCString");
-
-	return (std::string(buffer.get(), bufferSize));
-#else
-	BIO *handle = BIO_new(BIO_s_mem());
-	handle = BIO_push(BIO_new(BIO_f_base64()), handle);
-
-	/* One line output */
-	BIO_set_flags(handle, BIO_FLAGS_BASE64_NO_NL);
-
-	/* Encode */
-	BIO_write(handle, data, data.size());
-	(void)BIO_flush(handle);
-
-	BUF_MEM *buffer;
-	BIO_get_mem_ptr(handle, &buffer);
-
-	std::string encodedString(buffer->data, buffer->length);
-	BIO_free_all(handle);
-
-	return (encodedString);
-#endif /* UseAppleSecurityFramework */
+std::string
+BiometricEvaluation::Text::decodeBase64AsString(
+    const std::string &data)
+{
+	return (to_string(decodeBase64(data), false));
 }
 
 BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::Text::decodeBase64(
     const std::string &data)
 {
-#ifdef UseAppleSecurityFramework
-	CFErrorRef error = nullptr;
+	/*
+	 * Based on public domain implementation from https://en.wikibooks.org/
+	 * wiki/Algorithm_Implementation/Miscellaneous/Base64#C++, to avoid
+	 * OpenSSL dependency on macOS.
+	 */
+	const static char padCharacter{'='};
 
-	SecTransformRef transform = SecDecodeTransformCreate(
-	    kSecBase64Encoding, &error);
-	if (error != nullptr) {
-		CFRelease(transform);
-		throw BE::Error::StrategyError("SecDecodeTransformCreate(): " +
-		    std::to_string(CFErrorGetCode(error)));
+	if (data.length() % 4)
+		throw BE::Error::ParameterError("Invalid length for Base64");
+	size_t padding = 0;
+	if (!data.empty()) {
+		if (data[data.length() - 1] == padCharacter)
+			++padding;
+		if (data[data.length() - 2] == padCharacter)
+			++padding;
 	}
 
-	/* Convert to CFData */
-	CFDataRef sourceData = static_cast<CFDataRef>(CFDataCreate(
-	    kCFAllocatorDefault, (uint8_t *)data.c_str(),
-	    data.size() + 1));
+	BE::Memory::uint8Array decodedAA(((data.length() / 4) * 3) - padding);
+	BE::Memory::MutableIndexedBuffer decoded(decodedAA);
+	uint32_t temp{};
+	std::string::const_iterator cursor = data.begin();
+	while (cursor < data.end()) {
+		for (size_t i = 0; i < 4; i++) {
+			temp <<= 6;
+			if       (*cursor >= 0x41 && *cursor <= 0x5A)
+				temp |= *cursor - 0x41;
+			else if  (*cursor >= 0x61 && *cursor <= 0x7A)
+				temp |= *cursor - 0x47;
+			else if  (*cursor >= 0x30 && *cursor <= 0x39)
+				temp |= *cursor + 0x04;
+			else if  (*cursor == 0x2B)
+				temp |= 0x3E;
+			else if  (*cursor == 0x2F)
+				temp |= 0x3F;
+			else if  (*cursor == padCharacter) {
+				switch (data.end() - cursor) {
+				case 1: /* One pad character */
+					decoded.pushU8Val((temp >> 16) & 0xFF);
+					decoded.pushU8Val((temp >> 8) & 0xFF);
+					return (decodedAA);
+				case 2: /* Two pad characters */
+					decoded.pushU8Val((temp >> 10) & 0xFF);
+					return (decodedAA);
+				default:
+					throw BE::Error::StrategyError{
+					    "Invalid padding in Base64"};
+				}
+			} else
+				throw BE::Error::StrategyError{
+				    "Invalid character in Base64"};
+			++cursor;
+		}
 
-	/* Set data to be decoded */
-	SecTransformSetAttribute(transform, kSecTransformInputAttributeName,
-	    sourceData, &error);
-	CFRelease(sourceData);
-	if (error != nullptr) {
-		CFRelease(transform);
-		throw BE::Error::StrategyError("SecTransformSetAttribute(): " +
-		    std::to_string(CFErrorGetCode(error)));
+		decoded.pushU8Val((temp >> 16) & 0xFF);
+		decoded.pushU8Val((temp >> 8) & 0xFF);
+		decoded.pushU8Val(temp & 0xFF);
 	}
 
-	/* Decode */
-	CFDataRef decodedData = static_cast<CFDataRef>(SecTransformExecute(
-	    transform, &error));
-	CFRelease(transform);
-	if (error != nullptr)
-		throw BE::Error::StrategyError("SecTransformExecute(): " +
-		    std::to_string(CFErrorGetCode(error)));
-
-	/* Convert to AutoArray */
-	BE::Memory::uint8Array aa(CFDataGetLength(decodedData));
-	CFDataGetBytes(decodedData, CFRangeMake(0, aa.size()), aa);
-	CFRelease(decodedData);
-
-	return (aa);
-#else
-	if (data.find_first_of('\n') != std::string::npos)
-		throw BE::Error::NotImplemented("Newlines in encoded data");
-
-	BIO *handle = BIO_new_mem_buf(const_cast<char *>(data.c_str()), -1);
-	handle = BIO_push(BIO_new(BIO_f_base64()), handle);
-
-	/* One line input */
-	BIO_set_flags(handle, BIO_FLAGS_BASE64_NO_NL);
-
-	/* TODO: Avoid over-allocation */
-	BE::Memory::uint8Array decodedData(data.size());
-
-	const auto len = BIO_read(handle, decodedData, decodedData.size());
-	decodedData.resize(len);
-
-	BIO_free_all(handle);
-
-	return (decodedData);
-#endif /* UseAppleSecurityFramework */
+	return (decodedAA);
 }

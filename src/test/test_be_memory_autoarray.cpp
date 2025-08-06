@@ -16,6 +16,7 @@
 #include <be_error_exception.h>
 #include <be_memory_autoarray.h>
 #include <be_memory_autoarrayiterator.h>
+#include <be_memory_autoarrayutility.h>
 
 using namespace BiometricEvaluation;
 using namespace std;
@@ -182,6 +183,78 @@ testComparisons()
 	}
 }
 
+void
+testCharAutoArrayUtilities()
+{
+	const std::string emptyString{""};
+	const std::string shortString{"J"};
+	std::string ctrlCharString{"This\nhas"};
+	ctrlCharString += '\0';
+	ctrlCharString += "control\tchars";
+
+
+	Memory::uint8Array aa1;
+	Memory::AutoArrayUtility::setString(aa1, emptyString);
+	if (aa1.size() != 1)
+		std::cout << "FAIL: setting emptyString with null terminator\n";
+	if (to_string(aa1).size() != 0)
+		std::cout << "FAIL: to_string emptyString with null "
+		    "terminator\n";
+
+	Memory::AutoArrayUtility::setString(aa1, emptyString, false);
+	if (aa1.size() != 0)
+		std::cout << "FAIL: setting emptyString without null "
+		    "terminator\n";
+	if (to_string(aa1).size() != 0)
+		std::cout << "FAIL: to_string emptyString without null "
+		    "terminator\n";
+
+	Memory::uint8Array aa2;
+	Memory::AutoArrayUtility::setString(aa2, shortString);
+	if (aa2.size() != 2)
+		std::cout << "FAIL: setting shortString with null terminator\n";
+	if (to_string(aa2).size() != 1)
+		std::cout << "FAIL: to_string shortString with null "
+		    "terminator\n";
+
+	Memory::AutoArrayUtility::setString(aa2, shortString, false);
+	if (aa2.size() != 1)
+		std::cout << "FAIL: setting shortString without null "
+		    "terminator\n";
+	if (to_string(aa2).size() != 1)
+		std::cout << "FAIL: to_string shortString without null "
+		    "terminator\n";
+
+	Memory::uint8Array aa3;
+	Memory::AutoArrayUtility::setString(aa3, ctrlCharString);
+	if (aa3.size() != 23)
+		std::cout << "FAIL: setting ctrlCharString with null "
+		    "terminator\n";
+	if (to_string(aa3).size() != 22)
+		std::cout << "FAIL: to_string ctrlCharString with null "
+		    "terminator\n";
+
+	Memory::AutoArrayUtility::setString(aa3, ctrlCharString, false);
+	if (aa3.size() != 22)
+		std::cout << "FAIL: setting ctrlCharString without null "
+		    "terminator\n";
+	if (to_string(aa3).size() != 22)
+		std::cout << "FAIL: to_string ctrlCharString without null "
+		    "terminator\n";
+
+	Memory::AutoArray<char> aa4(4);
+	aa4[0] = 'T'; aa4[1] = 'e'; aa4[2] = 's'; aa4[3] = 't';
+	for (size_t i{}; i <= 4; ++i)
+		if (Memory::AutoArrayUtility::getString(aa4, i).size() != i)
+			std::cout << "FAIL: getString size = " << i << '\n';
+	try {
+		Memory::AutoArrayUtility::getString(aa4, 5);
+		std::cout << "FAIL: getString size = 5\n";
+	} catch (...) {}
+
+	std::cout << "PASS\n";
+}
+
 static void
 testAndPrintContents(const Memory::uint8Array &aa, size_t size)
 {
@@ -329,6 +402,9 @@ int main (int argc, char* argv[]) {
 
 	std::cout << "Comparison: ";
 	testComparisons();
+
+	std::cout << "AutoArrayUtilities: ";
+	testCharAutoArrayUtilities();
 
 	return (0);
 }

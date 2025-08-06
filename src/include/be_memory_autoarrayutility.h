@@ -31,7 +31,7 @@ namespace BiometricEvaluation
 			 * Cast an AutoArray of uint8_t or char to a char*.
 			 *
 			 * @param rahc
-			 * AutoArray to cast.
+			 * Null-terminated AutoArray to cast.
 			 *
 			 * @return
 			 * rahc casted as a char*.
@@ -69,8 +69,13 @@ namespace BiometricEvaluation
 			    const AutoArray<T> &aa,
 			    typename AutoArray<T>::size_type count)
 			{
+				if ((count == 0) || (aa.size() == 0))
+					return {};
+
 				if (count > aa.size())
-					throw Error::MemoryError();
+					throw Error::ParameterError{
+					    "Requesting more characters than "
+					    "available"};
 
 				return (std::string(cstr(aa), count));
 			}
@@ -83,30 +88,14 @@ namespace BiometricEvaluation
 			 * AutoArray whose contents will be replaced with str.
 			 * @param str
 			 * String to assign to AutoArray.
-			 */
-			template <typename T, typename = typename
-			    std::enable_if<std::is_same<T, uint8_t>::value ||
-			    std::is_same<T, char>::value>::type>
-			inline void
-			setString(
-			    AutoArray<T> &aa,
-			    const std::string &str)
-			{
-				aa.resize(str.size() + 1);
-				::snprintf(cstr(aa), aa.size(), "%s",
-				    str.c_str());
-			}
-
-			/**
-			 * @brief
-			 * Copy a string into an AutoAray of uint8_t or char.
+			 * @param includeNullTerminator
+			 * true if `aa` should be resized such that the last
+			 * element is a null terminator, false if the last
+			 * element of `aa` should be `str.back()`.
 			 *
-			 * @param aa
-			 * AutoArray whose contents will be replaced with str.
-			 * @param str
-			 * printf-style format string.
-			 * @param ...
-			 * Variable list of arguments for printf formatting.
+			 * @note
+			 * The last element of the AutoArray will be a null
+			 * terminator.
 			 */
 			template <typename T, typename = typename
 			    std::enable_if<std::is_same<T, uint8_t>::value ||
@@ -114,15 +103,12 @@ namespace BiometricEvaluation
 			inline void
 			setString(
 			    AutoArray<T> &aa,
-			    const char *str,
-			    ...)
+			    const std::string &str,
+			    bool includeNullTerminator = true)
 			{
-				aa.resize(strlen(str) + 1);
-
-				va_list args;
-				va_start(args, str);
-				::vsnprintf(cstr(aa), aa.size(), str, args);
-				va_end(args);
+				aa.resize(str.size() +
+				    (includeNullTerminator ? 1 : 0));
+				aa.copy((const uint8_t *)str.c_str());
 			}
 		}
 	}
@@ -143,11 +129,18 @@ template <typename T, typename = typename
     std::is_same<T, char>::value>::type>
 inline std::string
 to_string(
-    const BiometricEvaluation::Memory::AutoArray<T> &aa)
+    const BiometricEvaluation::Memory::AutoArray<T> &aa,
+    const bool nullTerminated = true)
 {
-	return (std::string(
-	    BiometricEvaluation::Memory::AutoArrayUtility::cstr(aa),
-	    aa.size() - 1));
+	if (aa.size() == 0)
+		return {};
+
+	auto count = aa.size();
+	if (nullTerminated && (aa[count - 1] == '\0'))
+		--count;
+
+	return (BiometricEvaluation::Memory::AutoArrayUtility::getString(aa,
+	    count));
 }
 
 #endif /* __BE_MEMORY_AUTOARRAYUTILITY_H__ */

@@ -10,9 +10,12 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <map>
+#include <random>
 #include <vector>
 
 #include <be_text.h>
+#include <be_memory_autoarrayutility.h>
 
 using namespace BiometricEvaluation;
 using namespace std;
@@ -142,6 +145,159 @@ main(int argc, char* argv[])
 	cout << testString << "->" << Text::toLowercase(testString) << endl;
 	if (Text::toLowercase(testString) != "hello, world!")
 		throw Error::StrategyError("toLowercase()");
+	std::cout << '\n';
+
+	const std::map<std::string, std::string> base64Test{
+	    /* RFC 4648 recommended test */
+	    {"", ""},
+	    {"f", "Zg=="},
+	    {"fo", "Zm8="},
+	    {"foo", "Zm9v"},
+	    {"foob", "Zm9vYg=="},
+	    {"fooba", "Zm9vYmE="},
+	    {"foobar", "Zm9vYmFy"},
+
+	    /* Some more... */
+	    {std::string("\x00", 1), "AA=="},
+	    {std::string("\x00\x01", 2), "AAE="},
+	    {std::string("\x00\x01\x02", 3), "AAEC"},
+	    {std::string("\x00\xFF", 2), "AP8="},
+	    {std::string("\xFF\xFF\xFF", 3), "////"},
+	    {std::string("\x00\x00", 2), "AAA="},
+	    {std::string("\x00\x00\x00", 3), "AAAA"},
+	    {std::string("\x00\x00\x00\x00", 4), "AAAAAA=="},
+	    {std::string("\xFF", 1), "/w=="},
+	    {std::string("\xFF\xFF", 2), "//8="},
+	    {std::string("\xFF\x00", 2), "/wA="},
+	    {std::string("\xFF\x00\x00", 3), "/wAA"},
+	    {std::string("A\0B", 3), "QQBC"},
+	    {std::string("\0A\0", 3), "AEEA"},
+	    {std::string("A\0\0", 3), "QQAA"},
+	    {std::string("\0\0A", 3), "AABB"},
+	};
+	std::cout << "Text::encodeBase64(AutoArray)\n"
+	    "--------------------------------\n";
+	for (const auto &[k, v] : base64Test) {
+		Memory::uint8Array data;
+		Memory::AutoArrayUtility::setString(data, k, false);
+		const auto result = Text::encodeBase64(data);
+
+		auto clean{k};
+		size_t pos{0};
+		while ((pos = clean.find('\0', pos)) != std::string::npos) {
+			clean.replace(pos, 1, "\\0");
+			pos += 2;
+		}
+
+		std::cout << "encodeBase64(\"" << clean << "\") = \"" <<
+		    result << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
+		    '\n';
+	}
+	std::cout << '\n';
+
+	std::cout << "Text::decodeBase64(AutoArray)\n"
+	    "--------------------------------\n";
+	for (const auto &[v, k] : base64Test) {
+		const auto resultAA = Text::decodeBase64(k);
+		const auto result = to_string(resultAA, false);
+
+		auto clean{result};
+		size_t pos{0};
+		while ((pos = clean.find('\0', pos)) != std::string::npos) {
+			clean.replace(pos, 1, "\\0");
+			pos += 2;
+		}
+
+		std::cout << "decodeBase64(\"" << k << "\") = \"" << clean <<
+		    "\" [" << (result == v ? "PASS]" : "FAIL]") << '\n';
+	}
+
+	std::cout << '\n';
+	std::cout << "Text::encodeBase64(std::string)\n"
+	    "--------------------------------\n";
+	for (const auto &[k, v] : base64Test) {
+		const auto result = Text::encodeBase64(k);
+
+		auto clean{k};
+		size_t pos{0};
+		while ((pos = clean.find('\0', pos)) != std::string::npos) {
+			clean.replace(pos, 1, "\\0");
+			pos += 2;
+		}
+		std::cout << "encodeBase64(\"" << clean << "\") = \"" <<
+		    result << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
+		    '\n';
+	}
+	std::cout << '\n';
+
+	std::cout << "Text::decodeBase64AsString()\n"
+	    "--------------------------------\n";
+	for (const auto &[v, k] : base64Test) {
+		const auto result = Text::decodeBase64AsString(k);
+
+		auto cleanR{result};
+		size_t pos{0};
+		while ((pos = cleanR.find('\0', pos)) != std::string::npos) {
+			cleanR.replace(pos, 1, "\\0");
+			pos += 2;
+		}
+
+		std::cout << "decodeBase64AsString(\"" << k << "\") = \"" <<
+		    cleanR << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
+		    '\n';
+	}
+
+	std::cout << '\n';
+
+	std::string invalidBase64Input[] = {
+	    "Zg=",      /* bad padding */
+	    "Zg===",    /* too much padding */
+	    "Zg",       /* length not a multiple of 4 */
+	    "Zg$=",     /* illegal char '$' */
+	    "Zm8=Zm8=", /* padding in middle of data */
+	    "!!!!",     /* all illegal chars */
+	    "Zm9v\nYmFy", /* newline in middle */
+	};
+
+	std::cout << '\n';
+
+	std::cout << "Text::decodeBase64AsString() with invalid strings\n"
+	    "--------------------------------\n";
+	for (const auto &k : invalidBase64Input) {
+		/* Print the newline from the last test more cleanly */
+		std::string cleanK{k};
+		size_t pos{0};
+		while ((pos = cleanK.find('\n', pos)) != std::string::npos) {
+			cleanK.replace(pos, 1, "\\n");
+			pos += 2;
+		}
+
+		std::cout << "decodeBase64AsString(\"" << cleanK << "\") = \"";
+		try {
+			const auto result = Text::decodeBase64AsString(k);
+			std::cout << result << " [FAIL]\n";
+		} catch (const Error::Exception &e) {
+			std::cout << "[PASS] (" << e.what() << ")\n";
+		}
+	}
+
+	std::cout << "\nText::encode/decodeBase64() with large buffer: " <<
+	    std::flush;
+
+	Memory::uint8Array randomData(1024 * 1024 * 20);
+	std::mt19937 rng(12345);
+	std::uniform_int_distribution<int> dist(0, 255);
+	for (auto &b : randomData)
+		b = dist(rng);
+	const auto encoded = Text::encodeBase64(randomData);
+	const auto decoded = Text::decodeBase64(encoded);
+	for (uint64_t i = 0; i < randomData.size(); ++i) {
+		if (randomData[i] != decoded[i]) {
+			std::cout << "[FAIL]";
+			return (EXIT_FAILURE);
+		}
+	}
+	std::cout << "[PASS]\n";
 
 	return (EXIT_SUCCESS);
 }
