@@ -163,32 +163,68 @@ main(int argc, char* argv[])
 	    {std::string("\x00\x01\x02", 3), "AAEC"},
 	    {std::string("\x00\xFF", 2), "AP8="},
 	    {std::string("\xFF\xFF\xFF", 3), "////"},
+	    {std::string("\x00\x00", 2), "AAA="},
+	    {std::string("\x00\x00\x00", 3), "AAAA"},
+	    {std::string("\x00\x00\x00\x00", 4), "AAAAAA=="},
+	    {std::string("\xFF", 1), "/w=="},
+	    {std::string("\xFF\xFF", 2), "//8="},
+	    {std::string("\xFF\x00", 2), "/wA="},
+	    {std::string("\xFF\x00\x00", 3), "/wAA"},
+	    {std::string("A\0B", 3), "QQBC"},
+	    {std::string("\0A\0", 3), "AEEA"},
+	    {std::string("A\0\0", 3), "QQAA"},
+	    {std::string("\0\0A", 3), "AABB"},
 	};
-	std::cout << "Text::encodeBase64()\n--------------------------------\n";
+	std::cout << "Text::encodeBase64(AutoArray)\n"
+	    "--------------------------------\n";
 	for (const auto &[k, v] : base64Test) {
 		Memory::uint8Array data;
 		Memory::AutoArrayUtility::setString(data, k, false);
 		const auto result = Text::encodeBase64(data);
-		std::cout << "encodeBase64(\"" << k << "\") = \"" << result <<
-		    "\" [" << (result == v ? "PASS]" : "FAIL]") << '\n';
+
+		auto clean{k};
+		size_t pos{0};
+		while ((pos = clean.find('\0', pos)) != std::string::npos) {
+			clean.replace(pos, 1, "\\0");
+			pos += 2;
+		}
+
+		std::cout << "encodeBase64(\"" << clean << "\") = \"" <<
+		    result << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
+		    '\n';
 	}
 	std::cout << '\n';
 
-	std::cout << "Text::decodeBase64()\n--------------------------------\n";
+	std::cout << "Text::decodeBase64(AutoArray)\n"
+	    "--------------------------------\n";
 	for (const auto &[v, k] : base64Test) {
 		const auto resultAA = Text::decodeBase64(k);
 		const auto result = to_string(resultAA, false);
 
-		std::cout << "decodeBase64(\"" << k << "\") = \"" << result <<
+		auto clean{result};
+		size_t pos{0};
+		while ((pos = clean.find('\0', pos)) != std::string::npos) {
+			clean.replace(pos, 1, "\\0");
+			pos += 2;
+		}
+
+		std::cout << "decodeBase64(\"" << k << "\") = \"" << clean <<
 		    "\" [" << (result == v ? "PASS]" : "FAIL]") << '\n';
 	}
 
 	std::cout << '\n';
-	std::cout << "Text::encodeBase64()\n"
+	std::cout << "Text::encodeBase64(std::string)\n"
 	    "--------------------------------\n";
 	for (const auto &[k, v] : base64Test) {
 		const auto result = Text::encodeBase64(k);
-		std::cout << "encodeBase64(\"" << k << "\") = \"" <<
+
+		auto clean{k};
+		size_t pos{0};
+		while ((pos = clean.find('\0', pos)) != std::string::npos) {
+			clean.replace(pos, 1, "\\0");
+			pos += 2;
+		}
+		std::cout << "encodeBase64(\"" << clean << "\") = \"" <<
 		    result << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
 		    '\n';
 	}
@@ -199,8 +235,15 @@ main(int argc, char* argv[])
 	for (const auto &[v, k] : base64Test) {
 		const auto result = Text::decodeBase64AsString(k);
 
+		auto cleanR{result};
+		size_t pos{0};
+		while ((pos = cleanR.find('\0', pos)) != std::string::npos) {
+			cleanR.replace(pos, 1, "\\0");
+			pos += 2;
+		}
+
 		std::cout << "decodeBase64AsString(\"" << k << "\") = \"" <<
-		    result << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
+		    cleanR << "\" [" << (result == v ? "PASS]" : "FAIL]") <<
 		    '\n';
 	}
 
