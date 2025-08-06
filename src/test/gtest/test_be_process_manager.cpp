@@ -196,7 +196,7 @@ public:
 	int32_t
 	workerMain()
 	{
-		struct sigaction sa;
+		struct sigaction sa{};
 		sigemptyset(&sa.sa_mask);
 		sa.sa_handler = signalHandler;
 		sigaction(SIGQUIT, &sa, nullptr);

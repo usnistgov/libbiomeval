@@ -210,9 +210,6 @@ typedef struct segments_s {
 #define DONE              2
 #define MORE              3
 #define UNDEFINED_INT     -1
-#ifndef IGNORE
-#define IGNORE            2
-#endif
 
 #define TYPE_1_ID         1
 #define TYPE_1_NUM_MANDATORY_FIELDS 9

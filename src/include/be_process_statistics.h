@@ -11,13 +11,11 @@
 #ifndef __BE_PROCESS_STATISTICS_H__
 #define __BE_PROCESS_STATISTICS_H__
 
-#include <pthread.h>
-
 #include <memory>
 #include <optional>
 #include <tuple>
 
-#include <be_io_filelogcabinet.h>
+#include <be_io_autologger.h>
 
 namespace BiometricEvaluation {
 	namespace Process {
@@ -46,7 +44,8 @@ namespace BiometricEvaluation {
 		public:
 
 			/**
-			 * Constructor with no parameters.
+			 * Construct a Statistics object without logging, for
+			 * clients to obtain process statistics directly.
 			 */
 			Statistics();
 
@@ -224,86 +223,62 @@ namespace BiometricEvaluation {
 
 			/**
 			 * @brief
-			 * Start logging process statistics automatically,
-			 * in intervals of microseconds. The first log entry
-			 * will occur soon after the call to this method as
-			 * the delay interval is invoked after the first entry.
-			 * @note
-			 * It is unrealistic to expect that log entries can
-			 * be made at a rate of one per microsecond.
-			 * @note
-			 * If stopAutoLogging() is called very soon after the
-			 * start, a log entry may not be made.
-			 *
-			 * @param[in] interval
-			 *	The gap between logging snapshots, in
-			 *	microseconds.
-			 * @throw Error::ObjectDoesNotExist
-			 *	The FileLogsheet does not exist; this object
-			 *	was not created with FileLogCabinet object.
-			 * @throw Error::ObjectExists
-			 *	Autologging is currently invoked.
-			 * @throw Error::StrategyError
-			 *	An error occurred when writing to the
-			 *	FileLogsheet.
-			 * @throw Error::NotImplemented
-			 *	The statistics gathering is not implemented for
-			 *	this operating system.
-			 */
-			void startAutoLogging(uint64_t interval);
-
-			/**
-			 * @brief
-			 * Stop the automatic logging of process statistics.
-			 *
-			 * @throw Error::ObjectDoesNotExist
-			 *	Not currently autologging.
-			 * @throw Error::StrategyError
-			 *	An error occurred when stopping, most likely
-			 *	because the logging thread died.
-			 */
-			void stopAutoLogging();
-
-			/**
-			 * Helper function in C++ space that has access to
-			 * this object, and is called from C space by the
-			 * logging thread. Applications should not call
-			 * this function.
-			 */
-			void callStatistics_logStats();
-
-			/**
+			 * Get the comment that is appended to every auto logger
+			 * entry.
 			 * @return
-			 * Description of the task being performed.
+			 * The comment string.
 			 */
 			std::string
 			getComment()
 			    const;
 
 			/**
-			 * Set a description of the task being performed.
-			 *
+			 * @brief
+			 * Set a comment for each log entry.
+			 * @details
+			 * The comment string is auto-appended to the end of
+			 * each log entry.
 			 * @param comment
-			 * Description of the task being performed.
+			 * The comment string.
 			 */
 			void
 			setComment(
 			    std::string_view comment);
 
-		private:
+			/**
+			 * Start auto logging process statistics.
+			 *
+			 * @param interval
+			 * The time gap between the capture of the
+			 * statistics in microseconds.
+			 */
+			void startAutoLogging(
+				std::chrono::microseconds interval);
+			[[deprecated("Use std::chrono values instead")]]
+			void startAutoLogging(uint64_t interval);
 
-			pid_t _pid;
+			/**
+			 * Stop auto logging process statistics.
+			 *
+			 * @throw Error::ObjectDoesNotExist
+			 * Not currently logging.
+			 */
+			void stopAutoLogging();
+
+		private:
+			IO::AutoLogger _autoLogger{};
+			IO::AutoLogger _autoTaskLogger{};
+			pid_t _pid{};
 			std::shared_ptr<IO::FileLogCabinet> _logCabinet{};
 			std::shared_ptr<IO::Logsheet> _logSheet{};
 			std::optional<std::shared_ptr<IO::Logsheet>>
 			    _tasksLogSheet{};
-			bool _logging{};
 			pid_t _loggingTaskID{};
+			pid_t _taskLoggingTaskID{};
+			std::string getStatsLogEntry() const;
+			std::string getTasksStatsLogEntry() const;
 			bool _doTasksLogging{};
-			bool _autoLogging{};
-			pthread_t _loggingThread{};
-			pthread_mutex_t _logMutex{};
-			std::string _comment{};
+			bool _logging{};
 		};
 
 	}

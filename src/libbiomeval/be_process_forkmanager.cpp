@@ -139,7 +139,7 @@ BiometricEvaluation::Process::ForkManager::startWorkers(
 	 * sort of control.
 	 */
 	else {
-		struct sigaction reapSignal;			
+		struct sigaction reapSignal{};
 		memset(&reapSignal, 0, sizeof(reapSignal));
 		reapSignal.sa_handler = ForkManager::reap;
 		sigaction(SIGCHLD, &reapSignal, nullptr);
@@ -179,7 +179,7 @@ BiometricEvaluation::Process::ForkManager::startWorker(
 	 * sort of control.
 	 */
 	else {
-		struct sigaction reapSignal;			
+		struct sigaction reapSignal{};
 		memset(&reapSignal, 0, sizeof(reapSignal));
 		reapSignal.sa_handler = ForkManager::reap;
 		sigaction(SIGCHLD, &reapSignal, nullptr);
@@ -214,7 +214,7 @@ BiometricEvaluation::Process::ForkWorkerController::start(
 			_staticWorker->closeManagerPipeEnds();
 
 		/* Catch SIGUSR1 to quit child on demand */
-		struct sigaction stopSignal;			
+		struct sigaction stopSignal{};
 		memset(&stopSignal, 0, sizeof(stopSignal));
 		stopSignal.sa_handler = ForkWorkerController::_stop;
 		sigaction(SIGUSR1, &stopSignal, nullptr);
@@ -292,7 +292,7 @@ void
 BiometricEvaluation::Process::ForkManager::waitForWorkerExit()
 {
 	/* "Remove" SIGCHLD handler */
-	struct sigaction removeSignal;
+	struct sigaction removeSignal{};
 	memset(&removeSignal, 0, sizeof(removeSignal));
 	removeSignal.sa_handler = SIG_DFL;
 	sigaction(SIGCHLD, &removeSignal, nullptr);

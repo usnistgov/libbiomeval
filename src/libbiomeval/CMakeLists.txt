@@ -38,8 +38,6 @@
 #     make package
 #
 
-cmake_minimum_required(VERSION 2.8.11)
-
 if (BUILD_FOR_WASM)
 	add_definitions("-DWASM")
 	if (EMSCRIPTEN)
@@ -108,13 +106,7 @@ set(BIOMEVAL_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 file(GLOB BIOMEVAL_HEADERS ${BIOMEVAL_INCLUDE}/*.h)
 set(NBIS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/../../nbis/include)
 #
-if(${CMAKE_MAJOR_VERSION} GREATER 2)
-  cmake_policy(SET CMP0048 NEW)
-  project(libbiomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
-else()
-  project(libbiomeval)
-  set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
-endif()
+project(libbiomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
 set(CORELIB biomeval)
 
 # NBIS uses "insecure" functions under Windows
@@ -157,9 +149,9 @@ This process created the file `CMakeCache.txt' and the directory `CMakeFiles'.
 Please delete them.")
 endif()
 
-set(CORE be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_framework_status.cpp be_framework_api.cpp be_process_statistics.cpp)
+set(CORE be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_system_memlog.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_framework_status.cpp be_framework_api.cpp be_process_statistics.cpp)
 
-set(IO be_io_properties.cpp be_io_propertiesfile.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_filelogsheet.cpp be_io_syslogsheet.cpp be_io_filelogcabinet.cpp be_io_compressor.cpp be_io_gzip.cpp)
+set(IO be_io_properties.cpp be_io_propertiesfile.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_filelogsheet.cpp be_io_syslogsheet.cpp be_io_filelogcabinet.cpp be_io_autologger.cpp be_io_compressor.cpp be_io_gzip.cpp)
 
 set(RECORDSTORE be_io_recordstore_impl.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_dbrecstore_impl.cpp be_io_sqliterecstore.cpp be_io_sqliterecstore_impl.cpp be_io_filerecstore.cpp be_io_filerecstore_impl.cpp be_io_listrecstore.cpp be_io_listrecstore_impl.cpp be_io_archiverecstore.cpp be_io_archiverecstore_impl.cpp be_io_compressedrecstore_impl.cpp be_io_compressedrecstore.cpp be_io_recordstoreunion.cpp be_io_recordstoreunion_impl.cpp be_io_persistentrecordstoreunion.cpp be_io_persistentrecordstoreunion_impl.cpp)
 
@@ -195,11 +187,14 @@ set(MPIRECEIVER be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocess
 # Some files have not been ported to Windows. Sorry about that.
 #
 if(MSVC)
-    list(REMOVE_ITEM CORE "be_error_signal_manager.cpp" "be_framework_api.cpp" "be_time_watchdog.cpp" "be_process_statistics.cpp")
-    list(REMOVE_ITEM IO "be_io_syslogsheet.cpp")
+    list(REMOVE_ITEM CORE "be_error_signal_manager.cpp" "be_framework_api.cpp" "be_system_memlog.cpp" "be_time_watchdog.cpp" "be_process_statistics.cpp")
+    list(REMOVE_ITEM IO "be_io_autologger.cpp" "be_io_syslogsheet.cpp")
 
     unset(PROCESS)
     unset(MESSAGE_CENTER)
+
+    # Don't include min/max macros from windows.h
+    add_compile_definitions(NOMINMAX)
 
     list(APPEND CORE "be_sysdeps.cpp")
 endif(MSVC)

@@ -60,7 +60,7 @@ workerMain()
 	 * Set up the signal handler for broadcast signals.
 	*/
 #if defined FORKTEST
-	struct sigaction sa;
+	struct sigaction sa{};
 	sigemptyset(&sa.sa_mask);       /* Don't block other signals */
 	sa.sa_handler = signalHandler;
 	sigaction(SIGQUIT, &sa, NULL);
@@ -151,7 +151,7 @@ workerMain()
 	 * Set up the signal handler for broadcast signals.
 	*/
 #if defined FORKTEST
-	struct sigaction sa;
+	struct sigaction sa{};
 	sigemptyset(&sa.sa_mask);       /* Don't block other signals */
 	sa.sa_handler = signalHandler;
 	sigaction(SIGQUIT, &sa, NULL);
