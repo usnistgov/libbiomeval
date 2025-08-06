@@ -187,11 +187,14 @@ set(MPIRECEIVER be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocess
 # Some files have not been ported to Windows. Sorry about that.
 #
 if(MSVC)
-    list(REMOVE_ITEM CORE "be_error_signal_manager.cpp" "be_framework_api.cpp" "be_time_watchdog.cpp" "be_process_statistics.cpp")
-    list(REMOVE_ITEM IO "be_io_syslogsheet.cpp")
+    list(REMOVE_ITEM CORE "be_error_signal_manager.cpp" "be_framework_api.cpp" "be_system_memlog.cpp" "be_time_watchdog.cpp" "be_process_statistics.cpp")
+    list(REMOVE_ITEM IO "be_io_autologger.cpp" "be_io_syslogsheet.cpp")
 
     unset(PROCESS)
     unset(MESSAGE_CENTER)
+
+    # Don't include min/max macros from windows.h
+    add_compile_definitions(NOMINMAX)
 
     list(APPEND CORE "be_sysdeps.cpp")
 endif(MSVC)
