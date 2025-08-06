@@ -69,8 +69,12 @@ of the software.
 #ifndef DEG2RAD
 #define DEG2RAD	(double)(57.29578)
 #endif
+#ifndef max
 #define max(a, b)   ((a) > (b) ? (a) : (b))
+#endif
+#ifndef min
 #define min(a, b)   ((a) < (b) ? (a) : (b))
+#endif
 #define sround(x) ((int) (((x)<0) ? (x)-0.5 : (x)+0.5))
 #define sround_uint(x) ((unsigned int) (((x)<0) ? (x)-0.5 : (x)+0.5))
 #define align_to_16(_v_)   ((((_v_)+15)>>4)<<4)
