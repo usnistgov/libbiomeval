@@ -177,7 +177,7 @@ main(int argc, char* argv[])
 	std::cout << "Text::decodeBase64()\n--------------------------------\n";
 	for (const auto &[v, k] : base64Test) {
 		const auto resultAA = Text::decodeBase64(k);
-		const auto result = to_string(resultAA);
+		const auto result = to_string(resultAA, false);
 
 		std::cout << "decodeBase64(\"" << k << "\") = \"" << result <<
 		    "\" [" << (result == v ? "PASS]" : "FAIL]") << '\n';

@@ -69,6 +69,9 @@ namespace BiometricEvaluation
 			    const AutoArray<T> &aa,
 			    typename AutoArray<T>::size_type count)
 			{
+				if ((count == 0) || (aa.size() == 0))
+					return {};
+
 				if (count > aa.size())
 					throw Error::ParameterError{
 					    "Requesting more characters than "
@@ -126,12 +129,16 @@ template <typename T, typename = typename
     std::is_same<T, char>::value>::type>
 inline std::string
 to_string(
-    const BiometricEvaluation::Memory::AutoArray<T> &aa)
+    const BiometricEvaluation::Memory::AutoArray<T> &aa,
+    const bool nullTerminated = true)
 {
 	if (aa.size() == 0)
 		return {};
 
-	const auto count = aa.size() - (aa[aa.size() - 1] == '\0' ? 1 : 0);
+	auto count = aa.size();
+	if (nullTerminated && (aa[count - 1] == '\0'))
+		--count;
+
 	return (BiometricEvaluation::Memory::AutoArrayUtility::getString(aa,
 	    count));
 }

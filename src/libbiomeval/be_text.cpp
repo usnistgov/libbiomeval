@@ -417,7 +417,7 @@ std::string
 BiometricEvaluation::Text::decodeBase64AsString(
     const std::string &data)
 {
-	return (to_string(decodeBase64(data)));
+	return (to_string(decodeBase64(data), false));
 }
 
 BiometricEvaluation::Memory::uint8Array
