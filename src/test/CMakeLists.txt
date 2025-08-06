@@ -73,6 +73,7 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 			    CXX_FLAGS_RELEASE "/MT"
 			    CXX_FLAGS_DEBUG "/MTd")
 		endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
+		target_compile_definitions(${TARGET_NAME} PRIVATE NOMINMAX)
 	else (MSVC)
 		set_target_properties(${TARGET_NAME} PROPERTIES
 		    CXX_FLAGS_DEBUG "-g")

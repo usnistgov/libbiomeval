@@ -193,6 +193,9 @@ if(MSVC)
     unset(PROCESS)
     unset(MESSAGE_CENTER)
 
+    # Don't include min/max macros from windows.h
+    add_compile_definitions(NOMINMAX)
+
     list(APPEND CORE "be_sysdeps.cpp")
 endif(MSVC)
 
