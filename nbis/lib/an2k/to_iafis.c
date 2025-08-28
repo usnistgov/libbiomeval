@@ -578,7 +578,7 @@ int biomeval_nbis_nist2iafis_fingerprint(RECORD **oimgrecord, RECORD *imgrecord)
    }
 
    /* Create new LEN item with correct binary record length. */
-   sprintf(uint_str, "%d", record_bytes);
+   sprintf(uint_str, "%u", record_bytes);
    if((ret = biomeval_nbis_value2item(&nitem, uint_str))){
       biomeval_nbis_free_ANSI_NIST_record(nimgrecord);
       return(ret);
