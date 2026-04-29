@@ -22,10 +22,11 @@
 
 project(biomeval-test)
 
+include(GNUInstallDirs)
+
 if (BUILD_BIOMEVAL_32BIT)
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-endif (BUILD_BIOMEVAL_32BIT)
+endif ()
 
 # Sanity check our source directory to make sure that we are not trying to
 # generate an in-tree build
@@ -38,22 +39,12 @@ This process created the file `CMakeCache.txt' and the directory `CMakeFiles'.
 Please delete them.")
 endif()
 
+cmake_minimum_required(VERSION 3.16.3)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../libbiomeval/cmake/Modules/")
 
-if(${CMAKE_MAJOR_VERSION} GREATER 2)
-    if (MSVC)
-        set(CMAKE_CXX_STANDARD 20)
-    else (MSVC)
-        set(CMAKE_CXX_STANDARD 20)
-    endif (MSVC)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-else()
-    if(MSVC)
-        add_compile_options(/std:c++20)
-    else()
-        add_compile_options(--std=c++20)
-    endif(MSVC)
-endif()
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 function(set_biomeval_test_exe_dependencies TARGET_NAME)
 	# Build library first
@@ -61,24 +52,30 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 	target_include_directories(${TARGET_NAME} PRIVATE ${libbiomeval_SOURCE_DIR}/../include)
 	target_link_libraries(${TARGET_NAME} PRIVATE biomeval)
 
+	if (BUILD_BIOMEVAL_32BIT)
+		target_compile_options(${TARGET_NAME} PRIVATE
+		    $<$<COMPILE_LANGUAGE:C>:-m32>
+		    $<$<COMPILE_LANGUAGE:CXX>:-m32>
+		)
+	endif()
+
+	# Set RPATH to local build of biomeval
+	set_target_properties(${TARGET_NAME} PROPERTIES
+	    BUILD_RPATH "${CMAKE_INSTALL_LIBDIR}"
+	)
+
 	# Windows needs to differentiate between static/dynamic and
 	# release/debug builds. TODO above notes that static lib is hardcoded
 	# for test executables.
 	if (MSVC)
-		if (CMAKE_VERSION VERSION_GREATER 3.14.9999)
-			set_target_properties(${TARGET_NAME} PROPERTIES
-			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-		else (CMAKE_VERSION VERSION_GREATER 3.14.9999)
-			set_target_properties(${TARGET_NAME} PROPERTIES
-			    CXX_FLAGS_RELEASE "/MT"
-			    CXX_FLAGS_DEBUG "/MTd")
-		endif (CMAKE_VERSION VERSION_GREATER 3.14.9999)
+		set_target_properties(${TARGET_NAME} PROPERTIES
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 		target_compile_definitions(${TARGET_NAME} PRIVATE NOMINMAX)
 	else (MSVC)
 		set_target_properties(${TARGET_NAME} PROPERTIES
 		    CXX_FLAGS_DEBUG "-g")
 	endif (MSVC)
-endfunction(set_biomeval_test_exe_dependencies)
+endfunction()
 
 #
 # Exhaustively add each target rather than looping over source files. Some
@@ -217,7 +214,7 @@ if (NOT MSVC)
 	add_executable(test_be_process_posixthreadmanager test_be_process_manager.cpp)
 	set_biomeval_test_exe_dependencies(test_be_process_posixthreadmanager)
 	target_compile_definitions(test_be_process_posixthreadmanager PUBLIC POSIXTHREADTEST)
-endif (NOT MSVC)
+endif ()
 
 # MPI test executables require that MPI support was compiled in
 if (TARGET mpiobjs)
@@ -227,8 +224,8 @@ if (TARGET mpiobjs)
 		set_biomeval_test_exe_dependencies(test_be_csv_mpi)
 		add_executable(test_be_rs_mpi test_be_rs_mpi.cpp)
 		set_biomeval_test_exe_dependencies(test_be_rs_mpi)
-	endif (NOT MSVC)
-endif (TARGET mpiobjs)
+	endif ()
+endif ()
 
 # ISO/IEC 7816 test executables require that device support was compiled in
 if (TARGET deviceobjs)
@@ -236,7 +233,7 @@ if (TARGET deviceobjs)
 	set_biomeval_test_exe_dependencies(test_be_device_smartcard)
 	add_executable(test_be_device_tlv test_be_device_tlv.cpp)
 	set_biomeval_test_exe_dependencies(test_be_device_tlv)
-endif (TARGET deviceobjs)
+endif ()
 
 # Process and video test programs require a threading library, which we
 # haven't tested under Windows
@@ -254,25 +251,15 @@ if (NOT MSVC)
 	if (TARGET vidobjs)
 		add_executable(test_be_video test_be_video.cpp)
 		set_biomeval_test_exe_dependencies(test_be_video)
-	endif (TARGET vidobjs)
+	endif ()
 
 	find_package(Threads REQUIRED)
-	if (${CMAKE_VERSION} VERSION_GREATER 3.0.9999)
-		target_link_libraries(test_be_process_semaphore PRIVATE Threads::Threads)
-		target_link_libraries(test_be_process_statistics PRIVATE Threads::Threads)
-		if (TARGET test_be_video)
-			target_link_libraries(test_be_video PRIVATE Threads::Threads)
-		endif (TARGET test_be_video)
-	else (${CMAKE_VERSION} VERSION_GREATER 3.0.9999)
-		if (CMAKE_THREAD_LIBS_INIT)
-			target_link_libraries(test_be_process_semaphore "${CMAKE_THREAD_LIBS_INIT}")
-			target_link_libraries(test_be_process_statistics "${CMAKE_THREAD_LIBS_INIT}")
-			if (TARGET test_be_video)
-				target_link_libraries(test_be_video "${CMAKE_THREAD_LIBS_INIT}")
-			endif (TARGET test_be_video)
-		endif (CMAKE_THREAD_LIBS_INIT)
-	endif (${CMAKE_VERSION} VERSION_GREATER 3.0.9999)
-endif (NOT MSVC)
+	target_link_libraries(test_be_process_semaphore PRIVATE Threads::Threads)
+	target_link_libraries(test_be_process_statistics PRIVATE Threads::Threads)
+	if (TARGET test_be_video)
+		target_link_libraries(test_be_video PRIVATE Threads::Threads)
+	endif ()
+endif ()
 
 # Some test executables are not yet supported on Windows because we have not
 # compiled in the relevant classes from libbiomeval. We can't
@@ -288,7 +275,7 @@ if (NOT MSVC)
 	set_biomeval_test_exe_dependencies(test_be_io_syslogsheet)
 	add_executable(test_be_time_watchdog test_be_time_watchdog.cpp)
 	set_biomeval_test_exe_dependencies(test_be_time_watchdog)
-endif (NOT MSVC)
+endif ()
 
 #
 # Link the test data into the build directory.
@@ -299,4 +286,4 @@ if (NOT EXISTS test_data)
 	elseif(WIN32)
 		execute_process(COMMAND mklink /J test_data ${PROJECT_SOURCE_DIR}/test_data)
 	endif()
-endif (NOT EXISTS test_data)
+endif ()

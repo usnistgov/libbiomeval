@@ -33,31 +33,33 @@ foreach (line ${VERSION_FILE_CONTENTS})
 	string(REGEX MATCH "MAJOR_VERSION=.+" MAJOR_VERSION_FOUND "${line}")
 	if (MAJOR_VERSION_FOUND)
 		string(REPLACE "MAJOR_VERSION=" "" MAJOR_VERSION "${line}")
-	endif (MAJOR_VERSION_FOUND)
+	endif ()
 
 	string(REGEX MATCH "MINOR_VERSION=.+" MINOR_VERSION_FOUND "${line}")
 	if (MINOR_VERSION_FOUND)
 		string(REPLACE "MINOR_VERSION=" "" MINOR_VERSION "${line}")
-	endif (MINOR_VERSION_FOUND)
+	endif ()
 
 	string(REGEX MATCH "COMPATIBILITY_VERSION=.+" COMPATIBILITY_VERSION_FOUND "${line}")
 	if (COMPATIBILITY_VERSION_FOUND)
 		string(REPLACE "COMPATIBILITY_VERSION=" "" COMPATIBILITY_VERSION "${line}")
-	endif (COMPATIBILITY_VERSION_FOUND)
-endforeach (line ${VERSION_FILE_CONTENTS})
+	endif ()
+endforeach ()
 
 # Don't use CXX_FLAGS for MSVC runtime lib
-if (CMAKE_VERSION VERSION_GREATER 3.14.999)
-	cmake_policy(SET CMP0091 NEW)
-endif (CMAKE_VERSION VERSION_GREATER 3.14.999)
+cmake_policy(SET CMP0091 NEW)
 
+cmake_policy(SET CMP0048 NEW)
 project(biomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+
+# Use MACOSX_RPATH by default
+cmake_policy(SET CMP0042 NEW)
 
 if (BUILD_SHARED_LIBS)
 	message(STATUS "Build type: SHARED")
 else()
 	message(STATUS "Build type: STATIC")
-endif(BUILD_SHARED_LIBS)
+endif()
 
 include(CMakeDependentOption)
 cmake_dependent_option(FORCE_STATIC_DEPENDENCIES "Force linking against static versions of dependencies" OFF "NOT MSVC" OFF)
@@ -65,10 +67,10 @@ if (NOT MSVC)
 	if (FORCE_STATIC_DEPENDENCIES)
 		set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
 		message(STATUS "Dependency type: STATIC only")
-	else (FORCE_STATIC_DEPENDENCIES)
+	else ()
 		message(STATUS "Dependency type: SHARED preferred, STATIC possible")
-	endif (FORCE_STATIC_DEPENDENCIES)
-endif(NOT MSVC)
+	endif ()
+endif()
 
 # 32-bit compilation on systems that support compiling both 32- and 64-bit. On
 # Windows, this is part of the platform (cmake's -A flag).
@@ -77,20 +79,20 @@ endif(NOT MSVC)
 # 32-bit build.
 if ((NOT MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8) OR (CMAKE_GENERATOR STREQUAL "Xcode" AND XCODE_VERSION VERSION_LESS 10))
 	set(POSSIBLE_TO_BUILD_32BIT YES)
-else ((NOT MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8) OR (CMAKE_GENERATOR STREQUAL "Xcode" AND XCODE_VERSION VERSION_LESS 10))
+else ()
 	set(POSSIBLE_TO_BUILD_32BIT NO)
-endif ((NOT MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8) OR (CMAKE_GENERATOR STREQUAL "Xcode" AND XCODE_VERSION VERSION_LESS 10))
+endif ()
 
 if (POSSIBLE_TO_BUILD_32BIT)
 	option(BUILD_BIOMEVAL_32BIT "Build code for 32-bit architecture." OFF)
-endif (POSSIBLE_TO_BUILD_32BIT)
+endif ()
 if (NOT MSVC AND POSSIBLE_TO_BUILD_32BIT)
 	if (BUILD_BIOMEVAL_32BIT)
 		message(STATUS "Bitness: 32-bit")
 	else (BUILD_BIOMEVAL_32BIT)
 		message(STATUS "Bitness: 64-bit")
 	endif (BUILD_BIOMEVAL_32BIT)
-endif (NOT MSVC AND POSSIBLE_TO_BUILD_32BIT)
+endif ()
 
 # Build sources that require libhwloc
 option(WITH_HWLOC "Build sources that require libhwloc" ON)
@@ -123,23 +125,12 @@ cmake_dependent_option(WITH_FFMPEG "Build sources that require FFMPEG" ON "NOT F
 #
 add_subdirectory(src/libbiomeval/ lib)
 
-#
-# Link in the locally built version of the library.
-#
-if(CMAKE_HOST_APPLE)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rpath lib")
-else(CMAKE_HOST_APPLE)
-  if(NOT MSVC)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=lib")
-  endif(NOT MSVC)
-endif(CMAKE_HOST_APPLE)
-
 if (BUILD_BIOMEVAL_TESTS)
 	message(STATUS "Test executables: ON")
-else (BUILD_BIOMEVAL_TESTS)
+else ()
 	message(STATUS "Test executables: OFF")
-endif (BUILD_BIOMEVAL_TESTS)
+endif ()
 
 if (BUILD_BIOMEVAL_TESTS)
 	add_subdirectory(src/test/ bin)
-endif (BUILD_BIOMEVAL_TESTS)
+endif ()
