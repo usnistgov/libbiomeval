@@ -161,6 +161,28 @@ testAN2K11EFS(const std::string &fname)
 	cout << "\nExaminer Analysis Assessment\n";
 	cout << an2kefs->getEAA() << '\n';
 
+	cout << "\nRidge Quality Map\n";
+	const auto rqm = an2kefs->getRQM();
+	if (rqm.empty())
+		std::cout << " * [No RQM present]\n";
+	else {
+		for (const auto &row : rqm)
+			std::cout << " * " << row << '\n';
+
+		std::cout << "\n * Ridge Quality Map Format\n";
+		const auto rqf = an2kefs->getRQF();
+		std::cout << rqf << '\n';
+
+		/* Test parsing */
+		std::cout << "\n * Parsed RQM/RQF\n";
+		const auto parsedRQF = BiometricEvaluation::Feature::AN2K11EFS::
+		    ExtendedFeatureSet::parseRQM(rqm, rqf);
+		for (const auto &region : parsedRQF)
+			std::cout << " * " << region << '\n';
+	}
+
+
+
 	return(0);
 }
 

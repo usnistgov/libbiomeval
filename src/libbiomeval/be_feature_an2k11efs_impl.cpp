@@ -111,6 +111,20 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getPAT()
 	return (this->_pat);
 }
 
+BiometricEvaluation::Feature::AN2K11EFS::RidgeQualityMapFormat
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getRQF()
+    const
+{
+	return (this->_rqf);
+}
+
+std::vector<std::string>
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::getRQM()
+    const
+{
+	return (this->_rqm);
+}
+
 /*
  * Implementation.
  */
@@ -122,6 +136,8 @@ static const int EFS_ROI_ID = 300;
 static const int EFS_ORT_ID = 301;
 static const int EFS_FPP_ID = 302;
 static const int EFS_PAT_ID = 307;
+static const int EFS_RQM_ID = 308;
+static const int EFS_RQF_ID = 309;
 static const int EFS_TRV_ID = 314;
 static const int EFS_PLR_ID = 315;
 static const int EFS_COR_ID = 320;
@@ -162,6 +178,9 @@ pointFromStr(const std::string &pointStr)
 static void
 pathFromStr(const std::string &pathStr, BE::Image::CoordinateSet &path)
 {
+	if (pathStr.empty())
+		return;
+
 	size_t start = 0;
 	size_t end = pathStr.find(pDelim);
 	while (end != std::string::npos) {
@@ -1045,6 +1064,70 @@ readMRCI(
 	}
 }
 
+static
+BiometricEvaluation::Feature::AN2K11EFS::RidgeQualityMapFormat
+readRidgeQualityFormat(
+    const RECORD *type9)
+{
+	FIELD *field{nullptr};
+	int idx{};
+
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_RQF_ID,
+	    type9) == FALSE)
+		return {};
+	if (field->num_subfields != 1)
+		throw BE::Error::DataError{"Invalid number of RQF subfields"};
+	if (field->subfields[0]->num_items != 2)
+		throw BE::Error::DataError{"Invalid number of RQF subfield "
+		    "items"};
+
+	const auto gridSize = std::atol(
+	    (char*)field->subfields[0]->items[0]->value);
+	if ((gridSize < 1) || (gridSize > 41))
+		throw BE::Error::DataError{"Invalid GSZ: " +
+		    std::to_string(gridSize)};
+
+	const std::string encodingStr{
+	    (char*)field->subfields[0]->items[1]->value};
+
+	BE::Feature::AN2K11EFS::RidgeQualityMapFormat rqf{};
+	rqf.present = true;
+	rqf.gsz = static_cast<uint16_t>(gridSize);
+
+	const std::string encoding{(char*)field->subfields[0]->items[1]->value};
+	if (encoding == "UNC")
+		rqf.rdf = BE::Feature::AN2K11EFS::
+		    RidgeQualityDataFormatEncoding::UNC;
+	else if (encoding == "RLE")
+		rqf.rdf = BE::Feature::AN2K11EFS::
+		    RidgeQualityDataFormatEncoding::RLE;
+	else
+		throw BE::Error::StrategyError{"Invalid RDF: " + encoding};
+
+	return (rqf);
+}
+
+static
+std::vector<std::string>
+readRidgeQualityMap(
+    const RECORD *type9)
+{
+	FIELD *field{nullptr};
+	int idx{};
+
+	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_RQM_ID,
+	    type9) == FALSE)
+		return {};
+
+	std::vector<std::string> rqm{};
+	rqm.reserve(field->num_subfields);
+	for (int sf{}; sf < field->num_subfields; ++sf) {
+		rqm.emplace_back((char*)field->subfields[sf]->items[0]->value);
+	}
+
+	return (rqm);
+}
+
 void
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::readType9Record(
     Memory::uint8Array &buf,
@@ -1092,5 +1175,7 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::Impl::readType9Reco
 	readEAA(type9, this->_eaa);
 	readLSB(type9, this->_lsb);
 	readPAT(type9, this->_pat);
+	this->_rqf = readRidgeQualityFormat(type9);
+	this->_rqm = readRidgeQualityMap(type9);
 }
 
