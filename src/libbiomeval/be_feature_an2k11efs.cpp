@@ -68,6 +68,36 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::OCF,
     BE_Feature_AN2K11EFS_OCF_EnumToStringMap);
 
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::RidgeQuality,
+    std::string>
+BE_Feature_AN2K11EFS_RidgeQuality_EnumToStringMap = {
+	{BE::Feature::AN2K11EFS::RidgeQuality::Background, "Background"},
+	{BE::Feature::AN2K11EFS::RidgeQuality::DebatableRidgeFlow,
+	    "Debatable Ridge Flow"},
+	{BE::Feature::AN2K11EFS::RidgeQuality::DebatableMinutiae,
+	    "Debatable Minutiae"},
+	{BE::Feature::AN2K11EFS::RidgeQuality::DebatableRidgeEdges,
+	    "Debatable Ridge Edges"},
+	{BE::Feature::AN2K11EFS::RidgeQuality::DebatablePores,
+	    "Debatable Pores"},
+	{BE::Feature::AN2K11EFS::RidgeQuality::DefinitivePores,
+	    "Definitive Pores"},
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::RidgeQuality,
+    BE_Feature_AN2K11EFS_RidgeQuality_EnumToStringMap);
+
+std::ostream&
+BiometricEvaluation::Feature::AN2K11EFS::operator<< (
+    std::ostream& s,
+    const Feature::AN2K11EFS::RidgeQualityRegion &rqr)
+{
+	using BE::Framework::Enumeration::operator<<;
+
+	s << "Enclosed Region: " << rqr.region << "; Quality: " << rqr.quality;
+	return (s);
+}
+
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<< (
     std::ostream& s,
@@ -341,6 +371,16 @@ BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::AN2K11EFS::ValueAssessmentCode,
     BE_Feature_AN2K11EFS_ValueAssessmentCode_EnumToStringMap);
 
+const std::map<BiometricEvaluation::Feature::AN2K11EFS::
+    RidgeQualityDataFormatEncoding, std::string>
+BE_Feature_AN2K11EFS_RidgeQualityDataFormatEncoding_EnumToStringMap = {
+    {BE::Feature::AN2K11EFS::RidgeQualityDataFormatEncoding::RLE, "Run-Length Encoded"},
+    {BE::Feature::AN2K11EFS::RidgeQualityDataFormatEncoding::UNC, "Uncompressed"}
+};
+BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::RidgeQualityDataFormatEncoding,
+    BE_Feature_AN2K11EFS_RidgeQualityDataFormatEncoding_EnumToStringMap);
+
 std::ostream&
 BiometricEvaluation::Feature::AN2K11EFS::operator<<(
     std::ostream &s,
@@ -548,6 +588,20 @@ BiometricEvaluation::Feature::AN2K11EFS::operator<< (
 	return (s);
 }
 
+std::ostream&
+BiometricEvaluation::Feature::AN2K11EFS::operator<<(
+    std::ostream &s,
+    const AN2K11EFS::RidgeQualityMapFormat &rqf)
+{
+	if (!rqf.present)
+		s << "RQF (Undefined)";
+	else
+		s << "RQF (GSZ=" << rqf.gsz << "), Encoding: " <<
+		    BE::Framework::Enumeration::to_string(rqf.rdf);
+
+	return (s);
+}
+
 BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::ExtendedFeatureSet(
     const std::string &filename,
     int recordNumber)
@@ -638,4 +692,78 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getPAT()
 	return (this->pimpl->getPAT());
 }
 
+std::vector<std::string>
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getRQM()
+    const
+{
+	return (this->pimpl->getRQM());
+}
+
+BiometricEvaluation::Feature::AN2K11EFS::RidgeQualityMapFormat
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::getRQF()
+    const
+{
+	return (this->pimpl->getRQF());
+}
+
+std::vector<BiometricEvaluation::Feature::AN2K11EFS::RidgeQualityRegion>
+BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::parseRQM(
+    const std::vector<std::string> &rqm,
+    const RidgeQualityMapFormat &rqf)
+{
+	if (!rqf.present)
+		throw BE::Error::ObjectDoesNotExist{"No RQF"};
+
+	/* TODO */
+	if (rqf.rdf == RidgeQualityDataFormatEncoding::RLE)
+		throw BE::Error::NotImplemented{"Run-length encoded RQM"};
+
+	std::vector<BiometricEvaluation::Feature::AN2K11EFS::RidgeQualityRegion>
+	    ret{};
+
+	/*
+	 * Read uncompressed quality maps
+	 */
+	int rowSpace{}, colSpace{};
+	for (std::vector<std::string>::size_type row{}; row < rqm.size();
+	    ++row) {
+		/* Account for row bounds in region being inclusive */
+		rowSpace = row == 0 ? 0 : 1;
+
+		for (std::string::size_type col{}; col < rqm[row].size();
+		    ++col) {
+			/* Account for col bounds in region being inclusive */
+			colSpace = col == 0 ? 0 : 1;
+
+			BE::Feature::AN2K11EFS::RidgeQualityRegion rqr{};
+			/* Upper left */
+			rqr.region.emplace_back(
+			    colSpace + (col * rqf.gsz),
+			    rowSpace + (row * rqf.gsz));
+
+			/* Upper right */
+			rqr.region.emplace_back(
+			    colSpace + ((col + 1) * rqf.gsz),
+			    rowSpace + (row * rqf.gsz));
+
+			/* Lower right */
+			rqr.region.emplace_back(
+			    colSpace + ((col + 1) * rqf.gsz),
+			    rowSpace + ((row + 1) * rqf.gsz));
+
+			/* Lower left */
+			rqr.region.emplace_back(
+			    colSpace + (col * rqf.gsz),
+			    rowSpace + ((row + 1) * rqf.gsz));
+
+			rqr.quality = BE::Framework::Enumeration::to_enum<
+			    BE::Feature::AN2K11EFS::RidgeQuality>(
+			    rqm[row][col] - '0');
+
+			ret.push_back(rqr);
+		}
+	}
+
+	return (ret);
+}
 
