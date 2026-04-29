@@ -1029,7 +1029,7 @@ readMRCI(
 			/*
 			 * All data items are mandatory
 			 */
-			BE::Image::Coordinate pointA{}, pointB;{}
+			BE::Image::Coordinate pointA{}, pointB{};
 			pointA.x = std::atoi(
 			    (char*)field->subfields[i]->items[0]->value);
 			pointA.y = std::atoi(
