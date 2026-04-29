@@ -39,7 +39,8 @@ namespace BiometricEvaluation
 			Sagem,
 			NEC,
 			Identix,
-			M1
+			M1,
+			Other
 		};
 
 		/**

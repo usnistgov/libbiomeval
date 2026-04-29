@@ -68,10 +68,10 @@ of the software.
 /************************************************************/
 char *biomeval_nbis_current_time(void)
 {
-   long tm;
+   time_t tm;
    char *dptr;
 
-   tm = time((long *)NULL);
+   tm = time(NULL);
    dptr = (char *)ctime(&tm);
    *(dptr + strlen(dptr) - 1) = '\0';
    return(dptr);

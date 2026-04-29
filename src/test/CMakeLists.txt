@@ -43,7 +43,7 @@ cmake_minimum_required(VERSION 3.16.3)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../libbiomeval/cmake/Modules/")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 function(set_biomeval_test_exe_dependencies TARGET_NAME)
@@ -70,6 +70,10 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 	if (MSVC)
 		set_target_properties(${TARGET_NAME} PROPERTIES
 		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+		target_compile_definitions(${TARGET_NAME} PRIVATE NOMINMAX)
+	else (MSVC)
+		set_target_properties(${TARGET_NAME} PROPERTIES
+		    CXX_FLAGS_DEBUG "-g")
 	endif (MSVC)
 endfunction()
 
@@ -238,6 +242,10 @@ if (NOT MSVC)
 	set_biomeval_test_exe_dependencies(test_be_process_semaphore)
 	add_executable(test_be_process_statistics test_be_process_statistics.cpp)
 	set_biomeval_test_exe_dependencies(test_be_process_statistics)
+	add_executable(test_be_io_autologger test_be_io_autologger.cpp)
+	set_biomeval_test_exe_dependencies(test_be_io_autologger)
+	add_executable(test_be_system_memlog test_be_system_memlog.cpp)
+	set_biomeval_test_exe_dependencies(test_be_system_memlog)
 
 	# Video test executables require that video support was compiled in
 	if (TARGET vidobjs)

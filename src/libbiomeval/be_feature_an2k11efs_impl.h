@@ -103,6 +103,14 @@ namespace BiometricEvaluation
 			getPAT()
 			    const;
 
+			RidgeQualityMapFormat
+			getRQF()
+			    const;
+
+			std::vector<std::string>
+			getRQM()
+			    const;
+
 		private:
 			Feature::AN2K11EFS::ImageInfo _ii{};
 			Feature::AN2K11EFS::MinutiaPointSet _mps{};
@@ -114,6 +122,8 @@ namespace BiometricEvaluation
 			Feature::AN2K11EFS::ExaminerAnalysisAssessment _eaa{};
 			Feature::AN2K11EFS::Substrate _lsb{};
 			std::vector<AN2K11EFS::Pattern> _pat{};
+			RidgeQualityMapFormat _rqf{};
+			std::vector<std::string> _rqm{};
 
 			void readType9Record(
 			    Memory::uint8Array &buf,

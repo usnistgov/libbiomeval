@@ -2,5 +2,6 @@
 
 if(NOT TARGET biomeval::biomeval)
     include(${CMAKE_CURRENT_LIST_DIR}/biomeval-targets.cmake)
+    set_and_check(biomeval_INCLUDE_DIR "@PACKAGE_BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR@")
 endif()
 

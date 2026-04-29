@@ -1748,7 +1748,8 @@ static int biomeval_nbis_i_read_ANSI_NIST(FILE *fpin, AN2KBDB *buf, ANSI_NIST *a
    FIELD *dcsfield;
    int dcsfield_i;
    int subfield;
-   char dcsASCII_ID[4];
+   long dcs;
+   char *end;
 
    /* Parse Type-1 record. */
    if((ret = biomeval_nbis_i_read_Type1_record(fpin, buf, &record, &version)) != 0) {
@@ -1758,14 +1759,9 @@ static int biomeval_nbis_i_read_ANSI_NIST(FILE *fpin, AN2KBDB *buf, ANSI_NIST *a
 
    /* Check if DCS field is included in the record.  If it is, */
    /* then flag an error when not ASCII/7-bit English, because */
-   /* Base-64 encoding of text is not currently supported.     */
+   /* other text encodings are not currently supported.        */
    if(biomeval_nbis_lookup_ANSI_NIST_field(&dcsfield, &dcsfield_i, DCS_ID, record) != 0){
-      if (snprintf(dcsASCII_ID, 4, "%03d", ASCII_CSID) != 3) {
-         biomeval_nbis_free_ANSI_NIST_record(record);
-         fprintf(stderr, "ERROR : biomeval_nbis_read_ANSI_NIST : DCS field (1.015) found: "
-                         "error creating ASCII DCS ID\n");
-         return(-2);
-      }
+      /* In 2007 there may be >1 encoding. Back to 1 in 2008. */
       for (subfield = 0; subfield < dcsfield->num_subfields; ++subfield) {
          if (dcsfield->subfields[subfield]->num_items < 2) {
             biomeval_nbis_free_ANSI_NIST_record(record);
@@ -1773,8 +1769,16 @@ static int biomeval_nbis_i_read_ANSI_NIST(FILE *fpin, AN2KBDB *buf, ANSI_NIST *a
                             "invalid number of items in subfield\n");
             return(-2);
          }
-         if (strncmp((char *)dcsfield->subfields[subfield]->items[0]->value,
-           dcsASCII_ID, 3) != 0) {
+         dcs = strtol((char *)dcsfield->subfields[subfield]->items[0]->value,
+           &end, 10);
+         if ((end == (char *)dcsfield->subfields[subfield]->items[0]->value) ||
+          (*end != '\0') || (errno == ERANGE)) {
+            biomeval_nbis_free_ANSI_NIST_record(record);
+            fprintf(stderr, "ERROR : biomeval_nbis_read_ANSI_NIST : DCS field "
+                            "(1.015) found: invalid character set found\n");
+            return(-2);
+         }
+         if (dcs != ASCII_CSID) {
             biomeval_nbis_free_ANSI_NIST_record(record);
             fprintf(stderr, "ERROR : biomeval_nbis_read_ANSI_NIST : DCS field (1.015) found: "
                             "alternate character sets not supported\n");

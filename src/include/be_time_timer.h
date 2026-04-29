@@ -46,6 +46,10 @@ namespace BiometricEvaluation
 			    std::chrono::steady_clock;
 #endif
 
+			/* Ensure chosen clock increases monotonically */
+			static_assert(BE_CLOCK_TYPE::is_steady,
+			    "BE_CLOCK_TYPE is not a steady clock");
+
 			/** Constructor for the Timer object. */
 			Timer();
 
@@ -86,22 +90,43 @@ namespace BiometricEvaluation
 
 			/**
 			 * @brief
-			 * Get the elapsed time in microseconds or nanoseconds
-			 * between calls to this object's start() and stop()
-			 * methods.
+			 * Get the elapsed time between calls to this object's
+			 * start() and stop() methods.
 			 *
-			 * @param nano
-			 * True if to return nanoseconds, false otherwise.
 			 * @return
-			 * The number of microseconds or nanoseconds.
+			 * Elapsed time converted to the integral units
+			 * requested, which may experience loss of precision.
 			 *
 			 * @throw Error::StrategyError
-			 * This object is currently timing an operation or an
-			 * error occurred when obtaining timing information.
+			 * Propagated from elapsedTimePoint().
+			 *
+			 * @note
+			 * Values returned from this method are limited in
+			 * their precision by the resolution of BE_CLOCK_TYPE.
+			 * For example, if the clock's native resolution is in
+			 * nanoseconds, requesting a picoseconds
+			 * representation returns 1000 times the nanosecond
+			 * value, not the true value in picoseconds.
+			 *
+			 * @note
+			 * Returned values are limited by the semantics of C++'s
+			 * duration type, which reports only **whole** units.
+			 * For example, if a representation of hours was
+			 * requested, 0 would be returned for durations of less
+			 * than 3600s, and 1 would be returned for durations
+			 * of 3600s through and including 7199s. For floating
+			 * point approximations of representations, use
+			 * elapsedTimePoint() to obtain a std::chrono::duration
+			 * that uses a floating point type to store the count.
 			 */
-			uint64_t
-			elapsed(bool nano = false)
-			    const;
+			template<typename Duration>
+			std::uintmax_t
+			elapsed()
+			    const
+			{
+				return (std::chrono::duration_cast<Duration>(
+				    this->elapsedTimePoint()).count());
+			}
 
 			/**
 			 * @brief
@@ -110,20 +135,108 @@ namespace BiometricEvaluation
 			 *
 			 * @param displayUnits
 			 * Append the elapsed time units.
-			 * @param nano
-			 * True if to return nanoseconds, false otherwise.
 			 *
 			 * @return
 			 * String representing the elapsed time.
 			 *
 			 * @throw Error::StrategyError
-			 * Propagated from elapsed().
+			 * Propagated from elapsed<Duration>() or
+			 * units<Duration>().
+			 *
+			 * @note
+			 * See the important note in elapsed().
 			 */
+			template<typename Duration>
 			std::string
 			elapsedStr(
- 			   bool displayUnits = false,
- 			   bool nano = false)
-			   const;
+			    bool displayUnits = false)
+			    const
+			{
+				const std::string ret{std::to_string(
+				    this->elapsed<Duration>())};
+
+				if (displayUnits)
+					return (ret + Timer::units<Duration>());
+				return (ret);
+			}
+
+			/**
+			 * @return
+			 * Unit label for a particular duration.
+			 *
+			 * @throw Error::StrategyError
+			 * Unrecognized duration encountered and units cannot be
+			 * determined.
+			 */
+			template<typename Duration>
+			static
+			std::string
+			units()
+			{
+				if ((Duration::period::num ==
+				    std::chrono::nanoseconds::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::nanoseconds::period::den)) {
+					return ("ns");
+				} else if ((Duration::period::num ==
+				    std::chrono::microseconds::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::microseconds::period::den)) {
+					return ("\xC2\xB5s");
+				} else if ((Duration::period::num ==
+				    std::chrono::milliseconds::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::milliseconds::period::den)) {
+					return ("ms");
+				}  else if ((Duration::period::num ==
+				    std::chrono::seconds::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::seconds::period::den)) {
+					return ("s");
+				} else if ((Duration::period::num ==
+				    std::chrono::minutes::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::minutes::period::den)) {
+					return ("m");
+				} else if ((Duration::period::num ==
+				    std::chrono::hours::period::num) &&
+				    (Duration::period::den ==
+				    std::chrono::hours::period::den)) {
+					return ("h");
+				} else {
+					throw BiometricEvaluation::Error::
+					    StrategyError{"Unknown duration "
+					    "units"};
+				}
+			}
+
+			/**
+			 * @brief
+			 * Get the elapsed time between calls to this object's
+			 * start() and stop() methods.
+			 *
+			 * @return
+			 * Elapsed time.
+			 *
+			 * @throw Error::StrategyError
+			 * This object is currently timing an operation or an
+			 * error occurred when obtaining timing information.
+			 *
+			 * @seealso elapsed()
+			 *
+			 * @note
+			 * This method may be useful for obtaining floating
+			 * point representations of durations. For example,
+			 * `std::chrono::duration<double, std::milli>(
+			 *      std::chrono::microseconds(1001599)).count()`
+			 * would return a `double` with the value 1001.599000,
+			 * the millisecond floating point representation of
+			 * 1001599 microseconds.
+			 */
+			std::common_type_t<BE_CLOCK_TYPE::time_point::duration,
+			    BE_CLOCK_TYPE::time_point::duration>
+			elapsedTimePoint()
+			    const;
 
 			/**
 			 * @brief

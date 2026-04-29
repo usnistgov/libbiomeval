@@ -63,8 +63,11 @@ testAN2K7Minutiae(const std::string &fname)
 	
 	cout << "There are " << mps.size() << " minutiae points:" << endl;
 	for (size_t i = 0; i < mps.size(); i++) {
-		printf("(%u,%u,%u)\n", mps[i].coordinate.x, mps[i].coordinate.y,
+		printf("(%u,%u,%u)", mps[i].coordinate.x, mps[i].coordinate.y,
 		    mps[i].theta);
+		if (mps[i].has_type)
+			std::cout << ',' << mps[i].type;
+		std::cout << '\n';
 	}
 	cout << "There are " << rcs.size() << " ridge counts:" << endl;
 	for (size_t i = 0; i < rcs.size(); i++) {
@@ -157,6 +160,28 @@ testAN2K11EFS(const std::string &fname)
 
 	cout << "\nExaminer Analysis Assessment\n";
 	cout << an2kefs->getEAA() << '\n';
+
+	cout << "\nRidge Quality Map\n";
+	const auto rqm = an2kefs->getRQM();
+	if (rqm.empty())
+		std::cout << " * [No RQM present]\n";
+	else {
+		for (const auto &row : rqm)
+			std::cout << " * " << row << '\n';
+
+		std::cout << "\n * Ridge Quality Map Format\n";
+		const auto rqf = an2kefs->getRQF();
+		std::cout << rqf << '\n';
+
+		/* Test parsing */
+		std::cout << "\n * Parsed RQM/RQF\n";
+		const auto parsedRQF = BiometricEvaluation::Feature::AN2K11EFS::
+		    ExtendedFeatureSet::parseRQM(rqm, rqf);
+		for (const auto &region : parsedRQF)
+			std::cout << " * " << region << '\n';
+	}
+
+
 
 	return(0);
 }

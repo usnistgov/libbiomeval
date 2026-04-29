@@ -584,6 +584,70 @@ namespace BiometricEvaluation
 		     std::ostream&,
 		     const Pattern&);
 
+		/** Local ridge quality codes */
+		enum class RidgeQuality : uint8_t
+		{
+			Background = 0,
+			DebatableRidgeFlow = 1,
+			DebatableMinutiae = 2,
+			DebatableRidgeEdges = 3,
+			DebatablePores = 4,
+			DefinitivePores = 5
+		};
+
+		/** Region defined in a map of ridge quality/confidence. */
+		struct RidgeQualityRegion
+		{
+			/**
+			 * @brief
+			 * Closed convex polygon whose contents is #quality.
+			 *
+			 * @details
+			 * Coordinate values are ROI-relative 0.01mm units,
+			 * as read from the file.
+			 *
+			 * @note
+			 * All region are rectangular.
+			 *
+			 * @important
+			 * Depending on the grid size specified in the file,
+			 * the enclosed region may refer to pixel locations on
+			 * the right and/or bottom that exceed the image bounds.
+			 */
+			Image::CoordinateSet region{};
+			/** Clarity of features enclosed within #region. */
+			RidgeQuality quality{RidgeQuality::Background};
+		};
+		std::ostream&
+		operator<<(
+		     std::ostream&,
+		     const RidgeQualityRegion&);
+
+		/** 9.309 Item 1 (RDF) */
+		enum class RidgeQualityDataFormatEncoding : uint8_t
+		{
+			/** Run-length encoded */
+			RLE,
+			/** Uncompressed */
+			UNC
+		};
+
+		/** 9.309 */
+		struct RidgeQualityMapFormat
+		{
+			/** Presence of this field in record */
+			bool present{false};
+			/** Grid size (0.01mm) */
+			uint16_t gsz{};
+			/** Ridge quality data format */
+			RidgeQualityDataFormatEncoding rdf{};
+
+		};
+		std::ostream&
+		operator<<(
+		     std::ostream&,
+		     const RidgeQualityMapFormat&);
+
 		/**
 		 * @brief
 		 * A class to represent the Extended Feature Set optionally
@@ -770,6 +834,34 @@ namespace BiometricEvaluation
 			getPAT()
 			    const;
 
+			/**
+			 * @return
+			 * Encoded ridge quality map.
+			 */
+			std::vector<std::string>
+			getRQM()
+			    const;
+
+			/**
+			 * @return
+			 * Ridge quality map format.
+			*/
+			RidgeQualityMapFormat
+			getRQF()
+			    const;
+
+			/**
+			 * @return
+			 * Ridge quality map.
+			 *
+			 * @note
+			 * Coordinate are in 0.01mm units.
+			 */
+			static std::vector<RidgeQualityRegion>
+			parseRQM(
+			    const std::vector<std::string> &rqm,
+			    const RidgeQualityMapFormat &rqf);
+
 			~ExtendedFeatureSet();
 
 		private:
@@ -839,6 +931,14 @@ BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
 BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
     BiometricEvaluation::Feature::AN2K11EFS::Pattern::WhorlDeltaRelationship,
     BE_Feature_AN2K11EFS_Pattern_WhorlDeltaRelationship_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::RidgeQuality,
+    BE_Feature_AN2K11EFS_RidgeQuality_EnumToStringMap);
+
+BE_FRAMEWORK_ENUMERATION_DECLARATIONS(
+    BiometricEvaluation::Feature::AN2K11EFS::RidgeQualityDataFormatEncoding,
+    BE_Feature_AN2K11EFS_RidgeQualityDataFormatEncoding_EnumToStringMap);
 
 #endif /* __BE_FEATURE_AN2K11EFS_H__ */
 

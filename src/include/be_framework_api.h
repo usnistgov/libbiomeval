@@ -71,7 +71,11 @@ namespace BiometricEvaluation
 				Result();
 
 				/** Time elapsed while calling operation. */
-				uint64_t elapsed;
+				std::common_type_t<
+				    Time::Timer::BE_CLOCK_TYPE::time_point::
+				    duration,
+				    Time::Timer::BE_CLOCK_TYPE::time_point::
+				    duration> elapsedTimePoint;
 				/**
 				 * @brief
 				 * Value returned from operation.
@@ -196,6 +200,20 @@ namespace BiometricEvaluation
 					this->exceptionPtr = e;
 				}
 
+				/**
+				 * @return
+				 * Integral value representing elapsed time.
+				 */
+				template<typename Duration>
+				std::uintmax_t
+				elapsed()
+				    const
+				{
+					return (std::chrono::duration_cast<
+					    Duration>(this->elapsedTimePoint).
+					    count());
+				}
+
 			private:
 				/** Pointer to exception caught */
 				std::exception_ptr exceptionPtr{};
@@ -272,7 +290,7 @@ namespace BiometricEvaluation
 				return (this->willCatchExceptions() &&
 				    !this->willRethrowExceptions() &&
 				    this->getWatchdog()->isEnabled() &&
-				    this->getSignalManager->isEnabled());
+				    this->getSignalManager()->isEnabled());
 			}
 
 			/**
@@ -302,7 +320,7 @@ namespace BiometricEvaluation
 				this->setRethrowExceptions(!protectionsEnabled);
 				this->getWatchdog()->setEnabled(
 				    protectionsEnabled);
-				this->getSignalManager->setEnabled(
+				this->getSignalManager()->setEnabled(
 				    protectionsEnabled);
 			}
 
@@ -359,7 +377,7 @@ namespace BiometricEvaluation
 			setCatchExceptions(
 			    const bool catchExceptions)
 			{
-				this->_catchExceptions = false;
+				this->_catchExceptions = catchExceptions;
 			}
 
 			/**
@@ -477,7 +495,8 @@ BiometricEvaluation::Framework::API<T>::call(
 				ret.status = operation();
 			} catch (...) {
 				this->getTimer()->stop();
-				ret.elapsed = this->getTimer()->elapsed();
+				ret.elapsedTimePoint = this->getTimer()->
+				    elapsedTimePoint();
 				ret.currentState =
 				    APICurrentState::ExceptionCaught;
 				ret.setException(std::current_exception());
@@ -499,21 +518,21 @@ BiometricEvaluation::Framework::API<T>::call(
 	END_SIGNAL_BLOCK(this->getSignalManager(), SM_BLOCK);
 	if (this->getSignalManager()->sigHandled()) {
 		this->getTimer()->stop();
-		ret.elapsed = this->getTimer()->elapsed();
+		ret.elapsedTimePoint = this->getTimer()->elapsedTimePoint();
 		ret.currentState = APICurrentState::SignalCaught;
 
 		if (failure)
 			failure(ret);
 	} else if (this->getWatchdog()->expired()) {
 		this->getTimer()->stop();
-		ret.elapsed = this->getTimer()->elapsed();
+		ret.elapsedTimePoint = this->getTimer()->elapsedTimePoint();
 		ret.currentState = APICurrentState::WatchdogExpired;
 
 		if (failure)
 			failure(ret);
 	} else {
 		ret.currentState = APICurrentState::Completed;
-		ret.elapsed = this->getTimer()->elapsed();
+		ret.elapsedTimePoint = this->getTimer()->elapsedTimePoint();
 
 		if (success)
 			success(ret);

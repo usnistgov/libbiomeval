@@ -20,6 +20,7 @@
 
 #include <be_io_recordstore.h>
 #include <be_io_utility.h>
+#include <be_memory_autoarrayutility.h>
 #include <be_process_manager.h>
 
 #if defined FORKTEST
@@ -59,7 +60,7 @@ workerMain()
 	 * Set up the signal handler for broadcast signals.
 	*/
 #if defined FORKTEST
-	struct sigaction sa;
+	struct sigaction sa{};
 	sigemptyset(&sa.sa_mask);       /* Don't block other signals */
 	sa.sa_handler = signalHandler;
 	sigaction(SIGQUIT, &sa, NULL);
@@ -110,8 +111,9 @@ workerMain()
 				cout << "<<" << ID << "Received: "
 				    << communication << endl;
 			    
-				sprintf((char *)&(*communication), "RPLY from "
-				    "instance %d", instance);
+				Memory::AutoArrayUtility::setString(
+				    communication, "RPLY from instance " +
+				        std::to_string(instance));
 				cout << "<<" << ID << "Sending: "
 				    << communication << endl;
 				this->sendMessageToManager(communication);
@@ -149,7 +151,7 @@ workerMain()
 	 * Set up the signal handler for broadcast signals.
 	*/
 #if defined FORKTEST
-	struct sigaction sa;
+	struct sigaction sa{};
 	sigemptyset(&sa.sa_mask);       /* Don't block other signals */
 	sa.sa_handler = signalHandler;
 	sigaction(SIGQUIT, &sa, NULL);
@@ -298,8 +300,8 @@ main(
 	/* 
 	 * Test communication.
 	 */
-	Memory::uint8Array message(100);
-	sprintf((char *)&(*message), "HELO to ALL");
+	Memory::uint8Array message{};
+	Memory::AutoArrayUtility::setString(message, "HELO to ALL");
 	procMgr->broadcastMessage(message);
 	 
 	/* Broadcast signal to all workers */
@@ -310,7 +312,8 @@ main(
 
 	/* Send a message to every Worker, Worker should reply */
 	for (uint32_t i = 0; i < numWorkers; i++) {
-		sprintf((char *)&(*message), "HELO to instance %d", i + 1);
+		Memory::AutoArrayUtility::setString(message,
+		    "HELO to instance " + std::to_string(i + 1));
 		try {
 			cout << ">> (M) Send message to " << i + 1 << endl;
  			workers[i]->sendMessageToWorker(message);

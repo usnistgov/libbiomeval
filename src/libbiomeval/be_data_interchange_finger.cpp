@@ -57,11 +57,11 @@ BiometricEvaluation::DataInterchange::Finger::ANSI2004ToISOCard2011(
 		    (1.0 / (resolution.yRes / 100.0)));
 
 		/* Remove minutia that cannot be represented in on-card */
-		std::remove_if(minutia.begin(), minutia.end(),
+		minutia.erase(std::remove_if(minutia.begin(), minutia.end(),
 		    [&](BE::Feature::MinutiaPoint &m) {
 			return ((m.coordinate.x > maxX) ||
 			    (m.coordinate.y > maxY));
-		});
+		}), minutia.end());
 	}
 	if (minutia.size() < minimumMinutia)
 		throw BE::Error::StrategyError("Too few minutiae");

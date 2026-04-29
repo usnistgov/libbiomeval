@@ -49,7 +49,7 @@ printRecordInfo(const DataInterchange::AN2KRecord &an2k)
 static void
 printImageInfo(const Image::Image &img, const string &name,
     const int idx)
-	
+
 {
 	cout << "Image info:" << endl;
 	cout << "\tCompression: " << to_string(img.getCompressionAlgorithm()) <<
@@ -59,14 +59,14 @@ printImageInfo(const Image::Image &img, const string &name,
 	cout << "\tDepth: " << img.getColorDepth() << endl;
 
 	ostringstream str;
-	
+
 	str << name << idx << ".pgm";
 	string filename = str.str().c_str();
 	str.str("");
+	str << "P5\n";
 	str << "# " << filename << "\n";
-	str << "P5 " << img.getDimensions().xSize <<
-        " " << img.getDimensions().ySize << " " <<
-	    (int)(pow(2.0, (int)img.getColorDepth()) - 1) << "\n";
+	str << img.getDimensions().xSize << " " << img.getDimensions().ySize <<
+	    " " << (int)(pow(2.0, (int)img.getColorDepth()) - 1) << "\n";
 	ofstream img_out(filename.c_str(), ofstream::binary);
 	img_out << str.str();
 	Memory::uint8Array imgData{img.getRawData()};
@@ -110,7 +110,7 @@ printViewInfo(const View::AN2KViewVariableResolution &an2kv,
 	cout << "Get the set of minutiae data records: ";
 	vector<Finger::AN2KMinutiaeDataRecord> minutiae =
 	    an2kv.getMinutiaeDataRecordSet();
-	cout << "There are " << minutiae.size() << 
+	cout << "There are " << minutiae.size() <<
 	    " minutiae data records." << endl;
 }
 
@@ -169,7 +169,7 @@ main(int argc, char* argv[]) {
 			record = rs->sequence();
 			cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
 			cout << "AN2K record " << record.key << ":" << endl;
-			
+
 			DataInterchange::AN2KRecord an2k(record.data);
 			std::cout << "isAN2KRecord(record.data): ";
 			if (DataInterchange::AN2KRecord::isAN2KRecord(
@@ -213,13 +213,13 @@ main(int argc, char* argv[]) {
 				}
 				cout << endl << "[End of Latent View]" << endl;
 			}
-			std::vector<Finger::AN2KMinutiaeDataRecord> minutiae = 
+			std::vector<Finger::AN2KMinutiaeDataRecord> minutiae =
 			    an2k.getMinutiaeDataRecordSet();
 			cout << minutiae.size() << " minutiae data record(s)";
 			if (minutiae.size() > 0) cout << " containing:" << endl;
 			else cout << "." << endl;
 			for (size_t i = 0; i < minutiae.size(); i++) {
-				if (minutiae.at(i).getAN2K7Minutiae().get() != 
+				if (minutiae.at(i).getAN2K7Minutiae().get() !=
 				    nullptr)
 					cout << "\t* " << minutiae.at(i).
 					    getAN2K7Minutiae()->

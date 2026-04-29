@@ -44,6 +44,24 @@ set(BIOMEVAL_C_FLAGS "")
 set(BIOMEVAL_CXX_FLAGS "")
 set(BIOMEVAL_DEFINITIONS "")
 
+if (BUILD_FOR_WASM)
+	add_definitions("-DWASM")
+	if (EMSCRIPTEN)
+		list(APPEND BIOMEVAL_C_FLAGS -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1)
+		list(APPEND BIOMEVAL_CXX_FLAGS -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1)
+
+		if (WASM_EXCEPTIONS)
+			list(APPEND BIOMEVAL_C_FLAGS -sSUPPORT_LONGJMP=wasm)
+			list(APPEND BIOMEVAL_CXX_FLAGS -fwasm-exceptions)
+			set(LDFLAGS "${LDFLAGS} -fwasm-exceptions")
+			set(PNG_NAMES "png-wasm-sjlj")
+		endif (WASM_EXCEPTIONS)
+	endif (EMSCRIPTEN)
+
+	set(WITH_HWLOC OFF)
+endif()
+
+
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND FORCE_STATIC_DEPENDENCIES)
 	# No static libhwloc in MacPorts
 	set(WITH_HWLOC OFF)
@@ -128,11 +146,11 @@ This process created the file `CMakeCache.txt' and the directory `CMakeFiles'.
 Please delete them.")
 endif()
 
-set(CORE be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_framework_status.cpp be_framework_api.cpp be_process_statistics.cpp)
+set(CORE be_memory_indexedbuffer.cpp be_memory_mutableindexedbuffer.cpp be_text.cpp be_system.cpp be_system_memlog.cpp be_error.cpp be_error_exception.cpp be_time.cpp be_time_timer.cpp be_time_watchdog.cpp be_error_signal_manager.cpp be_framework.cpp be_framework_status.cpp be_framework_api.cpp be_process_statistics.cpp)
 set_source_files_properties(be_framework.cpp PROPERTIES
     COMPILE_DEFINITIONS "MAJOR_VERSION=${MAJOR_VERSION};MINOR_VERSION=${MINOR_VERSION}")
 
-set(IO be_io_properties.cpp be_io_propertiesfile.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_filelogsheet.cpp be_io_syslogsheet.cpp be_io_filelogcabinet.cpp be_io_compressor.cpp be_io_gzip.cpp)
+set(IO be_io_properties.cpp be_io_propertiesfile.cpp be_io_utility.cpp be_io_logsheet.cpp be_io_filelogsheet.cpp be_io_syslogsheet.cpp be_io_filelogcabinet.cpp be_io_autologger.cpp be_io_compressor.cpp be_io_gzip.cpp)
 
 set(RECORDSTORE be_io_recordstore_impl.cpp be_io_recordstore.cpp be_io_dbrecstore.cpp be_io_dbrecstore_impl.cpp be_io_sqliterecstore.cpp be_io_sqliterecstore_impl.cpp be_io_filerecstore.cpp be_io_filerecstore_impl.cpp be_io_listrecstore.cpp be_io_listrecstore_impl.cpp be_io_archiverecstore.cpp be_io_archiverecstore_impl.cpp be_io_compressedrecstore_impl.cpp be_io_compressedrecstore.cpp be_io_recordstoreunion.cpp be_io_recordstoreunion_impl.cpp be_io_persistentrecordstoreunion.cpp be_io_persistentrecordstoreunion_impl.cpp)
 
@@ -168,11 +186,14 @@ set(MPIRECEIVER be_mpi_receiver.cpp be_mpi_recordprocessor.cpp be_mpi_csvprocess
 # Some files have not been ported to Windows. Sorry about that.
 #
 if(MSVC)
-    list(REMOVE_ITEM CORE "be_error_signal_manager.cpp" "be_framework_api.cpp" "be_time_watchdog.cpp" "be_process_statistics.cpp")
-    list(REMOVE_ITEM IO "be_io_syslogsheet.cpp")
+    list(REMOVE_ITEM CORE "be_error_signal_manager.cpp" "be_framework_api.cpp" "be_system_memlog.cpp" "be_time_watchdog.cpp" "be_process_statistics.cpp")
+    list(REMOVE_ITEM IO "be_io_autologger.cpp" "be_io_syslogsheet.cpp")
 
     unset(PROCESS)
     unset(MESSAGE_CENTER)
+
+    # Don't include min/max macros from windows.h
+    add_compile_definitions(NOMINMAX)
 
     list(APPEND CORE "be_sysdeps.cpp")
 endif()
@@ -183,6 +204,16 @@ endif()
 #	VIDEO if the required libraries are present.
 #
 set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${MESSAGE_CENTER})
+if (BUILD_FOR_WASM)
+	# We're not concerned with these packages for WebAssembly
+	list(REMOVE_ITEM PACKAGES ${PROCESS} ${MESSAGE_CENTER})
+
+	# XXX: Remove RecordStore support simply to reduce the number of
+	#      dependencies that need to be recompiled for the WASM
+	#      architecture. It is likely they can be added back in the future.
+	list(REMOVE_ITEM PACKAGES ${RECORDSTORE})
+endif (BUILD_FOR_WASM)
+
 
 if (WITH_FFMPEG)
   # Our FindFFMPEG.cmake is not sufficient for finding all of FFMPEG's
@@ -371,12 +402,16 @@ endif ()
 # For OS-X, add paths where the ports packages are placed.
 #
 if(CMAKE_HOST_APPLE)
+  if (NOT BUILD_FOR_WASM)
   target_include_directories(coreobjs PUBLIC /opt/local/include)
   target_link_libraries(${CORELIB} -L/opt/local/lib)
+  endif (NOT BUILD_FOR_WASM)
   if (PCSC_FOUND)
 	target_link_libraries(${CORELIB} ${PCSC_FRAMEWORK})
   endif ()
-  list(APPEND BIOMEVAL_DEFINITIONS Darwin)
+  if (NOT BUILD_FOR_WASM)
+	list(APPEND BIOMEVAL_DEFINITIONS Darwin)
+  endif(NOT BUILD_FOR_WASM)
 endif()
 
 target_include_directories(coreobjs PUBLIC ${BIOMEVAL_INCLUDE} ${NBIS_INCLUDE})
@@ -396,7 +431,7 @@ endif()
 # On macOS, we use the built-in Security framework instead of OpenSSL, but the
 # Security framework requires C "block" support, a language extension not found
 # in all compilers.
-include(CHeckCXXCompilerFlag)
+include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-fblocks" BLOCK_SUPPORT)
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND BLOCK_SUPPORT)
 	find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
@@ -418,6 +453,7 @@ endif ()
 #
 # Berkeley DB
 #
+if (NOT BUILD_FOR_WASM)
 set(BERKELEYDB_FIND_REQUIRED TRUE)
 find_package(BERKELEYDB)
 if(NOT BERKELEYDB_FOUND)
@@ -425,6 +461,7 @@ if(NOT BERKELEYDB_FOUND)
 endif()
 include_directories(PUBLIC ${BERKELEYDB_INCLUDE_DIR})
 target_link_libraries(${CORELIB} ${BERKELEYDB_LIBRARIES})
+endif()
 
 #
 # OpenJPEG and JPEG2000
@@ -488,19 +525,46 @@ endif ()
 target_link_libraries(${CORELIB}
     $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
 
+if (NOT BUILD_FOR_WASM)
 # This will use our Module
 find_package(SQLITE3 REQUIRED)
 target_link_libraries(${CORELIB} ${SQLITE3_LIBRARIES})
+endif()
 
 # libtiff, like ffmpeg, writes a pkg-config, but it prefers to link against
 # shared libs. We can't have that with this option.
 find_package(TIFF REQUIRED)
-target_link_libraries(${CORELIB} ${TIFF_LIBRARIES})
+target_link_libraries(${CORELIB} TIFF::TIFF)
 if (FORCE_STATIC_DEPENDENCIES)
+    # libtiff has some other dependencies that are picked up automatically when
+    # linked dynamically. Explicitly link them here.
     find_library(ZSTD_LIBRARY zstd REQUIRED)
     find_library(LZMA_LIBRARY lzma REQUIRED)
     target_link_libraries(${CORELIB} ${ZSTD_LIBRARY} ${LZMA_LIBRARY})
-endif ()
+
+    # libtiff from MacPorts compiles in support for two otherwise optional
+    # libraries, libLerc and libdeflate. MacPorts does not build libLerc
+    # statically (though patch has been submitted), so you need to build it
+    # yourself with -DBUILD_SHARED_LIBS=OFF. libdeflate is provided as a static
+    # library by MacPorts
+    find_file(TIFF_CONFIG_HEADER
+        NAMES tiffconf.h
+        REQUIRED
+        HINTS ${TIFF_INCLUDE_DIR})
+    file(READ "${TIFF_CONFIG_HEADER}" TIFF_CONFIG)
+
+    string(REGEX MATCH "#define LERC_SUPPORT 1" TIFF_REQUIRES_LERC "${TIFF_CONFIG}")
+    if (NOT "${TIFF_REQUIRES_LERC}" STREQUAL "")
+    	find_library(LERC_LIBRARY Lerc REQUIRED)
+        target_link_libraries(${CORELIB} ${LERC_LIBRARY})
+    endif()
+
+    string(REGEX MATCH "#define LIBDEFLATE_SUPPORT 1" TIFF_REQUIRES_DEFLATE "${TIFF_CONFIG}")
+    if (NOT "${TIFF_REQUIRES_DEFLATE}" STREQUAL "")
+        find_package(libdeflate REQUIRED)
+        target_link_libraries(${CORELIB} libdeflate::libdeflate_static)
+    endif()
+endif (FORCE_STATIC_DEPENDENCIES)
 
 find_package(PNG REQUIRED)
 target_link_libraries(${CORELIB} ${PNG_LIBRARIES})
@@ -537,13 +601,14 @@ endforeach()
 # Installation.
 #
 include(GNUInstallDirs)
+set(BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 install(
   TARGETS ${CORELIB}
   EXPORT biomeval-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  PUBLIC_HEADER DESTINATION ${BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR})
 
 include(CMakePackageConfigHelpers)
 
@@ -551,6 +616,7 @@ configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/biomevalConfig.cmake.in
     ${CMAKE_BINARY_DIR}/cmake/biomeval-config.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/biomeval
+    PATH_VARS BIOMEVAL_PUBLIC_HEADER_INCLUDE_DIR
 )
 
 write_basic_package_version_file(

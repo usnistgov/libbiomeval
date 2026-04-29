@@ -12,7 +12,7 @@
 
 #include <be_error_exception.h>
 
-BiometricEvaluation::Error::Exception::Exception() : exception() {
+BiometricEvaluation::Error::Exception::Exception() : std::exception() {
 }
 
 BiometricEvaluation::Error::Exception::Exception(

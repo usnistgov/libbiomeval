@@ -405,3 +405,10 @@ BiometricEvaluation::View::AN2KView::addMinutiaeDataRecord(
 {
 	_minutiaeDataRecordSet.push_back(mdr);
 }
+
+int
+BiometricEvaluation::View::AN2KView::getIDC()
+    const
+{
+	return (this->_idc);
+}

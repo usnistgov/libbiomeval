@@ -10,6 +10,7 @@
 
 #include <cerrno>
 #include <cstdlib>
+#include <filesystem>
 #include <thread>
 
 #include <be_system.h>
@@ -24,6 +25,11 @@
 #endif
 
 #include <be_sysdeps.h>
+
+#include <be_io_utility.h>
+#include <be_text.h>
+
+namespace BE = BiometricEvaluation;
 
 uint32_t
 BiometricEvaluation::System::getCPUCount()
@@ -110,6 +116,43 @@ BiometricEvaluation::System::getRealMemorySize()
 	return (total);
 #else
 	throw (Error::NotImplemented());
+#endif
+}
+
+std::map<std::string, uint64_t>
+BiometricEvaluation::System::getMemInfo()
+{
+#if defined Linux
+	static const std::filesystem::path meminfoPath{"/proc/meminfo"};
+	if (!BE::IO::Utility::fileExists(meminfoPath))
+		throw BE::Error::StrategyError{"Could not find " +
+		    meminfoPath.string()};
+
+	std::ifstream ifs{meminfoPath};
+	if (!ifs)
+		throw BE::Error::StrategyError{"Could not open " +
+		    meminfoPath.string()};
+
+	std::map<std::string, uint64_t> dict{};
+	std::string line{};
+	std::string::size_type kbPos{std::string::npos};
+	while (ifs) {
+		std::getline(ifs, line);
+		if (ifs.fail())
+			break;
+
+		const auto tokens = BE::Text::split(line, ':', false);
+		if (tokens.size() != 2)
+			throw BE::Error::StrategyError{"Unexpected output "
+			    "from " + meminfoPath.string() + " (" + line + ")"};
+
+		dict[tokens[0]] = std::stoull(BE::Text::trimWhitespace(
+		    tokens[1]));
+	}
+
+	return (dict);
+#else
+	throw BE::Error::NotImplemented{};
 #endif
 }
 

@@ -24,10 +24,6 @@ BiometricEvaluation::IO::ListRecordStore::ListRecordStore(
 	this->pimpl.reset(new IO::ListRecordStore::Impl(pathname));
 }
 
-BiometricEvaluation::IO::ListRecordStore::~ListRecordStore()
-{
-}
-
 BiometricEvaluation::Memory::uint8Array
 BiometricEvaluation::IO::ListRecordStore::read(
     const std::string &key)

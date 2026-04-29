@@ -70,7 +70,7 @@ setExitConditions()
 	BiometricEvaluation::MPI::Exit = false;
 	BiometricEvaluation::MPI::QuickExit = false;
 	BiometricEvaluation::MPI::TermExit = false;
-	struct sigaction sa;
+	struct sigaction sa{};
 	sigemptyset(&sa.sa_mask);       /* Don't block other signals */
 	sa.sa_handler = signalHandler;
 	sigaction(SIGQUIT, &sa, NULL);

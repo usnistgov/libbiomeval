@@ -50,11 +50,11 @@ handleAN2KView(Finger::AN2KView &an2kv)
 		cout << "Image was nullptr" << endl;
 		return (-1);
 	}
-	char tmpl[32];
-	sprintf(tmpl, "Type-%u_img",
-	    static_cast<std::underlying_type<
-	    View::AN2KView::RecordType>::type>(an2kv.getRecordType()));
-	string filename = IO::Utility::createTemporaryFile(tmpl);
+
+	string filename = IO::Utility::createTemporaryFile("Type-" +
+	    std::to_string(static_cast<std::underlying_type<
+	    View::AN2KView::RecordType>::type>(an2kv.getRecordType())) +
+	    "_img");
 	if (::unlink(filename.c_str()))
 		throw Error::StrategyError("Could not unlink empty "
 		    "temporary file (" + filename + ")");
@@ -64,10 +64,10 @@ handleAN2KView(Finger::AN2KView &an2kv)
 	 * Create a PGM header.
 	 */
 	ostringstream hdr;
-	hdr << "# " << filename << "\n";
 	hdr << "P5 " << img->getDimensions().xSize <<
 	    " " << img->getDimensions().ySize << " " <<
 	    (int)(pow(2.0, (int)img->getColorDepth()) - 1) << "\n";
+	hdr << "# " << filename << "\n";
 
 	ofstream img_out(filename.c_str(), ofstream::binary);
 	img_out << hdr.str();

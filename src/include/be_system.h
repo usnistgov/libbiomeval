@@ -12,8 +12,8 @@
 #define __BE_SYSTEM_H__
 
 #include <cstdint>
-
-#include <be_error_exception.h>
+#include <map>
+#include <string>
 
 namespace BiometricEvaluation 
 {
@@ -82,6 +82,9 @@ namespace BiometricEvaluation
 		 *	underlying OS feature is not installed.
 		 */
 		uint64_t getRealMemorySize();
+
+		/** @return key/value pairs of memory use information */
+		std::map<std::string, uint64_t> getMemInfo();
 
 		/**
 		 * @brief

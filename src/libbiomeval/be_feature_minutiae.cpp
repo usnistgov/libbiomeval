@@ -62,7 +62,8 @@ BE_Feature_MinutiaeFormat_EnumToStringMap = {
 	{BE::Feature::MinutiaeFormat::Sagem, "Sagem"},
 	{BE::Feature::MinutiaeFormat::NEC, "NEC"},
 	{BE::Feature::MinutiaeFormat::M1, "M1"},
-	{BE::Feature::MinutiaeFormat::Identix, "Identix"}
+	{BE::Feature::MinutiaeFormat::Identix, "Identix"},
+	{BE::Feature::MinutiaeFormat::Other, "Other"}
 };
 BE_FRAMEWORK_ENUMERATION_DEFINITIONS(
     BiometricEvaluation::Feature::MinutiaeFormat,

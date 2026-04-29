@@ -230,21 +230,25 @@ BiometricEvaluation::IO::Properties::getPropertyAsBoolean(
     const std::string &property)
     const
 {
-	std::string value = getProperty(property);
+	const std::string value = getProperty(property);
 	if (BE::Text::caseInsensitiveCompare(value, "TRUE") ||
+	    BE::Text::caseInsensitiveCompare(value, "Y") ||
 	    BE::Text::caseInsensitiveCompare(value, "YES") ||
 	    BE::Text::caseInsensitiveCompare(value, "ENABLE") ||
 	    BE::Text::caseInsensitiveCompare(value, "ENABLED") ||
+    	    BE::Text::caseInsensitiveCompare(value, "ON") ||
 	    BE::Text::caseInsensitiveCompare(value, "1"))
 		return (true);
 	else if (BE::Text::caseInsensitiveCompare(value, "FALSE") ||
+	    BE::Text::caseInsensitiveCompare(value, "N") ||
 	    BE::Text::caseInsensitiveCompare(value, "NO") ||
 	    BE::Text::caseInsensitiveCompare(value, "DISABLE") ||
 	    BE::Text::caseInsensitiveCompare(value, "DISABLED") ||
+	    BE::Text::caseInsensitiveCompare(value, "OFF") ||
 	    BE::Text::caseInsensitiveCompare(value, "0"))
 		return (false);
 
-	throw BE::Error::ConversionError();
+	throw BE::Error::ConversionError{"Invalid boolean value: " + value};
 }
 
 std::vector<std::string>

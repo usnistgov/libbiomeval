@@ -217,9 +217,31 @@ readMRC(
 		
 		/* Minutiae type present */
 		if (numItems >= 4) {
-			mp.type = (BE::Feature::MinutiaeType)atoi((char*)
-			    field->subfields[i]->items[3]->value);
 			mp.has_type = true;
+			
+			const char typeCode = std::toupper(
+			    field->subfields[i]->items[3]->value[0]);
+			switch (typeCode) {
+			case 'A': 
+				mp.type = 
+				    BE::Feature::MinutiaeType::RidgeEnding;
+				break;
+			case 'B': 
+				mp.type = 
+				    BE::Feature::MinutiaeType::Bifurcation;
+				break;
+			case 'C':
+				mp.type = BE::Feature::MinutiaeType::Compound;
+				break;
+			case 'D':
+				mp.type = 
+				    BE::Feature::MinutiaeType::NoDistinction;
+				break;
+			default:
+				throw BE::Error::DataError("Invalid minutiae "
+				    "type code (" + std::to_string(typeCode) + 
+				    ")");	
+			}
 		} else {
 			mp.has_type = false;
 		}

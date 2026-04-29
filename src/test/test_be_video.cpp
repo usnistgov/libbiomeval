@@ -82,7 +82,6 @@ main(int argc, char* argv[])
 	cout << "Audio Count: " << pvc->getAudioCount() << endl;
 	cout << "Video Count: " << pvc->getVideoCount() << endl;
 
-
 	std::unique_ptr<Video::Stream> stream;
 	cout << "Attempt to open invalid video stream index: ";
 	bool success = false;
@@ -118,10 +117,9 @@ main(int argc, char* argv[])
 			count++;
 			if (count <= 50)
 				savePBM(frame, "frame-", "P6", "ppm", f);
-		} catch (const Error::ParameterError &e) {
-			std::cout << "Caught " << e.whatString() << endl;
-			break;
 		} catch (const Error::Exception &e) {
+			std::cout << "For frame " << f << ", caught "
+			    << e.whatString() << endl;
 			break;
 		}
 	}
@@ -172,6 +170,10 @@ main(int argc, char* argv[])
 	stream->setFramePixelFormat(pixelFormat);
 	try {
 		auto frames = stream->getFrameSequence(startTS, endTS);
+		if (frames.size() == 0) {
+			cout << "Fail; read 0 frames." << endl;
+			return (EXIT_FAILURE);
+		}
 		for (unsigned int i = 0; i < frames.size(); i++) {
 			savePBM(frames[i], "seq-", "P4", "pbm", i+1);
 		}

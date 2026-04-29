@@ -244,8 +244,8 @@ BiometricEvaluation::IO::SysLogsheet::writeToLogger(
 	 * Ignore the SIGPIPE signal during the writing of the
 	 * pipe; save the current signal handler, then restore it.
 	 */
-	struct sigaction sa;
-	struct sigaction osa;
+	struct sigaction sa{};
+	struct sigaction osa{};
 	sigemptyset(&sa.sa_mask);       /* Don't block other signals */
 	sa.sa_handler = SIG_IGN;
 	(void)sigaction(SIGPIPE, &sa, &osa);
