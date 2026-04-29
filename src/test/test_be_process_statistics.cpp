@@ -42,7 +42,14 @@ sleepyChild(void *)
 static void*
 busyChild(void *tNum)
 {
+#if defined Linux
 	const auto tID = gettid();
+#elif defined Darwin
+	uint64_t tID;
+	pthread_threadid_np(NULL, &tid);
+#else
+	const std::string tID{"Unknown"};
+#endif
 	cout << __FUNCTION__ << ", TID is " << tID << "\n";
 
 	std::ifstream ifs("/dev/zero");

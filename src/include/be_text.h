@@ -291,7 +291,7 @@ namespace BiometricEvaluation {
 		 * Lowercase a string, respecting locale.
 		 *
 		 * @param str
-		 * String to loercase.
+		 * String to lowercase.
 		 * @param locale
 		 * Locale to use when lowercasing str.
 		 *
@@ -308,7 +308,7 @@ namespace BiometricEvaluation {
 		 * Perform Base64 encoding.
 		 *
 		 * @param data
-		 * Data to encoded.
+		 * Data to be encoded.
 		 *
 		 * @return
 		 * Base64 encoding of data.
@@ -316,6 +316,20 @@ namespace BiometricEvaluation {
 		std::string
 		encodeBase64(
 		    const BiometricEvaluation::Memory::uint8Array &data);
+
+		/**
+		 * @brief
+		 * Perform Base64 encoding.
+		 *
+		 * @param s
+		 * String to be encoded (s.size() characters).
+		 *
+		 * @return
+		 * Base64 encoding of data.
+		 */
+		std::string
+		encodeBase64(
+		    const std::string &s);
 
 		/**
 		 * @brief
@@ -329,6 +343,20 @@ namespace BiometricEvaluation {
 		 */
 		BiometricEvaluation::Memory::uint8Array
 		decodeBase64(
+		    const std::string &data);
+
+		/**
+		 * @brief
+		 * Perform Base64 decoding.
+		 *
+		 * @param data
+		 * Base64 data to decode.
+		 *
+		 * @return
+		 * Base64 decoding of data.
+		 */
+		std::string
+		decodeBase64AsString(
 		    const std::string &data);
 	}
 }
