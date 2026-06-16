@@ -98,6 +98,8 @@ option(WITH_HWLOC "Build sources that require libhwloc" ON)
 option(WITH_MPI "Build sources that require MPI" ON)
 # Build sources that require PCSC
 option(WITH_PCSC "Build sources that require PCSC" ON)
+# Build sources that require Berkeley DB
+option(WITH_LIBDB "Build sources that require Berkeley DB" OFF)
 # Disable things that aren't well supported under WASM
 option(BUILD_FOR_WASM "Build in a way that supports WASM" OFF)
 # Auto-enable WASM build if we can detect emscripten
