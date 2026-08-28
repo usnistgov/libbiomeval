@@ -34,8 +34,9 @@ jobs:
           - { os: ubuntu-24.04, arch: x64, shared: OFF }
           - { os: ubuntu-22.04, arch: x64, shared: ON }
           - { os: ubuntu-22.04, arch: x64, shared: OFF }
-          - { os: windows-2025, arch: x64, shared: OFF }
-          - { os: windows-2022, arch: x64, shared: OFF }
+          - { os: windows-11-arm, arch: arm64, shared: OFF, cmake_arch_flag: ARM64 }
+          - { os: windows-2025, arch: x64, shared: OFF, cmake_arch_flag: x64 }
+          - { os: windows-2022, arch: x64, shared: OFF, cmake_arch_flag: x64 }
 
     steps:
     - name: Checkout Code
@@ -153,12 +154,10 @@ jobs:
     - name: Configure CMake (Multi-config Generator)
       if: ${{ runner.os == 'Windows' }}
       shell: bash
-      env:
-        cmake_arch_flag: ${{ matrix.config.arch == 'x86' && 'Win32' || 'x64' }}
       working-directory: ${{ github.workspace }}\build
       run: |
         cmake \
-            -A ${cmake_arch_flag} \
+            -A ${{ matrix.config.cmake_arch_flag }} \
             -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_CONFIGURATION_TYPES="${CONFIGURATION}" \
             -DBUILD_SHARED_LIBS="${{ matrix.config.shared }}" \
