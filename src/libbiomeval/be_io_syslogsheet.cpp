@@ -176,7 +176,7 @@ createSyslogTimestamp(bool utc)
 
 	unsigned int hourOffset, minOffset;
 	hourOffset = std::abs(cTime.tm_gmtoff) / 3600;
-	minOffset = std::abs(cTime.tm_gmtoff) % 3600;
+	minOffset = (std::abs(cTime.tm_gmtoff) % 3600) / 60;
 	char buf[33];
 	std::snprintf(buf, 33,
 	    "%4.4u-%2.2u-%2.2uT%2.2u:%2.2u:%2.2u.%6.6u%c%2.2u:%2.2u",
