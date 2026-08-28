@@ -14,6 +14,7 @@
 # ::
 #
 #   HWLOC_INCLUDE_DIR, where to find hwloc.h, etc.
+#   HWLOC_INCLUDE_DIRS, same as HWLOC_INCLUDE_DIR
 #   HWLOC_LIBRARIES, the libraries needed to use hwloc.
 #   HWLOC_FOUND, If false, do not try to use hwloc.
 #
@@ -22,11 +23,12 @@
 # ::
 #
 #   HWLOC_LIBRARY, where to find the hwloc library.
-
-find_path(HWLOC_INCLUDE_DIR hwloc.h
-  /usr/include/
-  /usr/local/include/
-)
+#
+# This module defines the following :prop_tgt:`IMPORTED` target:
+#
+# HWLOC::HWLOC
+#
+find_path(HWLOC_INCLUDE_DIR hwloc.h)
 
 set(HWLOC_NAMES hwloc libhwloc)
 find_library(HWLOC_LIBRARY NAMES ${HWLOC_NAMES})
@@ -37,7 +39,16 @@ include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(HWLOC DEFAULT_MSG HWLOC_LIBRARY HWLOC_INCLUDE_DIR)
 
 if(HWLOC_FOUND)
-  set(HWLOC_LIBRARIES ${HWLOC_LIBRARY})
+	set(HWLOC_LIBRARIES ${HWLOC_LIBRARY})
+	set(HWLOC_INCLUDE_DIRS ${HWLOC_INCLUDE_DIR})
+
+	if(NOT TARGET HWLOC::HWLOC)
+		add_library(HWLOC::HWLOC UNKNOWN IMPORTED)
+		set_target_properties(HWLOC::HWLOC
+		    PROPERTIES
+		    IMPORTED_LOCATION "${HWLOC_LIBRARY}"
+		    INTERFACE_INCLUDE_DIRECTORIES "${HWLOC_INCLUDE_DIR}")
+	endif()
 endif()
 
 mark_as_advanced(HWLOC_LIBRARY HWLOC_INCLUDE_DIR )

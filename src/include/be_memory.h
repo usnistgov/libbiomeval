@@ -11,6 +11,7 @@
 #ifndef __BE_MEMORY__
 #define __BE_MEMORY__
 
+#include <cstdint>
 #include <memory>
 #include <type_traits>
 

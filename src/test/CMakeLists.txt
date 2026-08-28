@@ -20,6 +20,8 @@
 # the libbiomeval, then the library will be linked from that build's location.
 #
 
+cmake_minimum_required(VERSION 3.20)
+
 project(biomeval-test)
 
 include(GNUInstallDirs)
@@ -39,9 +41,7 @@ This process created the file `CMakeCache.txt' and the directory `CMakeFiles'.
 Please delete them.")
 endif()
 
-cmake_minimum_required(VERSION 3.16.3)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../libbiomeval/cmake/Modules/")
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../libbiomeval/cmake/Modules/")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

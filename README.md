@@ -36,7 +36,7 @@ documentation is
 
 Requirements
 ------------
-We currently test this software using **g++ 9.3** under **Ubuntu 20.04**. Other
+We currently test this software using **g++ 13.3** under **Ubuntu 24.04**. Other
 operating systems and compilers are likely to work as expected, but have not
 been thoroughly tested. Additionally, not all parts of `libbiomeval` will be
 enabled to build on all platforms.
@@ -46,27 +46,10 @@ certain features of Biometric Evaluation Framework.
 
 Installing
 ----------
-A pre-compiled version of Biometric Evaluation framework is
-available from the [releases](https://github.com/usnistgov/libbiomeval/releases)
+We occasionally post pre-compiled version of Biometric Evaluation framework on
+the [releases](https://github.com/usnistgov/libbiomeval/releases)
 page on GitHub. These packages have been signed with our
-[public key](
-https://github.com/usnistgov/libbiomeval/blob/master/beframework_signing_key.asc).
-
- * RHEL/CentOS:
-    1. Import the public key
-       ```sh
-       rpm --import beframework_signing_key.asc
-       ```
-
-    2. Verify the signature
-       ```sh
-       rpm --checksig libbiomeval-10.0-1.x86_64.rpm
-       ```
-
-    3. Install
-       ```sh
-       dnf localinstall libbiomeval-10.0-1.x86_64.rpm
-       ```
+[public key][2].
 
 System Packages
 ---------------
@@ -88,38 +71,30 @@ for complete details).
      ```sh
      brew install openjpeg jpeg-turbo libpng libtiff zlib open-mpi berkeley-db sqlite hwloc ffmpeg
      ```
- * RHEL/CentOS:
-   ```sh
-   dnf install openssl-devel pcsc-lite-devel openjpeg2-devel libjpeg-turbo-devel libpng-devel libtiff-devel zlib-devel openmpi-devel  `libdb-cxx-devel` sqlite-devel zlib-devel
-   ```
- * Ubuntu:
+ * Ubuntu 20-24:
    ```sh
    apt install libpcsclite-dev libssl-dev libopenjp2-7-dev libjpeg-dev libpng-dev libtiff-dev zlib1g-dev libopenmpi-dev libdb++-dev libsqlite3-dev libhwloc-dev libavcodec-dev libavformat-dev libswscale-dev
    ```
+ * Ubuntu 26:
+   ```sh
+   apt install libpcsclite-dev libssl-dev libopenjp2-7-dev libjpeg-dev libpng-dev libtiff-dev zlib1g-dev libopenmpi-dev libdb5.3++-dev libsqlite3-dev libhwloc-dev libavcodec-dev libavformat-dev libswscale-dev
+   ```
  * Windows:
    ```dos
-   vcpkg install openssl openjpeg libjpeg-turbo libpng tiff zlib msmpi berkeleydb sqlite3 zlib hwloc ffmpeg
+   vcpkg install openssl openjpeg libjpeg-turbo libpng tiff zlib msmpi berkeleydb sqlite3 zlib hwloc ffmpeg pkgconf
    ```
 
 ### Module Requirements
 
 Some modules require system packages that may not be installed by default on
-all operating systems. Package names are listed below for RHEL/CentOS, macOS
+all operating systems. Package names are listed below for macOS
 (via [MacPorts](https://www.macports.org) and [Homebrew](https://brew.sh),
 Ubuntu, and Windows (via [`vcpkg`](https://github.com/Microsoft/vcpkg)).
 Other operating systems may use similarly-named packages.
 
 **Note:**
 
- * Under RHEL/CentOS 8, several packages listed below are now part of the
-   "PowerTools" repository, which is disabled by default. This repository can be
-   enabled by issuing the command:
-   ```bash
-   # Enable PowerTools repository
-   sudo yum config-manager --set-enabled PowerTools
-   ```
-
- * When using `vcpkg`, you must provide CMake with the path to your `vcpkg`
+ * When using `vcpkg`, you **must** provide CMake with the path to your `vcpkg`
    toolchain:
    ```dos
    cmake .. -DCMAKE_TOOLCHAIN_FILE=%vcpkg_root%\scripts\buildsystems\vcpkg.cmake
@@ -128,24 +103,24 @@ Other operating systems may use similarly-named packages.
 
 
 #### CORE
-| Name         | RHEL/CentOS     | MacPorts/Homebrew            | Ubuntu       | vcpkg     |
-|:------------:|:---------------:|:----------------------------:|:------------:|:---------:|
-| OpenSSL      | `openssl-devel` | n/a (uses macOS CommonCrypto)| `libssl-dev` | `openssl` |
+| Name         | MacPorts/Homebrew            | Ubuntu       | vcpkg     |
+|:------------:|:----------------------------:|:------------:|:---------:|
+| OpenSSL      | n/a (uses macOS CommonCrypto)| `libssl-dev` | `openssl` |
 
 #### DEVICE
 
-| Name      | RHEL/CentOS       | MacPorts/Homebrew                | Ubuntu   |
-|:---------:|:-----------------:|:--------------------------------:|:--------:|
-| PCSC Lite | `pcsc-lite-devel` | n/a (requires [Command Line Tools](https://developer.apple.com/library/archive/technotes/tn2339/_index.html)) | `libpcsclite-dev` |
+| Name      | MacPorts/Homebrew                | Ubuntu   | vcpkg |
+|:---------:|:--------------------------------:|:--------:|:-----:|
+| PCSC Lite | n/a (requires [Command Line Tools](https://developer.apple.com/library/archive/technotes/tn2339/_index.html)) | `libpcsclite-dev` | *Unsupported* |
 
 #### IMAGE
-| Name         | RHEL/CentOS           | MacPorts   | Homebrew               | Ubuntu             | vcpkg          |
-|:------------:|:---------------------:|:----------:|:----------------------:|:------------------:|:--------------:|
-| OpenJPEG 2.x | `openjpeg2-devel`     | `openjpeg` | `openjpeg`             | `libopenjp2-7-dev` | `openjpeg`     |
-| libjpeg      | `libjpeg-turbo-devel` | `jpeg`     | `jpeg` or `jpeg-turbo` | `libjpeg-dev`      | `libjpeg-turbo`|
-| libpng       | `libpng-devel`        | `libpng`   | `libpng`               | `libpng-dev`       | `libpng`       |
-| libtiff      | `libtiff-devel`       | `tiff`     | `libtiff`              | `libtiff-dev`      | `tiff`         |
-| Zlib         | `zlib-devel`          | `zlib`     | `zlib`                 | `zlib1g-dev`       | `zlib`         |
+| Name         | MacPorts   | Homebrew               | Ubuntu             | vcpkg          |
+|:------------:|:----------:|:----------------------:|:------------------:|:--------------:|
+| OpenJPEG 2.x | `openjpeg` | `openjpeg`             | `libopenjp2-7-dev` | `openjpeg`     |
+| libjpeg      | `jpeg`     | `jpeg` or `jpeg-turbo` | `libjpeg-dev`      | `libjpeg-turbo`|
+| libpng       | `libpng`   | `libpng`               | `libpng-dev`       | `libpng`       |
+| libtiff      | `tiff`     | `libtiff`              | `libtiff-dev`      | `tiff`         |
+| Zlib         | `zlib`     | `zlib`                 | `zlib1g-dev`       | `zlib`         |
 
 **Note:**
 
@@ -153,14 +128,14 @@ Other operating systems may use similarly-named packages.
    enabled by installing the package `epel-release`.
 
 #### IO
-| Name         | RHEL/CentOS  | MacPorts | Homebrew  |Ubuntu       | vcpkg  |
-|:------------:|:------------:|:--------:|:---------:|:-----------:|:------:|
-| Zlib         | `zlib-devel` | `zlib`   | `zlib`    |`zlib1g-dev` | `zlib` |
+| Name         | MacPorts | Homebrew  |Ubuntu       | vcpkg  |
+|:------------:|:--------:|:---------:|:-----------:|:------:|
+| Zlib         | `zlib`   | `zlib`    |`zlib1g-dev` | `zlib` |
 
 #### MPIBASE, MPIDISTRIBUTOR, MPIRECEIVER
-| Name         | RHEL/CentOS     | MacPorts  | Homebrew   | Ubuntu           | vcpkg   |
-|:------------:|:---------------:|:---------:|:----------:|:----------------:|:-------:|
-| Open MPI     | `openmpi-devel` | `openmpi` | `open-mpi` | `libopenmpi-dev` | `msmpi` |
+| Name         | MacPorts  | Homebrew   | Ubuntu           | vcpkg   |
+|:------------:|:---------:|:----------:|:----------------:|:-------:|
+| Open MPI     | `openmpi` | `open-mpi` | `libopenmpi-dev` | `msmpi` |
 
 **Note:**
 
@@ -174,26 +149,28 @@ Other operating systems may use similarly-named packages.
   [Microsoft MPI redistributable package](https://docs.microsoft.com/en-us/message-passing-interface/microsoft-mpi).
 
 #### RECORDSTORE
-| Name         | RHEL/CentOS        | MacPorts  | Homebrew      | Ubuntu           | vcpkg        |
-|:------------:|:------------------:|:---------:|:-------------:|:----------------:|:------------:|
-| Berkeley DB  | `libdb-cxx-devel`  | `db62`    | `berkeley-db` | `libdb++-dev`    | `berkeleydb` |
-| SQLite 3     | `sqlite-devel`     | `sqlite3` | `sqlite`      | `libsqlite3-dev` | `sqlite3`    |
-| Zlib         | `zlib-devel`       | `zlib`    | `zlib`        | `zlib1g-dev`     | `zlib`       |
+| Name         | MacPorts  | Homebrew      | Ubuntu           | vcpkg        |
+|:------------:|:---------:|:-------------:|:----------------:|:------------:|
+| Berkeley DB  | `db62`    | `berkeley-db` | `libdb++-dev`   | `berkeleydb` |
+| SQLite 3     | `sqlite3` | `sqlite`      | `libsqlite3-dev` | `sqlite3`    |
+| Zlib         | `zlib`    | `zlib`        | `zlib1g-dev`     | `zlib`       |
+
+**Note:**
+
+ * Under Ubuntu 26, the package name for Berkeley DB is `libdb5.3++-dev`
 
 #### SYSTEM
-| Name                       | RHEL/CentOS   | MacPorts | Homebrew | Ubuntu         | vcpkg   |
-|:--------------------------:|:-------------:|:--------:|:--------:|:--------------:|:-------:|
-| Portable Hardware Locality | `hwloc-devel` | `hwloc`  | `hwloc`  | `libhwloc-dev` | `hwloc` |
+| Name                       | MacPorts | Homebrew | Ubuntu         | vcpkg   |
+|:--------------------------:|:--------:|:--------:|:--------------:|:-------:|
+| Portable Hardware Locality | `hwloc`  | `hwloc`  | `libhwloc-dev` | `hwloc` |
 
 #### VIDEO
-| Name                        | RHEL/CentOS | MacPorts       | Homebrew | Ubuntu          | vcpkg |
-|:---------------------------:|:-----------:|:--------------:|:--------:|:---------------:|:------|
-| [ffmpeg](http://ffmpeg.org) | Build from source, and install to `/usr/local` | `ffmpeg` | `ffmpeg` | `libavcodec-dev`, `libavformat-dev`, `libswscale-dev` | `ffmpeg` |
+| Name                        | MacPorts       | Homebrew | Ubuntu          | vcpkg |
+|:---------------------------:|:--------------:|:--------:|:---------------:|:------|
+| [ffmpeg](http://ffmpeg.org) | `ffmpeg` | `ffmpeg` | `libavcodec-dev`, `libavformat-dev`, `libswscale-dev` | `ffmpeg` |
 
 ##### NIST Biometric Image Software (NBIS)
-[NBIS](https://www.nist.gov/services-resources/software/nist-biometric-image-software-nbis) is supported under current versions
-of RHEL/CentOS, Ubuntu, and macOS. The Framework repository contains a subset
-of NBIS that is built automatically.
+The Framework repository contains a subset of [NBIS](https://www.nist.gov/services-resources/software/nist-biometric-image-software-nbis) that is built automatically.
 
 Options
 -------
@@ -205,9 +182,8 @@ The CMake build supports the following options:
 | `BUILD_BIOMEVAL_TESTS`  | `OFF`   | Build test programs                                  ||
 | `BUILD_FOR_WASM` | `OFF` | Disable components currently not supported under WebAssembly | Defaults to `ON` when the [Emscripten](https://emscripten.org) toolchain is detected |
 | `BUILD_SHARED_LIBS`     | `OFF`    | Build shared library (i.e., `.so`, `.dll`, `.dylib`) | When `OFF`, a static library (i.e., `.a`, `.lib`) is built instead |
-| `FORCE_STATIC_DEPENDENCIES` | `OFF` | Force linking against `.a`/`.lib` third-party dependencies. | Unavailable on Windows (use `-DBUILD_SHARED_LIBS=OFF` for similar behavior) |
 | `WASM_EXCEPTIONS` | `ON` | When compiled to WebAssembly, use WebAssembly exceptions instead of JavaScript exceptions | Only available when `BUILD_FOR_WASM` is `YES` and the [Emscripten](https://emscripten.org) toolchain is detected |
-| `WITH_FFMPEG` | `ON` | Build sources that require [FFMPEG](https://ffmpeg.org) | Unavailable when `FORCE_STATIC_DEPENDENCIES` is `ON` |
+| `WITH_FFMPEG` | `ON` | Build sources that require [FFMPEG](https://ffmpeg.org) ||
 | `WITH_HWLOC` | `ON` | Build sources that require [libhwloc](https://www.open-mpi.org/projects/hwloc/) |
 | `WITH_MPI` | `ON` | Build sources that require [OpenMPI](https://www.open-mpi.org/) |
 | `WITH_PCSC` | `ON` | Build sources that require [PCSC](https://pcsclite.apdu.fr) |
@@ -223,12 +199,12 @@ As Seen In...
 NIST is committed to using Biometric Evaluation Framework in their biometric
 evaluations, including:
 
- * [ELFT](https://www.nist.gov/itl/iad/image-group/evaluation-latent-friction-ridge-technology);
- * [FRVT](https://www.nist.gov/programs-projects/face-recognition-vendor-test-frvt-ongoing);
+ * [ELFT](https://www.nist.gov/itl/iad/btg/evaluation-latent-friction-ridge-technology);
+ * [FRTE/FATE](https://www.nist.gov/programs-projects/face-technology-evaluations-frtefate);
  * [IREX 10](https://www.nist.gov/programs-projects/iris-exchange-irex-10-ongoing-evaluation-iris-recognition);
- * [MINEX III](https://www.nist.gov/itl/iad/image-group/minutiae-interoperability-exchange-minex-iii);
- * [PFT III](https://www.nist.gov/itl/iad/image-group/proprietary-fingerprint-template-pft-iii);
- * [SlapSeg III](https://www.nist.gov/itl/iad/image-group/slap-fingerprint-segmentation-evaluation-iii);
+ * [MINEX III](https://www.nist.gov/itl/iad/btg/minutiae-interoperability-exchange-minex-iii);
+ * [PFT III](https://www.nist.gov/itl/iad/btg/proprietary-fingerprint-template-pft-iii);
+ * [SlapSeg III](https://www.nist.gov/itl/iad/btg/slap-fingerprint-segmentation-evaluation-iii);
  * ...and more.
 
 Communication
@@ -266,7 +242,7 @@ Citing
 If you use Biometric Evaluation Framework in the course of your work, please
 consider linking back to
 [our website](https://www.nist.gov/services-resources/software/biometric-evaluation-framework) or citing
-[our manuscript](http://ieeexplore.ieee.org/document/7358800/):
+[our manuscript](https://doi.org/10.1109/BTAS.2015.7358800):
 
 Fiumara, G.; Salamon, W.; Watson, C, "Towards Repeatable, Reproducible, and
 Efficient Biometric Technology Evaluations," in Biometrics: Theory,
@@ -295,3 +271,4 @@ Biometric Evaluation Framework is released in the public domain. See the
 for details.
 
 [1]: https://www.nist.gov/services-resources/software/biometric-evaluation-framework
+[2]: https://github.com/usnistgov/libbiomeval/blob/master/beframework_signing_key.asc

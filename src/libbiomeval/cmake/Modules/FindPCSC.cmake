@@ -22,24 +22,44 @@
 # ::
 #
 #   PCSC_LIBRARY, where to find the PC/SC library.
+#
+# On Darwin systems, PCSC_INCLUDE_DIR is not defined, because PCSC is included
+# as a Framework.
+#
+# This module defines the following :prop_tgt:`IMPORTED` target:
+#
+# PCSC::PCSC
+#
 
-find_path(PCSC_INCLUDE_DIR pcsclite.h
-  /usr/include/PCSC
-  /usr/local/include/PCSC
-  /usr/include/
-  /usr/local/include/
-)
-
-set(PCSC_NAMES pcsclite libpcsclite)
-find_library(PCSC_LIBRARY NAMES ${PCSC_NAMES} )
-
-# handle the QUIETLY and REQUIRED arguments and set PCSC_FOUND to TRUE if
-# all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(PCSC DEFAULT_MSG PCSC_LIBRARY PCSC_INCLUDE_DIR)
 
-if(PCSC_FOUND)
-  set(PCSC_LIBRARIES ${PCSC_LIBRARY})
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	find_library(PCSC_LIBRARY NAMES PCSC)
+	find_package_handle_standard_args(PCSC DEFAULT_MSG PCSC_LIBRARY)
+
+else()
+	find_path(PCSC_INCLUDE_DIR pcsclite.h
+	    /usr/include/PCSC
+	    /usr/local/include/PCSC
+	)
+	find_library(PCSC_LIBRARY NAMES pcsclite libpcsclite)
+
+	find_package_handle_standard_args(PCSC DEFAULT_MSG PCSC_LIBRARY PCSC_INCLUDE_DIR)
 endif()
 
-mark_as_advanced(PCSC_LIBRARY PCSC_INCLUDE_DIR )
+if(PCSC_FOUND)
+	if(NOT TARGET PCSC::PCSC)
+		add_library(PCSC::PCSC UNKNOWN IMPORTED)
+		set_target_properties(PCSC::PCSC PROPERTIES
+		    IMPORTED_LOCATION "${PCSC_LIBRARY}")
+
+		if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+			set_target_properties(PCSC::PCSC PROPERTIES
+			    INTERFACE_INCLUDE_DIRECTORIES "${PCSC_INCLUDE_DIR}")
+		endif()
+	endif()
+
+	set(PCSC_LIBRARIES ${PCSC_LIBRARY})
+endif()
+
+mark_as_advanced(PCSC_LIBRARY PCSC_INCLUDE_DIR)

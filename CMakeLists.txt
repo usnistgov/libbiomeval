@@ -46,14 +46,7 @@ foreach (line ${VERSION_FILE_CONTENTS})
 	endif ()
 endforeach ()
 
-# Don't use CXX_FLAGS for MSVC runtime lib
-cmake_policy(SET CMP0091 NEW)
-
-cmake_policy(SET CMP0048 NEW)
 project(biomeval VERSION ${MAJOR_VERSION}.${MINOR_VERSION})
-
-# Use MACOSX_RPATH by default
-cmake_policy(SET CMP0042 NEW)
 
 if (BUILD_SHARED_LIBS)
 	message(STATUS "Build type: SHARED")
@@ -62,15 +55,6 @@ else()
 endif()
 
 include(CMakeDependentOption)
-cmake_dependent_option(FORCE_STATIC_DEPENDENCIES "Force linking against static versions of dependencies" OFF "NOT MSVC" OFF)
-if (NOT MSVC)
-	if (FORCE_STATIC_DEPENDENCIES)
-		set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_STATIC_LIBRARY_SUFFIX})
-		message(STATUS "Dependency type: STATIC only")
-	else ()
-		message(STATUS "Dependency type: SHARED preferred, STATIC possible")
-	endif ()
-endif()
 
 # 32-bit compilation on systems that support compiling both 32- and 64-bit. On
 # Windows, this is part of the platform (cmake's -A flag).
@@ -115,10 +99,8 @@ if (WASM_EXCEPTIONS)
 	message(STATUS "Enabling WebAssembly exception handling")
 endif (WASM_EXCEPTIONS)
 
-# Build sources that require FFMPEG. FFMPEG has *many* dynamic dependencies that
-# aren't built static on all systems, therefore we cannot guarantee they'll be
-# found.
-cmake_dependent_option(WITH_FFMPEG "Build sources that require FFMPEG" ON "NOT FORCE_STATIC_DEPENDENCIES" OFF)
+# Build sources that require FFMPEG.
+option(WITH_FFMPEG "Build sources that require FFMPEG" ON)
 
 #
 # The CMake config files must exist in the directories added to this config:
