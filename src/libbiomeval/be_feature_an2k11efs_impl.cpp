@@ -224,18 +224,17 @@ readROI(
 	roi.size.xSize = std::atoi((char*)field->subfields[0]->items[0]->value);
 	roi.size.ySize = std::atoi((char*)field->subfields[0]->items[1]->value);
 
-	/*
-	 * The offsets and the polygon are optional, so stop as soon as the
-	 * items for the next group are not all present. Testing for an exact
-	 * count here would let an in-between count fall through to items that
-	 * were never parsed.
-	 */
-	if (field->subfields[0]->num_items < 4) {
-		return;
-	}
-	/* Assume that if we have horz offset, we have vert offset */
-	roi.horzOffset = std::atoi((char*)field->subfields[0]->items[2]->value);
-	roi.vertOffset = std::atoi((char*)field->subfields[0]->items[3]->value);
+	if (field->subfields[0]->num_items >= 3)
+		roi.horzOffset = std::atoi(
+		    (char*)field->subfields[0]->items[2]->value);
+	else
+		roi.horzOffset = 0;
+
+	if (field->subfields[0]->num_items >= 4)
+		roi.vertOffset = std::atoi(
+		    (char*)field->subfields[0]->items[3]->value);
+	else
+		roi.vertOffset = 0;
 
 	if (field->subfields[0]->num_items < 5) {
 		return;
