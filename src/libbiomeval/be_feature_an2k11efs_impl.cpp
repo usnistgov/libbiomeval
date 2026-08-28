@@ -235,17 +235,27 @@ readROI(
 
 	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, EFS_ROI_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field ROI not found");
+	if (field->num_subfields <= 0)
+		throw BE::Error::DataError("Field ROI has no subfields");
+	if (field->subfields[0]->num_items < 2)
+		throw BE::Error::DataError("Insufficient item count in EFS "
+		    "region of interest");
 	roi.size.xSize = std::atoi((char*)field->subfields[0]->items[0]->value);
 	roi.size.ySize = std::atoi((char*)field->subfields[0]->items[1]->value);
 
-	if (field->subfields[0]->num_items == 2) {
-		return;
-	}
-	/* Assume that if we have horz offset, we have vert offset */
-	roi.horzOffset = std::atoi((char*)field->subfields[0]->items[2]->value);
-	roi.vertOffset = std::atoi((char*)field->subfields[0]->items[3]->value);
+	if (field->subfields[0]->num_items >= 3)
+		roi.horzOffset = std::atoi(
+		    (char*)field->subfields[0]->items[2]->value);
+	else
+		roi.horzOffset = 0;
 
-	if (field->subfields[0]->num_items == 4) {
+	if (field->subfields[0]->num_items >= 4)
+		roi.vertOffset = std::atoi(
+		    (char*)field->subfields[0]->items[3]->value);
+	else
+		roi.vertOffset = 0;
+
+	if (field->subfields[0]->num_items < 5) {
 		return;
 	}
 	std::string polygonStr =
