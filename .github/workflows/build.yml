@@ -93,7 +93,6 @@ jobs:
     - name: Install Packages (macOS)
       if: ${{ runner.os == 'macOS' }}
       shell: bash
-      # FIXME: homebrew's open-mpi package doesn't include C++ bindings
       run: |
         HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 \
             HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install --quiet \
@@ -104,6 +103,7 @@ jobs:
             libpng \
             libtiff \
             openjpeg \
+            open-mpi \
             openssl \
             sqlite \
             zlib
