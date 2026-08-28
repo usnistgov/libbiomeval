@@ -196,11 +196,22 @@ readMRC(
 	/* Minutiae and Ridge Count data */
 	if (biomeval_nbis_lookup_ANSI_NIST_field(&field, &idx, MRC_ID, type9) == FALSE)
 		throw BE::Error::DataError("Field MRC not found");	
+	/*
+	 * The minutiae count comes from field MIN, which is not obliged to
+	 * agree with how many subfields field MRC actually has, so bound the
+	 * loop by both.
+	 */
+	if (count > field->num_subfields)
+		count = field->num_subfields;
 	for (int i = 0; i < count; i++) {
 		BiometricEvaluation::Feature::MinutiaPoint mp;
 		
 		int numItems = field->subfields[i]->num_items;
 		
+		if (numItems < 2) {
+			throw BE::Error::DataError(
+			    "Insufficient item count in minutia point");
+		}
 		/* Get required fields */
 		mp.index =
 		    atoi((char*)field->subfields[i]->items[0]->value);
