@@ -28,19 +28,19 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: macOS-15, arch: arm64, shared: ON, force-static-deps: OFF }
-          - { os: macOS-14, arch: arm64, shared: ON, force-static-deps: OFF }
-          - { os: macOS-13, arch: x64, shared: ON, force-static-deps: OFF }
-          - { os: ubuntu-24.04, arch: x64, shared: ON, force-static-deps: OFF }
-          - { os: ubuntu-24.04, arch: x64, shared: OFF, force-static-deps: OFF }
-          - { os: ubuntu-22.04, arch: x64, shared: ON, force-static-deps: OFF }
-          - { os: ubuntu-22.04, arch: x64, shared: OFF, force-static-deps: OFF }
-          - { os: windows-2025, arch: x64, shared: OFF, force-static-deps: OFF }
-          - { os: windows-2022, arch: x64, shared: OFF, force-static-deps: OFF }
+          - { os: macOS-26, arch: arm64, shared: ON }
+          - { os: macOS-15, arch: arm64, shared: ON }
+          - { os: ubuntu-24.04, arch: x64, shared: ON }
+          - { os: ubuntu-24.04, arch: x64, shared: OFF }
+          - { os: ubuntu-22.04, arch: x64, shared: ON }
+          - { os: ubuntu-22.04, arch: x64, shared: OFF }
+          - { os: windows-11-arm, arch: arm64, shared: OFF, cmake_arch_flag: ARM64 }
+          - { os: windows-2025, arch: x64, shared: OFF, cmake_arch_flag: x64 }
+          - { os: windows-2022, arch: x64, shared: OFF, cmake_arch_flag: x64 }
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         submodules: false
 
@@ -55,18 +55,20 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
       shell: bash
       run: |
-        mkdir -p ${VCPKG_INSTALLATION_ROOT}/bincache
+        mkdir -p "${VCPKG_INSTALLATION_ROOT}/downloads"
+        mkdir -p "${VCPKG_INSTALLATION_ROOT}/bincache"
+        echo "VCPKG_DOWNLOADS=${VCPKG_INSTALLATION_ROOT}/downloads" >> ${GITHUB_ENV}
         echo "VCPKG_DEFAULT_BINARY_CACHE=${VCPKG_INSTALLATION_ROOT}/bincache" >> ${GITHUB_ENV}
 
     - name: Package Cache (Windows)
       if: ${{ runner.os == 'Windows' }}
       id: vcpkg-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
-        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-STATIC_${{ matrix.config.force-static-deps }}-vcpkg
-        restore-keys: |
-          ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-STATIC_${{ matrix.config.force-static-deps }}-vcpkg
+        path: |
+          ${{ env.VCPKG_DOWNLOADS }}
+          ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-vcpkg
 
     - name: Install Packages (Linux)
       if: ${{ runner.os == 'Linux' }}
@@ -149,18 +151,15 @@ jobs:
             -DBUILD_SHARED_LIBS="${{ matrix.config.shared }}" \
             -DBUILD_BIOMEVAL_TESTS="${BUILD_BIOMEVAL_TESTS}" \
             -DBUILD_BIOMEVAL_32BIT="${BUILD_BIOMEVAL_32BIT}" \
-            -DFORCE_STATIC_DEPENDENCIES="${{ matrix.config.force-static-deps }}" \
             "${GITHUB_WORKSPACE}"
 
     - name: Configure CMake (Multi-config Generator)
       if: ${{ runner.os == 'Windows' }}
       shell: bash
-      env:
-        cmake_arch_flag: ${{ matrix.config.arch == 'x86' && 'Win32' || 'x64' }}
       working-directory: ${{ github.workspace }}\build
       run: |
         cmake \
-            -A ${cmake_arch_flag} \
+            -A ${{ matrix.config.cmake_arch_flag }} \
             -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
             -DCMAKE_CONFIGURATION_TYPES="${CONFIGURATION}" \
             -DBUILD_SHARED_LIBS="${{ matrix.config.shared }}" \
