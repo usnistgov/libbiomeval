@@ -11,12 +11,14 @@
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <netdb.h>
 #include <strings.h>
-#include <time.h>
 #include <unistd.h>
 
 #include <be_error.h>
@@ -175,16 +177,19 @@ createSyslogTimestamp(bool utc)
 		TZsign = '+';
 
 	unsigned int hourOffset, minOffset;
-	hourOffset = std::abs(cTime.tm_gmtoff) / 3600;
-	minOffset = (std::abs(cTime.tm_gmtoff) % 3600) / 60;
-	char buf[33];
-	std::snprintf(buf, 33,
-	    "%4.4u-%2.2u-%2.2uT%2.2u:%2.2u:%2.2u.%6.6u%c%2.2u:%2.2u",
-	    cTime.tm_year + 1900, cTime.tm_mon + 1, cTime.tm_mday,
-	    cTime.tm_hour, cTime.tm_min, cTime.tm_sec,
-	    static_cast<unsigned int>(tv.tv_usec),
-	    TZsign, hourOffset, minOffset);
-	return(std::string(buf));
+	const unsigned int absGMTOffset = static_cast<unsigned int>(
+	    std::abs(cTime.tm_gmtoff));
+	hourOffset = absGMTOffset / 3600;
+	minOffset = (absGMTOffset % 3600) / 60;
+
+	std::ostringstream oss{};
+	oss << std::setfill('0') << std::setw(4) << (cTime.tm_year + 1900) <<
+	    '-' << std::setw(2) << (cTime.tm_mon + 1) << '-' << std::setw(2) <<
+	    cTime.tm_mday << 'T' << std::setw(2) << cTime.tm_hour << ':' <<
+	    std::setw(2) << cTime.tm_min << ':' << std::setw(2) <<
+	    cTime.tm_sec << '.' << std::setw(6) << tv.tv_usec << TZsign <<
+	    std::setw(2) << hourOffset << ':'<< std::setw(2) << minOffset;
+	return (oss.str());
 }
 
 void
