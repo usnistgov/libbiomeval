@@ -48,8 +48,8 @@ BiometricEvaluation::MPI::Resources::Resources(
     const std::string &propertiesFileName)
 {
 	this->_propertiesFileName = propertiesFileName;
-	this->_rank = ::MPI::COMM_WORLD.Get_rank();
-	this->_numTasks = ::MPI::COMM_WORLD.Get_size();
+	MPI_Comm_rank(MPI_COMM_WORLD, &this->_rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &this->_numTasks);
 
 	/* Read the properties file */
 	std::unique_ptr<IO::PropertiesFile> props;

@@ -293,12 +293,15 @@ BiometricEvaluation::MPI::Receiver::sendWorkPackage(
  		 * because we can be waiting a long time for a worker
  		 * to request a work package.
  		 */
-		bool oobmsg = ::MPI::COMM_WORLD.Iprobe(0,
-		    to_int_type(MPI::MessageTag::OOB));
+		int oobmsg{};
+		MPI_Status MPIstatus{};
+		MPI_Iprobe(0, to_int_type(MPI::MessageTag::OOB),
+		    MPI_COMM_WORLD, &oobmsg, &MPIstatus);
 		if (oobmsg) {
-			MPI::taskcmd_t oobCmd;
-			::MPI::COMM_WORLD.Recv((void *)&oobCmd, 1, MPI_INT32_T,
-			    0, to_int_type(MPI::MessageTag::OOB));
+			MPI::taskcmd_t oobCmd{};
+			MPI_Recv((void *)&oobCmd, 1, MPI_INT32_T,
+			    0, to_int_type(MPI::MessageTag::OOB),
+			    MPI_COMM_WORLD, &MPIstatus);
 			const auto oobCmdE = to_enum<TaskCommand>(oobCmd);
 			if (oobCmdE == MPI::TaskCommand::QuickExit) {
 				MPI::logMessage(*log, "OOB Quick Exit received");
@@ -382,10 +385,10 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 {
 	BE::Memory::uint8Array workPackageRaw(0);
 
-	::MPI::Status MPIstatus;
+	MPI_Status MPIstatus{};
 	BE::MPI::taskstat_t taskStatus;
 	BE::MPI::taskcmd_t taskCommand;
-	MPI::TaskStatus status = MPI::TaskStatus::OK;
+	BE::MPI::TaskStatus status = MPI::TaskStatus::OK;
 	BE::IO::Logsheet *log = this->_logsheet.get();
 
 	while (true) {
@@ -398,9 +401,10 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 		if (MPI::Exit) {
 			MPI::logMessage(*log, "Exit signal");
 			taskStatus = to_int_type(MPI::TaskStatus::Exit);
-			::MPI::COMM_WORLD.Send(
+			MPI_Send(
 			    (void *)&taskStatus, 1, MPI_INT32_T,
-			    0, to_int_type(MPI::MessageTag::Control));
+			    0, to_int_type(MPI::MessageTag::Control),
+			    MPI_COMM_WORLD);
 			status = MPI::TaskStatus::Exit;
 			break;
 		}
@@ -408,9 +412,10 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 			MPI::logMessage(*log, "Quick Exit signal");
 			this->_processManager.broadcastSignal(SIGINT);
 			taskStatus = to_int_type(MPI::TaskStatus::Exit);
-			::MPI::COMM_WORLD.Send(
+			MPI_Send(
 			    (void *)&taskStatus, 1, MPI_INT32_T,
-			    0, to_int_type(MPI::MessageTag::Control));
+			    0, to_int_type(MPI::MessageTag::Control),
+			    MPI_COMM_WORLD);
 			status = MPI::TaskStatus::Exit;
 			break;
 		}
@@ -418,19 +423,21 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 			MPI::logMessage(*log, "Termination Exit signal");
 			this->_processManager.broadcastSignal(SIGKILL);
 			taskStatus = to_int_type(MPI::TaskStatus::Exit);
-			::MPI::COMM_WORLD.Send(
+			MPI_Send(
 			    (void *)&taskStatus, 1, MPI_INT32_T,
-			    0, to_int_type(MPI::MessageTag::Control));
+			    0, to_int_type(MPI::MessageTag::Control),
+			    MPI_COMM_WORLD);
 			status = MPI::TaskStatus::Exit;
 			break;
 		}
 
 		MPI::logMessage(*log, "Asking for work package");
 		taskStatus = to_int_type(MPI::TaskStatus::OK);
-		::MPI::COMM_WORLD.Sendrecv(
+		MPI_Sendrecv(
 		    (void *)&taskStatus, 1, MPI_INT32_T, 0,
 		    to_int_type(MPI::MessageTag::Control), &taskCommand, 1,
-		    MPI_INT32_T, 0, to_int_type(MPI::MessageTag::Control));
+		    MPI_INT32_T, 0, to_int_type(MPI::MessageTag::Control),
+		    MPI_COMM_WORLD, &MPIstatus);
 
 		const BE::MPI::TaskCommand  taskCommandE =
 		    to_enum<TaskCommand>(taskCommand);
@@ -454,19 +461,22 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 		 * The raw data and length in the first message;
 		 * The number of elements in the second message.
 		 */
-		::MPI::COMM_WORLD.Probe(0, to_int_type(MPI::MessageTag::Data),
-		    MPIstatus);
-		uint64_t length = MPIstatus.Get_count(MPI_CHAR);
+		MPI_Probe(0, to_int_type(MPI::MessageTag::Data),
+		    MPI_COMM_WORLD, &MPIstatus);
+		int length{};
+		MPI_Get_count(&MPIstatus, MPI_CHAR, &length);
 		workPackageRaw.resize(length);
-		::MPI::COMM_WORLD.Recv(
+		MPI_Recv(
 		    (void *)&workPackageRaw[0], length, MPI_CHAR, 0,
-		    to_int_type(MPI::MessageTag::Data));
+		    to_int_type(MPI::MessageTag::Data), MPI_COMM_WORLD,
+		    &MPIstatus);
 		workPackageRaw.resize(length);
 
 		uint64_t numElements;
-		::MPI::COMM_WORLD.Recv(
+		MPI_Recv(
 		    (void *)&numElements, 1, MPI_UINT64_T, 0,
-		    to_int_type(MPI::MessageTag::Data));
+		    to_int_type(MPI::MessageTag::Data),
+		    MPI_COMM_WORLD, &MPIstatus);
 		try {
 			MPI::WorkPackage workPackage(workPackageRaw);
 			workPackage.setNumElements(numElements);
@@ -477,18 +487,20 @@ BiometricEvaluation::MPI::Receiver::requestWorkPackages()
 			    e.whatString());
 			taskStatus = to_int_type(
 			    MPI::TaskStatus::RequestJobTermination);
-			::MPI::COMM_WORLD.Send(
+			MPI_Send(
 			    (void *)&taskStatus, 1, MPI_INT32_T, 0,
-			     to_int_type(MPI::MessageTag::Control));
+			     to_int_type(MPI::MessageTag::Control),
+			     MPI_COMM_WORLD);
 			status = MPI::TaskStatus::RequestJobTermination;
 		} catch (const Error::Exception &e) {
 			MPI::logMessage(*log,
 			    "Failure to process work package: "
 			    + e.whatString());
 			taskStatus = to_int_type(MPI::TaskStatus::Failed);
-			::MPI::COMM_WORLD.Send(
+			MPI_Send(
 			    (void *)&taskStatus, 1, MPI_INT32_T, 0,
-			     to_int_type(MPI::MessageTag::Control));
+			     to_int_type(MPI::MessageTag::Control),
+			     MPI_COMM_WORLD);
 			status = MPI::TaskStatus::Failed;
 			break;
 		}
@@ -520,7 +532,7 @@ void
 BiometricEvaluation::MPI::Receiver::start()
 {
 	/* Release other tasks to start up */
-	::MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 
 	BE::MPI::taskstat_t taskStatus;
 	try {
@@ -530,23 +542,27 @@ BiometricEvaluation::MPI::Receiver::start()
 			"MPI::Receiver");
 	} catch (const Error::Exception&) {
 		taskStatus = to_int_type(MPI::TaskStatus::Failed);
-		::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT32_T,
-		    0, to_int_type(MPI::MessageTag::Control));
+		MPI_Send((void *)&taskStatus, 1, MPI_INT32_T,
+		    0, to_int_type(MPI::MessageTag::Control),
+		    MPI_COMM_WORLD);
 		this->shutdown(MPI::TaskStatus::Failed,
 		    "Failed opening Logsheet()");
 		return;
 	}
 	BE::IO::Logsheet *log = this->_logsheet.get();
-	MPI::logMessage(*log, "Wait for startup message");
+	BE::MPI::logMessage(*log, "Wait for startup message");
 	BE::MPI::taskstat_t flag;
-	::MPI::COMM_WORLD.Recv(&flag, 1, MPI_INT32_T, 0, 
-	    to_int_type(MPI::MessageTag::Control));
+	MPI_Status MPIstatus{};
+	MPI_Recv(&flag, 1, MPI_INT32_T, 0, 
+	    to_int_type(MPI::MessageTag::Control),
+	    MPI_COMM_WORLD, &MPIstatus);
 
 	/* Shutdown Task-N if Task-0 says not OK */
 	taskStatus = to_int_type(MPI::TaskStatus::OK);
 	if (flag == to_int_type(MPI::TaskStatus::Failed)) {
-		::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT32_T,
-		     0, to_int_type(MPI::MessageTag::Control));
+		MPI_Send((void *)&taskStatus, 1, MPI_INT32_T,
+		    0, to_int_type(MPI::MessageTag::Control),
+		    MPI_COMM_WORLD);
 		this->shutdown(MPI::TaskStatus::OK, "Distributor says abort");
 		return;
 	}
@@ -562,8 +578,9 @@ BiometricEvaluation::MPI::Receiver::start()
 		MPI::logMessage(*log, "Could not initialize package processor: "
 		    + e.whatString());
 		taskStatus = to_int_type(MPI::TaskStatus::Failed);
-		::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT32_T,
-		    0, to_int_type(MPI::MessageTag::Control));
+		MPI_Send((void *)&taskStatus, 1, MPI_INT32_T,
+		    0, to_int_type(MPI::MessageTag::Control),
+		    MPI_COMM_WORLD);
 		this->shutdown(MPI::TaskStatus::Failed,
 		    "Failed performInitalization()");
 		return;
@@ -573,14 +590,15 @@ BiometricEvaluation::MPI::Receiver::start()
 	//XXX Open log sheet
 	if (this->_processManager.getNumActiveWorkers() == 0) {
 		taskStatus = to_int_type(MPI::TaskStatus::Failed);
-		::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT32_T,
-		    0, to_int_type(MPI::MessageTag::Control));
+		MPI_Send((void *)&taskStatus, 1, MPI_INT32_T,
+		    0, to_int_type(MPI::MessageTag::Control),
+		    MPI_COMM_WORLD);
 		this->shutdown(MPI::TaskStatus::Failed, "No workers");
 		return;
 	}
 
-	::MPI::COMM_WORLD.Send((void *)&taskStatus, 1, MPI_INT32_T,
-	    0, to_int_type(MPI::MessageTag::Control));
+	MPI_Send((void *)&taskStatus, 1, MPI_INT32_T,
+	    0, to_int_type(MPI::MessageTag::Control), MPI_COMM_WORLD);
 	
 	MPI::TaskStatus status = this->requestWorkPackages();
 	std::string str;
@@ -602,7 +620,7 @@ BiometricEvaluation::MPI::Receiver::shutdown(
     const std::string &reason)
 {
 	BE::IO::Logsheet *log = this->_logsheet.get();
-	MPI::logMessage(*log, "Shutting down: " + reason);
+	BE::MPI::logMessage(*log, "Shutting down: " + reason);
 
 	/*
 	 * Tell all workers to shut down.
@@ -666,10 +684,11 @@ BiometricEvaluation::MPI::Receiver::shutdown(
  	 * the queue for a receive operation done when the Task-0 is
  	 * still sending out data.
  	 */
-	::MPI::COMM_WORLD.Barrier();
+	MPI_Barrier(MPI_COMM_WORLD);
 	MPI::logMessage(*log, "Sending final message");
 	const BE::MPI::taskstat_t rawTaskStatus = to_int_type(taskStatus);
-	::MPI::COMM_WORLD.Send((void *)&rawTaskStatus, 1, MPI_INT32_T,
-	    0, to_int_type(MPI::MessageTag::Control));
+	MPI_Send((void *)&rawTaskStatus, 1, MPI_INT32_T,
+	    0, to_int_type(MPI::MessageTag::Control),
+	    MPI_COMM_WORLD);
 }
 

@@ -277,7 +277,7 @@ main(int argc, char* argv[])
 	 * Process optional checkpoint and include-values flags.
 	 */
 	bool checkpoint{false}, includeValues{false};
-	char ch;
+	int ch{};
 	while ((ch = getopt(argc, argv, "cv")) != -1) {
 		switch (ch) {
 			case 'c': checkpoint = true; break;
