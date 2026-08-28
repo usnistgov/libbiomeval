@@ -28,14 +28,14 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: macOS-26, arch: arm64, shared: ON, force-static-deps: OFF }
-          - { os: macOS-15, arch: arm64, shared: ON, force-static-deps: OFF }
-          - { os: ubuntu-24.04, arch: x64, shared: ON, force-static-deps: OFF }
-          - { os: ubuntu-24.04, arch: x64, shared: OFF, force-static-deps: OFF }
-          - { os: ubuntu-22.04, arch: x64, shared: ON, force-static-deps: OFF }
-          - { os: ubuntu-22.04, arch: x64, shared: OFF, force-static-deps: OFF }
-          - { os: windows-2025, arch: x64, shared: OFF, force-static-deps: OFF }
-          - { os: windows-2022, arch: x64, shared: OFF, force-static-deps: OFF }
+          - { os: macOS-26, arch: arm64, shared: ON }
+          - { os: macOS-15, arch: arm64, shared: ON }
+          - { os: ubuntu-24.04, arch: x64, shared: ON }
+          - { os: ubuntu-24.04, arch: x64, shared: OFF }
+          - { os: ubuntu-22.04, arch: x64, shared: ON }
+          - { os: ubuntu-22.04, arch: x64, shared: OFF }
+          - { os: windows-2025, arch: x64, shared: OFF }
+          - { os: windows-2022, arch: x64, shared: OFF }
 
     steps:
     - name: Checkout Code
@@ -63,9 +63,9 @@ jobs:
       uses: actions/cache@v6
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-STATIC_${{ matrix.config.force-static-deps }}-vcpkg
+        key: ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-vcpkg
         restore-keys: |
-          ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-STATIC_${{ matrix.config.force-static-deps }}-vcpkg
+          ${{ matrix.config.os }}-${{ matrix.config.arch }}-SHARED_${{ matrix.config.shared }}-vcpkg
 
     - name: Install Packages (Linux)
       if: ${{ runner.os == 'Linux' }}
@@ -148,7 +148,6 @@ jobs:
             -DBUILD_SHARED_LIBS="${{ matrix.config.shared }}" \
             -DBUILD_BIOMEVAL_TESTS="${BUILD_BIOMEVAL_TESTS}" \
             -DBUILD_BIOMEVAL_32BIT="${BUILD_BIOMEVAL_32BIT}" \
-            -DFORCE_STATIC_DEPENDENCIES="${{ matrix.config.force-static-deps }}" \
             "${GITHUB_WORKSPACE}"
 
     - name: Configure CMake (Multi-config Generator)
