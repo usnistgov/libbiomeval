@@ -124,7 +124,8 @@ jobs:
           openssl \
           sqlite3 \
           tiff \
-          zlib
+          zlib \
+          zstd
         vcpkg install --triplet=${{ matrix.config.arch }}-windows \
           berkeleydb \
           ffmpeg \
@@ -136,7 +137,8 @@ jobs:
           openssl \
           sqlite3 \
           tiff \
-          zlib
+          zlib \
+          zstd
 
     - name: Create Build Directory
       run: cmake -E make_directory ${{ github.workspace }}/build
