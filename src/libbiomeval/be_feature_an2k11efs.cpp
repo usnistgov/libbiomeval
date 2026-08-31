@@ -725,13 +725,17 @@ BiometricEvaluation::Feature::AN2K11EFS::ExtendedFeatureSet::parseRQM(
 	 * Read uncompressed quality maps
 	 */
 	int rowSpace{}, colSpace{};
-	for (std::vector<std::string>::size_type row{}; row < rqm.size();
-	    ++row) {
+	if (rqm.size() > static_cast<std::vector<std::string>::size_type>(
+	    std::numeric_limits<uint32_t>::max()))
+		throw BE::Error::DataError{"RQM height is too large"};
+	for (uint32_t row{}; row < rqm.size(); ++row) {
 		/* Account for row bounds in region being inclusive */
 		rowSpace = row == 0 ? 0 : 1;
 
-		for (std::string::size_type col{}; col < rqm[row].size();
-		    ++col) {
+		if (rqm[row].size() > static_cast<std::string::size_type>(
+		    std::numeric_limits<uint32_t>::max()))
+			throw BE::Error::DataError{"RQM width is too large"};
+		for (uint32_t col{}; col < rqm[row].size(); ++col) {
 			/* Account for col bounds in region being inclusive */
 			colSpace = col == 0 ? 0 : 1;
 
