@@ -533,7 +533,7 @@ foreach (t ${BIOMEVAL_TARGETS})
 		# Windows needs to differentiate between release/debug builds.
 		if (MSVC)
 			set_target_properties(${t} PROPERTIES
-			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
+			    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<NOT:$<BOOL:${STATIC_CRT}>>:DLL>")
 		endif()
 	endif()
 endforeach()

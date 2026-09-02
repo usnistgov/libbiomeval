@@ -98,6 +98,9 @@ cmake_dependent_option(WASM_EXCEPTIONS "Use WASM exceptions (instead of JavaScri
 if (WASM_EXCEPTIONS)
 	message(STATUS "Enabling WebAssembly exception handling")
 endif (WASM_EXCEPTIONS)
+if (MSVC)
+	option(STATIC_CRT "Link using static C runtime library" OFF) 
+endif()
 
 # Build sources that require FFMPEG.
 option(WITH_FFMPEG "Build sources that require FFMPEG" ON)

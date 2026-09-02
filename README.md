@@ -182,6 +182,7 @@ The CMake build supports the following options:
 | `BUILD_BIOMEVAL_TESTS`  | `OFF`   | Build test programs                                  ||
 | `BUILD_FOR_WASM` | `OFF` | Disable components currently not supported under WebAssembly | Defaults to `ON` when the [Emscripten](https://emscripten.org) toolchain is detected |
 | `BUILD_SHARED_LIBS`     | `OFF`    | Build shared library (i.e., `.so`, `.dll`, `.dylib`) | When `OFF`, a static library (i.e., `.a`, `.lib`) is built instead |
+| `STATIC_CRT` | `OFF` | Statically link the universal C runtime library | `MSVC` only |
 | `WASM_EXCEPTIONS` | `ON` | When compiled to WebAssembly, use WebAssembly exceptions instead of JavaScript exceptions | Only available when `BUILD_FOR_WASM` is `YES` and the [Emscripten](https://emscripten.org) toolchain is detected |
 | `WITH_FFMPEG` | `ON` | Build sources that require [FFMPEG](https://ffmpeg.org) ||
 | `WITH_HWLOC` | `ON` | Build sources that require [libhwloc](https://www.open-mpi.org/projects/hwloc/) |
