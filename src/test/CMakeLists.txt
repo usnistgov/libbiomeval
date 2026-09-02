@@ -64,12 +64,11 @@ function(set_biomeval_test_exe_dependencies TARGET_NAME)
 	    BUILD_RPATH "${CMAKE_INSTALL_LIBDIR}"
 	)
 
-	# Windows needs to differentiate between static/dynamic and
-	# release/debug builds. TODO above notes that static lib is hardcoded
-	# for test executables.
+	# Windows needs to differentiate between static/dynamic CRT linkage and
+	# release/debug builds.
 	if (MSVC)
 		set_target_properties(${TARGET_NAME} PROPERTIES
-		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+		    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<NOT:$<BOOL:${STATIC_CRT}>>:DLL>")
 		target_compile_definitions(${TARGET_NAME} PRIVATE NOMINMAX)
 	else (MSVC)
 		set_target_properties(${TARGET_NAME} PROPERTIES
