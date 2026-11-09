@@ -182,7 +182,51 @@ endif()
 #	MPI which is built separately and linked in later, optional.
 #	VIDEO if the required libraries are present.
 #
-set(PACKAGES ${CORE} ${IO} ${RECORDSTORE} ${IMAGE} ${FEATURE} ${VIEW} ${DATA} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE} ${PROCESS} ${MESSAGE_CENTER})
+set(PACKAGES ${CORE})
+
+# Conditionally add IO package
+if (WITH_IO)
+	list(APPEND PACKAGES ${IO})
+	message(STATUS "IO logging, properties, and compression support: ON")
+else ()
+	message(STATUS "IO logging, properties, and compression support: OFF")
+endif ()
+
+# Conditionally add RecordStore package (depends on IO)
+if (WITH_RECORDSTORE)
+	if (NOT WITH_IO)
+		message(WARNING "WITH_RECORDSTORE requires WITH_IO; enabling WITH_IO")
+		set(WITH_IO ON CACHE BOOL "Build IO logging, properties, and compression support" FORCE)
+		list(APPEND PACKAGES ${IO})
+	endif ()
+	list(APPEND PACKAGES ${RECORDSTORE})
+	message(STATUS "RecordStore support: ON")
+else ()
+	message(STATUS "RecordStore support: OFF")
+endif ()
+
+# Conditionally add IMAGE, FEATURE, VIEW, FINGER, PALM, PLANTAR, IRIS, FACE packages (depends on IO and NBIS)
+if (WITH_IMAGE)
+	if (NOT WITH_IO)
+		message(WARNING "WITH_IMAGE requires WITH_IO; enabling WITH_IO")
+		set(WITH_IO ON CACHE BOOL "Build IO logging, properties, and compression support" FORCE)
+		if (NOT (${PACKAGES} MATCHES ${IO}))
+			list(APPEND PACKAGES ${IO})
+		endif ()
+	endif ()
+	if (NOT WITH_NBIS)
+		message(WARNING "WITH_IMAGE requires WITH_NBIS; enabling WITH_NBIS")
+		set(WITH_NBIS ON CACHE BOOL "Build bundled NBIS sources" FORCE)
+	endif ()
+	list(APPEND PACKAGES ${IMAGE} ${FEATURE} ${VIEW} ${FINGER} ${PALM} ${PLANTAR} ${IRIS} ${FACE})
+	message(STATUS "Image codecs and biometric data, feature, and view support: ON")
+else ()
+	message(STATUS "Image codecs and biometric data, feature, and view support: OFF")
+endif ()
+
+# Add other core packages
+list(APPEND PACKAGES ${DATA} ${PROCESS} ${MESSAGE_CENTER})
+
 if (BUILD_FOR_WASM)
 	# We're not concerned with these packages for WebAssembly
 	list(REMOVE_ITEM PACKAGES ${PROCESS} ${MESSAGE_CENTER})
@@ -190,7 +234,10 @@ if (BUILD_FOR_WASM)
 	# XXX: Remove RecordStore support simply to reduce the number of
 	#      dependencies that need to be recompiled for the WASM
 	#      architecture. It is likely they can be added back in the future.
-	list(REMOVE_ITEM PACKAGES ${RECORDSTORE})
+	if (WITH_RECORDSTORE)
+		list(REMOVE_ITEM PACKAGES ${RECORDSTORE})
+		message(STATUS "RecordStore support disabled for WebAssembly")
+	endif ()
 endif (BUILD_FOR_WASM)
 
 
@@ -270,16 +317,24 @@ endif()
 #
 # Build the Framework-local version of NBIS
 #
-file(GLOB_RECURSE NBISSOURCE "${PROJECT_SOURCE_DIR}/../../nbis/lib/*.c")
-add_library(nbisobjs OBJECT ${NBISSOURCE})
-target_include_directories(nbisobjs PUBLIC ${NBIS_INCLUDE})
+set(BIOMEVAL_INCLUDED_NBIS OFF)
+if (WITH_NBIS)
+	file(GLOB_RECURSE NBISSOURCE "${PROJECT_SOURCE_DIR}/../../nbis/lib/*.c")
+	add_library(nbisobjs OBJECT ${NBISSOURCE})
+	target_include_directories(nbisobjs PUBLIC ${NBIS_INCLUDE})
 
-#
-# Endian check needed for NBIS
-#
-if(CMAKE_C_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
-  	target_compile_definitions(nbisobjs PRIVATE __NBISLE__)
-endif()
+	#
+	# Endian check needed for NBIS
+	#
+	if(CMAKE_C_BYTE_ORDER STREQUAL "LITTLE_ENDIAN")
+	  	target_compile_definitions(nbisobjs PRIVATE __NBISLE__)
+	endif()
+
+	set(BIOMEVAL_INCLUDED_NBIS ON)
+	message(STATUS "Building bundled NBIS sources: ON")
+else ()
+	message(STATUS "Building bundled NBIS sources: OFF")
+endif ()
 
 #
 # Build the core library by building the .cpp
@@ -291,7 +346,9 @@ set(OBJLIBS "")
 add_library(coreobjs OBJECT ${PACKAGES})
 
 list(APPEND OBJLIBS $<TARGET_OBJECTS:coreobjs>)
-list(APPEND OBJLIBS $<TARGET_OBJECTS:nbisobjs>)
+if (WITH_NBIS)
+	list(APPEND OBJLIBS $<TARGET_OBJECTS:nbisobjs>)
+endif ()
 if(MPI_CXX_FOUND AND NOT WIN32)
   list(APPEND OBJLIBS $<TARGET_OBJECTS:mpiobjs>)
 endif()
