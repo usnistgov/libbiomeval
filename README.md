@@ -188,6 +188,10 @@ The CMake build supports the following options:
 | `WITH_HWLOC` | `ON` | Build sources that require [libhwloc](https://www.open-mpi.org/projects/hwloc/) |
 | `WITH_MPI` | `ON` | Build sources that require [OpenMPI](https://www.open-mpi.org/) |
 | `WITH_PCSC` | `ON` | Build sources that require [PCSC](https://pcsclite.apdu.fr) |
+| `WITH_IO` | `ON` | Build IO logging, properties, and compression support |
+| `WITH_RECORDSTORE` | `ON` | Build RecordStore support; enables IO | Disabled for WebAssembly |
+| `WITH_IMAGE` | `ON` | Build image codecs and biometric data, feature, and view support; enables IO and NBIS |
+| `WITH_NBIS` | `ON` | Build bundled NBIS sources; requires libjpeg even without Image |
 
 ### A Note about WebAssembly
 

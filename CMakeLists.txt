@@ -104,6 +104,14 @@ endif()
 
 # Build sources that require FFMPEG.
 option(WITH_FFMPEG "Build sources that require FFMPEG" ON)
+# Build IO logging, properties, and compression support
+option(WITH_IO "Build IO logging, properties, and compression support" ON)
+# Build RecordStore support; enables IO
+cmake_dependent_option(WITH_RECORDSTORE "Build RecordStore support; enables IO" ON "NOT BUILD_FOR_WASM" OFF)
+# Build image codecs and biometric data, feature, and view support; enables IO and NBIS
+option(WITH_IMAGE "Build image codecs and biometric data, feature, and view support; enables IO and NBIS" ON)
+# Build bundled NBIS sources
+option(WITH_NBIS "Build bundled NBIS sources; requires libjpeg even without Image" ON)
 
 #
 # The CMake config files must exist in the directories added to this config:
